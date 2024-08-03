@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Structure using (⟨_⟩)
+open import Cubical.Foundations.Structure using (⟨_⟩; withOpaqueStr)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
@@ -32,13 +32,13 @@ module _ {R : CommRing ℓ} where
   CommAlgebraHom A B = Σ[ f ∈ CommRingHom (fst A) (fst B) ]  f ∘cr snd A ≡ snd B
 
   idCAlgHom : (A : CommAlgebra R ℓ') → CommAlgebraHom A A
-  idCAlgHom A = (idCommRingHom (fst A)) , CommRingHom≡ refl
+  idCAlgHom A = withOpaqueStr $ (idCommRingHom (fst A)) , CommRingHom≡ refl
 
   compCommAlgebraHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
                       → (g : CommAlgebraHom B C) → (f : CommAlgebraHom A B)
                       → CommAlgebraHom A C
   compCommAlgebraHom {A = A} {B = B} {C = C} g f =
-    ((fst g) ∘cr (fst f)) , pasting
+    withOpaqueStr $ ((fst g) ∘cr (fst f)) , pasting
     where
       opaque
         pasting : ((fst g) ∘cr (fst f)) ∘cr snd A ≡ snd C
@@ -120,6 +120,7 @@ module _ {R : CommRing ℓ} where
       ⋆AssocL : (r : ⟨ R ⟩) (x y : A) → CommRingStr._·_ crStr (r ⋆ x) y ≡ r ⋆ (CommRingStr._·_ crStr x y)
     infixl 7 _⋆_
 
+  {- TODO: make laws opaque -}
   CommAlgebra→CommAlgebraStr : (A : CommAlgebra R ℓ') → CommAlgebraStr ⟨ A ⟩ₐ
   CommAlgebra→CommAlgebraStr A =
     let open CommRingStr ⦃...⦄
@@ -158,8 +159,7 @@ module _ {R : CommRing ℓ} where
     → ((r : ⟨ R ⟩) (x : ⟨ A ⟩ₐ) → f .fst (CommAlgebraStr._⋆_ (CommAlgebra→CommAlgebraStr A) r x)
                                  ≡ CommAlgebraStr._⋆_ (CommAlgebra→CommAlgebraStr B) r (f .fst x))
     → CommAlgebraHom A B
-  CommAlgebraHomFromCommRingHom f pres⋆ .fst = f
-  CommAlgebraHomFromCommRingHom {A = A} {B = B} f pres⋆ .snd =
+  CommAlgebraHomFromCommRingHom {A = A} {B = B} f pres⋆ = withOpaqueStr $ f ,
     let open CommRingStr ⦃...⦄
         open CommAlgebraStr ⦃...⦄
         instance
@@ -193,3 +193,9 @@ module _ {R : CommRing ℓ} where
                              → CommAlgebraEquiv A B
                              → CommRingHom (CommAlgebra→CommRing A) (CommAlgebra→CommRing B)
   CommAlgebraEquiv→CommRingHom e = CommRingEquiv→CommRingHom (e .fst)
+
+  CommAlgebraEquiv→CommAlgebraHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
+                             → CommAlgebraEquiv A B
+                             → CommAlgebraHom A B
+  CommAlgebraEquiv→CommAlgebraHom f =
+    withOpaqueStr $ (CommRingEquiv→CommRingHom (f .fst)) , CommRingHom≡ (cong (fst) (f .snd))
