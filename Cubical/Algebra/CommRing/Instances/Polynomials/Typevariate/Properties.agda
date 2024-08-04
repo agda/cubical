@@ -35,7 +35,7 @@ module _ {R : CommRing ℓ} {I : Type ℓ'} where
   open CommRingStr ⦃...⦄
   private instance
     _ = snd R
-    _ = snd (R [ I ]ᵣ)
+    _ = snd (R [ I ])
 
   module C = Construction
   open C using (const)
@@ -44,16 +44,16 @@ module _ {R : CommRing ℓ} {I : Type ℓ'} where
     Construction of the 'elimProp' eliminator.
   -}
   module _
-    {P : ⟨ R [ I ]ᵣ ⟩ → Type ℓ''}
+    {P : ⟨ R [ I ] ⟩ → Type ℓ''}
     (isPropP : {x : _} → isProp (P x))
     (onVar : {x : I} → P (C.var x))
     (onConst : {r : ⟨ R ⟩} → P (const r))
-    (on+ : {x y : ⟨ R [ I ]ᵣ ⟩} → P x → P y → P (x + y))
-    (on· : {x y : ⟨ R [ I ]ᵣ ⟩} → P x → P y → P (x · y))
+    (on+ : {x y : ⟨ R [ I ] ⟩} → P x → P y → P (x + y))
+    (on· : {x y : ⟨ R [ I ] ⟩} → P x → P y → P (x · y))
     where
 
     private
-      on- : {x : ⟨ R [ I ]ᵣ ⟩} → P x → P (- x)
+      on- : {x : ⟨ R [ I ] ⟩} → P x → P (- x)
       on- {x} Px = subst P (minusByMult x) (on· onConst Px)
         where minusByMult : (x : _) → (const (- 1r)) · x ≡ - x
               minusByMult x =
@@ -61,12 +61,12 @@ module _ {R : CommRing ℓ} {I : Type ℓ'} where
                 (- const (1r)) · x ≡⟨ cong (λ u → (- u) · x) pres1 ⟩
                 (- 1r) · x         ≡⟨ sym (-IsMult-1 x) ⟩
                 - x  ∎
-                where open RingTheory (CommRing→Ring (R [ I ]ᵣ)) using (-IsMult-1)
+                where open RingTheory (CommRing→Ring (R [ I ])) using (-IsMult-1)
                       open IsCommRingHom (constPolynomial R I .snd)
 
       -- A helper to deal with the path constructor cases.
       mkPathP :
-        {x0 x1 : ⟨ R [ I ]ᵣ ⟩} →
+        {x0 x1 : ⟨ R [ I ] ⟩} →
         (p : x0 ≡ x1) →
         (Px0 : P (x0)) →
         (Px1 : P (x1)) →
@@ -160,7 +160,7 @@ module _ {R : CommRing ℓ} {I : Type ℓ'} where
 
     open IsCommRingHom
 
-    inducedMap : ⟨ R [ I ]ᵣ ⟩ → ⟨ S ⟩
+    inducedMap : ⟨ R [ I ] ⟩ → ⟨ S ⟩
     inducedMap (C.var x) = φ x
     inducedMap (const r) = (f .fst r)
     inducedMap (P C.+ Q) = (inducedMap P) + (inducedMap Q)
@@ -198,7 +198,7 @@ module _ {R : CommRing ℓ} {I : Type ℓ'} where
     module _ where
       open IsCommRingHom
 
-      inducedHom : CommRingHom (R [ I ]ᵣ) S
+      inducedHom : CommRingHom (R [ I ]) S
       inducedHom .fst = inducedMap
       inducedHom .snd .pres0 = pres0 (f .snd)
       inducedHom .snd .pres1 = pres1 (f. snd)
@@ -214,11 +214,11 @@ module _  {R : CommRing ℓ} {I : Type ℓ'} (S : CommRing ℓ'') (f : CommRingH
   open CommRingStr ⦃...⦄
   private instance
     _ = S .snd
-    _ = (R [ I ]ᵣ) .snd
+    _ = (R [ I ]) .snd
   open IsCommRingHom
 
-  evalVar : CommRingHom (R [ I ]ᵣ) S → I → ⟨ S ⟩
-  evalVar f = f .fst ∘ var
+  evalVar : CommRingHom (R [ I ]) S → I → ⟨ S ⟩
+  evalVar h = h .fst ∘ var
 
   opaque
     unfolding var
@@ -228,11 +228,11 @@ module _  {R : CommRing ℓ} {I : Type ℓ'} (S : CommRing ℓ'') (f : CommRingH
 
   opaque
     unfolding var
-    induceEval : (g : CommRingHom (R [ I ]ᵣ) S)
+    induceEval : (g : CommRingHom (R [ I ]) S)
                  (p : g .fst ∘ constPolynomial R I .fst ≡ f .fst)
                  → (inducedHom S f (evalVar g)) ≡ g
     induceEval g p =
-      let theMap : ⟨ R [ I ]ᵣ ⟩ → ⟨ S ⟩
+      let theMap : ⟨ R [ I ] ⟩ → ⟨ S ⟩
           theMap = inducedMap S f (evalVar g)
       in
       CommRingHom≡ $
@@ -254,8 +254,26 @@ module _  {R : CommRing ℓ} {I : Type ℓ'} (S : CommRing ℓ'') (f : CommRingH
 
   opaque
     inducedHomUnique : (φ : I → ⟨ S ⟩)
-                 (g : CommRingHom (R [ I ]ᵣ) S)
+                 (g : CommRingHom (R [ I ]) S)
                  (p : g .fst ∘ constPolynomial R I .fst ≡ f .fst)
                  (q : evalVar g ≡ φ)
                  → inducedHom S f φ ≡ g
     inducedHomUnique φ g p q = cong (inducedHom S f) (sym q) ∙ induceEval g p
+
+  opaque
+    hom≡ByValuesOnVars : (g h : CommRingHom (R [ I ]) S)
+                         (p : g .fst ∘ constPolynomial _ _ .fst ≡ f .fst) (q : h .fst ∘ constPolynomial _ _ .fst ≡ f .fst)
+                         → (evalVar g ≡ evalVar h)
+                         → g ≡ h
+    hom≡ByValuesOnVars g h p q ≡OnVars =
+      sym (inducedHomUnique ϕ g p refl) ∙ inducedHomUnique ϕ h q (sym ≡OnVars)
+      where ϕ : I → ⟨ S ⟩
+            ϕ = evalVar g
+
+opaque
+  idByIdOnVars : {R : CommRing ℓ} {I : Type ℓ'}
+                 (g : CommRingHom (R [ I ]) (R [ I ]))
+                 (p : g .fst ∘ constPolynomial _ _ .fst ≡ constPolynomial _ _ .fst)
+                 → (g .fst ∘ var ≡ idfun _ ∘ var)
+                 → g ≡ idCommRingHom (R [ I ])
+  idByIdOnVars g p idOnVars = hom≡ByValuesOnVars _ (constPolynomial _ _) g (idCommRingHom _) p refl idOnVars
