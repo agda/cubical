@@ -3,6 +3,7 @@ module Cubical.Algebra.CommRing.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function using (_$_)
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
@@ -220,6 +221,11 @@ IsCommRingHom→IsRingHom : (R : CommRing ℓ) (S : CommRing ℓ')
                      → IsRingHom ((CommRing→Ring R) .snd) f ((CommRing→Ring S) .snd)
 IsCommRingHom→IsRingHom R S f p = CommRingHom→RingHom (f , p) .snd
 
+CommRingEquiv→RingEquiv : {A : CommRing ℓ} {B : CommRing ℓ'}
+  → CommRingEquiv A B → RingEquiv (CommRing→Ring A) (CommRing→Ring B)
+CommRingEquiv→RingEquiv e .fst = e .fst
+CommRingEquiv→RingEquiv e .snd = IsCommRingHom→IsRingHom _ _ (e .fst .fst) (e .snd)
+
 module _ {R : CommRing ℓ} {S : CommRing ℓ'} {f : ⟨ R ⟩ → ⟨ S ⟩} where
 
   private
@@ -238,5 +244,11 @@ module _ {R : CommRing ℓ} {S : CommRing ℓ'} {f : ⟨ R ⟩ → ⟨ S ⟩} wh
 _$cr_ : {R : CommRing ℓ} {S : CommRing ℓ'} → (φ : CommRingHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
 φ $cr x = φ .fst x
 
-CommRingHom≡ : {R : CommRing ℓ} {S : CommRing ℓ'} {φ ψ : CommRingHom R S} → fst φ ≡ fst ψ → φ ≡ ψ
-CommRingHom≡ = Σ≡Prop λ f → isPropIsCommRingHom _ f _
+opaque
+  CommRingHom≡ : {R : CommRing ℓ} {S : CommRing ℓ'} {φ ψ : CommRingHom R S} → fst φ ≡ fst ψ → φ ≡ ψ
+  CommRingHom≡ = Σ≡Prop λ f → isPropIsCommRingHom _ f _
+
+  CommRingHomPathP : (R : CommRing ℓ) (S T : CommRing ℓ') (p : S ≡ T) (φ : CommRingHom R S) (ψ : CommRingHom R T)
+               → PathP (λ i → R .fst → p i .fst) (φ .fst) (ψ .fst)
+               → PathP (λ i → CommRingHom R (p i)) φ ψ
+  CommRingHomPathP R S T p φ ψ q = ΣPathP (q , isProp→PathP (λ _ → isPropIsCommRingHom _ _ _) _ _)
