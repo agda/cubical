@@ -81,15 +81,15 @@ module Construction (R : CommRing ℓ) where
     constIsCommRingHom : (I : Type ℓ') → IsCommRingHom (R .snd) (const {I = I}) (commRingStr I)
     constIsCommRingHom I = makeIsCommRingHom refl +HomConst ·HomConst
 
-_[_]ᵣ : (R : CommRing ℓ) (I : Type ℓ') → CommRing (ℓ-max ℓ ℓ')
-fst (R [ I ]ᵣ) = Construction.R[_] R I
-snd (R [ I ]ᵣ) = Construction.commRingStr R I
+_[_] : (R : CommRing ℓ) (I : Type ℓ') → CommRing (ℓ-max ℓ ℓ')
+fst (R [ I ]) = Construction.R[_] R I
+snd (R [ I ]) = Construction.commRingStr R I
 
-constPolynomial : (R : CommRing ℓ) (I : Type ℓ') → CommRingHom R (R [ I ]ᵣ)
+constPolynomial : (R : CommRing ℓ) (I : Type ℓ') → CommRingHom R (R [ I ])
 constPolynomial R I .fst = let open Construction R
                            in R[_].const
 constPolynomial R I .snd = Construction.constIsCommRingHom R I
 
 opaque
-  var : {R : CommRing ℓ} {I : Type ℓ'} → I → ⟨ R [ I ]ᵣ ⟩
+  var : {R : CommRing ℓ} {I : Type ℓ'} → I → ⟨ R [ I ] ⟩
   var = Construction.var

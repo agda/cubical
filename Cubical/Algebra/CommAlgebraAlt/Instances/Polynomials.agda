@@ -9,11 +9,10 @@ open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
-_[_] : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R _
-R [ I ] = (R [ I ]ᵣ) , constPolynomial R I
-
+_[_]ₐ : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R _
+R [ I ]ₐ = (R [ I ]) , constPolynomial R I
 
 {-
 evaluateAt : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
