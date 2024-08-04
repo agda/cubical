@@ -197,7 +197,7 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
   quotientRingStr : RingStr R/I
   quotientRingStr =
     record
-      { RingStr quotientRingStr'; isRing = isRingQuotient }
+      { isRing = isRingQuotient; RingStr quotientRingStr'  }
 
 
 _/_ : (R : Ring ℓ) → (I : IdealsIn R) → Ring ℓ
