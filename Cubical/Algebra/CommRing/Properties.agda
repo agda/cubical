@@ -168,17 +168,17 @@ module _ where
 
   compIdCommRingHom : {R S : CommRing ℓ} (f : CommRingHom R S)
                     → compCommRingHom (idCommRingHom R) f ≡ f
-  compIdCommRingHom f = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _) refl
+  compIdCommRingHom f = CommRingHom≡ refl
 
   idCompCommRingHom : {R S : CommRing ℓ} (f : CommRingHom R S)
                     → compCommRingHom f (idCommRingHom S) ≡ f
-  idCompCommRingHom f = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _) refl
+  idCompCommRingHom f = CommRingHom≡ refl
 
   compAssocCommRingHom : {R : CommRing ℓ} {S : CommRing ℓ'} {T : CommRing ℓ''} {U : CommRing ℓ'''}
                          (f : CommRingHom R S) (g : CommRingHom S T) (h : CommRingHom T U)
                        → compCommRingHom (compCommRingHom f g) h
                        ≡ compCommRingHom f (compCommRingHom g h)
-  compAssocCommRingHom f g h = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _) refl
+  compAssocCommRingHom f g h = CommRingHom≡ refl
 
   open Iso
 
@@ -194,10 +194,16 @@ module CommRingEquivs where
   compCommRingEquiv f g .fst = compEquiv (f .fst) (g .fst)
   compCommRingEquiv f g .snd = compCommRingHom (f .fst .fst , f .snd) (g .fst .fst , g .snd) .snd
 
+  opaque
+    isCommRingHomInv : {A : CommRing ℓ} {B : CommRing ℓ'}
+                 → (e : CommRingEquiv A B) → IsCommRingHom (snd B) (invEq (fst e)) (snd A)
+    isCommRingHomInv e =
+      IsRingHom→IsCommRingHom _ _ _ $
+      isRingHomInv (e .fst , CommRingHom→RingHom (e .fst .fst , e .snd) .snd)
+
   invCommRingEquiv : (A : CommRing ℓ) → (B : CommRing ℓ') → CommRingEquiv A B → CommRingEquiv B A
   fst (invCommRingEquiv A B e) = invEquiv (fst e)
-  snd (invCommRingEquiv A B e) =
-    IsRingHom→IsCommRingHom _ _ _ $ isRingHomInv (e .fst , CommRingHom→RingHom (e .fst .fst , e .snd) .snd)
+  snd (invCommRingEquiv A B e) = isCommRingHomInv e
 
   idCommRingEquiv : (A : CommRing ℓ) → CommRingEquiv A A
   fst (idCommRingEquiv A) = idEquiv (fst A)

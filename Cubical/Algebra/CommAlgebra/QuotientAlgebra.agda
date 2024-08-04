@@ -47,7 +47,6 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
     _ = snd A
 
   opaque
-    unfolding CommRing.quotientCommRingStr
     _/_ : CommAlgebra R ℓ
     _/_ = commAlgebraFromCommRing
            A/IAsCommRing

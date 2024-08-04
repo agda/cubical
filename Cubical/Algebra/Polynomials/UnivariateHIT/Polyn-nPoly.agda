@@ -98,7 +98,7 @@ module equiv1 (A'@(A , Astr) : CommRing ℓ)
     inv is = convSense
     rightInv is = sect
     leftInv is = retr
-  snd equivR = makeIsRingHom refl (λ _ _ → refl) converseSense-pres·
+  snd equivR = makeIsCommRingHom refl (λ _ _ → refl) converseSense-pres·
 
 
 open equiv1
