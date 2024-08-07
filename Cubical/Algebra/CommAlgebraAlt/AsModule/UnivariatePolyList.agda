@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.UnivariatePolyList where
+module Cubical.Algebra.CommAlgebraAlt.AsModule.UnivariatePolyList where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
