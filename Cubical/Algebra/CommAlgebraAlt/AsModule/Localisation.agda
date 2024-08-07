@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --lossy-unification #-}
-module Cubical.Algebra.CommAlgebra.Localisation where
+module Cubical.Algebra.CommAlgebraAlt.AsModule.Localisation where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -28,8 +28,8 @@ open import Cubical.Algebra.CommRing.RadicalIdeal
 open import Cubical.Algebra.CommRing.Localisation
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
-open import Cubical.Algebra.CommAlgebra.Base
-open import Cubical.Algebra.CommAlgebra.Properties
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Base
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Properties
 
 open import Cubical.Tactics.CommRingSolver
 

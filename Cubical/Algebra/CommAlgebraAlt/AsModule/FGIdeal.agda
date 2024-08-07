@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.FGIdeal where
+module Cubical.Algebra.CommAlgebraAlt.AsModule.FGIdeal where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset
@@ -14,7 +14,7 @@ open import Cubical.Algebra.CommRing.FGIdeal using ()
                       indInIdeal to ringIncInIdeal;
                       0FGIdeal to 0FGIdealCommRing)
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.Ideal
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Ideal
 
 private
   variable

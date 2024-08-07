@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.QuotientAlgebra where
+module Cubical.Algebra.CommAlgebraAlt.AsModule.QuotientAlgebra where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
@@ -16,9 +16,9 @@ import Cubical.Algebra.CommRing.Quotient as CommRing
 import Cubical.Algebra.Ring.Quotient as Ring
 open import Cubical.Algebra.CommRing.Ideal hiding (IdealsIn)
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.Ideal
-open import Cubical.Algebra.CommAlgebra.Kernel
-open import Cubical.Algebra.CommAlgebra.Instances.Unit
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Ideal
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Kernel
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Instances.Unit
 open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom; isPropIsAlgebraHom)
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal using (isIdeal)

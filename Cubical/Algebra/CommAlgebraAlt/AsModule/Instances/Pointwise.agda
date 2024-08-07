@@ -1,12 +1,12 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.Instances.Pointwise where
+module Cubical.Algebra.CommAlgebraAlt.AsModule.Instances.Pointwise where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.CommRing.Instances.Pointwise
-open import Cubical.Algebra.CommAlgebra.Base
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Base
 open import Cubical.Algebra.Algebra using (IsAlgebraHom)
 
 private
