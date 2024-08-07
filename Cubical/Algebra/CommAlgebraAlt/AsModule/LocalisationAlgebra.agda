@@ -23,12 +23,12 @@ import      Cubical.HITs.PropositionalTruncation as PropTrunc
 
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.Subalgebra
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Subalgebra
 open import Cubical.Algebra.CommRing as CommRing hiding (_ˣ;module Units)
 open import Cubical.Algebra.CommRing.Localisation using (isMultClosedSubset)
 open import Cubical.Algebra.Ring
 
-module Cubical.Algebra.CommAlgebra.LocalisationAlgebra
+module Cubical.Algebra.CommAlgebraAlt.AsModule.LocalisationAlgebra
   {ℓR : Level}
   (R : CommRing ℓR)
   where

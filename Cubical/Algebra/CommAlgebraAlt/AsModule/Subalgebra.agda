@@ -7,7 +7,7 @@ open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommRing
 
-module Cubical.Algebra.CommAlgebra.Subalgebra
+module Cubical.Algebra.CommAlgebraAlt.AsModule.Subalgebra
   {ℓ ℓ' : Level}
   (R : CommRing ℓ) (A : CommAlgebra R ℓ')
   where

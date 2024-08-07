@@ -47,9 +47,9 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
 open import Cubical.Algebra.CommRing.Localisation
 open import Cubical.Algebra.CommRing.Instances.Unit
-open import Cubical.Algebra.CommAlgebra.Base
-open import Cubical.Algebra.CommAlgebra.Properties
-open import Cubical.Algebra.CommAlgebra.Localisation
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Base
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Properties
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Localisation
 open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice

@@ -8,7 +8,7 @@
   * R/⟨x⟩            (as special case of the above)
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.FPAlgebra.Instances where
+module Cubical.Algebra.CommAlgebraAlt.AsModule.FPAlgebra.Instances where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -28,19 +28,19 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal using (inclOfFGIdeal)
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.FreeCommAlgebra
   renaming (inducedHom to freeInducedHom)
-open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.QuotientAlgebra
   renaming (inducedHom to quotientInducedHom)
-open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn)
-open import Cubical.Algebra.CommAlgebra.FGIdeal
-open import Cubical.Algebra.CommAlgebra.Instances.Initial
-open import Cubical.Algebra.CommAlgebra.Instances.Unit
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Ideal using (IdealsIn)
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.FGIdeal
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Instances.Initial
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Instances.Unit
   renaming (UnitCommAlgebra to TerminalCAlg)
-open import Cubical.Algebra.CommAlgebra.Kernel
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Kernel
 open import Cubical.Algebra.Algebra
 
-open import Cubical.Algebra.CommAlgebra.FPAlgebra.Base
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.FPAlgebra.Base
 
 private
   variable
