@@ -223,8 +223,14 @@ module _  {R : CommRing ℓ} {I : Type ℓ'} (S : CommRing ℓ'') (f : CommRingH
   opaque
     unfolding var
     evalInduce : ∀ (φ : I → ⟨ S ⟩)
-                     → evalVar (inducedHom S f φ) ≡ φ
+                 → evalVar (inducedHom S f φ) ≡ φ
     evalInduce φ = refl
+
+  opaque
+    unfolding var
+    evalOnVars : ∀ (φ : I → ⟨ S ⟩)
+                 → (i : I) → inducedHom S f φ .fst (var i) ≡ φ i
+    evalOnVars φ i = refl
 
   opaque
     unfolding var

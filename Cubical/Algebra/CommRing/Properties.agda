@@ -162,6 +162,7 @@ module _ where
     RingHom→CommRingHom
       (compRingHom (CommRingHom→RingHom f) (CommRingHom→RingHom g))
 
+  infixr 9 _∘cr_ -- same as functions
   _∘cr_ : {R : CommRing ℓ} {S : CommRing ℓ'} {T : CommRing ℓ''}
         → CommRingHom S T → CommRingHom R S → CommRingHom R T
   g ∘cr f = compCommRingHom f g
