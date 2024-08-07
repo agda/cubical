@@ -1,5 +1,8 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.Base where
+{-
+  This used to be the default definition of CommAlgebra.
+-}
+module Cubical.Algebra.CommAlgebraAlt.AsModule.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

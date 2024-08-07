@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.Properties where
+module Cubical.Algebra.CommAlgebraAlt.AsModule.FreeCommAlgebra.Properties where
 {-
   This file contains
   * an elimination principle for proving some proposition for all elements of R[I]
@@ -31,8 +31,8 @@ open import Cubical.HITs.SetTruncation
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra.Base
-open import Cubical.Algebra.CommAlgebra.Instances.Initial
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.FreeCommAlgebra.Base
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Instances.Initial
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.Module using (module ModuleTheory)
 

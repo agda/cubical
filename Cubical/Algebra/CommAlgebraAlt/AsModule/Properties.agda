@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --lossy-unification #-}
-module Cubical.Algebra.CommAlgebra.Properties where
+module Cubical.Algebra.CommAlgebraAlt.AsModule.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -26,7 +26,7 @@ open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
-open import Cubical.Algebra.CommAlgebra.Base
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Base
 
 open import Cubical.Algebra.CommRing using (CommRing→Ring)
 

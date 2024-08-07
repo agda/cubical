@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.Instances.Unit where
+module Cubical.Algebra.CommAlgebraAlt.AsModule.Instances.Unit where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -9,7 +9,7 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommAlgebra.Base
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Base
 open import Cubical.Algebra.CommRing.Instances.Unit
 open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
 open import Cubical.Tactics.CommRingSolver

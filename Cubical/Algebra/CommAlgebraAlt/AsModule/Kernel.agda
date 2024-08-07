@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.Kernel where
+module Cubical.Algebra.CommAlgebraAlt.AsModule.Kernel where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -7,9 +7,9 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.CommRing.Ideal using (Ideal→CommIdeal)
 open import Cubical.Algebra.Ring.Kernel using () renaming (kernelIdeal to ringKernel)
-open import Cubical.Algebra.CommAlgebra.Base
-open import Cubical.Algebra.CommAlgebra.Properties
-open import Cubical.Algebra.CommAlgebra.Ideal
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Base
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Properties
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Ideal
 
 private
   variable

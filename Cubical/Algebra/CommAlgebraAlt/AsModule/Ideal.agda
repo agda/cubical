@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.Ideal where
+module Cubical.Algebra.CommAlgebraAlt.AsModule.Ideal where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
