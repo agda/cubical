@@ -34,6 +34,8 @@ module _ {R : CommRing ℓ} where
   idCAlgHom : (A : CommAlgebra R ℓ') → CommAlgebraHom A A
   idCAlgHom A = withOpaqueStr $ (idCommRingHom (fst A)) , CommRingHom≡ refl
 
+  idCommAlgebraHom = idCAlgHom
+
   compCommAlgebraHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
                       → (g : CommAlgebraHom B C) → (f : CommAlgebraHom A B)
                       → CommAlgebraHom A C
@@ -58,13 +60,14 @@ module _ {R : CommRing ℓ} where
   _$ca_ : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} → (φ : CommAlgebraHom A B) → (x : ⟨ A ⟩ₐ) → ⟨ B ⟩ₐ
   φ $ca x = φ .fst .fst x
 
-  _∘ca_ : {A : CommAlgebra R ℓ} {B : CommAlgebra R ℓ'} {C : CommAlgebra R ℓ''}
+  infixr 9 _∘ca_ -- same as functions
+  _∘ca_ : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
         → CommAlgebraHom B C → CommAlgebraHom A B → CommAlgebraHom A C
   g ∘ca f = compCommAlgebraHom g f
 
   opaque
     CommAlgebraHom≡ :
-      {A : CommAlgebra R ℓ} {B : CommAlgebra R ℓ'} {f g : CommAlgebraHom A B}
+      {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {f g : CommAlgebraHom A B}
       → f .fst .fst ≡ g .fst .fst
       → f ≡ g
     CommAlgebraHom≡ {B = B} p =
