@@ -10,7 +10,7 @@ open import Cubical.Data.Unit
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Algebra
-open import Cubical.Algebra.CommAlgebraAlt.AsModule
+open import Cubical.Algebra.CommAlgebra.AsModule
 open import Cubical.Algebra.Polynomials.TypevariateHIT
             renaming (inducedHomUnique to inducedHomUniqueHIT;
                       isIdByUMP to isIdByUMP-HIT)

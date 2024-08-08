@@ -13,4 +13,4 @@ The typevariate polynomials are constructed as a free commutative algebra on the
 They are justified by a proof of the universal property of a free commutative algebra.
 -}
 
-open import Cubical.Algebra.CommAlgebraAlt.AsModule.FreeCommAlgebra public
+open import Cubical.Algebra.CommAlgebra.AsModule.FreeCommAlgebra public
