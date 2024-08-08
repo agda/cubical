@@ -38,11 +38,11 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ') (I : IdealsIn R A) where
     _ = A
 
   _/_ : CommAlgebra R ℓ'
-  _/_ =  ((fst A) CommRing./ I) ,
-         (CommRing.quotientHom (fst A) I ∘cr A .snd)
+  _/_ = ((fst A) CommRing./ I) ,
+        (withOpaqueStr $ (CommRing.quotientHom (fst A) I ∘cr A .snd))
 
   quotientHom : CommAlgebraHom A (_/_)
-  quotientHom = withOpaqueStr $ (CommRing.quotientHom (fst A) I) , refl
+  quotientHom = withOpaqueStr $ (CommRing.quotientHom (fst A) I) , CommRingHom≡ refl
 
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
   open CommRingStr ⦃...⦄
