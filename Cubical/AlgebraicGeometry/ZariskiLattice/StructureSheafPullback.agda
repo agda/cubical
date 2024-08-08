@@ -48,10 +48,10 @@ open import Cubical.Algebra.CommRing.Localisation.Base
 open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
 open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.CommRing.Localisation.PullbackSquare
-open import Cubical.Algebra.CommAlgebraAlt.AsModule.Base
-open import Cubical.Algebra.CommAlgebraAlt.AsModule.Properties
-open import Cubical.Algebra.CommAlgebraAlt.AsModule.Localisation
-open import Cubical.Algebra.CommAlgebraAlt.AsModule.Instances.Unit
+open import Cubical.Algebra.CommAlgebra.AsModule.Base
+open import Cubical.Algebra.CommAlgebra.AsModule.Properties
+open import Cubical.Algebra.CommAlgebra.AsModule.Localisation
+open import Cubical.Algebra.CommAlgebra.AsModule.Instances.Unit
 open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice

@@ -14,8 +14,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Algebra
-open import Cubical.Algebra.CommAlgebraAlt.AsModule
-open import Cubical.Algebra.CommAlgebraAlt.AsModule.Instances.Unit
+open import Cubical.Algebra.CommAlgebra.AsModule
+open import Cubical.Algebra.CommAlgebra.AsModule.Instances.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
