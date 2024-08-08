@@ -7,7 +7,7 @@
 
   where '⊎' is the disjoint sum.
 -}
-module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.OnCoproduct where
+module Cubical.Algebra.CommAlgebraAlt.AsModule.FreeCommAlgebra.OnCoproduct where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -24,7 +24,7 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.FreeCommAlgebra
 
 private variable
     ℓ ℓ' : Level
