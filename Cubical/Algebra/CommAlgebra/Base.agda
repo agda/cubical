@@ -17,6 +17,8 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Univalence
 open import Cubical.Algebra.Ring
 
+open import Cubical.Reflection.RecordEquiv
+
 private
   variable
     ℓ ℓ' ℓ'' ℓ''' : Level
@@ -28,11 +30,52 @@ module _ {R : CommRing ℓ} where
   CommAlgebra→CommRing : (A : CommAlgebra R ℓ') → CommRing ℓ'
   CommAlgebra→CommRing = fst
 
+  ⟨_⟩ₐ : (A : CommAlgebra R ℓ') → Type ℓ'
+  ⟨ A ⟩ₐ = A .fst .fst
+
+  record IsCommAlgebraHom (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') (f : ⟨ A ⟩ₐ → ⟨ B ⟩ₐ) : Type (ℓ-max ℓ (ℓ-max ℓ' ℓ'')) where
+    no-eta-equality
+    field
+      isCommRingHom : IsCommRingHom (A .fst .snd) f (B .fst .snd)
+      commutes : (f , isCommRingHom) ∘cr snd A ≡ snd B
+
+  unquoteDecl IsCommAlgebraHomIsoΣ = declareRecordIsoΣ IsCommAlgebraHomIsoΣ (quote IsCommAlgebraHom)
+
+  isPropIsCommAlgebraHom : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') (f : ⟨ A ⟩ₐ → ⟨ B ⟩ₐ)
+    → isProp (IsCommAlgebraHom A B f)
+  isPropIsCommAlgebraHom A B f =
+    isOfHLevelRetractFromIso 1 IsCommAlgebraHomIsoΣ $
+    isPropΣ (isPropIsCommRingHom (A .fst .snd) f (B .fst .snd))
+             λ _ → isSetΣSndProp (isSet→ is-set) (λ _ → isPropIsCommRingHom _ _ _) _ _
+    where
+    open CommRingStr (B .fst .snd) using (is-set)
+
   CommAlgebraHom : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') → Type _
-  CommAlgebraHom A B = Σ[ f ∈ CommRingHom (fst A) (fst B) ]  f ∘cr snd A ≡ snd B
+  CommAlgebraHom A B = Σ[ f ∈ (⟨ A ⟩ₐ → ⟨ B ⟩ₐ) ]  IsCommAlgebraHom A B f
+
+  CommRingHom→CommAlgebraHom :
+    {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
+    → (f : CommRingHom (A .fst) (B .fst))
+    → f ∘cr snd A ≡ snd B
+    → CommAlgebraHom A B
+  CommRingHom→CommAlgebraHom f commutes .fst = f .fst
+  CommRingHom→CommAlgebraHom f commutes .snd =
+    record { isCommRingHom = f .snd ; commutes = commutes }
+
+  CommAlgebraHom→CommRingHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
+                             → CommAlgebraHom A B
+                             → CommRingHom (CommAlgebra→CommRing A) (CommAlgebra→CommRing B)
+  CommAlgebraHom→CommRingHom f = f .fst , IsCommAlgebraHom.isCommRingHom (f .snd)
+
+  ⟨_⟩ᵣ→ = CommAlgebraHom→CommRingHom
+
+  CommAlgebraHom→Triangle : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
+                             → (f : CommAlgebraHom A B)
+                             → ⟨ f ⟩ᵣ→ ∘cr A .snd  ≡ B .snd
+  CommAlgebraHom→Triangle f = IsCommAlgebraHom.commutes (f .snd)
 
   idCAlgHom : (A : CommAlgebra R ℓ') → CommAlgebraHom A A
-  idCAlgHom A = withOpaqueStr $ (idCommRingHom (fst A)) , CommRingHom≡ refl
+  idCAlgHom A = CommRingHom→CommAlgebraHom (idCommRingHom (fst A)) (CommRingHom≡ refl)
 
   idCommAlgebraHom = idCAlgHom
 
@@ -40,25 +83,21 @@ module _ {R : CommRing ℓ} where
                       → (g : CommAlgebraHom B C) → (f : CommAlgebraHom A B)
                       → CommAlgebraHom A C
   compCommAlgebraHom {A = A} {B = B} {C = C} g f =
-    withOpaqueStr $ ((fst g) ∘cr (fst f)) , pasting
+    CommRingHom→CommAlgebraHom (⟨ g ⟩ᵣ→ ∘cr ⟨ f ⟩ᵣ→) pasting
     where
       opaque
-        pasting : ((fst g) ∘cr (fst f)) ∘cr snd A ≡ snd C
+        pasting : (⟨ g ⟩ᵣ→ ∘cr ⟨ f ⟩ᵣ→) ∘cr snd A ≡ snd C
         pasting =
-          Σ≡Prop (λ _ → isPropIsCommRingHom (R .snd) _ (C .fst .snd))
-                 (
-                  (fst g ∘cr (fst f ∘cr snd A)) .fst ≡⟨ cong (λ h → (fst g ∘cr h) .fst) (f .snd) ⟩
-                  (fst g ∘cr snd B) .fst            ≡⟨ cong fst (g .snd) ⟩
-                  (C .snd .fst) ∎)
-
-  ⟨_⟩ₐ : (A : CommAlgebra R ℓ') → Type ℓ'
-  ⟨ A ⟩ₐ = A .fst .fst
+          CommRingHom≡ $
+                  (⟨ g ⟩ᵣ→ ∘cr (⟨ f ⟩ᵣ→ ∘cr snd A)) .fst ≡⟨ cong (λ h → (⟨ g ⟩ᵣ→ ∘cr h) .fst) (CommAlgebraHom→Triangle f) ⟩
+                  (⟨ g ⟩ᵣ→ ∘cr snd B) .fst             ≡⟨ cong fst (CommAlgebraHom→Triangle g) ⟩
+                  (C .snd .fst) ∎
 
   ⟨_⟩ₐ→ : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} (f : CommAlgebraHom A B) → ⟨ A ⟩ₐ → ⟨ B ⟩ₐ
-  ⟨ f ⟩ₐ→ = f .fst .fst
+  ⟨ f ⟩ₐ→ = f .fst
 
   _$ca_ : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} → (φ : CommAlgebraHom A B) → (x : ⟨ A ⟩ₐ) → ⟨ B ⟩ₐ
-  φ $ca x = φ .fst .fst x
+  _$ca_ φ x = φ .fst x
 
   infixr 9 _∘ca_ -- same as functions
   _∘ca_ : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
@@ -68,21 +107,16 @@ module _ {R : CommRing ℓ} where
   opaque
     CommAlgebraHom≡ :
       {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {f g : CommAlgebraHom A B}
-      → f .fst .fst ≡ g .fst .fst
+      → f .fst ≡ g .fst
       → f ≡ g
-    CommAlgebraHom≡ {B = B} p =
-      Σ≡Prop (λ _ → isSetΣSndProp (isSetΠ (λ _ → is-set))
-                                  (λ _ → isPropIsCommRingHom _ _ _)
-                                  _ _)
-             (Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _)
-              p)
+    CommAlgebraHom≡ {B = B} p = Σ≡Prop (λ _ → isPropIsCommAlgebraHom _ _ _) p
       where open CommRingStr (B .fst .snd) using (is-set)
 
   CommAlgebraEquiv : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') → Type _
   CommAlgebraEquiv A B = Σ[ f ∈ CommRingEquiv (A .fst) (B .fst) ] (f .fst .fst , f .snd)  ∘cr A .snd ≡ B .snd
 
   idCAlgEquiv : (A : CommAlgebra R ℓ') → CommAlgebraEquiv A A
-  idCAlgEquiv A = (CommRingEquivs.idCommRingEquiv (fst A)) ,
+  idCAlgEquiv A = (idCommRingEquiv (fst A)) ,
                    CommRingHom≡ refl
 
   CommAlgebraEquiv≡ :
@@ -91,7 +125,7 @@ module _ {R : CommRing ℓ} where
       → f ≡ g
   CommAlgebraEquiv≡ {B = B} p =
     Σ≡Prop (λ _ → isSetΣSndProp (isSetΠ (λ _ → isSetB)) (λ _ → isPropIsCommRingHom _ _ _) _ _)
-           (CommRingEquivs.CommRingEquiv≡ p)
+           (CommRingEquiv≡ p)
     where open CommRingStr (B .fst .snd) using () renaming (is-set to isSetB)
 
   isSetCommAlgebraEquiv : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'')
@@ -141,8 +175,8 @@ module _ {R : CommRing ℓ} where
        ; ⋆AssocL = λ r x y → sym (·Assoc (A .snd .fst r) x y)
        }
 
-  module IsCommAlgebraHom {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} (f : CommAlgebraHom A B) where
-    open IsCommRingHom (f .fst .snd)
+  module CommAlgebraHom {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} (f : CommAlgebraHom A B) where
+    open IsCommRingHom (IsCommAlgebraHom.isCommRingHom (f .snd))
     open CommRingStr ⦃...⦄
     open CommAlgebraStr ⦃...⦄
     private instance
@@ -153,7 +187,7 @@ module _ {R : CommRing ℓ} where
     opaque
       pres⋆ : (r : ⟨ R ⟩) (x : ⟨ A ⟩ₐ) → f $ca (r ⋆ x) ≡ r ⋆ f $ca x
       pres⋆ r x = f $ca (r ⋆ x)                        ≡⟨ pres· (A .snd .fst r) x ⟩
-                  (f $ca (A .snd .fst r)) · (f $ca x)  ≡⟨ cong (_· (f $ca x)) (cong (λ g → g .fst r) (f .snd)) ⟩
+                  (f $ca (A .snd .fst r)) · (f $ca x)  ≡⟨ cong (_· (f $ca x)) (cong (λ g → g .fst r) (CommAlgebraHom→Triangle f)) ⟩
                   r ⋆ f $ca x ∎
 
   CommAlgebraHomFromCommRingHom :
@@ -162,7 +196,7 @@ module _ {R : CommRing ℓ} where
     → ((r : ⟨ R ⟩) (x : ⟨ A ⟩ₐ) → f .fst (CommAlgebraStr._⋆_ (CommAlgebra→CommAlgebraStr A) r x)
                                  ≡ CommAlgebraStr._⋆_ (CommAlgebra→CommAlgebraStr B) r (f .fst x))
     → CommAlgebraHom A B
-  CommAlgebraHomFromCommRingHom {A = A} {B = B} f pres⋆ = withOpaqueStr $ f ,
+  CommAlgebraHomFromCommRingHom {A = A} {B = B} f pres⋆ = CommRingHom→CommAlgebraHom f
     let open CommRingStr ⦃...⦄
         open CommAlgebraStr ⦃...⦄
         instance
@@ -182,10 +216,6 @@ module _ {R : CommRing ℓ} where
   CommAlgebra→Ring : (A : CommAlgebra R ℓ') → Ring ℓ'
   CommAlgebra→Ring A = CommRing→Ring (fst A)
 
-  CommAlgebraHom→CommRingHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
-                             → CommAlgebraHom A B
-                             → CommRingHom (CommAlgebra→CommRing A) (CommAlgebra→CommRing B)
-  CommAlgebraHom→CommRingHom = fst
 
   CommAlgebraHom→RingHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
                              → CommAlgebraHom A B
@@ -201,4 +231,4 @@ module _ {R : CommRing ℓ} where
                              → CommAlgebraEquiv A B
                              → CommAlgebraHom A B
   CommAlgebraEquiv→CommAlgebraHom f =
-    withOpaqueStr $ (CommRingEquiv→CommRingHom (f .fst)) , CommRingHom≡ (cong (fst) (f .snd))
+    CommRingHom→CommAlgebraHom (CommRingEquiv→CommRingHom (f .fst)) $ CommRingHom≡ (cong (fst) (f .snd))
