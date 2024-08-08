@@ -12,7 +12,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
 open import Cubical.Algebra.Algebra.Properties
-open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebraAlt.AsModule
 import Cubical.Algebra.Algebra.Properties
 
 open AlgebraHoms

@@ -15,7 +15,7 @@ open import Cubical.Algebra.CommRing
 import Cubical.Algebra.CommRing.Quotient as CommRing
 import Cubical.Algebra.Ring.Quotient as Ring
 open import Cubical.Algebra.CommRing.Ideal hiding (IdealsIn)
-open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebraAlt.AsModule
 open import Cubical.Algebra.CommAlgebraAlt.AsModule.Ideal
 open import Cubical.Algebra.CommAlgebraAlt.AsModule.Kernel
 open import Cubical.Algebra.CommAlgebraAlt.AsModule.Instances.Unit

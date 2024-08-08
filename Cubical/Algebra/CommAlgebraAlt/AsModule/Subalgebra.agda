@@ -4,7 +4,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 
 open import Cubical.Algebra.Algebra
-open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebraAlt.AsModule
 open import Cubical.Algebra.CommRing
 
 module Cubical.Algebra.CommAlgebraAlt.AsModule.Subalgebra
