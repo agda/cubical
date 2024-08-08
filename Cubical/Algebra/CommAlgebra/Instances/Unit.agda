@@ -2,6 +2,7 @@
 module Cubical.Algebra.CommAlgebra.Instances.Unit where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Structure
 
@@ -23,8 +24,7 @@ module _ (R : CommRing ℓ) where
 
   module _ (A : CommAlgebra R ℓ') where
     terminalMap : CommAlgebraHom A (UnitCommAlgebra {ℓ' = ℓ})
-    terminalMap .fst = mapToUnitCommRing (A .fst)
-    terminalMap .snd = isPropMapToUnitCommRing _ _ _
+    terminalMap = CommRingHom→CommAlgebraHom (mapToUnitCommRing (A .fst)) $ isPropMapToUnitCommRing _ _ _
 
 {-
   module _ (A : CommAlgebra R ℓ) where
