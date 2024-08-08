@@ -18,7 +18,7 @@ open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal using (inclOfFGIdeal)
-open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebraAlt.AsModule
 open import Cubical.Algebra.CommAlgebraAlt.AsModule.FreeCommAlgebra
   renaming (inducedHom to freeInducedHom)
 open import Cubical.Algebra.CommAlgebraAlt.AsModule.QuotientAlgebra

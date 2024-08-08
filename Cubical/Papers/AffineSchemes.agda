@@ -40,7 +40,7 @@ module Localization = L.Loc
 
 import Cubical.Algebra.CommRing.Localisation.UniversalProperty     as LocalizationUnivProp
 import Cubical.Algebra.CommRing.Localisation.InvertingElements     as LocalizationInvEl
-import Cubical.Algebra.CommAlgebra                                 as R-Algs
+import Cubical.Algebra.CommAlgebraAlt.AsModule                     as R-Algs
 import Cubical.Algebra.CommAlgebraAlt.AsModule.Localisation        as LocalizationR-Alg
 
 
