@@ -187,7 +187,7 @@ module _ where
                  → (x y : R .fst) → f .fst .fun x ≡ f .fst .fun y → x ≡ y
   injCommRingIso f x y h = sym (f .fst .leftInv x) ∙∙ cong (f .fst .inv) h ∙∙ f .fst .leftInv y
 
-module CommRingEquivs where
+module _ where
   open RingEquivs
 
   compCommRingEquiv : {A : CommRing ℓ} {B : CommRing ℓ'} {C : CommRing ℓ''}
@@ -319,7 +319,6 @@ module CommRingTheory (R' : CommRing ℓ) where
 -- the CommRing version of uaCompEquiv
 module CommRingUAFunctoriality where
  open CommRingStr
- open CommRingEquivs
 
  CommRing≡ : (A B : CommRing ℓ) → (
    Σ[ p ∈ ⟨ A ⟩ ≡ ⟨ B ⟩ ]
@@ -369,7 +368,6 @@ module CommRingUAFunctoriality where
 
 
 
-open CommRingEquivs
 open CommRingUAFunctoriality
 recPT→CommRing : {A : Type ℓ'} (𝓕  : A → CommRing ℓ)
            → (σ : ∀ x y → CommRingEquiv (𝓕 x) (𝓕 y))
