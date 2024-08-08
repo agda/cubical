@@ -31,9 +31,8 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation.Base
 open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
 open import Cubical.Algebra.CommRing.Localisation.InvertingElements
-open import Cubical.Algebra.CommAlgebra.Base
-open import Cubical.Algebra.CommAlgebra.Properties
-open import Cubical.Algebra.CommAlgebra.Localisation
+open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebraAlt.AsModule.Localisation
 open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Semilattice
 
