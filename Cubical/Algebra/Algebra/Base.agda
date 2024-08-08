@@ -54,8 +54,6 @@ unquoteDecl IsAlgebraIsoΣ = declareRecordIsoΣ IsAlgebraIsoΣ (quote IsAlgebra)
 
 record AlgebraStr (R : Ring ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') where
 
-  no-eta-equality
-
   field
     0a             : A
     1a             : A
