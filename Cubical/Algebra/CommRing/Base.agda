@@ -124,7 +124,7 @@ IsCommRing.·Comm (CommRingStr.isCommRing (snd (Ring→CommRing R p))) = p
 record IsCommRingHom {A : Type ℓ} {B : Type ℓ'} (R : CommRingStr A) (f : A → B) (S : CommRingStr B)
   : Type (ℓ-max ℓ ℓ')
   where
-
+  no-eta-equality
   private
     module R = CommRingStr R
     module S = CommRingStr S
