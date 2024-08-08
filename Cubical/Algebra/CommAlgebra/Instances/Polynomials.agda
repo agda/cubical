@@ -11,8 +11,9 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
-_[_]ₐ : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R _
-R [ I ]ₐ = (R [ I ]) , constPolynomial R I
+opaque
+  _[_]ₐ : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R (ℓ-max ℓ ℓ')
+  R [ I ]ₐ = (R [ I ]) , constPolynomial R I
 
 {-
 evaluateAt : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')

@@ -27,8 +27,8 @@ private
     ℓ ℓ' ℓ'' : Level
 
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ') (I : IdealsIn R A) where
-  open CommRingStr {{...}}
-  open CommAlgebraStr {{...}}
+  open CommRingStr ⦃...⦄
+  open CommAlgebraStr ⦃...⦄
   open RingTheory (CommRing→Ring (fst A)) using (-DistR·)
   instance
     _ : CommRingStr ⟨ R ⟩
@@ -42,7 +42,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ') (I : IdealsIn R A) where
         (withOpaqueStr $ (CommRing.quotientHom (fst A) I ∘cr A .snd))
 
   quotientHom : CommAlgebraHom A (_/_)
-  quotientHom = withOpaqueStr $ (CommRing.quotientHom (fst A) I) , CommRingHom≡ refl
+  quotientHom = CommRingHom→CommAlgebraHom (CommRing.quotientHom (fst A) I) $ CommRingHom≡ refl
 
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
   open CommRingStr ⦃...⦄
@@ -71,25 +71,26 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
         _ = snd (CommAlgebra→CommRing B)
 
     inducedHom : CommAlgebraHom (A / I) B
-    inducedHom .fst = CommRing.UniversalProperty.inducedHom
-                             (CommAlgebra→CommRing A)
-                             (CommAlgebra→CommRing B)
-                             I
-                             (CommAlgebraHom→CommRingHom ϕ)
-                             I⊆kernel
-    inducedHom .snd = p
-      where
-      step1 = cong (inducedHom .fst ∘cr_) (sym (quotientHom A I .snd))
-      step2 = compAssocCommRingHom (A .snd) (CommRing.quotientHom (A .fst) I) (inducedHom .fst)
-      step3 = cong (_∘cr A .snd) (CommRing.UniversalProperty.isSolution
-                         (CommAlgebra→CommRing A) (CommAlgebra→CommRing B) I (CommAlgebraHom→CommRingHom ϕ) I⊆kernel)
-      opaque
-        p : (inducedHom .fst ∘cr snd (A / I)) ≡ snd B
-        p = (inducedHom .fst ∘cr snd (A / I))                                  ≡⟨ step1 ⟩
-            (inducedHom .fst ∘cr (CommRing.quotientHom (A .fst) I ∘cr A .snd)) ≡⟨ step2 ⟩
-            (inducedHom .fst ∘cr CommRing.quotientHom (A .fst) I) ∘cr A .snd   ≡⟨ step3 ⟩
-            (ϕ .fst) ∘cr A .snd                                                ≡⟨ ϕ .snd ⟩
-            snd B ∎
+    inducedHom =
+      CommRingHom→CommAlgebraHom ind (CommRingHom≡ p)
+        where
+        ind = (CommRing.UniversalProperty.inducedHom
+                      (CommAlgebra→CommRing A)
+                      (CommAlgebra→CommRing B)
+                      I
+                      (CommAlgebraHom→CommRingHom ϕ)
+                      I⊆kernel)
+
+        step1 = cong (ind .fst ∘_) (sym (cong fst (CommAlgebraHom→Triangle $ quotientHom A I)))
+        step2 = cong fst (compAssocCommRingHom (A .snd) (CommRing.quotientHom (A .fst) I) ind)
+        step3 = cong (_∘ A .snd .fst) (cong fst (CommRing.UniversalProperty.isSolution (A .fst) (B .fst) I (CommAlgebraHom→CommRingHom ϕ) I⊆kernel))
+        opaque
+          p : (ind .fst ∘ snd (A / I) .fst) ≡ B .snd .fst
+          p = ind .fst ∘ snd (A / I) .fst                     ≡⟨ step1 ⟩
+              ind .fst ∘ quotientHom A I .fst ∘ A .snd .fst   ≡⟨ step2 ⟩
+              ind .fst ∘ quotientHom A I .fst ∘ A .snd .fst   ≡⟨ step3 ⟩
+              ϕ .fst ∘ A .snd .fst                            ≡⟨ cong fst (CommAlgebraHom→Triangle ϕ) ⟩
+              B .snd .fst ∎
 
     opaque
       inducedHom∘quotientHom : inducedHom ∘ca quotientHom A I ≡ ϕ
@@ -102,7 +103,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
         CommAlgebraHom≡
          (cong fst $
           CommRing.UniversalProperty.isUnique
-            (A .fst) (B .fst) I (ϕ .fst) I⊆kernel (ψ .fst) ψIsSolution)
+            (A .fst) (B .fst) I ⟨ ϕ ⟩ᵣ→ I⊆kernel ⟨ ψ ⟩ᵣ→ ψIsSolution)
 
 
 
@@ -116,7 +117,6 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ') (I : IdealsIn R A) where
                      → f ∘ ⟨ quotientHom A I ⟩ₐ→ ≡ g ∘ ⟨ quotientHom A I ⟩ₐ→
                      → f ≡ g
     quotientHomEpi = CommRing.quotientHomEpi (fst A) I
-
 
 
 {- trivial quotient -}
@@ -133,6 +133,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
   oneIdealQuotient .fst .snd = terminalMap R (A / 1Ideal R A) .fst .snd
   oneIdealQuotient .snd = terminalMap R (A / (1Ideal R A)) .snd
 
+{-
 
   zeroIdealQuotient : CommAlgebraEquiv A (A / (0Ideal R A))
   zeroIdealQuotient .fst .fst =
@@ -178,3 +179,4 @@ module _
   opaque
     isZeroFromIdeal : (x : ⟨ A ⟩ₐ) → x ∈ (fst I) → ⟨ quotientHom A I ⟩ₐ→ x ≡ 0r
     isZeroFromIdeal x x∈I = eq/ x 0r (subst (_∈ fst I) (solve! (CommAlgebra→CommRing A)) x∈I )
+-}
