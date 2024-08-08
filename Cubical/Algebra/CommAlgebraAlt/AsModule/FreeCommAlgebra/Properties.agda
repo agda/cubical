@@ -30,7 +30,7 @@ open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 open import Cubical.HITs.SetTruncation
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebraAlt.AsModule
 open import Cubical.Algebra.CommAlgebraAlt.AsModule.FreeCommAlgebra.Base
 open import Cubical.Algebra.CommAlgebraAlt.AsModule.Instances.Initial
 open import Cubical.Algebra.Algebra

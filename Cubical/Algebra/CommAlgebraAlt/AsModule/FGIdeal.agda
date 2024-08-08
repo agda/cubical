@@ -13,7 +13,7 @@ open import Cubical.Algebra.CommRing.FGIdeal using ()
             renaming (generatedIdeal to generatedIdealCommRing;
                       indInIdeal to ringIncInIdeal;
                       0FGIdeal to 0FGIdealCommRing)
-open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebraAlt.AsModule
 open import Cubical.Algebra.CommAlgebraAlt.AsModule.Ideal
 
 private
