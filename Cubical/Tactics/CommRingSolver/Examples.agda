@@ -10,7 +10,7 @@ open import Cubical.Data.Nat using (ℕ; suc; zero)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
-open import Cubical.Algebra.CommAlgebraAlt.AsModule
+open import Cubical.Algebra.CommAlgebra.AsModule
 
 open import Cubical.Tactics.CommRingSolver
 open import Cubical.Tactics.CommRingSolver.RawAlgebra using (scalar)
