@@ -124,28 +124,25 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
   open CommRingStr (A .fst .snd)
 
   oneIdealQuotient : CommAlgebraEquiv (A / (1Ideal R A)) (UnitCommAlgebra R {ℓ' = ℓ})
-  oneIdealQuotient = ?
-
-{-
-.fst .fst =
-    withOpaqueStr $
+  oneIdealQuotient .fst =
+    (withOpaqueStr $
     isoToEquiv (iso ⟨ terminalMap R (A / 1Ideal R A) ⟩ₐ→
                       (λ _ → [ 0r ])
                       (λ _ → isPropUnit* _ _)
-                      (elimProp (λ _ → squash/ _ _) (λ a → eq/ 0r a tt*)))
-  oneIdealQuotient .fst .snd = terminalMap R (A / 1Ideal R A) .fst .snd
-  oneIdealQuotient .snd = terminalMap R (A / (1Ideal R A)) .snd
+                      (elimProp (λ _ → squash/ _ _) (λ a → eq/ 0r a tt*))))
+  oneIdealQuotient .snd = makeOpaque $ terminalMap R (A / 1Ideal R A) .snd
 
   zeroIdealQuotient : CommAlgebraEquiv A (A / (0Ideal R A))
-  zeroIdealQuotient .fst .fst =
+  zeroIdealQuotient .fst =
     withOpaqueStr $
     let open RingTheory (CommRing→Ring (CommAlgebra→CommRing A))
     in isoToEquiv (iso ⟨ (quotientHom A (0Ideal R A)) ⟩ₐ→
                       (rec is-set (λ x → x) λ x y x-y≡0 → equalByDifference x y x-y≡0)
                       (elimProp (λ _ → squash/ _ _) λ _ → refl)
                       λ _ → refl)
-  zeroIdealQuotient .fst .snd =  quotientHom A (0Ideal R A) .fst .snd
-  zeroIdealQuotient .snd = quotientHom A (0Ideal R A) .snd
+  zeroIdealQuotient .snd =
+    makeOpaque $ quotientHom A (0Ideal R A) .snd
+
 
 [_]/ : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn R A}
        → (a : ⟨ A ⟩ₐ) → ⟨ A / I ⟩ₐ
@@ -166,7 +163,6 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
                               refl ⟩
       _                  ≡⟨  CommRing.kernel≡I {R = CommAlgebra→CommRing A} I ⟩
       I                  ∎
-
 module _
   {R : CommRing ℓ}
   {A : CommAlgebra R ℓ}
@@ -180,4 +176,3 @@ module _
   opaque
     isZeroFromIdeal : (x : ⟨ A ⟩ₐ) → x ∈ (fst I) → ⟨ quotientHom A I ⟩ₐ→ x ≡ 0r
     isZeroFromIdeal x x∈I = eq/ x 0r (subst (_∈ fst I) (solve! (CommAlgebra→CommRing A)) x∈I )
--}
