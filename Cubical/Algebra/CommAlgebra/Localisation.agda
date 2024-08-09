@@ -109,17 +109,17 @@ module AlgLoc (R : CommRing ℓ)
   χᴬuniqueness : (ψ : CommAlgebraHom S⁻¹RAsCommAlg B) → χᴬ ≡ ψ
   χᴬuniqueness ψ =
     CommAlgebraHom≡ {f = χᴬ}
-      (χᴬ .fst .fst ≡⟨ cong (fst ∘ fst) (χuniqueness (ψ .fst , funExt ψ'r/1≡φr)) ⟩ ψ .fst .fst ∎)
+      (χᴬ  .fst ≡⟨ cong (fst ∘ fst) (χuniqueness (CommAlgebraHom→CommRingHom ψ , funExt ψ'r/1≡φr)) ⟩ ψ .fst ∎)
 
    where
    χuniqueness = S⁻¹RHasUniversalProp (B .fst) φ  S⋆1⊆Bˣ .snd
 
-   ψ'r/1≡φr : ∀ r → ψ .fst .fst (r /1) ≡ fst φ r
+   ψ'r/1≡φr : ∀ r → ψ .fst (r /1) ≡ fst φ r
    ψ'r/1≡φr r =
-    ψ .fst .fst (r /1)    ≡⟨ cong (ψ .fst .fst) (sym (·ₗ-rid _)) ⟩
-    ψ .fst .fst (r ⋆ 1r)  ≡⟨ IsCommAlgebraHom.pres⋆ ψ _ _ ⟩
-    r ⋆ (ψ .fst .fst 1r)  ≡⟨ cong (λ u → r ⋆ u) (pres1 (ψ .fst .snd))  ⟩
-    r ⋆ 1r                ≡⟨ solve! (B .fst) ⟩
+    ψ .fst (r /1)    ≡⟨ cong (ψ .fst) (sym (·ₗ-rid _)) ⟩
+    ψ .fst (r ⋆ 1r)  ≡⟨ IsCommAlgebraHom.pres⋆ (ψ .snd) _ _ ⟩
+    r ⋆ (ψ .fst 1r)  ≡⟨ cong (λ u → r ⋆ u) (IsCommAlgebraHom.pres1 (ψ .snd))  ⟩
+    r ⋆ 1r           ≡⟨ solve! (B .fst) ⟩
     fst φ r ∎
 
 
@@ -130,9 +130,11 @@ module AlgLoc (R : CommRing ℓ)
  S⁻¹RAlgCharEquiv : (A : CommRing ℓ) (φ : CommRingHom R A)
                   → PathToS⁻¹R  R S SMultClosedSubset A φ
                   → CommAlgebraEquiv S⁻¹RAsCommAlg (A , φ)
- S⁻¹RAlgCharEquiv A φ cond .fst = S⁻¹RCharEquiv R S SMultClosedSubset A φ cond
- S⁻¹RAlgCharEquiv A φ cond .snd = CommRingHom≡ (S⁻¹RHasUniversalProp A φ (cond .φS⊆Aˣ) .fst .snd)
-  where open PathToS⁻¹R
+ S⁻¹RAlgCharEquiv A φ cond =
+   CommRingEquiv→CommAlgebraEquiv
+     (S⁻¹RCharEquiv R S SMultClosedSubset A φ cond)
+     (S⁻¹RHasUniversalProp A φ (cond .φS⊆Aˣ) .fst .snd)
+    where open PathToS⁻¹R
 
 -- the special case of localizing at a single element
 R[1/_]AsCommAlgebra : {R : CommRing ℓ} → fst R → CommAlgebra R ℓ
@@ -184,8 +186,8 @@ module AlgLocTwoSubsets (R' : CommRing ℓ)
                     → (∀ s₂ → s₂ ∈ S₂ → s₂ ⋆ 1r ∈ S₁⁻¹Rˣ)
                     → isContr (S₁⁻¹RAsCommAlg ≡ S₂⁻¹RAsCommAlg)
  isContrS₁⁻¹R≡S₂⁻¹R S₁⊆S₂⁻¹Rˣ S₂⊆S₁⁻¹Rˣ = isOfHLevelRetractFromIso 0
-                                            (equivToIso (invEquiv (CommAlgebraPath _ _ _)))
-                                              isContrS₁⁻¹R≅S₂⁻¹R
+                                            (equivToIso (invEquiv (CommAlgebraPath _ _)))
+                                             isContrS₁⁻¹R≅S₂⁻¹R
   where
   χ₁ : CommAlgebraHom S₁⁻¹RAsCommAlg S₂⁻¹RAsCommAlg
   χ₁ = S₁⁻¹RHasAlgUniversalProp S₂⁻¹RAsCommAlg S₁⊆S₂⁻¹Rˣ .fst
@@ -206,12 +208,14 @@ module AlgLocTwoSubsets (R' : CommRing ℓ)
   Iso.leftInv IsoS₁⁻¹RS₂⁻¹R = funExt⁻ (cong ⟨_⟩ₐ→ χ₂∘χ₁≡id)
 
   isContrS₁⁻¹R≅S₂⁻¹R : isContr (CommAlgebraEquiv S₁⁻¹RAsCommAlg S₂⁻¹RAsCommAlg)
-  isContrS₁⁻¹R≅S₂⁻¹R = withOpaqueStr $ center , uniqueness
+  isContrS₁⁻¹R≅S₂⁻¹R = center , uniqueness
    where
-   X₁asCRHom = fst χ₁
+   X₁asCRHom = CommAlgebraHom→CommRingHom χ₁
    center : CommAlgebraEquiv S₁⁻¹RAsCommAlg S₂⁻¹RAsCommAlg
-   fst center = withOpaqueStr $ (isoToEquiv IsoS₁⁻¹RS₂⁻¹R) , snd X₁asCRHom
-   snd center = makeOpaque $ CommRingHom≡ (cong fst (χ₁ .snd))
+   center =
+     CommRingEquiv→CommAlgebraEquiv
+       ((isoToEquiv IsoS₁⁻¹RS₂⁻¹R) , snd X₁asCRHom)
+       (cong fst (CommAlgebraHom→Triangle χ₁))
 
    uniqueness : (φ : CommAlgebraEquiv S₁⁻¹RAsCommAlg S₂⁻¹RAsCommAlg) → center ≡ φ
    uniqueness φ =
