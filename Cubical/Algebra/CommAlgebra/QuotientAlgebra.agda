@@ -124,7 +124,10 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
   open CommRingStr (A .fst .snd)
 
   oneIdealQuotient : CommAlgebraEquiv (A / (1Ideal R A)) (UnitCommAlgebra R {ℓ' = ℓ})
-  oneIdealQuotient .fst .fst =
+  oneIdealQuotient = ?
+
+{-
+.fst .fst =
     withOpaqueStr $
     isoToEquiv (iso ⟨ terminalMap R (A / 1Ideal R A) ⟩ₐ→
                       (λ _ → [ 0r ])
@@ -132,8 +135,6 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
                       (elimProp (λ _ → squash/ _ _) (λ a → eq/ 0r a tt*)))
   oneIdealQuotient .fst .snd = terminalMap R (A / 1Ideal R A) .fst .snd
   oneIdealQuotient .snd = terminalMap R (A / (1Ideal R A)) .snd
-
-{-
 
   zeroIdealQuotient : CommAlgebraEquiv A (A / (0Ideal R A))
   zeroIdealQuotient .fst .fst =
