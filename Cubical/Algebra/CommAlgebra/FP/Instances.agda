@@ -34,7 +34,6 @@ open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn)
 open import Cubical.Algebra.CommAlgebra.FGIdeal
 -- open import Cubical.Algebra.CommAlgebra.Instances.Initial
 open import Cubical.Algebra.CommAlgebra.Instances.Unit
-open import Cubical.Algebra.CommAlgebra.AsModule.Kernel
 
 open import Cubical.Algebra.CommAlgebra.FP.Base
 
@@ -45,6 +44,7 @@ private
 
 module _ (R : CommRing ℓ) where
   open FinitePresentation
+{-
 
   module _ (n : ℕ) where
     polynomialsFP : FinitePresentation R (Polynomials R n)
@@ -56,7 +56,6 @@ module _ (R : CommRing ℓ) where
         equiv = invCommAlgebraEquiv {!zeroIdealQuotient!}
       }
 
-{-
   {- Every (multivariate) polynomial algebra is finitely presented -}
   module _ (n : ℕ) where
     private
