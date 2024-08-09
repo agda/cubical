@@ -22,13 +22,13 @@ import      Cubical.HITs.SetQuotients as SQ
 import      Cubical.HITs.PropositionalTruncation as PropTrunc
 
 open import Cubical.Algebra.Algebra
-open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.Subalgebra
+open import Cubical.Algebra.CommAlgebra.AsModule
+open import Cubical.Algebra.CommAlgebra.AsModule.Subalgebra
 open import Cubical.Algebra.CommRing as CommRing hiding (_ˣ;module Units)
 open import Cubical.Algebra.CommRing.Localisation using (isMultClosedSubset)
 open import Cubical.Algebra.Ring
 
-module Cubical.Algebra.CommAlgebra.LocalisationAlgebra
+module Cubical.Algebra.CommAlgebra.AsModule.LocalisationAlgebra
   {ℓR : Level}
   (R : CommRing ℓR)
   where
@@ -151,7 +151,7 @@ module _
     /1AsCommAlgebraHom =
         RUniv./1AsCommRingHom .fst
       , record
-        { IsRingHom (RUniv./1AsCommRingHom .snd)
+        { IsCommRingHom (RUniv./1AsCommRingHom .snd)
         ; pres⋆ = λ r x → refl}
 
     -- /1AsCommAlgebraHom and /1AsCommRingHom are equal over equality of the
@@ -160,7 +160,7 @@ module _
       (λ i → CommRingHom Aᵣ (S⁻¹AAsCommAlgebra→CommRing i))
       (CommAlgebraHom→CommRingHom A S⁻¹AAsCommAlgebra /1AsCommAlgebraHom)
       RUniv./1AsCommRingHom
-    /1AsCommAlgebraHom→CommRingHom = ΣPathPProp (λ f → isPropIsRingHom _ f _)
+    /1AsCommAlgebraHom→CommRingHom = ΣPathPProp (λ f → isPropIsCommRingHom _ f _)
       (λ i → RUniv._/1)
 
     S⁻¹AHasUniversalProp : hasLocUniversalProp S⁻¹AAsCommAlgebra
@@ -186,7 +186,7 @@ module _
 
         original-univ : type-univ RLoc.S⁻¹RAsCommRing RUniv./1AsCommRingHom
         original-univ = RUniv.S⁻¹RHasUniversalProp (CommAlgebra→CommRing B)
-          (CommAlgebraHom→RingHom {A = A} {B = B} ψ)
+          (CommAlgebraHom→CommRingHom A B ψ)
           ψS⊂Bˣ
 
         univ : type-univ (CommAlgebra→CommRing S⁻¹AAsCommAlgebra)
@@ -237,7 +237,7 @@ module _
         χₐ : CommAlgebraHom S⁻¹AAsCommAlgebra B
         χₐ = univ .fst .fst .fst
            , record
-             { IsRingHom (univ .fst .fst .snd)
+             { IsCommRingHom (univ .fst .fst .snd)
              ; pres⋆ = pres⋆ }
 
         -- Commutativity is the same as the one for rings, since it only cares
@@ -252,7 +252,7 @@ module _
         χₐunique (φ' , φ'comm) =
           Σ≡Prop ((λ _ → isSetΠ (λ _ → is-set) _ _)) $ AlgebraHom≡ $
           cong (fst ∘ fst) -- Get underlying bare function.
-               (univ .snd (CommAlgebraHom→RingHom {A = S⁻¹AAsCommAlgebra} {B = B}
+               (univ .snd (CommAlgebraHom→CommRingHom S⁻¹AAsCommAlgebra B
                                                   φ' , φ'comm))
 
     -- The above universal property leads to a generic induction principle for

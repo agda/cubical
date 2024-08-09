@@ -12,6 +12,8 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
 
+open import Cubical.Functions.Embedding
+
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Monoid
@@ -263,47 +265,26 @@ module RingHomTheory {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) where
           0r            ∎
 
 
+isSetRingStr : (R : Type ℓ) → isSet (RingStr R)
+isSetRingStr R =
+  let open RingStr
+  in isOfHLevelSucIfInhabited→isOfHLevelSuc 1 λ str →
+  isOfHLevelRetractFromIso 2 RingStrIsoΣ $
+  isSetΣ (str .is-set) (λ _ →
+  isSetΣ (str .is-set) (λ _ →
+  isSetΣ (isSet→ (isSet→ (str .is-set))) λ _ →
+  isSetΣ (isSet→ (isSet→ (str .is-set))) (λ _ →
+  isSetΣSndProp (isSet→ (str .is-set)) (λ _ → isPropIsRing _ _ _ _ _))))
+
 -- the Ring version of uaCompEquiv
 module RingUAFunctoriality where
  open RingStr
  open RingEquivs
 
- Ring≡ : (A B : Ring ℓ) → (
-   Σ[ p ∈ ⟨ A ⟩ ≡ ⟨ B ⟩ ]
-   Σ[ q0 ∈ PathP (λ i → p i) (0r (snd A)) (0r (snd B)) ]
-   Σ[ q1 ∈ PathP (λ i → p i) (1r (snd A)) (1r (snd B)) ]
-   Σ[ r+ ∈ PathP (λ i → p i → p i → p i) (_+_ (snd A)) (_+_ (snd B)) ]
-   Σ[ r· ∈ PathP (λ i → p i → p i → p i) (_·_ (snd A)) (_·_ (snd B)) ]
-   Σ[ s ∈ PathP (λ i → p i → p i) (-_ (snd A)) (-_ (snd B)) ]
-   PathP (λ i → IsRing (q0 i) (q1 i) (r+ i) (r· i) (s i)) (isRing (snd A)) (isRing (snd B)))
-   ≃ (A ≡ B)
- Ring≡ A B = isoToEquiv theIso
-   where
-   open Iso
-   theIso : Iso _ _
-   fun theIso (p , q0 , q1 , r+ , r· , s , t) i = p i
-                                                , ringstr (q0 i) (q1 i) (r+ i) (r· i) (s i) (t i)
-   inv theIso x = cong ⟨_⟩ x , cong (0r ∘ snd) x , cong (1r ∘ snd) x
-                , cong (_+_ ∘ snd) x , cong (_·_ ∘ snd) x , cong (-_ ∘ snd) x , cong (isRing ∘ snd) x
-   rightInv theIso _ = refl
-   leftInv theIso _ = refl
-
  caracRing≡ : {A B : Ring ℓ} (p q : A ≡ B) → cong ⟨_⟩ p ≡ cong ⟨_⟩ q → p ≡ q
- caracRing≡ {A = A} {B = B} p q P =
-   sym (transportTransport⁻ (ua (Ring≡ A B)) p)
-                                    ∙∙ cong (transport (ua (Ring≡ A B))) helper
-                                    ∙∙ transportTransport⁻ (ua (Ring≡ A B)) q
-     where
-     helper : transport (sym (ua (Ring≡ A B))) p ≡ transport (sym (ua (Ring≡ A B))) q
-     helper = Σ≡Prop
-                (λ _ → isPropΣ
-                          (isOfHLevelPathP' 1 (is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ λ _ → is-set (snd B)) _ _)
-                          λ _ → isOfHLevelPathP 1 (isPropIsRing _ _ _ _ _) _ _)
-               (transportRefl (cong ⟨_⟩ p) ∙ P ∙ sym (transportRefl (cong ⟨_⟩ q)))
+ caracRing≡ _ _ α =
+   isEmbedding→Inj (iso→isEmbedding (invIso ΣPathIsoPathΣ)) _ _ $
+   Σ≡Prop (λ _ → isOfHLevelPathP' 1 (isSetRingStr _) _ _) α
 
  uaCompRingEquiv : {A B C : Ring ℓ} (f : RingEquiv A B) (g : RingEquiv B C)
                   → uaRing (compRingEquiv f g) ≡ uaRing f ∙ uaRing g

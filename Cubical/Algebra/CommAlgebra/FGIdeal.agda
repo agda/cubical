@@ -13,7 +13,7 @@ open import Cubical.Algebra.CommRing.FGIdeal using ()
             renaming (generatedIdeal to generatedIdealCommRing;
                       indInIdeal to ringIncInIdeal;
                       0FGIdeal to 0FGIdealCommRing)
-open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Ideal
 
 private
@@ -21,17 +21,17 @@ private
     ℓ : Level
     R : CommRing ℓ
 
-generatedIdeal : {n : ℕ} (A : CommAlgebra R ℓ) → FinVec (fst A) n → IdealsIn A
+generatedIdeal : {n : ℕ} (A : CommAlgebra R ℓ) → FinVec ⟨ A ⟩ₐ n → IdealsIn R A
 generatedIdeal A = generatedIdealCommRing (CommAlgebra→CommRing A)
 
 incInIdeal :   {n : ℕ} (A : CommAlgebra R ℓ)
-              (U : FinVec ⟨ A ⟩ n) (i : Fin n) → U i ∈ fst (generatedIdeal A U)
+              (U : FinVec ⟨ A ⟩ₐ n) (i : Fin n) → U i ∈ fst (generatedIdeal A U)
 incInIdeal A = ringIncInIdeal (CommAlgebra→CommRing A)
 
 syntax generatedIdeal A V = ⟨ V ⟩[ A ]
 
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
-  open CommAlgebraStr (snd A)
+  open CommRingStr (A .fst .snd)
 
-  0FGIdeal : {n : ℕ} → ⟨ replicateFinVec n 0a ⟩[ A ] ≡ (0Ideal A)
+  0FGIdeal : {n : ℕ} → ⟨ replicateFinVec n 0r ⟩[ A ] ≡ (0Ideal R A)
   0FGIdeal = 0FGIdealCommRing (CommAlgebra→CommRing A)

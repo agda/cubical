@@ -10,7 +10,7 @@ open import Cubical.Data.Nat using (ℕ; suc; zero)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
-open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebra.AsModule
 
 open import Cubical.Tactics.CommRingSolver
 open import Cubical.Tactics.CommRingSolver.RawAlgebra using (scalar)
@@ -65,7 +65,7 @@ module Test (R : CommRing ℓ) (x y z : fst R) where
   ex1 : x ≡ x
   ex1 = solve! R
 
-  ex2 : x ≡ x
+  ex2 : (0r - 1r) · x ≡ 0r - x
   ex2 = solve! R
 
   ex3 : x + y ≡ y + x

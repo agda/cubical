@@ -8,7 +8,7 @@
   * R/⟨x⟩            (as special case of the above)
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.FPAlgebra.Instances where
+module Cubical.Algebra.CommAlgebra.FP.Instances where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -28,19 +28,14 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal using (inclOfFGIdeal)
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
-  renaming (inducedHom to freeInducedHom)
+open import Cubical.Algebra.CommAlgebra.Instances.Polynomials
 open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
-  renaming (inducedHom to quotientInducedHom)
 open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn)
 open import Cubical.Algebra.CommAlgebra.FGIdeal
-open import Cubical.Algebra.CommAlgebra.Instances.Initial
+-- open import Cubical.Algebra.CommAlgebra.Instances.Initial
 open import Cubical.Algebra.CommAlgebra.Instances.Unit
-  renaming (UnitCommAlgebra to TerminalCAlg)
-open import Cubical.Algebra.CommAlgebra.Kernel
-open import Cubical.Algebra.Algebra
 
-open import Cubical.Algebra.CommAlgebra.FPAlgebra.Base
+open import Cubical.Algebra.CommAlgebra.FP.Base
 
 private
   variable
@@ -49,6 +44,17 @@ private
 
 module _ (R : CommRing ℓ) where
   open FinitePresentation
+{-
+
+  module _ (n : ℕ) where
+    polynomialsFP : FinitePresentation R (Polynomials R n)
+    polynomialsFP =
+      record {
+        n = n ;
+        m = 0 ;
+        relations = emptyFinVec ⟨ Polynomials R n ⟩ₐ ;
+        equiv = invCommAlgebraEquiv {!zeroIdealQuotient!}
+      }
 
   {- Every (multivariate) polynomial algebra is finitely presented -}
   module _ (n : ℕ) where
@@ -78,13 +84,13 @@ module _ (R : CommRing ℓ) where
         inverse1 : fromA ∘a toA ≡ idAlgebraHom _
         inverse1 =
           fromA ∘a toA
-            ≡⟨ sym (unique _ _ _ _ _ _ (λ i → cong (fst fromA) (
+            ≡⟨ sym (unique _ _ B _ _ _ (λ i → cong (fst fromA) (
                  fst toA (generator n emptyGen i)
                    ≡⟨ inducedHomOnGenerators _ _ _ _ _ _ ⟩
                  Construction.var i
                    ∎))) ⟩
           inducedHom n emptyGen B (generator _ _) (relationsHold _ _)
-            ≡⟨ unique _ _ _ _ _ _ (λ i → refl) ⟩
+            ≡⟨ unique _ _ B _ _ _ (λ i → refl) ⟩
           idAlgebraHom _
             ∎
         inverse2 : toA ∘a fromA ≡ idAlgebraHom _
@@ -235,3 +241,4 @@ module _ (R : CommRing ℓ) where
   module _ {m : ℕ} (x : ⟨ R ⟩) where
     R/⟨x⟩FP : FinitePresentation (initialCAlg R / generatedIdeal (initialCAlg R) (replicateFinVec 1 x))
     R/⟨x⟩FP = R/⟨xs⟩FP (replicateFinVec 1 x)
+-- -}

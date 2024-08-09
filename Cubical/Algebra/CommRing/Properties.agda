@@ -26,12 +26,13 @@ open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing.Base
+open import Cubical.Algebra.CommRing.Univalence
 
 open import Cubical.HITs.PropositionalTruncation
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
 
 module Units (R' : CommRing ℓ) where
  open CommRingStr (snd R')
@@ -153,29 +154,32 @@ module _ where
   open RingHoms
 
   idCommRingHom : (R : CommRing ℓ) → CommRingHom R R
-  idCommRingHom R = idRingHom (CommRing→Ring R)
+  idCommRingHom R = RingHom→CommRingHom (idRingHom (CommRing→Ring R))
 
-  compCommRingHom : (R : CommRing ℓ) (S : CommRing ℓ') (T : CommRing ℓ'')
+  compCommRingHom : {R : CommRing ℓ} {S : CommRing ℓ'} {T : CommRing ℓ''}
                   → CommRingHom R S → CommRingHom S T → CommRingHom R T
-  compCommRingHom R S T = compRingHom {R = CommRing→Ring R} {CommRing→Ring S} {CommRing→Ring T}
+  compCommRingHom f g =
+    RingHom→CommRingHom
+      (compRingHom (CommRingHom→RingHom f) (CommRingHom→RingHom g))
 
+  infixr 9 _∘cr_ -- same as functions
   _∘cr_ : {R : CommRing ℓ} {S : CommRing ℓ'} {T : CommRing ℓ''}
         → CommRingHom S T → CommRingHom R S → CommRingHom R T
-  g ∘cr f = compCommRingHom _ _ _ f g
+  g ∘cr f = compCommRingHom f g
 
   compIdCommRingHom : {R S : CommRing ℓ} (f : CommRingHom R S)
-                    → compCommRingHom _ _ _ (idCommRingHom R) f ≡ f
-  compIdCommRingHom = compIdRingHom
+                    → compCommRingHom (idCommRingHom R) f ≡ f
+  compIdCommRingHom f = CommRingHom≡ refl
 
   idCompCommRingHom : {R S : CommRing ℓ} (f : CommRingHom R S)
-                    → compCommRingHom _ _ _ f (idCommRingHom S) ≡ f
-  idCompCommRingHom = idCompRingHom
+                    → compCommRingHom f (idCommRingHom S) ≡ f
+  idCompCommRingHom f = CommRingHom≡ refl
 
-  compAssocCommRingHom : {R S T U : CommRing ℓ}
+  compAssocCommRingHom : {R : CommRing ℓ} {S : CommRing ℓ'} {T : CommRing ℓ''} {U : CommRing ℓ'''}
                          (f : CommRingHom R S) (g : CommRingHom S T) (h : CommRingHom T U)
-                       → compCommRingHom _ _ _ (compCommRingHom _ _ _ f g) h
-                       ≡ compCommRingHom _ _ _ f (compCommRingHom _ _ _ g h)
-  compAssocCommRingHom = compAssocRingHom
+                       → compCommRingHom (compCommRingHom f g) h
+                       ≡ compCommRingHom f (compCommRingHom g h)
+  compAssocCommRingHom f g h = CommRingHom≡ refl
 
   open Iso
 
@@ -183,23 +187,34 @@ module _ where
                  → (x y : R .fst) → f .fst .fun x ≡ f .fst .fun y → x ≡ y
   injCommRingIso f x y h = sym (f .fst .leftInv x) ∙∙ cong (f .fst .inv) h ∙∙ f .fst .leftInv y
 
-module CommRingEquivs where
- open RingEquivs
+module _ where
+  open RingEquivs
 
- compCommRingEquiv : {A : CommRing ℓ} {B : CommRing ℓ'} {C : CommRing ℓ''}
-                   → CommRingEquiv A B → CommRingEquiv B C → CommRingEquiv A C
- compCommRingEquiv {A = A} {B = B} {C = C} = compRingEquiv {A = CommRing→Ring A}
-                                                           {B = CommRing→Ring B}
-                                                           {C = CommRing→Ring C}
+  compCommRingEquiv : {A : CommRing ℓ} {B : CommRing ℓ'} {C : CommRing ℓ''}
+                    → CommRingEquiv A B → CommRingEquiv B C → CommRingEquiv A C
+  compCommRingEquiv f g .fst = compEquiv (f .fst) (g .fst)
+  compCommRingEquiv f g .snd = compCommRingHom (f .fst .fst , f .snd) (g .fst .fst , g .snd) .snd
 
- invCommRingEquiv : (A : CommRing ℓ) → (B : CommRing ℓ') → CommRingEquiv A B → CommRingEquiv B A
- fst (invCommRingEquiv A B e) = invEquiv (fst e)
- snd (invCommRingEquiv A B e) = isRingHomInv e
+  opaque
+    isCommRingHomInv : {A : CommRing ℓ} {B : CommRing ℓ'}
+                 → (e : CommRingEquiv A B) → IsCommRingHom (snd B) (invEq (fst e)) (snd A)
+    isCommRingHomInv e =
+      IsRingHom→IsCommRingHom _ _ _ $
+      isRingHomInv (e .fst , CommRingHom→RingHom (e .fst .fst , e .snd) .snd)
 
- idCommRingEquiv : (A : CommRing ℓ) → CommRingEquiv A A
- fst (idCommRingEquiv A) = idEquiv (fst A)
- snd (idCommRingEquiv A) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
+  invCommRingEquiv : (A : CommRing ℓ) → (B : CommRing ℓ') → CommRingEquiv A B → CommRingEquiv B A
+  fst (invCommRingEquiv A B e) = invEquiv (fst e)
+  snd (invCommRingEquiv A B e) = isCommRingHomInv e
 
+  idCommRingEquiv : (A : CommRing ℓ) → CommRingEquiv A A
+  fst (idCommRingEquiv A) = idEquiv (fst A)
+  snd (idCommRingEquiv A) = makeIsCommRingHom refl (λ _ _ → refl) (λ _ _ → refl)
+
+  CommRingEquiv≡ : {A : CommRing ℓ} {B : CommRing ℓ'} {f g : CommRingEquiv A B}
+                  → f .fst .fst ≡ g .fst .fst
+                  → f ≡ g
+  CommRingEquiv≡ p = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _)
+                            (Σ≡Prop isPropIsEquiv p)
 
 module Exponentiation (R' : CommRing ℓ) where
  open CommRingStr (snd R')
@@ -247,7 +262,6 @@ module Exponentiation (R' : CommRing ℓ) where
  ^-presUnit f zero f∈Rˣ = RˣContainsOne
  ^-presUnit f (suc n) f∈Rˣ = RˣMultClosed f (f ^ n) ⦃ f∈Rˣ ⦄ ⦃ ^-presUnit f n f∈Rˣ ⦄
 
-
 module CommRingHomTheory {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
  open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)
  open Units B' renaming (Rˣ to Bˣ ; _⁻¹ to _⁻¹ᵇ ; ·-rinv to ·B-rinv)
@@ -260,7 +274,7 @@ module CommRingHomTheory {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
    instance
      _ = A' .snd
      _ = B' .snd
- open IsRingHom (φ .snd)
+ open IsCommRingHom (φ .snd)
 
  RingHomRespInv : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ → f r ∈ Bˣ
  RingHomRespInv r = f (r ⁻¹ᵃ) , (sym (pres· r (r ⁻¹ᵃ)) ∙∙ cong (f) (·A-rinv r) ∙∙ pres1)
@@ -305,7 +319,6 @@ module CommRingTheory (R' : CommRing ℓ) where
 -- the CommRing version of uaCompEquiv
 module CommRingUAFunctoriality where
  open CommRingStr
- open CommRingEquivs
 
  CommRing≡ : (A B : CommRing ℓ) → (
    Σ[ p ∈ ⟨ A ⟩ ≡ ⟨ B ⟩ ]
@@ -355,7 +368,6 @@ module CommRingUAFunctoriality where
 
 
 
-open CommRingEquivs
 open CommRingUAFunctoriality
 recPT→CommRing : {A : Type ℓ'} (𝓕  : A → CommRing ℓ)
            → (σ : ∀ x y → CommRingEquiv (𝓕 x) (𝓕 y))

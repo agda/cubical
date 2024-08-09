@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.FPAlgebra.Base where
+module Cubical.Algebra.CommAlgebra.AsModule.FPAlgebra.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -18,14 +18,14 @@ open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal using (inclOfFGIdeal)
-open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
+open import Cubical.Algebra.CommAlgebra.AsModule
+open import Cubical.Algebra.CommAlgebra.AsModule.FreeCommAlgebra
   renaming (inducedHom to freeInducedHom)
-open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
+open import Cubical.Algebra.CommAlgebra.AsModule.QuotientAlgebra
   renaming (inducedHom to quotientInducedHom)
-open import Cubical.Algebra.CommAlgebra.Ideal
-open import Cubical.Algebra.CommAlgebra.FGIdeal
-open import Cubical.Algebra.CommAlgebra.Kernel
+open import Cubical.Algebra.CommAlgebra.AsModule.Ideal
+open import Cubical.Algebra.CommAlgebra.AsModule.FGIdeal
+open import Cubical.Algebra.CommAlgebra.AsModule.Kernel
 open import Cubical.Algebra.Algebra.Properties
 open import Cubical.Algebra.Algebra
 
@@ -51,7 +51,7 @@ module _ {R : CommRing ℓ} where
   evPolyHomomorphic A B f P values =
     (fst f) (evPoly A P values)                         ≡⟨ refl ⟩
     (fst f) (fst (freeInducedHom A values) P)           ≡⟨ refl ⟩
-    fst (f ∘a freeInducedHom A values) P                ≡⟨ cong (λ u → fst u P) (natIndHomR f values) ⟩
+    fst (f ∘a freeInducedHom A values) P                ≡⟨ cong (λ u → fst u P) (natIndHomR {A = A} {B = B} f values) ⟩
     fst (freeInducedHom B (fst f ∘ values)) P           ≡⟨ refl ⟩
     evPoly B P (fst f ∘ values) ∎
     where open AlgebraHoms

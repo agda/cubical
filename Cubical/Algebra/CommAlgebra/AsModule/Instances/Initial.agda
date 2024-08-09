@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.Instances.Initial where
+module Cubical.Algebra.CommAlgebra.AsModule.Instances.Initial where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -12,7 +12,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
 open import Cubical.Algebra.Algebra.Properties
-open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebra.AsModule
 import Cubical.Algebra.Algebra.Properties
 
 open AlgebraHoms
