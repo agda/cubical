@@ -75,6 +75,28 @@ pushoutSwitchEquiv = isoToEquiv (iso f inv leftInv rightInv)
         leftInv = λ {(inl x) → refl; (inr x) → refl; (push a i) → refl}
         rightInv = λ {(inl x) → refl; (inr x) → refl; (push a i) → refl}
 
+
+{-
+  Pushout along the identity gives an equivalence.
+-}
+pushoutIdfunEquiv : ∀ {ℓ ℓ'} {X : Type ℓ} {Y : Type ℓ'} (f : X → Y)
+  → Y ≃ Pushout f (idfun X)
+pushoutIdfunEquiv f = isoToEquiv (iso inl inv leftInv λ _ → refl)
+  where
+    inv : Pushout f (idfun _) → _
+    inv (inl y) = y
+    inv (inr x) = f x
+    inv (push x i) = f x
+
+    leftInv : section inl inv
+    leftInv (inl y) = refl
+    leftInv (inr x) = push x
+    leftInv (push a i) j = push a (i ∧ j)
+
+pushoutIdfunEquiv' : ∀ {ℓ ℓ'} {X : Type ℓ} {Y : Type ℓ'} (f : X → Y)
+  → Y ≃ Pushout (idfun X) f
+pushoutIdfunEquiv' f = compEquiv (pushoutIdfunEquiv _) pushoutSwitchEquiv
+
 {-
   Definition of pushout diagrams
 -}
