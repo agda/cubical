@@ -28,7 +28,7 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.SmashProduct
 
-module _ (X∙ @ (X , x₀) : Pointed₀) (Y∙ @ (Y , y₀) : Pointed₀) where
+module _ {ℓ ℓ'} (X∙ @ (X , x₀) : Pointed ℓ) (Y∙ @ (Y , y₀) : Pointed ℓ') where
 
   {-
     We consider the 3×3 lemma applied to
@@ -42,9 +42,9 @@ module _ (X∙ @ (X , x₀) : Pointed₀) (Y∙ @ (Y , y₀) : Pointed₀) where
 
   open 3x3-span
   smash-span : 3x3-span
-  smash-span .A00 = Unit
-  smash-span .A02 = Unit
-  smash-span .A04 = Unit
+  smash-span .A00 = Unit* {ℓ}
+  smash-span .A02 = Unit* {ℓ-max ℓ ℓ'}
+  smash-span .A04 = Unit* {ℓ'}
   smash-span .A20 = X
   smash-span .A22 = X∙ ⋁ Y∙
   smash-span .A24 = Y
@@ -72,34 +72,54 @@ module _ (X∙ @ (X , x₀) : Pointed₀) (Y∙ @ (Y , y₀) : Pointed₀) where
   smash-span .H33 (inr x) = refl
   smash-span .H33 (push _ i) j = doubleCompPath-filler (refl {x = y₀}) refl refl j i
 
-  A□2≡⋀ : A□2 smash-span ≡ X∙ ⋀ Y∙
-  A□2≡⋀ = refl
+  -- Perhaps some clever leveling will avoid these two trivial proofs
+  A□2≃Unit* : A0□ smash-span ≃ Unit* {ℓ-max ℓ ℓ'}
+  A□2≃Unit* = _ , record { equiv-proof =
+    λ _ → (inl tt* , refl) ,
+    λ { (inl _ , q) → refl
+      ; (inr _ , q) → ΣPathP (push _ , refl)
+      ; (push _ i , q) j → push _ (i ∧ j) , refl } }
+
+  open Iso
+  Iso-A□2-⋀ : Iso (A□2 smash-span) (X∙ ⋀ Y∙)
+  Iso-A□2-⋀ .fun (inl _) = inl _
+  Iso-A□2-⋀ .fun (inr x) = inr x
+  Iso-A□2-⋀ .fun (push a i) = push a i
+  Iso-A□2-⋀ .inv (inl _) = inl _
+  Iso-A□2-⋀ .inv (inr x) = inr x
+  Iso-A□2-⋀ .inv (push a i) = push a i
+  Iso-A□2-⋀ .rightInv (inl _) = refl
+  Iso-A□2-⋀ .rightInv (inr x) = refl
+  Iso-A□2-⋀ .rightInv (push a i) = refl
+  Iso-A□2-⋀ .leftInv (inl _) = refl
+  Iso-A□2-⋀ .leftInv (inr x) = refl
+  Iso-A□2-⋀ .leftInv (push a i) = refl
 
   A4□≃join : A4□ smash-span ≃ join X Y
   A4□≃join = joinPushout≃join X Y
 
-  A2□≃Unit : A2□ smash-span ≃ Unit
-  A2□≃Unit = Pushout⋁≃Unit _ _
+  A2□≃Unit* : A2□ smash-span ≃ Unit* {ℓ-max ℓ ℓ'}
+  A2□≃Unit* = compEquiv (Pushout⋁≃Unit _ _) Unit≃Unit*
 
   A○□≡join : A○□ smash-span ≡ join X Y
-  A○□≡join = spanEquivToPushoutPath record {
-      e0 = invEquiv (pushoutIdfunEquiv _) ;
-      e2 = A2□≃Unit ;
-      e4 = A4□≃join ;
-      H1 = λ _ → refl ;
-      H3 = λ x → subst (λ x → inl x₀ ≡ A4□≃join .fst (f3□ smash-span x))
-        (cong fst (A2□≃Unit .snd .equiv-proof _ .snd (x , refl)))
-        (sym (join-inr-null _))
+  A○□≡join = spanEquivToPushoutPath record
+    { e0 = A□2≃Unit*
+    ; e2 = A2□≃Unit*
+    ; e4 = A4□≃join
+    ; H1 = λ _ → refl
+    ; H3 = λ x → subst (λ x → inl x₀ ≡ A4□≃join .fst (f3□ smash-span x))
+      (cong fst (A2□≃Unit* .snd .equiv-proof _ .snd (x , refl)))
+      (sym (join-inr-null _))
     } ∙ sym (ua (pushoutIdfunEquiv' _))
 
   A□○≡Σ : A□○ smash-span ≡ Susp (X∙ ⋀ Y∙)
   A□○≡Σ = spanEquivToPushoutPath record {
       e0 = invEquiv (pushoutIdfunEquiv _) ;
-      e2 = idEquiv _ ;
+      e2 = isoToEquiv Iso-A□2-⋀ ;
       e4 = invEquiv (pushoutIdfunEquiv _) ;
       H1 = λ _ → refl ;
       H3 = λ _ → refl
-    } ∙ sym Susp≡Pushout
+    } ∙ sym (Susp≡Pushout {ℓ-max ℓ ℓ'})
 
   join≡Susp : Susp (X∙ ⋀ Y∙) ≡ join X Y
   join≡Susp = sym A□○≡Σ ∙ 3x3-lemma smash-span ∙ A○□≡join
