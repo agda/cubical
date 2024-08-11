@@ -13,9 +13,11 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 
 open import Cubical.HITs.Join
 open import Cubical.HITs.Susp.Base
+open import Cubical.HITs.Pushout
 open import Cubical.Homotopy.Loopspace
 
 private
@@ -72,6 +74,26 @@ Susp≃joinBool = isoToEquiv Susp-iso-joinBool
 
 Susp≡joinBool : ∀ {ℓ} {A : Type ℓ} → Susp A ≡ join A Bool
 Susp≡joinBool = isoToPath Susp-iso-joinBool
+
+Susp-iso-Pushout : ∀ {ℓ} {A : Type ℓ} → Iso (Susp A) (Pushout (terminal A) (terminal A))
+fun Susp-iso-Pushout north = inl _
+fun Susp-iso-Pushout south = inr _
+fun Susp-iso-Pushout (merid a i) = push a i
+inv Susp-iso-Pushout (inl _) = north
+inv Susp-iso-Pushout (inr _) = south
+inv Susp-iso-Pushout (push a i) = merid a i
+rightInv Susp-iso-Pushout (inl _) = refl
+rightInv Susp-iso-Pushout (inr _) = refl
+rightInv Susp-iso-Pushout (push a i) = refl
+leftInv Susp-iso-Pushout north = refl
+leftInv Susp-iso-Pushout south = refl
+leftInv Susp-iso-Pushout (merid a i) = refl
+
+Susp≃Pushout : ∀ {ℓ} {A : Type ℓ} → Susp A ≃ Pushout (terminal A) (terminal A)
+Susp≃Pushout = isoToEquiv Susp-iso-Pushout
+
+Susp≡Pushout : ∀ {ℓ} {A : Type ℓ} → Susp A ≡ Pushout (terminal A) (terminal A)
+Susp≡Pushout = isoToPath Susp-iso-Pushout
 
 congSuspIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso A B → Iso (Susp A) (Susp B)
 fun (congSuspIso is) = suspFun (fun is)
