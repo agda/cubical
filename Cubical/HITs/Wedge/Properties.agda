@@ -565,3 +565,75 @@ module _ {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : A → Pointed ℓB} (C : 
   ⋁-cofib-Iso = compIso (compIso (invIso A○□Iso)
                                   (invIso (3x3-Iso inst)))
                                   A□○Iso
+
+{-
+We prove the square
+  X ⋁ Y --> X
+    ↓       ↓
+    Y ----> *
+is a pushout. (Note the arrow direction!!)
+-}
+
+module _ (X∙ @ (X , x₀) : Pointed ℓ) (Y∙ @ (Y , y₀) : Pointed ℓ') where
+
+  private
+    fX : X∙ ⋁ Y∙ → X
+    fX = ⋁proj₁ X∙ Y∙
+
+    fY : X∙ ⋁ Y∙ → Y
+    fY = ⋁proj₂ X∙ Y∙
+
+    weirdSquare : ∀ {ℓ ℓ' ℓ''} {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''}
+      → (f : X → Y) (g : Y → Z) → commSquare
+    weirdSquare f g = record
+      { sp = record { f1 = idfun _ ; f3 = f }
+      ; inlP = f
+      ; inrP = idfun _
+      ; comm = refl ∙ refl ∙ refl }
+
+    weirdPushoutSquare : ∀ {ℓ ℓ' ℓ''} {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''}
+      → (f : X → Y) (g : Y → Z) → isPushoutSquare (weirdSquare f g)
+    weirdPushoutSquare f g = isoToIsEquiv (iso _ inr (λ _ → refl)
+        λ { (inl x) → sym (push _)
+          ; (inr x) → refl
+          ; (push a i) j → subst
+            (λ t → Square (sym (push _)) refl t (push _))
+              (cong (cong Pushout.inr) (lUnit _ ∙ lUnit _))
+              (λ i j → push a (i ∨ ~ j))
+              i j
+          })
+
+  {-
+  The proof proceeds by applying the pasting lemma twice:
+    1 ----> Y
+    ↓       ↓ 
+    X --> X ⋁ Y --> X
+    ↓  mid  ↓  bot  ↓
+    1 ----> Y ----> 1
+  -}
+
+  midPushout : isPushoutSquare _
+  midPushout = isPushoutTotSquare→isPushoutBottomSquare
+    (weirdPushoutSquare _ (terminal Y))
+    where
+      open PushoutPasteDown (pushoutToSquare record
+        { A2 = Unit
+        ; f1 = λ _ → x₀
+        ; f3 = λ _ → y₀
+        }) (terminal X) (λ _ → y₀) fY refl
+
+  -- slight help to the unifier here
+  botPushout : isPushoutSquare record { comm = refl }
+  botPushout = isPushoutTotSquare→isPushoutBottomSquare $
+    rotatePushoutSquare (record { comm = refl } , isoToIsEquiv
+      (iso _ inl (λ _ → refl) λ {
+        (inl _) i → inl _
+      ; (inr a) i → push a i
+      ; (push a j) i → push a (i ∧ j)
+      })) .snd
+    where
+      open PushoutPasteDown (rotatePushoutSquare (_ , midPushout))
+        fX (terminal X) (terminal Y) refl
+  
+  Pushout⋁≃Unit : Pushout fX fY ≃ Unit
+  Pushout⋁≃Unit = _ , botPushout

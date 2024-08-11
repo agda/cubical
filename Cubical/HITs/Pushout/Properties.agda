@@ -77,7 +77,7 @@ pushoutSwitchEquiv = isoToEquiv (iso f inv leftInv rightInv)
 
 
 {-
-  Pushout along the identity gives an equivalence.
+  Direct proof that pushout along the identity gives an equivalence.
 -}
 pushoutIdfunEquiv : ∀ {ℓ ℓ'} {X : Type ℓ} {Y : Type ℓ'} (f : X → Y)
   → Y ≃ Pushout f (idfun X)
@@ -830,6 +830,20 @@ module _ {ℓ₀ ℓ₂ ℓ₄ ℓP : Level} where
 
   PushoutSquare : Type (ℓ-suc ℓ*)
   PushoutSquare = Σ commSquare isPushoutSquare
+
+-- Pushout itself fits into a pushout square
+pushoutToSquare : 3-span {ℓ} {ℓ'} {ℓ''} → PushoutSquare
+pushoutToSquare sp = record {
+    sp = sp ;
+    P = spanPushout sp ;
+    inlP = inl ;
+    inrP = inr ;
+    comm = funExt push
+  } , subst isEquiv (λ {
+    _ (inl x) → inl x ;
+    _ (inr x) → inr x ;
+    _ (push a j) → push a j
+  }) (idIsEquiv _)
 
 -- Rotations of commutative squares and pushout squares
 module _ {ℓ₀ ℓ₂ ℓ₄ ℓP : Level} where
