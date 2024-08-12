@@ -10,6 +10,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
@@ -75,25 +76,41 @@ Susp≃joinBool = isoToEquiv Susp-iso-joinBool
 Susp≡joinBool : ∀ {ℓ} {A : Type ℓ} → Susp A ≡ join A Bool
 Susp≡joinBool = isoToPath Susp-iso-joinBool
 
-Susp-iso-Pushout : ∀ {ℓ} {A : Type ℓ} → Iso (Susp A) (Pushout (terminal A) (terminal A))
-fun Susp-iso-Pushout north = inl _
-fun Susp-iso-Pushout south = inr _
-fun Susp-iso-Pushout (merid a i) = push a i
-inv Susp-iso-Pushout (inl _) = north
-inv Susp-iso-Pushout (inr _) = south
-inv Susp-iso-Pushout (push a i) = merid a i
-rightInv Susp-iso-Pushout (inl _) = refl
-rightInv Susp-iso-Pushout (inr _) = refl
-rightInv Susp-iso-Pushout (push a i) = refl
-leftInv Susp-iso-Pushout north = refl
-leftInv Susp-iso-Pushout south = refl
-leftInv Susp-iso-Pushout (merid a i) = refl
+-- Here Unit* types are more convenient for general A
+SuspSquare : ∀ {ℓ} ℓ' ℓ'' (A : Type ℓ) → commSquare
+SuspSquare ℓ' ℓ'' A = record
+  { sp = record { A2 = A ; A0 = Unit* {ℓ'} ; A4 = Unit* {ℓ''} }
+  ; P = Susp A
+  ; inlP = λ _ → north
+  ; inrP = λ _ → south
+  ; comm = funExt merid
+  }
 
-Susp≃Pushout : ∀ {ℓ} {A : Type ℓ} → Susp A ≃ Pushout (terminal A) (terminal A)
-Susp≃Pushout = isoToEquiv Susp-iso-Pushout
+SuspPushoutSquare : ∀ {ℓ} ℓ' ℓ'' (A : Type ℓ)
+  → isPushoutSquare (SuspSquare ℓ' ℓ'' A)
+SuspPushoutSquare ℓ' ℓ'' A = isoToIsEquiv (iso _ inverse rInv lInv)
+  where
+    inverse : _
+    inverse north = inl _
+    inverse south = inr _
+    inverse (merid a i) = push a i
 
-Susp≡Pushout : ∀ {ℓ} {A : Type ℓ} → Susp A ≡ Pushout (terminal A) (terminal A)
-Susp≡Pushout = isoToPath Susp-iso-Pushout
+    rInv : _
+    rInv north = refl
+    rInv south = refl
+    rInv (merid a i) = refl
+
+    lInv : _
+    lInv (inl x) = refl
+    lInv (inr x) = refl
+    lInv (push a i) = refl
+
+Susp≃Pushout : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} → Susp A ≃ Pushout _ _
+Susp≃Pushout {ℓ} {ℓ'} {ℓ''} {A} = invEquiv (_ , SuspPushoutSquare ℓ' ℓ'' A)
+
+Susp≡Pushout : ∀ {ℓ ℓ' ℓ''} {A : Type _} → Susp A ≡ Pushout _ _
+Susp≡Pushout {ℓ} {ℓ'} {ℓ''} = ua
+  (Susp≃Pushout {ℓ-max ℓ (ℓ-max ℓ' ℓ'')} {ℓ'} {ℓ''})
 
 congSuspIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso A B → Iso (Susp A) (Susp B)
 fun (congSuspIso is) = suspFun (fun is)

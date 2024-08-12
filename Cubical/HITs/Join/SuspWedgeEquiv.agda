@@ -80,7 +80,7 @@ module _ {ℓ ℓ'} (X∙ @ (X , x₀) : Pointed ℓ) (Y∙ @ (Y , y₀) : Point
       ; (inr _ , q) → ΣPathP (push _ , refl)
       ; (push _ i , q) j → push _ (i ∧ j) , refl } }
 
-  open Iso
+  open Iso  -- This simply switches the Unit to Unit*
   Iso-A□2-⋀ : Iso (A□2 smash-span) (X∙ ⋀ Y∙)
   Iso-A□2-⋀ .fun (inl _) = inl _
   Iso-A□2-⋀ .fun (inr x) = inr x
