@@ -43,19 +43,49 @@ Iso.inv ⋁-commIso = ⋁-commFun
 Iso.rightInv ⋁-commIso = ⋁-commFun²
 Iso.leftInv ⋁-commIso = ⋁-commFun²
 
+-- Pushout square using Unit* for convenience
+⋁-PushoutSquare : ∀ (A : Pointed ℓ) (B : Pointed ℓ') ℓ'' → PushoutSquare
+⋁-PushoutSquare A B ℓ'' = record
+  { sp = record
+    { A0 = typ A
+    ; A2 = Unit* {ℓ''}
+    ; A4 = typ B
+    ; f1 = λ _ → pt A
+    ; f3 = λ _ → pt B }
+  ; P = A ⋁ B
+  ; inlP = inl
+  ; inrP = inr
+  ; comm = funExt λ _ → push _ } ,
+  isoToIsEquiv (iso _ inv lInv rInv)
+  where
+    inv : _
+    inv (inl a) = inl a
+    inv (inr b) = inr b
+    inv (push _ i) = push _ i
+
+    rInv : _
+    rInv (inl a) = refl
+    rInv (inr b) = refl
+    rInv (push _ i) = refl
+
+    lInv : _
+    lInv (inl a) = refl
+    lInv (inr b) = refl
+    lInv (push _ i) = refl
+
 -- cofibre of A --inl→ A ⋁ B is B
 cofibInl-⋁-square : (A : Pointed ℓ) (B : Pointed ℓ') → commSquare
-cofibInl-⋁-square A B = record {
-  sp = record {
-    A0 = Unit ;
-    A2 = typ A ;
-    A4 = A ⋁ B ;
-    f1 = _ ;
-    f3 = inl } ;
-  P = typ B ;
-  inlP = λ _ → pt B ;
-  inrP = ⋁proj₂ A B ;
-  comm = refl }
+cofibInl-⋁-square A B = record
+  { sp = record
+    { A0 = Unit
+    ; A2 = typ A
+    ; A4 = A ⋁ B
+    ; f1 = _
+    ; f3 = inl }
+  ; P = typ B
+  ; inlP = λ _ → pt B
+  ; inrP = ⋁proj₂ A B
+  ; comm = refl }
 
 cofibInl-⋁-Pushout : (A : Pointed ℓ) (B : Pointed ℓ')
   → isPushoutSquare (cofibInl-⋁-square A B)
