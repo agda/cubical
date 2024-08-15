@@ -105,12 +105,12 @@ SuspPushoutSquare ℓ' ℓ'' A = isoToIsEquiv (iso _ inverse rInv lInv)
     lInv (inr x) = refl
     lInv (push a i) = refl
 
-Susp≃Pushout : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} → Susp A ≃ Pushout _ _
-Susp≃Pushout {ℓ} {ℓ'} {ℓ''} {A} = invEquiv (_ , SuspPushoutSquare ℓ' ℓ'' A)
+Susp≃PushoutSusp* : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} → Susp A ≃ Pushout _ _
+Susp≃PushoutSusp* {ℓ} {ℓ'} {ℓ''} {A} = invEquiv (_ , SuspPushoutSquare ℓ' ℓ'' A)
 
-Susp≡Pushout : ∀ {ℓ ℓ' ℓ''} {A : Type _} → Susp A ≡ Pushout _ _
-Susp≡Pushout {ℓ} {ℓ'} {ℓ''} = ua
-  (Susp≃Pushout {ℓ-max ℓ (ℓ-max ℓ' ℓ'')} {ℓ'} {ℓ''})
+Susp≡PushoutSusp* : ∀ {ℓ ℓ' ℓ''} {A : Type _} → Susp A ≡ Pushout _ _
+Susp≡PushoutSusp* {ℓ} {ℓ'} {ℓ''} = ua
+  (Susp≃PushoutSusp* {ℓ-max ℓ (ℓ-max ℓ' ℓ'')} {ℓ'} {ℓ''})
 
 congSuspIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso A B → Iso (Susp A) (Susp B)
 fun (congSuspIso is) = suspFun (fun is)

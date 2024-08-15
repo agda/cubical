@@ -119,7 +119,7 @@ module _ {ℓ ℓ'} (X∙ @ (X , x₀) : Pointed ℓ) (Y∙ @ (Y , y₀) : Point
       e4 = invEquiv (pushoutIdfunEquiv _) ;
       H1 = λ _ → refl ;
       H3 = λ _ → refl
-    } ∙ sym (Susp≡Pushout {ℓ-max ℓ ℓ'})
+    } ∙ sym (Susp≡PushoutSusp* {ℓ-max ℓ ℓ'})
 
   join≡Susp : Susp (X∙ ⋀ Y∙) ≡ join X Y
   join≡Susp = sym A□○≡Σ ∙ 3x3-lemma smash-span ∙ A○□≡join
