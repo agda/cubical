@@ -19,8 +19,8 @@ module _ {ℓv ℓe : Level} where
     FreeCategory .ob = Node G
     FreeCategory .Hom[_,_] = Path G
     FreeCategory .id = pnil
-    FreeCategory ._⋆_ = ccat G
-    FreeCategory .⋆IdL = pnil++ G
-    FreeCategory .⋆IdR P = refl
-    FreeCategory .⋆Assoc = ++assoc G
-    FreeCategory .isSetHom = isSetPath G isSetNode isSetEdge _ _
+    FreeCategory ._⋆_ = _++_
+    FreeCategory .⋆IdL = pnil++
+    FreeCategory .⋆IdR P = ++pnil _
+    FreeCategory .⋆Assoc = ++assoc
+    FreeCategory .isSetHom = isSetPath isSetNode isSetEdge _ _

@@ -9,9 +9,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
+
 open import Cubical.Categories.Displayed.Base
 
 private
@@ -142,18 +142,15 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
   F-rUnitᴰ i .F-idᴰ {x} = rUnitP' (Dᴰ [_][ _ , _ ]) Fᴰ.F-idᴰ (~ i)
   F-rUnitᴰ i .F-seqᴰ _ _ = rUnitP' (Dᴰ [_][ _ , _ ]) (Fᴰ.F-seqᴰ _ _) (~ i)
 
--- Total functor of a displayed functor
+-- Displayed opposite functor
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {F : Functor C D} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
   where
+  open Functorᴰ
+  _^opFᴰ : Functorᴰ (F ^opF) (Cᴰ ^opᴰ) (Dᴰ ^opᴰ)
+  _^opFᴰ .F-obᴰ = Fᴰ .F-obᴰ
+  _^opFᴰ .F-homᴰ = Fᴰ .F-homᴰ
+  _^opFᴰ .F-idᴰ = Fᴰ .F-idᴰ
+  _^opFᴰ .F-seqᴰ fᴰ gᴰ = Fᴰ .F-seqᴰ gᴰ fᴰ
 
-  open Functor
-  private
-    module Fᴰ = Functorᴰ Fᴰ
-
-  ∫F : Functor (∫C Cᴰ) (∫C Dᴰ)
-  ∫F .F-ob (x , xᴰ) = _ , Fᴰ.F-obᴰ xᴰ
-  ∫F .F-hom (_ , fᴰ) = _ , Fᴰ.F-homᴰ fᴰ
-  ∫F .F-id = ΣPathP (_ , Fᴰ.F-idᴰ)
-  ∫F .F-seq _ _ = ΣPathP (_ , (Fᴰ.F-seqᴰ _ _))

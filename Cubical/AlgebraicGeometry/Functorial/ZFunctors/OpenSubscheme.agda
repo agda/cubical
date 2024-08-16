@@ -1,9 +1,11 @@
 {-
 
-  Compact open subfunctors of qcqs-schemes are qcqs-schemes (TODO!!!)
+  Compact open subfunctors of affine schemes are qcqs-schemes
   The proof proceeds by
     1. Defining standard/basic compact opens of affines and proving that they are affine
     2. Proving that arbitrary compact opens of affines are qcqs-schemes
+
+  TODO: prove that compact opens of qcqs-schemes are qcqs-schemes
 
 -}
 

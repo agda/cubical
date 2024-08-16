@@ -1,8 +1,6 @@
 {-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Data.Nat.Base where
 
-open import Cubical.Core.Primitives
-
 open import Agda.Builtin.Nat public
   using (zero; suc; _+_)
   renaming (Nat to ℕ; _-_ to _∸_; _*_ to _·_)

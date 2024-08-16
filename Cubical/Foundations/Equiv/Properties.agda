@@ -12,10 +12,6 @@ A couple of general facts about equivalences:
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.Properties where
 
-open import Cubical.Core.Everything
-
-open import Cubical.Data.Sigma
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
@@ -26,6 +22,8 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Functions.FunExtEquiv
+
+open import Cubical.Data.Sigma
 
 private
   variable
@@ -258,3 +256,18 @@ isPointedTarget→isEquiv→isEquiv : {A B : Type ℓ} (f : A → B)
     → (B → isEquiv f) → isEquiv f
 equiv-proof (isPointedTarget→isEquiv→isEquiv f hf) =
   λ y → equiv-proof (hf y) y
+
+module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {A' : Type ℓ'} {C : A → Type ℓ''} (is : Iso A' A) where
+  private
+    is* = iso→HAEquiv is .snd
+
+  domIsoDep : Iso ((a : A) → C a) ((a : A') → C (Iso.fun is a))
+  Iso.fun domIsoDep f x = f (Iso.fun is x)
+  Iso.inv domIsoDep f x = subst C (isHAEquiv.rinv is* x) (f (Iso.inv is x))
+  Iso.rightInv domIsoDep f =
+    funExt λ x → (λ j → subst C (isHAEquiv.com is* x (~ j))
+      (f (Iso.inv is (Iso.fun is x))))
+      ∙ λ j → transp (λ i → C (Iso.fun is (isHAEquiv.linv is* x (i ∨ j)))) j
+          (f (isHAEquiv.linv is* x j))
+  Iso.leftInv domIsoDep f j x =
+    transp (λ i → C (isHAEquiv.rinv is* x (i ∨ j))) j (f (isHAEquiv.rinv is* x j))

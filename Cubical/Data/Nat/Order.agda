@@ -194,8 +194,26 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-+-< : m < n → k < l → m + k < n + l
 <-+-<  m<n k<l = <-trans (<-+k m<n) (<-k+ k<l)
 
+¬-suc-n<n : {n : ℕ} → ¬ (suc n < n)
+¬-suc-n<n {n = n} = <-asym (1 , refl)
+
 <-+-≤ : m < n → k ≤ l → m + k < n + l
 <-+-≤ p q = <≤-trans (<-+k p) (≤-k+ q)
+
+¬squeeze< : {n m : ℕ} → ¬ (n < m) × (m < suc n)
+¬squeeze< {n = n} ((zero , p) , t) = ¬m<m (subst (_< suc n) (sym p) t)
+¬squeeze< {n = n}  ((suc diff1 , p) , q) =
+  ¬m<m (<-trans help (subst (_< suc n) (sym p) q))
+  where
+  help : suc n < suc (diff1 + suc n)
+  help = diff1 , +-suc diff1 (suc n)
+
+¬-<-suc : {n m : ℕ} → n < m → ¬ m < suc n
+¬-<-suc {n = n} {m = m} (zero , q) p = ¬m<m (subst (_< suc n) (sym q) p)
+¬-<-suc {n = n} {m = m} (suc diff , q) p = ¬m<m (<-trans p lem)
+  where
+  lem : suc n < m
+  lem = diff , +-suc diff (suc n) ∙ q
 
 <-·sk : m < n → m · suc k < n · suc k
 <-·sk {m} {n} {k} (d , r) = (d · suc k + k) , reason where
