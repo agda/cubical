@@ -831,6 +831,30 @@ module _ {ℓ₀ ℓ₂ ℓ₄ ℓP : Level} where
   PushoutSquare : Type (ℓ-suc ℓ*)
   PushoutSquare = Σ commSquare isPushoutSquare
 
+module _ {ℓ₀ ℓ₂ ℓ₄ ℓP ℓP' : Level}
+  {P' : Type ℓP'} where
+  open commSquare
+  extendCommSquare : (sk : commSquare {ℓ₀} {ℓ₂} {ℓ₄} {ℓP})
+    → (sk .P → P') → commSquare
+  extendCommSquare sk f = record
+    { sp = sk .sp
+    ; P = P'
+    ; inlP = f ∘ sk .inlP
+    ; inrP = f ∘ sk .inrP
+    ; comm = cong (f ∘_) (sk .comm)
+    }
+
+  extendPushoutSquare : (sk : PushoutSquare {ℓ₀} {ℓ₂} {ℓ₄} {ℓP})
+    → (e : sk .fst .P ≃ P') → PushoutSquare
+  extendPushoutSquare sk e = (extendCommSquare (sk .fst) (e .fst) ,
+    subst isEquiv H (compEquiv (_ , sk .snd) e .snd))
+    where
+      H : e .fst ∘ _ ≡ _
+      H = funExt λ
+        { (inl x) → refl
+        ; (inr x) → refl
+        ; (push a i) → refl }
+
 -- Pushout itself fits into a pushout square
 pushoutToSquare : 3-span {ℓ} {ℓ'} {ℓ''} → PushoutSquare
 pushoutToSquare sp = record {
