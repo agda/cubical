@@ -216,6 +216,11 @@ module _ where
   CommRingEquiv≡ p = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _)
                             (Σ≡Prop isPropIsEquiv p)
 
+  infixr 9 _∘cre_ -- same as functions
+  _∘cre_ : {R : CommRing ℓ} {S : CommRing ℓ'} {T : CommRing ℓ''}
+        → CommRingEquiv S T → CommRingEquiv R S → CommRingEquiv R T
+  g ∘cre f = compCommRingEquiv f g
+
 module Exponentiation (R' : CommRing ℓ) where
  open CommRingStr (snd R')
  private R = fst R'
