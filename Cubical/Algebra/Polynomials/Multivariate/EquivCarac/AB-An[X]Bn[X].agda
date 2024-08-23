@@ -72,7 +72,6 @@ module _
     PB = PolyCommRing B' n
 
   open Iso
-  open CommRingEquivs
 
   lift-equiv-poly : (e : CommRingEquiv A' B') → CommRingEquiv (PolyCommRing A' n) (PolyCommRing B' n)
   fst (lift-equiv-poly (e , fstr)) = isoToEquiv is
