@@ -132,6 +132,17 @@ isUnivalent.univ isUnivalentSET (A , isSet-A) (B , isSet-B)  =
             (λ x i → transp (λ _ → B) i (ci .fst (transp (λ _ → A) i x)))
             (λ x i → transp (λ _ → A) i (ci .snd .cInv (transp (λ _ → B) i x))))
 
+module _ {A}{B} (f : CatIso (SET ℓ) A B) a where
+  open isUnivalent
+  -- univalence of SET behaves as expected
+  univSetβ : transport (cong fst (CatIsoToPath isUnivalentSET f)) a
+             ≡ f .fst a
+  univSetβ = (transportRefl _
+    ∙ transportRefl _
+    ∙ transportRefl _
+    ∙ cong (f .fst) (transportRefl _ ∙ transportRefl _ ))
+
+
 -- SET is complete
 open LimCone
 open Cone

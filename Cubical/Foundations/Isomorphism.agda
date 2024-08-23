@@ -104,6 +104,15 @@ isoToEquiv : Iso A B → A ≃ B
 isoToEquiv i .fst = i .Iso.fun
 isoToEquiv i .snd = isoToIsEquiv i
 
+isoToIsIso : {f : A → B} → isIso f → Iso A B
+isoToIsIso {f = f} fIsIso .Iso.fun = f
+isoToIsIso fIsIso .Iso.inv = fIsIso .fst
+isoToIsIso fIsIso .Iso.rightInv = fIsIso .snd .fst
+isoToIsIso fIsIso .Iso.leftInv = fIsIso .snd .snd
+
+isIsoToIsEquiv : {f : A → B} → isIso f → isEquiv f
+isIsoToIsEquiv fIsIso = isoToIsEquiv (isoToIsIso fIsIso)
+
 isoToPath : Iso A B → A ≡ B
 isoToPath {A = A} {B = B} f i =
   Glue B (λ { (i = i0) → (A , isoToEquiv f)

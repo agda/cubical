@@ -3,6 +3,7 @@ module Cubical.Categories.Isomorphism where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism using (isoFunInjective)
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
 open import Cubical.Categories.Category
@@ -111,7 +112,6 @@ module _ {C : Category ℓC ℓC'} where
       ∙ ⋆IdL _
 
   module _ (isUnivC : isUnivalent C) where
-
     open isUnivalent isUnivC
 
 
@@ -240,3 +240,21 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{F : Functor C D} whe
 
   F-pathToIso-∘ : {x y : C .ob} → F-Iso ∘ pathToIso {x = x} {y = y} ≡ pathToIso ∘ cong (F .F-ob)
   F-pathToIso-∘ i p = F-pathToIso p i
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  (isUnivC : isUnivalent C) (isUnivD : isUnivalent D)
+  (F : Functor C D)
+  where
+    open isUnivalent
+    open Category
+    open Functor
+    private
+      isoToPathC = CatIsoToPath isUnivC
+      isoToPathD = CatIsoToPath isUnivD
+
+    F-isoToPath : {x y : C .ob} → (f : CatIso C x y) →
+      isoToPathD (F-Iso {F = F} f) ≡ cong (F .F-ob) (isoToPathC f)
+    F-isoToPath f = isoFunInjective (equivToIso (univEquiv isUnivD _ _)) _ _
+      ( secEq (univEquiv isUnivD _ _) _
+      ∙ sym (sym (F-pathToIso {F = F} (isoToPathC f))
+      ∙ cong (F-Iso {F = F}) (secEq (univEquiv isUnivC _ _) f)))
