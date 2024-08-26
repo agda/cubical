@@ -10,7 +10,7 @@ open import Cubical.Data.Nat using (ℕ; suc; zero)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
-open import Cubical.Algebra.CommAlgebra.AsModule
+open import Cubical.Algebra.CommAlgebra
 
 open import Cubical.Tactics.CommRingSolver
 open import Cubical.Tactics.CommRingSolver.RawAlgebra using (scalar)
@@ -114,15 +114,16 @@ module Test (R : CommRing ℓ) (x y z : fst R) where
     ex11 x = solve! R
 
 module _ (R : CommRing ℓ) (A : CommAlgebra R ℓ') where
-  open CommAlgebraStr {{...}}
+  open CommRingStr ⦃...⦄
   private
     instance
-      _ = (snd A)
+      _ : CommRingStr ⟨ A ⟩ₐ
+      _ = (A .fst .snd)
   {-
     The ring solver should also be able to deal with more complicated arguments
     and operations with that are not given as the exact names in CommRingStr.
   -}
-  ex12 : (x y : ⟨ A ⟩) → x + y ≡ y + x
+  ex12 : (x y : ⟨ A ⟩ₐ) → x + y ≡ y + x
   ex12 x y = solve! (CommAlgebra→CommRing A)
 
 module TestInPlaceSolving (R : CommRing ℓ) where
