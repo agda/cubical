@@ -224,6 +224,8 @@ module _ {R : CommRing ℓ} where
   CommAlgebra→Ring : (A : CommAlgebra R ℓ') → Ring ℓ'
   CommAlgebra→Ring A = CommRing→Ring (fst A)
 
+  CommAlgebra→CommRingStr : (A : CommAlgebra R ℓ') → CommRingStr ⟨ A ⟩ₐ
+  CommAlgebra→CommRingStr A = A .fst .snd
 
   CommAlgebraHom→RingHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
                              → CommAlgebraHom A B
