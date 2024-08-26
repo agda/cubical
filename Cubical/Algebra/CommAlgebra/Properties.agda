@@ -46,3 +46,37 @@ module _ {R : CommRing ℓ} where
                 f⁻¹ .fst .fst ∘ B .snd .fst                ≡⟨ sym ( cong ((f⁻¹ .fst .fst) ∘_) (cong fst (IsCommAlgebraHom.commutes (f .snd)))) ⟩
                 f⁻¹ .fst .fst ∘  f .fst .fst ∘ A .snd .fst ≡⟨ cong (_∘ A .snd .fst) f⁻¹∘f≡Id  ⟩
                 A .snd .fst ∎
+
+module _
+  -- Variable generalization would fail below without the module parameters A and B.
+  {R : CommRing ℓ}
+  {A : CommAlgebra R ℓ'}
+  {B : CommAlgebra R ℓ''}
+  {f : ⟨ A ⟩ₐ → ⟨ B ⟩ₐ}
+  where
+
+  open CommAlgebraStr ⦃...⦄
+  open CommRingStr ⦃...⦄
+  private instance
+    _ = CommAlgebra→CommRingStr A
+    _ = CommAlgebra→CommRingStr B
+    _ = CommAlgebra→CommAlgebraStr A
+    _ = CommAlgebra→CommAlgebraStr B
+
+  module _
+    (p1 : f 1r ≡ 1r)
+    (p+ : (x y : ⟨ A ⟩ₐ) → f (x + y) ≡ f x + f y)
+    (p· : (x y : ⟨ A ⟩ₐ) → f (x · y) ≡ f x · f y)
+    (p⋆ : (r : ⟨ R ⟩) (x : ⟨ A ⟩ₐ) → f (r ⋆ x) ≡ r ⋆ f x)
+    where
+
+    makeIsCommAlgebraHom : IsCommAlgebraHom A B f
+    makeIsCommAlgebraHom .IsCommAlgebraHom.isCommRingHom = makeIsCommRingHom p1 p+ p·
+    makeIsCommAlgebraHom .IsCommAlgebraHom.commutes =
+      CommRingHom≡ $ funExt λ r → f (A .snd .fst r)        ≡⟨ cong f (sym (·IdR _)) ⟩
+                                  f ((A .snd .fst r) · 1r) ≡⟨⟩
+                                  f (r ⋆ 1r)               ≡⟨ p⋆ _ _ ⟩
+                                  r ⋆ (f 1r)               ≡⟨⟩
+                                  (B .snd .fst r) · f 1r   ≡⟨ cong ((B .snd .fst r) ·_) p1 ⟩
+                                  (B .snd .fst r) · 1r     ≡⟨ ·IdR _ ⟩
+                                  B .snd .fst r ∎

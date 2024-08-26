@@ -138,9 +138,9 @@ module _ {R : CommRing ℓ} where
   idCommAlgebraHom = idCAlgHom
 
   compCommAlgebraHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
-                      → (g : CommAlgebraHom B C) → (f : CommAlgebraHom A B)
+                      → (f : CommAlgebraHom A B) → (g : CommAlgebraHom B C)
                       → CommAlgebraHom A C
-  compCommAlgebraHom {A = A} {B = B} {C = C} g f =
+  compCommAlgebraHom {A = A} {B = B} {C = C} f g =
     CommRingHom→CommAlgebraHom (⟨ g ⟩ᵣ→ ∘cr ⟨ f ⟩ᵣ→) pasting
     where
       opaque
@@ -160,7 +160,7 @@ module _ {R : CommRing ℓ} where
   infixr 9 _∘ca_ -- same as functions
   _∘ca_ : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
         → CommAlgebraHom B C → CommAlgebraHom A B → CommAlgebraHom A C
-  g ∘ca f = compCommAlgebraHom g f
+  g ∘ca f = compCommAlgebraHom f g
 
   opaque
     CommAlgebraHom≡ :
@@ -226,6 +226,15 @@ module _ {R : CommRing ℓ} where
 
   CommAlgebra→CommRingStr : (A : CommAlgebra R ℓ') → CommRingStr ⟨ A ⟩ₐ
   CommAlgebra→CommRingStr A = A .fst .snd
+
+  CommAlgebra→Set : (A : CommAlgebra R ℓ') → hSet ℓ'
+  CommAlgebra→Set A = ⟨ A ⟩ₐ , is-set
+    where open CommRingStr (CommAlgebra→CommRingStr A) using (is-set)
+
+  isSetCommAlgebraHom : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'')
+                        → isSet (CommAlgebraHom A B)
+  isSetCommAlgebraHom A B = isSetΣSndProp (isSet→ is-set) (λ _ → isPropIsCommAlgebraHom _ _ _)
+    where open CommRingStr (CommAlgebra→CommRingStr B) using (is-set)
 
   CommAlgebraHom→RingHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
                              → CommAlgebraHom A B
