@@ -11,11 +11,11 @@ open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Properties
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Constructions.Vertical
 
 module Cubical.Categories.Displayed.Cartesian where
 
