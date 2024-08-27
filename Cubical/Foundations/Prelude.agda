@@ -30,7 +30,7 @@ infixr 30 _∙₂_
 infix  3 _∎
 infixr 2 step-≡ _≡⟨⟩_
 infixr 2.5 _≡⟨_⟩≡⟨_⟩_
-infixl 4 _≡$_ _≡$S_
+infixl 4 _≡$_ _≡$S_ _≡$≡_ _≡$'≡_
 
 -- Basic theory about paths. These proofs should typically be
 -- inlined. This module also makes equational reasoning work with
@@ -65,6 +65,8 @@ cong : (f : (a : A) → B a) (p : x ≡ y) →
        PathP (λ i → B (p i)) (f x) (f y)
 cong f p i = f (p i)
 {-# INLINE cong #-}
+
+[_]$≡_ = cong
 
 {- `S` stands for simply typed. Using `congS` instead of `cong`
    can help Agda to solve metavariables that may otherwise remain unsolved.
@@ -361,6 +363,18 @@ funExtS⁻ : {B : I → Type ℓ'}
 funExtS⁻ eq x i = eq i x
 
 _≡$S_ = funExtS⁻
+
+_≡$≡_ : {B : I → Type ℓ'}
+  {f : (x : A) → B i0} {g : (x : A) → B i1}
+  → PathP (λ i → (x : A) → B i) f g
+  → {x y : A} → (x ≡ y) → PathP (λ i → B i) (f x) (g y)
+(p ≡$≡ q) i = p i (q i)
+
+_≡$'≡_ : {B : I → Type ℓ'}
+  {f : {x : A} → B i0} {g : {x : A} → B i1}
+  → PathP (λ i → {x : A} → B i) (λ {x} → f {x}) (λ {x} → g {x})
+  → {x y : A} → (x ≡ y) → PathP (λ i → B i) (f {x}) (g {y})
+(p ≡$'≡ q) i = p i {q i}
 
 -- J for paths and its computation rule
 

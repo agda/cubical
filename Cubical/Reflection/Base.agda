@@ -7,19 +7,30 @@ Some basic utilities for reflection
 module Cubical.Reflection.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Data.List.Base
 open import Cubical.Data.Nat.Base
+
+open import Cubical.Reflection.Sugar.Base public
 
 import Agda.Builtin.Reflection as R
 open import Agda.Builtin.String
 
-_>>=_ = R.bindTC
-_<|>_ = R.catchTC
+instance
+ RawApplicativeTC : RawApplicative R.TC
+ RawApplicative._<$>_ RawApplicativeTC f x = R.bindTC x λ y → R.returnTC (f y)
+ RawApplicative.pure RawApplicativeTC = R.returnTC
+ RawApplicative._<*>_ RawApplicativeTC f x = R.bindTC f λ f → R.bindTC x λ x → R.returnTC (f x)
 
-_>>_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → R.TC A → R.TC B → R.TC B
-f >> g = f >>= λ _ → g
+instance
+ RawMonadTC : RawMonad R.TC
+ RawMonad._>>=_ RawMonadTC = R.bindTC
+ RawMonad._>>_ RawMonadTC x y = R.bindTC x (λ _ → y)
 
-infixl 4 _>>=_ _>>_ _<|>_
+instance
+ RawMonadFailTC : RawMonadFail R.TC (List R.ErrorPart)
+ RawMonadFail.fail RawMonadFailTC = R.typeError
+ RawMonadFail._<|>_ RawMonadFailTC = R.catchTC
 
 liftTC : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → R.TC A → R.TC B
 liftTC f ta = ta >>= λ a → R.returnTC (f a)
@@ -31,6 +42,8 @@ pattern varg t = R.arg (R.arg-info R.visible (R.modality R.relevant R.quantity-�
 pattern harg {q = q} t = R.arg (R.arg-info R.hidden (R.modality R.relevant q)) t
 pattern _v∷_ a l = varg a ∷ l
 pattern _h∷_ a l = harg a ∷ l
+
+pattern v[_] a = varg a ∷ []
 
 infixr 5 _v∷_ _h∷_
 

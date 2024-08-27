@@ -8,6 +8,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Interpolate
 
 open import Cubical.Reflection.StrictEquiv
 
@@ -160,6 +161,14 @@ flipSquare : {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
   → Square a₀₋ a₁₋ a₋₀ a₋₁ → Square a₋₀ a₋₁ a₀₋ a₁₋
 flipSquare sq i j = sq j i
 
+flipSquareP : {A : I → I → Type ℓ}
+  {a₀₀ : A i0 i0} {a₀₁ : A i0 i1} {a₀₋ : PathP (λ j → A i0 j) a₀₀ a₀₁}
+  {a₁₀ : A i1 i0} {a₁₁ : A i1 i1} {a₁₋ : PathP (λ j → A i1 j) a₁₀ a₁₁}
+  {a₋₀ : PathP (λ i → A i i0) a₀₀ a₁₀} {a₋₁ : PathP (λ i → A i i1) a₀₁ a₁₁}
+  → SquareP A a₀₋ a₁₋ a₋₀ a₋₁ → SquareP (λ i j → A j i) a₋₀ a₋₁ a₀₋ a₁₋
+flipSquareP sq i j = sq j i
+
+
 module _ {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁} {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
   {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
   where
@@ -212,13 +221,16 @@ sym≡flipSquare {x = x} P = sym (main refl P)
 -- Inverting both interval arguments of a square in Ω²A is the same as doing nothing
 sym-cong-sym≡id : {x : A} (P : Square (refl {x = x}) refl refl refl)
   → P ≡ λ i j → P (~ i) (~ j)
-sym-cong-sym≡id {x = x} P = sym (main refl P)
-  where
-  B : (q : x ≡ x) → I → Type _
-  B q i = Path (x ≡ q i) (λ j → q (i ∨ ~ j)) λ j → q (i ∧ j)
-
-  main : (q : x ≡ x) (p : refl ≡ q) → PathP (λ i → B q i) (λ i j → p (~ i) (~ j)) p
-  main q = J (λ q p → PathP (λ i → B q i) (λ i j → p (~ i) (~ j)) p) refl
+sym-cong-sym≡id {x = x} P z i j =
+    hcomp (λ k → λ {
+          (i = i0) → P (~ k) (j ∨ z)
+         ;(i = i1) → x
+         ;(j = i0) → P (~ k ∧ ~ i) z
+         ;(j = i1) → x
+         ;(z = i0) → P (i ∨ ~ k) j
+         ;(z = i1) → P (~ i) (~ j)
+        })
+        (P (~ i) (z ∧ ~ j))
 
 -- Applying cong sym is the same as flipping a square in Ω²A
 flipSquare≡cong-sym : ∀ {ℓ} {A : Type ℓ} {x : A} (P : Square (refl {x = x}) refl refl refl)
@@ -438,8 +450,97 @@ Square→compPathΩ² {a = a} sq k i j =
                  ; (k = i1) → cong (λ x → rUnit x r) (flipSquare sq) i j})
         (sq j i)
 
+
+module _ {a b : A} {p q : a ≡ b}  where
+
+ cancel→pathsEq : p ∙ sym q ≡ refl → p ≡ q
+ cancel→pathsEq s i j =
+   hcomp (λ z → primPOr (~ i) (i ∨ j ∨ ~ j)
+      (λ _ → compPath-filler p (sym q) (~ z) j) λ _ → q (j ∧ z))
+            (s i j)
+
+module 2-cylinder-from-square
+   {a₀₀ a₀₁ a₁₀ a₁₁ a₀₀' a₀₁' a₁₀' a₁₁' : A }
+   {a₀₋  : a₀₀  ≡ a₀₁ } {a₁₋  : a₁₀  ≡ a₁₁ } {a₋₀  : a₀₀  ≡ a₁₀ } {a₋₁  : a₀₁  ≡ a₁₁ }
+   {a₀₋' : a₀₀' ≡ a₀₁'} {a₁₋' : a₁₀' ≡ a₁₁'} {a₋₀' : a₀₀' ≡ a₁₀'} {a₋₁' : a₀₁' ≡ a₁₁'}
+   (aa'₀₀ : a₀₀ ≡ a₀₀')
+ where
+
+ MissingSquare = (a₁₋ ⁻¹ ∙∙ a₋₀ ⁻¹ ∙∙ aa'₀₀ ∙∙ a₋₀' ∙∙ a₁₋')
+               ≡ (a₋₁ ⁻¹ ∙∙ a₀₋ ⁻¹ ∙∙ aa'₀₀ ∙∙ a₀₋' ∙∙ a₋₁')
+
+ cyl : MissingSquare → ∀ i j → I → Partial (i ∨ ~ i ∨ j ∨ ~ j) A
+
+ cyl c i j k = λ where
+  (i = i0) → doubleCompPath-filler (sym a₀₋) aa'₀₀ a₀₋' j k
+  (i = i1) → doubleCompPath-filler (sym a₁₋) (sym a₋₀ ∙∙ aa'₀₀ ∙∙  a₋₀')  a₁₋' j k
+  (j = i0) → doubleCompPath-filler (sym a₋₀) aa'₀₀ a₋₀' i k
+  (j = i1) → compPathR→PathP∙∙ c (~ i) k
+
+ module _ (s : MissingSquare) where
+  IsoSqSq' : Iso (Square a₀₋ a₁₋ a₋₀ a₋₁) (Square a₀₋' a₁₋' a₋₀' a₋₁')
+  Iso.fun IsoSqSq' x i j = hcomp (cyl s i j) (x i j)
+  Iso.inv IsoSqSq' x i j = hcomp (λ k → cyl s i j (~ k)) (x i j)
+  Iso.rightInv IsoSqSq' x l i j  = hcomp-equivFiller (λ k → cyl s i j (~ k)) (inS (x i j)) (~ l)
+  Iso.leftInv IsoSqSq' x l i j = hcomp-equivFiller (cyl s i j) (inS (x i j)) (~ l)
+
+  Sq≃Sq' : (Square a₀₋ a₁₋ a₋₀ a₋₁) ≃ (Square a₀₋' a₁₋' a₋₀' a₋₁')
+  Sq≃Sq' = isoToEquiv IsoSqSq'
+
+
+
 pathFiber : {B : Type ℓ} (f : A → B)
   (b : B) {a a' : A} {t : f a ≡ b} {t' : f a' ≡ b} →
   ((a , t) ≡ (a' , t' )) → Σ[ e ∈ a ≡ a' ] (t ≡ cong f e ∙ t')
 pathFiber {A} {B} f b {a} {a'} {t} {t'} e =
   J (λ X _ → Σ[ e ∈ a ≡ fst X ] (t ≡ cong f e ∙ (snd X))) (refl , lUnit t) e
+
+invSides-filler-rot : {x y : A} (p : x ≡ y) →
+            invSides-filler p p ≡ symP (invSides-filler (sym p) (sym p))
+invSides-filler-rot {A = A} {x = x} {y} p z i j =
+    hcomp (λ k → primPOr (i ∨ ~ i) (j ∨ ~ j)
+                 (λ _ → p (interpolateI (interpolateI i j (~ j)) (~ k ∧ z) (k ∨ z)))
+                 (λ _ → p (interpolateI (interpolateI j i (~ i)) (~ k ∧ z) (k ∨ z))))
+        (p z)
+
+module CompSquares
+  {a₀₀₀ a₀₀₁ : A} {a₀₀₋ : a₀₀₀ ≡ a₀₀₁}
+  {a₀₁₀ a₀₁₁ : A} {a₀₁₋ : a₀₁₀ ≡ a₀₁₁}
+  {a₀₋₀ : a₀₀₀ ≡ a₀₁₀} {a₀₋₁ : a₀₀₁ ≡ a₀₁₁}
+  (a₀₋₋ : Square a₀₀₋ a₀₁₋ a₀₋₀ a₀₋₁)
+  {a₁₀₀ a₁₀₁ : A} {a₁₀₋ : a₁₀₀ ≡ a₁₀₁}
+  {a₁₁₀ a₁₁₁ : A} {a₁₁₋ : a₁₁₀ ≡ a₁₁₁}
+  {a₁₋₀ : a₁₀₀ ≡ a₁₁₀} {a₁₋₁ : a₁₀₁ ≡ a₁₁₁}
+  {a₋₀₀ : a₀₀₀ ≡ a₁₀₀} {a₋₀₁ : a₀₀₁ ≡ a₁₀₁}
+  (a₋₀₋ : Square a₀₀₋ a₁₀₋ a₋₀₀ a₋₀₁)
+  {a₋₁₀ : a₀₁₀ ≡ a₁₁₀} {a₋₁₁ : a₀₁₁ ≡ a₁₁₁}
+  (a₋₁₋ : Square a₀₁₋ a₁₁₋ a₋₁₀ a₋₁₁)
+  (a₋₋₀ : Square a₀₋₀ a₁₋₀ a₋₀₀ a₋₁₀)
+  (a₋₋₁ : Square a₀₋₁ a₁₋₁ a₋₀₁ a₋₁₁)
+  where
+
+  compSquaresSides : ∀ i j → I → Partial (i ∨ ~ i ∨ j ∨ ~ j ) A
+  compSquaresSides i j k (i = i0) = a₋₀₋ k j
+  compSquaresSides i j k (i = i1) = a₋₁₋ k j
+  compSquaresSides i j k (j = i0) = a₋₋₀ k i
+  compSquaresSides i j k (j = i1) = a₋₋₁ k i
+
+
+  compSquares : Square a₁₀₋ a₁₁₋ a₁₋₀ a₁₋₁
+  compSquares i j =
+    hcomp (compSquaresSides i j) (a₀₋₋ i j)
+
+
+  module _ (a₁₋₋ : Square a₁₀₋ a₁₁₋ a₁₋₀ a₁₋₁) where
+
+
+
+   compSquaresPath→Cube : compSquares ≡ a₁₋₋ →
+        Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁
+   compSquaresPath→Cube p z i j =
+     hcomp
+        (λ k → primPOr _ (i ∨ ~ i ∨ j ∨ ~ j)
+               (primPOr (~ z) z
+               (λ _ → hfill (compSquaresSides i j) (inS (a₀₋₋ i j)) (~ k)) (λ _ → p k i j))
+               (compSquaresSides i j (z ∨ ~ k)))
+        (p i0 i j)
