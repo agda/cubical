@@ -90,14 +90,14 @@ module CompCoherence (SA : NPath 7 A) where
    LHS₀∙LHS₁≡RHS₀∙RHS₁ : LHS₀ ∙ LHS₁ ≡ RHS₀ ∙ RHS₁
    LHS₀∙LHS₁≡RHS₀∙RHS₁ = solvePaths
 
-   _ : cong₂ _∙_ LHS₀≡RHS₀ LHS₁≡RHS₁ ≡ LHS₀∙LHS₁≡RHS₀∙RHS₁
-   _ = solvePaths
+   -- _ : cong₂ _∙_ LHS₀≡RHS₀ LHS₁≡RHS₁ ≡ LHS₀∙LHS₁≡RHS₀∙RHS₁
+   -- _ = solvePaths
 
    LHS₀⁻¹≡RHS₀⁻¹ : LHS₀ ⁻¹ ≡ RHS₀ ⁻¹
    LHS₀⁻¹≡RHS₀⁻¹ = solvePaths
 
-   _ :  cong (_⁻¹) LHS₀≡RHS₀ ≡ LHS₀⁻¹≡RHS₀⁻¹
-   _ = solvePaths
+   -- _ :  cong (_⁻¹) LHS₀≡RHS₀ ≡ LHS₀⁻¹≡RHS₀⁻¹
+   -- _ = solvePaths
 
 
 
