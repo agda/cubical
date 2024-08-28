@@ -42,7 +42,8 @@ on:
 ########################################################################
 
 env:
-  AGDA_BRANCH: v2.6.4.1
+  AGDA_BRANCH: cub-reflection-fix-with-surface-parse
+  AGDA_REPO: marcinjangrzybowski
   GHC_VERSION: 9.4.7
   CABAL_VERSION: 3.6.2.0
   CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS'
@@ -80,7 +81,7 @@ jobs:
       - name: Download and install Agda from github
         if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
+          git clone https://github.com/${{ env.AGDA_REPO }}/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
           cd agda
           mkdir -p doc
           touch doc/user-manual.pdf
