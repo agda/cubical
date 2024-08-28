@@ -162,6 +162,12 @@ offsetStr k =   primStringFromList ∘S offset ' ' k ∘S primStringToList
 offsetStrR : ℕ → String → String
 offsetStrR k =   primStringFromList ∘S offsetR ' ' k ∘S primStringToList
 
+trimLeft : String → String
+trimLeft =
+  primStringFromList
+  ∘S dropBy (λ { ' ' → true ; '\n' → true ; '\t' → true ; _ → false } )
+  ∘S primStringToList
+
 data ResultIs {ℓ} {A : Type ℓ} : A → Type ℓ where
  resultIs : ∀ s → ResultIs s
 

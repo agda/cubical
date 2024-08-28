@@ -492,3 +492,13 @@ takeWhile f [] = []
 takeWhile f (x ∷ xs) with f x
 ... | nothing = []
 ... | just y = y ∷ takeWhile f xs
+
+dropBy : (A → Bool) → List A → List A
+dropBy _ [] = []
+dropBy f (x ∷ xs) =
+  if f x then (dropBy f xs) else (x ∷ xs)
+
+mapAt : (A → A) → ℕ → List A → List A
+mapAt _ _ [] = []
+mapAt f (suc k) (x ∷ xs) = x ∷ mapAt f k xs
+mapAt f zero (x ∷ xs) = f x ∷ xs

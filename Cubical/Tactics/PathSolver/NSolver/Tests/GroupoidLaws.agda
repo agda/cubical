@@ -13,6 +13,7 @@ private
  variable
   ℓ ℓ' : Level
 
+
 module Ω-Tests where
  module Var (A : Type ℓ) (a : A) (p : a ≡ a) where
   _ : ResultIs ✓-pass
@@ -258,3 +259,12 @@ module InSubTerms {ℓ} (A : Type ℓ)
   _ = solvePathsTest
         Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁
 
+
+module FromI where
+ module Var (A : Type ℓ) (aᵢ : I → A)
+            (a₀ a₁ : A)
+            (p : a₀ ≡ aᵢ i0)(q : aᵢ i1 ≡ a₁) where
+
+  _ : ResultIs ⊘-fail
+  _ = solvePathsTest
+         (p ∙ λ i → aᵢ i) ∙ q  ≡ p ∙ ((λ i → aᵢ i) ∙ q)

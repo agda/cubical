@@ -174,3 +174,15 @@ module _ {T} {{rmt : RawMonadTransformer T}} where
    MonadLiftT : {{_ : RawApplicative M}} → {{_ : RawMonad M}} → RawMonad ([ T RMT M ]_)
    unwrap ((MonadLiftT RawMonad.>>= x) x₁) = unwrap x >>= λ v → unwrap (x₁ v)
    unwrap ((MonadLiftT RawMonad.>> x) x₁) = unwrap x >> unwrap x₁
+
+_<|>>=_ : {M : Functorω} ⦃ RA : RawApplicative M ⦄ ⦃ RM : RawMonad M ⦄
+          {ℓ : Level} {E : Type ℓ} ⦃ RME : RawMonadFail M E ⦄
+          {ℓ' ℓ'' : Level} {A : Type ℓ'} {B : Type ℓ''} →
+          (A → M B) → (A → M B) → (A → M B)
+(f <|>>= g) a = f a <|> g a
+
+_>>=<|>_ : {M : Functorω} ⦃ RA : RawApplicative M ⦄ ⦃ RM : RawMonad M ⦄
+          {ℓ : Level} {E : Type ℓ} ⦃ RME : RawMonadFail M E ⦄
+          {ℓ' ℓ'' : Level} {A : Type ℓ'} {B : Type ℓ''} →
+          (A → M B) → E → (A → M B)
+(f >>=<|> e) x = f x <|> fail e

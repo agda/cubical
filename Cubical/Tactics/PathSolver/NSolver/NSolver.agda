@@ -305,9 +305,10 @@ module _ (ty : R.Type) where
        v0 = repeat dim false
    fcs0 ← mapM (λ (k , (c0 , _ )) →
                   do R.debugPrint "solvePaths" 0 $ "solvePaths - markVert dim: " ∷ₑ [ k ]ₑ
-                     markVertSnd 100 dim [] c0) xs
+                     markVertSnd 100 dim [] c0 <|> fail ("fcs0 fail" ∷nl [ k ]ₑ)) xs
    fcs0₀ ← Mb.rec (R.typeError [ "imposible" ]ₑ)
-              (λ y → mapM (λ k → (getVert 100 (replaceAt k true v0)) (fst y))  (range dim))
+              (λ y → mapM (λ k → (getVert 100 (replaceAt k true v0)) (fst y)
+                            <|> fail ("fcs1 fail" ∷nl [ k ]ₑ))  (range dim))
              (lookup fcs0 0)
    fcs0₁ ← Mb.rec (R.typeError [ "imposible" ]ₑ)
      (getVert 100 (replaceAt (predℕ dim) true v0) ∘S fst) (lookup fcs0 1)
@@ -473,7 +474,8 @@ solvePathsSolver : R.Type → R.TC R.Term
 solvePathsSolver goal = R.withReduceDefs (false , doNotReduceInPathSolver) do
  R.debugPrint "solvePaths" 0 $ [ "solvePaths - start" ]ₑ
  hTy ← wait-for-term goal  >>=
-     (λ x → (R.debugPrint "solvePaths" 0 $ "solvePaths - " ∷ₑ [ x ]ₑ) >> pure x) >>= R.normalise
+     (λ x → (R.debugPrint "solvePaths" 0 $ "solvePaths - " ∷ₑ [ x ]ₑ) >> pure x)
+       >>= (R.normalise <|>>= λ x → R.typeError $ "failed to normalise goal" ∷nl [ x ]ₑ )
  bdTM@(A , fcs) ← matchNCube hTy
  R.debugPrint "solvePaths" 0 $ [ "solvePaths - matchNCube done" ]ₑ
  let dim = length fcs
@@ -496,7 +498,8 @@ macro
 
  solvePaths : R.Term → R.TC Unit
  solvePaths h = do
-   solution ← R.inferType h >>= solvePathsSolver
+   solution ←
+      (R.inferType h >>= solvePathsSolver)
    R.unify solution h <|> R.typeError ("unify - failed:" ∷nl [ solution ]ₑ )
 
  infixr 2 solvePathsTest_

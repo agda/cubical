@@ -522,7 +522,8 @@ module codeGen {A B : Type} (normaliseCells : Bool)  (dim : ℕ) where
               (mapM ((((pure ∘ (renderSubFacePattern ctx)) >=& stringLength)) ∘S fst ) x))
 
    let newDimVar = (mkNiceVar' "𝒛" l)
-   rest ← (L.intersperse (R.strErr "\n;") ∘S L.join)  <$> mapM
+   rest ← (mapAt (λ { (R.strErr s) → R.strErr $ (" " <> s) ; x → x} ) zero
+              ∘S L.intersperse (R.strErr "\n;") ∘S L.join)  <$> mapM
          (λ (sf , cu) → do
 
 
@@ -539,7 +540,7 @@ module codeGen {A B : Type} (normaliseCells : Bool)  (dim : ℕ) where
                              -- "/" ∷ₑ sfTm' ∷ₑ
                              " → " ∷ₑ [ cu''' ]ₑ))) >>=
                       (R.formatErrorParts >=& [_]ₑ)) x
-   lid ← indent ' ' 1 <$> (ppCT'' ctx d x₁ >>= R.formatErrorParts)
+   lid ← (trimLeft ∘S indent ' ' 1) <$> (ppCT'' ctx d x₁ >>= R.formatErrorParts)
    rest' ← indent ' ' 2 <$> R.formatErrorParts rest
    pure $ (R.strErr ("\nhcomp (λ " <> newDimVar <> " → λ { \n")) ∷
                    (rest' ∷ₑ "\n    }) \n" ∷ₑ
@@ -556,14 +557,14 @@ module codeGen {A B : Type} (normaliseCells : Bool)  (dim : ℕ) where
      --         R.formatErrorParts
   pure ctr
  ppCT'' ctx (suc d) (𝒄ong' h t) = do
-  rT ← (L.map (λ (k , s) → R.strErr ("\n    " <> mkNiceVar' "𝒙" k <> " = " <> s ))
-            ∘S zipWithIndex) <$> (mapM (argRndr >=> (R.formatErrorParts >=& indent' false ' ' 6)) t)
+  rT ← (L.map (λ (k , s) → R.strErr ("\n    " <> mkNiceVar' "𝒙" k <> " = " <> trimLeft s ))
+            ∘S zipWithIndex) <$> (mapM (argRndr >=&  ( indent' false ' ' 6)) t)
   rHead ← inCuCtx ctx $ addNDimsToCtx' "𝒙" (length t) $ renderTerm h
   pure  $ "\nlet " ∷ₑ rT ++ "\nin " ∷ₑ [ rHead ]ₑ
 
   where
   argRndr :  Hco A B → R.TC _
-  argRndr x = (((λ s → [ "(" ]ₑ ++ s ++ [ ")" ]ₑ) <$> (ppCT'' ctx d (hco' x))))
+  argRndr x = (((ppCT'' ctx d (hco' x)))) >>= R.formatErrorParts
 
  ppCT' :  ℕ → CuTerm' A B → R.TC (List R.ErrorPart)
  ppCT' = ppCT'' (defaultCtx dim)
