@@ -387,7 +387,7 @@ replaceVarWithTerm f =
 
 
 substTms : List Term → Term →  Term
-substTms xs = dropVars.rv (length xs) zero ∘S replaceVarWithTerm (lookup (map (liftVarsFrom (length xs) 0) xs))
+substTms xs = dropVars.rv (length xs) zero ∘S replaceVarWithTerm (lookupMb (map (liftVarsFrom (length xs) 0) xs))
 
 replaceAtTrm : ℕ → Term → Term → Term
 replaceAtTrm k t =

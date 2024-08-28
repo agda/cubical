@@ -294,7 +294,7 @@ fill-flatten' = hTop ∘S atVarOrConOrDefMmp
  fill-offsetPa' : ℕ → List (R.Arg R.Term) → List (R.Arg R.Term)
  fill-offsetPa' n xs =
   let hd = fromJust-def (varg (R.lit (R.string "fatal in PathEval - offsetPa'")))
-            (lookup xs zero)
+            (lookupMb xs zero)
       hs* = mapArg (dropFillWraps headFW) hd
       hd' = mapArg
              (replaceVarWithCon (λ { zero → just (quote i0) ; _ → nothing })) hs*
@@ -310,7 +310,7 @@ fill-flatten' = hTop ∘S atVarOrConOrDefMmp
 
  hTop : List R.Term → List R.Term
  hTop = L.map (Mb.fromJust-def ( (R.lit (R.string "imposible in fill-flatten'")) )
-   ∘S map-Maybe (unArg) ∘S flip lookup zero) ∘S h ∘S [_] ∘S L.map varg
+   ∘S map-Maybe (unArg) ∘S flip lookupMb zero) ∘S h ∘S [_] ∘S L.map varg
 
  df : ℕ →
         R.Name →

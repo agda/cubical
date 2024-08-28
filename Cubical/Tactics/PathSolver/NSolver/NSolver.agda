@@ -309,9 +309,9 @@ module _ (ty : R.Type) where
    fcs0₀ ← Mb.rec (R.typeError [ "imposible" ]ₑ)
               (λ y → mapM (λ k → (getVert 100 (replaceAt k true v0)) (fst y)
                             <|> fail ("fcs1 fail" ∷nl [ k ]ₑ))  (range dim))
-             (lookup fcs0 0)
+             (lookupMb fcs0 0)
    fcs0₁ ← Mb.rec (R.typeError [ "imposible" ]ₑ)
-     (getVert 100 (replaceAt (predℕ dim) true v0) ∘S fst) (lookup fcs0 1)
+     (getVert 100 (replaceAt (predℕ dim) true v0) ∘S fst) (lookupMb fcs0 1)
 
    fcs1 ← mapM (idfun _)
            (zipWith (markVertSnd 100 dim) (fcs0₁ ∷ fcs0₀) ((snd ∘S snd) <$> xs))
@@ -480,7 +480,7 @@ solvePathsSolver goal = R.withReduceDefs (false , doNotReduceInPathSolver) do
  R.debugPrint "solvePaths" 0 $ [ "solvePaths - matchNCube done" ]ₑ
  let dim = length fcs
 
- (t0 , _) ← Mb.rec (R.typeError [ "imposible in solvePaths''" ]ₑ) pure (lookup fcs zero)
+ (t0 , _) ← Mb.rec (R.typeError [ "imposible in solvePaths''" ]ₑ) pure (lookupMb fcs zero)
 
  cuFcs ← ((zipWithIndex <$> quoteBd bdTM
             -- <|> R.typeError [ "quoteBd - failed" ]ₑ

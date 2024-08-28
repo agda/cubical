@@ -341,8 +341,8 @@ lookupAlways a [] _ = a
 lookupAlways _ (x ∷ _) zero = x
 lookupAlways a (x ∷ xs) (suc k) = lookupAlways a xs k
 
-lookup : List A → ℕ → Maybe A
-lookup = lookupAlways nothing ∘S map just
+lookupMb : List A → ℕ → Maybe A
+lookupMb = lookupAlways nothing ∘S map just
 
 rot : List A → List A
 rot [] = []
