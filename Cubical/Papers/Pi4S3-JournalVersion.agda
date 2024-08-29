@@ -10,7 +10,7 @@ the paper:
 
 -- The "--safe" flag ensures that there are no postulates or
 -- unfinished goals
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --safe --cubical #-}
 
 module Cubical.Papers.Pi4S3-JournalVersion where
 
@@ -103,7 +103,7 @@ open import Cubical.Homotopy.Group.Pi4S3.DirectProof              as Direct
 open Boolean using (Bool)
 
 -- Unit
-open UnitType renaming (Unit to 𝟙) 
+open UnitType renaming (Unit to 𝟙)
 
 -- S¹
 open Circle using (S¹)
@@ -352,10 +352,10 @@ open SmashProd using (_⋀_)
 -- formalisation)
 
 -- Definition of pinch map
-open SMult renaming (Join→SuspSmash to pinch)
+open SmashProd renaming (Join→SuspSmash to pinch)
 
 -- Proposition 6.3 (pinch is an equivalence)
-open SMult using (SmashJoinIso)
+open SmashProd using (SmashJoinIso)
 
 -- Definition of Fₙₘ
 open SMult renaming (join→Sphere to F)
@@ -364,7 +364,7 @@ open SMult renaming (join→Sphere to F)
 open SMult using (joinSphereIso)
 
 -- Propositions 6.5 & 6.6 (graded commutativity and associativity)
-open SMult using (⌣S-comm ; assoc⌣S)
+open SMult using (comm⌣S ; assoc⌣S)
 
 
 
