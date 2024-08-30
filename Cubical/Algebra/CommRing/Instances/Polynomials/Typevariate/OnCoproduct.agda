@@ -17,7 +17,8 @@ open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate
+open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.Base
+open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.UniversalProperty
 
 private
   variable
