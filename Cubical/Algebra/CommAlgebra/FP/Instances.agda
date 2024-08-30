@@ -7,7 +7,7 @@
   * R/⟨x₁,...,xₙ⟩    = R[⊥]/⟨x₁,...,xₙ⟩
   * R/⟨x⟩            (as special case of the above)
 -}
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.CommAlgebra.FP.Instances where
 
 open import Cubical.Foundations.Prelude
@@ -30,7 +30,7 @@ open import Cubical.Algebra.CommRing.FGIdeal using (inclOfFGIdeal)
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Instances.Polynomials
 open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
-open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn)
+open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn; 0Ideal)
 open import Cubical.Algebra.CommAlgebra.FGIdeal
 -- open import Cubical.Algebra.CommAlgebra.Instances.Initial
 open import Cubical.Algebra.CommAlgebra.Instances.Unit
@@ -44,17 +44,30 @@ private
 
 module _ (R : CommRing ℓ) where
   open FinitePresentation
-{-
 
   module _ (n : ℕ) where
+    private
+      abstract
+        p : 0Ideal R (Polynomials R n) ≡ ⟨ emptyFinVec ⟨ Polynomials R n ⟩ₐ ⟩[ _ ]
+        p = sym $ 0FGIdeal≡0Ideal (Polynomials R n)
+
+      compute :
+        CommAlgebraEquiv (Polynomials R n) $ (Polynomials R n) / ⟨ emptyFinVec ⟨ Polynomials R n ⟩ₐ ⟩[ _ ]
+      compute =
+        transport (λ i → CommAlgebraEquiv (Polynomials R n) ((Polynomials R n) / (p i))) $
+          zeroIdealQuotient (Polynomials R n)
+
     polynomialsFP : FinitePresentation R (Polynomials R n)
     polynomialsFP =
       record {
         n = n ;
         m = 0 ;
         relations = emptyFinVec ⟨ Polynomials R n ⟩ₐ ;
-        equiv = invCommAlgebraEquiv {!zeroIdealQuotient!}
+        equiv = invCommAlgebraEquiv compute
       }
+
+{-
+
 
   {- Every (multivariate) polynomial algebra is finitely presented -}
   module _ (n : ℕ) where
