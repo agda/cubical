@@ -27,9 +27,8 @@ private
     ℓ ℓ' : Level
 
 module _ (R : CommRing ℓ) where
-  abstract
-    Polynomials : (n : ℕ) → CommAlgebra R ℓ
-    Polynomials n = R [ Fin n ]ₐ
+  Polynomials : (n : ℕ) → CommAlgebra R ℓ
+  Polynomials n = R [ Fin n ]ₐ
 
   FPCAlgebra : {m : ℕ} (n : ℕ) (relations : FinVec ⟨ Polynomials n ⟩ₐ m) → CommAlgebra R ℓ
   FPCAlgebra n relations = Polynomials n / ⟨ relations ⟩[ Polynomials n ]
