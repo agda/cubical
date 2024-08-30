@@ -33,5 +33,5 @@ syntax generatedIdeal A V = ⟨ V ⟩[ A ]
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
   open CommRingStr (A .fst .snd)
 
-  0FGIdeal : {n : ℕ} → ⟨ replicateFinVec n 0r ⟩[ A ] ≡ (0Ideal R A)
-  0FGIdeal = 0FGIdealCommRing (CommAlgebra→CommRing A)
+  0FGIdeal≡0Ideal : {n : ℕ} → ⟨ replicateFinVec n 0r ⟩[ A ] ≡ (0Ideal R A)
+  0FGIdeal≡0Ideal = 0FGIdealCommRing (CommAlgebra→CommRing A)
