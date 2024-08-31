@@ -16,6 +16,8 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Equiv.HalfAdjoint
+
 
 open import Cubical.Functions.Morphism
 
@@ -50,11 +52,6 @@ open IsSemigroup
 open IsMonoid
 open GroupStr
 
-join∙ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
-  → Pointed _
-fst (join∙ A B) = join (fst A) (fst B)
-snd (join∙ A B) = inl (pt A)
-
 ℓ* : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
   → fst A → fst B → Ω (join∙ A B) .fst
 ℓ* A B a b = push (pt A) (pt B)
@@ -71,19 +68,77 @@ fst (_+*_ {A = A} {B = B} f g) (push a b i) =
   (Ω→ f .fst (ℓ* A B a b) ∙ Ω→ g .fst (ℓ* A B a b)) i
 snd (f +* g) = refl
 
+-* : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+      (f : join∙ A B →∙ C) → join∙ A B →∙ C
+fst (-* {C = C} f) (inl x) = pt C
+fst (-* {C = C} f) (inr x) = pt C
+fst (-* {A = A} {B} f) (push a b i) = Ω→ f .fst (ℓ* A B a b) (~ i)
+snd (-* f) = refl
+
 join→Sphere∙ : (n m : ℕ)
   → join∙ (S₊∙ n) (S₊∙ m) →∙ S₊∙ (suc (n + m))
 fst (join→Sphere∙ n m) = join→Sphere n m
 snd (join→Sphere∙ n m) = refl
 
-·Π* : ∀ {ℓ} {A : Pointed ℓ} {n m : ℕ}
+-Π* : ∀ {ℓ} {A : Pointed ℓ} {n m : ℕ}
+    (f : S₊∙ (suc (n + m)) →∙ A)
+  → (-Π f) ∘∙ join→Sphere∙ n m
+   ≡ -* (f ∘∙ join→Sphere∙ n m)
+fst (-Π* f i) (inl x) = snd (-Π f) i
+fst (-Π* f i) (inr x) = snd (-Π f) i
+fst (-Π* {A = A} {n = n} {m = m} f i) (push a b j) = main i j
+  where
+  lem : (n : ℕ) (f : S₊∙ (suc n) →∙ A) (a : S₊ n)
+    → Square (cong (fst (-Π f)) (σS a))
+              (sym (snd f) ∙∙ cong (fst f) (sym (σS a)) ∙∙ snd f)
+              (snd (-Π f)) (snd (-Π f))
+  lem zero f false =
+    doubleCompPath-filler (sym (snd f)) (cong (fst f) (sym loop)) (snd f)
+  lem zero f true = doubleCompPath-filler (sym (snd f)) refl (snd f)
+  lem (suc n) f a =
+    (cong-∙ (fst (-Π f)) (merid a) (sym (merid (ptSn (suc n))))
+      ∙ cong₂ _∙_ refl (cong (cong (fst f)) (rCancel _))
+      ∙ sym (rUnit _))
+    ◁ doubleCompPath-filler
+      (sym (snd f)) (cong (fst f) (sym (σS a))) (snd f)
+  
+  main : Square (cong (fst (-Π f)) (σS (a ⌣S b)))
+                (sym (Ω→ (f ∘∙ join→Sphere∙ n m) .fst (ℓS a b)))
+                (snd (-Π f)) (snd (-Π f))
+  main = lem _ f (a ⌣S b)
+    ▷ sym ((λ j → (sym (lUnit (snd f) (~ j))
+             ∙∙ sym (cong (fst f) (cong-∙ (join→Sphere n m)
+                       (push (ptSn n) (ptSn m))
+                       ((push a (ptSn m) ⁻¹)
+                     ∙∙ push a b
+                     ∙∙ (push (ptSn n) b ⁻¹)) j))
+             ∙∙ lUnit (snd f) (~ j)))
+      ∙ cong (sym (snd f) ∙∙_∙∙ snd f)
+             (cong (cong (fst f))
+                (congS sym
+                  ((cong₂ _∙_
+                    (cong σS (IdL⌣S _) ∙ σS∙)
+                    (cong-∙∙ (join→Sphere n m)
+                      (push a (ptSn m) ⁻¹) (push a b) (push (ptSn n) b ⁻¹)
+                  ∙ (cong₂ (λ p q → p ⁻¹ ∙∙ σS (a ⌣S b) ∙∙ q ⁻¹)
+                          (cong σS (IdL⌣S _) ∙ σS∙)
+                          (cong σS (IdR⌣S _) ∙ σS∙))
+                  ∙ sym (rUnit (σS (a ⌣S b)))))
+                ∙ sym (lUnit _)))))
+snd (-Π* f i) j = lem i j
+  where
+  lem : Square (refl ∙ snd (-Π f)) refl (snd (-Π f)) refl
+  lem = sym (lUnit (snd (-Π f))) ◁ λ i j → (snd (-Π f)) (i ∨ j)
+
+
+·Π≡+* : ∀ {ℓ} {A : Pointed ℓ} {n m : ℕ}
     (f g : S₊∙ (suc (n + m)) →∙ A)
   → (∙Π f g ∘∙ join→Sphere∙ n m)
    ≡ ((f ∘∙ join→Sphere∙ n m)
    +* (g ∘∙ join→Sphere∙ n m))
-fst (·Π* {A = A} f g i) (inl x) = snd (∙Π f g) i
-fst (·Π* {A = A} f g i) (inr x) = snd (∙Π f g) i
-fst (·Π* {A = A} {n = n} {m} f g i) (push a b j) = main i j
+fst (·Π≡+* {A = A} f g i) (inl x) = snd (∙Π f g) i
+fst (·Π≡+* {A = A} f g i) (inr x) = snd (∙Π f g) i
+fst (·Π≡+* {A = A} {n = n} {m} f g i) (push a b j) = main i j
   where
   help : (n : ℕ) (f g : S₊∙ (suc n) →∙ A) (a : S₊ n)
     → Square (cong (fst (∙Π f g)) (σS a))
@@ -134,7 +189,7 @@ fst (·Π* {A = A} {n = n} {m} f g i) (push a b j) = main i j
                ∙ Ω→ (g ∘∙ join→Sphere∙ n m) .fst (ℓS a b))
                 (snd (∙Π f g)) (snd (∙Π f g))
   main = help _ f g (a ⌣S b) ▷ cong₂ _∙_ (Ω→σ f) (Ω→σ g)
-snd (·Π* {A = A} f g i) j = lem i j
+snd (·Π≡+* {A = A} f g i) j = lem i j
   where
   lem : Square (refl ∙ snd (∙Π f g)) refl (snd (∙Π f g)) refl
   lem = sym (lUnit (snd (∙Π f g))) ◁ λ i j → (snd (∙Π f g)) (i ∨ j)
@@ -147,20 +202,143 @@ snd (·Π* {A = A} f g i) j = lem i j
 ·π* : ∀ {ℓ} {n m : ℕ} {A : Pointed ℓ} (f g : π* n m A) → π* n m A
 ·π* = ST.rec2 squash₂ λ f g → ∣ f +* g ∣₂
 
+-π* : ∀ {ℓ} {n m : ℕ} {A : Pointed ℓ} (f : π* n m A) → π* n m A
+-π* = ST.map -*
+
+1π* : ∀ {ℓ} {n m : ℕ} {A : Pointed ℓ} → π* n m A
+1π* = ∣ const∙ _ _ ∣₂
+
 Iso-JoinMap-SphereMap : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ)
   → Iso (join∙ (S₊∙ n) (S₊∙ m) →∙ A)
          (S₊∙ (suc (n + m)) →∙ A)
-Iso-JoinMap-SphereMap n m =
-  post∘∙equiv (isoToEquiv (joinSphereIso n m) , refl)
+Iso-JoinMap-SphereMap n m = post∘∙equiv (joinSphereEquiv∙ n m)
 
 Iso-π*-π' : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ)
   → Iso ∥ (join∙ (S₊∙ n) (S₊∙ m) →∙ A) ∥₂
          ∥ (S₊∙ (suc (n + m)) →∙ A) ∥₂
 Iso-π*-π' n m = setTruncIso (Iso-JoinMap-SphereMap n m)
 
+private
+  J≃∙map : ∀ {ℓ ℓ' ℓ''} {A1 A2 : Pointed ℓ} {A : Pointed ℓ'}
+         → (e : A1 ≃∙ A2) {P : A1 →∙ A → Type ℓ''}
+       → ((f : A2 →∙ A) → P (f ∘∙ ≃∙map e))
+       → (f : _) → P f
+  J≃∙map  {ℓ'' = ℓ''} {A2 = A2} {A = A} =
+    Equiv∙J (λ A1 e → {P : A1 →∙ A → Type ℓ''}
+         → ((f : A2 →∙ A) → P (f ∘∙ ≃∙map e))
+          → (f : _) → P f)
+      λ {P} ind f
+      → subst P (ΣPathP (refl , sym (lUnit (snd f)))) (ind f)
+
 π*≡π' : ∀ {ℓ} {A : Pointed ℓ} {n m : ℕ}
   (f g : π* n m A)
   → Iso.fun (Iso-π*-π' n m) (·π* f g)
   ≡ ·π' _ (Iso.fun (Iso-π*-π' n m) f) (Iso.fun (Iso-π*-π' n m) g)
-π*≡π' = ST.elim2 (λ _ _ → isSetPathImplicit)
-                 λ f g → cong ∣_∣₂ {!·Π* -- f g!}
+π*≡π' {A = A} {n} {m} = ST.elim2 (λ _ _ → isSetPathImplicit)
+  (J≃∙map (joinSphereEquiv∙ n m)
+    λ f → J≃∙map (joinSphereEquiv∙ n m)
+      λ g → cong ∣_∣₂
+        (cong (fun (Iso-JoinMap-SphereMap n m)) (sym (·Π≡+* f g))
+        ∙ ∘∙-assoc _ _ _
+        ∙ cong (∙Π f g ∘∙_) ret
+        ∙ ∘∙-idˡ (∙Π f g)
+        ∙ cong₂ ∙Π
+              ((sym (∘∙-idˡ f) ∙ cong (f ∘∙_) (sym ret)) ∙ sym (∘∙-assoc _ _ _))
+              (sym (∘∙-idˡ g) ∙ cong (g ∘∙_) (sym ret) ∙ sym (∘∙-assoc _ _ _))))
+  where
+  ret = ≃∙→ret/sec∙ {B = _ , ptSn (suc (n + m))}
+          (joinSphereEquiv∙ n m) .snd
+
+-π*≡-π' : ∀ {ℓ} {A : Pointed ℓ} {n m : ℕ}
+  (f : π* n m A)
+  → Iso.fun (Iso-π*-π' n m) (-π* f)
+  ≡ -π' _ (Iso.fun (Iso-π*-π' n m) f) 
+-π*≡-π' {n = n} {m} =
+  ST.elim (λ _ → isSetPathImplicit)
+   (J≃∙map (joinSphereEquiv∙ n m)
+    λ f → cong ∣_∣₂
+      (cong (_∘∙ (≃∙map (invEquiv∙ (joinSphereEquiv∙ n m))))
+            (sym (-Π* f))
+    ∙ ∘∙-assoc _ _ _
+    ∙ cong (-Π f ∘∙_) ret
+    ∙ ∘∙-idˡ (-Π f)
+    ∙ cong -Π (sym (∘∙-assoc _ _ _ ∙ cong (f ∘∙_) ret ∙ ∘∙-idˡ f))))
+  where
+  ret = ≃∙→ret/sec∙ {B = _ , ptSn (suc (n + m))}
+          (joinSphereEquiv∙ n m) .snd
+
+-- Homotopy groups in terms of joins
+π*Gr : ∀ {ℓ} (n m : ℕ) (A : Pointed ℓ) → Group ℓ
+fst (π*Gr n m A) = π* n m A
+1g (snd (π*Gr n m A)) = 1π*
+GroupStr._·_ (snd (π*Gr n m A)) = ·π*
+inv (snd (π*Gr n m A)) = -π*
+isGroup (snd (π*Gr n m A)) =
+  transport (λ i → IsGroup (p1 (~ i)) (p2 (~ i)) (p3 (~ i)))
+            (isGroup (π'Gr (n + m) A .snd))
+  where
+  p1 : PathP (λ i → isoToPath (Iso-π*-π' {A = A} n m) i)
+             1π* (1π' (suc (n + m)))
+  p1 = toPathP (cong ∣_∣₂ (transportRefl _ ∙ ΣPathP (refl , sym (rUnit refl))))
+
+  p2 : PathP (λ i → (f g : isoToPath (Iso-π*-π' {A = A} n m) i)
+                  → isoToPath (Iso-π*-π' {A = A} n m) i)
+              ·π* (·π' _)
+  p2 = toPathP (funExt λ f
+    → funExt λ g → transportRefl _
+    ∙ π*≡π' _ _
+    ∙ cong₂ (·π' (n + m))
+            (Iso.rightInv (Iso-π*-π' n m) _ ∙ transportRefl f)
+            (Iso.rightInv (Iso-π*-π' n m) _ ∙ transportRefl g))
+
+  p3 : PathP (λ i → isoToPath (Iso-π*-π' {A = A} n m) i
+                   → isoToPath (Iso-π*-π' {A = A} n m) i)
+             -π* (-π' _)
+  p3 = toPathP (funExt λ f → transportRefl _
+    ∙ -π*≡-π' _
+    ∙ cong (-π' (n + m))
+           (Iso.rightInv (Iso-π*-π' n m) _ ∙ transportRefl f))
+
+π*Gr≅π'Gr : ∀ {ℓ} (n m : ℕ) (A : Pointed ℓ)
+  → GroupIso (π*Gr n m A) (π'Gr (n + m) A)
+fst (π*Gr≅π'Gr n m A) = Iso-π*-π' {A = A} n m
+snd (π*Gr≅π'Gr n m A) = makeIsGroupHom π*≡π'
+
+π*∘∙fun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+  (n m : ℕ) (f : A →∙ B)
+   → π* n m A → π* n m B
+π*∘∙fun n m f  = ST.map (f ∘∙_)
+
+GroupHomπ≅π*PathP : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') (n m : ℕ)
+  → GroupHom (π'Gr (n + m) A) (π'Gr (n + m) B)
+   ≡ GroupHom (π*Gr n m A) (π*Gr n m B)
+GroupHomπ≅π*PathP A B n m i =
+  GroupHom (fst (GroupPath _ _) (GroupIso→GroupEquiv (π*Gr≅π'Gr n m A)) (~ i))
+           (fst (GroupPath _ _) (GroupIso→GroupEquiv (π*Gr≅π'Gr n m B)) (~ i))
+
+
+π*∘∙Hom : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+  (n m : ℕ) (f : A →∙ B)
+  → GroupHom (π*Gr n m A) (π*Gr n m B)
+fst (π*∘∙Hom {A = A} {B = B} n m f) = π*∘∙fun n m f
+snd (π*∘∙Hom {A = A} {B = B} n m f) =
+  subst (λ ϕ → IsGroupHom (π*Gr n m A .snd) ϕ (π*Gr n m B .snd))
+        π*∘∙Hom'≡
+        (snd π*∘∙Hom')
+  where
+  π*∘∙Hom' : _
+  π*∘∙Hom' = transport (λ i → GroupHomπ≅π*PathP A B n m i)
+                       (π'∘∙Hom (n + m) f)
+
+  π*∘∙Hom'≡ : π*∘∙Hom' .fst ≡ π*∘∙fun n m f
+  π*∘∙Hom'≡ =
+    funExt (ST.elim (λ _ → isSetPathImplicit)
+           λ g → cong ∣_∣₂ (cong (inv (Iso-JoinMap-SphereMap n m))
+                   (transportRefl _
+                   ∙ cong (f ∘∙_) (transportRefl _))
+                 ∙ ∘∙-assoc _ _ _
+                 ∙ cong (f ∘∙_ )
+                        (∘∙-assoc _ _ _ ∙ cong (g ∘∙_)
+                         (≃∙→ret/sec∙ {B = _ , ptSn (suc (n + m))}
+                          (joinSphereEquiv∙ n m) .fst)
+                       ∙ ∘∙-idˡ g)))

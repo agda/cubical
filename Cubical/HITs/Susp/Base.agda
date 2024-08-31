@@ -37,7 +37,7 @@ suspFun f south = south
 suspFun f (merid a i) = merid (f a) i
 
 -- pointed version
-suspFun∙ : {A B : Type ℓ} (f : A → B)
+suspFun∙ : {A : Type ℓ} {B : Type ℓ'} (f : A → B)
        → Susp∙ A →∙ Susp∙ B
 fst (suspFun∙ f) = suspFun f
 snd (suspFun∙ f) = refl

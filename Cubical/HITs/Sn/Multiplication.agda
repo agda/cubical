@@ -3,53 +3,43 @@
 {-
 This file contains:
 1. Definition of the multplication Sⁿ × Sᵐ → Sⁿ⁺ᵐ
-2. The algebraic properties of this map
-3. The fact that the multiplication induces an equivalence Sⁿ ∧ Sᵐ ≃ Sⁿ⁺ᵐ
+2. The fact that the multiplication induces an equivalence Sⁿ ∧ Sᵐ ≃ Sⁿ⁺ᵐ
+3. The algebraic properties of this map
 -}
 
 module Cubical.HITs.Sn.Multiplication where
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
-
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Univalence
-open import Cubical.HITs.S1 renaming (_·_ to _*_ ; rec to S¹Fun) hiding (elim)
-open import Cubical.HITs.S2 renaming (S¹×S¹→S² to S¹×S¹→S²')
-open import Cubical.HITs.S3
-open import Cubical.Data.Nat hiding (elim)
-open import Cubical.Data.Sigma
-open import Cubical.HITs.Sn.Base
-open import Cubical.HITs.Susp renaming (toSusp to σ)
-open import Cubical.HITs.Truncation
-open import Cubical.HITs.Join renaming (joinS¹S¹→S³ to joinS¹S¹→S3)
-open import Cubical.Data.Bool hiding (elim)
-
-open import Cubical.HITs.Sn.Properties
-
-
-open import Cubical.HITs.Pushout
-open import Cubical.HITs.SmashProduct
-open import Cubical.Homotopy.Loopspace
-
 open import Cubical.Foundations.Pointed.Homogeneous
 
 open import Cubical.Data.Sum
+open import Cubical.Data.Bool hiding (elim)
+open import Cubical.Data.Nat hiding (elim)
+open import Cubical.Data.Sigma
+
+open import Cubical.HITs.S1 hiding (_·_)
+open import Cubical.HITs.Sn hiding (IsoSphereJoin)
+open import Cubical.HITs.Susp renaming (toSusp to σ)
+open import Cubical.HITs.Join
+open import Cubical.HITs.Pushout
+open import Cubical.HITs.SmashProduct
+
+open import Cubical.Homotopy.Loopspace
 
 open Iso
 
-
-
 open PlusBis
-open import Cubical.HITs.Susp.Properties
-open import Cubical.HITs.Join
 
+
+---- Sphere multiplication
 -- auxiliary function
 sphereFun↑ : {n m k : ℕ}
   → (f : S₊ n → S₊ m → S₊ k)
@@ -92,8 +82,275 @@ IdL⌣S≡IdR⌣S zero m = refl
 IdL⌣S≡IdR⌣S (suc zero) m = refl
 IdL⌣S≡IdR⌣S (suc (suc n)) m = refl
 
--- Associativity ⌣S
+-- Multiplication induced on smash products of spheres
+⋀S∙ : (n m : ℕ) → S₊∙ n ⋀∙ S₊∙ m →∙ S₊∙ (n + m)
+fst (⋀S∙ n m) (inl x) = ptSn _
+fst (⋀S∙ n m) (inr x) = (fst x) ⌣S (snd x)
+fst (⋀S∙ n m) (push (inl x) i) = IdL⌣S x (~ i)
+fst (⋀S∙ n m) (push (inr x) i) = IdR⌣S x (~ i)
+fst (⋀S∙ n m) (push (push a i₁) i) = IdL⌣S≡IdR⌣S n m i₁ (~ i)
+snd (⋀S∙ n m) = refl
 
+⋀S : (n m : ℕ) → S₊∙ n ⋀ S₊∙ m → S₊ (n + m)
+⋀S n m = fst (⋀S∙ n m)
+
+-- Proof that it is an equivalence
+⋀S-base : (m : ℕ)
+  → Iso (S₊∙ zero ⋀ S₊∙ m) (S₊ m)
+fun (⋀S-base m) = ⋀S zero m
+inv (⋀S-base m) x = inr (false , x)
+rightInv (⋀S-base m) x = refl
+leftInv (⋀S-base m) =
+  ⋀-fun≡ _ _
+    (sym (push (inl false)))
+    (λ { (false , y) → refl
+       ; (true , y) → sym (push (inl false)) ∙ push (inr y)})
+     (λ { false i j → push (inl false) (i ∨ ~ j)
+        ; true → compPath-filler (sym (push (inl false))) (push (inl true))
+        ▷ cong (sym (push (inl false)) ∙_)
+                (λ i → push (push tt i) )})
+        λ x → compPath-filler (sym (push (inl false))) (push (inr x))
+{-
+Proof that ⋀S respects suspension, i.e. that the following diagram commutes
+                ⋀S
+Sⁿ⁺¹ ∧ Sᵐ ---------------> Sⁿ⁺ᵐ⁺¹
+|                          |
+|                          |
+v                          v
+Σ (Sⁿ ∧ Sᵐ)  -----------> Σ Sⁿ⁺ᵐ
+                Σ(⋀S)
+-}
+
+⋀S-ind : (n m : ℕ) (x : _)
+  → ⋀S (suc n) m x
+   ≡ Iso.inv (IsoSucSphereSusp (n + m))
+      (suspFun (⋀S n m) (Iso.fun SuspSmashCommIso
+        (((Iso.fun (IsoSucSphereSusp n) , IsoSucSphereSusp∙' n)
+      ⋀→ idfun∙ (S₊∙ m)) x)))
+⋀S-ind zero m = ⋀-fun≡ _ _
+  (sym (IsoSucSphereSusp∙ m))
+    (λ x → main m (fst x) (snd x))
+    (mainₗ m)
+    mainᵣ
+  where
+  F' :  (m : ℕ) → Susp ((Bool , true) ⋀ S₊∙ m) → _
+  F' m = inv (IsoSucSphereSusp (zero + m)) ∘ suspFun (⋀S zero m)
+
+  F : (m : ℕ) → Susp∙ Bool ⋀ S₊∙ m → _
+  F m = F' m ∘ fun SuspSmashCommIso
+
+  G : (m : ℕ) → _ → _
+  G m = _⋀→_ {A = S₊∙ 1} {B = S₊∙ m}
+         (fun (IsoSucSphereSusp zero) , (λ _ → north))
+         (idfun∙ (S₊∙ m))
+
+  main : (m : ℕ) (x : S¹) (y : S₊ m)
+    → x ⌣S y
+    ≡ F m (inr (S¹→SuspBool x , y))
+  main m base y = sym (IsoSucSphereSusp∙ m)
+  main zero (loop i) false j =
+    ((cong-∙ (λ x → F zero (inr (x , false)))
+             (merid false) (sym (merid true)))
+    ∙ sym (rUnit loop)) (~ j) i
+  main zero (loop i) true j =
+    F zero (inr (rCancel (merid true) (~ j) i , false))
+  main (suc m) (loop i) y j =
+    cong-∙ (λ x → F (suc m) (inr (x , y)))
+           (merid false) (sym (merid true)) (~ j) i
+
+  mainₗ : (m : ℕ) (x : S¹)
+    → PathP (λ i → IdL⌣S {m = m} x (~ i)
+            ≡ F m (G m (push (inl x) i)))
+             (sym (IsoSucSphereSusp∙ m))
+             (main m x (ptSn m))
+  mainₗ zero =
+    toPropElim (λ _ → isOfHLevelPathP' 1 (isGroupoidS¹ _ _) _ _)
+     (flipSquare (cong (cong (F zero)) (rUnit (push (inl north)))))
+  mainₗ (suc m) x = flipSquare (help x
+    ▷ (cong (cong (F (suc m))) (rUnit (push (inl (S¹→SuspBool x))))))
+    where
+    help : (x : S¹)
+      → PathP (λ i → north ≡ main (suc m) x (ptSn (suc m)) i)
+           (sym (IdL⌣S {n = 1} x))
+           (cong (F (suc m)) (push (inl (S¹→SuspBool x))))
+    help base = refl
+    help (loop i) j k =
+      hcomp (λ r
+        → λ {(i = i0) → north
+            ; (i = i1) → F' (suc m)
+                           (merid-fill
+                            {A = Bool , true}
+                            {B = S₊∙ (suc m)} true (~ r) k j)
+            ; (j = i0) → rCancel-filler (merid (ptSn (suc m))) r (~ k) i
+            ; (j = i1) → F (suc m)
+                           (push (inl (compPath-filler
+                             (merid false) (sym (merid true)) r i)) k)
+            ; (k = i0) → north
+            ; (k = i1) → cong-∙∙-filler
+                            (λ x₁ → F (suc m) (inr (x₁ , ptSn (suc m))))
+                            refl (merid false) (sym (merid true)) r (~ j) i})
+       (F' (suc m) (merid-fill {A = Bool , true} {B = S₊∙ (suc m)} false k i j))
+  mainᵣ : (x : S₊ m)
+    → PathP (λ i → ptSn (suc m) ≡ F m (G m (push (inr x) i)))
+             (sym (IsoSucSphereSusp∙ m))
+             (sym (IsoSucSphereSusp∙ m))
+  mainᵣ x = flipSquare ((λ i j → (IsoSucSphereSusp∙ m) (~ i))
+                       ▷ cong (cong (F m)) (rUnit (push (inr x))))
+⋀S-ind (suc n) m = ⋀-fun≡ _ _ refl
+  (λ x → h (fst x) (snd x))
+  hₗ
+  λ x → flipSquare (cong (cong (suspFun (⋀S (suc n) m)
+                              ∘ fun SuspSmashCommIso))
+                    (rUnit (push (inr x))))
+  where
+  h : (x : S₊ (suc (suc n))) (y : S₊ m)
+    → (x ⌣S y)
+    ≡ suspFun (⋀S (suc n) m)
+       (SuspL→Susp⋀ (inr (idfun (Susp (S₊ (suc n))) x , y)))
+  h north y = refl
+  h south y = merid (ptSn _)
+  h (merid a i) y j = compPath-filler
+           (merid (a ⌣S y)) (sym (merid (ptSn (suc (n + m))))) (~ j) i
+
+  hₗ-lem : (x : Susp (S₊ (suc n)))
+    → PathP (λ i → north ≡ h x (ptSn m) i)
+             (sym (IdL⌣S x))
+             (cong (suspFun (⋀S (suc n) m)
+                  ∘ fun SuspSmashCommIso)
+                   (push (inl x)))
+  hₗ-lem north = refl
+  hₗ-lem south i j = merid (ptSn (suc (n + m))) (i ∧ j)
+  hₗ-lem (merid a i) j k = help j k i
+    where
+    help : Cube (sym (cong σS
+                  (IdL⌣S {n = suc n} {m = m} a)
+                 ∙ rCancel (merid (ptSn (suc n + m)))))
+                (λ k i → suspFun (⋀S (suc n) m)
+                           (SuspL→Susp⋀ (push (inl (merid a i)) k)))
+                (λ j i → north)
+                (λ j i → compPath-filler
+                           (merid (a ⌣S ptSn m))
+                           (sym (merid (ptSn (suc (n + m))))) (~ j) i)
+                (λ j k → north)
+                λ j k → merid (ptSn (suc (n + m))) (j ∧ k)
+    help j k i =
+      hcomp (λ r
+        → λ {(i = i0) → north
+            ; (i = i1) → merid (ptSn (suc (n + m))) (j ∧ k)
+            ; (j = i0) → compPath-filler'
+                           (cong σS
+                            (IdL⌣S {n = suc n} {m = m} a))
+                           (rCancel (merid (ptSn (suc n + m)))) r (~ k) i
+            ; (j = i1) → suspFun (⋀S (suc n) m)
+                           (merid-fill a k i r)
+            ; (k = i0) → north
+            ; (k = i1) → compPath-filler
+                           (merid (IdL⌣S a (~ r)))
+                           (sym (merid (ptSn (suc (n + m))))) (~ j) i})
+         (hcomp (λ r → λ {(i = i0) → north
+                        ; (i = i1) → merid (ptSn (suc (n + m))) ((j ∨ ~ r) ∧ k)
+                        ; (j = i0) → rCancel-filler (merid (ptSn _)) r (~ k) i
+                        ; (j = i1) → merid (ptSn (suc (n + m))) (i ∧ k)
+                        ; (k = i0) → north
+                        ; (k = i1) → compPath-filler
+                                       (merid (ptSn _))
+                                       (sym (merid (ptSn (suc (n + m)))))
+                                       (~ j ∧ r) i})
+                  (merid (ptSn (suc (n + m))) (i ∧ k)))
+
+  hₗ : (x : Susp (S₊ (suc n)))
+    → PathP (λ i → IdL⌣S x (~ i)
+      ≡ inv (IsoSucSphereSusp (suc n + m))
+         (suspFun (⋀S (suc n) m)
+          (fun SuspSmashCommIso
+           (((fun (IsoSucSphereSusp (suc n)) , IsoSucSphereSusp∙' (suc n)) ⋀→
+             idfun∙ (S₊∙ m))
+            (push (inl x) i))))) refl (h x (ptSn m))
+  hₗ x =
+    flipSquare
+       ((hₗ-lem x
+      ▷ sym (cong (cong (inv (IsoSucSphereSusp (suc n + m))
+                  ∘ suspFun (⋀S (suc n) m)
+                  ∘ fun SuspSmashCommIso))
+                  (sym (rUnit (push (inl x)))))))
+
+
+isEquiv-⋀S : (n m : ℕ) → isEquiv (⋀S n m)
+isEquiv-⋀S zero m = isoToIsEquiv (⋀S-base m)
+isEquiv-⋀S (suc n) m =
+  subst isEquiv (sym (funExt (⋀S-ind n m)))
+    (snd (helpEq (isEquiv-⋀S n m)))
+  where
+  r = isoToEquiv (IsoSucSphereSusp n)
+
+  helpEq : isEquiv (⋀S n m) → (S₊∙ (suc n) ⋀ S₊∙ m) ≃ S₊ (suc n + m)
+  helpEq iseq =
+    compEquiv
+     (compEquiv
+       (compEquiv
+         (⋀≃ (r , IsoSucSphereSusp∙' n) (idEquiv (S₊ m) , refl))
+         (isoToEquiv SuspSmashCommIso))
+       (isoToEquiv
+         (congSuspIso (equivToIso (⋀S n m , iseq)))))
+      (isoToEquiv (invIso (IsoSucSphereSusp (n + m))))
+
+SphereSmashIso : (n m : ℕ) → Iso (S₊∙ n ⋀ S₊∙ m) (S₊ (n + m))
+SphereSmashIso n m = equivToIso (⋀S n m , isEquiv-⋀S n m)
+
+-- Proof that the pinch map Sⁿ * Sᵐ → Sⁿ⁺ᵐ⁺¹ is an equivalence
+join→Sphere : (n m : ℕ)
+  → join (S₊ n) (S₊ m) → S₊ (suc (n + m))
+join→Sphere n m (inl x) = ptSn _
+join→Sphere n m (inr x) = ptSn _
+join→Sphere n m (push a b i) = σS (a ⌣S b) i
+
+joinSphereIso' : (n m : ℕ)
+  → Iso (join (S₊ n) (S₊ m)) (S₊ (suc (n + m)))
+joinSphereIso' n m =
+  compIso (invIso (SmashJoinIso {A = S₊∙ n} {B = S₊∙ m}))
+   (compIso (congSuspIso (SphereSmashIso n m))
+    (invIso (IsoSucSphereSusp (n + m))))
+
+join→Sphere≡ : (n m : ℕ) (x : _)
+  → join→Sphere n m x ≡ joinSphereIso' n m .Iso.fun x
+join→Sphere≡ zero zero (inl x) = refl
+join→Sphere≡ zero (suc m) (inl x) = refl
+join→Sphere≡ (suc n) m (inl x) = refl
+join→Sphere≡ zero zero (inr x) = refl
+join→Sphere≡ zero (suc m) (inr x) = merid (ptSn (suc m))
+join→Sphere≡ (suc n) zero (inr x) = merid (ptSn (suc n + zero))
+join→Sphere≡ (suc n) (suc m) (inr x) = merid (ptSn (suc n + suc m))
+join→Sphere≡ zero zero (push false false i) j = loop i
+join→Sphere≡ zero zero (push false true i) j = base
+join→Sphere≡ zero zero (push true b i) j = base
+join→Sphere≡ zero (suc m) (push a b i) j =
+  compPath-filler
+    (merid (a ⌣S b)) (sym (merid (ptSn (suc m)))) (~ j) i
+join→Sphere≡ (suc n) zero (push a b i) j =
+  compPath-filler
+    (merid (a ⌣S b)) (sym (merid (ptSn (suc n + zero)))) (~ j) i
+join→Sphere≡ (suc n) (suc m) (push a b i) j =
+  compPath-filler
+    (merid (a ⌣S b)) (sym (merid (ptSn (suc n + suc m)))) (~ j) i
+
+-- Todo: integrate with Sn.Properties IsoSphereJoin
+IsoSphereJoin : (n m : ℕ)
+  → Iso (join (S₊ n) (S₊ m)) (S₊ (suc (n + m)))
+fun (IsoSphereJoin n m) = join→Sphere n m
+inv (IsoSphereJoin n m) = joinSphereIso' n m .Iso.inv
+rightInv (IsoSphereJoin n m) x =
+  join→Sphere≡ n m (joinSphereIso' n m .Iso.inv x)
+  ∙ joinSphereIso' n m .Iso.rightInv x
+leftInv (IsoSphereJoin n m) x =
+  cong (joinSphereIso' n m .inv) (join→Sphere≡ n m x)
+  ∙ joinSphereIso' n m .Iso.leftInv x
+
+joinSphereEquiv∙ : (n m : ℕ) → join∙ (S₊∙ n) (S₊∙ m) ≃∙ S₊∙ (suc (n + m))
+fst (joinSphereEquiv∙ n m) = isoToEquiv (IsoSphereJoin n m)
+snd (joinSphereEquiv∙ n m) = refl
+
+
+-- Associativity ⌣S
 -- Preliminary lemma
 ⌣S-false : {n : ℕ} (x : S₊ n) → PathP (λ i → S₊ (+-comm n zero i)) (x ⌣S false) x
 ⌣S-false {n = zero} false = refl
@@ -634,265 +891,3 @@ comm⌣S {n = suc (suc n)} {m = suc (suc m)} x y =
       ∙ sym (cong (subst S₊ (sym (+-comm (suc m) (suc n)))
                  ∘ -S^ (suc n · suc m))
          (comm⌣S x y))) x y
-
--- Multiplication induced on smash products of spheres
-⋀S∙ : (n m : ℕ) → S₊∙ n ⋀∙ S₊∙ m →∙ S₊∙ (n + m)
-fst (⋀S∙ n m) (inl x) = ptSn _
-fst (⋀S∙ n m) (inr x) = (fst x) ⌣S (snd x)
-fst (⋀S∙ n m) (push (inl x) i) = IdL⌣S x (~ i)
-fst (⋀S∙ n m) (push (inr x) i) = IdR⌣S x (~ i)
-fst (⋀S∙ n m) (push (push a i₁) i) = IdL⌣S≡IdR⌣S n m i₁ (~ i)
-snd (⋀S∙ n m) = refl
-
-⋀S : (n m : ℕ) → S₊∙ n ⋀ S₊∙ m → S₊ (n + m)
-⋀S n m = fst (⋀S∙ n m)
-
--- Proof that it is an equivalence
-⋀S-base : (m : ℕ)
-  → Iso (S₊∙ zero ⋀ S₊∙ m) (S₊ m)
-fun (⋀S-base m) = ⋀S zero m
-inv (⋀S-base m) x = inr (false , x)
-rightInv (⋀S-base m) x = refl
-leftInv (⋀S-base m) =
-  ⋀-fun≡ _ _
-    (sym (push (inl false)))
-    (λ { (false , y) → refl
-       ; (true , y) → sym (push (inl false)) ∙ push (inr y)})
-     (λ { false i j → push (inl false) (i ∨ ~ j)
-        ; true → compPath-filler (sym (push (inl false))) (push (inl true))
-        ▷ cong (sym (push (inl false)) ∙_)
-                (λ i → push (push tt i) )})
-        λ x → compPath-filler (sym (push (inl false))) (push (inr x))
-{-
-Proof that ⋀S respects suspension, i.e. that the following diagram commutes
-                ⋀S
-Sⁿ⁺¹ ∧ Sᵐ ---------------> Sⁿ⁺ᵐ⁺¹
-|                          |
-|                          |
-v                          v
-Σ (Sⁿ ∧ Sᵐ)  -----------> Σ Sⁿ⁺ᵐ
-                Σ(⋀S)
--}
-
-⋀S-ind : (n m : ℕ) (x : _)
-  → ⋀S (suc n) m x
-   ≡ Iso.inv (IsoSucSphereSusp (n + m))
-      (suspFun (⋀S n m) (Iso.fun SuspSmashCommIso
-        (((Iso.fun (IsoSucSphereSusp n) , IsoSucSphereSusp∙' n)
-      ⋀→ idfun∙ (S₊∙ m)) x)))
-⋀S-ind zero m = ⋀-fun≡ _ _
-  (sym (IsoSucSphereSusp∙ m))
-    (λ x → main m (fst x) (snd x))
-    (mainₗ m)
-    mainᵣ
-  where
-  F' :  (m : ℕ) → Susp ((Bool , true) ⋀ S₊∙ m) → _
-  F' m = inv (IsoSucSphereSusp (zero + m)) ∘ suspFun (⋀S zero m)
-
-  F : (m : ℕ) → Susp∙ Bool ⋀ S₊∙ m → _
-  F m = F' m ∘ fun SuspSmashCommIso
-
-  G : (m : ℕ) → _ → _
-  G m = _⋀→_ {A = S₊∙ 1} {B = S₊∙ m}
-         (fun (IsoSucSphereSusp zero) , (λ _ → north))
-         (idfun∙ (S₊∙ m))
-
-  main : (m : ℕ) (x : S¹) (y : S₊ m)
-    → x ⌣S y
-    ≡ F m (inr (S¹→SuspBool x , y))
-  main m base y = sym (IsoSucSphereSusp∙ m)
-  main zero (loop i) false j =
-    ((cong-∙ (λ x → F zero (inr (x , false)))
-             (merid false) (sym (merid true)))
-    ∙ sym (rUnit loop)) (~ j) i
-  main zero (loop i) true j =
-    F zero (inr (rCancel (merid true) (~ j) i , false))
-  main (suc m) (loop i) y j =
-    cong-∙ (λ x → F (suc m) (inr (x , y)))
-           (merid false) (sym (merid true)) (~ j) i
-
-  mainₗ : (m : ℕ) (x : S¹)
-    → PathP (λ i → IdL⌣S {m = m} x (~ i)
-            ≡ F m (G m (push (inl x) i)))
-             (sym (IsoSucSphereSusp∙ m))
-             (main m x (ptSn m))
-  mainₗ zero =
-    toPropElim (λ _ → isOfHLevelPathP' 1 (isGroupoidS¹ _ _) _ _)
-     (flipSquare (cong (cong (F zero)) (rUnit (push (inl north)))))
-  mainₗ (suc m) x = flipSquare (help x
-    ▷ (cong (cong (F (suc m))) (rUnit (push (inl (S¹→SuspBool x))))))
-    where
-    help : (x : S¹)
-      → PathP (λ i → north ≡ main (suc m) x (ptSn (suc m)) i)
-           (sym (IdL⌣S {n = 1} x))
-           (cong (F (suc m)) (push (inl (S¹→SuspBool x))))
-    help base = refl
-    help (loop i) j k =
-      hcomp (λ r
-        → λ {(i = i0) → north
-            ; (i = i1) → F' (suc m)
-                           (merid-fill
-                            {A = Bool , true}
-                            {B = S₊∙ (suc m)} true (~ r) k j)
-            ; (j = i0) → rCancel-filler (merid (ptSn (suc m))) r (~ k) i
-            ; (j = i1) → F (suc m)
-                           (push (inl (compPath-filler
-                             (merid false) (sym (merid true)) r i)) k)
-            ; (k = i0) → north
-            ; (k = i1) → cong-∙∙-filler
-                            (λ x₁ → F (suc m) (inr (x₁ , ptSn (suc m))))
-                            refl (merid false) (sym (merid true)) r (~ j) i})
-       (F' (suc m) (merid-fill {A = Bool , true} {B = S₊∙ (suc m)} false k i j))
-  mainᵣ : (x : S₊ m)
-    → PathP (λ i → ptSn (suc m) ≡ F m (G m (push (inr x) i)))
-             (sym (IsoSucSphereSusp∙ m))
-             (sym (IsoSucSphereSusp∙ m))
-  mainᵣ x = flipSquare ((λ i j → (IsoSucSphereSusp∙ m) (~ i))
-                       ▷ cong (cong (F m)) (rUnit (push (inr x))))
-⋀S-ind (suc n) m = ⋀-fun≡ _ _ refl
-  (λ x → h (fst x) (snd x))
-  hₗ
-  λ x → flipSquare (cong (cong (suspFun (⋀S (suc n) m)
-                              ∘ fun SuspSmashCommIso))
-                    (rUnit (push (inr x))))
-  where
-  h : (x : S₊ (suc (suc n))) (y : S₊ m)
-    → (x ⌣S y)
-    ≡ suspFun (⋀S (suc n) m)
-       (SuspL→Susp⋀ (inr (idfun (Susp (S₊ (suc n))) x , y)))
-  h north y = refl
-  h south y = merid (ptSn _)
-  h (merid a i) y j = compPath-filler
-           (merid (a ⌣S y)) (sym (merid (ptSn (suc (n + m))))) (~ j) i
-
-  hₗ-lem : (x : Susp (S₊ (suc n)))
-    → PathP (λ i → north ≡ h x (ptSn m) i)
-             (sym (IdL⌣S x))
-             (cong (suspFun (⋀S (suc n) m)
-                  ∘ fun SuspSmashCommIso)
-                   (push (inl x)))
-  hₗ-lem north = refl
-  hₗ-lem south i j = merid (ptSn (suc (n + m))) (i ∧ j)
-  hₗ-lem (merid a i) j k = help j k i
-    where
-    help : Cube (sym (cong (toSusp (S₊∙ (suc (n + m))))
-                  (IdL⌣S {n = suc n} {m = m} a)
-                 ∙ rCancel (merid (ptSn (suc n + m)))))
-                (λ k i → suspFun (⋀S (suc n) m)
-                           (SuspL→Susp⋀ (push (inl (merid a i)) k)))
-                (λ j i → north)
-                (λ j i → compPath-filler
-                           (merid (a ⌣S ptSn m))
-                           (sym (merid (ptSn (suc (n + m))))) (~ j) i)
-                (λ j k → north)
-                λ j k → merid (ptSn (suc (n + m))) (j ∧ k)
-    help j k i =
-      hcomp (λ r
-        → λ {(i = i0) → north
-            ; (i = i1) → merid (ptSn (suc (n + m))) (j ∧ k)
-            ; (j = i0) → compPath-filler'
-                           (cong (toSusp (S₊∙ (suc (n + m))))
-                            (IdL⌣S {n = suc n} {m = m} a))
-                           (rCancel (merid (ptSn (suc n + m)))) r (~ k) i
-            ; (j = i1) → suspFun (⋀S (suc n) m)
-                           (merid-fill a k i r)
-            ; (k = i0) → north
-            ; (k = i1) → compPath-filler
-                           (merid (IdL⌣S a (~ r)))
-                           (sym (merid (ptSn (suc (n + m))))) (~ j) i})
-         (hcomp (λ r → λ {(i = i0) → north
-                        ; (i = i1) → merid (ptSn (suc (n + m))) ((j ∨ ~ r) ∧ k)
-                        ; (j = i0) → rCancel-filler (merid (ptSn _)) r (~ k) i
-                        ; (j = i1) → merid (ptSn (suc (n + m))) (i ∧ k)
-                        ; (k = i0) → north
-                        ; (k = i1) → compPath-filler
-                                       (merid (ptSn _))
-                                       (sym (merid (ptSn (suc (n + m)))))
-                                       (~ j ∧ r) i})
-                  (merid (ptSn (suc (n + m))) (i ∧ k)))
-
-  hₗ : (x : Susp (S₊ (suc n)))
-    → PathP (λ i → IdL⌣S x (~ i)
-      ≡ inv (IsoSucSphereSusp (suc n + m))
-         (suspFun (⋀S (suc n) m)
-          (fun SuspSmashCommIso
-           (((fun (IsoSucSphereSusp (suc n)) , IsoSucSphereSusp∙' (suc n)) ⋀→
-             idfun∙ (S₊∙ m))
-            (push (inl x) i))))) refl (h x (ptSn m))
-  hₗ x =
-    flipSquare
-       ((hₗ-lem x
-      ▷ sym (cong (cong (inv (IsoSucSphereSusp (suc n + m))
-                  ∘ suspFun (⋀S (suc n) m)
-                  ∘ fun SuspSmashCommIso))
-                  (sym (rUnit (push (inl x)))))))
-
-
-isEquiv-⋀S : (n m : ℕ) → isEquiv (⋀S n m)
-isEquiv-⋀S zero m = isoToIsEquiv (⋀S-base m)
-isEquiv-⋀S (suc n) m =
-  subst isEquiv (sym (funExt (⋀S-ind n m)))
-    (snd (helpEq (isEquiv-⋀S n m)))
-  where
-  r = isoToEquiv (IsoSucSphereSusp n)
-
-  helpEq : isEquiv (⋀S n m) → (S₊∙ (suc n) ⋀ S₊∙ m) ≃ S₊ (suc n + m)
-  helpEq iseq =
-    compEquiv
-     (compEquiv
-       (compEquiv
-         (⋀≃ (r , IsoSucSphereSusp∙' n) (idEquiv (S₊ m) , refl))
-         (isoToEquiv SuspSmashCommIso))
-       (isoToEquiv
-         (congSuspIso (equivToIso (⋀S n m , iseq)))))
-      (isoToEquiv (invIso (IsoSucSphereSusp (n + m))))
-
-SphereSmashIso : (n m : ℕ) → Iso (S₊∙ n ⋀ S₊∙ m) (S₊ (n + m))
-SphereSmashIso n m = equivToIso (⋀S n m , isEquiv-⋀S n m)
-
--- Proof that the pinch map Sⁿ * Sᵐ → Sⁿ⁺ᵐ⁺¹ is an equivalence
-join→Sphere : (n m : ℕ)
-  → join (S₊ n) (S₊ m) → S₊ (suc (n + m))
-join→Sphere n m (inl x) = ptSn _
-join→Sphere n m (inr x) = ptSn _
-join→Sphere n m (push a b i) = σS (a ⌣S b) i
-
-joinSphereIso' : (n m : ℕ)
-  → Iso (join (S₊ n) (S₊ m)) (S₊ (suc (n + m)))
-joinSphereIso' n m =
-  compIso (invIso (SmashJoinIso {A = S₊∙ n} {B = S₊∙ m}))
-   (compIso (congSuspIso (SphereSmashIso n m))
-    (invIso (IsoSucSphereSusp (n + m))))
-
-join→Sphere≡ : (n m : ℕ) (x : _)
-  → join→Sphere n m x ≡ joinSphereIso' n m .Iso.fun x
-join→Sphere≡ zero zero (inl x) = refl
-join→Sphere≡ zero (suc m) (inl x) = refl
-join→Sphere≡ (suc n) m (inl x) = refl
-join→Sphere≡ zero zero (inr x) = refl
-join→Sphere≡ zero (suc m) (inr x) = merid (ptSn (suc m))
-join→Sphere≡ (suc n) zero (inr x) = merid (ptSn (suc n + zero))
-join→Sphere≡ (suc n) (suc m) (inr x) = merid (ptSn (suc n + suc m))
-join→Sphere≡ zero zero (push false false i) j = loop i
-join→Sphere≡ zero zero (push false true i) j = base
-join→Sphere≡ zero zero (push true b i) j = base
-join→Sphere≡ zero (suc m) (push a b i) j =
-  compPath-filler
-    (merid (a ⌣S b)) (sym (merid (ptSn (suc m)))) (~ j) i
-join→Sphere≡ (suc n) zero (push a b i) j =
-  compPath-filler
-    (merid (a ⌣S b)) (sym (merid (ptSn (suc n + zero)))) (~ j) i
-join→Sphere≡ (suc n) (suc m) (push a b i) j =
-  compPath-filler
-    (merid (a ⌣S b)) (sym (merid (ptSn (suc n + suc m)))) (~ j) i
-
-joinSphereIso : (n m : ℕ)
-  → Iso (join (S₊ n) (S₊ m)) (S₊ (suc (n + m)))
-fun (joinSphereIso n m) = join→Sphere n m
-inv (joinSphereIso n m) = joinSphereIso' n m .Iso.inv
-rightInv (joinSphereIso n m) x =
-  join→Sphere≡ n m (joinSphereIso' n m .Iso.inv x)
-  ∙ joinSphereIso' n m .Iso.rightInv x
-leftInv (joinSphereIso n m) x =
-  cong (joinSphereIso' n m .inv) (join→Sphere≡ n m x)
-  ∙ joinSphereIso' n m .Iso.leftInv x
