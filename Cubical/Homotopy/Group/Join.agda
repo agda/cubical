@@ -1,4 +1,9 @@
 {-# OPTIONS --safe --lossy-unification #-}
+{-
+This file contains definition of homotopy groups in terms of joins:
+π*ₙₘ(A) := ∥ Sⁿ * Sᵐ →∙ A ∥₀
+and the fact that it agrees with the usual definition of homotopy groups.
+-}
 module Cubical.Homotopy.Group.Join where
 
 open import Cubical.Homotopy.Loopspace
@@ -6,52 +11,30 @@ open import Cubical.Homotopy.Group.Base
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.Pointed.Homogeneous
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
-open import Cubical.Foundations.Path
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Equiv.HalfAdjoint
-
-
-open import Cubical.Functions.Morphism
-
-open import Cubical.HITs.SetTruncation as ST
-open import Cubical.HITs.Truncation
-  renaming (rec to trRec ; elim to trElim ; elim2 to trElim2)
-open import Cubical.HITs.Sn
-open import Cubical.HITs.Susp renaming (toSusp to σ)
-open import Cubical.HITs.S1 renaming (_·_ to _*_)
-open import Cubical.HITs.S3
-open import Cubical.HITs.Join
-
-open import Cubical.HITs.Sn.Multiplication
-
-
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
 open import Cubical.Data.Bool
-open import Cubical.Data.Unit
+
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.Sn
+open import Cubical.HITs.Susp renaming (toSusp to σ)
+open import Cubical.HITs.S1
+open import Cubical.HITs.Join
+open import Cubical.HITs.Sn.Multiplication
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.GroupPath
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
 
 open Iso
-open IsGroup
-open IsSemigroup
-open IsMonoid
 open GroupStr
 
+-- Standard loop in Ω (join A B)
 ℓ* : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
   → fst A → fst B → Ω (join∙ A B) .fst
 ℓ* A B a b = push (pt A) (pt B)
@@ -60,6 +43,7 @@ open GroupStr
 ℓS : {n m : ℕ} → S₊ n → S₊ m → Ω (join∙ (S₊∙ n) (S₊∙ m)) .fst
 ℓS {n = n} {m} = ℓ* (S₊∙ n) (S₊∙ m)
 
+-- Addition of functions join A B → C
 _+*_ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
   (f g : join∙ A B →∙ C) → join∙ A B →∙ C
 fst (_+*_ {C = C} f g) (inl x) = pt C
@@ -68,6 +52,7 @@ fst (_+*_ {A = A} {B = B} f g) (push a b i) =
   (Ω→ f .fst (ℓ* A B a b) ∙ Ω→ g .fst (ℓ* A B a b)) i
 snd (f +* g) = refl
 
+-- Inversion
 -* : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
       (f : join∙ A B →∙ C) → join∙ A B →∙ C
 fst (-* {C = C} f) (inl x) = pt C
@@ -75,18 +60,14 @@ fst (-* {C = C} f) (inr x) = pt C
 fst (-* {A = A} {B} f) (push a b i) = Ω→ f .fst (ℓ* A B a b) (~ i)
 snd (-* f) = refl
 
-join→Sphere∙ : (n m : ℕ)
-  → join∙ (S₊∙ n) (S₊∙ m) →∙ S₊∙ (suc (n + m))
-fst (join→Sphere∙ n m) = join→Sphere n m
-snd (join→Sphere∙ n m) = refl
-
--Π* : ∀ {ℓ} {A : Pointed ℓ} {n m : ℕ}
+-- -Π is the same as -*
+-Π≡-* : ∀ {ℓ} {A : Pointed ℓ} {n m : ℕ}
     (f : S₊∙ (suc (n + m)) →∙ A)
   → (-Π f) ∘∙ join→Sphere∙ n m
    ≡ -* (f ∘∙ join→Sphere∙ n m)
-fst (-Π* f i) (inl x) = snd (-Π f) i
-fst (-Π* f i) (inr x) = snd (-Π f) i
-fst (-Π* {A = A} {n = n} {m = m} f i) (push a b j) = main i j
+fst (-Π≡-* f i) (inl x) = snd (-Π f) i
+fst (-Π≡-* f i) (inr x) = snd (-Π f) i
+fst (-Π≡-* {A = A} {n = n} {m = m} f i) (push a b j) = main i j
   where
   lem : (n : ℕ) (f : S₊∙ (suc n) →∙ A) (a : S₊ n)
     → Square (cong (fst (-Π f)) (σS a))
@@ -101,7 +82,7 @@ fst (-Π* {A = A} {n = n} {m = m} f i) (push a b j) = main i j
       ∙ sym (rUnit _))
     ◁ doubleCompPath-filler
       (sym (snd f)) (cong (fst f) (sym (σS a))) (snd f)
-  
+
   main : Square (cong (fst (-Π f)) (σS (a ⌣S b)))
                 (sym (Ω→ (f ∘∙ join→Sphere∙ n m) .fst (ℓS a b)))
                 (snd (-Π f)) (snd (-Π f))
@@ -125,12 +106,12 @@ fst (-Π* {A = A} {n = n} {m = m} f i) (push a b j) = main i j
                           (cong σS (IdR⌣S _) ∙ σS∙))
                   ∙ sym (rUnit (σS (a ⌣S b)))))
                 ∙ sym (lUnit _)))))
-snd (-Π* f i) j = lem i j
+snd (-Π≡-* f i) j = lem i j
   where
   lem : Square (refl ∙ snd (-Π f)) refl (snd (-Π f)) refl
   lem = sym (lUnit (snd (-Π f))) ◁ λ i j → (snd (-Π f)) (i ∨ j)
 
-
+-- ·Π is the same as +*
 ·Π≡+* : ∀ {ℓ} {A : Pointed ℓ} {n m : ℕ}
     (f g : S₊∙ (suc (n + m)) →∙ A)
   → (∙Π f g ∘∙ join→Sphere∙ n m)
@@ -252,13 +233,13 @@ private
 -π*≡-π' : ∀ {ℓ} {A : Pointed ℓ} {n m : ℕ}
   (f : π* n m A)
   → Iso.fun (Iso-π*-π' n m) (-π* f)
-  ≡ -π' _ (Iso.fun (Iso-π*-π' n m) f) 
+  ≡ -π' _ (Iso.fun (Iso-π*-π' n m) f)
 -π*≡-π' {n = n} {m} =
   ST.elim (λ _ → isSetPathImplicit)
    (J≃∙map (joinSphereEquiv∙ n m)
     λ f → cong ∣_∣₂
       (cong (_∘∙ (≃∙map (invEquiv∙ (joinSphereEquiv∙ n m))))
-            (sym (-Π* f))
+            (sym (-Π≡-* f))
     ∙ ∘∙-assoc _ _ _
     ∙ cong (-Π f ∘∙_) ret
     ∙ ∘∙-idˡ (-Π f)
@@ -299,23 +280,17 @@ isGroup (snd (π*Gr n m A)) =
     ∙ cong (-π' (n + m))
            (Iso.rightInv (Iso-π*-π' n m) _ ∙ transportRefl f))
 
+-- Homotopy groups in terms of joins agrees with usual definition
 π*Gr≅π'Gr : ∀ {ℓ} (n m : ℕ) (A : Pointed ℓ)
   → GroupIso (π*Gr n m A) (π'Gr (n + m) A)
 fst (π*Gr≅π'Gr n m A) = Iso-π*-π' {A = A} n m
 snd (π*Gr≅π'Gr n m A) = makeIsGroupHom π*≡π'
 
+-- Functoriality
 π*∘∙fun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
   (n m : ℕ) (f : A →∙ B)
    → π* n m A → π* n m B
 π*∘∙fun n m f  = ST.map (f ∘∙_)
-
-GroupHomπ≅π*PathP : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') (n m : ℕ)
-  → GroupHom (π'Gr (n + m) A) (π'Gr (n + m) B)
-   ≡ GroupHom (π*Gr n m A) (π*Gr n m B)
-GroupHomπ≅π*PathP A B n m i =
-  GroupHom (fst (GroupPath _ _) (GroupIso→GroupEquiv (π*Gr≅π'Gr n m A)) (~ i))
-           (fst (GroupPath _ _) (GroupIso→GroupEquiv (π*Gr≅π'Gr n m B)) (~ i))
-
 
 π*∘∙Hom : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
   (n m : ℕ) (f : A →∙ B)
@@ -326,6 +301,13 @@ snd (π*∘∙Hom {A = A} {B = B} n m f) =
         π*∘∙Hom'≡
         (snd π*∘∙Hom')
   where
+  GroupHomπ≅π*PathP : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') (n m : ℕ)
+    → GroupHom (π'Gr (n + m) A) (π'Gr (n + m) B)
+     ≡ GroupHom (π*Gr n m A) (π*Gr n m B)
+  GroupHomπ≅π*PathP A B n m i =
+    GroupHom (fst (GroupPath _ _) (GroupIso→GroupEquiv (π*Gr≅π'Gr n m A)) (~ i))
+             (fst (GroupPath _ _) (GroupIso→GroupEquiv (π*Gr≅π'Gr n m B)) (~ i))
+
   π*∘∙Hom' : _
   π*∘∙Hom' = transport (λ i → GroupHomπ≅π*PathP A B n m i)
                        (π'∘∙Hom (n + m) f)

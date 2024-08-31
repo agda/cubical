@@ -304,6 +304,11 @@ join→Sphere n m (inl x) = ptSn _
 join→Sphere n m (inr x) = ptSn _
 join→Sphere n m (push a b i) = σS (a ⌣S b) i
 
+join→Sphere∙ : (n m : ℕ)
+  → join∙ (S₊∙ n) (S₊∙ m) →∙ S₊∙ (suc (n + m))
+fst (join→Sphere∙ n m) = join→Sphere n m
+snd (join→Sphere∙ n m) = refl
+
 joinSphereIso' : (n m : ℕ)
   → Iso (join (S₊ n) (S₊ m)) (S₊ (suc (n + m)))
 joinSphereIso' n m =
