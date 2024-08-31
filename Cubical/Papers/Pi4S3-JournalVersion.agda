@@ -17,52 +17,46 @@ module Cubical.Papers.Pi4S3-JournalVersion where
 -- Misc.
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.HLevels
--- open import Cubical.Foundations.Fiber
 
-
-open import Cubical.Data.Int hiding (_+_)
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Sum
-open import Cubical.Data.Sigma
 
 -- 2
 open import Cubical.Data.Bool as Boolean
 open import Cubical.Data.Unit as UnitType
 
 open import Cubical.HITs.S1 as Circle
-open import Cubical.Foundations.Prelude                     as Prelude
-open import Cubical.HITs.Susp                               as Suspensions
-open import Cubical.HITs.Sn                                 as Spheres
+open import Cubical.Foundations.Prelude                      as Prelude
+open import Cubical.HITs.Susp                                as Suspensions
+open import Cubical.HITs.Sn                                  as Spheres
   hiding (S) renaming (S₊ to S)
-open import Cubical.HITs.Pushout                            as Pushouts
-open import Cubical.HITs.Wedge                           as Wedges
-open import Cubical.HITs.Join                               as Joins
-open import Cubical.HITs.Susp                               as Suspension
+open import Cubical.HITs.Pushout                             as Pushouts
+open import Cubical.HITs.Wedge                               as Wedges
+open import Cubical.HITs.Join                                as Joins
+open import Cubical.HITs.Susp                                as Suspension
 open import Cubical.HITs.PropositionalTruncation             as PT
-open import Cubical.HITs.Truncation                         as Trunc
-open import Cubical.Foundations.Univalence                  as Univ
-open import Cubical.Homotopy.Loopspace                      as Loopy
+open import Cubical.HITs.Truncation                          as Trunc
+open import Cubical.Foundations.Univalence                   as Univ
+open import Cubical.Homotopy.Loopspace                       as Loopy
 
-open import Cubical.Homotopy.HSpace                         as H-Spaces
-open import Cubical.Homotopy.Group.Base                     as HomotopyGroups
-open import Cubical.Homotopy.Group.LES                      as LES
-open import Cubical.Homotopy.HopfInvariant.HopfMap          as HopfMap
-open import Cubical.Homotopy.Hopf                           as HopfFibration
-open import Cubical.Homotopy.Connected                      as Connectedness
+open import Cubical.Homotopy.HSpace                          as H-Spaces
+open import Cubical.Homotopy.Group.Base                      as HomotopyGroups
+open import Cubical.Homotopy.Group.LES                       as LES
+open import Cubical.Homotopy.HopfInvariant.HopfMap           as HopfMap
+open import Cubical.Homotopy.Hopf                            as HopfFibration
+open import Cubical.Homotopy.Connected                       as Connectedness
 open S¹Hopf
-open import Cubical.Homotopy.Freudenthal                    as Freudenthal
-open import Cubical.Homotopy.Group.PinSn                    as Stable
-open import Cubical.Homotopy.Group.Pi3S2                    as π₃S²
+open import Cubical.Homotopy.Freudenthal                     as Freudenthal
+open import Cubical.Homotopy.Group.PinSn                     as Stable
+open import Cubical.Homotopy.Group.Pi3S2                     as π₃S²
 
 -- 3
-open import Cubical.Homotopy.Group.Pi4S3.S3PushoutIso       as James₁
-open import Cubical.Homotopy.Group.Pi4S3.S3PushoutIso2      as James₂
-open import Cubical.HITs.S2                                 as Sphere
-open import Cubical.Homotopy.Whitehead                      as Whitehead
+open import Cubical.Homotopy.Group.Pi4S3.S3PushoutIso        as James₁
+open import Cubical.Homotopy.Group.Pi4S3.S3PushoutIso2       as James₂
+open import Cubical.HITs.S2                                  as Sphere
+open import Cubical.Homotopy.Whitehead                       as Whitehead
 open import Cubical.Homotopy.BlakersMassey
 module BM = BlakersMassey□
 open BM
@@ -72,27 +66,22 @@ open import Cubical.Homotopy.Group.Pi4S3.BrunerieNumber      as BNumber
 -- 5
 open import Cubical.ZCohomology.Base                         as cohom
 open import Cubical.ZCohomology.GroupStructure               as cohomGr
-open import Cubical.ZCohomology.Properties              as cohomProps
+open import Cubical.ZCohomology.Properties                   as cohomProps
 open import Cubical.ZCohomology.RingStructure.CupProduct     as cup
 open import Cubical.ZCohomology.MayerVietorisUnreduced       as MayerVietoris
 open import Cubical.Homotopy.HopfInvariant.Base              as HI
 open import Cubical.Homotopy.HopfInvariant.Homomorphism      as HI-hom
 open import Cubical.Homotopy.HopfInvariant.Brunerie          as HI-β
 open import Cubical.ZCohomology.Gysin                        as GysinSeq
-open import Cubical.Homotopy.Group.Pi4S3.Summary              as π₄S³
+open import Cubical.Homotopy.Group.Pi4S3.Summary             as π₄S³
   hiding (π)
 open import Cubical.ZCohomology.RingStructure.RingLaws       as cupLaws
-
-
-
 
 -- 6
 open import Cubical.HITs.SmashProduct.Base                   as SmashProd
 open import Cubical.HITs.Sn.Multiplication                   as SMult
-
-
-
-open import Cubical.Homotopy.Group.Pi4S3.DirectProof              as Direct
+open import Cubical.Homotopy.Group.Join                      as JoinGroup
+open import Cubical.Homotopy.Group.Pi4S3.DirectProof         as Direct
 
 
 ------ 2. HOMOTOPY TYPE THEORY IN Cubical Agda ------
@@ -361,15 +350,30 @@ open SmashProd using (SmashJoinIso)
 open SMult renaming (join→Sphere to F)
 
 -- Proposition 6.4 (Fₙ,ₘ is an equivalence)
-open SMult using (joinSphereIso)
+open SMult using (IsoSphereJoin)
 
 -- Propositions 6.5 & 6.6 (graded commutativity and associativity)
 open SMult using (comm⌣S ; assoc⌣S)
 
+--- 6.2. Homotopy groups in terms of joins.
 
+-- Definition 6.7
+open JoinGroup using (π*)
 
+-- Addition +*
+open JoinGroup using (_+*_)
 
+-- Proposition 6.8
+open JoinGroup using (·Π≡+*)
 
+-- Proposition 6.9
+open JoinGroup using (π*Gr≅π'Gr)
+
+-- Proposition 6.10
+open JoinGroup using (π*∘∙Hom)
+
+--- 6.3. The new synthetic proof that π₄(S³) ≅ ℤ/2ℤ
+-- A relatively detailed accound of the proof is given in the formalisation:
 open Direct
 -- Note that the numbering of the ηs is shifted, with
 -- η₁ being ∣ ∇ ∘ W ∣, η₂ being η₁ and η₃ being η₂.
@@ -377,3 +381,17 @@ open Direct using (η₁ ; η₂ ; η₃)
 
 -- computation of η₂: the alternative definition and the computation
 open Direct using (η₃' ; computerIsoη₃)
+
+--- 6.4. A stand-alone proof of Brunerie’s theorem?
+-- Theorem 6.18
+-- Not formalised explicitly
+
+-- Definition of generalised Whitehead products ·w
+open Whitehead using (_·w_)
+
+-- Proposition 6.22 (including Lemmas 19 and 20 and Proposition 6.21)
+open Whitehead using (isConst-Susp·w)
+
+-- Theorem 6.23
+-- Follows directly from above but not formalised explicitly (awaiting
+-- refactoring of some code in the library)
