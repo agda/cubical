@@ -152,6 +152,11 @@ univProp (completeSET J D) c cc =
 
 module _ {ℓ} where
 
+-- While pullbacks can be obtained from limits
+-- (using `completeSET` & `LimitsOfShapeCospanCat→Pullbacks` from `Cubical.Categories.Limits.Pullback`),
+-- this direct construction can be more convenient when only pullbacks are needed.
+-- It also has better behavior in terms of inferring implicit arguments
+
  open Pullback
 
  PullbacksSET : Pullbacks (SET ℓ)
