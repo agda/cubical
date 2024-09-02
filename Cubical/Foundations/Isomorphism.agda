@@ -10,7 +10,7 @@ Theory about isomorphisms
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.Isomorphism where
 
-open import Cubical.Core.Everything
+open import Cubical.Core.Glue
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws

@@ -1,7 +1,7 @@
 {-# OPTIONS --safe --guardedness #-}
 module Cubical.Codata.Stream.Base where
 
-open import Cubical.Core.Everything
+open import Cubical.Foundations.Prelude
 
 record Stream (A : Type₀) : Type₀ where
   coinductive

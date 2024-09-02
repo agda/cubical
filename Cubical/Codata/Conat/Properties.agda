@@ -33,8 +33,6 @@ open import Cubical.Data.Bool
 import Cubical.Data.Nat as Nat
 import Cubical.Data.Nat.Order.Recursive as Nat
 
-open import Cubical.Core.Everything
-
 open import Cubical.Functions.Embedding
 
 open import Cubical.Foundations.Prelude

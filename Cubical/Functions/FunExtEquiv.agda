@@ -117,13 +117,7 @@ funExtDep : {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ₁}
   → ({x₀ : A i0} {x₁ : A i1} (p : PathP A x₀ x₁) → PathP (λ i → B i (p i)) (f x₀) (g x₁))
   → PathP (λ i → (x : A i) → B i x) f g
 funExtDep {A = A} {B} {f} {g} h i x =
-  comp
-    (λ k → B i (coei→i A i x k))
-    (λ k → λ
-      { (i = i0) → f (coei→i A i0 x k)
-      ; (i = i1) → g (coei→i A i1 x k)
-      })
-    (h (λ j → coei→j A i j x) i)
+  transp (λ k → B i (coei→i A i x k)) (i ∨ ~ i) (h (λ j → coei→j A i j x) i)
 
 funExtDep⁻ : {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ₁}
   {f : (x : A i0) → B i0 x} {g : (x : A i1) → B i1 x}
@@ -142,32 +136,53 @@ funExtDepEquiv {A = A} {B} {f} {g} = isoToEquiv isom
   isom .fun = funExtDep
   isom .inv = funExtDep⁻
   isom .rightInv q m i x =
-    comp
+    transp
       (λ k → B i (coei→i A i x (k ∨ m)))
-      (λ k → λ
-        { (i = i0) → f (coei→i A i0 x (k ∨ m))
-        ; (i = i1) → g (coei→i A i1 x (k ∨ m))
-        ; (m = i1) → q i x
-        })
+      (m ∨ i ∨ ~ i)
       (q i (coei→i A i x m))
   isom .leftInv h m p i =
-    comp
+    transp
       (λ k → B i (lemi→i m k))
-      (λ k → λ
-        { (i = i0) → f (lemi→i m k)
-        ; (i = i1) → g (lemi→i m k)
-        ; (m = i1) → h p i
-        })
+      (m ∨ i ∨ ~ i)
       (h (λ j → lemi→j j m) i)
     where
     lemi→j : ∀ j → coei→j A i j (p i) ≡ p j
-    lemi→j j =
-      coei→j (λ k → coei→j A i k (p i) ≡ p k) i j (coei→i A i (p i))
+    lemi→j j k = coePath A (λ i → p i) i j k
 
     lemi→i : PathP (λ m → lemi→j i m ≡ p i) (coei→i A i (p i)) refl
-    lemi→i =
-      sym (coei→i (λ k → coei→j A i k (p i) ≡ p k) i (coei→i A i (p i)))
-      ◁ λ m k → lemi→j i (m ∨ k)
+    lemi→i m k = coei→i A i (p i) (m ∨ k)
+
+-- Funext for non-dependent functions but where both domain and
+-- codomain depend on the interval. In this case we can omit the
+-- outer transp in funExtDep.
+
+funExtNonDep : {A : I → Type ℓ} {B : I → Type ℓ₁}
+  {f : A i0 → B i0} {g : A i1 → B i1}
+  → ({x₀ : A i0} {x₁ : A i1} → PathP A x₀ x₁ → PathP B (f x₀) (g x₁))
+  → PathP (λ i → A i → B i) f g
+funExtNonDep {A = A} h i x = h (λ j → coei→j A i j x) i
+
+funExtNonDep⁻ : {A : I → Type ℓ} {B : I → Type ℓ₁}
+  {f : A i0 → B i0} {g : A i1 → B i1}
+  → PathP (λ i → A i → B i) f g
+  → ({x₀ : A i0} {x₁ : A i1} → PathP A x₀ x₁ → PathP B (f x₀) (g x₁))
+funExtNonDep⁻ = funExtDep⁻
+
+funExtNonDepEquiv : {A : I → Type ℓ} {B : I → Type ℓ₁}
+  {f : A i0 → B i0} {g : A i1 → B i1}
+  → ({x₀ : A i0} {x₁ : A i1} → PathP A x₀ x₁ → PathP B (f x₀) (g x₁))
+  ≃ PathP (λ i → A i → B i) f g
+funExtNonDepEquiv {A = A} = isoToEquiv isom
+  where
+  open Iso
+  isom : Iso _ _
+  isom .fun = funExtNonDep
+  isom .inv = funExtNonDep⁻
+  isom .rightInv q m i x = q i (coei→i A i x m)
+  isom .leftInv h m p i = h (λ j → lemi→j j m) i
+    where
+    lemi→j : ∀ j → coei→j A i j (p i) ≡ p j
+    lemi→j j k = coePath A (λ i → p i) i j k
 
 heteroHomotopy≃Homotopy : {A : I → Type ℓ} {B : (i : I) → Type ℓ₁}
   {f : A i0 → B i0} {g : A i1 → B i1}

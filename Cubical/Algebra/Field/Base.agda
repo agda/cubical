@@ -1,4 +1,12 @@
 {-# OPTIONS --safe #-}
+{-
+   Keep in mind, that here are many different notions of "field" in constructive algebra.
+   In the terminology of "A Course in Constructive Algebra" (by Mines, Richman, Ruitenburg) (p. 45),
+   the notion of field we use below, would be a nontrivial field (where the apartness relation
+   used in the definition of field is inequality in our case).
+   This is a very weak notion of field, but behaves a lot like the classical notion, if the carrier
+   type has decidable equality.
+-}
 module Cubical.Algebra.Field.Base where
 
 open import Cubical.Foundations.Prelude

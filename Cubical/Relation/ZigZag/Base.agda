@@ -3,12 +3,14 @@
 {-# OPTIONS --safe #-}
 module Cubical.Relation.ZigZag.Base where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
+
 open import Cubical.Data.Sigma
+
 open import Cubical.HITs.SetQuotients
 open import Cubical.HITs.PropositionalTruncation as Trunc
 open import Cubical.Relation.Binary.Base

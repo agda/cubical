@@ -71,7 +71,7 @@ Huber, Anders Mörtberg.
 This makes it possible to directly represent higher inductive types.
 
 
-Reviewing of pull requests
+Reviewing of [pull requests](https://github.com/agda/cubical/pulls?q=is%3Apr+is%3Aopen+draft%3Afalse)
 --------------------------
 If you switch your draft pull request (PR) to 'ready to merge',
 or directly create an open PR,
@@ -79,15 +79,13 @@ we should request a review, by one of the reviewers below.
 If that doesn't happen, you can also request a reviewer yourself (for reviewer expertise see below),
 to make us aware of the open PR. Feel free to use Discord to get in touch with a reviewer in case reviewing is taking a very long time.
 
-| Reviewer                                                                | github handle | Area of expertise                           | Queue |
-|-------------------------------------------------------------------------|---------------|---------------------------------------------|------|
-| [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/)            | [mortberg](https://github.com/mortberg) | *Most topics*  | [link](https://github.com/agda/cubical/pulls?q=is%3Apr+review-requested%3Amortberg+) |
-| [Evan Cavallo](https://staff.math.su.se/evan.cavallo/)                  | [ecavallo](https://github.com/ecavallo) | *Most topics*  | [link](https://github.com/agda/cubical/pulls?q=is%3Apr+review-requested%3Aecavallo+) |
-| [Felix Cherubini](https://felix-cherubini.de)                           | [felixwellen](https://github.com/felixwellen) | *Mainly algebra related topics* | [link](https://github.com/agda/cubical/pulls?q=is%3Apr+review-requested%3Afelixwellen+) |
-| [Max Zeuner](https://www.su.se/english/profiles/maze1512-1.450461)      | [mzeuner](https://github.com/mzeuner) | *Algebra related topics*                   | [link](https://github.com/agda/cubical/pulls?q=is%3Apr+review-requested%3Amzeuner+) |
-| [Axel Ljungström](https://www.su.se/english/profiles/axlj4439-1.450268) | [aljungstrom](https://github.com/aljungstrom) | *Synthetic homotopy theory and cohomology* | [link](https://github.com/agda/cubical/pulls?q=is%3Apr+review-requested%3Aaljungstrom+) |
-| [Andrea Vezzosi](http://saizan.github.io/)                              | [Saizan](https://github.com/Saizan)   | *Inactive*                                 | [link](https://github.com/agda/cubical/pulls?q=is%3Apr+review-requested%3ASaizan+) |
+| Reviewer                                                                | github handle | Area of expertise                           |
+|-------------------------------------------------------------------------|---------------|---------------------------------------------|
+| [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/)            | [mortberg](https://github.com/mortberg) | *Most topics*  |
+| [Evan Cavallo](https://ecavallo.net/)                                   | [ecavallo](https://github.com/ecavallo) | *Most topics*  |
+| [Felix Cherubini](https://felix-cherubini.de)                           | [felixwellen](https://github.com/felixwellen) | *Mainly algebra related topics* |
+| [Max Zeuner](https://www.su.se/english/profiles/maze1512-1.450461)      | [mzeuner](https://github.com/mzeuner) | *Algebra related topics*                   |
+| [Axel Ljungström](https://aljungstrom.github.io)                        | [aljungstrom](https://github.com/aljungstrom) | *Synthetic homotopy theory and cohomology* |
+| [Andrea Vezzosi](http://saizan.github.io/)                              | [Saizan](https://github.com/Saizan)   | *Inactive*                                 |
 
 [Overview](https://github.com/agda/cubical/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-asc+draft%3Afalse) of the current open PRs, descending time since last action.
-
-[![Build Status](https://travis-ci.org/agda/cubical.svg?branch=master)](https://travis-ci.org/agda/cubical)

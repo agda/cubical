@@ -4,6 +4,7 @@ module Cubical.HITs.Join.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Pointed.Base
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.S3
@@ -14,6 +15,11 @@ data join {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') wh
   inl : A → join A B
   inr : B → join A B
   push : ∀ a b → inl a ≡ inr b
+
+join∙ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
+  → Pointed _
+fst (join∙ A B) = join (fst A) (fst B)
+snd (join∙ A B) = inl (pt A)
 
 facek01 : I → I → I → join S¹ S¹
 facek01 i j k = hfill (λ l → λ { (j = i0) → push base base (~ l ∧ ~ k)

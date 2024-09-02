@@ -125,9 +125,8 @@ private
     e1 : T1 ≃ A1
     e1 = e i1 1=1
 
-    open import Cubical.Foundations.Prelude using (transport)
     transportA : A0 → A1
-    transportA = transport (λ i → A i)
+    transportA = transp (λ i → A i) i0
 
     -- copied over from Foundations/Equiv for readability, can't directly import due to cyclic dependency
     invEq : ∀ {X : Type ℓ'} {ℓ''} {Y : Type ℓ''} (w : X ≃ Y) → Y → X
@@ -136,4 +135,4 @@ private
     -- transport in Glue reduces to transport in A + the application of the equivalences in forward and backward
     -- direction.
     transp-S : (t0 : T0) → T1 [ i1 ↦ (λ _ → invEq e1 (transportA (equivFun e0 t0))) ]
-    transp-S t0 = inS (transport (λ i → Glue (A i) (Te i)) t0)
+    transp-S t0 = inS (transp (λ i → Glue (A i) (Te i)) i0 t0)
