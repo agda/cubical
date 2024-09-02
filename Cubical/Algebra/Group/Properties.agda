@@ -2,6 +2,7 @@
 module Cubical.Algebra.Group.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.GroupoidLaws hiding (assoc)
@@ -26,6 +27,15 @@ isPropIsGroup 1g _·_ inv =
              (isPropΠ λ _ → mono .is-set _ _))
     where
     open IsMonoid
+
+isSetGroupStr : (G : Type ℓ) → isSet (GroupStr G)
+isSetGroupStr G =
+  isOfHLevelSucIfInhabited→isOfHLevelSuc 1 λ Gstr →
+  isOfHLevelRetractFromIso 2 GroupStrIsoΣ $
+  isSetΣ (Gstr .GroupStr.is-set) λ _ →
+  isSetΣ (isSet→ (isSet→ (Gstr .GroupStr.is-set))) λ _ →
+  isSetΣSndProp (isSet→ (Gstr .GroupStr.is-set)) λ _ →
+  isPropIsGroup _ _ _
 
 module GroupTheory (G : Group ℓ) where
   open GroupStr (snd G)

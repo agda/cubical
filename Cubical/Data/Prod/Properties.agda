@@ -1,17 +1,15 @@
 {-# OPTIONS --safe #-}
 module Cubical.Data.Prod.Properties where
 
-open import Cubical.Core.Everything
-
-open import Cubical.Data.Prod.Base
-open import Cubical.Data.Sigma renaming (_×_ to _×Σ_) hiding (prodIso ; toProdIso ; curryIso)
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
+
+open import Cubical.Data.Prod.Base
+open import Cubical.Data.Sigma renaming (_×_ to _×Σ_) hiding (prodIso ; toProdIso ; curryIso)
 
 private
   variable
@@ -22,7 +20,7 @@ private
 -- Swapping is an equivalence
 
 ×≡ : {a b : A × B} → proj₁ a ≡ proj₁ b → proj₂ a ≡ proj₂ b → a ≡ b
-×≡ {a = (a1 , b1)} {b = (a2 , b2)} id1 id2 i = (id1 i) , (id2 i)
+×≡ {a = (_ , _)} {b = (_ , _)} id1 id2 i = (id1 i) , (id2 i)
 
 swap : A × B → B × A
 swap (x , y) = (y , x)

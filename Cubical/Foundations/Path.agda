@@ -465,3 +465,9 @@ module 2-cylinder-from-square
 
   Sq≃Sq' : (Square a₀₋ a₁₋ a₋₀ a₋₁) ≃ (Square a₀₋' a₁₋' a₋₀' a₋₁')
   Sq≃Sq' = isoToEquiv IsoSqSq'
+
+pathFiber : {B : Type ℓ} (f : A → B)
+  (b : B) {a a' : A} {t : f a ≡ b} {t' : f a' ≡ b} →
+  ((a , t) ≡ (a' , t' )) → Σ[ e ∈ a ≡ a' ] (t ≡ cong f e ∙ t')
+pathFiber {A} {B} f b {a} {a'} {t} {t'} e =
+  J (λ X _ → Σ[ e ∈ a ≡ fst X ] (t ≡ cong f e ∙ (snd X))) (refl , lUnit t) e

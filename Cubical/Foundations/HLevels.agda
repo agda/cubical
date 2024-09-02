@@ -25,6 +25,8 @@ open import Cubical.Foundations.Univalence using (ua ; univalenceIso)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
 
+open Iso
+
 HLevel : Type₀
 HLevel = ℕ
 
@@ -95,6 +97,18 @@ isOfHLevelPlus' : (m : HLevel) → isOfHLevel m A → isOfHLevel (m + n) A
 isOfHLevelPlus' {n = n} 0 = isContr→isOfHLevel n
 isOfHLevelPlus' {n = n} 1 = isProp→isOfHLevelSuc n
 isOfHLevelPlus' {n = n} (suc (suc m)) hA a₀ a₁ = isOfHLevelPlus' (suc m) (hA a₀ a₁)
+
+-- When proving a type has h-level n+1, we can assume it is inhabited.
+-- To prove a type is a proposition, it suffices to prove it is contractible if inhabited
+
+isOfHLevelSucIfInhabited→isOfHLevelSuc : ∀ n
+  → (A → isOfHLevel (suc n) A) → isOfHLevel (suc n) A
+isOfHLevelSucIfInhabited→isOfHLevelSuc zero hA a = hA a a
+isOfHLevelSucIfInhabited→isOfHLevelSuc (suc n) hA a = hA a a
+
+isContrIfInhabited→isProp : (A → isContr A) → isProp A
+isContrIfInhabited→isProp hA =
+  isOfHLevelSucIfInhabited→isOfHLevelSuc 0 (isContr→isProp ∘ hA)
 
 -- hlevel of path types
 
@@ -839,3 +853,13 @@ module _ (B : (i j k : I) → Type ℓ)
   isGroupoid→CubeP : isGroupoid (B i1 i1 i1) → CubeP
   isGroupoid→CubeP grpd =
     isOfHLevelPathP' 0 (isOfHLevelPathP' 1 (isOfHLevelPathP' 2 grpd _ _) _ _) _ _ .fst
+
+
+Π-contractDomIso : (c : isContr A) → Iso ((x : A) → B x) (B (c .fst))
+Π-contractDomIso {B = B} c .fun f = f (c .fst)
+Π-contractDomIso {B = B} c .inv b x = subst B (c .snd x) b
+Π-contractDomIso {B = B} c .rightInv b i = transp (λ j → B (isProp→isSet (isContr→isProp c) _ _ (c .snd (c .fst)) refl i j)) i b
+Π-contractDomIso {B = B} c .leftInv f = funExt λ x → fromPathP (cong f (c .snd x))
+
+Π-contractDom : (c : isContr A) → ((x : A) → B x) ≃ B (c .fst)
+Π-contractDom c = isoToEquiv (Π-contractDomIso c)

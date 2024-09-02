@@ -1,8 +1,8 @@
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.Structure where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 
 private
   variable

@@ -1,23 +1,23 @@
 {-# OPTIONS --safe #-}
 module Cubical.Data.List.Properties where
 
-open import Agda.Builtin.List
-open import Cubical.Core.Everything
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
+
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎ hiding (map)
 open import Cubical.Data.Unit
-open import Cubical.Relation.Nullary
-
 open import Cubical.Data.List.Base as List
+
+open import Cubical.Relation.Nullary
 
 module _ {ℓ} {A : Type ℓ} where
 

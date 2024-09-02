@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --postfix-projections #-}
 
-open import Cubical.Core.Everything
+open import Cubical.Foundations.Prelude
 
 open import Cubical.Functions.Embedding
 open import Cubical.Foundations.Equiv

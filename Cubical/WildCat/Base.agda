@@ -39,11 +39,11 @@ _[_,_] : (C : WildCat ℓ ℓ') → (x y : C .ob) → Type ℓ'
 _[_,_] = Hom[_,_]
 
 -- Needed to define this in order to be able to make the subsequence syntax declaration
-seq' : ∀ (C : WildCat ℓ ℓ') {x y z} (f : C [ x , y ]) (g : C [ y , z ]) → C [ x , z ]
-seq' = _⋆_
+concatMor : ∀ (C : WildCat ℓ ℓ') {x y z} (f : C [ x , y ]) (g : C [ y , z ]) → C [ x , z ]
+concatMor = _⋆_
 
-infixl 15 seq'
-syntax seq' C f g = f ⋆⟨ C ⟩ g
+infixl 15 concatMor
+syntax concatMor C f g = f ⋆⟨ C ⟩ g
 
 -- composition
 comp' : ∀ (C : WildCat ℓ ℓ') {x y z} (g : C [ y , z ]) (f : C [ x , y ]) → C [ x , z ]
