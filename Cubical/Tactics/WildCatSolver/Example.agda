@@ -50,7 +50,7 @@ module exampleC ℓ ℓ' where
  open Cat-Solver ℓ ℓ'
 
 
- module _ (C C* : Category ℓ ℓ')  (F : Functor C* C) where
+ module _ (C C* : Category ℓ ℓ')  (F : Functor C* C) (G : Functor C C) where
 
 
   open Category C
@@ -82,21 +82,10 @@ module exampleC ℓ ℓ' where
            (s : Hom[ F ⟅ w ⟆ , v ]) where
 
 
-
-
-
-   -- pA pB : Hom[ F ⟅ y ⟆ , F ⟅ w ⟆ ]
-   -- pA = F ⟪ q *.⋆ r ⟫
-   -- pB = F ⟪ q ⟫ ⋆ F ⟪ r ⟫
-
-   -- pA=pB : pA ≡ pB
-   -- pA=pB = solveCat (C ∷ C* ∷ [])
-
-
-   pA pB pC : Hom[ x , v ]
-   pA = (p ⋆ (id ⋆ F ⟪ q ⟫)) ⋆ (F ⟪ r ⟫ ⋆ s)
-   pB = ((p ⋆ F ⟪ q *.⋆ (*.id *.⋆ *.id) ⟫ ) ⋆  F ⟪ *.id *.⋆ *.id ⟫) ⋆ (( F ⟪ r ⟫ ⋆ id) ⋆ s)
-   pC = p ⋆ (F ⟪ q *.⋆ r ⟫ ⋆ s)
+   pA pB pC : Hom[ G ⟅ x ⟆ , G ⟅ v ⟆ ]
+   pA = G ⟪ (p ⋆ (id ⋆ F ⟪ q ⟫)) ⟫  ⋆ G ⟪ (F ⟪ r ⟫ ⋆ s) ⟫
+   pB = G ⟪ ((p ⋆ F ⟪ q *.⋆ (*.id *.⋆ *.id) ⟫ ) ⋆  F ⟪ *.id *.⋆ *.id ⟫) ⟫ ⋆ G ⟪ (( F ⟪ r ⟫ ⋆ id) ⋆ s) ⟫
+   pC = id ⋆ G ⟪ p ⋆ (F ⟪ q *.⋆ r ⟫ ⋆ s) ⟫ ⋆ id
 
    pA=pB : pA ≡ pB
    pA=pB = solveCat

@@ -67,7 +67,7 @@ module ℤexamples where
 
  open GroupStr (snd ℤGroup)
 
- module _ k ([_]ᶻ : ℕ → fst ℤGroup) where
+ module _ k ([_]ᶻ : ℕ → fst ℤGroup) (someℤHom[_] : ℕ → GroupHom ℤGroup ℤGroup) where
 
 
   open Group-Solver ℓ-zero
@@ -76,6 +76,8 @@ module ℤexamples where
 
   lhs rhs : (fst ℤGroup)
   lhs = fst (ℤHom  k) ([ 1 ]ᶻ · [ 3 ]ᶻ)
+          · fst someℤHom[ 2 ] ([ 4 ]ᶻ · fst (someℤHom[ 1 ]) (inv [ 4 ]ᶻ ·  [ 4 ]ᶻ))
+             · inv (fst someℤHom[ 2 ] ([ 4 ]ᶻ))
   rhs = fst (ℤHom  k) [ 1 ]ᶻ · fst (ℤHom k) [ 3 ]ᶻ
 
   lhs≡rhs : lhs ≡ rhs
