@@ -2,12 +2,11 @@
 
 module Cubical.HITs.InfNat.Properties where
 
-open import Cubical.Core.Everything
-open import Cubical.Data.Maybe
-open import Cubical.Data.Nat
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
+
+open import Cubical.Data.Maybe
+open import Cubical.Data.Nat
 
 open import Cubical.HITs.InfNat.Base
 import Cubical.Data.InfNat as Coprod

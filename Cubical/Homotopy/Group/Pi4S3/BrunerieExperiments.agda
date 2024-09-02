@@ -21,7 +21,7 @@ open import Cubical.Data.Int
 open import Cubical.HITs.S1 hiding (encode)
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
-open import Cubical.HITs.Join
+open import Cubical.HITs.Join hiding (join∙)
 open import Cubical.HITs.SetTruncation as SetTrunc
 open import Cubical.HITs.GroupoidTruncation as GroupoidTrunc
 open import Cubical.HITs.2GroupoidTruncation as 2GroupoidTrunc

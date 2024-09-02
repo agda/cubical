@@ -15,6 +15,7 @@ open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; -_ to -ℤ_)
 open import Cubical.Data.Nat renaming (+-assoc to +-assocℕ ; +-comm to +-commℕ)
+open import Cubical.Data.Fin.Inductive
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
@@ -444,6 +445,9 @@ _-ₕ_  {n = n} = ST.rec2 § λ a b → ∣ (λ x → a x -[ n ]ₖ b x) ∣₂
 syntax +ₕ-syntax n x y = x +[ n ]ₕ y
 syntax -ₕ-syntax n x = -[ n ]ₕ x
 syntax -ₕ'-syntax n x y = x -[ n ]ₕ y
+
+sumFinK : {n m : ℕ} (f : Fin n → coHomK m) → coHomK m
+sumFinK {n = n} {m = m} = sumFinGen (λ x y → x +[ m ]ₖ y) (0ₖ m)
 
 0ₕ : (n : ℕ) → coHom n A
 0ₕ n = ∣ (λ _ → (0ₖ n)) ∣₂
@@ -944,3 +948,11 @@ open IsGroupHom
 --                → (e : GroupIso (coHomGr n A) G)
 --                → coHomGr n A ≡ inducedCoHom e
 -- inducedCoHomPath e = InducedGroupPath _ _ _ _
+
+sumFinKComm : {n m : ℕ} (f : Fin n → S₊ m → coHomK m)
+  → sumFinGroup (coHomGr m (S₊ m)) (λ x → ∣ f x ∣₂)
+         ≡ ∣ (λ x → sumFinK {m = m} λ i → f i x) ∣₂
+sumFinKComm {n = zero} {m = m} f = refl
+sumFinKComm {n = suc n} {m = m} f =
+  cong (λ y → ∣ f flast ∣₂ +[ m ]ₕ y)
+    (sumFinKComm {n = n} (f ∘ injectSuc))
