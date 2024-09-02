@@ -20,6 +20,8 @@ open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.PropositionalTruncation as PT hiding (rec ; elim)
+open import Cubical.HITs.SmashProduct.Base
+open import Cubical.HITs.Pushout.Base
 open import Cubical.Homotopy.Connected
 open import Cubical.HITs.Join renaming (joinS¹S¹→S³ to joinS¹S¹→S3)
 open import Cubical.Data.Bool hiding (elim)
@@ -35,6 +37,13 @@ open Iso
 σSn zero true = refl
 σSn (suc n) x = toSusp (S₊∙ (suc n)) x
 
+σS : {n : ℕ} → S₊ n → Path (S₊ (suc n)) (ptSn _) (ptSn _)
+σS {n = n} = σSn n
+
+σS∙ : {n : ℕ} → σS (ptSn n) ≡ refl
+σS∙ {n = zero} = refl
+σS∙ {n = suc n} = rCancel (merid (ptSn (suc n)))
+
 IsoSucSphereSusp : (n : ℕ) → Iso (S₊ (suc n)) (Susp (S₊ n))
 IsoSucSphereSusp zero = S¹IsoSuspBool
 IsoSucSphereSusp (suc n) = idIso
@@ -43,6 +52,11 @@ IsoSucSphereSusp∙ : (n : ℕ)
   → Iso.inv (IsoSucSphereSusp n) north ≡ ptSn (suc n)
 IsoSucSphereSusp∙ zero = refl
 IsoSucSphereSusp∙ (suc n) = refl
+
+IsoSucSphereSusp∙' : (n : ℕ)
+  → Iso.fun (IsoSucSphereSusp n) (ptSn (suc n)) ≡ north
+IsoSucSphereSusp∙' zero = refl
+IsoSucSphereSusp∙' (suc n) = refl
 
 suspFunS∙ : {n : ℕ} → (S₊ n → S₊ n) → S₊∙ (suc n) →∙ S₊∙ (suc n)
 suspFunS∙ {n = zero} f =
@@ -642,6 +656,22 @@ invSphere : {n : ℕ} → S₊ n → S₊ n
 invSphere {n = zero} = not
 invSphere {n = (suc zero)} = invLooper
 invSphere {n = (suc (suc n))} = invSusp
+
+-- sometimes also this version is useful
+invSphere' : {n : ℕ} → S₊ n → S₊ n
+invSphere' {n = zero} = not
+invSphere' {n = (suc zero)} = invLooper
+invSphere' {n = suc (suc n)} north = north
+invSphere' {n = suc (suc n)} south = north
+invSphere' {n = suc (suc n)} (merid a i) = σSn (suc n) a (~ i)
+
+invSphere'≡ : {n : ℕ} → (x : S₊ n) → invSphere' x ≡ invSphere x
+invSphere'≡ {n = zero} x = refl
+invSphere'≡ {n = suc zero} x = refl
+invSphere'≡ {n = suc (suc n)} north = merid (ptSn _)
+invSphere'≡ {n = suc (suc n)} south = refl
+invSphere'≡ {n = suc (suc n)} (merid a i) j =
+  compPath-filler (merid a) (sym (merid (ptSn _))) (~ j) (~ i)
 
 invSphere² : (n : ℕ) (x : S₊ n) → invSphere (invSphere x) ≡ x
 invSphere² zero = notnot
