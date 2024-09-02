@@ -123,7 +123,7 @@ isSetFunctor = isOfHLevelFunctor 0
 
 module _ (F : Functor C D) where
 
-  -- functors preserve commutative diagrams (specificallysqures here)
+  -- functors preserve commutative diagrams (specifically squres here)
   preserveCommF : ∀ {x y z w} {f : C [ x , y ]} {g : C [ y , w ]} {h : C [ x , z ]} {k : C [ z , w ]}
                 → f ⋆⟨ C ⟩ g ≡ h ⋆⟨ C ⟩ k
                 → (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫) ≡ (F ⟪ h ⟫) ⋆⟨ D ⟩ (F ⟪ k ⟫)

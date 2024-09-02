@@ -41,7 +41,7 @@ F-seq (F F/ c) _ _ = SliceHom-≡-intro' _ _  $ F-seq F _ _
 
 
 ∑_ : ∀ {c d} f → Functor  (SliceCat C c) (SliceCat C d)
-F-ob (∑_ {C = C} f) (sliceob x) = sliceob (_⋆_ C x f)
+F-ob (∑_ {C = C} f) (sliceob x) = sliceob (x ⋆⟨ C ⟩ f)
 F-hom (∑_ {C = C} f) (slicehom h p) = slicehom _ $
   sym (C .⋆Assoc _ _ _) ∙ cong (comp' C f) p
 F-id (∑ f) = SliceHom-≡-intro' _ _ refl
@@ -153,7 +153,7 @@ module _ (Pbs : Pullbacks C) where
              ∙∙ sym (C .⋆Assoc _ _ _)) .fst .snd .fst
    inv (adjIso L/b⊣R/b) (slicehom f s) = slicehom _
          (D .⋆Assoc _ _ _
-            ∙∙ congS (_⋆ᵈ (ε ⟦ _ ⟧ ⋆ᵈ _)) (F-seq L _ _)
+            ∙∙ congS (_⋆ᵈ (ε ⟦ _ ⟧ ⋆⟨ D ⟩ _)) (F-seq L _ _)
             ∙∙ D .⋆Assoc _ _ _ ∙ cong (L ⟪ f ⟫ ⋆ᵈ_)
                   (cong (L ⟪ pbPr₂ ⟫ ⋆ᵈ_) (sym (N-hom ε _))
                    ∙∙ sym (D .⋆Assoc _ _ _)
@@ -166,7 +166,7 @@ module _ (Pbs : Pullbacks C) where
             ∙∙ cong (L ⟪_⟫) s)
 
    rightInv (adjIso L/b⊣R/b) h = SliceHom-≡-intro' _ _ $
-    let p₂ : ∀ {x} → η ⟦ _ ⟧ ⋆ᶜ R ⟪ L ⟪ x ⟫ ⋆ᵈ ε ⟦ _ ⟧ ⟫ ≡ x
+    let p₂ : ∀ {x} → η ⟦ _ ⟧ ⋆ᶜ R ⟪ L ⟪ x ⟫ ⋆⟨ D ⟩ ε ⟦ _ ⟧ ⟫ ≡ x
         p₂ = cong (_ ⋆ᶜ_) (F-seq R _ _) ∙
                    AssocCong₂⋆L C (sym (N-hom η _))
                     ∙∙ cong (_ ⋆ᶜ_) (Δ₂ _) ∙∙ C .⋆IdR _
