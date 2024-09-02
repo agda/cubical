@@ -20,18 +20,17 @@ module Cubical.Papers.ZCohomology where
 -- Misc.
 open import Cubical.Data.Int hiding (_+_)
 open import Cubical.Data.Nat
-open import Cubical.Foundations.Everything
 open import Cubical.HITs.S1
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
 -- 2
 open import Cubical.Core.Glue                                as Glue
-import Cubical.Foundations.Prelude                           as Prelude
-import Cubical.Foundations.GroupoidLaws                      as GroupoidLaws
+open import Cubical.Foundations.Prelude                      as Prelude
+open import Cubical.Foundations.GroupoidLaws                 as GroupoidLaws
+open import Cubical.Foundations.Isomorphism
 import Cubical.Foundations.Path                              as Path
-import Cubical.Foundations.Pointed                           as Pointed
-  renaming (Pointed to Type∙)
+open import Cubical.Foundations.Pointed
 open import Cubical.HITs.S1                                  as S1
 open import Cubical.HITs.Susp                                as Suspension
 open import Cubical.HITs.Sn                                  as Sn
@@ -107,9 +106,6 @@ open Prelude using ( transport
                    ; hcomp)
 
 --- 2.2 Important concepts from HoTT/UF in Cubical Agda
-
--- Pointed Types
-open Pointed using (Type∙)
 
 -- The circle, 𝕊¹
 open S1 using (S¹)
@@ -356,7 +352,7 @@ open Cup using (_⌣_)
 
 -- 4.2
 -- Lemma 14
-Lem14 : ∀ {ℓ} {A : Type∙ ℓ} (n : ℕ) (f g : A →∙ K∙ n) → fst f ≡ fst g → f ≡ g
+Lem14 : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (f g : A →∙ K∙ n) → fst f ≡ fst g → f ≡ g
 Lem14 n f g p = Homogen.→∙Homogeneous≡ (Properties.isHomogeneousKn n) p
 
 -- Proposition 15

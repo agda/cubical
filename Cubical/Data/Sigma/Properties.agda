@@ -15,10 +15,6 @@ Basic properties about Σ-types
 {-# OPTIONS --safe #-}
 module Cubical.Data.Sigma.Properties where
 
-open import Cubical.Data.Sigma.Base
-
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
@@ -28,9 +24,12 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
-open import Cubical.Relation.Nullary
+
+open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Unit.Base
 open import Cubical.Data.Empty.Base
+
+open import Cubical.Relation.Nullary
 
 open import Cubical.Reflection.StrictEquiv
 
@@ -93,6 +92,9 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
 
 ×≡Prop : isProp A' → {u v : A × A'} → u .fst ≡ v .fst → u ≡ v
 ×≡Prop pB {u} {v} p i = (p i) , (pB (u .snd) (v .snd) i)
+
+×≡Prop' : isProp A → {u v : A × A'} → u .snd ≡ v .snd → u ≡ v
+×≡Prop' pA {u} {v} p i = (pA (u .fst) (v .fst) i) , p i
 
 -- Useful lemma to prove unique existence
 uniqueExists : (a : A) (b : B a) (h : (a' : A) → isProp (B a')) (H : (a' : A) → B a' → a ≡ a') → ∃![ a ∈ A ] B a
@@ -331,7 +333,7 @@ snd (leftInv (Σ-contractFstIso {B = B} c) p j) =
 -- a special case of the above
 module _ (A : Unit → Type ℓ) where
   ΣUnit : Σ Unit A ≃ A tt
-  unquoteDef ΣUnit = defStrictEquiv ΣUnit snd (λ { x → (tt , x) })
+  unquoteDef ΣUnit = defStrictEquiv {B = A tt} ΣUnit snd (tt ,_)
 
 Σ-contractSnd : ((a : A) → isContr (B a)) → Σ A B ≃ A
 Σ-contractSnd c = isoToEquiv isom
@@ -380,6 +382,10 @@ snd (ΣPathPProp {B = B} {u = u} {v = v} pB p i) = lem i
   where
   lem : PathP (λ i → B i (p i)) (snd u) (snd v)
   lem = toPathP (pB _ _ _)
+
+discreteΣProp : Discrete A → ((x : A) → isProp (B x)) → Discrete (Σ A B)
+discreteΣProp _≟_ isPropA _ _ =
+  EquivPresDec (Σ≡PropEquiv isPropA) (_ ≟ _)
 
 ≃-× : ∀ {ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''} → A ≃ C → B ≃ D → A × B ≃ C × D
 ≃-× eq1 eq2 =

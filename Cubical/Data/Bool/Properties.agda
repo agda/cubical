@@ -1,8 +1,6 @@
 {-# OPTIONS --safe #-}
 module Cubical.Data.Bool.Properties where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Functions.Involution
 
 open import Cubical.Foundations.Prelude

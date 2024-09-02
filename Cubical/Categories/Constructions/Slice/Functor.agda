@@ -41,7 +41,7 @@ F-seq (F F/ c) _ _ = SliceHom-≡-intro' _ _  $ F-seq F _ _
 
 
 ∑_ : ∀ {c d} f → Functor  (SliceCat C c) (SliceCat C d)
-F-ob (∑_ {C = C} f) (sliceob x) = sliceob (_⋆_ C x f)
+F-ob (∑_ {C = C} f) (sliceob x) = sliceob (x ⋆⟨ C ⟩ f)
 F-hom (∑_ {C = C} f) (slicehom h p) = slicehom _ $
   sym (C .⋆Assoc _ _ _) ∙ cong (comp' C f) p
 F-id (∑ f) = SliceHom-≡-intro' _ _ refl
@@ -66,11 +66,11 @@ module _ (Pbs : Pullbacks C) where
   _＊ : Functor (SliceCat C d) (SliceCat C c)
   F-ob _＊ x = sliceob (pbPr₁ {x = x})
   F-hom _＊ f = slicehom _ (sym (fst (pbU f)))
-  F-id _＊ = SliceHom-≡-intro' _ _ $ univPropEq (sym (C .⋆IdL _)) (C .⋆IdR _ ∙ sym (C .⋆IdL _))
+  F-id _＊ = SliceHom-≡-intro' _ _ $ pullbackArrowUnique (sym (C .⋆IdL _)) (C .⋆IdR _ ∙ sym (C .⋆IdL _))
 
   F-seq _＊ _ _ =
    let (u₁ , v₁) = pbU _ ; (u₂ , v₂) = pbU _
-   in SliceHom-≡-intro' _ _ $ univPropEq
+   in SliceHom-≡-intro' _ _ $ pullbackArrowUnique
        (u₂ ∙∙ cong (C ⋆ _) u₁ ∙∙ sym (C .⋆Assoc _ _ _))
        (sym (C .⋆Assoc _ _ _) ∙∙ cong (comp' C _) v₂ ∙∙ AssocCong₂⋆R C v₁)
 
@@ -91,14 +91,14 @@ module _ (Pbs : Pullbacks C) where
   inv (adjIso ∑𝑓⊣𝑓＊) (slicehom h o) = slicehom _ $
     AssocCong₂⋆R C (sym (pbCommutes)) ∙ cong (_⋆ᶜ 𝑓) o
   rightInv (adjIso ∑𝑓⊣𝑓＊) (slicehom h o) =
-    SliceHom-≡-intro' _ _ (univPropEq (sym o) refl)
+    SliceHom-≡-intro' _ _ (pullbackArrowUnique (sym o) refl)
   leftInv (adjIso ∑𝑓⊣𝑓＊) (slicehom h o) =
    let ((_ , (_ , q)) , _) = univProp _ _ _
    in SliceHom-≡-intro' _ _ (sym q)
   adjNatInD ∑𝑓⊣𝑓＊ f k = SliceHom-≡-intro' _ _ $
     let ((h' , (v' , u')) , _) = univProp _ _ _
         ((_ , (v'' , u'')) , _) = univProp _ _ _
-    in univPropEq (v' ∙∙ cong (h' ⋆ᶜ_) v'' ∙∙ sym (C .⋆Assoc _ _ _))
+    in pullbackArrowUnique (v' ∙∙ cong (h' ⋆ᶜ_) v'' ∙∙ sym (C .⋆Assoc _ _ _))
                     (cong (_⋆ᶜ _) u' ∙ AssocCong₂⋆R C u'')
 
   adjNatInC ∑𝑓⊣𝑓＊ g h = SliceHom-≡-intro' _ _ $ C .⋆Assoc _ _ _
@@ -153,7 +153,7 @@ module _ (Pbs : Pullbacks C) where
              ∙∙ sym (C .⋆Assoc _ _ _)) .fst .snd .fst
    inv (adjIso L/b⊣R/b) (slicehom f s) = slicehom _
          (D .⋆Assoc _ _ _
-            ∙∙ congS (_⋆ᵈ (ε ⟦ _ ⟧ ⋆ᵈ _)) (F-seq L _ _)
+            ∙∙ congS (_⋆ᵈ (ε ⟦ _ ⟧ ⋆⟨ D ⟩ _)) (F-seq L _ _)
             ∙∙ D .⋆Assoc _ _ _ ∙ cong (L ⟪ f ⟫ ⋆ᵈ_)
                   (cong (L ⟪ pbPr₂ ⟫ ⋆ᵈ_) (sym (N-hom ε _))
                    ∙∙ sym (D .⋆Assoc _ _ _)
@@ -166,13 +166,13 @@ module _ (Pbs : Pullbacks C) where
             ∙∙ cong (L ⟪_⟫) s)
 
    rightInv (adjIso L/b⊣R/b) h = SliceHom-≡-intro' _ _ $
-    let p₂ : ∀ {x} → η ⟦ _ ⟧ ⋆ᶜ R ⟪ L ⟪ x ⟫ ⋆ᵈ ε ⟦ _ ⟧ ⟫ ≡ x
+    let p₂ : ∀ {x} → η ⟦ _ ⟧ ⋆ᶜ R ⟪ L ⟪ x ⟫ ⋆⟨ D ⟩ ε ⟦ _ ⟧ ⟫ ≡ x
         p₂ = cong (_ ⋆ᶜ_) (F-seq R _ _) ∙
                    AssocCong₂⋆L C (sym (N-hom η _))
                     ∙∙ cong (_ ⋆ᶜ_) (Δ₂ _) ∙∙ C .⋆IdR _
 
 
-    in univPropEq (sym (S-comm h)) p₂
+    in pullbackArrowUnique (sym (S-comm h)) p₂
 
    leftInv (adjIso L/b⊣R/b) _ = SliceHom-≡-intro' _ _ $
        cong ((_⋆ᵈ _) ∘ L ⟪_⟫) (sym (snd (snd (fst (univProp _ _ _)))))
@@ -181,7 +181,7 @@ module _ (Pbs : Pullbacks C) where
     let (h , (u , v)) = univProp _ _ _ .fst
         (u' , v') = pbU _
 
-    in univPropEq
+    in pullbackArrowUnique
          (u ∙∙ cong (h ⋆ᶜ_) u' ∙∙ sym (C .⋆Assoc h _ _))
          (cong (_ ⋆ᶜ_) (F-seq R _ _)
                ∙∙ sym (C .⋆Assoc _ _ _) ∙∙

@@ -3,9 +3,12 @@ module Cubical.Algebra.Group.Instances.Int where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.Int
   renaming (_+_ to _+ℤ_ ; _-_ to _-ℤ_; -_ to -ℤ_ ; _·_ to _·ℤ_)
+open import Cubical.Data.Nat using (ℕ ; zero ; suc)
+open import Cubical.Data.Fin.Inductive.Base
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
@@ -42,3 +45,13 @@ fst negEquivℤ =
          (GroupTheory.invInv ℤGroup))
 snd negEquivℤ =
   makeIsGroupHom -Dist+
+
+sumFinGroupℤComm : (G : Group₀) (h : GroupIso G ℤGroup) {n : ℕ}
+  (f : Fin n → fst G) → sumFinℤ {n = n} (λ a → Iso.fun (fst h) (f a))
+  ≡ Iso.fun (fst h) (sumFinGroup G {n = n} f)
+sumFinGroupℤComm G h {n = zero} f = sym (IsGroupHom.pres1 (snd h))
+sumFinGroupℤComm G h {n = suc n} f =
+    cong₂ _+ℤ_ (λ _ → Iso.fun (fst h) (f flast))
+      (sumFinGroupℤComm G h {n = n} (f ∘ injectSuc {n = n}))
+  ∙ sym (IsGroupHom.pres· (snd h) (f flast)
+    (sumFinGroup G {n = n} (λ x → f (injectSuc {n = n} x))))

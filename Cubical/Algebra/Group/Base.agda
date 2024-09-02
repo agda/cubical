@@ -8,6 +8,8 @@ module Cubical.Algebra.Group.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
+open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
 
@@ -45,6 +47,8 @@ record GroupStr (G : Type ℓ) : Type ℓ where
   infixr 7 _·_
 
   open IsGroup isGroup public
+
+unquoteDecl GroupStrIsoΣ = declareRecordIsoΣ GroupStrIsoΣ (quote GroupStr)
 
 Group : ∀ ℓ → Type (ℓ-suc ℓ)
 Group ℓ = TypeWithStr ℓ GroupStr
@@ -175,3 +179,6 @@ makeGroup-left 1g _·_ inv set ·Assoc ·IdL ·InvL =
           ≡⟨ ·IdL a ⟩
         a
           ∎
+
+sumFinGroup : ∀ {ℓ} (G : Group ℓ) {n : ℕ} (f : Fin n → fst G) → fst G
+sumFinGroup G {n = n} f = sumFinGen {n = n} (GroupStr._·_ (snd G)) (GroupStr.1g (snd G)) f

@@ -55,6 +55,18 @@ LiftF .F-hom f x = lift (f (x .lower))
 LiftF .F-id = refl
 LiftF .F-seq f g = funExt λ x → refl
 
+module _ {ℓ ℓ' : Level} where
+  isFullyFaithfulLiftF : isFullyFaithful (LiftF {ℓ} {ℓ'})
+  isFullyFaithfulLiftF X Y = isoToIsEquiv LiftFIso
+    where
+    open Iso
+    LiftFIso : Iso (X .fst → Y .fst)
+                   (Lift {ℓ}{ℓ'} (X .fst) → Lift {ℓ}{ℓ'} (Y .fst))
+    fun LiftFIso = LiftF .F-hom {X} {Y}
+    inv LiftFIso = λ f x → f (lift x) .lower
+    rightInv LiftFIso = λ _ → funExt λ _ → refl
+    leftInv LiftFIso = λ _ → funExt λ _ → refl
+
 module _ {C : Category ℓ ℓ'} {F : Functor C (SET ℓ')} where
   open NatTrans
 
@@ -122,7 +134,6 @@ isUnivalent.univ isUnivalentSET (A , isSet-A) (B , isSet-B)  =
             (λ x i → transp (λ _ → A) i (ci .snd .cInv (transp (λ _ → B) i x))))
 
 -- SET is complete
-
 open LimCone
 open Cone
 
@@ -138,6 +149,11 @@ univProp (completeSET J D) c cc =
     (λ x hx → funExt (λ d → cone≡ λ u → funExt (λ _ → sym (funExt⁻ (hx u) d))))
 
 module _ {ℓ} where
+
+-- While pullbacks can be obtained from limits
+-- (using `completeSET` & `LimitsOfShapeCospanCat→Pullbacks` from `Cubical.Categories.Limits.Pullback`),
+-- this direct construction can be more convenient when only pullbacks are needed.
+-- It also has better behavior in terms of inferring implicit arguments
 
  open Pullback
 
@@ -157,3 +173,47 @@ module _ {ℓ} where
     (λ _ → isProp× (isSet→ (snd l) _ _) (isSet→ (snd r) _ _))
      (funExt λ x → Σ≡Prop (λ _ → (snd m) _ _)
         λ i → fst (snd y) i x , snd (snd y) i x)
+
+-- LiftF : SET ℓ → SET (ℓ-suc ℓ) preserves "small" limits
+-- i.e. limits over diagram shapes J : Category ℓ ℓ
+module _ {ℓ : Level} where
+  preservesLimitsLiftF : preservesLimits {ℓJ = ℓ} {ℓJ' = ℓ} (LiftF {ℓ} {ℓ-suc ℓ})
+  preservesLimitsLiftF = preservesLimitsChar _
+                           completeSET
+                           completeSETSuc
+                           limSetIso
+                           λ _ _ _ → refl
+    where
+    -- SET (ℓ-suc ℓ) has limits over shapes J : Category ℓ ℓ
+    completeSETSuc : Limits {ℓJ = ℓ} {ℓJ' = ℓ} (SET (ℓ-suc ℓ))
+    lim (completeSETSuc J D) = Cone D (Unit* , isOfHLevelLift 2 isSetUnit) , isSetCone D _
+    coneOut (limCone (completeSETSuc J D)) j e = coneOut e j tt*
+    coneOutCommutes (limCone (completeSETSuc J D)) j i e = coneOutCommutes e j i tt*
+    univProp (completeSETSuc J D) c cc =
+      uniqueExists
+        (λ x → cone (λ v _ → coneOut cc v x) (λ e i _ → coneOutCommutes cc e i x))
+        (λ _ → funExt (λ _ → refl))
+        (λ x → isPropIsConeMor cc (limCone (completeSETSuc J D)) x)
+        (λ x hx → funExt (λ d → cone≡ λ u → funExt (λ _ → sym (funExt⁻ (hx u) d))))
+
+    lowerCone : ∀ J D
+             → Cone (LiftF ∘F D) (Unit* , isOfHLevelLift 2 isSetUnit)
+             → Cone D (Unit* , isOfHLevelLift 2 isSetUnit)
+    coneOut (lowerCone J D cc) v tt* = cc .coneOut v tt* .lower
+    coneOutCommutes (lowerCone J D cc) e =
+      funExt λ { tt* → cong lower (funExt⁻ (cc .coneOutCommutes e) tt*) }
+
+    liftCone : ∀ J D
+             → Cone D (Unit* , isOfHLevelLift 2 isSetUnit)
+             → Cone (LiftF ∘F D) (Unit* , isOfHLevelLift 2 isSetUnit)
+    coneOut (liftCone J D cc) v tt* = lift (cc .coneOut v tt*)
+    coneOutCommutes (liftCone J D cc) e =
+      funExt λ { tt* → cong lift (funExt⁻ (cc .coneOutCommutes e) tt*) }
+
+    limSetIso : ∀ J D → CatIso (SET (ℓ-suc ℓ))
+                                (completeSETSuc J (LiftF ∘F D) .lim)
+                                (LiftF  .F-ob (completeSET J D .lim))
+    fst (limSetIso J D) cc = lift (lowerCone J D cc)
+    cInv (snd (limSetIso J D)) cc = liftCone J D (cc .lower)
+    sec (snd (limSetIso J D)) = funExt (λ _ → liftExt (cone≡ λ _ → refl))
+    ret (snd (limSetIso J D)) = funExt (λ _ → cone≡ λ _ → refl)
