@@ -20,7 +20,7 @@ record IsBooleanRing {B : Type ℓ}
 
   field
     isCommRing   : IsCommRing 𝟘 𝟙 _+_ _·_ -_
-    ·IsIdempotent : (x : B) → x · x ≡ x
+    ·Idem : (x : B) → x · x ≡ x
 
   open IsCommRing isCommRing public
 
@@ -59,8 +59,8 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
 
   variable x y z : ⟨ A ⟩
 
-  ∧IsIdempotent : x ∧ x ≡ x
-  ∧IsIdempotent = ·IsIdempotent _
+  ∧Idem : x ∧ x ≡ x
+  ∧Idem = ·Idem _
 
   ∧Assoc : x ∧ ( y ∧ z ) ≡ ( x ∧ y ) ∧ z
   ∧Assoc = ·Assoc _ _ _
@@ -74,23 +74,23 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   ∨Comm : x ∨ y ≡ y ∨ x
   ∨Comm  = solve! (BooleanRing→CommRing A)
 
-  0∨IdR : x ∨ 𝟘 ≡ x
-  0∨IdR = solve! (BooleanRing→CommRing A)
+  ∨IdR : x ∨ 𝟘 ≡ x
+  ∨IdR = solve! (BooleanRing→CommRing A)
 
-  0∨IdL : 𝟘 ∨ x ≡ x
-  0∨IdL = solve! (BooleanRing→CommRing A)
+  ∨IdL : 𝟘 ∨ x ≡ x
+  ∨IdL = solve! (BooleanRing→CommRing A)
 
-  1∧IdR : x ∧ 𝟙 ≡ x
-  1∧IdR = ·IdR _
+  ∧IdR : x ∧ 𝟙 ≡ x
+  ∧IdR = ·IdR _
 
-  1∧IdL : 𝟙 ∧ x ≡ x
-  1∧IdL = ·IdL _
+  ∧IdL : 𝟙 ∧ x ≡ x
+  ∧IdL = ·IdL _
 
-  0∧RightAnnihilates : x ∧ 𝟘 ≡ 𝟘
-  0∧RightAnnihilates = RingTheory.0RightAnnihilates (CommRing→Ring (BooleanRing→CommRing A)) _
+  ∧AnnihilR : x ∧ 𝟘 ≡ 𝟘
+  ∧AnnihilR = RingTheory.0RightAnnihilates (CommRing→Ring (BooleanRing→CommRing A)) _
 
-  0∧LeftAnnihilates : 𝟘 ∧ x ≡ 𝟘
-  0∧LeftAnnihilates = RingTheory.0LeftAnnihilates (CommRing→Ring (BooleanRing→CommRing A)) _
+  ∧AnnihilL : 𝟘 ∧ x ≡ 𝟘
+  ∧AnnihilL = RingTheory.0LeftAnnihilates (CommRing→Ring (BooleanRing→CommRing A)) _
 
   -IsId : x + x ≡ 𝟘
   -IsId {x = x} =  RingTheory.+Idempotency→0 (CommRing→Ring (BooleanRing→CommRing A)) (x + x) 2x≡4x
@@ -98,21 +98,21 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
       2x≡4x : x + x ≡ (x + x) + (x + x)
       2x≡4x =
         (x + x)
-          ≡⟨ sym (·IsIdempotent (x + x)) ⟩
+          ≡⟨ sym (·Idem (x + x)) ⟩
         (x + x) · (x + x)
           ≡⟨ solve! (BooleanRing→CommRing A) ⟩
         ((x · x) + (x · x)) + ((x · x) + (x · x))
-          ≡⟨ cong₂ _+_ (cong₂ _+_ (·IsIdempotent x) (·IsIdempotent x)) (cong₂ _+_ (·IsIdempotent x) (·IsIdempotent x)) ⟩
+          ≡⟨ cong₂ _+_ (cong₂ _+_ (·Idem x) (·Idem x)) (cong₂ _+_ (·Idem x) (·Idem x)) ⟩
         (x + x) + (x + x) ∎
 
-  ∨IsIdempotent   : x ∨ x ≡ x
-  ∨IsIdempotent { x = x } =
+  ∨Idem   : x ∨ x ≡ x
+  ∨Idem { x = x } =
     x + x + x · x
       ≡⟨ cong (λ y → y + x · x) -IsId ⟩
     𝟘  + x · x
       ≡⟨ +IdL (x · x) ⟩
     x · x
-      ≡⟨ ·IsIdempotent x ⟩
+      ≡⟨ ·Idem x ⟩
     x ∎
 
   1Absorbs∨R : x ∨ 𝟙 ≡ 𝟙
@@ -128,25 +128,25 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   1Absorbs∨L : 𝟙 ∨ x ≡ 𝟙
   1Absorbs∨L {x = x} = ∨Comm ∙ 1Absorbs∨R
 
-  ∧Distr∨L : x ∧ ( y ∨ z) ≡ (x ∧ y) ∨ (x ∧ z)
-  ∧Distr∨L {x = x} {y = y} { z = z} =
+  ∧DistR∨ : x ∧ ( y ∨ z) ≡ (x ∧ y) ∨ (x ∧ z)
+  ∧DistR∨ {x = x} {y = y} { z = z} =
     x · ((y + z) + (y · z))
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     x · y + x · z +   x   · (y · z)
-      ≡⟨ cong (λ a → x · y + x · z + a · (y · z)) (sym (·IsIdempotent x)) ⟩
+      ≡⟨ cong (λ a → x · y + x · z + a · (y · z)) (sym (·Idem x)) ⟩
     x · y + x · z + x · x · (y · z)
       ≡⟨  solve! (BooleanRing→CommRing A) ⟩
     x · y + x · z + (x · y) · (x · z) ∎
 
-  ∧Distr∨R : (x ∨ y) ∧ z ≡ (x ∧ z) ∨ (y ∧ z)
-  ∧Distr∨R = ∧Comm ∙ ∧Distr∨L ∙ cong₂ _∨_ ∧Comm ∧Comm
+  ∧DistL∨ : (x ∨ y) ∧ z ≡ (x ∧ z) ∨ (y ∧ z)
+  ∧DistL∨ = ∧Comm ∙ ∧DistR∨ ∙ cong₂ _∨_ ∧Comm ∧Comm
 
-  ∨Distr∧L :  x ∨ (y ∧ z) ≡ (x ∨ y) ∧ (x ∨ z)
-  ∨Distr∧L {x = x} {y = y} {z = z} =
+  ∨DistR∧ :  x ∨ (y ∧ z) ≡ (x ∨ y) ∧ (x ∨ z)
+  ∨DistR∧ {x = x} {y = y} {z = z} =
     x + (y · z) + x · (y · z)
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     x + 𝟘 + 𝟘 + y · z + 𝟘 + x · y · z
-      ≡⟨ cong (λ a → a + 𝟘 + 𝟘 + y · z + 𝟘 + a · y · z) (sym (·IsIdempotent x)) ⟩
+      ≡⟨ cong (λ a → a + 𝟘 + 𝟘 + y · z + 𝟘 + a · y · z) (sym (·Idem x)) ⟩
     x · x + 𝟘  + 𝟘  + y · z + 𝟘 + x · x · y · z
       ≡⟨ cong (λ a → x · x + 𝟘 + 𝟘 + y · z + a + x · x · y · z) (sym (-IsId {x = (x · y) · z})) ⟩
     x · x + 𝟘 + 𝟘 + y · z + (x · y · z + x · y · z) + x · x · y · z
@@ -155,36 +155,36 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     (x + y + x · y) · (x + z + x · z) ∎ where
       xa≡xxa : (a : ⟨ A ⟩) → x · a ≡ (x · x ) · a
-      xa≡xxa a = cong (λ y → y · a) (sym (·IsIdempotent x))
+      xa≡xxa a = cong (λ y → y · a) (sym (·Idem x))
       xa-xxa≡0 : (a : ⟨ A ⟩) → 𝟘 ≡ x · a + x · x · a
       xa-xxa≡0 a =
        𝟘
          ≡⟨ sym -IsId ⟩
        x · a + x · a
-         ≡⟨ cong (λ y → x · a + y · a) (sym (·IsIdempotent x)) ⟩
+         ≡⟨ cong (λ y → x · a + y · a) (sym (·Idem x)) ⟩
        x · a + x · x · a ∎
 
   ∨Distr∧R :  (x ∧ y) ∨ z ≡ (x ∨ z) ∧ (y ∨ z)
-  ∨Distr∧R = ∨Comm ∙ ∨Distr∧L ∙ cong₂ _∧_ ∨Comm ∨Comm
+  ∨Distr∧R = ∨Comm ∙ ∨DistR∧ ∙ cong₂ _∧_ ∨Comm ∨Comm
 
-  ∨Absorps∧L : x ∧ (x ∨ y) ≡ x
-  ∨Absorps∧L {x = x} {y = y} =
+  ∧AbsorbL∨ : x ∧ (x ∨ y) ≡ x
+  ∧AbsorbL∨ {x = x} {y = y} =
     x · ((x + y) + (x · y))
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     x · x + (x · y + x · x · y)
-      ≡⟨ cong (λ z → z + ((x · y) + (z · y))) (·IsIdempotent x) ⟩
+      ≡⟨ cong (λ z → z + ((x · y) + (z · y))) (·Idem x) ⟩
     x + (x · y + x · y)
       ≡⟨ cong (_+_ x) -IsId ⟩
     (x + 𝟘)
       ≡⟨ +IdR x ⟩
     x ∎
 
-  ∧Absorps∨L :  x ∨ (x ∧ y) ≡ x
-  ∧Absorps∨L {x = x} { y = y}  =
+  ∨AbsorbL∧ :  x ∨ (x ∧ y) ≡ x
+  ∨AbsorbL∧ {x = x} { y = y}  =
     x + x · y + x · (x · y)
       ≡⟨ solve! (BooleanRing→CommRing A)  ⟩
     x + (x · y + x · x · y)
-      ≡⟨ cong (λ z → x + (x · y + z · y)) (·IsIdempotent x) ⟩
+      ≡⟨ cong (λ z → x + (x · y + z · y)) (·Idem x) ⟩
     x + (x · y + x · y)
       ≡⟨ cong (_+_ x) -IsId ⟩
     x + 𝟘
@@ -196,7 +196,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
     x · (𝟙 + x)
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     x + x · x
-      ≡⟨ cong (λ y → x + y) (·IsIdempotent x) ⟩
+      ≡⟨ cong (λ y → x + y) (·Idem x) ⟩
     x + x
       ≡⟨ -IsId ⟩
     𝟘 ∎
@@ -217,8 +217,8 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   ¬Completes∨L : (¬ x) ∨ x ≡ 𝟙
   ¬Completes∨L = ∨Comm ∙ ¬Completes∨R
 
-  ¬¬ : ¬ ¬ x ≡ x
-  ¬¬ {x = x} =
+  ¬Invol : ¬ ¬ x ≡ x
+  ¬Invol {x = x} =
     𝟙 + (𝟙 + x)
       ≡⟨ +Assoc 𝟙 𝟙 x ⟩
     (𝟙 + 𝟙) + x
