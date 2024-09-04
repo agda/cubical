@@ -41,11 +41,11 @@ record BooleanStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 BooleanRing : ∀ ℓ → Type (ℓ-suc ℓ)
 BooleanRing ℓ = TypeWithStr ℓ BooleanStr
 
-BooleanStrToCommRingStr : { A : Type ℓ } →  BooleanStr A  → CommRingStr A
-BooleanStrToCommRingStr x = record { isCommRing = IsBooleanRing.isCommRing (BooleanStr.isBooleanRing x) }
+BooleanStr→CommRingStr : { A : Type ℓ } →  BooleanStr A  → CommRingStr A
+BooleanStr→CommRingStr x = record { isCommRing = IsBooleanRing.isCommRing (BooleanStr.isBooleanRing x) }
 
-BooleanRingToCommRing : BooleanRing ℓ → CommRing ℓ
-BooleanRingToCommRing (carrier , structure ) = carrier , BooleanStrToCommRingStr structure
+BooleanRing→CommRing : BooleanRing ℓ → CommRing ℓ
+BooleanRing→CommRing (carrier , structure ) = carrier , BooleanStr→CommRingStr structure
 
 module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   open BooleanStr (A . snd)
@@ -68,16 +68,16 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   ∧Comm = ·Comm _ _
 
   ∨Assoc : (x ∨ ( y ∨ z ) ≡ ( x ∨ y ) ∨ z )
-  ∨Assoc =  solve! (BooleanRingToCommRing A)
+  ∨Assoc =  solve! (BooleanRing→CommRing A)
 
   ∨Comm : (x ∨ y ) ≡ (y ∨ x)
-  ∨Comm  = solve! (BooleanRingToCommRing A)
+  ∨Comm  = solve! (BooleanRing→CommRing A)
 
   0∨IdR : x ∨ 𝟘 ≡ x
-  0∨IdR = solve! (BooleanRingToCommRing A)
+  0∨IdR = solve! (BooleanRing→CommRing A)
 
   0∨IdL : 𝟘 ∨ x ≡ x
-  0∨IdL = solve! (BooleanRingToCommRing A)
+  0∨IdL = solve! (BooleanRing→CommRing A)
 
   1∧IdR : x ∧ 𝟙 ≡ x
   1∧IdR = ·IdR _
@@ -86,20 +86,20 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   1∧IdL = ·IdL _
 
   0∧RightAnnihilates : x ∧ 𝟘 ≡ 𝟘
-  0∧RightAnnihilates = RingTheory.0RightAnnihilates (CommRing→Ring (BooleanRingToCommRing A)) _
+  0∧RightAnnihilates = RingTheory.0RightAnnihilates (CommRing→Ring (BooleanRing→CommRing A)) _
 
   0∧LeftAnnihilates : 𝟘 ∧ x ≡ 𝟘
-  0∧LeftAnnihilates = RingTheory.0LeftAnnihilates (CommRing→Ring (BooleanRingToCommRing A)) _
+  0∧LeftAnnihilates = RingTheory.0LeftAnnihilates (CommRing→Ring (BooleanRing→CommRing A)) _
 
   -IsId : x + x ≡ 𝟘
-  -IsId {x = x} =  RingTheory.+Idempotency→0 (CommRing→Ring (BooleanRingToCommRing A)) (x + x) 2x≡4x
+  -IsId {x = x} =  RingTheory.+Idempotency→0 (CommRing→Ring (BooleanRing→CommRing A)) (x + x) 2x≡4x
     where
       2x≡4x : x + x ≡ (x + x) + (x + x)
       2x≡4x =
         (x + x)
           ≡⟨ sym (·IsIdempotent (x + x)) ⟩
         (x + x) · (x + x)
-          ≡⟨ solve! (BooleanRingToCommRing A) ⟩
+          ≡⟨ solve! (BooleanRing→CommRing A) ⟩
         ((x · x) + (x · x)) + ((x · x) + (x · x))
           ≡⟨ cong₂ _+_ (cong₂ _+_ (·IsIdempotent x) (·IsIdempotent x)) (cong₂ _+_ (·IsIdempotent x) (·IsIdempotent x)) ⟩
         (x + x) + (x + x) ∎
@@ -117,7 +117,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   1Absorbs∨R : x ∨ 𝟙 ≡ 𝟙
   1Absorbs∨R {x = x} =
     (x + 𝟙) + (x · 𝟙)
-      ≡⟨ solve! (BooleanRingToCommRing A) ⟩
+      ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     𝟙 + (x + x)
       ≡⟨ cong (λ y → 𝟙 + y) -IsId ⟩
     𝟙 + 𝟘
@@ -130,11 +130,11 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   ∧Distr∨L : x ∧ ( y ∨ z) ≡ (x ∧ y) ∨ (x ∧ z)
   ∧Distr∨L {x = x} {y = y} { z = z} =
     x · ((y + z) + (y · z))
-      ≡⟨ solve! (BooleanRingToCommRing A) ⟩
+      ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     x · y + x · z +   x   · (y · z)
       ≡⟨ cong (λ a → x · y + x · z + a · (y · z)) (sym (·IsIdempotent x)) ⟩
     x · y + x · z + x · x · (y · z)
-      ≡⟨  solve! (BooleanRingToCommRing A) ⟩
+      ≡⟨  solve! (BooleanRing→CommRing A) ⟩
     x · y + x · z + (x · y) · (x · z) ∎
 
   ∧Distr∨R : (x ∨ y) ∧ z ≡ (x ∧ z) ∨ (y ∧ z)
@@ -143,7 +143,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   ∨Distr∧L :  x ∨ (y ∧ z) ≡ (x ∨ y) ∧ (x ∨ z)
   ∨Distr∧L {x = x} {y = y} {z = z} =
     x + (y · z) + x · (y · z)
-      ≡⟨ solve! (BooleanRingToCommRing A) ⟩
+      ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     x + 𝟘 + 𝟘 + y · z + 𝟘 + x · y · z
       ≡⟨ cong (λ a → a + 𝟘 + 𝟘 + y · z + 𝟘 + a · y · z) (sym (·IsIdempotent x)) ⟩
     x · x + 𝟘  + 𝟘  + y · z + 𝟘 + x · x · y · z
@@ -151,7 +151,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
     x · x + 𝟘 + 𝟘 + y · z + (x · y · z + x · y · z) + x · x · y · z
       ≡⟨ (cong₂ (λ a b → x · x + a + b + y · z + (x · y · z + x · y · z) + x · x · y · z)) (xa-xxa≡0 z) (xa-xxa≡0 y) ⟩
     x · x + (x · z + x · x · z) + (x · y + x · x · y) + y · z + (x · y · z + x · y · z) + x · x · y · z
-      ≡⟨ solve! (BooleanRingToCommRing A) ⟩
+      ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     (x + y + x · y) · (x + z + x · z) ∎ where
       xa≡xxa : (a : ⟨ A ⟩) → x · a ≡ (x · x ) · a
       xa≡xxa a = cong (λ y → y · a) (sym (·IsIdempotent x))
@@ -169,7 +169,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   ∨Absorps∧L : x ∧ (x ∨ y) ≡ x
   ∨Absorps∧L {x = x} {y = y} =
     x · ((x + y) + (x · y))
-      ≡⟨ solve! (BooleanRingToCommRing A) ⟩
+      ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     x · x + (x · y + x · x · y)
       ≡⟨ cong (λ z → z + ((x · y) + (z · y))) (·IsIdempotent x) ⟩
     x + (x · y + x · y)
@@ -181,7 +181,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   ∧Absorps∨L :  x ∨ (x ∧ y) ≡ x
   ∧Absorps∨L {x = x} { y = y}  =
     x + x · y + x · (x · y)
-      ≡⟨ solve! (BooleanRingToCommRing A)  ⟩
+      ≡⟨ solve! (BooleanRing→CommRing A)  ⟩
     x + (x · y + x · x · y)
       ≡⟨ cong (λ z → x + (x · y + z · y)) (·IsIdempotent x) ⟩
     x + (x · y + x · y)
@@ -193,7 +193,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   ¬Cancels∧R : (x ∧ (¬ x)) ≡ 𝟘
   ¬Cancels∧R {x = x} =
     x · (𝟙 + x)
-      ≡⟨ solve! (BooleanRingToCommRing A) ⟩
+      ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     x + x · x
       ≡⟨ cong (λ y → x + y) (·IsIdempotent x) ⟩
     x + x
@@ -208,7 +208,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
     x + (¬ x) + (x ∧ (¬ x))
       ≡⟨ cong (λ z → x + ¬ x + z) ¬Cancels∧R ⟩
     x + ¬ x + 𝟘
-      ≡⟨ solve! (BooleanRingToCommRing A) ⟩
+      ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     x ∨ 𝟙
       ≡⟨ 1Absorbs∨R ⟩
     𝟙 ∎
@@ -233,14 +233,14 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   ¬1≡0 = -IsId {x = 𝟙}
 
   DeMorgan¬∨ : ¬ (x ∨ y) ≡ (¬ x) ∧ (¬ y)
-  DeMorgan¬∨ = solve! (BooleanRingToCommRing A)
+  DeMorgan¬∨ = solve! (BooleanRing→CommRing A)
 
   DeMorgan¬∧ : ¬ (x ∧ y) ≡ (¬ x) ∨ (¬ y)
   DeMorgan¬∧ {x = x} {y = y} =
     𝟙 + x · y
-      ≡⟨ solve! (BooleanRingToCommRing A) ⟩
+      ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     𝟘 + 𝟘 + 𝟙 + x · y
       ≡⟨ cong₂ (λ a b → ((a + b) + 𝟙) + (x · y)) (sym (-IsId {x = 𝟙 + x})) (sym (-IsId {x = y})) ⟩
     ((𝟙 + x)  + (𝟙 + x)) + (y + y)  + 𝟙 + x · y
-      ≡⟨ solve! (BooleanRingToCommRing A) ⟩
+      ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     ((¬ x) ∨ (¬ y)) ∎
