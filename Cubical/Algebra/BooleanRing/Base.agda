@@ -191,7 +191,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
       ≡⟨ +IdR x ⟩
     x ∎
 
-  ¬Cancels∧R : (x ∧ (¬ x)) ≡ 𝟘
+  ¬Cancels∧R : x ∧ (¬ x) ≡ 𝟘
   ¬Cancels∧R {x = x} =
     x · (𝟙 + x)
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
