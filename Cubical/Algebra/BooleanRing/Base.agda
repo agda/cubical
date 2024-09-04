@@ -15,7 +15,8 @@ private
    ℓ ℓ' : Level
 
 record IsBooleanRing {B : Type ℓ}
-              (𝟘 𝟙 : B) (_+_ _·_ : B → B → B) (-_ : B → B) : Type ℓ where
+  (𝟘 𝟙 : B) (_+_ _·_ : B → B → B) (-_ : B → B) : Type ℓ where
+  no-eta-equality
 
   field
     isCommRing   : IsCommRing 𝟘 𝟙 _+_ _·_ -_
@@ -52,7 +53,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   _∨_ : ⟨ A ⟩ → ⟨ A ⟩ → ⟨ A ⟩
   a ∨ b = (a + b) + (a · b)
   _∧_ : ⟨ A ⟩ → ⟨ A ⟩ → ⟨ A ⟩
-  a ∧ b = (a · b)
+  a ∧ b = a · b
   ¬_ : ⟨ A ⟩ → ⟨ A ⟩
   ¬ a = 𝟙 + a
 
@@ -64,13 +65,13 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   ∧Assoc : x ∧ ( y ∧ z ) ≡ ( x ∧ y ) ∧ z
   ∧Assoc = ·Assoc _ _ _
 
-  ∧Comm :  (x ∧ y) ≡ (y ∧ x)
+  ∧Comm :  x ∧ y ≡ y ∧ x
   ∧Comm = ·Comm _ _
 
   ∨Assoc : (x ∨ ( y ∨ z ) ≡ ( x ∨ y ) ∨ z )
   ∨Assoc =  solve! (BooleanRing→CommRing A)
 
-  ∨Comm : (x ∨ y ) ≡ (y ∨ x)
+  ∨Comm : x ∨ y ≡ y ∨ x
   ∨Comm  = solve! (BooleanRing→CommRing A)
 
   0∨IdR : x ∨ 𝟘 ≡ x
@@ -200,10 +201,10 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
       ≡⟨ -IsId ⟩
     𝟘 ∎
 
-  ¬Cancels∧L : ((¬ x) ∧ x) ≡ 𝟘
+  ¬Cancels∧L : (¬ x) ∧ x ≡ 𝟘
   ¬Cancels∧L = ∧Comm ∙ ¬Cancels∧R
 
-  ¬Completes∨R : (x ∨ (¬ x)) ≡ 𝟙
+  ¬Completes∨R : x ∨ (¬ x) ≡ 𝟙
   ¬Completes∨R {x = x} =
     x + (¬ x) + (x ∧ (¬ x))
       ≡⟨ cong (λ z → x + ¬ x + z) ¬Cancels∧R ⟩
