@@ -57,6 +57,10 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   ¬_ : ⟨ A ⟩ → ⟨ A ⟩
   ¬ a = 𝟙 + a
 
+  infix  8 ¬_
+  infixl 7 _∧_
+  infixl 6 _∨_
+
   variable x y z : ⟨ A ⟩
 
   ∧Idem : x ∧ x ≡ x
@@ -97,7 +101,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
     where
       2x≡4x : x + x ≡ (x + x) + (x + x)
       2x≡4x =
-        (x + x)
+        x + x
           ≡⟨ sym (·Idem (x + x)) ⟩
         (x + x) · (x + x)
           ≡⟨ solve! (BooleanRing→CommRing A) ⟩
@@ -175,7 +179,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
       ≡⟨ cong (λ z → z + ((x · y) + (z · y))) (·Idem x) ⟩
     x + (x · y + x · y)
       ≡⟨ cong (_+_ x) -IsId ⟩
-    (x + 𝟘)
+    x + 𝟘
       ≡⟨ +IdR x ⟩
     x ∎
 
@@ -191,7 +195,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
       ≡⟨ +IdR x ⟩
     x ∎
 
-  ¬Cancels∧R : x ∧ (¬ x) ≡ 𝟘
+  ¬Cancels∧R : x ∧ ¬ x ≡ 𝟘
   ¬Cancels∧R {x = x} =
     x · (𝟙 + x)
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
@@ -201,12 +205,12 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
       ≡⟨ -IsId ⟩
     𝟘 ∎
 
-  ¬Cancels∧L : (¬ x) ∧ x ≡ 𝟘
+  ¬Cancels∧L : ¬ x ∧ x ≡ 𝟘
   ¬Cancels∧L = ∧Comm ∙ ¬Cancels∧R
 
-  ¬Completes∨R : x ∨ (¬ x) ≡ 𝟙
+  ¬Completes∨R : x ∨ ¬ x ≡ 𝟙
   ¬Completes∨R {x = x} =
-    x + (¬ x) + (x ∧ (¬ x))
+    x + ¬ x + (x ∧ ¬ x)
       ≡⟨ cong (λ z → x + ¬ x + z) ¬Cancels∧R ⟩
     x + ¬ x + 𝟘
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
@@ -233,10 +237,10 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   ¬1≡0 : ¬ 𝟙 ≡ 𝟘
   ¬1≡0 = -IsId {x = 𝟙}
 
-  DeMorgan¬∨ : ¬ (x ∨ y) ≡ (¬ x) ∧ (¬ y)
+  DeMorgan¬∨ : ¬ (x ∨ y) ≡ ¬ x ∧ ¬ y
   DeMorgan¬∨ = solve! (BooleanRing→CommRing A)
 
-  DeMorgan¬∧ : ¬ (x ∧ y) ≡ (¬ x) ∨ (¬ y)
+  DeMorgan¬∧ : ¬ (x ∧ y) ≡ ¬ x ∨ ¬ y
   DeMorgan¬∧ {x = x} {y = y} =
     𝟙 + x · y
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
@@ -244,4 +248,4 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
       ≡⟨ cong₂ (λ a b → ((a + b) + 𝟙) + (x · y)) (sym (-IsId {x = 𝟙 + x})) (sym (-IsId {x = y})) ⟩
     ((𝟙 + x)  + (𝟙 + x)) + (y + y)  + 𝟙 + x · y
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
-    ((¬ x) ∨ (¬ y)) ∎
+    ¬ x ∨ ¬ y ∎
