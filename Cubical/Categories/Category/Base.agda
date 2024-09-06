@@ -29,6 +29,10 @@ record Category ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   _∘_ : ∀ {x y z} (g : Hom[ y , z ]) (f : Hom[ x , y ]) → Hom[ x , z ]
   g ∘ f = f ⋆ g
 
+  ⟨_⟩⋆⟨_⟩ : {x y z : ob} {f f' : Hom[ x , y ]} {g g' : Hom[ y , z ]}
+          → f ≡ f' → g ≡ g' → f ⋆ g ≡ f' ⋆ g'
+  ⟨ ≡f ⟩⋆⟨ ≡g ⟩ = cong₂ _⋆_ ≡f ≡g
+
   infixr 9 _⋆_
   infixr 9 _∘_
 
