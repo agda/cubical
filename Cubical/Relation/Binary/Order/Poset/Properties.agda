@@ -356,7 +356,7 @@ IsPosetEquivRespectsJoin : {P : Poset ℓ₀ ℓ₀'} {S : Poset ℓ₁ ℓ₁'}
                                  (equivFun (e .fst) a)
                                  (equivFun (e .fst) b)
                                  (equivFun (e .fst) a∨b)
-                                 
+
 IsPosetEquivRespectsJoin {P = P} {S = S} (e , posEq) a b a∨b
   = propBiimpl→Equiv (isPropIsJoin proP a b a∨b)
                      (isPropIsJoin proS (equivFun e a) (equivFun e b) (equivFun e a∨b))

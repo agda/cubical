@@ -143,8 +143,8 @@ module _
 
   private
       pos = isToset→isPoset tos
-      
-      pre = isPoset→isProset pos  
+
+      pre = isPoset→isProset pos
 
       prop = IsToset.is-prop-valued tos
 
@@ -159,7 +159,7 @@ module _
   module _
     {P : Embedding A ℓ''}
     where
-    
+
     private
       toA = fst (snd P)
 
