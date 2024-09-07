@@ -11,7 +11,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Morphism
 
-open import Cubical.Relation.Binary.Order.Preorder
+open import Cubical.Relation.Binary.Order.Proset
 
 open Category
 
@@ -83,9 +83,9 @@ SliceHom.S-comm
     ∎
 
 module _ (isSetCOb : isSet (C .ob)) where
-  subObjCatPreorderStr : PreorderStr _ (SubObjCat .ob)
-  PreorderStr._≲_ subObjCatPreorderStr x y = SubObjCat [ x , y ]
-  IsPreorder.is-set (PreorderStr.isPreorder subObjCatPreorderStr) = isSetΣ (isSetSliceOb isSetCOb) λ x → isProp→isSet (∈-isProp isSubObj x)
-  IsPreorder.is-prop-valued (PreorderStr.isPreorder subObjCatPreorderStr) = isPropSubObjMor
-  IsPreorder.is-refl (PreorderStr.isPreorder subObjCatPreorderStr) = isReflSubObjMor
-  IsPreorder.is-trans (PreorderStr.isPreorder subObjCatPreorderStr) = isTransSubObjMor
+  subObjCatPreorderStr : ProsetStr _ (SubObjCat .ob)
+  ProsetStr._≲_ subObjCatPreorderStr x y = SubObjCat [ x , y ]
+  IsProset.is-set (ProsetStr.isProset subObjCatPreorderStr) = isSetΣ (isSetSliceOb isSetCOb) λ x → isProp→isSet (∈-isProp isSubObj x)
+  IsProset.is-prop-valued (ProsetStr.isProset subObjCatPreorderStr) = isPropSubObjMor
+  IsProset.is-refl (ProsetStr.isProset subObjCatPreorderStr) = isReflSubObjMor
+  IsProset.is-trans (ProsetStr.isProset subObjCatPreorderStr) = isTransSubObjMor
