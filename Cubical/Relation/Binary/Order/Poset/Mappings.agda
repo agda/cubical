@@ -339,6 +339,32 @@ module _
         isPrincipalUpset→isUpset : isPrincipalUpset → (isUpset S)
         isPrincipalUpset→isUpset (x , p) = transport⁻ (cong isUpset p) (isUpsetPrincipalUpset x)
 
+module PosetDownset (P' : Poset ℓ ℓ') where
+  private P = ⟨ P' ⟩
+  open PosetStr (snd P')
+
+  ↓ᴾ : P → Poset (ℓ-max ℓ ℓ') ℓ'
+  fst (↓ᴾ u) = principalDownset P' u .fst
+  PosetStr._≤_ (snd (↓ᴾ u)) v w = v .fst ≤ w .fst
+  PosetStr.isPoset (snd (↓ᴾ u)) =
+    isPosetInduced
+      (PosetStr.isPoset (snd P'))
+       _
+      (principalDownset P' u .snd)
+
+module PosetUpset (P' : Poset ℓ ℓ') where
+  private P = ⟨ P' ⟩
+  open PosetStr (snd P')
+
+  ↑ᴾ : P → Poset (ℓ-max ℓ ℓ') ℓ'
+  fst (↑ᴾ u) = principalUpset P' u .fst
+  PosetStr._≤_ (snd (↑ᴾ u)) v w = v .fst ≤ w .fst
+  PosetStr.isPoset (snd (↑ᴾ u)) =
+    isPosetInduced
+      (PosetStr.isPoset (snd P'))
+       _
+      (principalUpset P' u .snd)
+
 -- Isotone maps are characterized by their actions on down-sets and up-sets
 module _
   {P : Poset ℓ₀ ℓ₀'}

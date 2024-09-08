@@ -97,22 +97,6 @@ Poset→Proset (_ , pos)
   = proset _ (PosetStr._≤_ pos)
              (isPoset→isProset (PosetStr.isPoset pos))
 
-module PosetDownset (P' : Poset ℓ ℓ') where
-  private P = fst P'
-  open PosetStr (snd P')
-
-  ↓ : P → Type (ℓ-max ℓ ℓ')
-  ↓ u = Σ[ v ∈ P ] v ≤ u
-
-  ↓ᴾ : P → Poset (ℓ-max ℓ ℓ') ℓ'
-  fst (↓ᴾ u) = ↓ u
-  PosetStr._≤_ (snd (↓ᴾ u)) v w = v .fst ≤ w .fst
-  PosetStr.isPoset (snd (↓ᴾ u)) =
-    isPosetInduced
-      (PosetStr.isPoset (snd P'))
-      _
-      (EmbeddingΣProp (λ a → is-prop-valued _ _))
-
 Poset→Quoset : Poset ℓ ℓ' → Quoset ℓ (ℓ-max ℓ ℓ')
 Poset→Quoset (_ , pos)
   = quoset _ (BinaryRelation.IrreflKernel (PosetStr._≤_ pos))
