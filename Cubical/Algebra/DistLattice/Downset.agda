@@ -16,7 +16,7 @@ open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice.Base
 
 open import Cubical.Relation.Binary.Order.Poset
-open import Cubical.Relation.Binary.Order.Poset.Mappings
+open import Cubical.Relation.Binary.Order.Poset.Subset
 
 open Iso
 
@@ -45,7 +45,7 @@ module DistLatticeDownset (L' : DistLattice ℓ) where
       _ = LPoset .snd
 
   ↓ᴰᴸ : L → DistLattice ℓ
-  fst (↓ᴰᴸ u) = principalDownset IndPoset u .fst
+  fst (↓ᴰᴸ u) = ↓ u
   DistLatticeStr.0l (snd (↓ᴰᴸ u)) = 0l , ∨lLid u
   DistLatticeStr.1l (snd (↓ᴰᴸ u)) = u , is-refl u
   DistLatticeStr._∨l_ (snd (↓ᴰᴸ u)) (v , v≤u) (w , w≤u) =
