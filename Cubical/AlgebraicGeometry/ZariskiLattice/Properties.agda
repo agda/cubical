@@ -13,6 +13,7 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
 open import Cubical.Relation.Binary.Order.Poset
+open import Cubical.Relation.Binary.Order.Poset.Mappings
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation
@@ -135,7 +136,7 @@ module LocDownSetIso (R : CommRing ℓ) (f : R .fst) where
       D R f ∧l D R r ∎
 
 
-  locDownSupp : R[1/ f ] → ↓ (D R f)
+  locDownSupp : R[1/ f ] → principalDownset ZLRPoset (D R f) .fst
   locDownSupp =
     SQ.rec
       (isSetΣSndProp squash/ λ x → is-prop-valued x _)
@@ -187,7 +188,7 @@ module LocDownSetIso (R : CommRing ℓ) (f : R .fst) where
   locToDownHom : DistLatticeHom (ZariskiLattice R[1/ f ]AsCommRing) (↓ᴰᴸ (D R f))
   locToDownHom = ZLHasUniversalProp _ _ _ isSupportLocDownSupp .fst .fst
 
-  toDownSupp : R .fst → ↓ (D R f)
+  toDownSupp : R .fst → principalDownset ZLRPoset (D R f) .fst
   toDownSupp = locDownSupp ∘ _/1
 
   isSupportToDownSupp : IsSupport R (↓ᴰᴸ (D R f)) toDownSupp
