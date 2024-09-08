@@ -22,7 +22,7 @@ open import Cubical.Relation.Binary.Order.Poset.Properties
 private
   variable
     ℓ ℓ' ℓ'' ℓ''' ℓ₀ ℓ₁ : Level
-    
+
 module _
   (P : Poset ℓ ℓ')
   where
