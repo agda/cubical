@@ -426,13 +426,11 @@ Involution→EqualResidual : (P : Poset ℓ ℓ')
                          → (res : hasResidual P P f)
                          → f ∘ f ≡ idfun ⟨ P ⟩
                          → f ≡ (residual P P f res)
-Involution→EqualResidual P f (isf , f⁺ , isf⁺ , f⁺∘f , f∘f⁺) inv
-  = funExt λ x → anti (f x) (f⁺ x)
-                      (subst (λ g → f x ≤ f⁺ (g x)) inv (f⁺∘f (f x)))
-                      (subst (λ g → g (f⁺ x) ≤ f x) inv (IsIsotone.pres≤ isf _ _ (f∘f⁺ x)))
-  where pos = PosetStr.isPoset (snd P)
-        _≤_ = PosetStr._≤_ (snd P)
-        anti = IsPoset.is-antisym pos
+Involution→EqualResidual P f res inv
+  = sym (cong₂ (λ g h → g ∘ f⁺ ∘ h) (sym inv) (sym inv) ∙
+         cong (λ g → f ∘ g ∘ f) (AbsorbResidual P P f res) ∙
+         cong (f ∘_) inv)
+  where f⁺ = res .snd .fst
 
 Res : Poset ℓ ℓ' → Semigroup (ℓ-max ℓ ℓ')
 fst (Res E) = Σ[ f ∈ (⟨ E ⟩ → ⟨ E ⟩) ] hasResidual E E f
