@@ -408,6 +408,32 @@ isResidual-∘ E F G f⁺ g⁺ (f , resf , f⁺≡f*)
                (hasResidual-∘ E F G f g resf resg) ,
                (funExt (λ x → cong f⁺ (funExt⁻ g⁺≡g* x) ∙ funExt⁻ f⁺≡f* _))
 
+EqualResidual→Involution : (P : Poset ℓ ℓ')
+                         → (f : ⟨ P ⟩ → ⟨ P ⟩)
+                         → (res : hasResidual P P f)
+                         → f ≡ (residual P P f res)
+                         → f ∘ f ≡ idfun ⟨ P ⟩
+EqualResidual→Involution P f (isf , f⁺ , isf⁺ , f⁺∘f , f∘f⁺) f≡f⁺
+  = funExt λ x → anti (f (f x)) x
+                      (subst (λ g → (f ∘ g) x ≤ x) (sym f≡f⁺) (f∘f⁺ x))
+                      (subst (λ g → x ≤ (g ∘ f) x) (sym f≡f⁺) (f⁺∘f x))
+  where pos = PosetStr.isPoset (snd P)
+        _≤_ = PosetStr._≤_ (snd P)
+        anti = IsPoset.is-antisym pos
+
+Involution→EqualResidual : (P : Poset ℓ ℓ')
+                         → (f : ⟨ P ⟩ → ⟨ P ⟩)
+                         → (res : hasResidual P P f)
+                         → f ∘ f ≡ idfun ⟨ P ⟩
+                         → f ≡ (residual P P f res)
+Involution→EqualResidual P f (isf , f⁺ , isf⁺ , f⁺∘f , f∘f⁺) inv
+  = funExt λ x → anti (f x) (f⁺ x)
+                      (subst (λ g → f x ≤ f⁺ (g x)) inv (f⁺∘f (f x)))
+                      (subst (λ g → g (f⁺ x) ≤ f x) inv (IsIsotone.pres≤ isf _ _ (f∘f⁺ x)))
+  where pos = PosetStr.isPoset (snd P)
+        _≤_ = PosetStr._≤_ (snd P)
+        anti = IsPoset.is-antisym pos
+
 Res : Poset ℓ ℓ' → Semigroup (ℓ-max ℓ ℓ')
 fst (Res E) = Σ[ f ∈ (⟨ E ⟩ → ⟨ E ⟩) ] hasResidual E E f
 SemigroupStr._·_ (snd (Res E)) (f , resf) (g , resg)
