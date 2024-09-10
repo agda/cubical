@@ -37,6 +37,7 @@ open import Cubical.Data.Int
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Multiplication
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout

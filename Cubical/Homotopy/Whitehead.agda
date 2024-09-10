@@ -15,6 +15,7 @@ open import Cubical.Data.Unit
 open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Multiplication
 open import Cubical.HITs.Join
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.SetTruncation

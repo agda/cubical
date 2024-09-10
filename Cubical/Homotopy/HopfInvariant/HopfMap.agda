@@ -48,6 +48,7 @@ open import Cubical.HITs.Pushout as Pushout
 open import Cubical.HITs.Join
 open import Cubical.HITs.S1 renaming (_·_ to _*_)
 open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Multiplication
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation
   renaming (rec to trRec ; elim to trElim)

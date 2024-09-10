@@ -25,8 +25,9 @@ open import Cubical.Data.Bool hiding (elim)
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma
 
-open import Cubical.HITs.S1 hiding (_·_)
-open import Cubical.HITs.Sn hiding (IsoSphereJoin)
+open import Cubical.HITs.S1 renaming (_·_ to _*_)
+open import Cubical.HITs.S2
+open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.Join
 open import Cubical.HITs.Pushout
@@ -81,6 +82,33 @@ IdL⌣S≡IdR⌣S : (n m : ℕ)
 IdL⌣S≡IdR⌣S zero m = refl
 IdL⌣S≡IdR⌣S (suc zero) m = refl
 IdL⌣S≡IdR⌣S (suc (suc n)) m = refl
+
+
+-- -- Interaction between S¹×S¹→S² and SuspS¹→S²
+-- SuspS¹→S²-S¹×S¹→S² : (a b : S¹)
+--   → (SuspS¹→S² (S¹×S¹→S² a b)) ≡ (S¹×S¹→S²' b a)
+-- SuspS¹→S²-S¹×S¹→S² base base = refl
+-- SuspS¹→S²-S¹×S¹→S² base (loop i) = refl
+-- SuspS¹→S²-S¹×S¹→S² (loop i) base = refl
+-- SuspS¹→S²-S¹×S¹→S² (loop i) (loop j) k =
+--   hcomp (λ r → λ {(i = i0) → rUnit (λ _ → base) (~ r ∧ ~ k) j
+--                  ; (i = i1) → rUnit (λ _ → base) (~ r ∧ ~ k) j
+--                  ; (j = i0) → base
+--                  ; (j = i1) → base
+--                  ; (k = i0) → SuspS¹→S² (doubleCompPath-filler (
+--                                  sym (rCancel (merid base)))
+--                                  ((λ i → merid (loop i) ∙ sym (merid base)))
+--                                  (rCancel (merid base)) r i j )
+--                  ; (k = i1) → surf j i})
+--     (hcomp (λ r → λ {(i = i0) → rUnit (λ _ → base) (r ∧ ~ k) j
+--                  ; (i = i1) → rUnit (λ _ → base) (r ∧ ~ k) j
+--                  ; (j = i0) → base
+--                  ; (j = i1) → base
+--                  ; (k = i0) → SuspS¹→S²
+--                        (compPath-filler (merid (loop i)) (sym (merid base)) r j)
+--                  ; (k = i1) → surf j i})
+--            (surf j i))
+
 
 -- Multiplication induced on smash products of spheres
 ⋀S∙ : (n m : ℕ) → S₊∙ n ⋀∙ S₊∙ m →∙ S₊∙ (n + m)
@@ -316,6 +344,21 @@ joinSphereIso' n m =
    (compIso (congSuspIso (SphereSmashIso n m))
     (invIso (IsoSucSphereSusp (n + m))))
 
+-- The inverse function is not definitionally pointed. Let's change this
+sphere→Join : (n m : ℕ)
+  → S₊ (suc (n + m)) → join (S₊ n) (S₊ m)
+sphere→Join zero zero = Iso.inv (joinSphereIso' 0 0)
+sphere→Join zero (suc m) north = inl true
+sphere→Join zero (suc m) south = inl true
+sphere→Join zero (suc m) (merid a i) =
+  (push true (ptSn (suc m))
+  ∙ cong (Iso.inv (joinSphereIso' zero (suc m))) (merid a)) i
+sphere→Join (suc n) m north = inl (ptSn (suc n))
+sphere→Join (suc n) m south = inl (ptSn (suc n))
+sphere→Join (suc n) m (merid a i) =
+    (push (ptSn (suc n)) (ptSn m)
+  ∙ cong (Iso.inv (joinSphereIso' (suc n) m)) (merid a)) i
+
 join→Sphere≡ : (n m : ℕ) (x : _)
   → join→Sphere n m x ≡ joinSphereIso' n m .Iso.fun x
 join→Sphere≡ zero zero (inl x) = refl
@@ -338,22 +381,45 @@ join→Sphere≡ (suc n) (suc m) (push a b i) j =
   compPath-filler
     (merid (a ⌣S b)) (sym (merid (ptSn (suc n + suc m)))) (~ j) i
 
+sphere→Join≡ : (n m : ℕ) (x : _)
+  → sphere→Join n m x ≡ joinSphereIso' n m .Iso.inv x
+sphere→Join≡ zero zero x = refl
+sphere→Join≡ zero (suc m) north = push true (pt (S₊∙ (suc m)))
+sphere→Join≡ zero (suc m) south = refl
+sphere→Join≡ zero (suc m) (merid a i) j =
+  compPath-filler' (push true (pt (S₊∙ (suc m))))
+                   (cong (joinSphereIso' zero (suc m) .Iso.inv) (merid a)) (~ j) i
+sphere→Join≡ (suc n) m north = push (ptSn (suc n)) (pt (S₊∙ m))
+sphere→Join≡ (suc n) m south = refl
+sphere→Join≡ (suc n) m (merid a i) j =
+  compPath-filler' (push (ptSn (suc n)) (pt (S₊∙ m)))
+                   (cong (joinSphereIso' (suc n) m .Iso.inv) (merid a)) (~ j) i
+
 -- Todo: integrate with Sn.Properties IsoSphereJoin
 IsoSphereJoin : (n m : ℕ)
   → Iso (join (S₊ n) (S₊ m)) (S₊ (suc (n + m)))
 fun (IsoSphereJoin n m) = join→Sphere n m
-inv (IsoSphereJoin n m) = joinSphereIso' n m .Iso.inv
+inv (IsoSphereJoin n m) = sphere→Join n m
 rightInv (IsoSphereJoin n m) x =
-  join→Sphere≡ n m (joinSphereIso' n m .Iso.inv x)
+  (λ i → join→Sphere≡ n m (sphere→Join≡ n m x i) i)
   ∙ joinSphereIso' n m .Iso.rightInv x
 leftInv (IsoSphereJoin n m) x =
-  cong (joinSphereIso' n m .inv) (join→Sphere≡ n m x)
+  (λ i → sphere→Join≡ n m (join→Sphere≡ n m x i) i)
   ∙ joinSphereIso' n m .Iso.leftInv x
 
 joinSphereEquiv∙ : (n m : ℕ) → join∙ (S₊∙ n) (S₊∙ m) ≃∙ S₊∙ (suc (n + m))
 fst (joinSphereEquiv∙ n m) = isoToEquiv (IsoSphereJoin n m)
 snd (joinSphereEquiv∙ n m) = refl
 
+IsoSphereJoinPres∙ : (n m : ℕ)
+  → Iso.fun (IsoSphereJoin n m) (inl (ptSn n)) ≡ ptSn (suc (n + m))
+IsoSphereJoinPres∙ n m = refl
+
+IsoSphereJoin⁻Pres∙ : (n m : ℕ)
+  → Iso.inv (IsoSphereJoin n m) (ptSn (suc (n + m))) ≡ inl (ptSn n)
+IsoSphereJoin⁻Pres∙ zero zero = push true true ⁻¹
+IsoSphereJoin⁻Pres∙ zero (suc m) = refl
+IsoSphereJoin⁻Pres∙ (suc n) m = refl
 
 -- Associativity ⌣S
 -- Preliminary lemma
@@ -896,3 +962,103 @@ comm⌣S {n = suc (suc n)} {m = suc (suc m)} x y =
       ∙ sym (cong (subst S₊ (sym (+-comm (suc m) (suc n)))
                  ∘ -S^ (suc n · suc m))
          (comm⌣S x y))) x y
+
+-- Additional properties in low dimension:
+diag⌣ : {n : ℕ} (x : S₊ (suc n)) → x ⌣S x ≡ ptSn _
+diag⌣ {n = zero} base = refl
+diag⌣ {n = zero} (loop i) j = help j i
+  where
+  help : cong₂ _⌣S_ loop loop ≡ refl
+  help = cong₂Funct _⌣S_ loop loop
+       ∙ sym (rUnit _)
+       ∙ rCancel (merid base)
+diag⌣ {n = suc n} north = refl
+diag⌣ {n = suc n} south = refl
+diag⌣ {n = suc n} (merid a i) j = help j i
+  where
+  help : cong₂ _⌣S_ (merid a) (merid a) ≡ refl
+  help = cong₂Funct _⌣S_ (merid a) (merid a)
+       ∙ sym (rUnit _)
+       ∙ flipSquare (cong IdL⌣S (merid a))
+
+⌣₁,₁-distr : (a b : S¹) → (b * a) ⌣S b ≡ a ⌣S b
+⌣₁,₁-distr a base = refl
+⌣₁,₁-distr a (loop i) j = lem j i
+  where
+  lem : cong₂ (λ (b1 b2 : S¹) → (b1 * a) ⌣S b2) loop loop
+     ≡ (λ i → a ⌣S loop i)
+  lem = (cong₂Funct (λ (b1 b2 : S¹) → (b1 * a) ⌣S b2) loop loop
+      ∙ cong₂ _∙_ (PathP→compPathR
+                   (flipSquare (cong (IdL⌣S {n = 1} {1} ∘ (_* a)) loop))
+                ∙ cong₂ _∙_ refl (sym (lUnit _))
+                ∙ rCancel _)
+                  refl
+      ∙ sym (lUnit _))
+
+⌣₁,₁-distr' : (a b : S¹) → (a * b) ⌣S b ≡ a ⌣S b
+⌣₁,₁-distr' a b = cong (_⌣S b) (commS¹ a b) ∙ ⌣₁,₁-distr a b
+
+⌣Sinvₗ : {n m : ℕ} (x : S₊ (suc n)) (y : S₊ (suc m))
+  → (invSphere x) ⌣S y ≡ invSphere (x ⌣S y)
+⌣Sinvₗ {n = zero} {m} base y = merid (ptSn (suc m))
+⌣Sinvₗ {n = zero} {m} (loop i) y j = lem j i
+  where
+  lem : Square (σS y ⁻¹)
+               (λ i → invSphere (loop i ⌣S y))
+               (merid (ptSn (suc m))) (merid (ptSn (suc m)))
+  lem = sym (cong-∙ invSphere' (merid y) (sym (merid (ptSn (suc m))))
+      ∙ cong₂ _∙_ refl (rCancel _)
+      ∙ sym (rUnit _))
+      ◁ (λ j i → invSphere'≡ (loop i ⌣S y) j)
+⌣Sinvₗ {n = suc n} {m} north y = merid (ptSn (suc (n + suc m)))
+⌣Sinvₗ {n = suc n} {m} south y = merid (ptSn (suc (n + suc m)))
+⌣Sinvₗ {n = suc n} {m} (merid a i) y j = lem j i
+  where
+  p = ptSn (suc (n + suc m))
+
+  lem : Square (σS (a ⌣S y) ⁻¹)
+               (λ i → invSphere (merid a i ⌣S y))
+               (merid p) (merid p)
+  lem = (sym (cong-∙ invSphere' (merid (a ⌣S y)) (sym (merid p))
+      ∙ cong₂ _∙_ refl (rCancel _)
+      ∙ sym (rUnit _)))
+      ◁ λ j i → invSphere'≡ (merid a i ⌣S y) j
+
+⌣Sinvᵣ : {n m : ℕ} (x : S₊ (suc n)) (y : S₊ (suc m))
+      → x ⌣S (invSphere y) ≡ invSphere (x ⌣S y)
+⌣Sinvᵣ {n = n} {m} x y =
+    comm⌣S x (invSphere y)
+  ∙ cong (subst S₊ (+-comm (suc m) (suc n)))
+         (cong (-S^ (suc m · suc n)) (⌣Sinvₗ y x)
+         ∙ sym (invSphere-S^ (suc m · suc n) (y ⌣S x)))
+       ∙ -S^-transp _ (+-comm (suc m) (suc n)) 1
+                      (-S^ (suc m · suc n) (y ⌣S x))
+       ∙ cong invSphere
+           (cong (subst S₊ (+-comm (suc m) (suc n)))
+             (cong (-S^ (suc m · suc n)) (comm⌣S y x)
+             ∙ sym (-S^-transp _ (+-comm (suc n) (suc m))
+                      (suc m · suc n)
+                      (-S^ (suc n · suc m) (x ⌣S y)))
+             ∙ cong (subst S₊ (+-comm (suc n) (suc m)))
+                    ((cong (-S^ (suc m · suc n))
+                      (λ i → -S^ (·-comm (suc n) (suc m) i) (x ⌣S y)))
+                   ∙ -S^² (suc m · suc n) (x ⌣S y))
+                   ∙ cong (λ p → subst S₊ p (x ⌣S y))
+                        (isSetℕ _ _ (+-comm (suc n) (suc m))
+                                     (+-comm (suc m) (suc n) ⁻¹)))
+             ∙ subst⁻Subst S₊ (+-comm (suc m) (suc n) ⁻¹) (x ⌣S y))
+
+-- Interaction between ⌣S, SuspS¹→S² and SuspS¹→S²
+SuspS¹→S²-S¹×S¹→S² : (a b : S¹)
+  → SuspS¹→S² (a ⌣S b) ≡ S¹×S¹→S² a b
+SuspS¹→S²-S¹×S¹→S² base b = refl
+SuspS¹→S²-S¹×S¹→S² (loop i) b j = main b j i
+  where
+  lem : (b : _) → cong SuspS¹→S² (merid b) ≡ (λ j → S¹×S¹→S² (loop j) b)
+  lem base = refl
+  lem (loop i) = refl
+
+  main : (b : _) → cong SuspS¹→S² (σS b) ≡ (λ j → S¹×S¹→S² (loop j) b)
+  main b = cong-∙ SuspS¹→S² (merid b) (merid base ⁻¹)
+         ∙ sym (rUnit _)
+         ∙ lem b
