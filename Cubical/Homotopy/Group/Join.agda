@@ -1,4 +1,4 @@
-x{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 {-
 This file contains definition of homotopy groups in terms of joins:
 π*ₙₘ(A) := ∥ Sⁿ * Sᵐ →∙ A ∥₀
