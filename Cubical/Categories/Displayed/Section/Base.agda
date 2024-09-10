@@ -161,9 +161,20 @@ module _ {C : Category ℓC ℓC'}
   private
     module Cᴰ = Categoryᴰ Cᴰ
     module R = HomᴰReasoning Cᴰ
+
+  -- the following reindexes a section to be over a different functor
+  -- that is equal to it, analogous to reind in Displayed.Reasoning.
+
+  -- This version is easily defined by subst, but its action on
+  -- objects and morphisms involves a transport, which is often
+  -- undesirable.
   reindS : ∀ {F G}(H : Path (Functor D C) F G) → Section F Cᴰ → Section G Cᴰ
   reindS H = subst (λ F → Section F Cᴰ) H
 
+  -- This version works by taking in a FunctorEq rather than a Path,
+  -- meaning we can define the section by J. If the FunctorEq is given
+  -- by (refl , refl) then this definition will not involve any
+  -- transport and is preferable to reindS.
   reindS' : ∀ {F G : Functor D C} (H : FunctorEq F G)
           → Section F Cᴰ
           → Section G Cᴰ
