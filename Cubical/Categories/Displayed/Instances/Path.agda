@@ -49,8 +49,8 @@ module _  (C : Category ℓC ℓC') where
   hasPropHomsPathC = hasPropHomsStructureOver PathC'
 
   -- The universal functor into PathC
-  -- Refl : Section (Δ C) PathC
-  -- Refl = mkPropHomsSection hasPropHomsPathC (λ _ → refl) λ _ → refl
+  Refl : Section (Δ C) PathC
+  Refl = mkPropHomsSection hasPropHomsPathC (λ _ → refl) λ _ → refl
 
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
