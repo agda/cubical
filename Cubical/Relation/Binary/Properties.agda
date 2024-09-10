@@ -11,42 +11,89 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary.Base
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.HLevels
+open import Cubical.Functions.FunExtEquiv
+open import Cubical.Data.Sigma
 
 private
   variable
     ℓ ℓ' : Level
     A B : Type ℓ
+    f : A → B
+    rA : Rel A A ℓ
+    rB : Rel B B ℓ
+
+open BinaryRelation
+
+module _ (R : Rel B B ℓ) where
+
+  -- Pulling back a relation along a function.
+  -- This can for example be used when restricting an equivalence relation to a subset:
+  --   _~'_ = on fst _~_
+
+  pulledbackRel : (A → B) → Rel A A ℓ
+  pulledbackRel f x y = R (f x) (f y)
+
+  funRel : Rel (A → B) (A → B) _
+  funRel f g = ∀ x → R (f x) (g x)
+
+module _ (isEquivRelR : isEquivRel rB) where
+ open isEquivRel
+
+ isEquivRelPulledbackRel : (f : A → _) → isEquivRel (pulledbackRel rB f)
+ reflexive (isEquivRelPulledbackRel _) _ = reflexive isEquivRelR _
+ symmetric (isEquivRelPulledbackRel _) _ _ = symmetric isEquivRelR _ _
+ transitive (isEquivRelPulledbackRel _) _ _ _ = transitive isEquivRelR _ _ _
+
+ isEquivRelFunRel : isEquivRel (funRel rB {A = A})
+ reflexive isEquivRelFunRel _ _ =
+   reflexive isEquivRelR _
+ symmetric isEquivRelFunRel _ _ =
+   symmetric isEquivRelR _ _ ∘_
+ transitive isEquivRelFunRel _ _ _ u v _ =
+   transitive isEquivRelR _ _ _ (u _) (v _)
+
+module _ (rA : Rel A A ℓ) (rB : Rel B B ℓ') where
+
+ ×Rel : Rel (A × B) (A × B) (ℓ-max ℓ ℓ')
+ ×Rel (a , b) (a' , b') = (rA a a') × (rB b b')
+
+module _ (isEquivRelRA : isEquivRel rA) (isEquivRelRB : isEquivRel rB) where
+ open isEquivRel
+
+ private module eqrA = isEquivRel isEquivRelRA
+ private module eqrB = isEquivRel isEquivRelRB
+
+ isEquivRel×Rel : isEquivRel (×Rel rA rB)
+ reflexive isEquivRel×Rel _ =
+   eqrA.reflexive _ , eqrB.reflexive _
+ symmetric isEquivRel×Rel _ _ =
+   map-× (eqrA.symmetric _ _) (eqrB.symmetric _ _)
+ transitive isEquivRel×Rel _ _ _ (ra , rb) =
+   map-× (eqrA.transitive _ _ _ ra) (eqrB.transitive _ _ _ rb)
 
 
--- Pulling back a relation along a function.
--- This can for example be used when restricting an equivalence relation to a subset:
---   _~'_ = on fst _~_
+module _ (rA : Rel A A ℓ) (rB : Rel A A ℓ') where
 
-module _
-  (f : A → B)
-  (R : Rel B B ℓ)
-  where
+ ⊓Rel : Rel A A (ℓ-max ℓ ℓ')
+ ⊓Rel a a' = (rA a a') × (rB a a')
 
-  open BinaryRelation
+module _ {rA : Rel A A ℓ} {rA' : Rel A A ℓ'}
+  (isEquivRelRA : isEquivRel rA) (isEquivRelRA' : isEquivRel rA') where
+ open isEquivRel
 
-  pulledbackRel : Rel A A ℓ
-  pulledbackRel x y = R (f x) (f y)
+ private module eqrA = isEquivRel isEquivRelRA
+ private module eqrA' = isEquivRel isEquivRelRA'
 
-  isReflPulledbackRel : isRefl R → isRefl pulledbackRel
-  isReflPulledbackRel isReflR a = isReflR (f a)
-
-  isSymPulledbackRel : isSym R → isSym pulledbackRel
-  isSymPulledbackRel isSymR a a' = isSymR (f a) (f a')
-
-  isTransPulledbackRel : isTrans R → isTrans pulledbackRel
-  isTransPulledbackRel isTransR a a' a'' = isTransR (f a) (f a') (f a'')
-
-  open isEquivRel
-
-  isEquivRelPulledbackRel : isEquivRel R → isEquivRel pulledbackRel
-  reflexive (isEquivRelPulledbackRel isEquivRelR) = isReflPulledbackRel (reflexive isEquivRelR)
-  symmetric (isEquivRelPulledbackRel isEquivRelR) = isSymPulledbackRel (symmetric isEquivRelR)
-  transitive (isEquivRelPulledbackRel isEquivRelR) = isTransPulledbackRel (transitive isEquivRelR)
+ isEquivRel⊓Rel : isEquivRel (⊓Rel rA rA')
+ reflexive isEquivRel⊓Rel _ = eqrA.reflexive _ , eqrA'.reflexive _
+ symmetric isEquivRel⊓Rel _ _ (r , r') =
+  eqrA.symmetric _ _ r , eqrA'.symmetric _ _ r'
+ transitive isEquivRel⊓Rel _ _ _ (r , r') (q , q') =
+    eqrA.transitive' r q , eqrA'.transitive' r' q'
 
 module _ {A B : Type ℓ} (e : A ≃ B) {_∼_ : Rel A A ℓ'} {_∻_ : Rel B B ℓ'}
          (_h_ : ∀ x y → (x ∼ y) ≃ ((fst e x) ∻ (fst e y))) where

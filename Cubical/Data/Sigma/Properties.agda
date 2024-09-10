@@ -48,6 +48,9 @@ map-fst f (a , b) = (f a , b)
 map-snd : (∀ {a} → B a → B' a) → Σ A B → Σ A B'
 map-snd f (a , b) = (a , f b)
 
+map-sndDep : {f : A → A'} → (∀ {a} → B a → B' (f a)) → Σ A B → Σ A' B'
+map-sndDep g (_ , b) = (_ , g b)
+
 map-× : {B : Type ℓ} {B' : Type ℓ'} → (A → A') → (B → B') → A × B → A' × B'
 map-× f g (a , b) = (f a , g b)
 

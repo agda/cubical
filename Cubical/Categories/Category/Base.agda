@@ -9,7 +9,7 @@ open import Cubical.Data.Sigma
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
 -- Categories with hom-sets
 record Category ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
@@ -144,8 +144,10 @@ _⋆_ (C ^op) f g      = g ⋆⟨ C ⟩ f
 ⋆Assoc (C ^op) f g h = sym (C .⋆Assoc _ _ _)
 isSetHom (C ^op)     = C .isSetHom
 
-ΣPropCat : (C : Category ℓ ℓ') (P : ℙ (ob C)) → Category ℓ ℓ'
-ob (ΣPropCat C P) = Σ[ x ∈ ob C ] x ∈ P
+
+
+ΣPropCat : (C : Category ℓ ℓ') (P : ob C → hProp ℓ'') → Category (ℓ-max ℓ ℓ'') ℓ'
+ob (ΣPropCat C P) = Σ[ x ∈ ob C ] (fst (P x))
 Hom[_,_] (ΣPropCat C P) x y = C [ fst x , fst y ]
 id (ΣPropCat C P) = id C
 _⋆_ (ΣPropCat C P) = _⋆_ C
@@ -154,10 +156,29 @@ _⋆_ (ΣPropCat C P) = _⋆_ C
 ⋆Assoc (ΣPropCat C P) = ⋆Assoc C
 isSetHom (ΣPropCat C P) = isSetHom C
 
-isIsoΣPropCat : {C : Category ℓ ℓ'} {P : ℙ (ob C)}
+isIsoΣPropCat : ∀ {C : Category ℓ ℓ'} {P}
                 {x y : ob C} (p : x ∈ P) (q : y ∈ P)
                 (f : C [ x , y ])
               → isIso C f → isIso (ΣPropCat C P) {x , p} {y , q} f
 inv (isIsoΣPropCat p q f isIsoF) = isIsoF .inv
 sec (isIsoΣPropCat p q f isIsoF) = isIsoF .sec
 ret (isIsoΣPropCat p q f isIsoF) = isIsoF .ret
+
+ΣℙCat : (C : Category ℓ ℓ') (P : ℙ (ob C)) → Category ℓ ℓ'
+ΣℙCat = ΣPropCat
+
+isSmall : (C : Category ℓ ℓ') → Type ℓ
+isSmall C = isSet (C .ob)
+
+isThin : (C : Category ℓ ℓ') → Type (ℓ-max ℓ ℓ')
+isThin C = ∀ x y → isProp (C [ x , y ])
+
+isPropIsThin : (C : Category ℓ ℓ') → isProp (isThin C)
+isPropIsThin C = isPropΠ2 λ _ _ → isPropIsProp
+
+isGroupoidCat : (C : Category ℓ ℓ') → Type (ℓ-max ℓ ℓ')
+isGroupoidCat C = ∀ {x} {y} (f : C [ x , y ]) → isIso C f
+
+isPropIsGroupoidCat : (C : Category ℓ ℓ') → isProp (isGroupoidCat C)
+isPropIsGroupoidCat C =
+ isPropImplicitΠ2 λ _ _ → isPropΠ isPropIsIso

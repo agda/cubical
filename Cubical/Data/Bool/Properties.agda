@@ -11,6 +11,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sum hiding (elim)
 open import Cubical.Data.Bool.Base
@@ -405,9 +406,29 @@ Iso-⊤⊎⊤-Bool .leftInv (inr tt) = refl
 Iso-⊤⊎⊤-Bool .rightInv true = refl
 Iso-⊤⊎⊤-Bool .rightInv false = refl
 
+¬IsoUnitBool : ¬ Iso Unit Bool
+¬IsoUnitBool isom = true≢false
+ (isOfHLevelRetractFromIso 1 (invIso isom) isPropUnit true false)
+
 separatedBool : Separated Bool
 separatedBool = Discrete→Separated _≟_
 
+elim𝟚< : ∀ (a b c : Bool) → ¬ a ≡ b → ¬ a ≡ c → ¬ (b ≡ c) → ⊥
+elim𝟚< false false c x x₁ x₂ = x refl
+elim𝟚< false true false x x₁ x₂ = x₁ refl
+elim𝟚< false true true x x₁ x₂ = x₂ refl
+elim𝟚< true false false x x₁ x₂ = x₂ refl
+elim𝟚< true false true x x₁ x₂ = x₁ refl
+elim𝟚< true true c x x₁ x₂ = x refl
+
+elim𝟚<fromIso : Iso A Bool → ∀ (a b c : A) → ¬ a ≡ b → ¬ a ≡ c → ¬ (b ≡ c) → ⊥
+elim𝟚<fromIso isom _ _ _ a≢b a≢c b≢c =
+  elim𝟚< _ _ _
+    (a≢b ∘ isoFunInjective isom _ _ )
+    (a≢c ∘ isoFunInjective isom _ _ )
+    (b≢c ∘ isoFunInjective isom _ _ )
+ where
+ open Iso isom
 
 Bool→Bool→∙Bool : Bool → (Bool , true) →∙ (Bool , true)
 Bool→Bool→∙Bool false = idfun∙ _

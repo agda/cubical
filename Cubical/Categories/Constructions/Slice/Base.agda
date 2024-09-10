@@ -31,6 +31,8 @@ record SliceOb : TypeC where
     {S-ob} : C .ob
     S-arr : C [ S-ob , c ]
 
+pattern sliceob' x y = sliceob {S-ob = x} y
+
 open SliceOb public
 
 record SliceHom (a b : SliceOb) : Type ℓ' where

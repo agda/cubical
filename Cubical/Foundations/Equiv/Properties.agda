@@ -28,7 +28,7 @@ open import Cubical.Data.Sigma
 private
   variable
     ℓ ℓ' ℓ'' : Level
-    A B C : Type ℓ
+    A B C D : Type ℓ
 
 isEquivInvEquiv : isEquiv (λ (e : A ≃ B) → invEquiv e)
 isEquivInvEquiv = isoToIsEquiv goal where
@@ -256,6 +256,32 @@ isPointedTarget→isEquiv→isEquiv : {A B : Type ℓ} (f : A → B)
     → (B → isEquiv f) → isEquiv f
 equiv-proof (isPointedTarget→isEquiv→isEquiv f hf) =
   λ y → equiv-proof (hf y) y
+
+2-out-of-6-sec : (f : A → B) (g : B → C) (h : C → D) →
+                   hasSection (g ∘ f) → hasSection (h ∘ g)
+                     → hasSection (h ∘ g ∘ f)
+2-out-of-6-sec f g h (u , p) (v , q) =
+ u ∘ g ∘ v , λ _ → cong h (p _) ∙ q _
+
+2-out-of-6-ret : (f : A → B) (g : B → C) (h : C → D) →
+                   hasRetract (g ∘ f) → hasRetract (h ∘ g)
+                     → hasRetract (h ∘ g ∘ f)
+2-out-of-6-ret f g h (u , p) (v , q) =
+ u ∘ g ∘ v , λ _ → cong (u ∘ g) (q _) ∙ p _
+
+
+2-out-of-6-equiv : (f : A → B) (g : B → C) (h : C → D) →
+                isEquiv (g ∘ f) → isEquiv (h ∘ g) → isEquiv (h ∘ g ∘ f)
+2-out-of-6-equiv f g h gfEquiv hgEquiv = isoToIsEquiv isom
+ where
+
+ isom : Iso _ _
+ Iso.fun isom = _
+ Iso.inv isom = _
+ Iso.rightInv isom = snd (2-out-of-6-sec f g h
+   (_ , secEq (_ , gfEquiv)) (_ , secEq (_ , hgEquiv)))
+ Iso.leftInv isom = snd (2-out-of-6-ret f g h
+   (isEquiv→hasRetract gfEquiv) (isEquiv→hasRetract hgEquiv))
 
 module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {A' : Type ℓ'} {C : A → Type ℓ''} (is : Iso A' A) where
   private

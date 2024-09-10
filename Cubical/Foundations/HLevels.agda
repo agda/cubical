@@ -354,6 +354,14 @@ isOfHLevelΣ {B = B} (suc (suc n)) h1 h2 x y =
 isSetΣ : isSet A → ((x : A) → isSet (B x)) → isSet (Σ A B)
 isSetΣ = isOfHLevelΣ 2
 
+isOfHLevelFiber' : ∀ n → isOfHLevel n A' → isOfHLevel (suc n) A → ∀ (f : A' → A) x → isOfHLevel n (fiber f x)
+isOfHLevelFiber' n hlev' hlev f x = isOfHLevelΣ n hlev' λ _ → isOfHLevelPath' n hlev _ _
+
+isOfHLevelFiber : ∀ n → isOfHLevel n A' → isOfHLevel n A → ∀ (f : A' → A) x → isOfHLevel n (fiber f x)
+isOfHLevelFiber n hlev' hlev f x =
+  isOfHLevelFiber' n hlev' (isOfHLevelSuc n hlev) f x
+
+
 -- Useful consequence
 isSetΣSndProp : isSet A → ((x : A) → isProp (B x)) → isSet (Σ A B)
 isSetΣSndProp h p = isSetΣ h (λ x → isProp→isSet (p x))
@@ -737,6 +745,14 @@ snd (ΣSquareSet {B = B} pB {p = p} {q = q} {r = r} {s = s} sq i j) = lem i j
   lem : SquareP (λ i j → B (sq i j))
           (cong snd p) (cong snd r) (cong snd s) (cong snd q)
   lem = toPathP (isOfHLevelPathP' 1 (pB _) _ _ _ _)
+
+
+TypeOfHLevelPath≡ : (n : HLevel) {X Y : TypeOfHLevel ℓ n} →
+    {p q : X ≡ Y} → (∀ x → subst fst p x ≡ subst fst q x)  → p ≡ q
+TypeOfHLevelPath≡  _ p =
+ ΣSquareSet (isProp→isSet ∘ λ _ → isPropIsOfHLevel _ )
+  (isInjectiveTransport (funExt p))
+
 
 module _ (isSet-A : isSet A) (isSet-A' : isSet A') where
 

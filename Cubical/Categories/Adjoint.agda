@@ -31,7 +31,7 @@ equivalence.
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' : Level
+    ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
 
 {-
 ==============================================
@@ -69,7 +69,7 @@ private
   variable
     C : Category ℓC ℓC'
     D : Category ℓC ℓC'
-
+    E : Category ℓE ℓE'
 
 module _ {F : Functor C D} {G : Functor D C} where
   open UnitCounit
@@ -125,8 +125,8 @@ module AdjointUniqeUpToNatIso where
       open _⊣_ H⊣G  using (η ; Δ₂)
       open _⊣_ H'⊣G using (ε ; Δ₁)
       by-N-homs =
-        AssocCong₂⋆R {C = D} _
-        (AssocCong₂⋆L {C = D} (sym (N-hom ε _)) _)
+        AssocCong₂⋆R D
+        (AssocCong₂⋆L D (sym (N-hom ε _)))
           ∙ cong₂ _D⋆_
                (sym (F-seq H' _ _)
                 ∙∙ cong (H' ⟪_⟫) ((sym (N-hom η  _)))
@@ -155,7 +155,7 @@ module AdjointUniqeUpToNatIso where
          (sym (F-seq F _ _)
          ∙∙ cong (F ⟪_⟫) (N-hom (F'⊣G .η) _)
          ∙∙ (F-seq F _ _))
-    ∙∙ AssocCong₂⋆R {C = D} _ (N-hom (F⊣G .ε) _)
+    ∙∙ AssocCong₂⋆R D (N-hom (F⊣G .ε) _)
    where open _⊣_
   inv (nIso F≅ᶜF' _) = _
   sec (nIso F≅ᶜF' _) = s F⊣G F'⊣G
@@ -188,6 +188,9 @@ module NaturalBijection where
   record _⊣_ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (G : Functor D C) : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
     field
       adjIso : ∀ {c d} → Iso (D [ F ⟅ c ⟆ , d ]) (C [ c , G ⟅ d ⟆ ])
+
+    adjEquiv : ∀ {c d} → (D [ F ⟅ c ⟆ , d ]) ≃ (C [ c , G ⟅ d ⟆ ])
+    adjEquiv = isoToEquiv adjIso
 
     infix 40 _♭
     infix 40 _♯
@@ -231,6 +234,20 @@ module NaturalBijection where
 
   isRightAdjoint : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (G : Functor D C) → Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
   isRightAdjoint {C = C}{D} G = Σ[ F ∈ Functor C D ] F ⊣ G
+
+module Compose {F : Functor C D} {G : Functor D C}
+               {L : Functor D E} {R : Functor E D}
+               where
+ open NaturalBijection
+ module _ (F⊣G : F ⊣ G) (L⊣R : L ⊣ R) where
+  open _⊣_
+
+  LF⊣GR : (L ∘F F) ⊣ (G ∘F R)
+  adjIso LF⊣GR = compIso (adjIso L⊣R) (adjIso F⊣G)
+  adjNatInD LF⊣GR f k =
+   cong (adjIso F⊣G .fun) (adjNatInD L⊣R _ _) ∙ adjNatInD F⊣G _ _
+  adjNatInC LF⊣GR f k =
+   cong (adjIso L⊣R .inv) (adjNatInC F⊣G _ _) ∙ adjNatInC L⊣R _ _
 
 {-
 ==============================================
