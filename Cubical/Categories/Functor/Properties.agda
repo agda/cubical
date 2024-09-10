@@ -266,3 +266,46 @@ F-seq (TransportFunctor p) {x} {y} {z} f g i =
        , transport-filler (λ i₁ → ob (p i₁)) x (i ∨ jj) ]
         (transport-filler (λ i₁ → ob (p i₁)) z (i ∨ jj))) i
      (_⋆_ (p i) (transport-filler q f i) (transport-filler q g i))
+
+
+module _ {F : Functor C D} {G : Functor D E} where
+  open Category
+  open Functor
+
+  module _
+    (isFullyFaithfulF : isFullyFaithful F)
+    (isFullyFaithfulG : isFullyFaithful G)
+    where
+    isFullyFaithfulG∘F : isFullyFaithful (G ∘F F)
+    isFullyFaithfulG∘F x y =
+      equivIsEquiv
+        (compEquiv (_ , isFullyFaithfulF x y)
+                 (_ , isFullyFaithfulG (F ⟅ x ⟆) (F ⟅ y ⟆)))
+
+  module _
+    (isFullG : isFull G)
+    (isFullF : isFull F)
+    where
+    isFullG∘F : isFull (G ∘F F)
+    isFullG∘F x y G∘F[f] =
+      rec
+        isPropPropTrunc
+        (λ Ff → rec
+          isPropPropTrunc
+          (λ f → ∣ f .fst , cong (G .F-hom) (f .snd) ∙ Ff .snd ∣₁)
+          (isFullF x y (Ff .fst)))
+        (isFullG (F ⟅ x ⟆) (F ⟅ y ⟆) G∘F[f])
+
+  module _
+    (isFaithfulF : isFaithful F)
+    (isFaithfulG : isFaithful G)
+    where
+
+    isFaithfulG∘F : isFaithful (G ∘F F)
+    isFaithfulG∘F x y =
+      isEmbedding→Inj
+        (compEmbedding
+        ((λ v → F-hom G v) ,
+          (injEmbedding (E .isSetHom) (isFaithfulG (F ⟅ x ⟆) (F ⟅ y ⟆) _ _)))
+        ((λ z → F-hom F z) ,
+          (injEmbedding (D .isSetHom) (isFaithfulF x y _ _))) .snd)
