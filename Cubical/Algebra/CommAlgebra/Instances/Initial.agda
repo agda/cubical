@@ -64,8 +64,8 @@ module _ (R : CommRing ℓ) where
                            x * (y * 1a)                   ≡[ i ]⟨ x * (·IdL (y * 1a) (~ i)) ⟩
                            x * (1a · (y * 1a))            ≡⟨ sym (⋆AssocL _ _ _) ⟩
                            (x * 1a) · (y * 1a) ∎)
-        (λ r x → (r · x) * 1a   ≡⟨ ⋆Assoc _ _ _ ⟩
-                         (r * (x * 1a)) ∎)
+        (λ r → (r · _) * 1a   ≡⟨ cong (_* 1a) (·IdR r) ⟩
+               (r * 1a) ∎)
 
     initialMapEq : (f : CommAlgebraHom initialCAlg A)
                    → f ≡ initialMap
