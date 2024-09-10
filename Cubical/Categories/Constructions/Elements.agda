@@ -1,8 +1,9 @@
 {-# OPTIONS --safe #-}
 
--- The Category of Elements
+-- The category of elements of a functor to Set
 
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Path
@@ -85,6 +86,31 @@ module Covariant {ℓ ℓ'} {C : Category ℓ ℓ'} where
     F-hom (ForgetElements F) = fst
     F-id (ForgetElements F) = refl
     F-seq (ForgetElements F) _ _ = refl
+
+    module _ (isUnivC : isUnivalent C) {ℓS} (F : Functor C (SET ℓS)) where
+      open isUnivalent
+      isUnivalent∫ : isUnivalent (∫ F)
+      isUnivalent∫ .univ (c , f) (c' , f') = isIsoToIsEquiv
+        ( isoToPath∫
+        , (λ f≅f' → CatIso≡ _ _
+            (Σ≡Prop (λ _ → (F ⟅ _ ⟆) .snd _ _)
+              (cong fst
+              (secEq (univEquiv isUnivC _ _) (F-Iso {F = ForgetElements F} f≅f')))))
+        , λ f≡f' → ΣSquareSet (λ x → snd (F ⟅ x ⟆))
+          ( cong (CatIsoToPath isUnivC) (F-pathToIso {F = ForgetElements F} f≡f')
+          ∙ retEq (univEquiv isUnivC _ _) (cong fst f≡f'))) where
+
+        isoToPath∫ : ∀ {c c' f f'}
+                   → CatIso (∫ F) (c , f) (c' , f')
+                   → (c , f) ≡ (c' , f')
+        isoToPath∫ {f = f} f≅f' = ΣPathP
+          ( CatIsoToPath isUnivC (F-Iso {F = ForgetElements F} f≅f')
+          , toPathP ( (λ j → transport (λ i → fst
+                      (F-isoToPath isUnivC isUnivalentSET F
+                        (F-Iso {F = ForgetElements F} f≅f') (~ j) i)) f)
+                    ∙ univSetβ (F-Iso {F = F ∘F ForgetElements F} f≅f') f
+                    ∙ f≅f' .fst .snd))
+
 
 module Contravariant {ℓ ℓ'} {C : Category ℓ ℓ'} where
     open Covariant {C = C ^op}

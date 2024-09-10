@@ -8,10 +8,10 @@ open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Constructions.StructureOver
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.Constructions.StructureOver.Base
 
 private
   variable

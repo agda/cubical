@@ -18,7 +18,7 @@ open import Cubical.Tactics.CategorySolver.Solver
 open import Cubical.Tactics.Reflection
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.Free.Category.Base
+open import Cubical.Categories.Constructions.Free.Category.Quiver as FC
 
 private
   variable
@@ -37,11 +37,15 @@ module ReflectionSolver where
 
     -- Parse the input into an exp
     buildExpression : Term → Term
-    buildExpression “id” = con (quote FreeCategory.idₑ) []
+    buildExpression “id” = con (quote FC.idₑ) []
     buildExpression (“⋆” f g) =
-      con (quote FreeCategory._⋆ₑ_)
+      con (quote FC._⋆ₑ_)
           (buildExpression f v∷ buildExpression g v∷ [])
-    buildExpression f = con (quote FreeCategory.↑_) (f v∷ [])
+    buildExpression f =
+      con (quote FC.↑_)
+      (con (quote _,_) (unknown
+      v∷ con (quote _,_) (unknown
+      v∷ f v∷ []) v∷ []) v∷ [])
 
   solve-macro : Term -- ^ The term denoting the category
               → Term -- ^ The hole whose goal should be an equality between

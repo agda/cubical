@@ -4,7 +4,8 @@
 This file contains:
 1. Definition of the multplication Sⁿ × Sᵐ → Sⁿ⁺ᵐ
 2. The fact that the multiplication induces an equivalence Sⁿ ∧ Sᵐ ≃ Sⁿ⁺ᵐ
-3. The algebraic properties of this map
+3. The fact that the multiplication induces an equivalence Sⁿ * Sᵐ ≃ Sⁿ⁺ᵐ⁺¹
+4. The algebraic properties of this map
 -}
 
 module Cubical.HITs.Sn.Multiplication where
@@ -82,33 +83,6 @@ IdL⌣S≡IdR⌣S : (n m : ℕ)
 IdL⌣S≡IdR⌣S zero m = refl
 IdL⌣S≡IdR⌣S (suc zero) m = refl
 IdL⌣S≡IdR⌣S (suc (suc n)) m = refl
-
-
--- -- Interaction between S¹×S¹→S² and SuspS¹→S²
--- SuspS¹→S²-S¹×S¹→S² : (a b : S¹)
---   → (SuspS¹→S² (S¹×S¹→S² a b)) ≡ (S¹×S¹→S²' b a)
--- SuspS¹→S²-S¹×S¹→S² base base = refl
--- SuspS¹→S²-S¹×S¹→S² base (loop i) = refl
--- SuspS¹→S²-S¹×S¹→S² (loop i) base = refl
--- SuspS¹→S²-S¹×S¹→S² (loop i) (loop j) k =
---   hcomp (λ r → λ {(i = i0) → rUnit (λ _ → base) (~ r ∧ ~ k) j
---                  ; (i = i1) → rUnit (λ _ → base) (~ r ∧ ~ k) j
---                  ; (j = i0) → base
---                  ; (j = i1) → base
---                  ; (k = i0) → SuspS¹→S² (doubleCompPath-filler (
---                                  sym (rCancel (merid base)))
---                                  ((λ i → merid (loop i) ∙ sym (merid base)))
---                                  (rCancel (merid base)) r i j )
---                  ; (k = i1) → surf j i})
---     (hcomp (λ r → λ {(i = i0) → rUnit (λ _ → base) (r ∧ ~ k) j
---                  ; (i = i1) → rUnit (λ _ → base) (r ∧ ~ k) j
---                  ; (j = i0) → base
---                  ; (j = i1) → base
---                  ; (k = i0) → SuspS¹→S²
---                        (compPath-filler (merid (loop i)) (sym (merid base)) r j)
---                  ; (k = i1) → surf j i})
---            (surf j i))
-
 
 -- Multiplication induced on smash products of spheres
 ⋀S∙ : (n m : ℕ) → S₊∙ n ⋀∙ S₊∙ m →∙ S₊∙ (n + m)

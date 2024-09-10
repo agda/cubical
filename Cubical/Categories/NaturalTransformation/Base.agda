@@ -242,8 +242,17 @@ module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} {D : Category ℓD 
   _∘ʳ_ : ∀ (K : Functor C D) → {G H : Functor B C} (β : NatTrans G H)
        → NatTrans (K ∘F G) (K ∘F H)
   (_∘ʳ_ K {G} {H} β) .N-ob x = K ⟪ β ⟦ x ⟧ ⟫
-  (_∘ʳ_ K {G} {H} β) .N-hom f = preserveCommF {C = C} {D = D} {K} (β .N-hom f)
+  (_∘ʳ_ K {G} {H} β) .N-hom f = preserveCommF K (β .N-hom f)
 
   whiskerTrans : {F F' : Functor B C} {G G' : Functor C D} (β : NatTrans G G') (α : NatTrans F F')
     → NatTrans (G ∘F F) (G' ∘F F')
   whiskerTrans {F}{F'}{G}{G'} β α = compTrans (β ∘ˡ F') (G ∘ʳ α)
+
+module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
+  open NatIso
+  -- whiskering
+  -- αF
+  _∘ˡⁱ_ : ∀ {G H : Functor C D} (α : NatIso G H) → (F : Functor B C)
+        → NatIso (G ∘F F) (H ∘F F)
+  _∘ˡⁱ_ {G} {H} α F .trans = α .trans ∘ˡ F
+  _∘ˡⁱ_ {G} {H} α F .nIso x = α .nIso (F ⟅ x ⟆)
