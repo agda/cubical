@@ -372,8 +372,8 @@ module _ ℓ where
 
 
   -- base change functor does not have right adjoint (so SETOID cannot be LCCC)
-  -- implementation of `Setoids are not an LCCC` by Thorsten Altenkirch and Nicolai Kraus
-  -- (https://www.cs.nott.ac.uk/~psznk/docs/setoids.pdf)
+  -- implementation of `Thorsten Altenkirch and Nicolai Kraus. Setoids are not an LCCC, 2012.`
+  -- (https://nicolaikraus.github.io/docs/setoids.pdf)
 
   open BaseChange pullbacks public
 
