@@ -165,7 +165,7 @@ module ExactSeq = πLES
 open Suspensions renaming (toSusp to σ)
 
 -- Proposition 3.4: Sⁿ * Sᵐ ≃ Sⁿ⁺ᵐ⁺¹
-open Spheres using (IsoSphereJoin)
+open SMult using (IsoSphereJoin)
 
 -- Definition 3.5 and Proposition 3.6 (Hopf map),
 -- Phrased somewhat differently in the paper.
