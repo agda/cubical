@@ -117,12 +117,7 @@ fst (∙Π {A = A} {n = suc zero} (f , p) (g , q)) base = pt A
 fst (∙Π {A = A} {n = suc zero} (f , p) (g , q)) (loop j) =
   ((sym p ∙∙ cong f loop ∙∙ p) ∙ (sym q ∙∙ cong g loop ∙∙ q)) j
 snd (∙Π {A = A} {n = suc zero} (f , p) (g , q)) = refl
-fst (∙Π {A = A} {n = suc (suc n)} (f , p) (g , q)) north = pt A
-fst (∙Π {A = A} {n = suc (suc n)} (f , p) (g , q)) south = pt A
-fst (∙Π {A = A} {n = suc (suc n)} (f , p) (g , q)) (merid a j) =
-   ((sym p ∙∙ cong f (merid a ∙ sym (merid (ptSn (suc n)))) ∙∙ p)
-  ∙ (sym q ∙∙ cong g (merid a ∙ sym (merid (ptSn (suc n)))) ∙∙ q)) j
-snd (∙Π {A = A} {n = suc (suc n)} (f , p) (g , q)) = refl
+∙Π {A = A} {n = suc (suc n)} = ·Susp (S₊∙ (suc n))
 
 -Π : ∀ {ℓ} {A : Pointed ℓ} {n : ℕ}
   → (S₊∙ n →∙ A)

@@ -391,8 +391,7 @@ Brunerie'≡2 = BrunerieNumLem.main (Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ-abs 1 1) Hⁿ�
 -- number in Brunerie (2016)
 Brunerie'≡Brunerie : [ ∣ idfun∙ (S₊∙ 2) ∣₂ ∣ ∣ idfun∙ (S₊∙ 2) ∣₂ ]π' ≡ ∣ fold∘W , refl ∣₂
 Brunerie'≡Brunerie =
-    cong ∣_∣₂ ([]≡[]₂ (idfun∙ (S₊∙ 2)) (idfun∙ (S₊∙ 2)) )
-  ∙ sym fold∘W≡Whitehead
+    sym fold∘W≡Whitehead
   ∙ cong ∣_∣₂ (∘∙-idˡ (fold∘W , refl))
 
 -- And we get the main result

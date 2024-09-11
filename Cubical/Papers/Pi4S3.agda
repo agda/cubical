@@ -217,7 +217,7 @@ open SMult using (IsoSphereJoin)
 
 -- Definition 6: W + whitehead product
 W = joinTo⋁
-open Whitehead using ([_∣_]₂)
+open Whitehead using ([_∣_])
 
 -- Theorem 3 is omitted as it is used implicitly in the proof of the main result
 

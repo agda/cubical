@@ -33,8 +33,7 @@ private
 open Iso
 
 σSn : (n : ℕ) → S₊ n → Path (S₊ (suc n)) (ptSn (suc n)) (ptSn (suc n))
-σSn zero false = loop
-σSn zero true = refl
+σSn zero = cong SuspBool→S¹ ∘ merid
 σSn (suc n) x = toSusp (S₊∙ (suc n)) x
 
 σS : {n : ℕ} → S₊ n → Path (S₊ (suc n)) (ptSn _) (ptSn _)

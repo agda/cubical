@@ -243,7 +243,7 @@ open James₁ using (IsoΩ∥SuspS²∥₅∥Pushout⋁↪fold⋁S²∥₅)
 
 -- Definition 4.8: W + whitehead product
 W = joinTo⋁
-open Whitehead using ([_∣_]₂)
+open Whitehead using ([_∣_])
 
 -- Theorem 4.9 is omitted as it is used implicitly in the proof of the main result
 
