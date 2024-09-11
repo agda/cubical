@@ -18,9 +18,8 @@ complicates things. In this file, we try to work around this problem.
 The proof goes as follows.
 
 1. Define π₃*(A) := ∥ S¹ * S¹ →∙ A ∥₀ and define explicitly an
-addition on this type. Prove that the equivalence π₃(A) ≃ π₃*(A) is
-structure preserving, thereby giving a group structure on π₃*(A) and a
-group iso π₃*(A) ≅ π₃(A)
+addition on this type. This is already done in
+Cubical.Homotopy.Group.Join.
 
 2. Under this iso, η gets mapped to η₁ (by construction) defined by
 S¹ * S¹ -ᵂ→ S² ∨ S² -ᶠᵒˡᵈ→ S²
