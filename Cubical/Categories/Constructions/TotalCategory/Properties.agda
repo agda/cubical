@@ -115,7 +115,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     recᴰ : Functorᴰ F Cᴰ Dᴰ
     recᴰ .F-obᴰ {x} xᴰ = Fᴰ .F-obᴰ (x , xᴰ)
     recᴰ .F-homᴰ {f = f} fᴰ = Fᴰ .F-homᴰ (f , fᴰ)
-    recᴰ .F-idᴰ = R.≡[]-rectify (Fᴰ .F-idᴰ)
+    recᴰ .F-idᴰ = R.rectify (Fᴰ .F-idᴰ)
     recᴰ .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
-      R.≡[]-rectify (Fᴰ .F-seqᴰ (f , fᴰ) (g , gᴰ))
+      R.rectify (Fᴰ .F-seqᴰ (f , fᴰ) (g , gᴰ))
 

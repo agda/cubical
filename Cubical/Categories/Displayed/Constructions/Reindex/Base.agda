@@ -93,35 +93,27 @@ module _
   reindex .Categoryᴰ.Hom[_][_,_] f aᴰ bᴰ = Hom[ F-hom f ][ aᴰ , bᴰ ]
   reindex .Categoryᴰ.idᴰ = R.reind (sym F-id) idᴰ
   reindex .Categoryᴰ._⋆ᴰ_ fᴰ gᴰ = R.reind (sym $ F-seq _ _) (fᴰ ⋆ᴰ gᴰ)
-  reindex .Categoryᴰ.⋆IdLᴰ fᴰ = R.≡[]-rectify $
-    R.reind-filler-sym (F-seq _ _) _
-      R.[ _ ]∙[ _ ]
-    (R.reind-filler-sym F-id idᴰ R.[ _ ]⋆[ refl ] refl)
-      R.[ _ ]∙[ _ ]
-    ⋆IdLᴰ fᴰ
-  reindex .Categoryᴰ.⋆IdRᴰ fᴰ = R.≡[]-rectify $
-    R.reind-filler-sym (F-seq _ _) _
-      R.[ _ ]∙[ _ ]
-    (refl R.[ refl ]⋆[ _ ] R.reind-filler-sym F-id idᴰ)
-      R.[ _ ]∙[ _ ]
-    ⋆IdRᴰ fᴰ
-  reindex .Categoryᴰ.⋆Assocᴰ fᴰ gᴰ hᴰ = R.≡[]-rectify $
-    R.reind-filler-sym (F-seq _ _) _
-      R.[ _ ]∙[ _ ]
-    (R.reind-filler-sym (F-seq _ _) _ R.[ _ ]⋆[ refl ] refl)
-      R.[ _ ]∙[ _ ]
-    ⋆Assocᴰ fᴰ gᴰ hᴰ
-      R.[ _ ]∙[ _ ]
-    (refl R.[ refl ]⋆[ _ ] R.reind-filler (sym $ F-seq _ _) _)
-      R.[ _ ]∙[ _ ]
-    R.reind-filler (sym $ F-seq _ _) _
+  reindex .Categoryᴰ.⋆IdLᴰ fᴰ = R.rectify $ R.≡out $
+      sym (R.reind-filler _ _)
+    ∙ R.⟨ sym $ R.reind-filler _ idᴰ ⟩⋆⟨ refl ⟩
+    ∙ R.⋆IdL _
+  reindex .Categoryᴰ.⋆IdRᴰ fᴰ = R.rectify $ R.≡out $
+      sym (R.reind-filler _ _)
+    ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ idᴰ ⟩
+    ∙ R.⋆IdR _
+  reindex .Categoryᴰ.⋆Assocᴰ fᴰ gᴰ hᴰ = R.rectify $ R.≡out $
+      sym (R.reind-filler _ _)
+    ∙ R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
+    ∙ R.⋆Assoc _ _ _
+    ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
+    ∙ R.reind-filler _ _
   reindex .Categoryᴰ.isSetHomᴰ = isSetHomᴰ
 
   π : Functorᴰ F reindex Dᴰ
   π .F-obᴰ = λ z → z
   π .F-homᴰ = λ z → z
-  π .F-idᴰ = symP (transport-filler _ _)
-  π .F-seqᴰ fᴰ gᴰ = symP (transport-filler _ _)
+  π .F-idᴰ = R.≡out $ sym (R.reind-filler _ _)
+  π .F-seqᴰ fᴰ gᴰ = R.≡out $ sym (R.reind-filler _ _)
 
   GlobalSectionReindex→Section : GlobalSection reindex → Section F Dᴰ
   GlobalSectionReindex→Section Fᴰ = compFunctorᴰGlobalSection π Fᴰ
@@ -142,9 +134,9 @@ module _
   introS : Section G (reindex Dᴰ F)
   introS .F-obᴰ = FGᴰ .F-obᴰ
   introS .F-homᴰ = FGᴰ .F-homᴰ
-  introS .F-idᴰ = R.≡[]-rectify (R.≡[]∙ _ _ (FGᴰ .F-idᴰ) (R.reind-filler _ _))
+  introS .F-idᴰ = R.rectify $ R.≡out $ R.≡in (FGᴰ .F-idᴰ) ∙ (R.reind-filler _ _)
   introS .F-seqᴰ fᴰ gᴰ =
-    R.≡[]-rectify (R.≡[]∙ _ _ (FGᴰ .F-seqᴰ fᴰ gᴰ) (R.reind-filler _ _))
+    R.rectify $ R.≡out $ R.≡in (FGᴰ .F-seqᴰ fᴰ gᴰ) ∙ (R.reind-filler _ _)
 
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}

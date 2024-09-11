@@ -73,6 +73,7 @@
 module Cubical.Categories.Displayed.Section.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 
@@ -199,7 +200,7 @@ module _ {C : Category ℓC ℓC'}
       Gᴰ-idᴰ : (G : FunctorSingl F)
                (G-id : ∀ {x} → G .snd .fst (D .id {x}) ≡ C .id)
              →  ∀ {d} → Gᴰ-homᴰ G (D .id {d}) Cᴰ.≡[ G-id ] Cᴰ.idᴰ
-      Gᴰ-idᴰ ((_ , Eq.refl), (_ , Eq.refl)) G-id = R.≡[]-rectify (Fᴰ .F-idᴰ)
+      Gᴰ-idᴰ ((_ , Eq.refl), (_ , Eq.refl)) G-id = R.rectify (Fᴰ .F-idᴰ)
 
       Gᴰ-seqᴰ : (G : FunctorSingl F)
                 (G-seq : ∀ {d d' d''}(f : D [ d , d' ])(g : D [ d' , d'' ])
@@ -209,7 +210,7 @@ module _ {C : Category ℓC ℓC'}
               → Gᴰ-homᴰ G (f ⋆⟨ D ⟩ g)
                 Cᴰ.≡[ G-seq f g ] (Gᴰ-homᴰ G f Cᴰ.⋆ᴰ Gᴰ-homᴰ G g)
       Gᴰ-seqᴰ ((_ , Eq.refl), (_ , Eq.refl)) G-seq f g =
-        R.≡[]-rectify (Fᴰ .F-seqᴰ f g)
+        R.rectify (Fᴰ .F-seqᴰ f g)
 {-
 
    Composition of a Section and a Functor
@@ -238,12 +239,12 @@ module _ {B : Category ℓB ℓB'}
   compSectionFunctor : Section F Dᴰ → (G : Functor B C) → Section (F ∘F G) Dᴰ
   compSectionFunctor Fᴰ G .F-obᴰ d     = Fᴰ .F-obᴰ (G .F-ob d)
   compSectionFunctor Fᴰ G .F-homᴰ f    = Fᴰ .F-homᴰ (G .F-hom f)
-  compSectionFunctor Fᴰ G .F-idᴰ       = R.≡[]-rectify (R.≡[]∙ _ _
-    (cong (Fᴰ .F-homᴰ) (G .F-id))
-    (Fᴰ .F-idᴰ))
-  compSectionFunctor Fᴰ G .F-seqᴰ f g = R.≡[]-rectify (R.≡[]∙ _ _
-    (cong (Fᴰ .F-homᴰ) (G .F-seq f g))
-    (Fᴰ .F-seqᴰ (G .F-hom f) (G .F-hom g)))
+  compSectionFunctor Fᴰ G .F-idᴰ       = R.rectify $ R.≡out $
+      R.≡in (cong (Fᴰ .F-homᴰ) (G .F-id))
+    ∙ R.≡in (Fᴰ .F-idᴰ)
+  compSectionFunctor Fᴰ G .F-seqᴰ f g = R.rectify $ R.≡out $
+      R.≡in (cong (Fᴰ .F-homᴰ) (G .F-seq f g))
+    ∙ R.≡in (Fᴰ .F-seqᴰ (G .F-hom f) (G .F-hom g))
 
 module _ {D : Category ℓD ℓD'}
          {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -292,12 +293,12 @@ module _ {B : Category ℓB ℓB'}
   compFunctorᴰSection : Functorᴰ F Cᴰ Dᴰ → Section G Cᴰ → Section (F ∘F G) Dᴰ
   compFunctorᴰSection Fᴰ Gᴰ .F-obᴰ d    = Fᴰ .F-obᴰ (Gᴰ .F-obᴰ d)
   compFunctorᴰSection Fᴰ Gᴰ .F-homᴰ f   = Fᴰ .F-homᴰ (Gᴰ .F-homᴰ f)
-  compFunctorᴰSection Fᴰ Gᴰ .F-idᴰ      = R.≡[]-rectify (R.≡[]∙ _ _
-    (λ i → Fᴰ .F-homᴰ (Gᴰ .F-idᴰ i))
-    (Fᴰ .F-idᴰ))
-  compFunctorᴰSection Fᴰ Gᴰ .F-seqᴰ f g = R.≡[]-rectify (R.≡[]∙ _ _
-    (λ i → Fᴰ .F-homᴰ (Gᴰ .F-seqᴰ f g i))
-    (Fᴰ .F-seqᴰ (Gᴰ .F-homᴰ f) (Gᴰ .F-homᴰ g)))
+  compFunctorᴰSection Fᴰ Gᴰ .F-idᴰ      = R.rectify $ R.≡out $
+      R.≡in (congP (λ _ → Fᴰ .F-homᴰ) (Gᴰ .F-idᴰ))
+    ∙ R.≡in (Fᴰ .F-idᴰ)
+  compFunctorᴰSection Fᴰ Gᴰ .F-seqᴰ f g = R.rectify $ R.≡out $
+      R.≡in (congP (λ _ → Fᴰ .F-homᴰ) (Gᴰ .F-seqᴰ f g))
+    ∙ R.≡in (Fᴰ .F-seqᴰ (Gᴰ .F-homᴰ f) (Gᴰ .F-homᴰ g))
 
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
