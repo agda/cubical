@@ -378,3 +378,12 @@ toSusp-invSusp A (merid a i) j =
           λ r → flipSquare (sym (rUnit refl)
                 ◁ (flipSquare (sym (sym≡cong-sym r))
                 ▷ rUnit refl)))
+
+-- co-H-space structure
+·Susp : ∀ {ℓ'} (A : Pointed ℓ) {B : Pointed ℓ'}
+        (f g : Susp∙ (typ A) →∙ B) → Susp∙ (typ A) →∙ B
+fst (·Susp A {B = B} f g) north = pt B
+fst (·Susp A {B = B} f g) south = pt B
+fst (·Susp A {B = B} f g) (merid a i) =
+  (Ω→ f .fst (toSusp A a) ∙ Ω→ g .fst (toSusp A a)) i
+snd (·Susp A f g) = refl

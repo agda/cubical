@@ -37,6 +37,8 @@ open import Cubical.Data.Int
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Multiplication
+open import Cubical.HITs.Join
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout
@@ -398,21 +400,22 @@ module _ where
 -- first need the following:
 fold∘W≡Whitehead :
         fst (π'∘∙Hom 2 (fold∘W , refl)) ∣ idfun∙ (S₊∙ 3) ∣₂
-      ≡ ∣ [ idfun∙ (S₊∙ 2) ∣ idfun∙ (S₊∙ 2) ]₂ ∣₂
+      ≡ ∣ [ idfun∙ (S₊∙ 2) ∣ idfun∙ (S₊∙ 2) ] ∣₂
 fold∘W≡Whitehead =
-  pRec (squash₂ _ _)
-    (cong ∣_∣₂)
-    (indΠ₃S₂ _ _
-      (funExt (λ x → funExt⁻ (sym (cong fst (id∨→∙id {A = S₊∙ 2}))) (W x))))
+  cong ∣_∣₂ (ΣPathP (funExt (main ∘ sphere→Join 1 1) , refl))
   where
-  indΠ₃S₂ : ∀ {ℓ} {A : Pointed ℓ}
-    → (f g : A →∙ S₊∙ 2)
-      → fst f ≡ fst g → ∥ f ≡ g ∥₁
-  indΠ₃S₂ {A = A} f g p =
-    trRec squash₁
-     (λ r → ∣ ΣPathP (p , r) ∣₁)
-      (isConnectedPathP 1 {A = (λ i → p i (snd A) ≡ north)}
-        (isConnectedPathSⁿ 1 (fst g (pt A)) north) (snd f) (snd g) .fst )
+  main : (x : _) → fold⋁ (joinTo⋁ {A = S₊∙ 1} {B = S₊∙ 1} x)
+                  ≡ fst [ idfun∙ (Susp S¹ , north)
+                         ∣ idfun∙ (Susp S¹ , north) ]-pre x
+  main (inl x) = refl
+  main (inr x) = refl
+  main (push a b i) j = help j i
+    where
+    help : cong (fold⋁ ∘ joinTo⋁ {A = S₊∙ 1} {B = S₊∙ 1}) (push a b)
+         ≡ (σS b ∙ refl) ∙ σS a ∙ refl
+    help = cong-∙∙ fold⋁ _ _ _
+         ∙ doubleCompPath≡compPath _ _ _
+         ∙ cong₂ _∙_ (rUnit _) (sym (lUnit (σS a)) ∙ rUnit (σS a))
 
 BrunerieIsoAbstract : GroupEquiv (π'Gr 3 (S₊∙ 3)) (abstractℤGroup/ Brunerie)
 BrunerieIsoAbstract =
@@ -430,12 +433,10 @@ BrunerieIsoAbstract =
     fst (π'∘∙Hom 2 (fold∘W , refl))
          (Iso.inv (fst (πₙ'Sⁿ≅ℤ 2)) 1)
      ≡ [ ∣ idfun∙ (S₊∙ 2) ∣₂ ∣ ∣ idfun∙ (S₊∙ 2) ∣₂ ]π'
-  mainPath =
-      cong (fst (π'∘∙Hom 2 (fold∘W , refl)))
+  mainPath = cong (fst (π'∘∙Hom 2 (fold∘W , refl)))
            (cong (Iso.inv (fst (πₙ'Sⁿ≅ℤ 2))) (sym (πₙ'Sⁿ≅ℤ-idfun∙ 2))
            ∙ (Iso.leftInv (fst (πₙ'Sⁿ≅ℤ 2)) ∣ idfun∙ (S₊∙ 3) ∣₂))
-    ∙ fold∘W≡Whitehead
-    ∙ cong ∣_∣₂ (sym ([]≡[]₂ (idfun∙ (S₊∙ 2)) (idfun∙ (S₊∙ 2))))
+           ∙ fold∘W≡Whitehead
 
   main : _ ≡ Brunerie
   main i = abs (HopfInvariant-π' 0 (mainPath i))

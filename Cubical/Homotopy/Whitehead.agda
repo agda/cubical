@@ -15,6 +15,7 @@ open import Cubical.Data.Unit
 open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Multiplication
 open import Cubical.HITs.Join
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.SetTruncation
@@ -25,6 +26,25 @@ open import Cubical.Homotopy.Loopspace
 open Iso
 open 3x3-span
 
+-- Whitehead product (main definition)
+[_∣_]-pre : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       → (S₊∙ (suc n) →∙ X)
+       → (S₊∙ (suc m) →∙ X)
+       → join∙ (S₊∙ n) (S₊∙ m) →∙ X
+fst ([_∣_]-pre {X = X} {n = n} {m = m} f g) (inl x) = pt X
+fst ([_∣_]-pre {X = X} {n = n} {m = m} f g) (inr x) = pt X
+fst ([_∣_]-pre {n = n} {m = m} f g) (push a b i) =
+  (Ω→ g .fst (σS b) ∙ Ω→ f .fst (σS a)) i
+snd ([_∣_]-pre {n = n} {m = m} f g) = refl
+
+[_∣_] : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       → (S₊∙ (suc n) →∙ X)
+       → (S₊∙ (suc m) →∙ X)
+       → S₊∙ (suc (n + m)) →∙ X
+[_∣_] {n = n} {m = m} f g =
+  [ f ∣ g ]-pre ∘∙ (sphere→Join n m , IsoSphereJoin⁻Pres∙ n m)
+
+-- Whitehead product (as a composition)
 joinTo⋁ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
  → join (typ A) (typ B)
  → (Susp (typ A) , north) ⋁ (Susp (typ B) , north)
@@ -35,63 +55,100 @@ joinTo⋁ {A = A} {B = B} (push a b i) =
   ∙∙ sym (push tt)
   ∙∙ λ i → inl (σ A a i)) i
 
--- Whitehead product (main definition)
-[_∣_] : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+[_∣_]comp : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
        → (S₊∙ (suc n) →∙ X)
        → (S₊∙ (suc m) →∙ X)
        → S₊∙ (suc (n + m)) →∙ X
-fst ([_∣_] {X = X} {n = n} {m = m} f g) x =
-  _∨→_ (f ∘∙ (inv (IsoSucSphereSusp n) , IsoSucSphereSusp∙ n))
-        (g ∘∙ (inv (IsoSucSphereSusp m) , IsoSucSphereSusp∙ m))
-        (joinTo⋁ {A = S₊∙ n} {B = S₊∙ m}
-          (inv (IsoSphereJoin n m) x))
-snd ([_∣_] {n = n} {m = m} f g) =
-  cong (_∨→_ (f ∘∙ (inv (IsoSucSphereSusp n) , IsoSucSphereSusp∙ n))
-       (g ∘∙ (inv (IsoSucSphereSusp m) , IsoSucSphereSusp∙ m)))
-       (cong (joinTo⋁ {A = S₊∙ n} {B = S₊∙ m}) (IsoSphereJoin⁻Pres∙ n m))
-    ∙ cong (fst g) (IsoSucSphereSusp∙ m)
-    ∙ snd g
+[_∣_]comp {n = n} {m = m} f g =
+    (((f ∘∙ (inv (IsoSucSphereSusp n) , IsoSucSphereSusp∙ n))
+  ∨→ (g ∘∙ (inv (IsoSucSphereSusp m) , IsoSucSphereSusp∙ m))
+    , cong (fst f) (IsoSucSphereSusp∙ n) ∙ snd f)
+  ∘∙ ((joinTo⋁ {A = S₊∙ n} {B = S₊∙ m} , sym (push tt))))
+  ∘∙ (inv (IsoSphereJoin n m) , IsoSphereJoin⁻Pres∙ n m)
 
--- For Sⁿ, Sᵐ with n, m ≥ 2, we can avoid some bureaucracy. We make
--- a separate definition and prove it equivalent.
-[_∣_]-pre : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
-       → (S₊∙ (suc (suc n)) →∙ X)
-       → (S₊∙ (suc (suc m)) →∙ X)
-       → join (typ (S₊∙ (suc n))) (typ (S₊∙ (suc m))) → fst X
-[_∣_]-pre {n = n} {m = m} f g x =
-  _∨→_ f g
-        (joinTo⋁ {A = S₊∙ (suc n)} {B = S₊∙ (suc m)}
-        x)
+[]comp≡[] : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       → (f : (S₊∙ (suc n) →∙ X))
+       → (g : (S₊∙ (suc m) →∙ X))
+       → [ f ∣ g ]comp ≡ [ f ∣ g ]
+[]comp≡[] {X = X} {n = n} {m} f g =
+  cong (_∘∙ (sphere→Join n m , IsoSphereJoin⁻Pres∙ n m)) (main n m f g)
+    where
+    ∨fun : {n m : ℕ} (f : (S₊∙ (suc n) →∙ X)) (g : (S₊∙ (suc m) →∙ X))
+      → ((_ , inl north) →∙ X)
+    ∨fun {n = n} {m} f g =
+       ((f ∘∙ (inv (IsoSucSphereSusp n) , IsoSucSphereSusp∙ n)) ∨→
+       (g ∘∙ (inv (IsoSucSphereSusp m) , IsoSucSphereSusp∙ m))
+       , cong (fst f) (IsoSucSphereSusp∙ n) ∙ snd f)
 
-[_∣_]₂ : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
-       → (S₊∙ (suc (suc n)) →∙ X)
-       → (S₊∙ (suc (suc m)) →∙ X)
-       → S₊∙ (suc ((suc n) + (suc m))) →∙ X
-fst ([_∣_]₂ {n = n} {m = m} f g) x =
-  [ f ∣ g ]-pre (inv (IsoSphereJoin (suc n) (suc m)) x)
-snd ([_∣_]₂ {n = n} {m = m} f g) =
-    cong ([ f ∣ g ]-pre) (IsoSphereJoin⁻Pres∙ (suc n) (suc m))
-  ∙ snd g
+    open import Cubical.Foundations.Path
+    main : (n m : ℕ) (f : (S₊∙ (suc n) →∙ X)) (g : (S₊∙ (suc m) →∙ X))
+      → (∨fun f g ∘∙ (joinTo⋁ {A = S₊∙ n} {B = S₊∙ m} , sym (push tt)))
+      ≡ [ f ∣ g ]-pre
+    main n m f g =
+      ΣPathP ((funExt (λ { (inl x) → rp
+                         ; (inr x) → lp
+                         ; (push a b i) j → pushcase a b j i}))
+          , ((cong₂ _∙_ (symDistr _ _) refl
+          ∙ sym (assoc _ _ _)
+          ∙ cong (rp ∙_) (rCancel _)
+          ∙ sym (rUnit rp))
+          ◁ λ i j → rp (i ∨ j)))
+      where
+      lp = cong (fst f) (IsoSucSphereSusp∙ n) ∙ snd f
+      rp = cong (fst g) (IsoSucSphereSusp∙ m) ∙ snd g
 
-[]≡[]₂ : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
-       → (f : (S₊∙ (suc (suc n)) →∙ X))
-       → (g : (S₊∙ (suc (suc m)) →∙ X))
-       → [ f ∣ g ] ≡ [ f ∣ g ]₂
-[]≡[]₂ {n = n} {m = m} f g =
-  ΣPathP (
-    (λ i x → _∨→_ (∘∙-idˡ f i)
-                    (∘∙-idˡ g i)
-                (joinTo⋁ {A = S₊∙ (suc n)} {B = S₊∙ (suc m)}
-                 (inv (IsoSphereJoin (suc n) (suc m)) x)))
-  , (cong (cong (_∨→_ (f ∘∙ idfun∙ _)
-                       (g ∘∙ idfun∙ _))
-       (cong (joinTo⋁ {A = S₊∙ (suc n)} {B = S₊∙ (suc m)})
-             (IsoSphereJoin⁻Pres∙ (suc n) (suc m))) ∙_)
-                (sym (lUnit (snd g)))
-  ◁ λ j → (λ i → _∨→_ (∘∙-idˡ f j)
-                        (∘∙-idˡ g j)
-           ( joinTo⋁ {A = S₊∙ (suc n)} {B = S₊∙ (suc m)}
-          ((IsoSphereJoin⁻Pres∙ (suc n) (suc m)) i))) ∙ snd g))
+      help : (n : ℕ) (a : _)
+        → Square (cong (inv (IsoSucSphereSusp n)) (σ (S₊∙ n) a)) (σS a)
+                  (IsoSucSphereSusp∙ n) (IsoSucSphereSusp∙ n)
+      help zero a = cong-∙ SuspBool→S¹ (merid a) (sym (merid (pt (S₊∙ zero))))
+                  ∙ sym (rUnit _)
+      help (suc n) a = refl
+
+      ∙∙Distr∙ : ∀ {ℓ} {A : Type ℓ} {x y z w u : A}
+                 {p : x ≡ y} {q : y ≡ z} {r : z ≡ w} {s : w ≡ u}
+               → p ∙∙ q ∙ r ∙∙ s ≡ ((p ∙ q) ∙ r ∙ s)
+      ∙∙Distr∙ = doubleCompPath≡compPath _ _ _
+               ∙ assoc _ _ _
+               ∙ cong₂ _∙_ (assoc _ _ _) refl
+               ∙ sym (assoc _ _ _)
+
+
+      pushcase : (a : S₊ n) (b : S₊ m)
+        → Square (cong (∨fun f g .fst ∘ joinTo⋁ {A = S₊∙ n} {B = S₊∙ m}) (push a b))
+                  (cong (fst [ f ∣ g ]-pre) (push a b))
+                  rp lp
+      pushcase a b =
+        (cong-∙∙ (∨fun f g .fst) _ _ _
+        ∙ (λ i → cong (fst g) (PathP→compPathR∙∙ (help _ b) i)
+              ∙∙ symDistr lp (sym rp) i
+              ∙∙ cong (fst f) (PathP→compPathR∙∙ (help _ a) i))
+        ∙ (λ i → cong (fst g)
+                      (IsoSucSphereSusp∙ m
+                     ∙∙ σS b
+                     ∙∙ (λ j → IsoSucSphereSusp∙ m (~ j ∨ i)))
+              ∙∙ compPath-filler' (cong (fst g) (IsoSucSphereSusp∙ m)) (snd g) (~ i)
+               ∙ sym (compPath-filler' (cong (fst f) (IsoSucSphereSusp∙ n)) (snd f) (~ i))
+              ∙∙ cong (fst f)
+                      ((λ j → IsoSucSphereSusp∙ n (i ∨ j))
+                      ∙∙ σS a
+                      ∙∙ sym (IsoSucSphereSusp∙ n))))
+       ◁ compPathR→PathP∙∙
+           ( ∙∙Distr∙
+          ∙ cong₂ _∙_ (cong₂ _∙_ (cong (cong (fst g)) (sym (compPath≡compPath' _ _)))
+                                 refl)
+                      refl
+          ∙ cong₂ _∙_ (cong (_∙ snd g) (cong-∙ (fst g) (IsoSucSphereSusp∙ m) (σS b))
+                                     ∙ sym (assoc _ _ _))
+                      (cong (sym (snd f) ∙_)
+                        (cong-∙ (fst f) (σS a)
+                          (sym (IsoSucSphereSusp∙ n)))
+                         ∙ assoc _ _ _)
+          ∙ sym ∙∙Distr∙
+          ∙ cong₃ _∙∙_∙∙_ refl (cong₂ _∙_ refl (compPath≡compPath' _ _)) refl
+         ∙ λ i → compPath-filler (cong (fst g) (IsoSucSphereSusp∙ m)) (snd g) i
+               ∙∙ ((λ j → snd g (~ j ∧ i)) ∙∙ cong (fst g) (σS b) ∙∙ snd g)
+                ∙ (sym (snd f) ∙∙ cong (fst f) (σS a) ∙∙ λ j → snd f (j ∧ i))
+               ∙∙ sym (compPath-filler (cong (fst f) (IsoSucSphereSusp∙ n)) (snd f) i))
 
 -- Homotopy group version
 [_∣_]π' : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}

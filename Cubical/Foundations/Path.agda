@@ -410,6 +410,16 @@ compPathR→PathP∙∙ {p = p} {q = q} {r = r} {s = s} P j i =
                    ; (j = i1) → doubleCompPath-filler  p s (sym q) (~ k) i})
           (P j i)
 
+PathP→compPathR∙∙ : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+  → PathP (λ i → p i ≡ q i) r s
+  → r ≡ p ∙∙ s ∙∙ sym q
+PathP→compPathR∙∙ {p = p} {q = q} {r = r} {s = s} P j i =
+    hcomp (λ k → λ { (i = i0) → p (j ∧ ~ k)
+                   ; (i = i1) → q (j ∧ ~ k)
+                   ; (j = i0) → r i
+                   ; (j = i1) → doubleCompPath-filler  p s (sym q) k i})
+          (P j i)
+
 compPath→Square-faces : {a b c d : A} (p : a ≡ c) (q : b ≡ d) (r : a ≡ b) (s : c ≡ d)
   → (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A
 compPath→Square-faces p q r s i j k = λ where

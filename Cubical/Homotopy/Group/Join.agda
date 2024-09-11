@@ -324,3 +324,9 @@ snd (π*∘∙Hom {A = A} {B = B} n m f) =
                          (≃∙→ret/sec∙ {B = _ , ptSn (suc (n + m))}
                           (joinSphereEquiv∙ n m) .fst)
                        ∙ ∘∙-idˡ g)))
+
+π*∘∙Equiv : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+  (n m : ℕ) (f : A ≃∙ B)
+  → GroupEquiv (π*Gr n m A) (π*Gr n m B)
+fst (π*∘∙Equiv n m f) = isoToEquiv (setTruncIso (pre∘∙equiv f))
+snd (π*∘∙Equiv n m f) = π*∘∙Hom n m (≃∙map f) .snd

@@ -165,7 +165,7 @@ module ExactSeq = πLES
 open Suspensions renaming (toSusp to σ)
 
 -- Proposition 3.4: Sⁿ * Sᵐ ≃ Sⁿ⁺ᵐ⁺¹
-open Spheres using (IsoSphereJoin)
+open SMult using (IsoSphereJoin)
 
 -- Definition 3.5 and Proposition 3.6 (Hopf map),
 -- Phrased somewhat differently in the paper.
@@ -243,7 +243,7 @@ open James₁ using (IsoΩ∥SuspS²∥₅∥Pushout⋁↪fold⋁S²∥₅)
 
 -- Definition 4.8: W + whitehead product
 W = joinTo⋁
-open Whitehead using ([_∣_]₂)
+open Whitehead using ([_∣_])
 
 -- Theorem 4.9 is omitted as it is used implicitly in the proof of the main result
 
