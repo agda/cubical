@@ -387,3 +387,11 @@ fst (·Susp A {B = B} f g) south = pt B
 fst (·Susp A {B = B} f g) (merid a i) =
   (Ω→ f .fst (toSusp A a) ∙ Ω→ g .fst (toSusp A a)) i
 snd (·Susp A f g) = refl
+
+-Susp : ∀ {ℓ'} (A : Pointed ℓ) {B : Pointed ℓ'}
+      → Susp∙ (typ A) →∙ B → Susp∙ (typ A) →∙ B
+fst (-Susp A {B = B} f) north = pt B
+fst (-Susp A {B = B} f) south = pt B
+fst (-Susp A {B = B} f) (merid a i) =
+  (Ω→ f .fst (toSusp A a) (~ i))
+snd (-Susp A f) = refl
