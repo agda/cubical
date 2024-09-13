@@ -200,7 +200,7 @@ prod→⋀^ zero A x = x
 prod→⋀^ (suc n) A x =
   inr ((prod→⋀^ n (predFinFamily∙ A) (fst x)) , (snd x))
 
-⋀→Homogeneous≡ : {A B : Pointed ℓ} {D : Type ℓ'}
+⋀→Homogeneous≡ : ∀ {ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {D : Type ℓ''}
   → {f g : A ⋀ B → D}
   → (isHomogeneous (D , f (inl tt)))
   → ((x : _) (y : _) → f (inr (x , y)) ≡ g (inr (x , y)))

@@ -24,6 +24,7 @@ open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.S1
 open import Cubical.HITs.Join
+open import Cubical.HITs.Join.CoHSpace
 open import Cubical.HITs.Sn.Multiplication
 
 open import Cubical.Algebra.Group
@@ -34,31 +35,8 @@ open import Cubical.Algebra.Group.GroupPath
 open Iso
 open GroupStr
 
--- Standard loop in Ω (join A B)
-ℓ* : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
-  → fst A → fst B → Ω (join∙ A B) .fst
-ℓ* A B a b = push (pt A) (pt B)
-           ∙ (push a (pt B) ⁻¹ ∙∙ push a b ∙∙ (push (pt A) b ⁻¹))
-
 ℓS : {n m : ℕ} → S₊ n → S₊ m → Ω (join∙ (S₊∙ n) (S₊∙ m)) .fst
 ℓS {n = n} {m} = ℓ* (S₊∙ n) (S₊∙ m)
-
--- Addition of functions join A B → C
-_+*_ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
-  (f g : join∙ A B →∙ C) → join∙ A B →∙ C
-fst (_+*_ {C = C} f g) (inl x) = pt C
-fst (_+*_ {C = C} f g) (inr x) = pt C
-fst (_+*_ {A = A} {B = B} f g) (push a b i) =
-  (Ω→ f .fst (ℓ* A B a b) ∙ Ω→ g .fst (ℓ* A B a b)) i
-snd (f +* g) = refl
-
--- Inversion
--* : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
-      (f : join∙ A B →∙ C) → join∙ A B →∙ C
-fst (-* {C = C} f) (inl x) = pt C
-fst (-* {C = C} f) (inr x) = pt C
-fst (-* {A = A} {B} f) (push a b i) = Ω→ f .fst (ℓ* A B a b) (~ i)
-snd (-* f) = refl
 
 -- -Π is the same as -*
 -Π≡-* : ∀ {ℓ} {A : Pointed ℓ} {n m : ℕ}
@@ -330,72 +308,3 @@ snd (π*∘∙Hom {A = A} {B = B} n m f) =
   → GroupEquiv (π*Gr n m A) (π*Gr n m B)
 fst (π*∘∙Equiv n m f) = isoToEquiv (setTruncIso (pre∘∙equiv f))
 snd (π*∘∙Equiv n m f) = π*∘∙Hom n m (≃∙map f) .snd
-
-open import Cubical.Foundations.Path
-ℓ*IdL : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
-  → (b : fst B) → ℓ* A B (pt A) b ≡ refl
-ℓ*IdL A B b =
-  cong₂ _∙_ refl
-            (doubleCompPath≡compPath _ _ _
-            ∙ cong (push (pt A) (pt B) ⁻¹ ∙_) (rCancel _)
-            ∙ sym (rUnit _))
-  ∙ rCancel _
-
-ℓ*IdR : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
-  → (a : typ A) → ℓ* A B a (pt B) ≡ refl
-ℓ*IdR A B a =
-    cong₂ _∙_ refl
-            (doubleCompPath≡compPath _ _ _
-            ∙ assoc _ _ _
-            ∙ cong (_∙ push (pt A) (pt B) ⁻¹) (rCancel _)
-            ∙ sym (lUnit _))
-  ∙ rCancel _
-
--*² : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
-      (f : join∙ A B →∙ C) → -* (-* f) ≡ f
-fst (-*² {A = A} {B = B} {C = C} f i) (inl x) =
-  (cong (fst f) (push x (pt B) ∙ push (pt A) (pt B) ⁻¹) ∙ snd f) (~ i)
-fst (-*² {A = A} {B = B} {C = C} f i) (inr x) =
-   (cong (fst f) (push (pt A) x ⁻¹) ∙ snd f) (~ i)
-fst (-*² {A = A} {B = B} {C = C} f i) (push a b i₁) = help i i₁
-  where
-  help : Square (cong (-* (-* f) .fst) (push a b))
-                (cong (fst f) (push a b))
-                (sym ((cong (fst f) (push a (pt B) ∙ push (pt A) (pt B) ⁻¹) ∙ snd f)))
-                (sym (cong (fst f) (push (pt A) b ⁻¹) ∙ snd f))
-  help = (sym (rUnit _)
-     ∙ cong sym (cong-∙ (-* f .fst) _ _
-              ∙ cong₂ _∙_ (cong sym (cong (Ω→ f .fst)
-                          (ℓ*IdL A B (pt B)) ∙ Ω→ f .snd))
-                          (cong-∙∙ (-* f .fst) _ _ _
-                        ∙ cong₃ _∙∙_∙∙_
-                                (cong (Ω→ f .fst) (ℓ*IdR A B a) ∙ Ω→ f .snd)
-                                refl
-                                (cong (Ω→ f .fst) (ℓ*IdL A B b) ∙ Ω→ f .snd)
-                        ∙ sym (rUnit _))
-              ∙ sym (lUnit _)))
-              ◁ compPathR→PathP
-                 (cong₃ _∙∙_∙∙_ refl
-                   (cong-∙ (fst f) _ _
-                   ∙ cong₂ _∙_ refl (cong-∙∙ (fst f) _ _ _
-                                  ∙ doubleCompPath≡compPath _ _ _ ∙ refl)) refl
-               ∙ doubleCompPath≡compPath _ _ _
-               ∙ cong (sym (snd f) ∙_)
-                    (sym (assoc _ _ _)
-                   ∙ cong (cong (fst f) (push (pt A) (pt B)) ∙_)
-                          (sym (assoc _ _ _))
-               ∙ assoc _ _ _
-               ∙ cong₂ _∙_ (sym (cong-∙ (fst f) _ _)) (sym (assoc _ _ _)))
-               ∙ assoc _ _ _
-               ∙ cong₂ _∙_ (sym (symDistr _ _)
-                            ∙ cong sym (cong (_∙ snd f)
-                                        (cong (cong (fst f)) (symDistr _ _))))
-                           refl)
-snd (-*² {A = A} {B = B} {C = C} f i) = help i
-  where
-  help : Square refl (snd f) (sym (cong (fst f)
-                (push (pt A) (pt B) ∙ push (pt A) (pt B) ⁻¹) ∙ snd f)) refl
-  help = flipSquare (cong sym (cong (_∙ snd f)
-                      (cong (cong (fst f)) (rCancel _))
-                    ∙ sym (lUnit _))
-                  ◁ λ i j → snd f (~ j ∨ i))

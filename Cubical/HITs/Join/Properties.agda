@@ -447,6 +447,10 @@ join-commFun (inl x) = inr x
 join-commFun (inr x) = inl x
 join-commFun (push a b i) = push b a (~ i)
 
+join-commFun∙ : ∀ {ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} → join∙ A B →∙ join∙ B A
+proj₁ join-commFun∙ = join-commFun
+snd (join-commFun∙ {A = A} {B = B}) = push (pt B) (pt A) ⁻¹
+
 join-commFun² : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'} (x : join A B)
                 → join-commFun (join-commFun x) ≡ x
 join-commFun² (inl x) = refl
