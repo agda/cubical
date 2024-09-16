@@ -66,20 +66,24 @@ yieldsConnectedCWskel A k =
   Σ[ sk ∈ yieldsCWskel A ] ((sk .fst 0 ≡ 1) × ((n : ℕ) → n <ᵗ k → sk .fst (suc n) ≡ 0))
 
 -- Alternatively, we may say that its colimit is n-connected
-yieldsConnectedCWskel' : (A : ℕ → Type ℓ) (n : ℕ) → Type _
-yieldsConnectedCWskel' A n = Σ[ sk ∈ yieldsCWskel A ] isConnected (2 +ℕ n) (realise (_ , sk))
+yieldsCombinatorialConnectedCWskel : (A : ℕ → Type ℓ) (n : ℕ) → Type _
+yieldsCombinatorialConnectedCWskel A n =
+  Σ[ sk ∈ yieldsCWskel A ] isConnected (2 +ℕ n) (realise (_ , sk))
 
 connectedCWskel : (ℓ : Level) (n : ℕ) → Type (ℓ-suc ℓ)
 connectedCWskel ℓ n = Σ[ X ∈ (ℕ → Type ℓ) ] (yieldsConnectedCWskel X n)
 
-connectedCWskel' : (ℓ : Level) (n : ℕ) → Type (ℓ-suc ℓ)
-connectedCWskel' ℓ n = Σ[ X ∈ (ℕ → Type ℓ) ] (yieldsConnectedCWskel' X n)
+combinatorialConnectedCWskel : (ℓ : Level) (n : ℕ) → Type (ℓ-suc ℓ)
+combinatorialConnectedCWskel ℓ n =
+  Σ[ X ∈ (ℕ → Type ℓ) ] (yieldsCombinatorialConnectedCWskel X n)
 
 isConnectedCW : ∀ {ℓ} (n : ℕ) → Type ℓ → Type (ℓ-suc ℓ)
-isConnectedCW {ℓ = ℓ} n A = Σ[ sk ∈ connectedCWskel ℓ n ] realise (_ , (snd sk .fst)) ≃ A
+isConnectedCW {ℓ = ℓ} n A =
+  Σ[ sk ∈ connectedCWskel ℓ n ] realise (_ , (snd sk .fst)) ≃ A
 
 isConnectedCW' : ∀ {ℓ} (n : ℕ) → Type ℓ → Type (ℓ-suc ℓ)
-isConnectedCW' {ℓ = ℓ} n A = Σ[ sk ∈ connectedCWskel' ℓ n ] realise (_ , (snd sk .fst)) ≃ A
+isConnectedCW' {ℓ = ℓ} n A =
+  Σ[ sk ∈ combinatorialConnectedCWskel ℓ n ] realise (_ , (snd sk .fst)) ≃ A
 
 --- Goal: show that these two definitions coincide (note that indexing is off by 2) ---
 -- For the base case, we need to analyse α₀ : Fin n × S⁰ → X₁ (recall,
@@ -89,13 +93,13 @@ isConnectedCW' {ℓ = ℓ} n A = Σ[ sk ∈ connectedCWskel' ℓ n ] realise (_ 
 -- us to iteratively shrink X₁ by contracting the image of α₀(a,-).
 
 -- Decision producedures
-hasDecidableImage-Fin×S⁰ : {A : Type ℓ}
+inhabitedFibres?-Fin×S⁰ : {A : Type ℓ}
   (da : Discrete A) (n : ℕ) (f : Fin n × S₊ 0 → A)
-  → hasDecidableImage f
-hasDecidableImage-Fin×S⁰ {A = A} da n =
-  subst (λ C → (f : C → A) → hasDecidableImage f)
+  → inhabitedFibres? f
+inhabitedFibres?-Fin×S⁰ {A = A} da n =
+  subst (λ C → (f : C → A) → inhabitedFibres? f)
         (isoToPath (invIso Iso-Fin×Bool-Fin))
-        (hasDecidableImageFin da _)
+        (inhabitedFibres?Fin da _)
 
 private
   allConst? : {A : Type ℓ} {n : ℕ} (dis : Discrete A)
@@ -112,11 +116,11 @@ private
   ... | yes p | inr x = inr (_ , (snd x))
   ... | no ¬p | q = inr (_ , ¬p)
 
--- α₀ must be is surjective
+-- α₀ must have a section
 isSurj-α₀ : (n m : ℕ) (f : Fin n × S₊ 0 → Fin (suc (suc m)))
   → isConnected 2 (Pushout f fst)
   → (y : _) → Σ[ x ∈ _ ] f x ≡ y
-isSurj-α₀ n m f c y with (hasDecidableImage-Fin×S⁰ DiscreteFin n f y)
+isSurj-α₀ n m f c y with (inhabitedFibres?-Fin×S⁰ DiscreteFin n f y)
 ... | inl x = x
 isSurj-α₀ n m f c x₀ | inr q = ⊥.rec nope
   where
@@ -521,7 +525,7 @@ module CWLemmas-0Connected where
 
 -- Uning this, we can show that a 0-connected CW complex can be
 -- approximated by one with trivial 1-skeleton.
-module _ (A : ℕ → Type ℓ) (sk+c : yieldsConnectedCWskel' A 0) where
+module _ (A : ℕ → Type ℓ) (sk+c : yieldsCombinatorialConnectedCWskel A 0) where
   private
     open CWLemmas-0Connected
     c = snd sk+c

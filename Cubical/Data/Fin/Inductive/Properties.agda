@@ -145,13 +145,13 @@ DiscreteFin x y with discreteℕ (fst x) (fst y)
 ... | yes p = yes (Σ≡Prop (λ _ → isProp<ᵗ) p)
 ... | no ¬p = no λ q → ¬p (cong fst q)
 
-hasDecidableImageFin : ∀ {ℓ} {A : Type ℓ}
+inhabitedFibres?Fin : ∀ {ℓ} {A : Type ℓ}
   (da : Discrete A) (n : ℕ) (f : Fin n → A)
-  → hasDecidableImage f
-hasDecidableImageFin {A = A} da zero f y = inr λ x → ⊥.rec (¬Fin0 x)
-hasDecidableImageFin {A = A} da (suc n) f y with da (f fzero) y
+  → inhabitedFibres? f
+inhabitedFibres?Fin {A = A} da zero f y = inr λ x → ⊥.rec (¬Fin0 x)
+inhabitedFibres?Fin {A = A} da (suc n) f y with da (f fzero) y
 ... | yes p = inl (fzero , p)
-... | no ¬p with (hasDecidableImageFin da n (f ∘ fsuc) y)
+... | no ¬p with (inhabitedFibres?Fin da n (f ∘ fsuc) y)
 ... | inl q = inl ((fsuc (fst q)) , snd q)
 ... | inr q = inr (elimFin-alt ¬p q)
 

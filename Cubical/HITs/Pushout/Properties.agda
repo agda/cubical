@@ -705,7 +705,8 @@ PushoutCompEquivIso {ℓA = ℓA} {ℓA'} {ℓB} {ℓB'} {ℓC} e1 e2 f g =
                            (Pushout f g))
        λ f g → idIso)
 
--- Computation of cofibre of the quotient map B → B/A
+-- Computation of cofibre of the quotient map B → B/A (where B/A
+-- denotes the cofibre of some f : B → A)
 module _ {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
   private
     open 3x3-span

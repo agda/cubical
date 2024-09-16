@@ -86,7 +86,7 @@ cofibInr-⋁ {A = A} {B = B} =
           (cofibInl-⋁ {A = B} {B = A})
 
 -- A ⋁ Unit ≃ A ≃ Unit ⋁ A
-⋁-rUnitIso : {A : Pointed ℓ} → Iso (A ⋁ (Unit* {ℓ'} , tt*)) (fst A)
+⋁-rUnitIso : {A : Pointed ℓ} → Iso (A ⋁ Unit*∙ {ℓ'}) (fst A)
 Iso.fun ⋁-rUnitIso (inl x) = x
 Iso.fun (⋁-rUnitIso {A = A}) (inr x) = pt A
 Iso.fun (⋁-rUnitIso {A = A}) (push a i) = pt A
@@ -96,7 +96,7 @@ Iso.leftInv ⋁-rUnitIso (inl x) = refl
 Iso.leftInv ⋁-rUnitIso (inr x) = push tt
 Iso.leftInv ⋁-rUnitIso (push tt i) j = push tt (i ∧ j)
 
-⋁-lUnitIso : {A : Pointed ℓ} → Iso ((Unit* {ℓ'} , tt*) ⋁ A) (fst A)
+⋁-lUnitIso : {A : Pointed ℓ} → Iso (Unit*∙ {ℓ'} ⋁ A) (fst A)
 ⋁-lUnitIso = compIso ⋁-commIso ⋁-rUnitIso
 
 -- cofiber of constant function
@@ -294,6 +294,8 @@ SuspBouquet≃Bouquet : (A : Type ℓ) (B : A → Pointed ℓ')
   → Susp (⋁gen A B) ≃ ⋁gen A (λ a → Susp∙ (fst (B a)))
 SuspBouquet≃Bouquet A B = isoToEquiv (Iso-SuspBouquet-Bouquet A B)
 
+-- cofibre of f ∨→ g : A ⋁ B → C is cofibre of
+-- inr ∘ f : A → cofib g
 module _ {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
   (f : A →∙ C) (g : B →∙ C)
   where
@@ -402,6 +404,8 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
                         (cofib {B = cofib (fst g)} (λ x → inr (fst f x)))
   cofib∨→compIsoᵣ = compIso cofib∨→distrIso (equivToIso (_ , isPushoutRight))
 
+-- cofibre of f ∨→ g : A ⋁ B → C is cofibre of
+-- inr ∘ g : B → cofib f
 cofib∨→compIsoₗ :
   {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
   (f : A →∙ C) (g : B →∙ C)
@@ -416,7 +420,7 @@ cofib∨→compIsoₗ f g =
               ; (push a i) j → symDistr (snd g) (sym (snd f)) (~ j) i}))
           (cofib∨→compIsoᵣ g f)
 
-
+-- (⋁ᵢ Aᵢ ∨ ⋁ⱼ Bᵢ) ≃ ⋁ᵢ₊ⱼ(Aᵢ + Bⱼ)
 module _ {A : Type ℓ} {B : Type ℓ'}
   {P : A → Pointed ℓ''} {Q : B → Pointed ℓ''}
   where
@@ -440,7 +444,7 @@ module _ {A : Type ℓ} {B : Type ℓ'}
     ⋁gen⊎← (push (inr x) i) = (push tt ∙ λ i → inr (push x i)) i
 
   ⋁gen⊎Iso : Iso (⋁gen∙ A P ⋁ ⋁gen∙ B Q)
-                   (⋁gen (A ⊎ B) (⊎.rec P Q))
+                  (⋁gen (A ⊎ B) (⊎.rec P Q))
   Iso.fun ⋁gen⊎Iso = ⋁gen⊎→
   Iso.inv ⋁gen⊎Iso = ⋁gen⊎←
   Iso.rightInv ⋁gen⊎Iso (inl tt) = refl
@@ -458,7 +462,7 @@ module _ {A : Type ℓ} {B : Type ℓ'}
     compPath-filler' (push tt) (λ i → inr (push a i)) (~ j) i
   Iso.leftInv ⋁gen⊎Iso (push a i) j = push a (i ∧ j)
 
--- computation of the cofibre of a map out of a wedge
+-- f : ⋁ₐ Bₐ → C has cofibre the pushout of cofib (f ∘ inr) ← Σₐ → A
 module _ {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : A → Pointed ℓB} (C : Pointed ℓC)
          (f : (⋁gen A B , inl tt) →∙ C) where
   private
