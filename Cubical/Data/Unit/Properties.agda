@@ -113,7 +113,7 @@ isOfHLevelUnit* (suc (suc (suc n))) = isOfHLevelPlus 3 (isOfHLevelUnit* n)
 Unit≃Unit* : ∀ {ℓ} → Unit ≃ Unit* {ℓ}
 Unit≃Unit* = invEquiv (isContr→≃Unit isContrUnit*)
 
-isContr→≃Unit* : {A : Type ℓ} → isContr A → A ≃ Unit* {ℓ}
+isContr→≃Unit* : {A : Type ℓ} → isContr A → A ≃ Unit* {ℓ'}
 isContr→≃Unit* contr = compEquiv (isContr→≃Unit contr) Unit≃Unit*
 
 isContr→≡Unit* : {A : Type ℓ} → isContr A → A ≡ Unit*

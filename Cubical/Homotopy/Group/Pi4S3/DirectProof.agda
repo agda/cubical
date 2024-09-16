@@ -18,9 +18,8 @@ complicates things. In this file, we try to work around this problem.
 The proof goes as follows.
 
 1. Define π₃*(A) := ∥ S¹ * S¹ →∙ A ∥₀ and define explicitly an
-addition on this type. Prove that the equivalence π₃(A) ≃ π₃*(A) is
-structure preserving, thereby giving a group structure on π₃*(A) and a
-group iso π₃*(A) ≅ π₃(A)
+addition on this type. This is already done in
+Cubical.Homotopy.Group.Join.
 
 2. Under this iso, η gets mapped to η₁ (by construction) defined by
 S¹ * S¹ -ᵂ→ S² ∨ S² -ᶠᵒˡᵈ→ S²
@@ -73,6 +72,7 @@ open import Cubical.Homotopy.Group.Pi4S3.BrunerieNumber
 open import Cubical.Homotopy.Group.Pi4S3.BrunerieExperiments
   using (K₂ ; f7' ; S¹∙ ; encodeTruncS²)
 -- For computation (alternative proof)
+open import Cubical.Homotopy.Group.Join
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
@@ -82,6 +82,7 @@ open import Cubical.Data.Int
 open import Cubical.HITs.S1 as S1 renaming (_·_ to _*_)
 open import Cubical.HITs.S2 renaming (S¹×S¹→S² to S¹×S¹→S²')
 open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Multiplication
 open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.Join hiding (joinS¹S¹→S³)
 open import Cubical.HITs.Wedge
@@ -142,230 +143,28 @@ private
         (IsoSphereJoin 1 1)
         (isConnectedSubtr 3 1 (sphereConnected 3)))
 
+  joinS¹S¹→S³ = join→Sphere 1 1
+  S¹×S¹→S² : S¹ → S¹ → S₊ 2
+  S¹×S¹→S² = _⌣S_
+
 -- Key goal: prove that the following element of π₃(S²) gets mapped to -2
 η : π' 3 (S₊∙ 2)
 η = fst (π'∘∙Hom 2 (fold∘W , refl)) ∣ id∙ (S₊∙ 3) ∣₂
 
-{- Step 1. Define an addition on π₃*(A) := ∥ S¹ * S¹ →∙ A ∥₀ -}
--- On the underlying function spaces.
-_+join_ : (f g : (join S¹ S¹ , inl base) →∙ A)
-       → (join S¹ S¹ , inl base) →∙ A
-fst (f +join g) (inl x) = fst f (inl x)
-fst (f +join g) (inr x) = fst g (inr x)
-fst (f +join g) (push a b i) =
-  (cong (fst f) (push a b ∙ sym (push base b))
-  ∙∙ snd f ∙ sym (snd g)
-  ∙∙ cong (fst g) (push base base ∙∙ sym (push a base) ∙∙ push a b)) i
-snd (f +join g) = snd f
-
--- Homotopy group version
-_π₃*+_ : (f g : ∥ (join S¹ S¹ , inl base) →∙ S₊∙ 2 ∥₂)
-      → ∥ (join S¹ S¹ , inl base) →∙ S₊∙ 2 ∥₂
-_π₃*+_ = sRec2 squash₂ λ x y → ∣ x +join y ∣₂
-
--- transferring between π₃ and π₃*
--- (homotopy groups defined in terms of S¹ * S¹)
-joinify :  S₊∙ 3 →∙ A → (join S¹ S¹ , inl base) →∙ A
-fst (joinify f) x = fst f (joinS¹S¹→S³ x)
-snd (joinify f) = snd f
-
-disjoin : (join S¹ S¹ , inl base) →∙ A → S₊∙ 3 →∙ A
-fst (disjoin f) = λ x → fst f (Iso.inv (IsoSphereJoin 1 1) x)
-snd (disjoin f) = snd f
-
-
--- joinify is structure preserving
-+join≡∙Π : (f g : S₊∙ 3 →∙ A)
-         → joinify (∙Π f g)
-         ≡ (joinify f +join joinify g)
-+join≡∙Π f' g' =
-  ΣPathP ((funExt (λ { (inl x) → sym fp
-                     ; (inr x) → sym gp ∙ cong g (merid north)
-                     ; (push a b i) j → main a b j i}))
-        , λ i j → fp (j ∨ ~ i))
-  where
-  f = fst f'
-  g = fst g'
-
-  fp = snd f'
-  gp = snd g'
-
-  path-lem : ∀ {ℓ} {A : Type ℓ} {x y z w u : A}
-       (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) (s : w ≡ u)
-    → (refl ∙∙ p ∙∙ q) ∙ (r ∙∙ s ∙∙ refl)
-     ≡ (p ∙∙ (q ∙ r) ∙∙ s)
-  path-lem p q r s =
-       cong ((p ∙ q) ∙_) (sym (compPath≡compPath' r s))
-    ∙∙ sym (∙assoc p q (r ∙ s))
-    ∙∙ cong (p ∙_) (∙assoc q r s)
-     ∙ sym (doubleCompPath≡compPath p (q ∙ r) s)
-
-  main-helper : (a b : S¹)
-    → Square ((refl ∙∙ cong f (σ₂ (S¹×S¹→S² a b)) ∙∙ fp)
-             ∙ (sym gp ∙∙ cong g (σ₂ (S¹×S¹→S² a b)) ∙∙ refl))
-             ((cong f (merid (S¹×S¹→S² a b))
-             ∙ sym (cong f (merid north)))
-               ∙∙ (fp ∙ sym gp)
-               ∙∙ cong g (merid (S¹×S¹→S² a b)))
-           (λ _ → f north)
-           (cong g (merid north))
-  main-helper a b =
-    path-lem (cong f (σ₂ (S¹×S¹→S² a b)))  fp (sym gp)
-             (cong g (σ₂ (S¹×S¹→S² a b)))
-          ◁ lem
-    where
-    lem : PathP (λ i → f north ≡ cong g (merid north) i)
-              ((λ i → f (σ₂ (S¹×S¹→S² a b) i))
-                    ∙∙ fp ∙ (sym gp) ∙∙
-               (cong g (σ₂ (S¹×S¹→S² a b))))
-              ((cong f (merid (S¹×S¹→S² a b)) ∙ sym (cong f (merid north)))
-               ∙∙ fp ∙ sym gp
-               ∙∙ cong g (merid (S¹×S¹→S² a b)))
-    lem i j =
-      hcomp (λ k → λ { (i = i0) →
-                          (cong-∙ f (merid (S¹×S¹→S² a b))
-                                    (sym (merid north)) (~ k)
-                       ∙∙ fp ∙ sym gp
-                       ∙∙ (λ i → g (σ-filler (S¹×S¹→S² a b) north k i))) j
-                       ; (i = i1) → ((cong f (merid (S¹×S¹→S² a b))
-                                       ∙ sym (cong f (merid north)))
-                                     ∙∙ (fp ∙ sym gp)
-                                     ∙∙ cong g (merid (S¹×S¹→S² a b))) j
-                       ; (j = i0) → f north
-                       ; (j = i1) → g (merid north (~ k ∨ i))})
-            (((cong f (merid (S¹×S¹→S² a b)) ∙ sym (cong f (merid north)))
-            ∙∙ (fp ∙ sym gp)
-            ∙∙ cong g (merid (S¹×S¹→S² a b))) j)
-
-
-  main-helper₂ : (a b : S¹)
-    → cong (fst (joinify g')) (push base base ∙∙ sym (push a base) ∙∙ push a b)
-    ≡ cong g (merid (S¹×S¹→S² a b))
-  main-helper₂ a b = cong-∙∙ (fst (joinify g'))
-       (push base base) (sym (push a base)) (push a b)
-       ∙ cong (cong g (merid north) ∙∙_∙∙ cong g (merid (S¹×S¹→S² a b)))
-              (cong (cong g) (cong sym (cong merid (S¹×S¹→S²rUnit a))))
-       ∙  ((λ i → (cong g (λ j → merid north (j ∧ ~ i)))
-       ∙∙ (cong g (λ j → merid north (~ j ∧ ~ i)))
-       ∙∙ cong g (merid (S¹×S¹→S² a b)))
-       ∙ sym (lUnit (cong g (merid (S¹×S¹→S² a b)))))
-
-  main : (a b : S¹)
-    → PathP (λ i → fp (~ i) ≡ (sym gp ∙ cong g (merid north)) i)
-            ((sym fp ∙∙ cong f (σ₂ (S¹×S¹→S² a b)) ∙∙ fp)
-           ∙ (sym gp ∙∙ cong g (σ₂ (S¹×S¹→S² a b)) ∙∙ gp))
-            ((cong (fst (joinify f')) (push a b ∙ sym (push base b))
-          ∙∙ fp ∙ sym gp
-          ∙∙ cong (fst (joinify g'))
-              (push base base ∙∙ sym (push a base) ∙∙ push a b)))
-  main a b =
-    ((λ i j → hcomp (λ k → λ {(i = i0) → (((λ j → fp (~ j ∧ k))
-                                          ∙∙ cong f (σ₂ (S¹×S¹→S² a b))
-                                          ∙∙ fp)
-                                          ∙ (sym gp
-                                          ∙∙ cong g (σ₂ (S¹×S¹→S² a b))
-                                          ∙∙ λ j → gp (j ∧ k))) j
-                              ; (i = i1) → ((cong f (merid (S¹×S¹→S² a b))
-                                           ∙ sym (cong f (merid north)))
-                                          ∙∙ fp ∙ sym gp
-                                          ∙∙ cong g (merid (S¹×S¹→S² a b))) j
-                              ; (j = i0) → fp (~ i ∧ k)
-                              ; (j = i1) → compPath-filler'
-                                           (sym gp) (cong g (merid north)) k i})
-                     (main-helper a b i j)))
-    ▷ λ i →
-      cong-∙ (fst (joinify f')) (push a b) (sym (push base b)) (~ i)
-      ∙∙ fp ∙ sym gp
-      ∙∙ main-helper₂ a b (~ i)
-
-
-
--- Group structure on π₃*
--- todo: remove connectivity assumption
-module _ (A : Pointed ℓ) (con : (isConnected 3 (typ A))) where
-  π₃*Iso : Iso (typ (π'Gr 2 A)) ∥ (join S¹ S¹ , inl base) →∙ A ∥₂
-  fun π₃*Iso = sMap joinify
-  inv π₃*Iso = sMap disjoin
-  rightInv π₃*Iso =
-    sElim (λ _ → isSetPathImplicit)
-      λ f → to3ConnectedId
-        con (funExt λ x → cong (fst f) (Iso.leftInv (IsoSphereJoin 1 1) x))
-  leftInv π₃*Iso =
-    sElim (λ _ → isSetPathImplicit)
-      λ f → to3ConnectedId
-        con (funExt (λ x → cong (fst f) (Iso.rightInv (IsoSphereJoin 1 1) x)))
-
-  π₃* : Group ℓ
-  π₃* = InducedGroupFromPres·
-          (π'Gr 2 A)
-          (sRec2 squash₂ (λ x y → ∣ x +join y ∣₂))
-          (isoToEquiv π₃*Iso)
-          (sElim2 (λ _ _ → isSetPathImplicit) (λ f g → cong ∣_∣₂ (+join≡∙Π f g)))
-
-  π₃≅π₃* : GroupEquiv (π'Gr 2 A) π₃*
-  π₃≅π₃* =
-    InducedGroupEquivFromPres· (π'Gr 2 A) (sRec2 squash₂ (λ x y → ∣ x +join y ∣₂))
-      (isoToEquiv π₃*Iso)
-      (sElim2 (λ _ _ → isSetPathImplicit) (λ f g → cong ∣_∣₂ (+join≡∙Π f g)))
-
-
--- Induced homomorphisms (A →∙ B) → (π₃*(A) → π₃*(B))
--- todo: remove connectivity assumptions
-module _ (conA : (isConnected 3 (typ A))) (conB : (isConnected 3 (typ B)))
-         (f : A →∙ B) where
-  postCompπ₃* : GroupHom (π₃* A conA) (π₃* B conB)
-  fst postCompπ₃* = sMap (f ∘∙_)
-  snd postCompπ₃* =
-    makeIsGroupHom
-      (sElim2 (λ _ _ → isSetPathImplicit)
-        λ h g → to3ConnectedId conB
-          (funExt λ { (inl x) → refl
-                    ; (inr x) → refl
-                    ; (push a b i) j →
-           (cong-∙∙ (fst f)
-                    (cong (fst h) ((push a b ∙ (sym (push base b)))))
-                    (snd h ∙ (sym (snd g)))
-                    (cong (fst g) ((push base base
-                               ∙∙ (sym (push a base))
-                               ∙∙ push a b)))
-          ∙ cong (cong (fst f)
-                   (cong (fst h) (push a b ∙ (sym (push base b))))
-                    ∙∙_∙∙
-                   cong (fst f ∘ fst g)
-                     ((push base base ∙∙ (sym (push a base)) ∙∙ push a b)))
-                 (cong-∙ (fst f) (snd h) (sym (snd g))
-                 ∙ λ j → compPath-filler (cong (fst f) (snd h)) (snd f) j
-                        ∙ sym (compPath-filler
-                               (cong (fst f) (snd g)) (snd f) j))) j i}))
-
--- Induced iso (A ≃∙ B) → π₃*(A) ≅ π₃*(B)
--- todo: remove connectivity assumptions
-module _ (conA : (isConnected 3 (typ A))) (conB : (isConnected 3 (typ B)))
-         (f : A ≃∙ B) where
-  postCompπ₃*Equiv : GroupEquiv (π₃* A conA) (π₃* B conB)
-  fst postCompπ₃*Equiv = isoToEquiv h
-    where
-    h : Iso (π₃* A conA .fst) (π₃* B conB .fst)
-    fun h = fst (postCompπ₃* conA conB (≃∙map f))
-    inv h = fst (postCompπ₃* conB conA (≃∙map (invEquiv∙ f)))
-    rightInv h =
-      sElim (λ _ → isSetPathImplicit)
-        λ g → to3ConnectedId conB (funExt λ x → secEq (fst f) (fst g x))
-    leftInv h =
-      sElim (λ _ → isSetPathImplicit)
-        λ g → to3ConnectedId conA (funExt λ x → retEq (fst f) (fst g x))
-  snd postCompπ₃*Equiv = snd (postCompπ₃* conA conB (≃∙map f))
 
 -- The relevant groups (in order of the iso π₃(S²) ≅ ℤ)
 π₃S² = π'Gr 2 (S₊∙ 2)
 
-π₃*S² = π₃* (S₊∙ 2) (sphereConnected 2)
+π₃*S² = π*Gr 1 1 (S₊∙ 2)
 
-π₃*joinS¹S¹ = π₃* (join S¹ S¹ , inl base) con-joinS¹S¹
+π₃*joinS¹S¹ = π*Gr 1 1 (join∙ (S₊∙ 1) (S₊∙ 1))
 
-π₃*S³ = π₃* (S₊∙ 3) connS³
+π₃*S³ = π*Gr 1 1 (S₊∙ 3)
 
 π₃S³ = π'Gr 2 (S₊∙ 3)
+
+π₃≅π₃* : {A : Pointed₀} → GroupEquiv (π'Gr 2 A) (π*Gr 1 1 A)
+π₃≅π₃* {A = A} = invGroupEquiv (GroupIso→GroupEquiv (π*Gr≅π'Gr 1 1 A))
 
 {- Goal now:  Show that
    (η : π₃(S²))
@@ -383,13 +182,13 @@ Hence, there is an is an iso π₃(S²) ≅ ℤ taking η to
 -}
 
 -- Underlying functions of (some of) the ηs
-η₁-raw : (join S¹ S¹ , inl base) →∙ S₊∙ 2
+η₁-raw : join∙ S¹∙ S¹∙ →∙ S₊∙ 2
 fst η₁-raw (inl x) = north
 fst η₁-raw (inr x) = north
 fst η₁-raw (push a b i) = (σ₁ b ∙ σ₁ a) i
 snd η₁-raw = refl
 
-η₂-raw : (join S¹ S¹ , inl base) →∙ (join S¹ S¹ , inl base)
+η₂-raw : join∙ S¹∙ S¹∙ →∙ join∙ S¹∙ S¹∙
 fst η₂-raw (inl x) = inr (invLooper x)
 fst η₂-raw (inr x) = inr x
 fst η₂-raw (push a b i) =
@@ -397,7 +196,7 @@ fst η₂-raw (push a b i) =
   ∙ push (b * invLooper a) b) i
 snd η₂-raw = sym (push base base)
 
-η₃-raw : (join S¹ S¹ , inl base) →∙ S₊∙ 3
+η₃-raw : join∙ S¹∙ S¹∙ →∙ S₊∙ 3
 fst η₃-raw (inl x) = north
 fst η₃-raw (inr x) = north
 fst η₃-raw (push a b i) =
@@ -420,7 +219,7 @@ snd η₃-raw = refl
 
 -- π₃S²≅π₃*S²
 π₃S²→π₃*S² : GroupEquiv π₃S² π₃*S²
-π₃S²→π₃*S² = π₃≅π₃* (S₊∙ 2) (sphereConnected 2)
+π₃S²→π₃*S² = GroupIso→GroupEquiv (invGroupIso (π*Gr≅π'Gr 1 1 (S₊∙ 2)))
 
 -- Time for π₃*(S¹ * S¹) ≅ π₃*S².
 -- We have this iso already, but slightly differently stated,
@@ -433,9 +232,7 @@ Hopfσ (inr x) = north
 Hopfσ (push a b i) = σ₁ (invLooper a * b) i
 
 π₃*joinS¹S¹→π₃*S² : GroupHom π₃*joinS¹S¹ π₃*S²
-π₃*joinS¹S¹→π₃*S² =
-  postCompπ₃* con-joinS¹S¹ (sphereConnected 2)
-    (Hopfσ , refl)
+π₃*joinS¹S¹→π₃*S² = π*∘∙Hom 1 1 (Hopfσ , refl)
 
 π₃*joinS¹S¹≅π₃*S² : GroupEquiv π₃*joinS¹S¹ π₃*S²
 fst (fst π₃*joinS¹S¹≅π₃*S²) = fst π₃*joinS¹S¹→π₃*S²
@@ -444,8 +241,7 @@ snd (fst π₃*joinS¹S¹≅π₃*S²) =
   where
   π₃*joinS¹S¹→π₃*S²' : GroupHom π₃*joinS¹S¹ π₃*S²
   π₃*joinS¹S¹→π₃*S²' =
-    postCompπ₃* con-joinS¹S¹ (sphereConnected 2)
-      (fst ∘ JoinS¹S¹→TotalHopf , refl)
+    π*∘∙Hom 1 1 (fst ∘ JoinS¹S¹→TotalHopf , refl)
 
   isEquivπ₃*joinS¹S¹→π₃*S²' : isEquiv (fst π₃*joinS¹S¹→π₃*S²')
   isEquivπ₃*joinS¹S¹→π₃*S²' =
@@ -458,10 +254,10 @@ snd (fst π₃*joinS¹S¹≅π₃*S²) =
         (λ i → GroupHom
                 (GroupPath π₃*joinS¹S¹ π₃S³ .fst
                   (compGroupEquiv
-                   (invGroupEquiv (π₃≅π₃* (join S¹ S¹ , inl base) con-joinS¹S¹))
+                   (invGroupEquiv π₃≅π₃*)
                    (π'Iso 2 (isoToEquiv (IsoSphereJoin 1 1) , refl))) i)
                 (GroupPath π₃*S² π₃S² .fst
-                  (invGroupEquiv (π₃≅π₃* (S₊∙ 2) (sphereConnected 2))) i))
+                  (invGroupEquiv π₃≅π₃*) i))
          π₃*joinS¹S¹→π₃*S²'
          (fst (fst GrEq) , snd GrEq)
     help =
@@ -469,20 +265,21 @@ snd (fst π₃*joinS¹S¹≅π₃*S²) =
         (funExt
           λ f → (λ i
            → transportRefl
-              ((invGroupEquiv (π₃≅π₃* (S₊∙ 2) (sphereConnected 2))) .fst .fst
+              ((invGroupEquiv (π₃≅π₃*)) .fst .fst
                 (fst π₃*joinS¹S¹→π₃*S²' (
-                  ((fst (fst (π₃≅π₃* (join S¹ S¹ , inl base) con-joinS¹S¹)))
+                  ((fst (fst π₃≅π₃*))
                   (invEq (fst (π'Iso 2 (isoToEquiv (IsoSphereJoin 1 1) , refl)))
                      (transportRefl f i)))))) i)
-              ∙ main f))
+              ∙ main f
+              ))
 
       where
-      main : (f : _) → invEquiv (fst (π₃≅π₃* (S₊∙ 2) (sphereConnected 2))) .fst
-        (fst π₃*joinS¹S¹→π₃*S²'
-         (invEq
-          (invEquiv (fst (π₃≅π₃* (join S¹ S¹ , inl base) con-joinS¹S¹)))
-          (invEq (fst (π'Iso 2 (isoToEquiv Iso-joinS¹S¹-S³ , (λ _ → north))))
-           f)))
+      main : (f : _) → invEquiv (fst π₃≅π₃*) .fst
+                          (fst π₃*joinS¹S¹→π₃*S²'
+                           (fst (fst π₃≅π₃*)
+                            (invEq
+                             (fst (π'Iso 2 (isoToEquiv (IsoSphereJoin 1 1) , (λ _ → north))))
+                             f)))
         ≡ fst GrEq .fst f
       main = sElim (λ _ → isSetPathImplicit)
         λ f → to3ConnectedId (sphereConnected 2)
@@ -509,13 +306,11 @@ snd π₃*joinS¹S¹≅π₃*S² = snd π₃*joinS¹S¹→π₃*S²
 -- π₃*(S³) ≅ π₃*(S¹ * S¹)
 π₃*S³≅π₃*joinS¹S¹ : GroupEquiv π₃*S³ π₃*joinS¹S¹
 π₃*S³≅π₃*joinS¹S¹ =
-  postCompπ₃*Equiv
-    connS³ con-joinS¹S¹
-      (isoToEquiv (invIso (IsoSphereJoin 1 1)) , refl)
+  π*∘∙Equiv 1 1 (isoToEquiv (invIso (IsoSphereJoin 1 1)) , refl)
 
 -- π₃(S³)≅π₃*(S³)
 π₃S³≅π₃*S³ : GroupEquiv π₃S³ π₃*S³
-π₃S³≅π₃*S³ = π₃≅π₃* (S₊∙ 3) connS³
+π₃S³≅π₃*S³ = π₃≅π₃*
 
 η↦η₁ :  fst (fst π₃S²→π₃*S²) η ≡ η₁
 η↦η₁ = to3ConnectedId (sphereConnected 2)
@@ -576,42 +371,27 @@ snd π₃*joinS¹S¹≅π₃*S² = snd π₃*joinS¹S¹→π₃*S²
 η₂↦η₃ : invEq (fst π₃*S³≅π₃*joinS¹S¹) η₂ ≡ η₃
 η₂↦η₃ =
   to3ConnectedId connS³
-   (funExt λ x → sym (joinS¹S¹→S³σ≡ (fst η₂-raw x))
-                ∙ lem x)
+   (funExt λ x → lem x)
   where
-  joinS¹S¹→S³σ : join S¹ S¹ → S₊ 3
-  joinS¹S¹→S³σ (inl x) = north
-  joinS¹S¹→S³σ (inr x) = north
-  joinS¹S¹→S³σ (push a b i) = σ₂ (S¹×S¹→S² a b) i
-
-  joinS¹S¹→S³σ≡ : (x : _) → joinS¹S¹→S³σ x ≡ joinS¹S¹→S³ x
-  joinS¹S¹→S³σ≡ (inl x) = refl
-  joinS¹S¹→S³σ≡ (inr x) = merid north
-  joinS¹S¹→S³σ≡ (push a b i) j =
-    compPath-filler (merid (S¹×S¹→S² a b)) (sym (merid north)) (~ j) i
-
-  lem : (x : _) → joinS¹S¹→S³σ (fst η₂-raw x) ≡ fst η₃-raw x
+  lem : (x : _) → joinS¹S¹→S³ (fst η₂-raw x) ≡ fst η₃-raw x
   lem (inl x) = refl
   lem (inr x) = refl
   lem (push a b i) j = main j i
     where
     left-lem : σ₂ (S¹×S¹→S² (b * invLooper a) (invLooper a))
              ≡ σ₂ (S¹×S¹→S² a b)
-    left-lem = cong σ₂ (S¹×S¹→S²-Distr b (invLooper a)
-             ∙ sym (S¹×S¹→S²-antiComm a b))
+    left-lem = cong σ₂ (⌣₁,₁-distr' b (invLooper a)
+                      ∙ ⌣Sinvᵣ b a
+                      ∙ sym (transportRefl _)
+                      ∙ sym (comm⌣S a b))
 
     right-lem : σ₂ (S¹×S¹→S² (b * invLooper a) b) ≡ sym (σ₂ (S¹×S¹→S² a b))
-    right-lem =
-         cong σ₂ ((cong (λ x → S¹×S¹→S² x b) (commS¹ b (invLooper a))
-                 ∙ S¹×S¹→S²-Distr (invLooper a) b)
-                 ∙∙ S¹×S¹→S²-antiComm (invLooper a) b
-                 ∙∙ invSusp∘S¹×S¹→S² b (invLooper a))
-      ∙∙ σ-invSphere 1 (S¹×S¹→S² b (invLooper a))
-      ∙∙ cong (sym ∘ σ₂) (sym (S¹×S¹→S²-antiComm a b))
+    right-lem = cong σ₂ (⌣₁,₁-distr (invLooper a) b ∙ ⌣Sinvₗ a b)
+              ∙ σ-invSphere 1 (a ⌣S b)
 
-    main : cong (joinS¹S¹→S³σ ∘ fst η₂-raw) (push a b)
+    main : cong (joinS¹S¹→S³ ∘ fst η₂-raw) (push a b)
         ≡ sym (σ₂ (S¹×S¹→S² a b)) ∙ sym (σ₂ (S¹×S¹→S² a b))
-    main = cong-∙ joinS¹S¹→S³σ
+    main = cong-∙ joinS¹S¹→S³
             (sym (push (b * invLooper a) (invLooper a)))
             (push (b * invLooper a) b)
          ∙ cong₂ _∙_ (cong sym left-lem) right-lem
@@ -640,7 +420,15 @@ snd π₃*joinS¹S¹≅π₃*S² = snd π₃*joinS¹S¹→π₃*S²
     to3ConnectedId connS³
       (funExt λ { (inl x) → refl
                 ; (inr x) → refl
-                ; (push a b i) → refl})
+                ; (push a b i) j → help a b j i
+                })
+    where
+    help : (a b : S¹)
+      → cong (fst (inv (Iso-JoinMap-SphereMap 1 1) (-Π (idfun∙ (S₊∙ 3))))) (push a b)
+       ≡ σS (a ⌣S b) ⁻¹
+    help a b = cong-∙ (fst (-Π (idfun∙ (S₊∙ 3)))) (merid (a ⌣S b)) (merid north ⁻¹)
+             ∙ cong₂ _∙_ refl (rCancel (merid north))
+             ∙ sym (rUnit (σS (a ⌣S b) ⁻¹))
 
   η₃/2+η₃/2≡η₃ : η₃/2 +π₃* η₃/2 ≡ η₃
   η₃/2+η₃/2≡η₃ =
@@ -649,23 +437,21 @@ snd π₃*joinS¹S¹≅π₃*S² = snd π₃*joinS¹S¹→π₃*S²
                 ; (inr x) → refl
                 ; (push a b i) → λ j → lem a b j i})
     where
-    lem : (a b : S¹) → cong (fst (η₃-raw/2 +join η₃-raw/2)) (push a b)
+    pre : (a b : S¹) → cong (fst η₃-raw/2) (ℓS a b) ≡ σS (a ⌣S b) ⁻¹
+    pre a b = cong-∙ (fst η₃-raw/2) _ _
+            ∙ cong₂ _∙_
+                (cong sym (rCancel (merid north)))
+                (cong-∙∙ (fst η₃-raw/2) _ _ _
+                ∙ (λ i →
+                        (cong σ₂ (IdL⌣S {n = 1} {1} a) ∙ (rCancel (merid north))) i
+                      ∙∙ σS (a ⌣S b) ⁻¹
+                      ∙∙ rCancel (merid north) i)
+                ∙ sym (rUnit _))
+            ∙ sym (lUnit _)
+
+    lem : (a b : S¹) → cong (fst (η₃-raw/2 +* η₃-raw/2)) (push a b)
                       ≡ cong (fst η₃-raw) (push a b)
-    lem a b = (λ i → cong-∙ (fst η₃-raw/2) (push a b) (sym (push base b)) i
-                   ∙∙ rUnit refl (~ i)
-                   ∙∙ cong-∙∙ (fst η₃-raw/2)
-                        (push base base) (sym (push a base)) (push a b) i)
-           ∙∙ (λ i → (sym (σ₂ (S¹×S¹→S² a b)) ∙ rCancel (merid north) i)
-                   ∙∙ refl
-                   ∙∙ (sym (rCancel (merid north) i)
-                   ∙∙ (cong σ₂ (S¹×S¹→S²rUnit a) ∙ rCancel (merid north)) i
-                   ∙∙ sym (σ₂ (S¹×S¹→S² a b))))
-           ∙∙ ((λ i → rUnit (sym (σ₂ (S¹×S¹→S² a b))) (~ i)
-                    ∙∙ refl
-                    ∙∙ lUnit (sym (σ₂ (S¹×S¹→S² a b))) (~ i))
-             ∙ λ i → (λ j → σ₂ (S¹×S¹→S² a b) (i ∨ ~ j))
-                   ∙∙ (λ j → σ₂ (S¹×S¹→S² a b) (i ∧ ~ j))
-                   ∙∙ sym (σ₂ (S¹×S¹→S² a b)))
+    lem a b = cong₂ _∙_ (sym (rUnit _) ∙ pre a b) (sym (rUnit _) ∙ pre a b)
 
 -- Agda is very keen on expanding things, so we make an abstract
 -- summary of the main lemmas above
@@ -789,7 +575,7 @@ snd connSuspS² =
            λ i j → ∣ merid base (i ∧ j) ∣ₕ
 
 π₃*S³' : Group₀
-π₃*S³' = π₃* (Susp∙ S²) (isConnectedSubtr 3 1 connSuspS²)
+π₃*S³' = π*Gr 1 1 (Susp∙ S²)
 
 -- The version of η₃ we have been able to compute lies in π₃*S³'
 η₃'-raw : (join S¹ S¹ , inl base) →∙ (Susp S² , north)
@@ -802,10 +588,13 @@ snd η₃'-raw = refl
 η₃' : π₃*S³' .fst
 η₃' = ∣ η₃'-raw ∣₂
 
+altS²IsoSuspS¹ : Iso S² SuspS¹
+altS²IsoSuspS¹ = compIso invS²Iso S²IsoSuspS¹
+
 -- We first have to show (manually) that the following iso sends η₃ to η₃'
 π₃*S³≅π₃*S³' : GroupEquiv π₃*S³ π₃*S³'
-π₃*S³≅π₃*S³' = postCompπ₃*Equiv _ _
-        (isoToEquiv (congSuspIso (invIso S²IsoSuspS¹))
+π₃*S³≅π₃*S³' = π*∘∙Equiv 1 1 -- _ _ -- postCompπ₃*Equiv _ _
+        (isoToEquiv (congSuspIso (invIso altS²IsoSuspS¹))
        , refl)
 
 π₃*S³≅π₃*S³'-pres-η₃ : fst (fst π₃*S³≅π₃*S³') η₃ ≡ η₃'
@@ -813,21 +602,24 @@ snd η₃'-raw = refl
   cong ∣_∣₂
     (ΣPathP ((funExt (λ { (inl x) → refl
                         ; (inr x) → refl
-                        ; (push a b i) j → lem a b j i}))
+                        ; (push a b i) j → lem a b j i
+                        }))
                         , sym (rUnit refl)))
   where
   lem : (a b : S¹)
-    → cong (suspFun SuspS¹→S²)
+    → cong (suspFun (invS² ∘ SuspS¹→S²))
             (sym (σ₂ (S¹×S¹→S² a b)) ∙ sym (σ₂ (S¹×S¹→S² a b)))
-    ≡ (σ (S² , base) (S¹×S¹→S²' a b) ∙ σ (S² , base) (S¹×S¹→S²' a b))
+    ≡ (σ (S² , base) (S¹×S¹→S²' a b) ∙ (σ (S² , base) (S¹×S¹→S²' a b)))
   lem a b =
-      cong-∙ (suspFun SuspS¹→S²)
+      cong-∙ (suspFun (invS² ∘ SuspS¹→S²))
              (sym (σ₂ (S¹×S¹→S² a b))) (sym (σ₂ (S¹×S¹→S² a b)))
     ∙ cong (λ x → x ∙ x)
            (cong sym (cong-∙
-             (suspFun SuspS¹→S²) (merid (S¹×S¹→S² a b)) (sym (merid north)))
-          ∙ cong sym (cong (σ S²∙) (SuspS¹→S²-S¹×S¹→S² a b))
-          ∙ sym (S¹×S¹→S²-sym a b))
+             (suspFun (invS² ∘ SuspS¹→S²)) (merid (S¹×S¹→S² a b)) (sym (merid north)))
+         ∙ cong sym (cong (σ S²∙)
+                    (cong invS² (SuspS¹→S²-S¹×S¹→S² a b)
+                    ∙ S¹×S¹→S²-anticomm a b))
+         ∙ sym (S¹×S¹→S²-sym a b))
 
 -- After this, we want to establish an iso π₃*S³'≅ℤ which is nice enough to compute.
 -- This requires a bit of work and some hacking.
@@ -942,26 +734,28 @@ snd π₁S¹→∙ΩS³'≅π₃*S³' =
             λ f g → cong ∣_∣₂
               (ΣPathP ((funExt (λ { (inl x) → refl
                                   ; (inr x) → refl
-                                  ; (push a b i) j → main f g a b j i}))
+                                  ; (push a b i) j → main f g a b j i
+                                  }))
                       , refl)))
+
   where
+  lem1 : (f : S₊∙ 1 →∙ (S₊∙ 1 →∙ Ω (Susp∙ S²) ∙)) (a b : S¹)
+      → congS (fst (map← f)) (ℓ* S¹∙ S¹∙ a b) ≡ fst f a .fst b
+  lem1 f a b = cong-∙ (fst (map← f)) _ _
+            ∙ cong₂ _∙_ (fst f base .snd)
+                    ((cong-∙∙ (fst (map← f)) _ _ _)
+                  ∙ (λ j → sym (fst f a .snd j)
+                         ∙∙ fst f a .fst b
+                         ∙∙ sym (snd f j .fst b))
+                  ∙ sym (rUnit _))
+            ∙ sym (lUnit _)
+
   main : (f g : S₊∙ 1 →∙ (S₊∙ 1 →∙ Ω (Susp∙ S²) ∙)) (a b : S¹)
     → cong (fst (map← (∙Π f g))) (push a b)
-    ≡ cong (fst (map← f +join map← g)) (push a b)
-  main f g a b = (main-lem a b
-            ∙ (λ i → (λ j → fst f a .fst b (j ∧ i))
-                   ∙∙ ((λ j → fst f a .fst b (j ∨ i)))
-                   ∙∙ fst g a .fst b))
-            ∙ λ i → (rUnit (fst f a .fst b) ∙ cong (fst f a .fst b ∙_)
-                       (cong sym (sym (funExt⁻ (cong fst (snd f)) b)))
-                      ∙ sym (cong-∙ (map← f .fst) (push a b) (sym (push base b)))) i
-                  ∙∙ rUnit refl i
-                  ∙∙ ((lUnit (fst g a .fst b)
-            ∙ (λ i → fst g base .snd (~ i)
-                   ∙∙ sym (fst g a .snd (~ i))
-                   ∙∙ cong (map← g .fst) (push a b)))
-                    ∙ (sym (cong-∙∙ (map← g .fst)
-                            (push base base) (sym (push a base)) (push a b)))) i
+    ≡ cong (fst (_+*_ {A = S¹∙} {B = S¹∙} (map← f) (map← g))) (push a b)
+  main f g a b = main-lem a b
+               ∙ cong₂ _∙_ (sym (lem1 f a b) ∙ rUnit _)
+                           (sym (lem1 g a b) ∙ rUnit _)
     where
     JLem : ∀ {ℓ} {A : Type ℓ} (* : A)
               (fab : * ≡ *) (fabrefl : refl ≡ fab)

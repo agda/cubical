@@ -98,6 +98,18 @@ isOfHLevelPlus' {n = n} 0 = isContr→isOfHLevel n
 isOfHLevelPlus' {n = n} 1 = isProp→isOfHLevelSuc n
 isOfHLevelPlus' {n = n} (suc (suc m)) hA a₀ a₁ = isOfHLevelPlus' (suc m) (hA a₀ a₁)
 
+-- When proving a type has h-level n+1, we can assume it is inhabited.
+-- To prove a type is a proposition, it suffices to prove it is contractible if inhabited
+
+isOfHLevelSucIfInhabited→isOfHLevelSuc : ∀ n
+  → (A → isOfHLevel (suc n) A) → isOfHLevel (suc n) A
+isOfHLevelSucIfInhabited→isOfHLevelSuc zero hA a = hA a a
+isOfHLevelSucIfInhabited→isOfHLevelSuc (suc n) hA a = hA a a
+
+isContrIfInhabited→isProp : (A → isContr A) → isProp A
+isContrIfInhabited→isProp hA =
+  isOfHLevelSucIfInhabited→isOfHLevelSuc 0 (isContr→isProp ∘ hA)
+
 -- hlevel of path types
 
 isProp→isContrPath : isProp A → (x y : A) → isContr (x ≡ y)

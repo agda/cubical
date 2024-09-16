@@ -25,6 +25,7 @@ open import Cubical.Foundations.Equiv
 
 open import Cubical.HITs.SetTruncation renaming (elim to sElim)
 open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Multiplication
 open import Cubical.HITs.Susp
 open import Cubical.HITs.S1
 

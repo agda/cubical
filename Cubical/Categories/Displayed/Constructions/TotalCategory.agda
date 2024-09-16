@@ -5,13 +5,16 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
+import      Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Instances.Terminal
-open import Cubical.Categories.Constructions.TotalCategory hiding (intro)
+open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.Section.Base
+open import Cubical.Categories.Displayed.Instances.Terminal hiding (introF)
+open import Cubical.Categories.Constructions.TotalCategory as TC hiding (intro)
 
 private
   variable
@@ -57,10 +60,29 @@ module _ {C : Category ℓC ℓC'}
   (Dᴰ : Categoryᴰ (∫C Cᴰ) ℓDᴰ ℓDᴰ')
   where
 
-  open Functorᴰ
+  hasPropHoms∫Cᴰ : hasPropHoms Cᴰ → hasPropHoms Dᴰ → hasPropHoms (∫Cᴰ Cᴰ Dᴰ)
+  hasPropHoms∫Cᴰ ph-Cᴰ ph-Dᴰ f cᴰ cᴰ' = isPropΣ
+    (ph-Cᴰ f (cᴰ .fst) (cᴰ' .fst))
+    (λ fᴰ → ph-Dᴰ (f , fᴰ) (cᴰ .snd) (cᴰ' .snd))
+
   private
     module Cᴰ = Categoryᴰ Cᴰ
     module Dᴰ = Categoryᴰ Dᴰ
+    ∫∫Cᴰ = ∫C {C = C} (∫Cᴰ Cᴰ Dᴰ)
+  open Functor
+  open Functorᴰ
+
+  Assocᴰ : Functor ∫∫Cᴰ (∫C Dᴰ)
+  Assocᴰ .F-ob  x   = (x .fst , x .snd .fst) , x .snd .snd
+  Assocᴰ .F-hom f   = (f .fst , f .snd .fst) , f .snd .snd
+  Assocᴰ .F-id      = refl
+  Assocᴰ .F-seq _ _ = refl
+
+  Assocᴰ⁻ : Functor (∫C Dᴰ) ∫∫Cᴰ
+  Assocᴰ⁻ .F-ob  x   = x .fst .fst , x .fst .snd , x .snd
+  Assocᴰ⁻ .F-hom f   = f .fst .fst , f .fst .snd , f .snd
+  Assocᴰ⁻ .F-id      = refl
+  Assocᴰ⁻ .F-seq _ _ = refl
 
   Fstᴰ : Functorᴰ Id (∫Cᴰ Cᴰ Dᴰ) Cᴰ
   Fstᴰ .F-obᴰ = fst
@@ -68,15 +90,28 @@ module _ {C : Category ℓC ℓC'}
   Fstᴰ .F-idᴰ = refl
   Fstᴰ .F-seqᴰ _ _ = refl
 
-  -- Functor into the displayed total category
-  module _ {E : Category ℓE ℓE'} (F : Functor E C)
-           {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
-           (Fᴰ : Functorᴰ F Eᴰ Cᴰ)
-           (Gᴰ : Functorᴰ (∫F Fᴰ) (Unitᴰ (∫C Eᴰ)) Dᴰ)
-           where
+  open Section
+  module _ {Eᴰ : Categoryᴰ ∫∫Cᴰ ℓEᴰ ℓEᴰ'} where
+    elimGlobal : Section Assocᴰ⁻ Eᴰ → GlobalSection Eᴰ
+    elimGlobal s .F-obᴰ d = s .F-obᴰ ((d .fst , d .snd .fst) , d .snd .snd)
+    elimGlobal s .F-homᴰ f =  s .F-homᴰ ((f .fst , f .snd .fst) , f .snd .snd)
+    elimGlobal s .F-idᴰ = s .F-idᴰ
+    elimGlobal s .F-seqᴰ _ _ = s .F-seqᴰ _ _
 
-    intro : Functorᴰ F Eᴰ (∫Cᴰ Cᴰ Dᴰ)
-    intro .F-obᴰ xᴰ = Fᴰ .F-obᴰ xᴰ , Gᴰ .F-obᴰ _
-    intro .F-homᴰ fᴰ = (Fᴰ .F-homᴰ fᴰ) , (Gᴰ .F-homᴰ _)
-    intro .F-idᴰ = ΣPathP (Fᴰ .F-idᴰ , Gᴰ .F-idᴰ)
-    intro .F-seqᴰ fᴰ gᴰ = ΣPathP (Fᴰ .F-seqᴰ fᴰ gᴰ , Gᴰ .F-seqᴰ _ _)
+  module _ {E : Category ℓE ℓE'} (F : Functor E C)
+           (Fᴰ : Section F Cᴰ)
+           (Gᴰ : Section (TC.intro F Fᴰ) Dᴰ)
+           where
+    introS : Section F (∫Cᴰ Cᴰ Dᴰ)
+    introS .F-obᴰ  d   = Fᴰ .F-obᴰ d , Gᴰ .F-obᴰ d
+    introS .F-homᴰ f   = Fᴰ .F-homᴰ f , Gᴰ .F-homᴰ f
+    introS .F-idᴰ      = ΣPathP (Fᴰ .F-idᴰ , Gᴰ .F-idᴰ)
+    introS .F-seqᴰ f g = ΣPathP (Fᴰ .F-seqᴰ f g , Gᴰ .F-seqᴰ f g)
+
+  module _ {E : Category ℓE ℓE'} {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'} (F : Functor E C)
+           (Fᴰ : Functorᴰ F Eᴰ Cᴰ)
+           (Gᴰ : Section (∫F Fᴰ) Dᴰ)
+           where
+    introF : Functorᴰ F Eᴰ (∫Cᴰ Cᴰ Dᴰ)
+    introF = TC.recᴰ _ _ (introS _ (elim Fᴰ)
+      (reindS' (Eq.refl , Eq.refl) Gᴰ))

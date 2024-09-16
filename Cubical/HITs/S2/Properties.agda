@@ -7,6 +7,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.HITs.S1.Base
 open import Cubical.HITs.S2.Base
@@ -63,10 +64,19 @@ S¹×S¹→S² base y = base
 S¹×S¹→S² (loop i) base = base
 S¹×S¹→S² (loop i) (loop j) = surf i j
 
-
 invS² : S² → S²
 invS² base = base
 invS² (surf i j) = surf j i
+
+invS²∘invS²≡id : (x : _) → invS² (invS² x) ≡ x
+invS²∘invS²≡id base = refl
+invS²∘invS²≡id (surf i i₁) = refl
+
+invS²Iso : Iso S² S²
+Iso.fun invS²Iso = invS²
+Iso.inv invS²Iso = invS²
+Iso.rightInv invS²Iso = invS²∘invS²≡id
+Iso.leftInv invS²Iso = invS²∘invS²≡id
 
 S¹×S¹→S²-anticomm : (x y : S¹) → invS² (S¹×S¹→S² x y) ≡ S¹×S¹→S² y x
 S¹×S¹→S²-anticomm base base = refl
