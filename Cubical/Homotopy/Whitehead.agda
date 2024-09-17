@@ -940,3 +940,343 @@ module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
                                   (-Susp (Susp∙ (typ B)) g) f)
                         ∘∙ join-commFun∙)
     preWhiteheadProdComm = sym (-*² _) ∙ cong -* anticomm ∙ -*Swap _
+
+
+open import Cubical.HITs.SmashProduct
+
+Join→SuspSmash∙ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
+  → join∙ A B →∙ Susp∙ (A ⋀ B)
+Join→SuspSmash∙ A B = Join→SuspSmash , refl
+
+SuspSmash→Join∙ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
+  → Susp∙ (A ⋀ B) →∙ join∙ A B
+SuspSmash→Join∙ A B = SuspSmash→Join , push (pt A) (pt B) ⁻¹
+
+
+SuspSmash→Join-σ :
+  ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (a : fst A) (b : fst B)
+    → cong (SuspSmash→Join {A = A} {B}) (σ (A ⋀∙ B) (inr (a , b)))
+    ≡ {!!}
+SuspSmash→Join-σ {A = A} {B = B} a b =
+    cong-∙ (SuspSmash→Join {A = A} {B})
+           (merid (inr (a , b))) (sym (merid (inl tt)))
+  ∙ cong₂ _∙_ {!!} {!!}
+  ∙ {!!}
+
+permute⋀JoinIso : ∀ {ℓ ℓ' ℓ''}
+  (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'')
+  → Iso (join (A ⋀ B) (typ C)) (join (typ A) (B ⋀ C))
+permute⋀JoinIso A B C =
+  compIso (invIso (SmashJoinIso {A = A ⋀∙ B} {C}))
+   (compIso (congSuspIso (invIso SmashAssocIso))
+            (SmashJoinIso {A = A} {B ⋀∙ C}))
+
+permute⋀Join≃∙ : ∀ {ℓ ℓ' ℓ''}
+  (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'')
+  → join∙ (A ⋀∙ B) C ≃∙ join∙ A (B ⋀∙ C)
+fst (permute⋀Join≃∙ A B C) = isoToEquiv (permute⋀JoinIso A B C)
+snd (permute⋀Join≃∙ A B C) = sym (push (pt A) (inl tt))
+
+module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
+         (B : Pointed ℓ') (C : Pointed ℓ'') {D : Pointed ℓ'''}
+         (f : Susp∙ (Susp (typ A)) →∙ D)
+         (g : Susp∙ (Susp (typ B)) →∙ D)
+         (h : Susp∙ (Susp (typ C)) →∙ D)
+  where
+  private
+    σΣA = σ (Susp∙ (typ A))
+    σΣB = σ (Susp∙ (typ B))
+    σΣC = σ (Susp∙ (typ C))
+
+    whAB  = ·wh (Susp∙ (typ A)) (Susp∙ (typ B)) {D}
+
+    whAC  = ·wh (Susp∙ (typ A)) (Susp∙ (typ C)) {D}
+    whBC  = ·wh (Susp∙ (typ B)) (Susp∙ (typ C)) {D}
+
+    whA-BC = ·wh (Susp∙ (typ A)) ((Susp∙ (typ B)) ⋀∙ (Susp∙ (typ C))) {D}
+    whAB-C = ·wh ((Susp∙ (typ A)) ⋀∙ (Susp∙ (typ B))) (Susp∙ (typ C)) {D}
+
+    whB-AC = ·wh (Susp∙ (typ B)) ((Susp∙ (typ A)) ⋀∙ (Susp∙ (typ C))) {D}
+    
+    
+    whB-CA = ·wh (Susp∙ (typ B)) ((Susp∙ (typ C)) ⋀∙ (Susp∙ (typ A))) {D}
+    
+
+    ΣB*ΣC→Σ[B⋀C] = Join→SuspSmash∙ (Susp∙ (typ B)) (Susp∙ (typ C))
+    Σ[B⋀C]→ΣB*ΣC = SuspSmash→Join∙ (Susp∙ (typ B)) (Susp∙ (typ C))
+
+    Σ[A⋀B]→ΣA*ΣB = SuspSmash→Join∙ (Susp∙ (typ A)) (Susp∙ (typ B))
+    Σ[A⋀C]→ΣA*ΣC = SuspSmash→Join∙ (Susp∙ (typ A)) (Susp∙ (typ C))
+
+    whB∧C = ·wh (Susp∙ (typ B)) (Susp∙ (typ C)) {D}
+    
+    Ω→f∙ = cong (Ω→ f .fst) (rCancel (merid north)) ∙ Ω→ f .snd
+    Ω→g∙ = cong (Ω→ g .fst) (rCancel (merid north)) ∙ Ω→ g .snd
+    Ω→h∙ = cong (Ω→ h .fst) (rCancel (merid north)) ∙ Ω→ h .snd
+
+
+  correction₁ : ∀ {ℓ ℓ' ℓ''} (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'')
+             → join∙ (Susp∙ (typ A)) (Susp∙ (typ B) ⋀∙ Susp∙ (typ C))
+            →∙ join∙ (Susp∙ (typ A) ⋀∙ Susp∙ (typ B)) (Susp∙ (typ C))
+  fst (correction₁ A B C) = 
+    ≃∙map (invEquiv∙ (permute⋀Join≃∙
+          (Susp∙ (typ A)) (Susp∙ (typ B)) (Susp∙ (typ C)))) .fst
+  snd (correction₁ A B C) = sym (push (inl tt) north)
+
+  correction₁⁻ : ∀ {ℓ ℓ' ℓ''} (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'')
+             → join∙ (Susp∙ (typ A) ⋀∙ Susp∙ (typ B)) (Susp∙ (typ C))
+            →∙ join∙ (Susp∙ (typ A)) (Susp∙ (typ B) ⋀∙ Susp∙ (typ C))
+  correction₁⁻ A B C =
+    ≃∙map ( (permute⋀Join≃∙
+          (Susp∙ (typ A)) (Susp∙ (typ B)) (Susp∙ (typ C))))
+
+  correction₂ : join∙ (Susp∙ (typ A)) (Susp∙ (typ B) ⋀∙ Susp∙ (typ C))
+            →∙ join∙ (Susp∙ (typ B)) (Susp∙ (typ A) ⋀∙ Susp∙ (typ C))
+  correction₂ = correction₁⁻ B A C
+             ∘∙ ((join→ ⋀comm→ (idfun _) , refl)
+             ∘∙ correction₁ A B C)
+
+  -- (right derivator) version of jacobi
+  Jacobi : whA-BC f (whBC g h ∘∙ Σ[B⋀C]→ΣB*ΣC)
+        ≡ ((whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h ∘∙ correction₁ A B C)
+        +* (whB-AC g (whAC f h ∘∙ Σ[A⋀C]→ΣA*ΣC) ∘∙ correction₂))
+  Jacobi =
+    ΣPathP ((funExt (λ { (inl x) → lp  x
+                       ; (inr x) → rp  x -- refl
+                       ; (push a b i) j → main a b j i}))
+          , {!!})
+    where
+    L = whA-BC f (whBC g h ∘∙ Σ[B⋀C]→ΣB*ΣC)
+    R = ((whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h ∘∙ correction₁ A B C)
+        +* (whB-AC g (whAC f h ∘∙ Σ[A⋀C]→ΣA*ΣC) ∘∙ correction₂))
+
+
+    lp : Susp (typ A) → Ω D .fst
+    lp = {!!}
+
+    rp : (Susp∙ (typ B) ⋀ Susp∙ (typ C)) → Ω D .fst
+    rp = {!!}
+
+    open import Cubical.Foundations.Pointed.Homogeneous
+    apL apR : (a : Susp (typ A))
+            → Susp∙ (typ B) ⋀ Susp∙ (typ C) → Ω D .fst
+    apL a x = lp a ⁻¹ ∙∙ cong (fst L) (push a x) ∙∙ rp x
+    apR a x = cong (fst R) (push a x)
+
+    lem1 : whBC g h ∘∙ Σ[B⋀C]→ΣB*ΣC ≡ (fst (whBC g h ∘∙ Σ[B⋀C]→ΣB*ΣC) , refl)
+    lem1 = ΣPathP (refl , sym (rUnit _)
+                  ∙ cong₃ _∙∙_∙∙_
+                          (cong sym (Iso.inv ΩSuspAdjointIso g .snd))
+                          (cong sym (Iso.inv ΩSuspAdjointIso h .snd))
+                          refl
+                        ∙ sym (rUnit refl))
+
+    lem2 : whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h ∘∙ correction₁ A B C
+         ≡ ((whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h ∘∙ correction₁ A B C) .fst , refl)
+    lem2 = ΣPathP (refl
+      , sym (rUnit _)
+      ∙ cong₃ _∙∙_∙∙_ refl
+              (cong sym (Iso.inv ΩSuspAdjointIso h .snd))
+              refl
+     ∙ sym (compPath≡compPath' _ _)
+     ∙ cong sym (sym (rUnit _))
+     ∙ cong₃ _∙∙_∙∙_ refl
+                     (cong (cong (fst (whAB f g) ∘ fst Σ[A⋀B]→ΣA*ΣB))
+                           (cong sym (rCancel (merid (inl tt)))))
+                     refl
+     ∙ ∙∙lCancel _)
+
+    lem3 : whB-AC g (whAC f h ∘∙ Σ[A⋀C]→ΣA*ΣC) ∘∙ correction₂
+        ≡ ((whB-AC g (whAC f h ∘∙ Σ[A⋀C]→ΣA*ΣC) ∘∙ correction₂) .fst , refl)
+    lem3 = ΣPathP (refl , cong₂ _∙_ (cong (cong (fst (whB-AC g (whAC f h ∘∙ Σ[A⋀C]→ΣA*ΣC)))) lem) refl
+                        ∙ sym (rUnit refl))
+      where
+      lem : snd correction₂ ≡ refl
+      lem = cong₂ _∙_ (cong (cong (fst (correction₁⁻ B A C))) (sym (rUnit _))) refl ∙ rCancel _
+
+    l : Susp (typ A) → Ω D .fst
+    m : Susp (typ B) → Ω D .fst
+    r : Susp (typ C) → Ω D .fst
+    l a = Ω→ f .fst (σΣA a)
+    m b = Ω→ g .fst (σΣB b)    
+    r c = Ω→ h .fst (σΣC c)
+
+    module _ (a : Susp (typ A)) (b : Susp (typ B)) (c : Susp (typ C)) where
+      leftId : (cong (fst L) (push a (inr (b , c))))
+             ≡ ((m b ⁻¹) ∙∙ r c ∙ m b ∙∙ (r c ⁻¹)) ∙ l a
+      leftId =
+        cong₂ _∙_ ((λ j i → Ω→ (lem1 j) .fst
+                                  (σ (Susp∙ (typ B) ⋀∙ Susp∙ (typ C))
+                                     (inr (b , c))) i)
+                    ∙ sym (rUnit _)
+                    ∙ cong (cong (fst (whBC g h))) (cong-∙ (fst Σ[B⋀C]→ΣB*ΣC) (merid (inr (b , c))) (sym (merid (inl tt))))
+                    ∙ cong-∙ (fst (whBC g h)) _ _
+                    ∙ cong₂ _∙_ (cong-∙∙ (fst (whBC g h)) _ _ _
+                               ∙ cong₃ _∙∙_∙∙_
+                                    (cong sym (cong₂ _∙_ (Iso.inv ΩSuspAdjointIso h .snd) refl
+                                    ∙ sym (lUnit _)))
+                                    (λ i → Ω→ h .fst (σΣC c) ∙ Ω→ g .fst (σΣB b))
+                                    (cong sym (cong₂ _∙_ refl (Iso.inv ΩSuspAdjointIso g .snd) ∙ sym (rUnit _)))
+                               ∙ refl)
+                            (cong₂ _∙_ (Iso.inv ΩSuspAdjointIso h .snd)
+                                       (Iso.inv ΩSuspAdjointIso g .snd) ∙ sym (rUnit refl))
+                    ∙ sym (rUnit ((m b ⁻¹) ∙∙ r c ∙ m b ∙∙ (r c ⁻¹))))
+                    refl
+
+      ℓA-BC =  ℓ* (Susp∙ (typ A)) ((Susp∙ (typ B)) ⋀∙ (Susp∙ (typ C)))
+      ℓAB-C =  ℓ* ((Susp∙ (typ A)) ⋀∙ (Susp∙ (typ B))) (Susp∙ (typ C))
+      ℓB-AC =  ℓ* (Susp∙ (typ B)) ((Susp∙ (typ A)) ⋀∙ (Susp∙ (typ C)))
+
+      open import Cubical.Foundations.Equiv.Properties
+
+      correction₁-ℓ : cong (fst (correction₁ A B C)) (ℓA-BC a (inr (b , c)))
+                    ≡ (push (inl tt) north) ⁻¹ ∙∙ ℓAB-C (inr (a , b)) c ∙∙ push (inl tt) north
+      correction₁-ℓ = cong-∙ (fst (correction₁ A B C)) _ _
+                   ∙ cong (sym (push (inl tt) north) ∙_)
+                          (cong-∙∙ (fst (correction₁ A B C)) _ _ _
+                          ∙ doubleCompPath≡compPath _ _ _ ∙ refl)
+                   ∙ assoc _ _ _
+                   ∙ cong₂ _∙_ (rCancel _) refl
+                   ∙ sym (lUnit _)
+                   ∙ cong₂ _∙_ (lUnit _
+                             ∙ (λ i → (λ j → push (inl tt) north (~ j ∨ ~ i))
+                                     ∙ compPath-filler' (push (inl tt) north)
+                                             (push (inr (a , b)) north ⁻¹
+                                             ∙∙ push (inr (a , b)) c
+                                             ∙∙ push (inl tt) c ⁻¹) i))
+                             ((λ i → push (inl tt) c
+                                   ∙∙ push (push (inr b) (~ i)) c ⁻¹
+                                   ∙∙ push (push (inr b) (~ i)) north)
+                             ∙ doubleCompPath≡compPath _ _ _
+                             ∙ assoc _ _ _ ∙ cong₂ _∙_ (rCancel _) refl ∙ sym (lUnit _))
+                   ∙ sym (assoc _ _ _)
+                   ∙ sym (doubleCompPath≡compPath _ _ _)
+
+
+      correction₂-ℓ : cong (fst correction₂) (ℓA-BC a (inr (b , c))) ≡ ℓB-AC b (inr (a , c))
+      correction₂-ℓ = cong-∙ (fst correction₂) _ _
+                    ∙ cong₂ _∙_ refl
+                                (cong-∙∙ (fst correction₂) _ _ _
+                              ∙ (cong₃ _∙∙_∙∙_ (λ _ → push north (inl tt) ⁻¹)
+                              (help a b c)
+                              (cong sym (help north b c
+                                        ∙ cong₂ _∙_ (cong (ℓB-AC b) (sym (push (inr c)))
+                                                  ∙ ℓ*IdR _ _ b) refl
+                                        ∙ sym (lUnit _)))
+                            ∙ doubleCompPath≡compPath _ _ _
+                            ∙ cong (push north (inl tt) ⁻¹ ∙_)
+                                   (sym (assoc _ _ _)
+                                   ∙ (cong (ℓB-AC b (inr (a , c)) ∙_) (rCancel _)
+                                   ∙ sym (rUnit _)))
+                            ∙ assoc _ _ _
+                            ∙ cong₂ _∙_ (rCancel _) refl
+                            ∙ sym (lUnit _)))
+
+        where
+        help2 : cong (fst correction₂) (push a (inl tt)) ≡ push north (inl tt)
+        help2 = refl
+
+        help : (a : _) (b : _) (c : _)
+             → cong (fst correction₂) (push a (inr (b , c)))
+              ≡ ℓB-AC b (inr (a , c)) ∙ push north (inl tt)
+        help a b c = cong-∙∙ (correction₁⁻ B A C .fst ∘ join→ ⋀comm→ (idfun (Susp (typ C)))) _ _ _
+                   ∙ cong₃ _∙∙_∙∙_ ((λ i → push north (push (inl a) (~ i))
+                                         ∙∙ push b (push (inl a) (~ i)) ⁻¹
+                                         ∙∙ push b (inl tt))
+                                 ∙ doubleCompPath≡compPath _ _ _
+                                 ∙ cong₂ _∙_ refl (lCancel (push b (inl tt)))
+                                 ∙ sym (rUnit _))
+                                 refl (λ _ → push north (inl tt))
+                   ∙ doubleCompPath≡compPath _ _ _ ∙ assoc _ _ _
+
+
+      -- vs ((m b ⁻¹) ∙∙ r c ∙ m b ∙∙ (r c ⁻¹)) ∙ l a
+
+      rightId : cong (fst R) (push a (inr (b , c)))
+             ≡ ((m b ∙∙ l a ⁻¹ ∙ m b ⁻¹ ∙∙ l a) ∙∙ (r c ∙ ((l a ⁻¹) ∙∙ m b ∙ l a ∙∙ (m b ⁻¹))) ∙∙ (r c ⁻¹))
+              ∙ ((m b ⁻¹) ∙∙ ((l a ⁻¹) ∙∙ (r c ∙ l a) ∙∙ (r c ⁻¹)) ∙ m b ∙∙ (r c ∙∙ (l a ⁻¹ ∙ r c ⁻¹) ∙∙ l a))
+      rightId = cong₂ _∙_ (λ i → Ω→ (lem2 i) .fst (ℓA-BC a (inr (b , c))))
+                          (λ i → Ω→ (lem3 i) .fst (ℓA-BC a (inr (b , c))))
+              ∙ cong₂ _∙_ (sym (rUnit _)
+                         ∙ cong (cong (fst (whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h)))
+                                correction₁-ℓ
+                          ∙ cong-∙∙ (fst (whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h)) _ _ _
+                          ∙ cong (λ x → x ⁻¹
+                                      ∙∙ cong (fst (whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h))
+                                              (ℓAB-C (inr (a , b)) c)
+                                      ∙∙ x) (cong₂ _∙_ (Iso.inv ΩSuspAdjointIso h .snd)
+                                                       (Iso.inv ΩSuspAdjointIso
+                                                         (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) .snd)
+                                         ∙ sym (rUnit refl))
+                              ∙ sym (rUnit _) )
+                          (sym (rUnit _) ∙ cong (cong (fst (whB-AC g (whAC f h ∘∙ Σ[A⋀C]→ΣA*ΣC)))) (correction₂-ℓ))
+              ∙ cong₂ _∙_ ((λ i → cong·wh-ℓ* {A = _ , inl tt} {B = _ , north} (lem4 i) h (inr (a , b)) c i)
+                          ∙ cong₃ _∙∙_∙∙_ (sym (rUnit _) ∙ cong sym (fgid' A B f g a b) ∙ cong₃ _∙∙_∙∙_ refl (symDistr (m b) (l a)) refl)
+                                          (cong₂ _∙_ (λ _ → r c) (sym (rUnit _) ∙ (fgid' A B f g a b)))
+                                          (λ _ → r c ⁻¹)
+                                        ∙ refl)
+                          ((λ i → cong·wh-ℓ* {A = _ , north} {B = _ , inl tt} g (lem5 i) b (inr (a , c)) i)
+                          ∙ cong₃ _∙∙_∙∙_ (λ _ → m b ⁻¹)
+                                          (cong₂ _∙_ (sym (rUnit _) ∙ fgid' A C f h a c) (λ _ → m b))
+                                          (sym (rUnit _) ∙ cong sym (fgid' A C f h a c) ∙ cong₃ _∙∙_∙∙_ refl (symDistr (r c) (l a)) refl))
+              ∙ refl
+        where
+        fgid' : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
+                          (f : Susp∙ (Susp (typ A)) →∙ D)
+                          (g : Susp∙ (Susp (typ B)) →∙ D)
+                          (a : Susp (typ A)) (b : Susp (typ B))
+             → cong (fst (·wh (Susp∙ (typ A)) (Susp∙ (typ B)) f g))
+                    (cong (fst (SuspSmash→Join∙ (Susp∙ (typ A)) (Susp∙ (typ B))))
+                      (σ (_ , inl tt) (inr (a , b))))
+             ≡ (Ω→ f .fst (σ (Susp∙ (typ A)) a) ⁻¹
+             ∙∙ Ω→ g .fst (σ (Susp∙ (typ B)) b)
+              ∙ Ω→ f .fst (σ (Susp∙ (typ A)) a)
+             ∙∙ (Ω→ g .fst (σ (Susp∙ (typ B)) b) ⁻¹))
+        fgid' A B f g a b =
+          cong-∙ (fst (·wh (Susp∙ (typ A)) (Susp∙ (typ B)) f g)
+                 ∘ (fst (SuspSmash→Join∙ (Susp∙ (typ A)) (Susp∙ (typ B)))))
+                   (merid (inr (a , b))) _
+                                         ∙ cong₂ _∙_ refl
+                                                     (cong₂ _∙_ (Iso.inv ΩSuspAdjointIso g .snd)
+                                                                (Iso.inv ΩSuspAdjointIso f .snd)
+                                                    ∙ sym (rUnit refl))
+                                                   ∙ sym (rUnit _)
+             ∙ cong-∙∙ (fst (·wh (Susp∙ (typ A)) (Susp∙ (typ B)) f g)) _ _ _
+             ∙ cong₃ _∙∙_∙∙_ (cong sym (cong₂ _∙_ (Iso.inv ΩSuspAdjointIso g .snd) refl
+                                      ∙ sym (lUnit _)))
+                             refl
+                             (cong sym (cong₂ _∙_ refl (Iso.inv ΩSuspAdjointIso f .snd)
+                                      ∙ sym (rUnit _)))
+
+        lem4 : whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB ≡ ((whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) .fst , refl)
+        lem4 = ΣPathP (refl , sym (rUnit _)
+                            ∙ cong sym (cong₂ _∙_ (Iso.inv ΩSuspAdjointIso g .snd)
+                                                  (Iso.inv ΩSuspAdjointIso f .snd))
+                           ∙ sym (rUnit _))
+        lem5 : whAC f h ∘∙ Σ[A⋀C]→ΣA*ΣC ≡ ((whAC f h ∘∙ Σ[A⋀C]→ΣA*ΣC) .fst , refl)
+        lem5 = ΣPathP (refl ,  sym (rUnit _)
+                            ∙ cong sym (cong₂ _∙_ (Iso.inv ΩSuspAdjointIso h .snd)
+                                                  (Iso.inv ΩSuspAdjointIso f .snd))
+                           ∙ sym (rUnit _))
+
+      mainId :
+        Square (cong (fst L) (push a (inr (b , c))))
+               (cong (fst R) (push a (inr (b , c))))
+                  (lp a) (rp (inr (b , c)))
+      mainId = leftId
+            ◁ {!!}
+            ▷ {!!}
+
+    main : (a : Susp (typ A))
+          (x : Susp∙ (typ B) ⋀ Susp∙ (typ C))
+        → Square (cong (fst L) (push a x))
+                  (cong (fst R) (push a x))
+                  (lp a) (rp x)
+    main a x = doubleCompPath-filler (lp a ⁻¹) (cong (fst L) (push a x)) (rp x) ▷ asFuns a x
+      where
+      asFuns : (a : Susp (typ A))
+             → (x : Susp∙ (typ B) ⋀ Susp∙ (typ C))
+             → apL a x ≡ apR a x
+      asFuns a = funExt⁻ (⋀→Homogeneous≡ (isHomogeneousPath _ _)
+         λ b c → sym (transport (PathP≡doubleCompPathʳ _ _ _ _)
+                      (symP (mainId a b c))))
