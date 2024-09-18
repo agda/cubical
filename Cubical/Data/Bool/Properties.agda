@@ -322,6 +322,10 @@ Dec→DecBool (no ¬p) q = Empty.rec (¬p q)
 DecBool→Dec : {P : Type ℓ} → (dec : Dec P) → Bool→Type (Dec→Bool dec) → P
 DecBool→Dec (yes p) _ = p
 
+Bool→Type-not-⊕ : ∀ {x y} → Bool→Type (not (x ⊕ y)) → Bool→Type x →  Bool→Type y
+Bool→Type-not-⊕ {false} {false} _ ()
+Bool→Type-not-⊕ {true} {true} _ = _
+
 Dec≃DecBool : {P : Type ℓ} → (h : isProp P)(dec : Dec P) → P ≃ Bool→Type (Dec→Bool dec)
 Dec≃DecBool h dec = propBiimpl→Equiv h isPropBool→Type (Dec→DecBool dec) (DecBool→Dec dec)
 
