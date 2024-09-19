@@ -618,7 +618,7 @@ module _ (X∙ @ (X , x₀) : Pointed ℓ) (Y∙ @ (Y , y₀) : Pointed ℓ') wh
   {-
   The proof proceeds by applying the pasting lemma twice:
     1 ----> Y
-    ↓       ↓ 
+    ↓       ↓
     X --> X ⋁ Y --> X
     ↓  mid  ↓  bot  ↓
     1 ----> Y ----> 1
@@ -646,6 +646,6 @@ module _ (X∙ @ (X , x₀) : Pointed ℓ) (Y∙ @ (Y , y₀) : Pointed ℓ') wh
     where
       open PushoutPasteDown (rotatePushoutSquare (_ , midPushout))
         fX (terminal X) (terminal Y) refl
-  
+
   Pushout⋁≃Unit : Pushout fX fY ≃ Unit
   Pushout⋁≃Unit = _ , botPushout

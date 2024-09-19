@@ -538,4 +538,3 @@ module _ {ℓ} {B C : Type ℓ} (b₀ : B) (π : B → C) where
       -- splitting and splitting∙ agrees
       splitting-typ : cong typ splitting∙ ≡ splitting
       splitting-typ = congFunct typ presplit twisted∙
- 
