@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --safe #-}
 
 {-
   The stable version of the James splitting:

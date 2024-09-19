@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 
 {-
   The finitary Hilton–Milnor splitting
