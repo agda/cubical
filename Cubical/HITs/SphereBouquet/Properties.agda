@@ -10,6 +10,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
@@ -22,8 +23,11 @@ open import Cubical.HITs.Sn
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Susp
 open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.Truncation as TR
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.SphereBouquet.Base
+
+open import Cubical.Homotopy.Connected
 
 private
   variable
@@ -54,6 +58,24 @@ isConnectedSphereBouquet {n = n} {A} =
   (λ (a , s) → sphereToPropElim n {A = λ x → ∥ inr (a , x) ≡ inl tt ∥₁}
                                   (λ x → squash₁) ∣ sym (push a) ∣₁ s)
 
+isConnectedSphereBouquet' : {n : ℕ} {A : Type ℓ}
+  → isConnected (suc (suc n)) (SphereBouquet (suc n) A)
+fst (isConnectedSphereBouquet' {n = n}) = ∣ inl tt ∣
+snd (isConnectedSphereBouquet' {n = n} {A = A}) =
+  TR.elim (λ _ → isOfHLevelPath (suc (suc n))
+                   (isOfHLevelTrunc (suc (suc n))) _ _) (lem n)
+  where
+  lem : (n : ℕ) → (a : SphereBouquet (suc n) A)
+    → Path (hLevelTrunc (suc (suc n)) (SphereBouquet (suc n) A))
+            ∣ inl tt ∣ ∣ a ∣
+  lem n (inl x) = refl
+  lem n (inr (x , y)) =
+    sphereElim n {A = λ y → ∣ inl tt ∣ ≡ ∣ inr (x , y) ∣}
+      (λ _ → isOfHLevelTrunc (suc (suc n)) _ _)
+      (cong ∣_∣ₕ (push x)) y
+  lem zero (push a i) j = ∣ push a (i ∧ j) ∣ₕ
+  lem (suc n) (push a i) j = ∣ push a (i ∧ j) ∣ₕ
+
 sphereBouquetSuspIso₀ : {A : Type ℓ}
   → Iso (⋁gen A (λ a → Susp∙ (fst (S₊∙ zero))))
       (SphereBouquet 1 A)
@@ -73,6 +95,22 @@ Iso.leftInv sphereBouquetSuspIso₀ (inl x) = refl
 Iso.leftInv sphereBouquetSuspIso₀ (inr (a , y)) i =
   inr (a , Iso.rightInv (IsoSucSphereSusp 0) y i)
 Iso.leftInv sphereBouquetSuspIso₀ (push a i) = refl
+
+SphereBouquet₀Iso : (n : ℕ)
+  → Iso (SphereBouquet zero (Fin n))
+         (Fin (suc n))
+Iso.fun (SphereBouquet₀Iso n) (inl x) = fzero
+Iso.fun (SphereBouquet₀Iso n) (inr ((x , p) , false)) = suc x , p
+Iso.fun (SphereBouquet₀Iso n) (inr ((x , p) , true)) = fzero
+Iso.fun (SphereBouquet₀Iso n) (push a i) = fzero
+Iso.inv (SphereBouquet₀Iso n) (zero , p) = inl tt
+Iso.inv (SphereBouquet₀Iso n) (suc x , p) = inr ((x , p) , false)
+Iso.rightInv (SphereBouquet₀Iso n) (zero , p) = refl
+Iso.rightInv (SphereBouquet₀Iso n) (suc x , p) = refl
+Iso.leftInv (SphereBouquet₀Iso n) (inl x) = refl
+Iso.leftInv (SphereBouquet₀Iso n) (inr (x , false)) = refl
+Iso.leftInv (SphereBouquet₀Iso n) (inr (x , true)) = push x
+Iso.leftInv (SphereBouquet₀Iso n) (push a i) j = push a (i ∧ j)
 
 --a sphere bouquet is the wedge sum of A n-dimensional spheres
 sphereBouquetSuspIso : {A : Type ℓ} {n : ℕ}

@@ -1,5 +1,19 @@
 {-# OPTIONS --safe --lossy-unification #-}
 
+{-
+This file contains a definition of a notion of (strict)
+subcomplexes of a CW complex. Here, a subomplex of a complex
+C = colim ( C₀ → C₁ → ...)
+is simply the complex
+C⁽ⁿ⁾ := colim (C₀ → ... → Cₙ = Cₙ = ...)
+
+This file contains.
+1. Definition of above
+2. A `strictification' of finite CW complexes in terms of above
+3. An elmination principle for finite CW complexes
+4. A proof that C and C⁽ⁿ⁾ has the same homolog in appropriate dimensions.
+-}
+
 module Cubical.CW.Subcomplex where
 
 open import Cubical.Foundations.Prelude
@@ -8,13 +22,14 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Nat.Order.Inductive
 
 open import Cubical.CW.Base
 open import Cubical.CW.Properties
@@ -36,20 +51,24 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
--- finite subcomplex of a cw complex
+-- finite subcomplex C⁽ⁿ⁾ of a cw complex C.
 module _ (C : CWskel ℓ) where
+  -- The underlying family of types is that of C but ending at some
+  -- fixed n.
   subComplexFam : (n : ℕ) (m : ℕ) → Type ℓ
   subComplexFam n m with (m ≟ᵗ n)
   ... | lt x = fst C m
   ... | eq x = fst C m
   ... | gt x = fst C n
 
+  -- Similarly for the number of cells
   subComplexCard : (n : ℕ) → ℕ → ℕ
   subComplexCard n m with (m ≟ᵗ n)
   ... | lt x = snd C .fst m
   ... | eq x = 0
   ... | gt x = 0
 
+  -- Attaching maps
   subComplexα : (n m : ℕ) → Fin (subComplexCard n m) × S⁻ m → subComplexFam n m
   subComplexα n m with (m ≟ᵗ n)
   ... | lt x = snd C .snd .fst m
@@ -61,6 +80,7 @@ module _ (C : CWskel ℓ) where
   ... | lt x = CW₀-empty C
   ... | eq x = CW₀-empty C
 
+  -- Resulting complex has CW structure
   subComplexFam≃Pushout : (n m : ℕ)
     → subComplexFam n (suc m) ≃ Pushout (subComplexα n m) fst
   subComplexFam≃Pushout n m with (m ≟ᵗ n) | ((suc m) ≟ᵗ n)
@@ -78,17 +98,19 @@ module _ (C : CWskel ℓ) where
     ⊥.rec (¬m<ᵗm (subst (n <ᵗ_) x₁ (<ᵗ-trans x <ᵗsucm)))
   ... | gt x | gt x₁ = isoToEquiv (PushoutEmptyFam (λ x → ¬Fin0 (fst x)) ¬Fin0)
 
+  -- packaging it all together
   subComplexYieldsCWskel : (n : ℕ) → yieldsCWskel (subComplexFam n)
   fst (subComplexYieldsCWskel n) = subComplexCard n
   fst (snd (subComplexYieldsCWskel n)) = subComplexα n
   fst (snd (snd (subComplexYieldsCWskel n))) = subComplex₀-empty n
   snd (snd (snd (subComplexYieldsCWskel n))) m = subComplexFam≃Pushout n m
 
+  -- main definition
   subComplex : (n : ℕ) → CWskel ℓ
   fst (subComplex n) = subComplexFam n
   snd (subComplex n) = subComplexYieldsCWskel n
 
-  -- as a finite CWskel
+  -- Let us also show that this defines a _finite_ CW complex
   subComplexFin : (m : ℕ) (n : Fin (suc m))
     → isEquiv (CW↪ (subComplexFam (fst n) , subComplexYieldsCWskel (fst n)) m)
   subComplexFin m (n , r) with (m ≟ᵗ n) | (suc m ≟ᵗ n)
@@ -128,12 +150,54 @@ module _ (C : CWskel ℓ) where
   ... | eq x = idEquiv _
   ... | gt x = ⊥.rec (¬squeeze (x , p))
 
-realiseSubComplex : (n : ℕ) (C : CWskel ℓ) → Iso (fst C n) (realise (subComplex C n))
+-- C⁽ⁿ⁾ₙ ≃ Cₙ
+realiseSubComplex : (n : ℕ) (C : CWskel ℓ)
+  → Iso (fst C n) (realise (subComplex C n))
 realiseSubComplex n C =
   compIso (equivToIso (complex≃subcomplex C n flast))
           (realiseFin n (finSubComplex C n))
 
--- Goal: Show that a cell complex C and its subcomplex Cₙ share
+-- Strictifying finCWskel
+niceFinCWskel : ∀ {ℓ} (n : ℕ) → finCWskel ℓ n → finCWskel ℓ n
+fst (niceFinCWskel n (A , AC , fin)) = finSubComplex (A , AC) n .fst
+snd (niceFinCWskel n (A , AC , fin)) = finSubComplex (A , AC) n .snd
+
+makeNiceFinCWskel : ∀ {ℓ} {A : Type ℓ} → isFinCW A → isFinCW A
+makeNiceFinCWskel {A = A} (dim , cwsk , e) = better
+  where
+  improved = finSubComplex (cwsk .fst , cwsk .snd .fst) dim
+
+  better : isFinCW A
+  fst better = dim
+  fst (snd better) = improved
+  snd (snd better) =
+    compEquiv
+      (compEquiv e (invEquiv (isoToEquiv (realiseFin dim cwsk))))
+      (isoToEquiv (realiseSubComplex dim (cwsk .fst , cwsk .snd .fst)))
+
+
+makeNiceFinCW : ∀ {ℓ} → finCW ℓ → finCW ℓ
+fst (makeNiceFinCW C) = fst C
+snd (makeNiceFinCW C) =
+  PT.map makeNiceFinCWskel (snd C)
+
+makeNiceFinCW≡ : ∀ {ℓ} (C : finCW ℓ) → makeNiceFinCW C ≡ C
+makeNiceFinCW≡ C = Σ≡Prop (λ _ → squash₁) refl
+
+-- Elimination principles
+makeNiceFinCWElim : ∀ {ℓ ℓ'} {A : finCW ℓ → Type ℓ'}
+  → ((C : finCW ℓ) → A (makeNiceFinCW C))
+  → (C : _) → A C
+makeNiceFinCWElim {A = A} ind C = subst A (makeNiceFinCW≡ C) (ind C)
+
+makeNiceFinCWElim' : ∀ {ℓ ℓ'} {C : Type ℓ} {A : ∥ isFinCW C ∥₁ → Type ℓ'}
+  → ((x : _) → isProp (A x))
+  → ((cw : isFinCW C) → A (makeNiceFinCW (C , ∣ cw ∣₁) .snd))
+  → (cw : _) → A cw
+makeNiceFinCWElim' {A = A} pr ind =
+  PT.elim pr λ cw → subst A (squash₁ _ _) (ind cw)
+
+-- Goal: Show that a cell complex C and its subcomplex C⁽ⁿ⁾ share
 -- homology in low enough dimensions
 module _ (C : CWskel ℓ) where
   ChainSubComplex : (n : ℕ) → snd C .fst n ≡ snd (subComplex C (suc n)) .fst n
