@@ -74,52 +74,34 @@ Iso.leftInv ⋁-commIso = ⋁-commFun²
     lInv (push _ i) = refl
 
 -- cofibre of A --inl→ A ⋁ B is B
-cofibInl-⋁-square : (A : Pointed ℓ) (B : Pointed ℓ') → commSquare
-cofibInl-⋁-square A B = record
-  { sp = record
-    { A0 = Unit
-    ; A2 = typ A
-    ; A4 = A ⋁ B
-    ; f1 = _
-    ; f3 = inl }
-  ; P = typ B
-  ; inlP = λ _ → pt B
-  ; inrP = ⋁proj₂ A B
-  ; comm = refl }
-
-cofibInl-⋁-Pushout : (A : Pointed ℓ) (B : Pointed ℓ')
-  → isPushoutSquare (cofibInl-⋁-square A B)
-cofibInl-⋁-Pushout A B = isoToIsEquiv (iso _ inv (λ _ → refl) leftInv)
-  where
-    inv : typ B → Pushout _ inl
-    inv b = inr (inr b)
-
-    leftInv : _
-    leftInv (inl x) =
-      (λ i → inr (push tt (~ i))) ∙ sym (push (pt A))
-    leftInv (inr (inl x)) =
-      ((λ i → inr (push tt (~ i))) ∙ sym (push (pt A))) ∙ push x
-    leftInv (inr (inr x)) = refl
-    leftInv (inr (push a i)) j =
-      help (Pushout.inr ∘ inr) (λ i → inr (push tt (~ i))) (sym (push (pt A))) (~ i) j
-      where
-        help : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x : B} {y z : A}
-          (f : B → A) (p : f x ≡ y) (q : y ≡ z)
-          → Square refl ((p ∙ q) ∙ sym q) (cong f (refl ∙ refl)) p
-        help f p q = subst (λ t → Square refl ((p ∙ q) ∙ sym q) t p)
-          (sym (congFunct f refl refl ∙ sym (lUnit _)))
-          ((λ i j → p (i ∧ j))
-          ▷ (rUnit p
-          ∙∙ cong (p ∙_) (sym (rCancel q))
-          ∙∙ assoc p q (sym q)))
-    leftInv (push a i) j =
-      compPath-filler
-        ((λ i → inr (push tt (~ i))) ∙ sym (push (pt A)))
-        (push a) i j
-
 cofibInl-⋁ : {A : Pointed ℓ} {B : Pointed ℓ'}
   → Iso (cofib {B = A ⋁ B} inl) (fst B)
-cofibInl-⋁ = equivToIso (_ , cofibInl-⋁-Pushout _ _)
+Iso.fun (cofibInl-⋁ {B = B}) (inl x) = pt B
+Iso.fun (cofibInl-⋁ {B = B}) (inr (inl x)) = pt B
+Iso.fun cofibInl-⋁ (inr (inr x)) = x
+Iso.fun (cofibInl-⋁ {B = B}) (inr (push a i)) = pt B
+Iso.fun (cofibInl-⋁ {B = B}) (push a i) = pt B
+Iso.inv cofibInl-⋁ x = inr (inr x)
+Iso.rightInv cofibInl-⋁ x = refl
+Iso.leftInv (cofibInl-⋁ {A = A}) (inl x) =
+  (λ i → inr (push tt (~ i))) ∙ sym (push (pt A))
+Iso.leftInv (cofibInl-⋁ {A = A}) (inr (inl x)) =
+  ((λ i → inr (push tt (~ i))) ∙ sym (push (pt A))) ∙ push x
+Iso.leftInv cofibInl-⋁ (inr (inr x)) = refl
+Iso.leftInv (cofibInl-⋁ {A = A}) (inr (push a i)) j =
+  help (λ i → inr (push tt (~ i))) (sym (push (pt A))) (~ i) j
+  where
+  help : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z)
+    → Square refl ((p ∙ q) ∙ sym q) refl p
+  help p q =
+    (λ i j → p (i ∧ j))
+    ▷ (rUnit p
+    ∙∙ cong (p ∙_) (sym (rCancel q))
+    ∙∙ assoc p q (sym q))
+Iso.leftInv (cofibInl-⋁ {A = A}) (push a i) j =
+  compPath-filler
+    ((λ i → inr (push tt (~ i))) ∙ sym (push (pt A)))
+    (push a) i j
 
 -- cofibre of B --inl→ A ⋁ B is A
 cofibInr-⋁ : {A : Pointed ℓ} {B : Pointed ℓ'}
@@ -597,11 +579,11 @@ module _ {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : A → Pointed ℓB} (C : 
                                   A□○Iso
 
 {-
-We prove the square
-  X ⋁ Y --> X
-    ↓       ↓
-    Y ----> *
-is a pushout. (Note the arrow direction!!)
+  We prove the square
+    X ⋁ Y --> X
+      ↓       ↓
+      Y ----> *
+  is a pushout.
 -}
 
 module _ (X∙ @ (X , x₀) : Pointed ℓ) (Y∙ @ (Y , y₀) : Pointed ℓ') where
