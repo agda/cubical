@@ -36,6 +36,15 @@ private
   variable
     ℓ ℓ' : Level
 
+-- the inclusion maps are null-homotopic
+join-inl-null : {X : Pointed ℓ} {Y : Pointed ℓ'} (x : typ X)
+  → Path (join (typ X) (typ Y)) (inl x) (inl (pt X))
+join-inl-null {X = X} {Y} x = push x (pt Y) ∙ sym (push (pt X) (pt Y))
+
+join-inr-null : {X : Pointed ℓ} {Y : Type ℓ'} (y : Y)
+  → Path (join (typ X) Y) (inr y) (inl (pt X))
+join-inr-null {X = X} y = sym (push (pt X) y)
+
 open Iso
 
 -- Characterisation of function type join A B → C
