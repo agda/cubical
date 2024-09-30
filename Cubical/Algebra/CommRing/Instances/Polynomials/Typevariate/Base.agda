@@ -15,7 +15,7 @@ module Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.Base where
   This file contains
   * the definition of the free commutative algebra on a type I over a commutative ring R as a HIT
     (let us call that R[I])
-  * a prove that the construction is an commutative R-algebra
+  * the homomorphism R -> R[I], which turns this CommRing into a CommAlgebra
   For more, see the Properties file.
 -}
 open import Cubical.Foundations.Prelude
