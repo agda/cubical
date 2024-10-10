@@ -2,18 +2,40 @@
 module Cubical.Algebra.CommAlgebra.Instances.Polynomials where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function using (_$_)
+open import Cubical.Foundations.Structure using (withOpaqueStr)
+
+open import Cubical.Data.Nat
+open import Cubical.Data.FinData
 
 open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.CommAlgebra.Base
-open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate
+open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate as Poly hiding (var)
+open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.UniversalProperty
+  as Poly hiding (inducedHom)
 
 private
   variable
     ℓ ℓ' ℓ'' : Level
 
-opaque
-  _[_]ₐ : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R (ℓ-max ℓ ℓ')
-  R [ I ]ₐ = (R [ I ]) , constPolynomial R I
+_[_]ₐ : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R (ℓ-max ℓ ℓ')
+R [ I ]ₐ = (R [ I ]) , constPolynomial R I
+
+module _ {R : CommRing ℓ} where
+  evPolyIn : {n : ℕ} (A : CommAlgebra R ℓ')
+            → ⟨ R [ Fin n ]ₐ ⟩ₐ → FinVec ⟨ A ⟩ₐ n → ⟨ A ⟩ₐ
+  evPolyIn {n = n} A P v = Poly.inducedHom (CommAlgebra→CommRing A) (A .snd) v $cr P
+
+module _ {R : CommRing ℓ} {I : Type ℓ'} where
+  var : I → ⟨ R [ I ]ₐ ⟩ₐ
+  var = Poly.var
+
+  inducedHom : (A : CommAlgebra R ℓ'') (φ : I → ⟨ A ⟩ₐ )
+             → CommAlgebraHom (R [ I ]ₐ) A
+  inducedHom A ϕ = ?
+    where f : CommRingHom _ _
+          f = Poly.inducedHom (CommAlgebra→CommRing A) (A .snd) ϕ
+
 
 {-
 evaluateAt : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
