@@ -36,7 +36,6 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
 open import Cubical.Relation.Binary.Order.Poset
 
-open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.Algebra
@@ -49,10 +48,10 @@ open import Cubical.Algebra.CommRing.Localisation.Base
 open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
 open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.CommRing.Localisation.PullbackSquare
-open import Cubical.Algebra.CommAlgebra.Base
-open import Cubical.Algebra.CommAlgebra.Properties
-open import Cubical.Algebra.CommAlgebra.Localisation
-open import Cubical.Algebra.CommAlgebra.Instances.Unit
+open import Cubical.Algebra.CommAlgebra.AsModule.Base
+open import Cubical.Algebra.CommAlgebra.AsModule.Properties
+open import Cubical.Algebra.CommAlgebra.AsModule.Localisation
+open import Cubical.Algebra.CommAlgebra.AsModule.Instances.Unit
 open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
@@ -358,7 +357,7 @@ module _ (R' : CommRing ℓ) where
     R[1/h][1/fg]AsCommRing = InvertingElementsBase.R[1/_]AsCommRing
                                R[1/ h ]AsCommRing ((f /1) · (g /1))
 
-    open IsRingHom
+    open IsCommRingHom
     /1/1AsCommRingHomFG : CommRingHom R' R[1/h][1/fg]AsCommRing
     fst /1/1AsCommRingHomFG r = [ [ r , 1r , ∣ 0 , refl ∣₁ ] , 1r , ∣ 0 , refl ∣₁ ]
     pres0 (snd /1/1AsCommRingHomFG) = refl
@@ -375,20 +374,20 @@ module _ (R' : CommRing ℓ) where
     open Cospan
     open Pullback
     open RingHoms
-    isRHomR[1/h]→R[1/h][1/f] : theRingPullback .pbPr₂ ∘r /1AsCommRingHom ≡ /1/1AsCommRingHom f
-    isRHomR[1/h]→R[1/h][1/f] = RingHom≡ (funExt (λ x → refl))
+    isRHomR[1/h]→R[1/h][1/f] : theRingPullback .pbPr₂ ∘cr /1AsCommRingHom ≡ /1/1AsCommRingHom f
+    isRHomR[1/h]→R[1/h][1/f] = CommRingHom≡ (funExt (λ x → refl))
 
-    isRHomR[1/h]→R[1/h][1/g] : theRingPullback .pbPr₁ ∘r /1AsCommRingHom ≡ /1/1AsCommRingHom g
-    isRHomR[1/h]→R[1/h][1/g] = RingHom≡ (funExt (λ x → refl))
+    isRHomR[1/h]→R[1/h][1/g] : theRingPullback .pbPr₁ ∘cr /1AsCommRingHom ≡ /1/1AsCommRingHom g
+    isRHomR[1/h]→R[1/h][1/g] = CommRingHom≡ (funExt (λ x → refl))
 
-    isRHomR[1/h][1/f]→R[1/h][1/fg] : theRingCospan .s₂ ∘r /1/1AsCommRingHom f ≡ /1/1AsCommRingHomFG
-    isRHomR[1/h][1/f]→R[1/h][1/fg] = RingHom≡ (funExt
+    isRHomR[1/h][1/f]→R[1/h][1/fg] : theRingCospan .s₂ ∘cr /1/1AsCommRingHom f ≡ /1/1AsCommRingHomFG
+    isRHomR[1/h][1/f]→R[1/h][1/fg] = CommRingHom≡ (funExt
       (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·IdR x)
           (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r))))
           (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r)))))
 
-    isRHomR[1/h][1/g]→R[1/h][1/fg] : theRingCospan .s₁ ∘r /1/1AsCommRingHom g ≡ /1/1AsCommRingHomFG
-    isRHomR[1/h][1/g]→R[1/h][1/fg] = RingHom≡ (funExt
+    isRHomR[1/h][1/g]→R[1/h][1/fg] : theRingCospan .s₁ ∘cr /1/1AsCommRingHom g ≡ /1/1AsCommRingHomFG
+    isRHomR[1/h][1/g]→R[1/h][1/fg] = CommRingHom≡ (funExt
       (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·IdR x)
           (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r))))
           (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r)))))
@@ -435,7 +434,7 @@ module _ (R' : CommRing ℓ) where
       p i = InvertingElementsBase.R[1/_]AsCommRing R[1/ h ]AsCommRing (eqInR[1/h] i)
 
       q : PathP (λ i → CommRingHom R' (p i)) /1/1AsCommRingHomFG (/1/1AsCommRingHom (f · g))
-      q = toPathP (RingHom≡ (funExt (
+      q = toPathP (CommRingHom≡ (funExt (
             λ x → cong [_] (≡-× (cong [_] (≡-× (transportRefl _ ∙ transportRefl x)
                 (Σ≡Prop (λ _ → isPropPropTrunc) (transportRefl 1r))))
                 (Σ≡Prop (λ _ → isPropPropTrunc) (transportRefl 1r))))))
