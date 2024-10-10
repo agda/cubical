@@ -32,7 +32,7 @@ open import Cubical.Algebra.CommAlgebra.Instances.Polynomials
 open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn; 0Ideal)
 open import Cubical.Algebra.CommAlgebra.FGIdeal
--- open import Cubical.Algebra.CommAlgebra.Instances.Initial
+open import Cubical.Algebra.CommAlgebra.Instances.Initial
 open import Cubical.Algebra.CommAlgebra.Instances.Unit
 
 open import Cubical.Algebra.CommAlgebra.FP.Base
@@ -48,7 +48,7 @@ module _ (R : CommRing ℓ) where
   {- Every (multivariate) polynomial algebra is finitely presented -}
   module _ (n : ℕ) where
     private
-      abstract
+      opaque
         p : 0Ideal R (Polynomials R n) ≡ ⟨ emptyFinVec ⟨ Polynomials R n ⟩ₐ ⟩[ _ ]
         p = sym $ 0FGIdeal≡0Ideal (Polynomials R n)
 
@@ -59,29 +59,44 @@ module _ (R : CommRing ℓ) where
         transport (λ i → CommAlgebraEquiv (Polynomials R n) ((Polynomials R n) / (p i))) $
           zeroIdealQuotient (Polynomials R n)
 
-    polynomialsFP : FinitePresentation R (Polynomials R n)
+    polynomialsFP : FinitePresentation R
     polynomialsFP =
       record {
         n = n ;
         m = 0 ;
-        relations = emptyFinVec ⟨ Polynomials R n ⟩ₐ ;
-        equiv = invCommAlgebraEquiv compute
+        relations = emptyFinVec ⟨ Polynomials R n ⟩ₐ
       }
 
-{-
-
+    opaque
+      unfolding algebra ideal
+      isFPPolynomials : isFP R (Polynomials R n)
+      isFPPolynomials = ∣ polynomialsFP , invCommAlgebraEquiv compute ∣₁
 
 
   {- The initial R-algebra is finitely presented -}
   private
     R[⊥] : CommAlgebra R ℓ
-    R[⊥] = Polynomials 0
+    R[⊥] = Polynomials R 0
 
-    emptyGen : FinVec (fst R[⊥]) 0
+    emptyGen : FinVec ⟨ R[⊥] ⟩ₐ 0
     emptyGen = λ ()
 
+    initialAlgFP : FinitePresentation R
+    initialAlgFP = record { n = 0 ; m = 0 ; relations = emptyGen }
+
     R[⊥]/⟨0⟩ : CommAlgebra R ℓ
-    R[⊥]/⟨0⟩ = FPAlgebra 0 emptyGen
+    R[⊥]/⟨0⟩ = algebra initialAlgFP
+{-
+
+    R[⊥]/⟨0⟩IsInitial : (B : CommAlgebra R ℓ)
+                     → isContr (CommAlgebraHom R[⊥]/⟨0⟩ B)
+    R[⊥]/⟨0⟩IsInitial B = {!!} , {!!}
+      where
+        iHom : CommAlgebraHom R[⊥]/⟨0⟩ B
+        iHom = inducedHom 0 emptyGen B (λ ()) (λ ())
+        uniqueness : (f : CommAlgebraHom R[⊥]/⟨0⟩ B) →
+                     iHom ≡ f
+        uniqueness f = unique 0 emptyGen B (λ ()) (λ ()) f (λ ())
 
   R[⊥]/⟨0⟩IsInitial : (B : CommAlgebra R ℓ)
                      → isContr (CommAlgebraHom R[⊥]/⟨0⟩ B)
