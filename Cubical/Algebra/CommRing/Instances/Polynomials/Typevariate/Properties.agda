@@ -14,7 +14,7 @@ open import Cubical.HITs.SetTruncation
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.Base
-open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.UniversalProperty public
+open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.UniversalProperty
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
