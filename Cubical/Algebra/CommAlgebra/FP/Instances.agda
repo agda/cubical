@@ -7,8 +7,8 @@
   * R/⟨x₁,...,xₙ⟩    = R[⊥]/⟨x₁,...,xₙ⟩
   * R/⟨x⟩            (as special case of the above)
 -}
-{-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.FPAlgebra.Instances where
+{-# OPTIONS --safe --lossy-unification #-}
+module Cubical.Algebra.CommAlgebra.FP.Instances where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -28,19 +28,14 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal using (inclOfFGIdeal)
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
-  renaming (inducedHom to freeInducedHom)
+open import Cubical.Algebra.CommAlgebra.Instances.Polynomials
 open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
-  renaming (inducedHom to quotientInducedHom)
-open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn)
+open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn; 0Ideal)
 open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Instances.Initial
 open import Cubical.Algebra.CommAlgebra.Instances.Unit
-  renaming (UnitCommAlgebra to TerminalCAlg)
-open import Cubical.Algebra.CommAlgebra.Kernel
-open import Cubical.Algebra.Algebra
 
-open import Cubical.Algebra.CommAlgebra.FPAlgebra.Base
+open import Cubical.Algebra.CommAlgebra.FP.Base
 
 private
   variable
@@ -53,62 +48,55 @@ module _ (R : CommRing ℓ) where
   {- Every (multivariate) polynomial algebra is finitely presented -}
   module _ (n : ℕ) where
     private
-      A : CommAlgebra R ℓ
-      A = Polynomials n
+      opaque
+        p : 0Ideal R (Polynomials R n) ≡ ⟨ emptyFinVec ⟨ Polynomials R n ⟩ₐ ⟩[ _ ]
+        p = sym $ 0FGIdeal≡0Ideal (Polynomials R n)
 
-      emptyGen : FinVec (fst A) 0
-      emptyGen = λ ()
+      compute :
+        CommAlgebraEquiv (Polynomials R n)
+                         ((Polynomials R n) / ⟨ emptyFinVec ⟨ Polynomials R n ⟩ₐ ⟩[ _ ])
+      compute =
+        transport (λ i → CommAlgebraEquiv (Polynomials R n) ((Polynomials R n) / (p i))) $
+          zeroIdealQuotient (Polynomials R n)
 
-      B : CommAlgebra R ℓ
-      B = FPAlgebra n emptyGen
+    polynomialsFP : FinitePresentation R
+    polynomialsFP =
+      record {
+        n = n ;
+        m = 0 ;
+        relations = emptyFinVec ⟨ Polynomials R n ⟩ₐ
+      }
 
-    polynomialAlgFP : FinitePresentation A
-    FinitePresentation.n polynomialAlgFP = n
-    m polynomialAlgFP = 0
-    relations polynomialAlgFP = emptyGen
-    equiv polynomialAlgFP =
-      -- Idea: A and B enjoy the same universal property.
-      toAAsEquiv , snd toA
-      where
-        toA : CommAlgebraHom B A
-        toA = inducedHom n emptyGen A Construction.var (λ ())
-        fromA : CommAlgebraHom A B
-        fromA = freeInducedHom B (generator _ _)
-        open AlgebraHoms
-        inverse1 : fromA ∘a toA ≡ idAlgebraHom _
-        inverse1 =
-          fromA ∘a toA
-            ≡⟨ sym (unique _ _ _ _ _ _ (λ i → cong (fst fromA) (
-                 fst toA (generator n emptyGen i)
-                   ≡⟨ inducedHomOnGenerators _ _ _ _ _ _ ⟩
-                 Construction.var i
-                   ∎))) ⟩
-          inducedHom n emptyGen B (generator _ _) (relationsHold _ _)
-            ≡⟨ unique _ _ _ _ _ _ (λ i → refl) ⟩
-          idAlgebraHom _
-            ∎
-        inverse2 : toA ∘a fromA ≡ idAlgebraHom _
-        inverse2 = isoFunInjective (homMapIso A) _ _ (
-          evaluateAt A (toA ∘a fromA)   ≡⟨ sym (naturalEvR {A = B} {B = A} toA fromA) ⟩
-          fst toA ∘ evaluateAt B fromA  ≡⟨ refl ⟩
-          fst toA ∘ generator _ _       ≡⟨ funExt (inducedHomOnGenerators _ _ _ _ _)⟩
-          Construction.var              ∎)
-        toAAsEquiv : ⟨ B ⟩ ≃ ⟨ A ⟩
-        toAAsEquiv = isoToEquiv (iso (fst toA)
-                                     (fst fromA)
-                                     (λ a i → fst (inverse2 i) a)
-                                     (λ b i → fst (inverse1 i) b))
+    opaque
+      unfolding algebra ideal
+      isFPPolynomials : isFP R (Polynomials R n)
+      isFPPolynomials = ∣ polynomialsFP , invCommAlgebraEquiv compute ∣₁
+
 
   {- The initial R-algebra is finitely presented -}
   private
     R[⊥] : CommAlgebra R ℓ
-    R[⊥] = Polynomials 0
+    R[⊥] = Polynomials R 0
 
-    emptyGen : FinVec (fst R[⊥]) 0
+    emptyGen : FinVec ⟨ R[⊥] ⟩ₐ 0
     emptyGen = λ ()
 
+    initialAlgFP : FinitePresentation R
+    initialAlgFP = record { n = 0 ; m = 0 ; relations = emptyGen }
+
     R[⊥]/⟨0⟩ : CommAlgebra R ℓ
-    R[⊥]/⟨0⟩ = FPAlgebra 0 emptyGen
+    R[⊥]/⟨0⟩ = algebra initialAlgFP
+{-
+
+    R[⊥]/⟨0⟩IsInitial : (B : CommAlgebra R ℓ)
+                     → isContr (CommAlgebraHom R[⊥]/⟨0⟩ B)
+    R[⊥]/⟨0⟩IsInitial B = {!!} , {!!}
+      where
+        iHom : CommAlgebraHom R[⊥]/⟨0⟩ B
+        iHom = inducedHom 0 emptyGen B (λ ()) (λ ())
+        uniqueness : (f : CommAlgebraHom R[⊥]/⟨0⟩ B) →
+                     iHom ≡ f
+        uniqueness f = unique 0 emptyGen B (λ ()) (λ ()) f (λ ())
 
   R[⊥]/⟨0⟩IsInitial : (B : CommAlgebra R ℓ)
                      → isContr (CommAlgebraHom R[⊥]/⟨0⟩ B)
@@ -235,3 +223,4 @@ module _ (R : CommRing ℓ) where
   module _ {m : ℕ} (x : ⟨ R ⟩) where
     R/⟨x⟩FP : FinitePresentation (initialCAlg R / generatedIdeal (initialCAlg R) (replicateFinVec 1 x))
     R/⟨x⟩FP = R/⟨xs⟩FP (replicateFinVec 1 x)
+-- -}

@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.UnivariatePolyList where
+module Cubical.Algebra.CommAlgebra.AsModule.UnivariatePolyList where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
@@ -11,7 +11,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebra.AsModule
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyList
 open import Cubical.Algebra.Polynomials.UnivariateList.Base

@@ -2,6 +2,7 @@
 module Cubical.Algebra.CommAlgebra.Instances.Unit where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Structure
 
@@ -11,7 +12,6 @@ open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommRing.Instances.Unit
-open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
 open import Cubical.Tactics.CommRingSolver
 
 private
@@ -20,23 +20,14 @@ private
 
 module _ (R : CommRing ℓ) where
   UnitCommAlgebra : CommAlgebra R ℓ'
-  UnitCommAlgebra =
-    commAlgebraFromCommRing
-      UnitCommRing
-      (λ _ _ → tt*) (λ _ _ _ → refl) (λ _ _ _ → refl)
-      (λ _ _ _ → refl) (λ _ → refl) (λ _ _ _ → refl)
+  UnitCommAlgebra = UnitCommRing , mapToUnitCommRing R
 
-  module _ (A : CommAlgebra R ℓ) where
+  module _ (A : CommAlgebra R ℓ') where
     terminalMap : CommAlgebraHom A (UnitCommAlgebra {ℓ' = ℓ})
-    terminalMap = (λ _ → tt*) , isHom
-      where open IsAlgebraHom
-            isHom : IsCommAlgebraHom (snd A) _ (snd UnitCommAlgebra)
-            pres0 isHom = isPropUnit* _ _
-            pres1 isHom = isPropUnit* _ _
-            pres+ isHom = λ _ _ → isPropUnit* _ _
-            pres· isHom = λ _ _ → isPropUnit* _ _
-            pres- isHom = λ _ → isPropUnit* _ _
-            pres⋆ isHom = λ _ _ → isPropUnit* _ _
+    terminalMap = CommRingHom→CommAlgebraHom (mapToUnitCommRing (A .fst)) $ isPropMapToUnitCommRing _ _ _
+
+{-
+  module _ (A : CommAlgebra R ℓ) where
 
     terminalityContr : isContr (CommAlgebraHom A UnitCommAlgebra)
     terminalityContr = terminalMap , path
@@ -58,3 +49,4 @@ module _ (R : CommRing ℓ) where
       equivFrom1≡0 : CommAlgebraEquiv A UnitCommAlgebra
       equivFrom1≡0 = isContr→Equiv 1≡0→isContr isContrUnit*  ,
                      snd terminalMap
+-}

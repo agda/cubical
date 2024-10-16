@@ -9,6 +9,6 @@
   Our definition is more explicit.
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.FPAlgebra where
+module Cubical.Algebra.CommAlgebra.AsModule.FPAlgebra where
 
-open import Cubical.Algebra.CommAlgebra.FPAlgebra.Base public
+open import Cubical.Algebra.CommAlgebra.AsModule.FPAlgebra.Base public

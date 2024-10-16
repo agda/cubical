@@ -143,4 +143,4 @@ module _ (A' : CommRing ℓ) (n m : ℕ) where
     Iso.rightInv is = e-sect
     Iso.leftInv is = e-retr
 
-  snd CRE-PolyN∘M-PolyN+M = makeIsRingHom PAmn→PAn+m-pres1 PAmn→PAn+m-pres+ PAmn→PAn+m-pres·
+  snd CRE-PolyN∘M-PolyN+M = makeIsCommRingHom PAmn→PAn+m-pres1 PAmn→PAn+m-pres+ PAmn→PAn+m-pres·
