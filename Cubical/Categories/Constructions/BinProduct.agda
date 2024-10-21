@@ -109,7 +109,7 @@ module _ (C : Category ℓC ℓC')
   CatIso× f g .snd .inv = f .snd .inv , g .snd .inv
   CatIso× f g .snd .sec i = f .snd .sec i , g .snd .sec i
   CatIso× f g .snd .ret i = f .snd .ret i , g .snd .ret i
-  
+
 Sym : {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} → Functor (C ×C D) (D ×C C)
 Sym {C = C}{D = D} = Snd C D ,F Fst C D
 {-# WARNING_ON_USAGE Sym "DEPRECATED: Use `×C-sym` instead of `Sym`" #-}
