@@ -1,7 +1,7 @@
 {-
   Definition of various kinds of categories.
 
-  This library partially the UniMath terminology:
+  This library partially follows the UniMath terminology:
 
   Concept              Ob C   Hom C  Univalence
 
