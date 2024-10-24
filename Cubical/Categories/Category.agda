@@ -5,12 +5,12 @@
 
   Concept              Ob C   Hom C  Univalence
 
-  Wild category        Type   Type   No
+  Wild Category        Type   Type   No           (called precategory in UniMath)
   Category             Type   Set    No
   Univalent Category   Type   Set    Yes
 
   The most useful notion is Category and the library is hence based on
-  them. If one needs precategories then they can be found in
+  them. If one needs wild categories then they can be found in
   Cubical.WildCat (so it's not considered part of the Categories sublibrary!)
 
 -}
