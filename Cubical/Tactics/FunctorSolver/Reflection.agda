@@ -18,8 +18,8 @@ open import Cubical.Tactics.FunctorSolver.Solver
 open import Cubical.Tactics.Reflection
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.Free.Category
-open import Cubical.Categories.Constructions.Free.Functor
+open import Cubical.Categories.Instances.Free.Category
+open import Cubical.Categories.Instances.Free.Functor
 open import Cubical.Categories.Functor
 
 private

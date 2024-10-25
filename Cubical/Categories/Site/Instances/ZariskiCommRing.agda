@@ -23,7 +23,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Site.Coverage
 open import Cubical.Categories.Site.Sheaf
-open import Cubical.Categories.Constructions.Slice
+open import Cubical.Categories.Instances.Slice
 open import Cubical.Categories.Yoneda
 
 open import Cubical.HITs.PropositionalTruncation as PT

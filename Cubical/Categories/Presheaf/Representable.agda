@@ -32,8 +32,8 @@ open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.Reflection.RecordEquiv
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Constructions.Elements
-open import Cubical.Categories.Constructions.Opposite
+open import Cubical.Categories.Instances.Elements
+open import Cubical.Categories.Instances.Opposite
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets

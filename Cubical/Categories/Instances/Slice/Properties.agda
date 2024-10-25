@@ -8,8 +8,8 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.Slice.Base
-import Cubical.Categories.Constructions.Elements as Elements
+open import Cubical.Categories.Instances.Slice.Base
+import Cubical.Categories.Instances.Elements as Elements
 open import Cubical.Categories.Equivalence
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
@@ -17,7 +17,7 @@ open import Cubical.Categories.NaturalTransformation
 
 open Category
 
-module Cubical.Categories.Constructions.Slice.Properties
+module Cubical.Categories.Instances.Slice.Properties
   {ℓC ℓ'C : Level}
   (C : Category ℓC ℓ'C)
   (c : C .ob)

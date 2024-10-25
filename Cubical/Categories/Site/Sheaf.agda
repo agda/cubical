@@ -19,7 +19,7 @@ open import Cubical.Categories.Site.Sieve
 open import Cubical.Categories.Site.Coverage
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.FullSubcategory
+open import Cubical.Categories.Instances.FullSubcategory
 open import Cubical.Categories.Yoneda
 
 module _

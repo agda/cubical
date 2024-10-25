@@ -1,17 +1,17 @@
 
 {-# OPTIONS --safe #-}
 
-module Cubical.Categories.Constructions.TwistedArrow where
+module Cubical.Categories.Instances.TwistedArrow where
 
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Constructions.Elements
+open import Cubical.Categories.Instances.Elements
 open Covariant
 open import Cubical.Categories.Functors.HomFunctor
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 
 private
   variable

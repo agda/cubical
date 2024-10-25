@@ -1,7 +1,7 @@
 -- Free functor between categories generated from two graphs and a
 -- function on nodes between them
 {-# OPTIONS --safe --lossy-unification #-}
-module Cubical.Categories.Constructions.Free.Functor where
+module Cubical.Categories.Instances.Free.Functor where
 
 open import Cubical.Foundations.Prelude hiding (J)
 open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
@@ -18,7 +18,7 @@ open import Cubical.Data.Graph.Base
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.Free.Category
+open import Cubical.Categories.Instances.Free.Category
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.UnderlyingGraph

@@ -5,8 +5,8 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Quiver.Base
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.Free.Category.Quiver as FreeCat
-open import Cubical.Categories.Constructions.Power
+open import Cubical.Categories.Instances.Free.Category.Quiver as FreeCat
+open import Cubical.Categories.Instances.Power
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.UnderlyingGraph

@@ -15,13 +15,13 @@ open import Cubical.Relation.Binary.Order.Preorder
 
 open Category
 
-module Cubical.Categories.Constructions.SubObject
+module Cubical.Categories.Instances.SubObject
   {ℓ ℓ' : Level}
   (C : Category ℓ ℓ')
   (c : C .ob)
   where
 
-open import Cubical.Categories.Constructions.Slice C c
+open import Cubical.Categories.Instances.Slice C c
 
 isSubObj : ℙ (SliceCat .ob)
 isSubObj (sliceob arr) = isMonic C arr , isPropIsMonic C arr

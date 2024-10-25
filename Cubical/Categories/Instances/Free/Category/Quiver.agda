@@ -4,7 +4,7 @@
 -- which is better in some applications
 {-# OPTIONS --safe #-}
 
-module Cubical.Categories.Constructions.Free.Category.Quiver where
+module Cubical.Categories.Instances.Free.Category.Quiver where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Path
@@ -19,7 +19,7 @@ open import Cubical.Data.Graph.Displayed as Graph hiding (Section)
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.BinProduct as BP
+open import Cubical.Categories.Instances.BinProduct as BP
 open import Cubical.Categories.UnderlyingGraph hiding (Interp)
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Path

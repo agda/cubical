@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Categories.Constructions.Opposite where
+module Cubical.Categories.Instances.Opposite where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

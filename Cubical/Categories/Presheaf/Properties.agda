@@ -3,7 +3,7 @@
 module Cubical.Categories.Presheaf.Properties where
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Constructions.Lift
+open import Cubical.Categories.Instances.Lift
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
@@ -19,8 +19,8 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
 
 import Cubical.Categories.Morphism as Morphism
-import Cubical.Categories.Constructions.Slice as Slice
-import Cubical.Categories.Constructions.Elements as Elements
+import Cubical.Categories.Instances.Slice as Slice
+import Cubical.Categories.Instances.Elements as Elements
 import Cubical.Functions.Fibration as Fibration
 
 private
