@@ -12,12 +12,11 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
-import      Cubical.Categories.Instances.Slice.Base as Slice
+import      Cubical.Categories.Constructions.Slice.Base as Slice
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Isomorphism
 import      Cubical.Categories.Morphism as Morphism
-
 
 
 module Cubical.Categories.Instances.Elements where
