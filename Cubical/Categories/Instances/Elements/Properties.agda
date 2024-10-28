@@ -11,14 +11,14 @@ open import Cubical.Categories.NaturalTransformation
 open NatTrans
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Constructions.Elements
+open import Cubical.Categories.Instances.Elements
 open Covariant
 
 open import Cubical.WildCat.Functor
 open import Cubical.WildCat.Instances.Categories
 open import Cubical.WildCat.Instances.NonWild
 
-module Cubical.Categories.Constructions.Elements.Properties where
+module Cubical.Categories.Instances.Elements.Properties where
 
 variable
   ℓC ℓC' ℓD ℓD' ℓS : Level
