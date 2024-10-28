@@ -80,6 +80,11 @@ module Covariant {ℓ ℓ'} {C : Category ℓ ℓ'} where
           p2 = snd ((∫ F) ._⋆_ f' ((∫ F) ._⋆_ {o1} {o2} {o3} g' h'))
     (∫ F) .isSetHom {x} {y} = isSetΣSndProp (C .isSetHom) λ _ → (F ⟅ fst y ⟆) .snd _ _
 
+    ElementHom≡ : ∀ {ℓS} (F : Functor C (SET ℓS)) → {c,f c',f' : Element F}
+      → {χ1,ef1 χ2,ef2 : (∫ F) [ c,f , c',f' ]} → (fst χ1,ef1 ≡ fst χ2,ef2) → (χ1,ef1 ≡ χ2,ef2)
+    ElementHom≡ F {c1 , f1} {c2 , f2} {χ1 , ef1} {χ2 , ef2} eχ = cong₂ _,_ eχ
+      (fst (isOfHLevelPathP' 0 (snd (F ⟅ c2 ⟆) _ _) ef1 ef2))
+
     ForgetElements : ∀ {ℓS} → (F : Functor C (SET ℓS)) → Functor (∫ F) C
     F-ob (ForgetElements F) = fst
     F-hom (ForgetElements F) = fst
