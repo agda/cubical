@@ -23,6 +23,7 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.NaturalTransformation.Properties
+open import Cubical.Categories.Thin
 
 private
   variable
@@ -138,3 +139,5 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
       ≡⟨ D .⋆Assoc _ _ _ ⟩
     (β .N-ob e ∘⟨ D ⟩ G .F-hom g) ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f) ∎
 
+  isThinFUNCTOR : isThin D → isThin FUNCTOR
+  isThinFUNCTOR thinD F G = isThin→isPropNatTrans thinD
