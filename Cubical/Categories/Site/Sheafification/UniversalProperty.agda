@@ -16,7 +16,7 @@ open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Constructions.FullSubcategory
+open import Cubical.Categories.Instances.FullSubcategory
 
 open import Cubical.Categories.Site.Cover
 open import Cubical.Categories.Site.Coverage

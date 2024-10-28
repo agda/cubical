@@ -18,7 +18,7 @@ open import Cubical.Tactics.CategorySolver.Solver
 open import Cubical.Tactics.Reflection
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.Free.Category.Quiver as FC
+open import Cubical.Categories.Instances.Free.Category.Quiver as FC
 
 private
   variable

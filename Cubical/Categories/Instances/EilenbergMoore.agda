@@ -12,7 +12,7 @@ open import Cubical.Categories.Functor renaming (𝟙⟨_⟩ to funcId)
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.Monad.Base
 open import Cubical.Categories.Instances.FunctorAlgebras
-open import Cubical.Categories.Constructions.FullSubcategory
+open import Cubical.Categories.Instances.FullSubcategory
 open import Cubical.Categories.Adjoint
 
 private

@@ -14,7 +14,7 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Terminal hiding (introF)
-open import Cubical.Categories.Constructions.TotalCategory as TC hiding (intro)
+open import Cubical.Categories.Instances.TotalCategory as TC hiding (intro)
 
 private
   variable

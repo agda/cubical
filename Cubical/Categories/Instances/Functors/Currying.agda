@@ -7,7 +7,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Foundations.Function renaming (_∘_ to _∘→_)

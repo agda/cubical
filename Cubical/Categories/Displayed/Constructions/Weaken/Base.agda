@@ -15,7 +15,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Constructions.TotalCategory as TC
+open import Cubical.Categories.Instances.TotalCategory as TC
   hiding (intro)
 
 private

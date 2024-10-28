@@ -1,7 +1,7 @@
 -- Product of type-many categories
 {-# OPTIONS --safe #-}
 
-module Cubical.Categories.Constructions.Product where
+module Cubical.Categories.Instances.Product where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

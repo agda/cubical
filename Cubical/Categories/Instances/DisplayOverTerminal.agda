@@ -4,7 +4,7 @@
 -}
 
 {-# OPTIONS --safe #-}
-module Cubical.Categories.Constructions.DisplayOverTerminal where
+module Cubical.Categories.Instances.DisplayOverTerminal where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Unit

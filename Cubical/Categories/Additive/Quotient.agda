@@ -7,7 +7,7 @@ open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Categories.Additive.Base
 open import Cubical.Categories.Additive.Properties
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.Quotient
+open import Cubical.Categories.Instances.Quotient
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Foundations.Prelude
 open import Cubical.HITs.SetQuotients renaming ([_] to ⟦_⟧)

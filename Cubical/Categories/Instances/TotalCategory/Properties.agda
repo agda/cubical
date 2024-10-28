@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Categories.Constructions.TotalCategory.Properties where
+module Cubical.Categories.Instances.TotalCategory.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -11,7 +11,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Constructions.TotalCategory.Base
+open import Cubical.Categories.Instances.TotalCategory.Base
 open import Cubical.Categories.Displayed.Instances.Terminal.Base
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 

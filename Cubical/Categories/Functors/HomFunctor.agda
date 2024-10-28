@@ -6,7 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 
 private
   variable

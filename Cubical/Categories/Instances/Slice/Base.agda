@@ -17,7 +17,7 @@ open Category
 open isUnivalent
 open Iso
 
-module Cubical.Categories.Constructions.Slice.Base {ℓ ℓ' : Level} (C : Category ℓ ℓ') (c : C .ob) where
+module Cubical.Categories.Instances.Slice.Base {ℓ ℓ' : Level} (C : Category ℓ ℓ') (c : C .ob) where
 
 -- just a helper to prevent redundency
 TypeC : Type (ℓ-suc (ℓ-max ℓ ℓ'))

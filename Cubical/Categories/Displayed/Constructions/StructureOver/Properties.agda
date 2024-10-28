@@ -13,7 +13,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Constructions.StructureOver.Base
-open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Instances.TotalCategory
 
 private
   variable

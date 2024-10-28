@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Categories.Constructions.Lift where
+module Cubical.Categories.Instances.Lift where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

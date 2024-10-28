@@ -15,7 +15,7 @@ import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.Vertical
+open import Cubical.Categories.Instances.Vertical
 
 module Cubical.Categories.Displayed.Cartesian where
 

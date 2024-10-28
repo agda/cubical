@@ -5,7 +5,7 @@
 -- assumes the vertices of the input graph form a Set.
 {-# OPTIONS --safe #-}
 
-module Cubical.Categories.Constructions.Free.Category.Base where
+module Cubical.Categories.Instances.Free.Category.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

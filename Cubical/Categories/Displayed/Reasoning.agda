@@ -24,7 +24,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.TotalCategory.Base
+open import Cubical.Categories.Instances.TotalCategory.Base
 open import Cubical.Categories.Displayed.Base
 
 module Cubical.Categories.Displayed.Reasoning
