@@ -11,6 +11,8 @@ open import Cubical.Categories.Functor.Base
 open Functor
 open import Cubical.Categories.Displayed.Base
 open Categoryᴰ
+open import Cubical.Categories.Constructions.TotalCategory.Base
+open import Cubical.Categories.Constructions.TotalCategory.Properties as TC
 
 private
   variable
@@ -52,3 +54,20 @@ module _ {ℓC ℓC' ℓD ℓD'} {C : Category ℓC ℓC'} {D : Category ℓD �
   isSetHomᴰ FiberCᴰ {f = δ} = isSetΣ
     (isSetHom C)
     (λ c → isOfHLevelPathP' 2 (isSet→isGroupoid (isSetHom D)) (F .F-hom c) δ)
+
+  ∫FiberC : Category (ℓ-max ℓC ℓD) (ℓ-max ℓC' ℓD')
+  ∫FiberC = ∫C FiberCᴰ
+
+  FiberCod : Functor ∫FiberC D
+  FiberCod = TC.Fst {C = D} {FiberCᴰ}
+
+  FiberDom : Functor ∫FiberC C
+  F-ob FiberDom (d , c , c↦d) = c
+  F-hom FiberDom (δ , γ , γ↦δ) = γ
+  F-id FiberDom = refl
+  F-seq FiberDom _ _ = refl
+
+  fiberFactors : funcComp F FiberDom ≡ FiberCod
+  fiberFactors = Functor≡
+    (λ (d , c , c↦d) → c↦d)
+    λ {(d , c , c↦d)} {(d' , c' , c'↦d')} (δ , γ , γ↦δ) → γ↦δ
