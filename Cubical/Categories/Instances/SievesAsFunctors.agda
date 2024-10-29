@@ -32,3 +32,6 @@ isThinSIEVE = isThinFUNCTOR _ _ isThinPROP
 SIEVE_ON : (C : Category ℓ ℓ') → (c : C .ob) → (ℓP : Level)
   → Category (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓP)) (ℓ-max (ℓ-max ℓ ℓ') ℓP)
 SIEVE_ON C c ℓP = SIEVE (SliceCat C c) ℓP
+
+SieveOn : (C : Category ℓ ℓ') → (c : C .ob) → (ℓP : Level) → Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓP))
+SieveOn C c ℓP = SIEVE_ON C c ℓP .ob
