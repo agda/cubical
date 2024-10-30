@@ -39,17 +39,11 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
   open Determinat ℓ P'
   open Coefficient (P')
 
+  -- Scalar multiplication
   _∘_ : {n m : ℕ} → R → FinMatrix R n m → FinMatrix R n m
   (a ∘ M) i j = a · (M i j)
 
-  deltaProp : {n : ℕ} → (k l : Fin n) → toℕ k <' toℕ l → δ k l ≡ 0r
-  deltaProp {suc n} zero (suc l) (s≤s le) = refl
-  deltaProp {suc n} (suc k) (suc l) (s≤s le) =  deltaProp {n} k l le
-
-  deltaPropSym : {n : ℕ} → (k l : Fin n) → toℕ l <' toℕ k → δ k l ≡ 0r
-  deltaPropSym {suc n} (suc k) (zero) (s≤s le) = refl
-  deltaPropSym {suc n} (suc k) (suc l) (s≤s le) =  deltaPropSym {n} k l le
-
+  -- Properties of ==
   ==Refl : {n : ℕ} → (k : Fin n) → k == k ≡ true
   ==Refl {n} zero = refl
   ==Refl {suc n} (suc k) = ==Refl {n} k
@@ -59,6 +53,15 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
   ==Sym {suc n} zero (suc l) = refl
   ==Sym {suc n} (suc k) zero = refl
   ==Sym {suc n} (suc k) (suc l) = ==Sym {n} k l
+
+  -- Properties of the Kronecker Delta
+  deltaProp : {n : ℕ} → (k l : Fin n) → toℕ k <' toℕ l → δ k l ≡ 0r
+  deltaProp {suc n} zero (suc l) (s≤s le) = refl
+  deltaProp {suc n} (suc k) (suc l) (s≤s le) =  deltaProp {n} k l le
+
+  deltaPropSym : {n : ℕ} → (k l : Fin n) → toℕ l <' toℕ k → δ k l ≡ 0r
+  deltaPropSym {suc n} (suc k) (zero) (s≤s le) = refl
+  deltaPropSym {suc n} (suc k) (suc l) (s≤s le) =  deltaPropSym {n} k l le
 
   deltaPropEq : {n : ℕ} → (k l : Fin n) → k ≡ l → δ k l ≡ 1r
   deltaPropEq k l e =
@@ -71,12 +74,12 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
 
   deltaComm : {n : ℕ} → (k l : Fin n) → δ k l ≡ δ l k
   deltaComm k l = cong (λ a → if a then 1r else 0r) (==Sym k l)
-  
 
   -- Definition of the cofactor matrix 
   cof : {n : ℕ} → FinMatrix R n n → FinMatrix R n n
   cof {suc n} M i j = (MF (toℕ i +ℕ toℕ j)) ·  det {n} (minor i j M)
 
+  -- Behavior of the cofactor matrix under transposition
   cofTransp : {n : ℕ} → (M : FinMatrix R n n) → (i j : Fin n) → cof (M ᵗ) i j ≡ cof M j i
   cofTransp {suc n} M i j =
     MF (toℕ i +ℕ toℕ j) ·  det (minor i j (M ᵗ))
@@ -92,10 +95,11 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
   adjugate : {n : ℕ} → FinMatrix R n n → FinMatrix R n n
   adjugate M i j = cof M j i
 
+  -- Behavior of the adjugate matrix under transposition
   adjugateTransp : {n : ℕ} → (M : FinMatrix R n n) → (i j : Fin n) → adjugate (M ᵗ) i j ≡ adjugate M j i
   adjugateTransp M i j = cofTransp M j i
 
-
+  -- Properties of WeakenFin
   weakenPredFinLt : {n : ℕ} → (k l : Fin (suc (suc n))) → toℕ k <' toℕ l → k ≤'Fin weakenFin (predFin l)
   weakenPredFinLt {zero} zero one (s≤s z≤) = z≤
   weakenPredFinLt {zero} one one (s≤s ())
@@ -109,6 +113,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
   sucPredFin {zero} (suc k) (suc l) le = refl
   sucPredFin {suc n} zero (suc l) le = refl
   sucPredFin {suc n} (suc k) (suc l) (s≤s le) = refl
+
   
   adjugatePropAux1a :  {n : ℕ} → (M : FinMatrix R (suc (suc n)) (suc (suc n))) → (k l : Fin (suc (suc n))) → toℕ k <' toℕ l →
    ∑
@@ -612,7 +617,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
            (MF (toℕ (predFin l) +ℕ toℕ z₁) · minor k z M (predFin l) z₁ ·
             det (minor (predFin l) z₁ (minor k z M)))))
       (λ i j →
-        DetRowAux2
+        distributeOne
         (ind> (toℕ i) (toℕ j))
         (M l i · MF (toℕ k +ℕ toℕ i) ·
           (MF (toℕ (predFin l) +ℕ toℕ j) · minor k i M (predFin l) j ·
@@ -1506,7 +1511,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
             minor k i M (strongenFin l le) j
             · det (minor (strongenFin l le) j (minor k i M)))))
       (λ i j →
-        DetRowAux2
+        distributeOne
         (ind> (toℕ i) (toℕ j))
         ( M l i · MF (toℕ k +ℕ toℕ i) ·
             (MF (toℕ (strongenFin l le) +ℕ toℕ j) ·
@@ -1828,8 +1833,6 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
     0r
     ∎
 
-
-
   adjugateInvRLcomponent : {n : ℕ} → (M : FinMatrix R n n) → (k l : Fin n) → toℕ k <' toℕ l → (M ⋆ adjugate M) k l ≡  (det M ∘ 𝟙) k l
   adjugateInvRLcomponent {suc n} M k l le = 
     ∑ (λ i → M k i · (MF(toℕ l +ℕ toℕ i) · det(minor l i M)) )
@@ -1840,7 +1843,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
     ≡⟨ cong (λ a → det M · a) (sym (deltaProp k l le)) ⟩
     (det M ∘ 𝟙) k l
     ∎
-  
+
   FinCompare : {n : ℕ} → (k l : Fin n) →  (k ≡ l) ⊎ ((toℕ k <' toℕ l) ⊎ (toℕ l <' toℕ k))
   FinCompare {zero} () ()
   FinCompare {suc n} zero zero = inl refl
@@ -1851,7 +1854,8 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
   ... | inr (inl x) = inr (inl (s≤s x))
   ... | inr (inr x) = inr (inr (s≤s x))
   
-
+  -- The adjugate matrix divided by the determinant is the right inverse.
+  -- Component-wise version
   adjugateInvRComp : {n : ℕ} → (M : FinMatrix R n n) → (k l : Fin n)  → (M ⋆ adjugate M) k l ≡  (det M ∘ 𝟙) k l
   adjugateInvRComp {zero} M () ()
   adjugateInvRComp {suc n} M k l  with FinCompare k l
@@ -1890,6 +1894,8 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
   ... | inr (inl x) = adjugateInvRLcomponent M k l x
   ... | inr (inr x) =  adjugateInvRGcomponent M k l x
 
+  -- The adjugate matrix divided by the determinant is the left inverse.
+  -- Component-wise version
   adjugateInvLComp : {n : ℕ} → (M : FinMatrix R n n) → (k l : Fin n)  → (adjugate M ⋆ M) k l ≡  (det M ∘ 𝟙) k l
   adjugateInvLComp M k l =
     (adjugate M ⋆ M) k l
@@ -1917,9 +1923,10 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
     (det M · 𝟙 k l)
     ∎
   
-
+  -- The adjugate matrix divided by the determinant is the right inverse.
   adjugateInvR : {n : ℕ} → (M : FinMatrix R n n)  → M ⋆ adjugate M ≡  det M ∘ 𝟙
   adjugateInvR M = funExt₂ (λ k l →  adjugateInvRComp M k l)
 
+  -- The adjugate matrix divided by the determinant is the left inverse.
   adjugateInvL : {n : ℕ} → (M : FinMatrix R n n)  → adjugate M ⋆ M ≡  det M ∘ 𝟙
   adjugateInvL M = funExt₂ (λ k l →  adjugateInvLComp M k l)

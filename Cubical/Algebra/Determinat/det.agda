@@ -42,7 +42,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
   MF zero = 1r
   MF (suc i) = (- 1r) · (MF i)
 
-  --Multiplicity of the minor factor
+  --Properties of the minor factor
   sumMF : (i j : ℕ) → MF (i +ℕ j) ≡ (MF i) · (MF j)
   sumMF zero j =
     MF j
@@ -63,6 +63,30 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
   sucMFRev : (i : ℕ) → MF i ≡ (- 1r) · MF (suc i)
   sucMFRev i = solve! P'
 
+  MFplusZero : {n : ℕ} → (i : Fin n) →   MF (toℕ i +ℕ zero) ≡ MF (toℕ i)
+  MFplusZero i =
+    MF (toℕ i +ℕ zero)
+    ≡⟨ sumMF (toℕ i) zero ⟩
+    (MF (toℕ i) · MF zero)
+    ≡⟨ ·IdR (MF (toℕ i)) ⟩
+    MF (toℕ i)
+    ∎
+
+  MFsucsuc :  {n m : ℕ} → (j : Fin n) → (k : Fin m) →
+    MF (toℕ (suc j) +ℕ (toℕ (suc k))) ≡ MF (toℕ j +ℕ toℕ k)
+  MFsucsuc j k =
+    MF (toℕ (suc j) +ℕ toℕ (suc k))
+    ≡⟨ sumMF (toℕ (suc j)) (toℕ (suc k)) ⟩
+    (MF (toℕ (suc j)) · MF (toℕ (suc k)))
+    ≡⟨ refl ⟩
+    ((- 1r) · MF (toℕ j) · ((- 1r) · MF (toℕ k)) )
+    ≡⟨ solve! P' ⟩
+    ( MF (toℕ j) · MF ( toℕ k))
+    ≡⟨ sym (sumMF (toℕ j) (toℕ k))⟩ 
+    MF (toℕ j +ℕ toℕ k)
+    ∎
+
+  -- Other small lemmata
   +Compat : {a b c d : R} → a ≡ b → c ≡ d → a + c ≡ b + d
   +Compat {a} {b} {c} {d} eq1 eq2 =
    a + c
@@ -71,6 +95,9 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
    ≡⟨ cong (λ x → b + x) eq2 ⟩
    b + d
    ∎
+
+  distributeOne : (a b : R) → b ≡ a · b + (1r + (- a)) · b
+  distributeOne a b = solve! P'
   
   -- Definition of the determinat by using Laplace expansion
   det : ∀ {n} → FinMatrix R n n → R
@@ -163,9 +190,6 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
     (MF (toℕ k +ℕ toℕ i +ℕ toℕ j) · M k i · minor k i M zero j ·
       det (minor zero j (minor k i M)))
      ∎
-
-  DetRowAux2 : (a b : R) → b ≡ a · b + (1r + (- a)) · b
-  DetRowAux2 a b = solve! P'
 
   DetRowAux3a :
     {n : ℕ} → (k : Fin (suc n)) →
@@ -952,7 +976,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
              minor (suc k) i M zero j
              · det (minor zero j (minor (suc k) i M))))
         (λ i j →
-          DetRowAux2 (ind> (toℕ i) (toℕ j))
+          distributeOne (ind> (toℕ i) (toℕ j))
           (MF (toℕ (suc k) +ℕ toℕ i +ℕ toℕ j) · M (suc k) i ·
           minor (suc k) i M zero j · det (minor zero j (minor (suc k) i M))))
     ⟩
@@ -1152,7 +1176,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
          · det (minor k z₁ (minor zero z M)))
      (λ i j →
        sym
-       (DetRowAux2
+       (distributeOne
        (ind> (toℕ i) (toℕ j))
        (MF (toℕ (suc k) +ℕ toℕ (suc j) +ℕ toℕ i) · minor zero i M k j ·
          M zero i · det (minor k j (minor zero i M)))))
@@ -1338,7 +1362,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
           det (minor i zero (minor zero (suc j) M))))
        ∎)
    
-  
+  -- The determinant can also be expanded along the first column.
   DetRowColumn : ∀ {n} →  (M : FinMatrix R (suc n) (suc n)) →
      detC zero M ≡ det M
   DetRowColumn {zero} M = refl
@@ -1960,20 +1984,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
         i
         j)
 
-  MFsucsuc :  {n m : ℕ} → (j : Fin n) → (k : Fin m) →
-    MF (toℕ (suc j) +ℕ (toℕ (suc k))) ≡ MF (toℕ j +ℕ toℕ k)
-  MFsucsuc j k =
-    MF (toℕ (suc j) +ℕ toℕ (suc k))
-    ≡⟨ sumMF (toℕ (suc j)) (toℕ (suc k)) ⟩
-    (MF (toℕ (suc j)) · MF (toℕ (suc k)))
-    ≡⟨ refl ⟩
-    ((- 1r) · MF (toℕ j) · ((- 1r) · MF (toℕ k)) )
-    ≡⟨ solve! P' ⟩
-    ( MF (toℕ j) · MF ( toℕ k))
-    ≡⟨ sym (sumMF (toℕ j) (toℕ k))⟩ 
-    MF (toℕ j +ℕ toℕ k)
-    ∎
-
+  -- The determinant expanded along a column is independent of the chosen column.
   DetColumnZero : ∀ {n} → (k : Fin (suc n)) → (M : FinMatrix R (suc n) (suc n)) →
     detC k M ≡ detC zero M
   DetColumnZero {zero} zero M = refl
@@ -2046,7 +2057,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
            (MF (toℕ z₁ +ℕ zero) · minor z (suc k) M z₁ zero ·
             det (minor z₁ zero (minor z (suc k) M)))))
       (λ i j →
-        DetRowAux2
+        distributeOne
           (ind> (toℕ i) (toℕ j))
           (MF (toℕ i +ℕ toℕ (suc k)) · M i (suc k) ·
           (MF (toℕ j +ℕ zero) · minor i (suc k) M j zero ·
@@ -2285,7 +2296,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
              (MF (toℕ (suc j) +ℕ toℕ (suc k)) · minor i zero M j k ·
               det (minor j k (minor i zero M)))))
        (λ i j → sym
-                (DetRowAux2 ( ind> (toℕ i) (toℕ j) )
+                (distributeOne ( ind> (toℕ i) (toℕ j) )
                 ((MF (toℕ i +ℕ zero) · M i zero ·
                 (MF (toℕ (suc j) +ℕ toℕ (suc k)) · minor i zero M j k ·
                 det (minor j k (minor i zero M))))))) ⟩
@@ -2388,6 +2399,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
     detC zero M
     ∎
 
+  -- The determinant expanded along a column is the regular determinant.
   DetColumn : ∀ {n} → (k : Fin (suc n)) → (M : FinMatrix R (suc n) (suc n)) →
     detC k M ≡ det M
   DetColumn k M =
@@ -2405,6 +2417,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
   ∑Mul1r = Sum.∑Mul1r (CommRing→Ring P')
   ∑Mulr1 = Sum.∑Mulr1 (CommRing→Ring P')
 
+  -- The determinant of the zero matrix is 0.
   detZero : {n : ℕ} → det {suc n} 𝟘 ≡ 0r
   detZero {n} =
     ∑Zero
@@ -2421,6 +2434,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
         ∎
         )
 
+  --The determinant of the identity matrix is 1.
   detOne : {n : ℕ} → det {n} 𝟙 ≡ 1r
   detOne {zero} = refl
   detOne {suc n} =
@@ -2454,15 +2468,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
     1r
     ∎
 
-  MFplusZero : {n : ℕ} → (i : Fin n) →   MF (toℕ i +ℕ zero) ≡ MF (toℕ i)
-  MFplusZero i =
-    MF (toℕ i +ℕ zero)
-    ≡⟨ sumMF (toℕ i) zero ⟩
-    (MF (toℕ i) · MF zero)
-    ≡⟨ ·IdR (MF (toℕ i)) ⟩
-    MF (toℕ i)
-    ∎
-  
+  --The determinant remains unchanged under transposition.
   detTransp : {n : ℕ} → (M : FinMatrix R n n) → det M ≡ det (M ᵗ)
   detTransp {zero} M = refl
   detTransp {suc n} M =
