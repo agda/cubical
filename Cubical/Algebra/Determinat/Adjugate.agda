@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module adjugate where
+module Cubical.Algebra.Determinat.Adjugate where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -28,15 +28,15 @@ open import Cubical.Data.Vec.Base using (_∷_; [])
 open import Cubical.Data.Nat.Order
 open import Cubical.Tactics.CommRingSolver
 
-open import Minor
-open import RingSum
-open import det
+open import Cubical.Algebra.Determinat.Minor
+open import Cubical.Algebra.Determinat.RingSum
+open import Cubical.Algebra.Determinat.Base
 
-module adjugate (ℓ : Level) (P' : CommRing ℓ) where
-  open Minor.Minor ℓ
-  open RingSum.RingSum ℓ P'
-  open RingStr (snd (CommRing→Ring P')) renaming ( is-set to isSetR )
-  open Determinat ℓ P'
+module Adjugate (ℓ : Level) (P' : CommRing ℓ) where
+  open Cubical.Algebra.Determinat.Minor.Minor ℓ
+  open Cubical.Algebra.Determinat.RingSum.RingSum ℓ P'
+  open RingStr (snd (CommRing→Ring P'))
+  open Cubical.Algebra.Determinat.Base.Determinat ℓ P'
   open Coefficient (P')
 
   -- Scalar multiplication

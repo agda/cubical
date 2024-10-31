@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module RingSum where
+module Cubical.Algebra.Determinat.RingSum where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
