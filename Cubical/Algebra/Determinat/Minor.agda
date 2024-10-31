@@ -19,13 +19,12 @@ open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.Monoid.BigOp
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Base
-open import Cubical.Data.Nat.Order 
+open import Cubical.Data.Nat.Order
 open import Cubical.Tactics.CommRingSolver
 
 module Minor (ℓ : Level) where
 
   -- definition and properties to remove one Index, i.e. (removeIndex i) is the monoton ebbeding from {0,...,n-1} to {0,...,n} ommiting i.
-
   removeIndex : {n : ℕ} → Fin (suc n) → Fin n → Fin (suc n)
   removeIndex zero k = suc k
   removeIndex (suc i) zero = zero
@@ -43,13 +42,13 @@ module Minor (ℓ : Level) where
 
   -- A formula for commuting removeIndex maps
   removeIndexComm :  {n : ℕ} → (i j : Fin (suc n)) → (k : Fin n) → i ≤'Fin j →
-    removeIndex (suc j) (removeIndex i k) ≡ removeIndex (weakenFin i) (removeIndex j k) 
+    removeIndex (suc j) (removeIndex i k) ≡ removeIndex (weakenFin i) (removeIndex j k)
   removeIndexComm zero j k le = refl
   removeIndexComm (suc i) (suc j) zero le = refl
   removeIndexComm (suc i) (suc j) (suc k) (s≤s le) =  cong (λ a → suc a) (removeIndexComm i j k le)
 
   -- remove the j-th column of a matrix
-  
+
   remove-column : {A : Type ℓ} {n m : ℕ} (j : Fin (suc m)) (M : FinMatrix A n (suc m)) → FinMatrix A n m
   remove-column j M k l = M k (removeIndex j l)
 
@@ -65,7 +64,7 @@ module Minor (ℓ : Level) where
     ≡⟨ refl ⟩
      remove-column i (remove-column (weakenFin j) M) k l
     ∎
-     
+
   -- remove the i-th row of a matrix
   remove-row : {A : Type ℓ} {n m : ℕ} (i : Fin (suc n)) (M : FinMatrix A (suc n) m) → FinMatrix A n m
   remove-row i M k l = M (removeIndex i k) l
@@ -82,10 +81,10 @@ module Minor (ℓ : Level) where
     ≡⟨ refl ⟩
      remove-row i (remove-row (weakenFin j) M) k l
     ∎
-  
+
   remove-column-row-comm : {A : Type ℓ} {n m : ℕ}  (i : Fin (suc n)) (j : Fin (suc m)) (M : FinMatrix A (suc n) (suc m)) (k : Fin n) (l : Fin m) →  (remove-row i (remove-column j M)) k l ≡  (remove-column j (remove-row i M)) k l
   remove-column-row-comm i j M k l = refl
-  
+
   -- Calculating of the minor.
   minor : {A : Type ℓ} {n m : ℕ} (i : Fin (suc n)) (j : Fin (suc m)) (M : FinMatrix A (suc n) (suc m)) → FinMatrix A n m
   minor i j M = remove-column j (remove-row i M)
@@ -96,7 +95,7 @@ module Minor (ℓ : Level) where
 
   -- Formulas to commute minors
   minorComm0 : {A : Type ℓ} {n m : ℕ} (i₁ i₂ : Fin (suc n)) (j₁ j₂ : Fin (suc m)) (k : Fin n) (l : Fin m) (M : FinMatrix A (suc (suc n)) (suc (suc m))) →
-    i₂ ≤'Fin i₁ → j₂ ≤'Fin j₁ →  
+    i₂ ≤'Fin i₁ → j₂ ≤'Fin j₁ →
     minor i₂ j₂ (minor (suc i₁) (suc j₁) M) k l ≡ minor i₁ j₁ (minor (weakenFin i₂) (weakenFin j₂) M) k l
   minorComm0 i₁ i₂ j₁ j₂ k l M lei lej =
     M (removeIndex (suc i₁) (removeIndex i₂ k))
@@ -110,7 +109,7 @@ module Minor (ℓ : Level) where
     ∎
 
   minorComm1 : {A : Type ℓ} {n m : ℕ} (i₁ i₂ : Fin (suc n)) (j₁ j₂ : Fin (suc m)) (k : Fin n) (l : Fin m) (M : FinMatrix A (suc (suc n)) (suc (suc m))) →
-   i₂ ≤'Fin i₁ → j₁ ≤'Fin j₂ →  
+   i₂ ≤'Fin i₁ → j₁ ≤'Fin j₂ →
    minor i₂ j₂ (minor (suc i₁) (weakenFin j₁) M) k l ≡ minor i₁ j₁ (minor (weakenFin i₂) (suc j₂) M) k l
 
   minorComm1 i₁ i₂ j₁ j₂ k l M lei lej =
@@ -125,7 +124,7 @@ module Minor (ℓ : Level) where
     ∎
 
   minorComm2 : {A : Type ℓ} {n m : ℕ} (i₁ i₂ : Fin (suc n)) (j₁ j₂ : Fin (suc m)) (k : Fin n) (l : Fin m) (M : FinMatrix A (suc (suc n)) (suc (suc m))) →
-   i₁ ≤'Fin i₂ → j₂ ≤'Fin j₁ →  
+   i₁ ≤'Fin i₂ → j₂ ≤'Fin j₁ →
    minor i₂ j₂ (minor (weakenFin i₁) (suc j₁) M) k l ≡ minor i₁ j₁ (minor (suc i₂) (weakenFin j₂) M) k l
 
   minorComm2 i₁ i₂ j₁ j₂ k l M lei lej =
@@ -140,13 +139,13 @@ module Minor (ℓ : Level) where
    ∎
 
   minorSemiCommR : {A : Type ℓ} {n m : ℕ} (i₁ : Fin (suc (suc n))) (i₂ : Fin (suc n)) (j₁ j₂ : Fin (suc m)) (k : Fin n) (l : Fin m) (M : FinMatrix A (suc (suc n)) (suc (suc m))) →
-   j₂ ≤'Fin j₁ →  
+   j₂ ≤'Fin j₁ →
    minor i₂ j₂ (minor i₁ (suc j₁) M) k l ≡ minor i₂ j₁ (minor i₁ (weakenFin j₂) M) k l
   minorSemiCommR i₁ i₂ j₁ j₂ k l M lej =
     cong
       (λ a → M (removeIndex i₁ (removeIndex i₂ k)) a)
       (removeIndexComm j₂ j₁ l lej)
-  
+
 
   --Formulas to compute compute the entries of the minor.
   minorIdId : {A : Type ℓ} {n m : ℕ} (i : Fin (suc n))(j : Fin (suc m)) (k : Fin n)(l : Fin m) (M : FinMatrix A (suc n) (suc m)) →
@@ -163,7 +162,7 @@ module Minor (ℓ : Level) where
   minorSucSuc : {A : Type ℓ} {n m : ℕ} (i : Fin (suc n))(j : Fin (suc m)) (k : Fin n)(l : Fin m) (M : FinMatrix A (suc n) (suc m)) →
     i ≤'Fin weakenFin k → j ≤'Fin weakenFin l →
     minor i j M k l ≡ M (suc k) (suc l)
-  minorSucSuc i j k l M lei lej = 
+  minorSucSuc i j k l M lei lej =
     M  (removeIndex i k) (removeIndex j l)
     ≡⟨ cong (λ a → M a (removeIndex j l)) (removeIndexSuc i k lei) ⟩
     M (suc k) (removeIndex j l)
@@ -185,7 +184,7 @@ module Minor (ℓ : Level) where
   minorSucId : {A : Type ℓ} {n m : ℕ} (i : Fin (suc n))(j : Fin (suc m)) (k : Fin n)(l : Fin m) (M : FinMatrix A (suc n) (suc m)) →
     i ≤'Fin weakenFin k → suc l ≤'Fin j →
     minor i j M k l ≡ M (suc k) (weakenFin l)
-  minorSucId i j k l M lei lej = 
+  minorSucId i j k l M lei lej =
     M  (removeIndex i k) (removeIndex j l)
     ≡⟨ cong (λ a → M a (removeIndex j l)) (removeIndexSuc i k lei) ⟩
     M (suc k) (removeIndex j l)

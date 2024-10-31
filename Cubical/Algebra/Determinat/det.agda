@@ -23,7 +23,7 @@ open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.Semiring
 open import Cubical.Data.Int.Base using (pos; negsuc)
 open import Cubical.Data.Vec.Base using (_∷_; [])
-open import Cubical.Data.Nat.Order 
+open import Cubical.Data.Nat.Order
 open import Cubical.Tactics.CommRingSolver
 open import Minor
 open import RingSum
@@ -82,7 +82,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
     ((- 1r) · MF (toℕ j) · ((- 1r) · MF (toℕ k)) )
     ≡⟨ solve! P' ⟩
     ( MF (toℕ j) · MF ( toℕ k))
-    ≡⟨ sym (sumMF (toℕ j) (toℕ k))⟩ 
+    ≡⟨ sym (sumMF (toℕ j) (toℕ k))⟩
     MF (toℕ j +ℕ toℕ k)
     ∎
 
@@ -98,7 +98,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
 
   distributeOne : (a b : R) → b ≡ a · b + (1r + (- a)) · b
   distributeOne a b = solve! P'
-  
+
   -- Definition of the determinat by using Laplace expansion
   det : ∀ {n} → FinMatrix R n n → R
   det {zero} M = 1r
@@ -116,7 +116,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
                (λ j → (MF (toℕ j)) · (N zero j) · det (minor zero j N))
                (λ j → cong (λ a → (MF (toℕ j)) · (N zero j) · a) (detComp (minor zero j M) (minor zero j N) (minorComp zero j M N f)) ) ⟩
     ∑ (λ j → MF (toℕ j) · N zero j · det (minor zero j N)) ∎
-    
+
   -- Independence of the row in the Laplace expansion.
   detR : ∀ {n} → (k : Fin n) → FinMatrix R n n → R
   detR {suc n} k M = ∑ (λ j → (MF ((toℕ k) +ℕ (toℕ j))) · (M k j) · det {n} (minor k j M))
@@ -132,7 +132,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
            ( MF ((toℕ k) +ℕ (toℕ i) +ℕ (toℕ j)) ·
            M k i · minor k i M zero j ·
            det (minor zero j (minor k i M)))
-  DetRowAux1 k i j M = 
+  DetRowAux1 k i j M =
      (MF (toℕ k +ℕ toℕ i) · M k i ·
        (MF (toℕ j) · minor k i M zero j ·
         det (minor zero j (minor k i M))))
@@ -193,7 +193,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
 
   DetRowAux3a :
     {n : ℕ} → (k : Fin (suc n)) →
-    (M : FinMatrix R (suc (suc n)) (suc (suc n))) → 
+    (M : FinMatrix R (suc (suc n)) (suc (suc n))) →
     ∑ (λ (i : Fin (suc (suc n)))  →
       ∑ (λ (j : Fin (suc n))  →
         ind> (toℕ i) (toℕ j) ·
@@ -342,7 +342,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
   weakenweakenFinLe {suc n} zero zero le = le
   weakenweakenFinLe {suc n} zero (suc j) le = z≤
   weakenweakenFinLe {suc n} (suc i) (suc j) (s≤s le) = s≤s (weakenweakenFinLe {n} i j le)
-  
+
   DetRowAux4b : {n : ℕ} → (k : Fin (suc n)) → (M : FinMatrix R (suc (suc n)) (suc (suc n))) →
     ∑
      (λ i →
@@ -466,7 +466,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
               · M (weakenFin zero) (suc j)
               · det (minor k i (minor zero (suc j) M))))
            ∎
-         
+
 
   DetRowAux5a : {n : ℕ} → (k : Fin (suc n)) → (M : FinMatrix R (suc (suc n)) (suc (suc n))) →
     ∑
@@ -637,7 +637,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
     ≡⟨ sym (sumMF (toℕ (suc k) +ℕ toℕ (suc i)) (toℕ (suc j))) ⟩
     MF (toℕ (suc k) +ℕ toℕ (suc i) +ℕ toℕ (suc j))
     ∎
-  
+
   DetRowAux6b : {n : ℕ} → (k : Fin (suc n)) → (M : FinMatrix R (suc (suc n)) (suc (suc n))) →
      ∑
      (λ j →
@@ -657,7 +657,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
              (MF (toℕ (suc k) +ℕ toℕ (suc i) +ℕ toℕ j) · M (suc k) (weakenFin i)
               · M zero j
               · det (minor k i (minor zero j M)))))
-  
+
   DetRowAux6b k M =
     ∑
       (λ i →
@@ -733,7 +733,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
   weakenFinLe {zero} one (suc ()) le
   weakenFinLe {suc n} zero j le = z≤
   weakenFinLe {suc n} (suc i) (suc j) (s≤s le) = s≤s (weakenFinLe {n} i j le)
-  
+
   DetRowAux7a : {n : ℕ} → (k : Fin (suc n)) → (M : FinMatrix R (suc (suc n)) (suc (suc n))) →
     ∑
      (λ j →
@@ -830,7 +830,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
           j
           i
       )
-  
+
   DetRowAux8 : {n : ℕ} → (i : Fin (suc (suc n))) → (j k : Fin (suc n))
      → (M : FinMatrix R (suc (suc n)) (suc (suc n))) →
      MF (toℕ (suc k) +ℕ toℕ (suc j) +ℕ toℕ i) · minor zero i M k j · M zero i · det (minor k j (minor zero i M))
@@ -900,12 +900,12 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
     (MF (toℕ i) · M zero i · (MF (toℕ k +ℕ toℕ j) ·
        minor zero i M k j · det (minor k j (minor zero i M))))
     ∎
-           
+
 
   DetRow : ∀ {n} → (k : Fin n) → (M : FinMatrix R n n) →  (detR k M) ≡ (det M)
   DetRow {one} zero M = refl
   DetRow {suc (suc n)} zero M = refl
-  DetRow {suc (suc n)} (suc k) M = 
+  DetRow {suc (suc n)} (suc k) M =
     detR (suc k) M
       ≡⟨ refl ⟩
       ∑
@@ -925,7 +925,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
          (λ j →
             MF (toℕ j) · minor (suc k) i M zero j ·
             det (minor zero j (minor (suc k) i M))))
-         ((λ i → 
+         ((λ i →
          ∑
          (λ j →
             MF (toℕ (suc k) +ℕ toℕ i) · M (suc k) i ·
@@ -936,7 +936,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
               MF (toℕ j) · minor (suc k) i M zero j ·
               det (minor zero j (minor (suc k) i M))))⟩
      ∑
-      (λ i → 
+      (λ i →
          ∑
          (λ j →
             MF (toℕ (suc k) +ℕ toℕ i) · M (suc k) i ·
@@ -1245,9 +1245,9 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
     ⟩
    ∑ (λ i → MF (toℕ i) · M zero i · det (minor zero i M))
    ∎
-    
+
   --Laplace expansion along columns
-  
+
   detC : ∀ {n} → (k : Fin n) → FinMatrix R n n → R
   detC  {suc n} k M = ∑ (λ i → (MF ((toℕ i) +ℕ (toℕ k))) · (M i k) · det {n} (minor i k M))
 
@@ -1267,7 +1267,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
             MF (toℕ (suc j))· M zero (suc j) ·
             (MF (toℕ i +ℕ zero)· minor zero (suc j) M i zero  ·
              det (minor i zero (minor zero (suc j) M)))))
-             
+
   DetRowColumnAux M =
    ∑∑Compat
      (λ i j →
@@ -1361,7 +1361,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
          (MF (toℕ i +ℕ zero) · minor zero (suc j) M i zero ·
           det (minor i zero (minor zero (suc j) M))))
        ∎)
-   
+
   -- The determinant can also be expanded along the first column.
   DetRowColumn : ∀ {n} →  (M : FinMatrix R (suc n) (suc n)) →
      detC zero M ≡ det M
@@ -1462,7 +1462,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
     det M
     ∎
 
-  DetColumnAux1a : {n : ℕ} → (k : Fin (suc n)) → (M : FinMatrix R (suc (suc n)) (suc (suc n))) → 
+  DetColumnAux1a : {n : ℕ} → (k : Fin (suc n)) → (M : FinMatrix R (suc (suc n)) (suc (suc n))) →
     ∑
       (λ i →
          ∑
@@ -1584,7 +1584,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
        ∎)
 
 
-  DetColumnAux1b : {n : ℕ} → (k : Fin (suc n)) → (M : FinMatrix R (suc (suc n)) (suc (suc n))) → 
+  DetColumnAux1b : {n : ℕ} → (k : Fin (suc n)) → (M : FinMatrix R (suc (suc n)) (suc (suc n))) →
     ∑
       (λ i →
          ∑
@@ -1736,7 +1736,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
            (MF (toℕ i +ℕ zero) · M i zero ·
             (MF (toℕ (suc j) +ℕ toℕ (suc k)) · minor i zero M j k ·
              det (minor j k (minor i zero M))))))
-   
+
   DetColumnAux2a k M =
     ∑∑Compat
       (λ i j →
@@ -1832,7 +1832,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
           (MF (toℕ (suc j) +ℕ toℕ (suc k)) · minor i zero M j k · det (minor j k (minor i zero M))))
 
         ∎)
-      )  
+      )
 
   DetColumnAux2b : {n : ℕ} → (k : Fin (suc n)) → (M : FinMatrix R (suc (suc n)) (suc (suc n))) →
     ∑
@@ -2438,9 +2438,9 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
   detOne : {n : ℕ} → det {n} 𝟙 ≡ 1r
   detOne {zero} = refl
   detOne {suc n} =
-    ∑ (λ i → MF (toℕ i) · 𝟙 (zero {n}) i · det {n} (minor zero i 𝟙)) 
+    ∑ (λ i → MF (toℕ i) · 𝟙 (zero {n}) i · det {n} (minor zero i 𝟙))
     ≡⟨ refl ⟩
-    ∑ (λ i → MF (toℕ i) · δ (zero {n}) i · det {n} (minor zero i 𝟙)) 
+    ∑ (λ i → MF (toℕ i) · δ (zero {n}) i · det {n} (minor zero i 𝟙))
     ≡⟨ ∑Compat
       (λ i → MF (toℕ i) · δ (zero {n}) i · det {n} (minor zero i 𝟙))
       (λ i → δ (zero {n}) i · MF (toℕ i) · det {n} (minor zero i 𝟙))
@@ -2462,7 +2462,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
     MF zero · det {n} (minor zero zero 𝟙)
     ≡⟨ refl ⟩
     (1r · det {n} 𝟙)
-    ≡⟨ ·IdL (det {n} 𝟙) ⟩ 
+    ≡⟨ ·IdL (det {n} 𝟙) ⟩
     det {n}  𝟙
     ≡⟨ detOne{n} ⟩
     1r
@@ -2472,7 +2472,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
   detTransp : {n : ℕ} → (M : FinMatrix R n n) → det M ≡ det (M ᵗ)
   detTransp {zero} M = refl
   detTransp {suc n} M =
-    det M 
+    det M
     ≡⟨ refl ⟩
     ∑ (λ i → MF (toℕ i) · (M ᵗ) i zero · det ((minor i zero (M ᵗ))ᵗ))
     ≡⟨

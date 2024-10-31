@@ -25,7 +25,7 @@ open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.Semiring
 open import Cubical.Data.Int.Base using (pos; negsuc)
 open import Cubical.Data.Vec.Base using (_∷_; [])
-open import Cubical.Data.Nat.Order 
+open import Cubical.Data.Nat.Order
 open import Cubical.Tactics.CommRingSolver
 
 open import Minor
@@ -75,7 +75,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
   deltaComm : {n : ℕ} → (k l : Fin n) → δ k l ≡ δ l k
   deltaComm k l = cong (λ a → if a then 1r else 0r) (==Sym k l)
 
-  -- Definition of the cofactor matrix 
+  -- Definition of the cofactor matrix
   cof : {n : ℕ} → FinMatrix R n n → FinMatrix R n n
   cof {suc n} M i j = (MF (toℕ i +ℕ toℕ j)) ·  det {n} (minor i j M)
 
@@ -90,7 +90,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
       (λ a → MF (a) · det (minor j i M)) (+ℕ-comm (toℕ i) (toℕ j)) ⟩
     (MF (toℕ j +ℕ toℕ i) · det (minor j i M))
     ∎
-  
+
   -- Definition of the adjugate matrix
   adjugate : {n : ℕ} → FinMatrix R n n → FinMatrix R n n
   adjugate M i j = cof M j i
@@ -114,7 +114,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
   sucPredFin {suc n} zero (suc l) le = refl
   sucPredFin {suc n} (suc k) (suc l) (s≤s le) = refl
 
-  
+
   adjugatePropAux1a :  {n : ℕ} → (M : FinMatrix R (suc (suc n)) (suc (suc n))) → (k l : Fin (suc (suc n))) → toℕ k <' toℕ l →
    ∑
       (λ i →
@@ -132,14 +132,14 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
             ind> (toℕ i) (toℕ z) ·
             (M l i · MF (toℕ k +ℕ toℕ i) ·
              (MF (toℕ (predFin l) +ℕ toℕ z) · M l (weakenFin z))
-             · det (minor (predFin l) z (minor k i M)))))   
+             · det (minor (predFin l) z (minor k i M)))))
   adjugatePropAux1a M k l le =
     ∑∑Compat
     (λ i j →
            ind> (toℕ i) (toℕ j) ·
             (M l i · MF (toℕ k +ℕ toℕ i) ·
              (MF (toℕ (predFin l) +ℕ toℕ j) · minor k i M (predFin l) j ·
-              det (minor (predFin l) j (minor k i M))))) 
+              det (minor (predFin l) j (minor k i M)))))
     (λ z z₁ →
         ind> (toℕ z) (toℕ z₁) ·
         (M l z · MF (toℕ k +ℕ toℕ z) ·
@@ -378,7 +378,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
           (MF (toℕ (predFin l)) · MF (toℕ j) · M l (weakenFin j) ·
            det (minor (predFin l) j (minor k i M))))))
        ∎ )
-       
+
   adjugatePropAux2b :  {n : ℕ} → (M : FinMatrix R (suc (suc n)) (suc (suc n))) → (k l : Fin (suc (suc n))) →
     toℕ k <' toℕ l →
     ∑
@@ -467,7 +467,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
             det (minor (predFin l) j (minor k i M)))))))
       ≡⟨
         cong
-        (λ a → 
+        (λ a →
           (ind> (toℕ i) (toℕ j) ·
             (M l (weakenFin j) ·
               (MF (toℕ k) · a))))
@@ -545,7 +545,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
           (MF (toℕ (predFin l)) · MF (toℕ j) · M l (weakenFin j) ·
            det (minor (predFin l) j (minor k i M)))))
       ∎)
-  
+
   adjugatePropRG : {n : ℕ} → (M : FinMatrix R (suc n) (suc n)) → (k l : Fin (suc n)) → toℕ k <' toℕ l →
    ∑ (λ i → (M l i · (MF (toℕ k +ℕ toℕ i) · det (minor k i M)))) ≡ 0r
   adjugatePropRG {zero} M zero zero ()
@@ -665,7 +665,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
             (M l i · MF (toℕ k +ℕ toℕ i) ·
              (MF (toℕ (predFin l) +ℕ toℕ j) · minor k i M (predFin l) j ·
               det (minor (predFin l) j (minor k i M)))))))
-    ≡⟨ +Compat refl (∑∑ShiftWeak λ i j → 
+    ≡⟨ +Compat refl (∑∑ShiftWeak λ i j →
             (M l i · MF (toℕ k +ℕ toℕ i) ·
              (MF (toℕ (predFin l) +ℕ toℕ j) · minor k i M (predFin l) j ·
               det (minor (predFin l) j (minor k i M))))) ⟩
@@ -950,7 +950,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
      ∎
 
   adjugateInvRGcomponent : {n : ℕ} → (M : FinMatrix R n n) → (k l : Fin n) → toℕ l <' toℕ k → (M ⋆ adjugate M) k l ≡  (det M ∘ 𝟙) k l
-  adjugateInvRGcomponent {suc n} M k l le = 
+  adjugateInvRGcomponent {suc n} M k l le =
     ∑ (λ i → M k i · (MF(toℕ l +ℕ toℕ i) · det(minor l i M)) )
     ≡⟨ adjugatePropRG M l k le  ⟩
     0r
@@ -990,7 +990,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
   toℕstrongenFin {suc n} {suc j} zero le = refl
   toℕstrongenFin {suc n} {suc j} (suc i) (s≤s le) =
     cong (λ a → suc a) (toℕstrongenFin {n} {j} i le)
-  
+
 
   adjugatePropAux3a : {n : ℕ} → (M : FinMatrix R (suc (suc n)) (suc (suc n))) → (k l : Fin (suc (suc n))) → (le : toℕ l <' toℕ k) →
     ∑
@@ -1043,7 +1043,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
           cong
           (λ a →
             M l i · MF (toℕ k +ℕ toℕ i) ·
-              (MF (toℕ (strongenFin l le) +ℕ toℕ j) · a              
+              (MF (toℕ (strongenFin l le) +ℕ toℕ j) · a
               · det (minor (strongenFin l le) j (minor k i M))))
           (minorIdId
             k
@@ -1427,7 +1427,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
         ((- 1r) ·
          ( M l i · (MF (toℕ k) · MF (toℕ j)) ·
           (MF (toℕ l) · MF (toℕ i) · M l (weakenFin j))) ·
-           det (minor (strongenFin l le) j (minor k i M)))           
+           det (minor (strongenFin l le) j (minor k i M)))
       ∎)
 
   adjugatePropRL : {n : ℕ} → (M : FinMatrix R (suc n) (suc n)) → (k l : Fin (suc n)) → toℕ l <' toℕ k →
@@ -1725,7 +1725,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
               (MF (toℕ l) · MF (toℕ i) · M l (weakenFin j)))
              · det (minor (strongenFin l le) j (minor k i M))))
        (λ _ _ → 0r)
-       (λ i j → 
+       (λ i j →
          (ind> (toℕ i) (toℕ j) ·
            (1r ·
             (M l i · (MF (toℕ k) · MF (toℕ j)) ·
@@ -1834,7 +1834,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
     ∎
 
   adjugateInvRLcomponent : {n : ℕ} → (M : FinMatrix R n n) → (k l : Fin n) → toℕ k <' toℕ l → (M ⋆ adjugate M) k l ≡  (det M ∘ 𝟙) k l
-  adjugateInvRLcomponent {suc n} M k l le = 
+  adjugateInvRLcomponent {suc n} M k l le =
     ∑ (λ i → M k i · (MF(toℕ l +ℕ toℕ i) · det(minor l i M)) )
     ≡⟨ adjugatePropRL M l k le  ⟩
     0r
@@ -1853,7 +1853,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
   ... | inl x = inl (cong (λ a → (suc a)) x)
   ... | inr (inl x) = inr (inl (s≤s x))
   ... | inr (inr x) = inr (inr (s≤s x))
-  
+
   -- The adjugate matrix divided by the determinant is the right inverse.
   -- Component-wise version
   adjugateInvRComp : {n : ℕ} → (M : FinMatrix R n n) → (k l : Fin n)  → (M ⋆ adjugate M) k l ≡  (det M ∘ 𝟙) k l
@@ -1922,7 +1922,7 @@ module adjugate (ℓ : Level) (P' : CommRing ℓ) where
     ≡⟨ cong (λ a → det M · a) (deltaComm l k) ⟩
     (det M · 𝟙 k l)
     ∎
-  
+
   -- The adjugate matrix divided by the determinant is the right inverse.
   adjugateInvR : {n : ℕ} → (M : FinMatrix R n n)  → M ⋆ adjugate M ≡  det M ∘ 𝟙
   adjugateInvR M = funExt₂ (λ k l →  adjugateInvRComp M k l)

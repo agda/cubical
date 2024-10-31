@@ -17,7 +17,7 @@ open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.Monoid.BigOp
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Base
-open import Cubical.Data.Nat.Order 
+open import Cubical.Data.Nat.Order
 open import Cubical.Tactics.CommRingSolver
 
 module RingSum (ℓ : Level) (P' : CommRing ℓ) where
@@ -25,7 +25,7 @@ module RingSum (ℓ : Level) (P' : CommRing ℓ) where
   R' = CommRing→Ring P'
 
   open RingStr (snd (CommRing→Ring P')) renaming ( is-set to isSetR)
-  
+
   ∑ = Sum.∑ (CommRing→Ring P')
 
   R : Type ℓ
@@ -33,7 +33,7 @@ module RingSum (ℓ : Level) (P' : CommRing ℓ) where
 
   open  MonoidBigOp  (Ring→AddMonoid R')
 
- 
+
 
   -- Compatability theorems
   ∑Compat : {n : ℕ} → (U V : FinVec R n) →
@@ -74,12 +74,12 @@ module RingSum (ℓ : Level) (P' : CommRing ℓ) where
     ≡⟨ ∑Split (λ i → ∑ (λ j → U i j)) (λ i → ∑ (λ j → V i j)) ⟩
     (∑ (λ i → ∑ (U i)) + ∑ (λ i → ∑ (V i)))
     ∎
-  
+
   -- Distributivity of the sum
   ∑DistR = Sum.∑Mulrdist (CommRing→Ring P')
 
   ∑DistL = Sum.∑Mulldist (CommRing→Ring P')
-  
+
   -- Sum of Zeros is Zero
   ∑Zero : {n : ℕ} → (U : FinVec R n) → ((i : Fin n) → U i ≡ 0r) → ∑ U ≡ 0r
   ∑Zero {zero} U f = refl
@@ -111,7 +111,7 @@ module RingSum (ℓ : Level) (P' : CommRing ℓ) where
     ∑ (λ (i : Fin n) → 0r)
     ≡⟨ ∑Zero ( (λ (i : Fin n) → 0r)) ( (λ i → refl)) ⟩
     0r
-    ∎   
+    ∎
   ∑Comm {suc n} {suc m} U =
     ∑ (λ i → ∑ (U i))
     ≡⟨ refl ⟩
