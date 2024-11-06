@@ -87,7 +87,7 @@ module _
 
           m[b]-in-ker[s] : isInKer s m[b]
           m[b]-in-ker[s] = s[m[b]]≡0
-          
+
           m[b]-in-im[r] : isInIm r m[b]
           m[b]-in-im[r] = rs m[b] .fst m[b]-in-ker[s]
 
