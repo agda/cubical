@@ -29,6 +29,9 @@ private
   variable
     ℓ ℓ' : Level
 
+SuccStr : Type (ℓ-suc ℓ)
+SuccStr {ℓ = ℓ} = TypeWithStr ℓ λ A → (A → A)
+
 -- Exactness except the intersecting Group is only propositionally equal
 isWeakExactAt : {A B B' C : Group ℓ} (f : GroupHom A B) (g : GroupHom B' C) (p : B ≡ B') → Type ℓ
 isWeakExactAt {ℓ = ℓ} {B = B} {B' = B'} f g p =
@@ -43,14 +46,8 @@ isWeakExactAtRefl : {A B C : Group ℓ} (f : GroupHom A B) (g : GroupHom B C)
   → isWeakExactAt f g refl ≡ isExactAt f g
 isWeakExactAtRefl {ℓ = ℓ} {B = B} f g i = (b : ⟨ B ⟩) → (isInKer g (transportRefl b i) → isInIm f b) × (isInIm f b → isInKer g (transportRefl b i))
 
--- Fin-indexed sequences
+-- Finite exact sequence
 module _ where
-  -- finExactSeq : {len-2 : ℕ}
-  --   → (gSeq : (gIdx : Fin (suc (suc len-2))) → Group ℓ)
-  --   → (hSeq : (hIdx : Fin (suc len-2)) → GroupHom (gSeq (finj hIdx)) (gSeq (fsuc hIdx)))
-  --   → Type ℓ
-  -- finExactSeq {len-2 = len-2} gSeq hSeq = (pIdx : Fin len-2) → isWeakExactAt (hSeq (finj pIdx)) (hSeq (fsuc pIdx)) (cong gSeq (toℕ-injective refl))
-
   finExactSeq : {len-2 : ℕ}
     → (gSeq : (gIdx : Fin (suc (suc len-2))) → Group ℓ)
     → (hSeq : (hIdx : Fin (suc len-2)) → GroupHom (gSeq (finj hIdx)) (gSeq (fsuc hIdx)))
@@ -58,16 +55,13 @@ module _ where
   finExactSeq {ℓ = ℓ} {len-2 = len-2} gSeq hSeq
     = (pIdx : Fin len-2) → isExactAt (subst (λ n → GroupHom (gSeq (finj (finj pIdx))) (gSeq n)) (toℕ-injective refl) (hSeq (finj pIdx))) (hSeq (fsuc pIdx))
 
--- ℕ-indexed sequences
+-- Exact sequence over successor structures
 module _ where
-  ℕExactSeq : (gSeq : (n : ℕ) → Group ℓ) → (hSeq : (n : ℕ) → GroupHom (gSeq n) (gSeq (suc n))) → Type ℓ
-  ℕExactSeq gSeq hSeq = (m : ℕ) → isExactAt (hSeq m) (hSeq (suc m))
-
--- ℤ-indexed sequences
-module _ where
-  open import Cubical.Data.Int
-  ℤExactSeq : (gSeq : (z : ℤ) → Group ℓ) → (hSeq : (z : ℤ) → GroupHom (gSeq z) (gSeq (sucℤ z))) → Type ℓ
-  ℤExactSeq gSeq hSeq = (m : ℤ) → isExactAt (hSeq m) (hSeq (sucℤ m))
+  exactSeq : (ss @ (N , succ) : SuccStr {ℓ = ℓ})
+    → (gSeq : (gIdx : N) → Group ℓ')
+    → (hSeq : (hIdx : N) → GroupHom (gSeq hIdx) (gSeq (succ hIdx)))
+    → Type (ℓ-max ℓ ℓ')
+  exactSeq (N , succ) gSeq hSeq = (pIdx : N) → isExactAt (hSeq pIdx) (hSeq (succ pIdx))
 
 module _ where
   0→_ : (A : Group ℓ) → GroupHom (UnitGroup {ℓ}) A
@@ -95,8 +89,8 @@ module _ {A B C : Group ℓ} (f : GroupHom A B) (g : GroupHom B C) where
     sesHSeq (suc (suc (suc zero)) , _) = C →0
     sesHSeq (suc (suc (suc (suc n))) , p) = Cubical.Data.Empty.rec (¬-<-zero (≤-k+-cancel p))
 
-  shortExactSeq2 : Type ℓ
-  shortExactSeq2 = finExactSeq sesGSeq sesHSeq
+  shortExactSeq5 : Type ℓ
+  shortExactSeq5 = finExactSeq sesGSeq sesHSeq
 
 module _ {A B : Group ℓ} (f : GroupHom A B) where
   open import Cubical.Data.Vec
@@ -114,8 +108,8 @@ module _ {A B : Group ℓ} (f : GroupHom A B) where
     sesHSeq (suc (suc zero) , _) = B →0
     sesHSeq (suc (suc (suc n)) , p) = Cubical.Data.Empty.rec (¬-<-zero (≤-k+-cancel p))
 
-  shortExactSeq : Type ℓ
-  shortExactSeq = finExactSeq sesGSeq sesHSeq
+  shortExactSeq4 : Type ℓ
+  shortExactSeq4 = finExactSeq sesGSeq sesHSeq
 
 SES→isEquiv : {L R : Group ℓ-zero}
   → {G : Group ℓ} {H : Group ℓ'}
@@ -237,3 +231,4 @@ transportExact4 {G = G} {G₂ = G₂} {H = H} {H₂ = H₂} {L = L} {L₂ = L₂
         (J (λ w r → (s : x₄ ≡ u) → B x x₂ w u refl refl r s)
           (J (λ u s → B x x₂ x₃ u refl refl refl s) b)))
 
+ 
