@@ -69,7 +69,7 @@ module _
 
         rest : (b : ⟨ B ⟩) → (g .fst b ≡ c) → goalTy
 
-        goal = untrunc (map (λ x → rest (fst x) (snd x)) c-in-im[g])
+        goal = untrunc (PT.map (λ x → rest (fst x) (snd x)) c-in-im[g])
 
         rest b g[b]≡c = goal2 where
 
@@ -94,8 +94,8 @@ module _
           rest2 : (a' : ⟨ A' ⟩) → (r .fst a' ≡ m[b]) → (a : ⟨ A ⟩) → l .fst a ≡ a' → goalTy
 
           goal2 =
-            let inner = λ x → untrunc (map (λ y → rest2 (x .fst) (x .snd) (y .fst) (y .snd)) (lSurj (x .fst))) in
-            untrunc (map inner m[b]-in-im[r])
+            let inner = λ x → untrunc (PT.map (λ y → rest2 (x .fst) (x .snd) (y .fst) (y .snd)) (lSurj (x .fst))) in
+            untrunc (PT.map inner m[b]-in-im[r])
 
           rest2 a' r[a']≡m[b] a l[a]≡a' = c≡0 where
 
@@ -118,7 +118,7 @@ module _
             f[a]-in-im[f] = ∣ a , refl ∣₁
 
             f[a]-in-ker[g] : isInKer g (f .fst a)
-            f[a]-in-ker[g] = fg (f .fst a) .snd f[a]-in-im[f]
+            f[a]-in-ker[g] = invIsEq (fg (f .fst a) .snd) f[a]-in-im[f]
 
             g[f[a]]≡0 : g .fst (f .fst a) ≡ C .snd .GroupStr.1g
             g[f[a]]≡0 = f[a]-in-ker[g]
@@ -158,7 +158,7 @@ module _
         u[p[d]]≡q[j[d]] = sq4 d
 
         d'-in-ker[u] : isInKer u d'
-        d'-in-ker[u] = let im[t]→ker[u] = tu d' .snd in
+        d'-in-ker[u] = let im[t]→ker[u] = invIsEq (tu d' .snd) in
           im[t]→ker[u] ∣ (c' , refl) ∣₁
 
         u[p[d]]≡0 : u[p[d]] ≡ E' .snd .GroupStr.1g
@@ -180,7 +180,7 @@ module _
 
         rest : (c : ⟨ C ⟩) → h .fst c ≡ d → goalTy
 
-        goal = untrunc (map (λ x → rest (x .fst) (x .snd)) d-in-im[h])
+        goal = untrunc (PT.map (λ x → rest (x .fst) (x .snd)) d-in-im[h])
 
         rest c h[c]≡d = goal2 where
           n[c] : ⟨ C' ⟩
@@ -222,7 +222,7 @@ module _
 
           rest2 : (b' : ⟨ B' ⟩) → s .fst b' ≡ c'-n[c] → goalTy
 
-          goal2 = untrunc (map (λ x → rest2 (x .fst) (x .snd)) [c'-n[c]]-in-im[s])
+          goal2 = untrunc (PT.map (λ x → rest2 (x .fst) (x .snd)) [c'-n[c]]-in-im[s])
 
           rest2 b' s[b']≡c'-n[c] = goal3 where
             mGroupIso = BijectionIso→GroupIso m
