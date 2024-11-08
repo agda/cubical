@@ -202,5 +202,4 @@ transportExact4 {G = G} {G₂ = G₂} {H = H} {H₂ = H₂} {L = L} {L₂ = L₂
       (J (λ z q → (r : x₃ ≡ w) (s : x₄ ≡ u) → B x z w u refl q r s)
         (J (λ w r → (s : x₄ ≡ u) → B x x₂ w u refl refl r s)
           (J (λ u s → B x x₂ x₃ u refl refl refl s) b)))
-  
-  
+
