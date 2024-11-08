@@ -16,6 +16,7 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
 open import Cubical.Data.Unit
+open import Cubical.Data.Vec
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Morphisms
@@ -35,25 +36,36 @@ SuccStr {ℓ = ℓ} = TypeWithStr ℓ λ A → (A → A)
 -- Exactness except the intersecting Group is only propositionally equal
 isWeakExactAt : {A B B' C : Group ℓ} (f : GroupHom A B) (g : GroupHom B' C) (p : B ≡ B') → Type ℓ
 isWeakExactAt {ℓ = ℓ} {B = B} {B' = B'} f g p =
-  (b : ⟨ B ⟩) → (isInKer g (subst (λ (a : Σ (Type ℓ) GroupStr) → fst a) p b) → isInIm f b) × (isInIm f b → isInKer g (subst fst p b))
+  (b : ⟨ B ⟩) → isInKer g (subst (λ (a : Σ (Type ℓ) GroupStr) → fst a) p b) ≃ isInIm f b
 
 isExactAt : {A B C : Group ℓ} (f : GroupHom A B) (g : GroupHom B C) → Type ℓ
-isExactAt {B = B} f g = (b : ⟨ B ⟩) → (isInKer g b → isInIm f b) × (isInIm f b → isInKer g b)
+isExactAt {B = B} f g = (b : ⟨ B ⟩) → isInKer g b ≃ isInIm f b
 
 -- TODO: Is exactness preserved across association?
 
 isWeakExactAtRefl : {A B C : Group ℓ} (f : GroupHom A B) (g : GroupHom B C)
   → isWeakExactAt f g refl ≡ isExactAt f g
-isWeakExactAtRefl {ℓ = ℓ} {B = B} f g i = (b : ⟨ B ⟩) → (isInKer g (transportRefl b i) → isInIm f b) × (isInIm f b → isInKer g (transportRefl b i))
+isWeakExactAtRefl {ℓ = ℓ} {B = B} f g i = (b : ⟨ B ⟩) → (isInKer g (transportRefl b i)) ≃ (isInIm f b)
 
--- Finite exact sequence
+-- Exact sequence based on vec
 module _ where
-  finExactSeq : {len-2 : ℕ}
-    → (gSeq : (gIdx : Fin (suc (suc len-2))) → Group ℓ)
-    → (hSeq : (hIdx : Fin (suc len-2)) → GroupHom (gSeq (finj hIdx)) (gSeq (fsuc hIdx)))
-    → Type ℓ
-  finExactSeq {ℓ = ℓ} {len-2 = len-2} gSeq hSeq
-    = (pIdx : Fin len-2) → isExactAt (subst (λ n → GroupHom (gSeq (finj (finj pIdx))) (gSeq n)) (toℕ-injective refl) (hSeq (finj pIdx))) (hSeq (fsuc pIdx))
+  2+_ = λ (n : ℕ) → suc (suc n)
+  3+_ = λ (n : ℕ) → suc (suc (suc n))
+
+  data HomVec {ℓ : Level} : {n : ℕ} → Vec (Group ℓ) (2+ n) → Type (ℓ-suc ℓ) where
+    -- This needs to at least have 1 group in it or else the suc case doesn't have
+    -- a previous group to index by
+    end : {A B : Group ℓ} → GroupHom A B → HomVec {n = 0} (B ∷ A ∷ [])
+    cons : {n : ℕ} {gv : Vec (Group ℓ) (suc n)} {A B : Group ℓ}
+      → GroupHom A B → HomVec {n = n} (A ∷ gv) → HomVec {n = suc n} (B ∷ A ∷ gv)
+
+  data ExactSeqVec {ℓ : Level} : {n : ℕ} → {gs : Vec (Group ℓ) (3+ n)} → HomVec gs → Type (ℓ-suc ℓ) where
+    nil : {A B C : Group ℓ} {f : GroupHom A B} {g : GroupHom B C}
+      → isExactAt f g → ExactSeqVec (cons g (end f))
+    cons : {n : ℕ} {gv : Vec (Group ℓ) (suc n)} {A B C : Group ℓ}
+      → {f : GroupHom A B} {g : GroupHom B C} {hv : HomVec (A ∷ gv)}
+      → isExactAt f g
+      → ExactSeqVec (cons f hv) → ExactSeqVec (cons g (cons f hv))
 
 -- Exact sequence over successor structures
 module _ where
@@ -70,46 +82,6 @@ module _ where
 
   _→0 : (A : Group ℓ) → GroupHom A (UnitGroup {ℓ})
   A →0 = (λ _ → tt*) , record { pres· = λ x y → refl ; pres1 = refl ; presinv = λ x → refl }
-
--- Short exact sequences
-module _ {A B C : Group ℓ} (f : GroupHom A B) (g : GroupHom B C) where
-  open import Cubical.Data.Vec
-
-  private
-    sesGVec : Vec (Group ℓ) 5
-    sesGVec = UnitGroup ∷ A ∷ B ∷ C ∷ UnitGroup ∷ []
-
-    sesGSeq : (gIdx : Fin 5) → Group ℓ
-    sesGSeq gIdx = lookup (Fin→FinData 5 gIdx) sesGVec
-
-    sesHSeq : (hIdx : Fin 4) → GroupHom (sesGSeq (finj hIdx)) (sesGSeq (fsuc hIdx))
-    sesHSeq (zero , _) = 0→ A
-    sesHSeq (suc zero , _) = f
-    sesHSeq (suc (suc zero) , _) = g
-    sesHSeq (suc (suc (suc zero)) , _) = C →0
-    sesHSeq (suc (suc (suc (suc n))) , p) = Cubical.Data.Empty.rec (¬-<-zero (≤-k+-cancel p))
-
-  shortExactSeq5 : Type ℓ
-  shortExactSeq5 = finExactSeq sesGSeq sesHSeq
-
-module _ {A B : Group ℓ} (f : GroupHom A B) where
-  open import Cubical.Data.Vec
-
-  private
-    sesGVec : Vec (Group ℓ) 4
-    sesGVec = UnitGroup ∷ A ∷ B ∷ UnitGroup ∷ []
-
-    sesGSeq : (gIdx : Fin 4) → Group ℓ
-    sesGSeq gIdx = lookup (Fin→FinData 4 gIdx) sesGVec
-
-    sesHSeq : (hIdx : Fin 3) → GroupHom (sesGSeq (finj hIdx)) (sesGSeq (fsuc hIdx))
-    sesHSeq (zero , _) = 0→ A
-    sesHSeq (suc zero , _) = f
-    sesHSeq (suc (suc zero) , _) = B →0
-    sesHSeq (suc (suc (suc n)) , p) = Cubical.Data.Empty.rec (¬-<-zero (≤-k+-cancel p))
-
-  shortExactSeq4 : Type ℓ
-  shortExactSeq4 = finExactSeq sesGSeq sesHSeq
 
 SES→isEquiv : {L R : Group ℓ-zero}
   → {G : Group ℓ} {H : Group ℓ'}
@@ -230,5 +202,5 @@ transportExact4 {G = G} {G₂ = G₂} {H = H} {H₂ = H₂} {L = L} {L₂ = L₂
       (J (λ z q → (r : x₃ ≡ w) (s : x₄ ≡ u) → B x z w u refl q r s)
         (J (λ w r → (s : x₄ ≡ u) → B x x₂ w u refl refl r s)
           (J (λ u s → B x x₂ x₃ u refl refl refl s) b)))
-
- 
+  
+  
