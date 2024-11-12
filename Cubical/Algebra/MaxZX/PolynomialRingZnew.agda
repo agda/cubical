@@ -1,8 +1,9 @@
 {-# OPTIONS --cubical #-}
 
 -- PolynomialRingZ.agda
-module PolynomialRingZnew where
+module Cubical.Algebra.MaxZX.PolynomialRingZnew where
 
+open import Agda.Primitive
 open import Agda.Primitive.Cubical
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -23,7 +24,7 @@ open import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyList
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty
 open import Cubical.Tactics.CommRingSolver
-open import ExplMaxIdeal
+open import Cubical.Algebra.MaxZX.ExplMaxIdeal
 
 {- record Inspect {A : Set} (x : A) : Set where
   constructor what
