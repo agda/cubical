@@ -1,4 +1,5 @@
 {-# OPTIONS --cubical #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Algebra.Determinat.Adjugate where
 
