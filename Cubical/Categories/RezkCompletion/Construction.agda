@@ -51,7 +51,7 @@ module RezkByYoneda (C : Category ℓ ℓ) where
   ToYonedaImage = ToEssentialImage _
 
   isWeakEquivalenceToYonedaImage : isWeakEquivalence ToYonedaImage
-  isWeakEquivalenceToYonedaImage .fullfaith = isFullyFaithfulToEssentialImage _ isFullyFaithfulYO
+  isWeakEquivalenceToYonedaImage .fullfaith = isFullyFaithfulToEssentialImage YO isFullyFaithfulYO
   isWeakEquivalenceToYonedaImage .esssurj   = isEssentiallySurjToEssentialImage YO
 
   isRezkCompletionToYonedaImage : isRezkCompletion ToYonedaImage
