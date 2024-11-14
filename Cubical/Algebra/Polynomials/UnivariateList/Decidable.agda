@@ -31,8 +31,8 @@ private variable
   ℓ : Level
 
 {-
- if a sequence of decidable properties starting with a false one, becomes eventually true,
- there is a highest natural number for which it is false
+ if a eventually true sequence of decidable propositions starts with a false propostion,
+ then there is a highest natural number for which it is false
 -}
 lemma : (s : ℕ → DecProp ℓ)
         → ¬ (s zero .fst .fst)
