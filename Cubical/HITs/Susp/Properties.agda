@@ -577,6 +577,13 @@ Susp·→Ωcomm A {B = B} f g = isoInvInjective ΩSuspAdjointIso _ _
                 ∙ sym (·Suspσ g f x)
                 ∙ rUnit _)
 
+Susp·→Ωcomm' : ∀ {ℓ ℓ'} (A A' : Pointed ℓ)
+  → A ≃∙ Susp∙ (typ A') → {B : Pointed ℓ'}
+  (f g : A →∙ Ω B) → ·→Ω f g ≡ ·→Ω g f
+Susp·→Ωcomm' A A' e {B = B} =
+  Equiv∙J (λ A _ → (f g : A →∙ Ω B) → ·→Ω f g ≡ ·→Ω g f)
+    (Susp·→Ωcomm A') e
+
 ·SuspComm : ∀ {ℓ ℓ'} (A : Pointed ℓ) {B : Pointed ℓ'}
   (f g : Susp∙ (Susp (typ A)) →∙ B)
   → ·Susp (Susp∙ (typ A)) f g ≡ ·Susp (Susp∙ (typ A)) g f

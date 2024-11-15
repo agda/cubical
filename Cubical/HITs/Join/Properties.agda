@@ -707,3 +707,15 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
   inv GaneaIso = join→GaneaFib
   rightInv GaneaIso = join→GaneaFib→join
   leftInv GaneaIso = GaneaFib→join→GaneaFib
+
+-- Pinch map
+joinPinch : ∀ {ℓ''} {A : Type ℓ} {B : Type ℓ'} (C : Pointed ℓ'')
+  → ((a : A) (b : B) → Ω C .fst) → join A B → fst C
+joinPinch C p (inl x) = pt C
+joinPinch C p (inr x) = pt C
+joinPinch C p (push a b i) = p a b i
+
+joinPinch∙ : ∀ {ℓ''} (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'')
+  → ((a : typ A) (b : typ B) → Ω C .fst) → join∙ A B →∙ C
+proj₁ (joinPinch∙ A B C p) = joinPinch C p
+snd (joinPinch∙ A B C p) = refl

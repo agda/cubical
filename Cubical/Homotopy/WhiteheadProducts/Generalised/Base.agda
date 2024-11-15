@@ -28,10 +28,8 @@ module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
          (f : Susp∙ (typ A) →∙ C) (g : Susp∙ (typ B) →∙ C) where
 
   ·wh : join∙ A B →∙ C
-  fst ·wh (inl x) = pt C
-  fst ·wh (inr x) = pt C
-  fst ·wh (push a b i) = (Ω→ g .fst (σ B b) ∙ Ω→ f .fst (σ A a)) i
-  snd ·wh = refl
+  ·wh = joinPinch∙ A B C
+         (λ a b → (Ω→ g .fst (σ B b) ∙ Ω→ f .fst (σ A a)))
 
   -- alternative version using Suspension and smash
   private
@@ -60,7 +58,7 @@ module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
   fst ·whΣ = fst ·whΣ' ∘ suspFun ⋀→Smash
   snd ·whΣ = refl
 
-  -- The two versions agree modulo the equivalnce Σ(A ⋀ B) ≃ A * B
+  -- The two versions agree modulo the equivalence Σ(A ⋀ B) ≃ A * B
   ·wh≡·whΣ : ·wh ∘∙ (SuspSmash→Join∙ A B) ≡ ·whΣ
   ·wh≡·whΣ = ΣPathP (funExt lem , (sym (rUnit _)
     ∙ cong sym (cong₂ _∙_

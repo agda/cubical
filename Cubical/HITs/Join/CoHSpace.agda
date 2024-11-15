@@ -44,7 +44,6 @@ open Iso
 ℓ* A B a b = push (pt A) (pt B)
            ∙ (push a (pt B) ⁻¹ ∙∙ push a b ∙∙ (push (pt A) b ⁻¹))
 
-
 ℓ*IdL : (A : Pointed ℓ) (B : Pointed ℓ')
   → (b : fst B) → ℓ* A B (pt A) b ≡ refl
 ℓ*IdL A B b =
@@ -80,6 +79,12 @@ fst (-* {C = C} f) (inl x) = pt C
 fst (-* {C = C} f) (inr x) = pt C
 fst (-* {A = A} {B} f) (push a b i) = Ω→ f .fst (ℓ* A B a b) (~ i)
 snd (-* f) = refl
+
+-- Iterated inversion
+-*^ : {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+      (n : ℕ) (f : join∙ A B →∙ C)
+     → join∙ A B →∙ C
+-*^ n = iter n -*
 
 -- Neutral element
 0* : {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
@@ -331,3 +336,15 @@ module _ {ℓ ℓ' ℓ'' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Poin
     where
     help : (-* (-* f)) +* (-* f) ≡ f +* (-* f)
     help = +*InvL (-* f) ∙ sym (+*InvR f)
+
+join-commFun-ℓ* : (A : Pointed ℓ) (B : Pointed ℓ') (a : fst A) (b : fst B)
+  → cong join-commFun (ℓ* A B a b)
+   ≡ (sym (push (pt B) (pt A)) ∙∙ sym (ℓ* B A b a) ∙∙ push (pt B) (pt A))
+join-commFun-ℓ* A B a b =
+    cong-∙ join-commFun (push (pt A) (pt B)) _
+  ∙ cong₂ _∙_ refl (cong-∙∙ join-commFun _ _ _)
+  ∙ sym (doubleCompPath≡compPath _ _ _
+      ∙ cong₂ _∙_ refl
+         (cong₂ _∙_ (symDistr _ _) refl
+        ∙ sym (assoc _ _ _) ∙ cong₂ _∙_ refl (lCancel _)
+        ∙ sym (rUnit _)))

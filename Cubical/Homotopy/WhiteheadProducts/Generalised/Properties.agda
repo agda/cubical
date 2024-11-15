@@ -5,16 +5,12 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Equiv.Properties
 
-open import Cubical.Data.Nat
-open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
-open import Cubical.Data.Bool
+open import Cubical.Data.Sigma
 
 open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.Pushout
@@ -23,14 +19,9 @@ open import Cubical.HITs.Sn.Multiplication
 open import Cubical.HITs.Join
 open import Cubical.HITs.Join.CoHSpace
 open import Cubical.HITs.Wedge
-open import Cubical.HITs.SetTruncation
 open import Cubical.HITs.SmashProduct
 
-open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.Loopspace
-open import Cubical.Homotopy.Group.Join
-
-
 open import Cubical.Homotopy.WhiteheadProducts.Generalised.Base
 
 open Iso
@@ -365,9 +356,42 @@ module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
                         ∘∙ join-commFun∙)
     preWhiteheadProdComm = sym (-*² _) ∙ cong -* anticomm ∙ -*Swap _
 
+WhiteheadProdComm' : ∀ {ℓ ℓ' ℓ''} {C : Pointed ℓ''}
+   (A A' : Pointed ℓ) (eA : A ≃∙ Susp∙ (typ A')) (B B' : Pointed ℓ')
+
+                   (eB : B ≃∙ Susp∙ (typ B'))
+                   (f : _ →∙ C) (g : _ →∙ C)
+  → ·wh A B f g ≡ (·wh B A g f ∘∙ join-commFun∙)
+WhiteheadProdComm' {C = C} A A' =
+  Equiv∙J (λ A _ →  (B B' : Pointed _)
+
+                   (eB : B ≃∙ Susp∙ (typ B'))
+                   (f : _ →∙ C) (g : _ →∙ C)
+                   → ·wh A B f g ≡ (·wh B A g f ∘∙ join-commFun∙))
+    λ B B' → Equiv∙J (λ B _ → (f : _ →∙ C) (g : _ →∙ C)
+                   → ·wh (Susp∙ (typ A')) B f g
+                   ≡ (·wh B (Susp∙ (typ A')) g f ∘∙ join-commFun∙))
+     (WhiteheadProdComm _ _)
 
   -- (right derivator) version of the Jacobi identity. This
   -- corresponds to the statement [f,[g,h]] = [[f,g],h] + [g,[f,h]]
+
+-- We need some 'correction functoins' to make the theorem well-typed
+module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'') where
+  Jcorrection₁ : join∙ A (B ⋀∙ C) →∙ join∙ (A ⋀∙ B) C
+  fst Jcorrection₁ =
+    ≃∙map (invEquiv∙ (permute⋀Join≃∙ A B C)) .fst
+  snd Jcorrection₁ = sym (push (inl tt) (pt C))
+
+  Jcorrection₁⁻ : join∙ (A ⋀∙ B) C →∙ join∙ A (B ⋀∙ C)
+  Jcorrection₁⁻ = ≃∙map (permute⋀Join≃∙ A B C)
+
+Jcorrection₂ : ∀ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'')
+  → join∙ A (B ⋀∙ C) →∙ join∙ B (A ⋀∙ C)
+Jcorrection₂ A B C = Jcorrection₁⁻ B A C
+           ∘∙ ((join→ ⋀comm→ (idfun _) , refl)
+           ∘∙ Jcorrection₁ A B C)
+
 module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
          (B : Pointed ℓ') (C : Pointed ℓ'') {D : Pointed ℓ'''}
          (f : Susp∙ (Susp (typ A)) →∙ D)
@@ -406,32 +430,18 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
     Ω→h∙ = cong (Ω→ h .fst) (rCancel (merid north)) ∙ Ω→ h .snd
 
   -- We need some 'correction functoins' to make the theorem well-typed
-  correction₁ : ∀ {ℓ ℓ' ℓ''} (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'')
-             → join∙ (Susp∙ (typ A)) (Susp∙ (typ B) ⋀∙ Susp∙ (typ C))
-            →∙ join∙ (Susp∙ (typ A) ⋀∙ Susp∙ (typ B)) (Susp∙ (typ C))
-  fst (correction₁ A B C) =
-    ≃∙map (invEquiv∙ (permute⋀Join≃∙
-          (Susp∙ (typ A)) (Susp∙ (typ B)) (Susp∙ (typ C)))) .fst
-  snd (correction₁ A B C) = sym (push (inl tt) north)
+  correction₁ = Jcorrection₁ (Susp∙ (typ A)) (Susp∙ (typ B)) (Susp∙ (typ C))
 
-  correction₁⁻ : ∀ {ℓ ℓ' ℓ''} (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'')
-             → join∙ (Susp∙ (typ A) ⋀∙ Susp∙ (typ B)) (Susp∙ (typ C))
-            →∙ join∙ (Susp∙ (typ A)) (Susp∙ (typ B) ⋀∙ Susp∙ (typ C))
-  correction₁⁻ A B C =
-    ≃∙map ((permute⋀Join≃∙
-          (Susp∙ (typ A)) (Susp∙ (typ B)) (Susp∙ (typ C))))
+  correction₁⁻ = Jcorrection₁⁻ (Susp∙ (typ A)) (Susp∙ (typ B)) (Susp∙ (typ C))
 
-  correction₂ : join∙ (Susp∙ (typ A)) (Susp∙ (typ B) ⋀∙ Susp∙ (typ C))
-            →∙ join∙ (Susp∙ (typ B)) (Susp∙ (typ A) ⋀∙ Susp∙ (typ C))
-  correction₂ = correction₁⁻ B A C
-             ∘∙ ((join→ ⋀comm→ (idfun _) , refl)
-             ∘∙ correction₁ A B C)
+  correction₂ = Jcorrection₂ (Susp∙ (typ A)) (Susp∙ (typ B)) (Susp∙ (typ C))
 
   -- Main result
-  Jacobi : whA-BC f (whBC g h ∘∙ Σ[B⋀C]→ΣB*ΣC)
-        ≡ ((whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h ∘∙ correction₁ A B C)
+  JacobiR : whA-BC f (whBC g h ∘∙ Σ[B⋀C]→ΣB*ΣC)
+        ≡ ((whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h ∘∙ correction₁)
         +* (whB-AC g (whAC f h ∘∙ Σ[A⋀C]→ΣA*ΣC) ∘∙ correction₂))
-  Jacobi =
+  JacobiR =
+
     ΣPathP ((funExt (λ { (inl x) → lp x
                        ; (inr x) → rp x
                        ; (push a b i) j → main a b j i
@@ -439,7 +449,7 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
           , flipSquare (Iso.inv ΩSuspAdjointIso f .snd))
     where
     L = whA-BC f (whBC g h ∘∙ Σ[B⋀C]→ΣB*ΣC)
-    R = ((whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h ∘∙ correction₁ A B C)
+    R = ((whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h ∘∙ correction₁)
         +* (whB-AC g (whAC f h ∘∙ Σ[A⋀C]→ΣA*ΣC) ∘∙ correction₂))
 
     -- The identites on point constructors.
@@ -485,8 +495,8 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
                           refl
                         ∙ sym (rUnit refl))
 
-    lem2 : whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h ∘∙ correction₁ A B C
-      ≡ ((whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h ∘∙ correction₁ A B C) .fst , refl)
+    lem2 : whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h ∘∙ correction₁
+      ≡ ((whAB-C (whAB f g ∘∙ Σ[A⋀B]→ΣA*ΣB) h ∘∙ correction₁) .fst , refl)
     lem2 = ΣPathP (refl
       , sym (rUnit _)
       ∙ cong₃ _∙∙_∙∙_ refl
@@ -508,7 +518,7 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
                  ∙ sym (rUnit refl))
       where
       lem : snd correction₂ ≡ refl
-      lem = cong₂ _∙_ (cong (cong (fst (correction₁⁻ B A C)))
+      lem = cong₂ _∙_ (cong (cong (fst (Jcorrection₁⁻ (Susp∙ (typ B)) (Susp∙ (typ A)) (Susp∙ (typ C)))))
                       (sym (rUnit _))) refl
           ∙ rCancel _
 
@@ -555,13 +565,13 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
       ℓAB-C =  ℓ* ((Susp∙ (typ A)) ⋀∙ (Susp∙ (typ B))) (Susp∙ (typ C))
       ℓB-AC =  ℓ* (Susp∙ (typ B)) ((Susp∙ (typ A)) ⋀∙ (Susp∙ (typ C)))
 
-      correction₁-ℓ : cong (fst (correction₁ A B C)) (ℓA-BC a (inr (b , c)))
+      correction₁-ℓ : cong (fst (correction₁)) (ℓA-BC a (inr (b , c)))
                     ≡ (push (inl tt) north) ⁻¹
                     ∙∙ ℓAB-C (inr (a , b)) c
                     ∙∙ push (inl tt) north
-      correction₁-ℓ = cong-∙ (fst (correction₁ A B C)) _ _
+      correction₁-ℓ = cong-∙ (fst (correction₁)) _ _
                    ∙ cong (sym (push (inl tt) north) ∙_)
-                          (cong-∙∙ (fst (correction₁ A B C)) _ _ _
+                          (cong-∙∙ (fst (correction₁)) _ _ _
                           ∙ doubleCompPath≡compPath _ _ _ ∙ refl)
                    ∙ assoc _ _ _
                    ∙ cong₂ _∙_ (rCancel _) refl
@@ -608,16 +618,18 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
         help : (a : _) (b : _) (c : _)
              → cong (fst correction₂) (push a (inr (b , c)))
               ≡ ℓB-AC b (inr (a , c)) ∙ push north (inl tt)
-        help a b c = cong-∙∙ (correction₁⁻ B A C .fst
-                           ∘ join→ ⋀comm→ (idfun (Susp (typ C)))) _ _ _
-                   ∙ cong₃ _∙∙_∙∙_ ((λ i → push north (push (inl a) (~ i))
-                                         ∙∙ push b (push (inl a) (~ i)) ⁻¹
-                                         ∙∙ push b (inl tt))
-                                 ∙ doubleCompPath≡compPath _ _ _
-                                 ∙ cong₂ _∙_ refl (lCancel (push b (inl tt)))
-                                 ∙ sym (rUnit _))
-                                 refl (λ _ → push north (inl tt))
-                   ∙ doubleCompPath≡compPath _ _ _ ∙ assoc _ _ _
+        help a b c =
+          cong-∙∙ ((Jcorrection₁⁻
+                    (Susp∙ (typ B)) (Susp∙ (typ A)) (Susp∙ (typ C))) .fst
+                  ∘ join→ ⋀comm→ (idfun (Susp (typ C)))) _ _ _
+          ∙ cong₃ _∙∙_∙∙_ ((λ i → push north (push (inl a) (~ i))
+                                ∙∙ push b (push (inl a) (~ i)) ⁻¹
+                                ∙∙ push b (inl tt))
+                        ∙ doubleCompPath≡compPath _ _ _
+                        ∙ cong₂ _∙_ refl (lCancel (push b (inl tt)))
+                        ∙ sym (rUnit _))
+                        refl (λ _ → push north (inl tt))
+          ∙ doubleCompPath≡compPath _ _ _ ∙ assoc _ _ _
 
       -- more abbreviations...
       x = l a
@@ -971,3 +983,32 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
       asFuns a = funExt⁻ (⋀→Homogeneous≡ (isHomogeneousPath _ _)
          λ b c → sym (transport (PathP≡doubleCompPathʳ _ _ _ _)
                       (symP (mainId a b c))))
+
+JacobiR' :
+  ∀ {ℓ ℓ' ℓ'' ℓ'''} {D : Pointed ℓ'''}
+     (A A' : Pointed ℓ) (eA : A ≃∙ Susp∙ (typ A'))
+     (B B' : Pointed ℓ') (eB : B ≃∙ Susp∙ (typ B'))
+     (C C' : Pointed ℓ'') (eC : C ≃∙ Susp∙ (typ C'))
+     (f : Susp∙ (typ A) →∙ D)
+     (g : Susp∙ (typ B) →∙ D)
+     (h : Susp∙ (typ C) →∙ D)
+     → ·wh A (B ⋀∙ C) f (·wh B C g h ∘∙ SuspSmash→Join∙ B C)
+      ≡ (·wh (A ⋀∙ B) C (·wh A B f g ∘∙ SuspSmash→Join∙ A B) h ∘∙ Jcorrection₁ A B C)
+      +* (·wh B (A ⋀∙ C) g (·wh A C f h ∘∙ SuspSmash→Join∙ A C) ∘∙ Jcorrection₂ A B C)
+JacobiR' {D = D} A A' eA B B' eB C C' eC =
+  transport (λ i → (f : Susp∙ (typ (pA i)) →∙ D)
+     (g : Susp∙ (typ (pB i)) →∙ D)
+     (h : Susp∙ (typ (pC i)) →∙ D)
+     → ·wh (pA i) ((pB i) ⋀∙ (pC i)) f (·wh (pB i) (pC i) g h
+                                        ∘∙ SuspSmash→Join∙ (pB i) (pC i))
+      ≡ (·wh ((pA i) ⋀∙ (pB i)) (pC i) (·wh (pA i) (pB i) f g
+                                        ∘∙ SuspSmash→Join∙ (pA i) (pB i)) h
+        ∘∙ Jcorrection₁ (pA i) (pB i) (pC i))
+      +* (·wh (pB i) ((pA i) ⋀∙ (pC i)) g (·wh (pA i) (pC i) f h
+                                           ∘∙ SuspSmash→Join∙ (pA i) (pC i))
+       ∘∙ Jcorrection₂ (pA i) (pB i) (pC i)))
+      (JacobiR A' B' C')
+  where
+  pA = ua∙ (fst eA) (snd eA) ⁻¹
+  pB = ua∙ (fst eB) (snd eB) ⁻¹
+  pC = ua∙ (fst eC) (snd eC) ⁻¹

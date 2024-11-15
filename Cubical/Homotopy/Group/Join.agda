@@ -14,9 +14,14 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Path
 
+open import Cubical.Data.Sum
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Bool
 
 open import Cubical.HITs.SetTruncation as ST
@@ -164,6 +169,9 @@ snd (·Π≡+* {A = A} f g i) j = lem i j
 -π* : ∀ {ℓ} {n m : ℕ} {A : Pointed ℓ} (f : π* n m A) → π* n m A
 -π* = ST.map -*
 
+-π*^ : ∀ {ℓ} {n m : ℕ} {A : Pointed ℓ} (k : ℕ) (f : π* n m A) → π* n m A
+-π*^ n = iter n -π*
+
 1π* : ∀ {ℓ} {n m : ℕ} {A : Pointed ℓ} → π* n m A
 1π* = ∣ const∙ _ _ ∣₂
 
@@ -308,3 +316,81 @@ snd (π*∘∙Hom {A = A} {B = B} n m f) =
   → GroupEquiv (π*Gr n m A) (π*Gr n m B)
 fst (π*∘∙Equiv n m f) = isoToEquiv (setTruncIso (pre∘∙equiv f))
 snd (π*∘∙Equiv n m f) = π*∘∙Hom n m (≃∙map f) .snd
+
+-- Swapping indices
+π*SwapIso : ∀ {ℓ} (n m : ℕ) (A : Pointed ℓ)
+  → Iso (π* n m A) (π* m n A)
+π*SwapIso n m A =
+  setTruncIso (post∘∙equiv
+    (isoToEquiv join-comm , push (ptSn m) (ptSn n) ⁻¹))
+
+
+-- This is a group iso whenever n + m > 0
+π*GrSwapIso : ∀ {ℓ} (n m : ℕ) (A : Pointed ℓ)
+  → (n + m > 0)
+  → GroupIso (π*Gr n m A) (π*Gr m n A)
+fst (π*GrSwapIso n m A pos) = π*SwapIso n m A
+snd (π*GrSwapIso n m A pos) =
+  makeIsGroupHom (elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+    λ f g → cong ∣_∣₂ (ΣPathP ((funExt
+      (λ { (inl x) → refl
+         ; (inr x) → refl
+        ; (push a b i) j → main f g b a j i}))
+          , (sym (rUnit _)
+           ∙ cong (cong (fst (f +* g)))
+             (cong₂ _∙_ refl (∙∙lCancel _) ∙ sym (rUnit _)))
+           ∙ cong sym
+             (cong₂ _∙_
+               (cong (Ω→ f .fst) (ℓ*IdL (S₊∙ n) (S₊∙ m) (ptSn m)) ∙ Ω→ f .snd)
+               ((cong (Ω→ g .fst) (ℓ*IdL (S₊∙ n) (S₊∙ m) (ptSn m)) ∙ Ω→ g .snd))
+               ∙ rCancel _))))
+  where
+  com : (n m : ℕ) → (n + m > 0)
+     → (f g : join∙ (S₊∙ n) (S₊∙ m) →∙ A) (a : _) (b : _)
+    → (Ω→ f .fst (ℓ* (S₊∙ n) (S₊∙ m) a b)
+      ∙ Ω→ g .fst (ℓ* (S₊∙ n) (S₊∙ m) a b))
+    ≡ (Ω→ g .fst (ℓ* (S₊∙ n) (S₊∙ m) a b)
+      ∙ Ω→ f .fst (ℓ* (S₊∙ n) (S₊∙ m) a b))
+  com zero zero p f g a b = ⊥.rec (snotz (+-comm 1 (fst p) ∙ snd p))
+  com zero (suc m) p f g a b i =
+    Susp·→Ωcomm' (S₊∙ (suc m)) (S₊∙ m)
+                  (isoToEquiv (IsoSucSphereSusp _) , IsoSucSphereSusp∙' m)
+      (F f) (F g) i .fst b
+    where
+    F : (f : join∙ (S₊∙ zero) (S₊∙ (suc m)) →∙ A) → Σ _ _
+    F f = (λ b → Ω→ f .fst (ℓ* (S₊∙ zero) (S₊∙ (suc m)) a b))
+      , cong (fst (Ω→ f)) (ℓ*IdR (S₊∙ zero) (S₊∙ (suc m)) a) ∙ Ω→ f .snd
+  com (suc n) m p f g a b i =
+    Susp·→Ωcomm' (S₊∙ (suc n)) (S₊∙ n)
+                  ((isoToEquiv (IsoSucSphereSusp _) , IsoSucSphereSusp∙' n))
+      (F f) (F g) i .fst a
+    where
+    F : (f : join∙ (S₊∙ (suc n)) (S₊∙ m) →∙ A) → Σ _ _
+    F f = (λ a → Ω→ f .fst (ℓ* (S₊∙ (suc n)) (S₊∙ m) a b))
+      , cong (fst (Ω→ f)) (ℓ*IdL (S₊∙ (suc n)) (S₊∙ m) b) ∙ Ω→ f .snd
+
+  main : (f g : join∙ (S₊∙ n) (S₊∙ m) →∙ A) (a : _) (b : _)
+    → (Ω→ f .fst (ℓ* (S₊∙ n) (S₊∙ m) a b)
+     ∙ Ω→ g .fst (ℓ* (S₊∙ n) (S₊∙ m) a b)) ⁻¹
+     ≡ Ω→ (f ∘∙ (join-commFun , _)) .fst (ℓ* (S₊∙ m) (S₊∙ n) b a)
+    ∙  Ω→ (g ∘∙ (join-commFun , _)) .fst (ℓ* (S₊∙ m) (S₊∙ n) b a)
+  main f g a b =
+   cong sym (com n m pos f g a b)
+    ∙ symDistr _ _
+    ∙ sym (cong₂ _∙_ (main-path f) (main-path g))
+    where
+    h : invEquiv∙ ((isoToEquiv join-comm , push (ptSn m) (ptSn n) ⁻¹)) .snd
+      ≡ push (ptSn n) (ptSn m) ⁻¹
+    h = cong₂ _∙_ refl (∙∙lCancel _) ∙ sym (rUnit _)
+
+    main-path : (f : join∙ (S₊∙ n) (S₊∙ m) →∙ A) → _
+    main-path  f =
+       (λ i → fst (Ω→∘∙ f (join-commFun , h i) i) ((ℓ* (S₊∙ m) (S₊∙ n) b a)))
+      ∙ cong (Ω→ f .fst)
+             (sym (PathP→compPathR∙∙
+               (symP (compPathR→PathP∙∙ (join-commFun-ℓ* _ _ _ _)))))
+
+-π*^≡ : ∀ {ℓ} {n m : ℕ} {A : Pointed ℓ} (k : ℕ)
+  (f : join∙ (S₊∙ n) (S₊∙ m) →∙ A) → -π*^ k ∣ f ∣₂ ≡ ∣ -*^ k f ∣₂
+-π*^≡ zero f = refl
+-π*^≡ (suc k) f = cong -π* (-π*^≡ k f)
