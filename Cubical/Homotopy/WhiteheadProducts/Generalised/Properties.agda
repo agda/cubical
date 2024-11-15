@@ -114,7 +114,7 @@ module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
                           ∙ doubleCompPath≡compPath _ _ _)))
 
   snd (WhiteheadProdBilinₗ i) j = lem j i
-    where    
+    where
     lem : Ω→ g .fst (σΣA north) ∙ Ω→ f .fst (σΣA north)
        ≡ refl
     lem = cong₂ _∙_ Ω→g∙ Ω→f∙
@@ -199,7 +199,7 @@ fst (WhiteheadProdIdL A B f i) (inr x) = Ω→ f .fst (σ B x) (~ i)
 fst (WhiteheadProdIdL A B f i) (push a b j) = lem i j
   where
   lem : Square (Ω→ f .fst (σ B b) ∙ refl ∙ refl) refl
-                refl (sym (Ω→ f .fst (σ B b))) 
+                refl (sym (Ω→ f .fst (σ B b)))
   lem = (cong₂ _∙_  refl (sym (rUnit refl)) ∙ sym (rUnit _))
          ◁ λ i j → (Ω→ f .fst (σ B b) (~ i ∧ j))
 snd (WhiteheadProdIdL A B f i) = refl
@@ -238,8 +238,8 @@ snd (WhiteheadProdIdR A B f i) j =
   -*DistrWhiteheadLem : rhs +* lhs ≡ const∙ _ _
   -*DistrWhiteheadLem =
       sym (WhiteheadProdBilinₗ A B _ f g)
-    ∙ cong₂ (·wh (Susp∙ (typ A)) B) (·SuspInvL (_ , north) f) refl -- 
-    ∙ WhiteheadProdIdL _ _ g -- 
+    ∙ cong₂ (·wh (Susp∙ (typ A)) B) (·SuspInvL (_ , north) f) refl --
+    ∙ WhiteheadProdIdL _ _ g --
 
 -- Inversion is compatible with the equivalence A * B ≃ B * A
 -*Swap : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'}
@@ -274,12 +274,12 @@ snd (-*Swap {A = A} {B = B} f i) =
                        [f ∶ g]
 (Susp A) * (Susp B) ------------------> C
          |                              |
-         |                              | 
+         |                              |
          |                              |
     flip |                              | id
          |                              |
          v                              v
-(Susp B) * (Susp A) ------------------> C 
+(Susp B) * (Susp A) ------------------> C
                        [g ∶ f]
 -}
 module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
@@ -290,7 +290,7 @@ module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
   private
     σΣA = σ (Susp∙ (typ A))
     σΣB = σ (Susp∙ (typ B))
-    
+
     Ω→f∙ = cong (Ω→ f .fst) (rCancel (merid north)) ∙ Ω→ f .snd
     Ω→g∙ = cong (Ω→ g .fst) (rCancel (merid north)) ∙ Ω→ g .snd
     Ω→-g∙ =
@@ -390,10 +390,10 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
     whAB-C = ·wh ((Susp∙ (typ A)) ⋀∙ (Susp∙ (typ B))) (Susp∙ (typ C)) {D}
 
     whB-AC = ·wh (Susp∙ (typ B)) ((Susp∙ (typ A)) ⋀∙ (Susp∙ (typ C))) {D}
-    
-    
+
+
     whB-CA = ·wh (Susp∙ (typ B)) ((Susp∙ (typ C)) ⋀∙ (Susp∙ (typ A))) {D}
- 
+
     ΣB*ΣC→Σ[B⋀C] = Join→SuspSmash∙ (Susp∙ (typ B)) (Susp∙ (typ C))
     Σ[B⋀C]→ΣB*ΣC = SuspSmash→Join∙ (Susp∙ (typ B)) (Susp∙ (typ C))
 
@@ -401,7 +401,7 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
     Σ[A⋀C]→ΣA*ΣC = SuspSmash→Join∙ (Susp∙ (typ A)) (Susp∙ (typ C))
 
     whB∧C = ·wh (Susp∙ (typ B)) (Susp∙ (typ C)) {D}
-    
+
     Ω→f∙ = cong (Ω→ f .fst) (rCancel (merid north)) ∙ Ω→ f .snd
     Ω→g∙ = cong (Ω→ g .fst) (rCancel (merid north)) ∙ Ω→ g .snd
     Ω→h∙ = cong (Ω→ h .fst) (rCancel (merid north)) ∙ Ω→ h .snd
@@ -410,7 +410,7 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
   correction₁ : ∀ {ℓ ℓ' ℓ''} (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'')
              → join∙ (Susp∙ (typ A)) (Susp∙ (typ B) ⋀∙ Susp∙ (typ C))
             →∙ join∙ (Susp∙ (typ A) ⋀∙ Susp∙ (typ B)) (Susp∙ (typ C))
-  fst (correction₁ A B C) = 
+  fst (correction₁ A B C) =
     ≃∙map (invEquiv∙ (permute⋀Join≃∙
           (Susp∙ (typ A)) (Susp∙ (typ B)) (Susp∙ (typ C)))) .fst
   snd (correction₁ A B C) = sym (push (inl tt) north)
@@ -519,7 +519,7 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
     m : Susp (typ B) → Ω D .fst
     r : Susp (typ C) → Ω D .fst
     l a = Ω→ f .fst (σΣA a)
-    m b = Ω→ g .fst (σΣB b)    
+    m b = Ω→ g .fst (σΣB b)
     r c = Ω→ h .fst (σΣC c)
 
     -- Goal: relate 'cong (fst L) (push a (inr (b , c))))' to 'cong
@@ -700,7 +700,7 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
                   (cong₂ _∙_ (Iso.inv ΩSuspAdjointIso h .snd) refl
                            ∙ sym (lUnit (-x ∙ y)))
                 ∙ lCancel (-x ∙ y)
-      
+
 
       f₄ fa : Susp∙ (typ A) →∙ Ω D
       fst f₄ a = z ∙ Ω→ f .fst (σΣA a) ∙ -z
@@ -829,7 +829,7 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ)
                ∙ sym (assoc _ _ _)
 
       rightId₃ : -y ∙ (-x ∙ t₄) ∙ y ∙ t₁ ∙ t₃'
-               ≡ (-y ∙ z) ∙ (x ∙ -z ∙ -x) ∙ y ∙ t₃' ∙ t₁ 
+               ≡ (-y ∙ z) ∙ (x ∙ -z ∙ -x) ∙ y ∙ t₃' ∙ t₁
       rightId₃ =
         cong (-y ∙_)
           (cong₂ _∙_ (funExt⁻ (cong fst (Susp·→Ωcomm A fa f₄)) a)
