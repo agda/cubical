@@ -34,7 +34,8 @@ open import Cubical.Homotopy.HopfInvariant.Base
 open import Cubical.Homotopy.HopfInvariant.Homomorphism
 open import Cubical.Homotopy.HopfInvariant.HopfMap
 open import Cubical.Homotopy.HopfInvariant.Brunerie
-open import Cubical.Homotopy.Whitehead
+open import Cubical.Homotopy.WhiteheadProducts.Base
+open import Cubical.Homotopy.WhiteheadProducts.Properties
 open import Cubical.Homotopy.Group.Base hiding (π)
 open import Cubical.Homotopy.Group.Pi3S2
 open import Cubical.Homotopy.Group.Pi4S3.BrunerieNumber

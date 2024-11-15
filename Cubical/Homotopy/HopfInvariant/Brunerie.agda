@@ -12,7 +12,7 @@ module Cubical.Homotopy.HopfInvariant.Brunerie where
 open import Cubical.Homotopy.HopfInvariant.Base
 open import Cubical.Homotopy.Group.Pi4S3.BrunerieNumber
 open import Cubical.Homotopy.Group.Pi4S3.S3PushoutIso
-open import Cubical.Homotopy.Whitehead
+open import Cubical.Homotopy.WhiteheadProducts.Base
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
