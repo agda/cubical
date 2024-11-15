@@ -29,7 +29,6 @@ open import Cubical.HITs.SmashProduct
 open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Group.Join
-open import Cubical.Tactics.MonoidSolver.WildSolver
 
 
 open import Cubical.Homotopy.WhiteheadProducts.Generalised.Base
