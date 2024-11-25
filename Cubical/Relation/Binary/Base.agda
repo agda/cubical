@@ -63,6 +63,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isSym : Type (ℓ-max ℓ ℓ')
   isSym = (a b : A) → R a b → R b a
 
+  isSym' : Type (ℓ-max ℓ ℓ')
+  isSym' = {a b : A} → R a b → R b a
+
   isAsym : Type (ℓ-max ℓ ℓ')
   isAsym = (a b : A) → R a b → ¬ R b a
 
@@ -138,6 +141,15 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
       reflexive : isRefl
       symmetric : isSym
       transitive : isTrans
+
+    reflexive' : isRefl'
+    reflexive' = reflexive _
+
+    symmetric' : isSym'
+    symmetric' = symmetric _ _
+
+    transitive' : isTrans'
+    transitive' = transitive _ _ _
 
   isUniversalRel→isEquivRel : HeterogenousRelation.isUniversalRel R → isEquivRel
   isUniversalRel→isEquivRel u .isEquivRel.reflexive a = u a a
