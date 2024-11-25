@@ -5,7 +5,6 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism renaming (Iso to _≅_)
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Unit
@@ -55,8 +54,8 @@ module _ {X : Type ℓX} {S : X → Type ℓS} {P : ∀ x → S x → Type ℓP}
   equivRepIW : (x : X) → IW S P inX x ≃ RepIW S P inX x
   equivRepIW x = isoToEquiv (isoRepIW x)
 
-  pathRepIW : (x : X) → IW S P inX x ≡ RepIW S P inX x
-  pathRepIW x = ua (equivRepIW x)
+  --pathRepIW : (x : X) → IW S P inX x ≡ RepIW S P inX x
+  --pathRepIW x = ua (equivRepIW x)
 
   isPropIW : (∀ x → isProp (S x)) → ∀ x → isProp (IW S P inX x)
   isPropIW isPropS x (node s subtree) (node s' subtree') =
@@ -133,8 +132,8 @@ module IWPath {X : Type ℓX} {S : X → Type ℓS} {P : ∀ x → S x → Type 
   equivEncode : ∀ {x} (w w' : IW S P inX x) → (w ≡ w') ≃ Cover w w'
   equivEncode w w' = isoToEquiv (isoEncode w w')
 
-  pathEncode : ∀ {x} (w w' : IW S P inX x) → (w ≡ w') ≡ Cover w w'
-  pathEncode w w' = ua (equivEncode w w')
+  --pathEncode : ∀ {x} (w w' : IW S P inX x) → (w ≡ w') ≡ Cover w w'
+  --pathEncode w w' = ua (equivEncode w w')
 
 open IWPathTypes
 open IWPath
@@ -143,7 +142,7 @@ isOfHLevelSuc-IW : {X : Type ℓX} {S : X → Type ℓS} {P : ∀ x → S x → 
   (n : HLevel) → (∀ x → isOfHLevel (suc n) (S x)) → ∀ x → isOfHLevel (suc n) (IW S P inX x)
 isOfHLevelSuc-IW zero isHS x = isPropIW isHS x
 isOfHLevelSuc-IW (suc n) isHS x w w' =
-  subst (isOfHLevel (suc n)) (λ i → pathEncode w w' (~ i))
+  isOfHLevelRetractFromIso (suc n) (isoEncode w w')
     (isOfHLevelSuc-IW n
       (λ (y , v , v') → isHS y (getShape v) (getShape v'))
       (x , w , w')
