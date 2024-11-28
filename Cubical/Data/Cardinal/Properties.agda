@@ -25,8 +25,7 @@ open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Unit
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 open import Cubical.Relation.Binary.Base
-open import Cubical.Relation.Binary.Order.Preorder.Base
-open import Cubical.Relation.Binary.Order.Properties
+open import Cubical.Relation.Binary.Order.Proset
 
 private
   variable
@@ -171,9 +170,9 @@ module _ where
              λ (A , _) (B , _) (C , _)
                → ∥₁.map2 λ A↪B B↪C → compEmbedding B↪C A↪B
 
-  isPreorder≲ : IsPreorder {ℓ-suc ℓ} _≲_
+  isPreorder≲ : IsProset {ℓ-suc ℓ} _≲_
   isPreorder≲
-    = ispreorder isSetCard isPropValued≲ isRefl≲ isTrans≲
+    = isproset isSetCard isPropValued≲ isRefl≲ isTrans≲
 
 isLeast𝟘 : ∀{ℓ} → isLeast isPreorder≲ (Card {ℓ} , id↪ (Card {ℓ})) (𝟘 {ℓ})
 isLeast𝟘 = ∥₂.elim (λ x → isProp→isSet (isPropValued≲ 𝟘 x))

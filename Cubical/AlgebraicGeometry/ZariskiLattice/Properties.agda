@@ -13,6 +13,7 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
 open import Cubical.Relation.Binary.Order.Poset
+open import Cubical.Relation.Binary.Order.Poset.Subset
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation

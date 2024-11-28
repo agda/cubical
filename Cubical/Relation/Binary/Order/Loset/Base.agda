@@ -69,8 +69,8 @@ record LosetStr (ℓ' : Level) (A : Type ℓ) : Type (ℓ-max ℓ (ℓ-suc ℓ')
 Loset : ∀ ℓ ℓ' → Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ'))
 Loset ℓ ℓ' = TypeWithStr ℓ (LosetStr ℓ')
 
-loset : (A : Type ℓ) (_<_ : A → A → Type ℓ') (h : IsLoset _<_) → Loset ℓ ℓ'
-loset A _<_ h = A , losetstr _<_ h
+loset : (A : Type ℓ) → (_<_ : Rel A A ℓ') → IsLoset _<_ → Loset ℓ ℓ'
+loset A _<_ los = A , (losetstr _<_ los)
 
 record IsLosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
   (M : LosetStr ℓ₀' A) (e : A ≃ B) (N : LosetStr ℓ₁' B)
@@ -98,7 +98,7 @@ isPropIsLoset _<_ = isOfHLevelRetractFromIso 1 IsLosetIsoΣ
                                  (isPropΠ5 (λ _ _ _ _ _ → isPropValued< _ _))
                                  (isPropΠ3 (λ x y _ → isProp¬ (y < x)))
                                  (isPropΠ4 λ _ _ _ _ → squash₁)
-                                 (isPropΠ3 λ _ _ _ → squash₁))
+                                 (isPropΠ3 λ _ _ _ → isSetA _ _))
 
 𝒮ᴰ-Loset : DUARel (𝒮-Univ ℓ) (LosetStr ℓ') (ℓ-max ℓ ℓ')
 𝒮ᴰ-Loset =

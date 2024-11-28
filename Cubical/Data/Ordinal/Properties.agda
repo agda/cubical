@@ -60,7 +60,7 @@ propOrd {ℓ} P prop = P , (wosetstr _<_ (iswoset set prp well weak trans))
 𝟘 {ℓ} = propOrd (⊥* {ℓ}) (isProp⊥*)
 𝟙 {ℓ} = propOrd (Unit* {ℓ}) (isPropUnit*)
 
-isLeast𝟘 : ∀{ℓ} → isLeast (isPoset→isPreorder isPoset≼) ((Ord {ℓ}) , (id↪ (Ord {ℓ}))) (𝟘 {ℓ})
+isLeast𝟘 : ∀{ℓ} → isLeast (isPoset→isProset isPoset≼) ((Ord {ℓ}) , (id↪ (Ord {ℓ}))) (𝟘 {ℓ})
 isLeast𝟘 _ = ⊥.elim* , (⊥.elim* , ⊥.elim*)
 
 -- The successor of 𝟘 is 𝟙
@@ -144,8 +144,8 @@ suc≺ α = (inr tt*) , (eq , makeIsWosetEquiv eq eqsucα eqαsuc)
     eq = isoToEquiv rUnit*×Iso
 
     eqα𝟙 : _
-    eqα𝟙 (x , _) (y , _) (inl tt≺tt) = ⊥.rec (IsStrictPoset.is-irrefl
-                                                (isWoset→isStrictPoset
+    eqα𝟙 (x , _) (y , _) (inl tt≺tt) = ⊥.rec (IsQuoset.is-irrefl
+                                                (isWoset→isQuoset
                                                    (WosetStr.isWoset (str 𝟙)))
                                                tt* tt≺tt)
     eqα𝟙 (x , _) (y , _) (inr (_ , x≺y)) = x≺y
@@ -161,8 +161,8 @@ suc≺ α = (inr tt*) , (eq , makeIsWosetEquiv eq eqsucα eqαsuc)
 
     eq𝟙α : _
     eq𝟙α (_ , x) (_ , y) (inr (_ , tt≺tt)) = ⊥.rec
-                                               (IsStrictPoset.is-irrefl
-                                                (isWoset→isStrictPoset
+                                               (IsQuoset.is-irrefl
+                                                (isWoset→isQuoset
                                                   (WosetStr.isWoset (str 𝟙)))
                                                 tt* tt≺tt)
     eq𝟙α (_ , x) (_ , y) (inl x≺y) = x≺y

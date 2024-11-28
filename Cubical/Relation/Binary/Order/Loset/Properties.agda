@@ -12,8 +12,9 @@ open import Cubical.HITs.PropositionalTruncation as ∥₁
 
 open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.Binary.Order.Apartness.Base
-open import Cubical.Relation.Binary.Order.Toset.Base
-open import Cubical.Relation.Binary.Order.StrictPoset.Base
+open import Cubical.Relation.Binary.Order.Toset
+open import Cubical.Relation.Binary.Order.Poset.Base
+open import Cubical.Relation.Binary.Order.StrictOrder.Base
 open import Cubical.Relation.Binary.Order.Loset.Base
 
 open import Cubical.Relation.Nullary
@@ -29,13 +30,14 @@ module _
 
   open BinaryRelation
 
-  isLoset→isStrictPoset : IsLoset R → IsStrictPoset R
-  isLoset→isStrictPoset loset = isstrictposet
-                                (IsLoset.is-set loset)
-                                (IsLoset.is-prop-valued loset)
-                                (IsLoset.is-irrefl loset)
-                                (IsLoset.is-trans loset)
-                                (IsLoset.is-asym loset)
+  isLoset→isStrictOrder : IsLoset R → IsStrictOrder R
+  isLoset→isStrictOrder loset = isstrictorder
+                          (IsLoset.is-set loset)
+                          (IsLoset.is-prop-valued loset)
+                          (IsLoset.is-irrefl loset)
+                          (IsLoset.is-trans loset)
+                          (IsLoset.is-asym loset)
+                          (IsLoset.is-weakly-linear loset)
 
   private
     transrefl : isTrans R → isTrans (ReflClosure R)
@@ -49,8 +51,8 @@ module _
     antisym irr trans a b (inl _) (inr b≡a) = sym b≡a
     antisym irr trans a b (inr a≡b) _ = a≡b
 
-  isLoset→isTosetReflClosure : Discrete A → IsLoset R → IsToset (ReflClosure R)
-  isLoset→isTosetReflClosure disc loset
+  isLoset→isTosetReflClosure : IsLoset R → isDecidable R → IsToset (ReflClosure R)
+  isLoset→isTosetReflClosure loset dec
     = istoset (IsLoset.is-set loset)
               (λ a b → isProp⊎ (IsLoset.is-prop-valued loset a b)
                                (IsLoset.is-set loset a b)
@@ -61,9 +63,33 @@ module _
               (transrefl (IsLoset.is-trans loset))
               (antisym (IsLoset.is-irrefl loset)
                        (IsLoset.is-trans loset))
-              λ a b → decRec (λ a≡b → ∣ inl (inr a≡b) ∣₁)
-                             (λ ¬a≡b → ∥₁.map (⊎.map (λ Rab → inl Rab) λ Rba → inl Rba)
-                             (IsLoset.is-connected loset a b ¬a≡b)) (disc a b)
+               λ a b → decRec (λ Rab → ∣ inl (inl Rab) ∣₁)
+                              (λ ¬Rab → decRec (λ Rba → ∣ inr (inl Rba) ∣₁)
+                                               (λ ¬Rba → ∣ inl (inr (IsLoset.is-connected loset a b
+                                                                    (¬Rab , ¬Rba))) ∣₁)
+                                        (dec b a))
+                       (dec a b)
+
+  isLosetDecidable→isTosetDecidable : IsLoset R → isDecidable R → isDecidable (ReflClosure R)
+  isLosetDecidable→isTosetDecidable los dec a b with dec a b
+  ... | yes Rab = yes (inl Rab)
+  ... | no ¬Rab with dec b a
+  ...       | yes Rba = no (⊎.rec ¬Rab λ a≡b → IsLoset.is-irrefl los b (subst (R b) a≡b Rba))
+  ...       | no ¬Rba = yes (inr (IsLoset.is-connected los a b (¬Rab , ¬Rba)))
+
+  isLosetDecidable→Discrete : IsLoset R → isDecidable R → Discrete A
+  isLosetDecidable→Discrete los dec = isTosetDecidable→Discrete
+                                     (isLoset→isTosetReflClosure los dec)
+                                     (isLosetDecidable→isTosetDecidable los dec)
+
+  isLoset→isPosetNegationRel : IsLoset R → IsPoset (NegationRel R)
+  isLoset→isPosetNegationRel loset
+    = isposet (IsLoset.is-set loset)
+              (λ a b → isProp¬ (R a b))
+              (IsLoset.is-irrefl loset)
+              (λ a b c ¬Rab ¬Rbc Rac → ∥₁.rec isProp⊥ (⊎.rec ¬Rab ¬Rbc)
+                                             (IsLoset.is-weakly-linear loset a c b Rac))
+               λ a b ¬Rab ¬Rba → IsLoset.is-connected loset a b (¬Rab , ¬Rba)
 
   isLosetInduced : IsLoset R → (B : Type ℓ'') → (f : B ↪ A)
                  → IsLoset (InducedRelation R (B , f))
@@ -74,18 +100,33 @@ module _
               (λ a b c → IsLoset.is-trans los (f a) (f b) (f c))
               (λ a b → IsLoset.is-asym los (f a) (f b))
               (λ a b c → IsLoset.is-weakly-linear los (f a) (f b) (f c))
-              λ a b ¬a≡b → IsLoset.is-connected los (f a) (f b)
-                λ fa≡fb → ¬a≡b (isEmbedding→Inj emb a b fa≡fb)
+               λ a b ineq → isEmbedding→Inj emb a b
+                           (IsLoset.is-connected los (f a) (f b) ineq)
 
-Loset→StrictPoset : Loset ℓ ℓ' → StrictPoset ℓ ℓ'
-Loset→StrictPoset (_ , los)
-  = _ , strictposetstr (LosetStr._<_ los)
-                       (isLoset→isStrictPoset (LosetStr.isLoset los))
+  isLosetDual : IsLoset R → IsLoset (Dual R)
+  isLosetDual los
+    = isloset (IsLoset.is-set los)
+              (λ a b → IsLoset.is-prop-valued los b a)
+              (IsLoset.is-irrefl los)
+              (λ a b c Rab Rbc → IsLoset.is-trans los c b a Rbc Rab)
+              (λ a b → IsLoset.is-asym los b a)
+              (λ a b c Rba → ∥₁.map (⊎.rec inr inl)
+                                    (IsLoset.is-weakly-linear los b a c Rba))
+               λ { a b (¬Rba , ¬Rab) → IsLoset.is-connected los a b (¬Rab , ¬Rba) }
+
+Loset→StrictOrder : Loset ℓ ℓ' → StrictOrder ℓ ℓ'
+Loset→StrictOrder (_ , los)
+  = strictorder _ (LosetStr._<_ los)
+                  (isLoset→isStrictOrder (LosetStr.isLoset los))
 
 Loset→Toset : (los : Loset ℓ ℓ')
-            → Discrete (fst los)
+            → BinaryRelation.isDecidable (LosetStr._<_ (snd los))
             → Toset ℓ (ℓ-max ℓ ℓ')
-Loset→Toset (_ , los) disc
-  = _ , tosetstr (BinaryRelation.ReflClosure (LosetStr._<_ los))
-                 (isLoset→isTosetReflClosure disc
-                                             (LosetStr.isLoset los))
+Loset→Toset (_ , los) dec
+  = toset _ (BinaryRelation.ReflClosure (LosetStr._<_ los))
+            (isLoset→isTosetReflClosure (LosetStr.isLoset los) dec)
+
+DualLoset : Loset ℓ ℓ' → Loset ℓ ℓ'
+DualLoset (_ , los)
+  = loset _ (BinaryRelation.Dual (LosetStr._<_ los))
+            (isLosetDual (LosetStr.isLoset los))
