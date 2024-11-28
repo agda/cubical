@@ -104,14 +104,19 @@ isoToEquiv : Iso A B → A ≃ B
 isoToEquiv i .fst = i .Iso.fun
 isoToEquiv i .snd = isoToIsEquiv i
 
-isoToIsIso : {f : A → B} → isIso f → Iso A B
-isoToIsIso {f = f} fIsIso .Iso.fun = f
-isoToIsIso fIsIso .Iso.inv = fIsIso .fst
-isoToIsIso fIsIso .Iso.rightInv = fIsIso .snd .fst
-isoToIsIso fIsIso .Iso.leftInv = fIsIso .snd .snd
+IsoToIsIso : (f : Iso A B) → isIso (f .Iso.fun)
+IsoToIsIso f .fst = f .Iso.inv
+IsoToIsIso f .snd .fst = f .Iso.rightInv
+IsoToIsIso f .snd .snd = f .Iso.leftInv
+
+isIsoToIso : {f : A → B} → isIso f → Iso A B
+isIsoToIso {f = f} fIsIso .Iso.fun = f
+isIsoToIso fIsIso .Iso.inv = fIsIso .fst
+isIsoToIso fIsIso .Iso.rightInv = fIsIso .snd .fst
+isIsoToIso fIsIso .Iso.leftInv = fIsIso .snd .snd
 
 isIsoToIsEquiv : {f : A → B} → isIso f → isEquiv f
-isIsoToIsEquiv fIsIso = isoToIsEquiv (isoToIsIso fIsIso)
+isIsoToIsEquiv fIsIso = isoToIsEquiv (isIsoToIso fIsIso)
 
 isoToPath : Iso A B → A ≡ B
 isoToPath {A = A} {B = B} f i =
