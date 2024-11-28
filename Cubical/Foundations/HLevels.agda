@@ -863,3 +863,9 @@ module _ (B : (i j k : I) → Type ℓ)
 
 Π-contractDom : (c : isContr A) → ((x : A) → B x) ≃ B (c .fst)
 Π-contractDom c = isoToEquiv (Π-contractDomIso c)
+
+realign-pathP-over-hSet : ∀ {ℓA ℓB} {A : Type ℓA} (B : A → Type ℓB) →
+  (setA : isSet A) {a0 a1 : A} {α α' : a0 ≡ a1} {b0 : B a0} {b1 : B a1} →
+  PathP (λ i → B (α i)) b0 b1 → PathP (λ i → B (α' i)) b0 b1
+realign-pathP-over-hSet {ℓA}{ℓB}{A} B setA {a0}{a1}{α}{α'}{b0}{b1} β =
+  subst (λ (ρ : a0 ≡ a1) → PathP (λ i → B (ρ i)) b0 b1) (setA a0 a1 α α') β
