@@ -118,7 +118,7 @@ module _
             f[a]-in-im[f] = ∣ a , refl ∣₁
 
             f[a]-in-ker[g] : isInKer g (f .fst a)
-            f[a]-in-ker[g] = invIsEq (fg (f .fst a) .snd) f[a]-in-im[f]
+            f[a]-in-ker[g] = fg (f .fst a) .snd f[a]-in-im[f]
 
             g[f[a]]≡0 : g .fst (f .fst a) ≡ C .snd .GroupStr.1g
             g[f[a]]≡0 = f[a]-in-ker[g]
@@ -158,7 +158,7 @@ module _
         u[p[d]]≡q[j[d]] = sq4 d
 
         d'-in-ker[u] : isInKer u d'
-        d'-in-ker[u] = let im[t]→ker[u] = invIsEq (tu d' .snd) in
+        d'-in-ker[u] = let im[t]→ker[u] = tu d' .snd in
           im[t]→ker[u] ∣ (c' , refl) ∣₁
 
         u[p[d]]≡0 : u[p[d]] ≡ E' .snd .GroupStr.1g

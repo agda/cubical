@@ -35,53 +35,15 @@ SuccStr {ℓ = ℓ} = TypeWithStr ℓ λ A → (A → A)
 
 -- Exactness except the intersecting Group is only propositionally equal
 isWeakExactAt : {A B B' C : Group ℓ} (f : GroupHom A B) (g : GroupHom B' C) (p : B ≡ B') → Type ℓ
-isWeakExactAt {ℓ = ℓ} {B = B} {B' = B'} f g p =
-  (b : ⟨ B ⟩) → isInKer g (subst (λ (a : Σ (Type ℓ) GroupStr) → fst a) p b) ≃ isInIm f b
+isWeakExactAt {ℓ = ℓ} {B = B} {B' = B'} f g p = (b : ⟨ B ⟩) → (isInKer g (tr b) → isInIm f b) × (isInIm f b → isInKer g (tr b)) where
+  tr = λ (b : ⟨ B ⟩) → subst (λ (a : Σ (Type ℓ) GroupStr) → fst a) p b
 
 isExactAt : {A B C : Group ℓ} (f : GroupHom A B) (g : GroupHom B C) → Type ℓ
-isExactAt {B = B} f g = (b : ⟨ B ⟩) → isInKer g b ≃ isInIm f b
-
--- TODO: Is exactness preserved across association?
+isExactAt {B = B} f g = (b : ⟨ B ⟩) → (isInKer g b → isInIm f b) × (isInIm f b → isInKer g b)
 
 isWeakExactAtRefl : {A B C : Group ℓ} (f : GroupHom A B) (g : GroupHom B C)
   → isWeakExactAt f g refl ≡ isExactAt f g
-isWeakExactAtRefl {ℓ = ℓ} {B = B} f g i = (b : ⟨ B ⟩) → (isInKer g (transportRefl b i)) ≃ (isInIm f b)
-
--- Exact sequence based on vec
-module _ where
-  2+_ = λ (n : ℕ) → suc (suc n)
-  3+_ = λ (n : ℕ) → suc (suc (suc n))
-
-  data HomVec {ℓ : Level} : {n : ℕ} → Vec (Group ℓ) (2+ n) → Type (ℓ-suc ℓ) where
-    -- This needs to at least have 1 group in it or else the suc case doesn't have
-    -- a previous group to index by
-    end : {A B : Group ℓ} → GroupHom A B → HomVec {n = 0} (B ∷ A ∷ [])
-    cons : {n : ℕ} {gv : Vec (Group ℓ) (suc n)} {A B : Group ℓ}
-      → GroupHom A B → HomVec {n = n} (A ∷ gv) → HomVec {n = suc n} (B ∷ A ∷ gv)
-
-  data ExactSeqVec {ℓ : Level} : {n : ℕ} → {gs : Vec (Group ℓ) (3+ n)} → HomVec gs → Type (ℓ-suc ℓ) where
-    nil : {A B C : Group ℓ} {f : GroupHom A B} {g : GroupHom B C}
-      → isExactAt f g → ExactSeqVec (cons g (end f))
-    cons : {n : ℕ} {gv : Vec (Group ℓ) (suc n)} {A B C : Group ℓ}
-      → {f : GroupHom A B} {g : GroupHom B C} {hv : HomVec (A ∷ gv)}
-      → isExactAt f g
-      → ExactSeqVec (cons f hv) → ExactSeqVec (cons g (cons f hv))
-
--- Exact sequence over successor structures
-module _ where
-  exactSeq : (ss @ (N , succ) : SuccStr {ℓ = ℓ})
-    → (gSeq : (gIdx : N) → Group ℓ')
-    → (hSeq : (hIdx : N) → GroupHom (gSeq hIdx) (gSeq (succ hIdx)))
-    → Type (ℓ-max ℓ ℓ')
-  exactSeq (N , succ) gSeq hSeq = (pIdx : N) → isExactAt (hSeq pIdx) (hSeq (succ pIdx))
-
-module _ where
-  0→_ : (A : Group ℓ) → GroupHom (UnitGroup {ℓ}) A
-  0→ A = let open GroupStr (A .snd) in
-    (λ _ → 1g) , record { pres· = λ x y → sym (·IdR 1g) ; pres1 = refl ; presinv = λ x → sym (·InvL 1g) ∙ ·IdR (inv 1g) }
-
-  _→0 : (A : Group ℓ) → GroupHom A (UnitGroup {ℓ})
-  A →0 = (λ _ → tt*) , record { pres· = λ x y → refl ; pres1 = refl ; presinv = λ x → refl }
+isWeakExactAtRefl {ℓ = ℓ} {B = B} f g i = (b : ⟨ B ⟩) → (isInKer g (transportRefl b i) → isInIm f b) × (isInIm f b → isInKer g (transportRefl b i))
 
 SES→isEquiv : {L R : Group ℓ-zero}
   → {G : Group ℓ} {H : Group ℓ'}
