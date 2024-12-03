@@ -3,9 +3,12 @@ module Cubical.Data.List.FinData where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.List
 open import Cubical.Data.FinData
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.Nat
 
 variable
@@ -33,6 +36,18 @@ lookup-tabulate : ∀ n → (^a : Fin n → A)
   → PathP (λ i → (Fin (length-tabulate n ^a i) → A)) (lookup (tabulate n ^a)) ^a
 lookup-tabulate (suc n) ^a i zero = ^a zero
 lookup-tabulate (suc n) ^a i (suc p) = lookup-tabulate n (^a ∘ suc) i p
+
+open Iso
+
+lookup-tabulate-iso : (A : Type ℓ) → Iso (List A) (Σ[ n ∈ ℕ ] (Fin n → A))
+fun (lookup-tabulate-iso A) xs = (length xs) , lookup xs
+inv (lookup-tabulate-iso A) (n , f) = tabulate n f
+leftInv (lookup-tabulate-iso A) = tabulate-lookup
+rightInv (lookup-tabulate-iso A) (n , f) =
+  ΣPathP ((length-tabulate n f) , lookup-tabulate n f)
+
+lookup-tabulate-equiv : (A : Type ℓ) → List A ≃ (Σ[ n ∈ ℕ ] (Fin n → A))
+lookup-tabulate-equiv A = isoToEquiv (lookup-tabulate-iso A)
 
 lookup-map : ∀ (f : A → B) (xs : List A)
   → (p0 : Fin (length (map f xs)))
