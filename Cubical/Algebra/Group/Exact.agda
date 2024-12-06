@@ -30,9 +30,6 @@ private
   variable
     ℓ ℓ' : Level
 
-SuccStr : Type (ℓ-suc ℓ)
-SuccStr {ℓ = ℓ} = TypeWithStr ℓ λ A → (A → A)
-
 -- Exactness except the intersecting Group is only propositionally equal
 isWeakExactAt : {A B B' C : Group ℓ} (f : GroupHom A B) (g : GroupHom B' C) (p : B ≡ B') → Type ℓ
 isWeakExactAt {ℓ = ℓ} {B = B} {B' = B'} f g p = (b : ⟨ B ⟩) → (isInKer g (tr b) → isInIm f b) × (isInIm f b → isInKer g (tr b)) where
