@@ -68,7 +68,7 @@ module _ {R : Ring ℓ'} {M N P : LeftModule R ℓ} where
 
       pres0 : fg 0M ≡ 0P
       pres0 = cong (g .fst) (f .snd .IsLeftModuleHom.pres0) ∙ g .snd .IsLeftModuleHom.pres0
-      
+
       pres+ : (x y : M .fst) → fg (x +M y) ≡ fg x +P fg y
       -- g(f(x+y)) ≡ g(f(x)+f(y)) ≡ g(f(x))+g(f(y))
       pres+ x y =
