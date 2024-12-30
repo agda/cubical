@@ -45,8 +45,9 @@ module ModuleTheory (R : Ring ℓ') (M : LeftModule R ℓ) where
        R.0r                   ⋆ x  ≡⟨ ⋆AnnihilL x ⟩
        0m ∎)
 
-  idLeftModuleHom : (M : LeftModule R ℓ') → LeftModuleHom M M
-  idLeftModuleHom M = (idfun ⟨ M ⟩) , isLeftModuleHom where
+module _ {R : Ring ℓ'} (M : LeftModule R ℓ) where
+  idLeftModuleHom : LeftModuleHom M M
+  idLeftModuleHom = (idfun ⟨ M ⟩) , isLeftModuleHom where
     open IsLeftModuleHom
     isLeftModuleHom : IsLeftModuleHom (M .snd) (idfun ⟨ M ⟩) (M .snd)
     isLeftModuleHom .pres0 = refl
@@ -54,12 +55,10 @@ module ModuleTheory (R : Ring ℓ') (M : LeftModule R ℓ) where
     isLeftModuleHom .pres- x = refl
     isLeftModuleHom .pres⋆ r y = refl
 
+module _ {R : Ring ℓ'} {M N P : LeftModule R ℓ} where
   -- Composition of left module homomorphisms
-  compLeftModuleHom : {M N P : LeftModule R ℓ'}
-    → (f : LeftModuleHom M N)
-    → (g : LeftModuleHom N P)
-    → LeftModuleHom M P
-  compLeftModuleHom {M = M} {N} {P} f g =
+  compLeftModuleHom : LeftModuleHom M N → LeftModuleHom N P → LeftModuleHom M P
+  compLeftModuleHom f g =
     fg , record { pres0 = pres0 ; pres+ = pres+ ; pres- = pres- ; pres⋆ = pres⋆ } where
       open LeftModuleStr (M .snd) using () renaming (0m to 0M; _+_ to _+M_; -_ to -M_; _⋆_ to _⋆M_)
       open LeftModuleStr (N .snd) using () renaming (0m to 0N; _+_ to _+N_; -_ to -N_; _⋆_ to _⋆N_)
