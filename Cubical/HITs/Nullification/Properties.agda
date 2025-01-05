@@ -175,7 +175,7 @@ isNullIsEquiv nullX nullY f =
 
 isNullEquiv :
   ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs}
-  {X Y : Type ℓ} → isNull S X → isNull S Y → isNull S (X ≃ Y)
+  {X : Type ℓ} {Y : Type ℓ'} → isNull S X → isNull S Y → isNull S (X ≃ Y)
 isNullEquiv nullX nullY = isNullΣ (isNullΠ (λ _ → nullY)) (isNullIsEquiv nullX nullY)
 
 isNullIsOfHLevel : (n : HLevel) → isNull S X → isNull S (isOfHLevel n X)
