@@ -216,8 +216,8 @@ module _ where
   isAsym< : isAsym _<_
   isAsym< = isIrrefl×isTrans→isAsym _<_ (isIrrefl< , isTrans<)
 
-  isStronglyConnected≤ : isStronglyConnected _≤_
-  isStronglyConnected≤ =
+  isTotal≤ : isTotal _≤_
+  isTotal≤ =
     elimProp2 {P = λ a b → (a ≤ b) ⊔′ (b ≤ a)}
               (λ _ _ → isPropPropTrunc)
                λ a b → ∣ lem a b ∣₁
@@ -230,12 +230,34 @@ module _ where
 
   isConnected< : isConnected _<_
   isConnected< =
-    elimProp2 {P = λ a b → ¬ a ≡ b → (a < b) ⊔′ (b < a)}
-              (λ _ _ → isProp→ isPropPropTrunc)
-               λ a b ¬a≡b → ∣ lem a b ¬a≡b ∣₁
+    elimProp2 {P = λ a b → (¬ a < b) × (¬ b < a) → a ≡ b}
+              (λ a b → isProp→ (isSetℚ a b))
+               lem
     where
-      -- Agda can't infer the relation involved, so the signature looks a bit weird here
-      lem : (a b : ℤ.ℤ × ℕ₊₁) → ¬ [_] {R = _∼_} a ≡ [ b ] → ([ a ] < [ b ]) ⊎ ([ b ] < [ a ])
+      lem : (a b : ℤ.ℤ × ℕ₊₁) → (¬ [ a ] < [ b ]) × (¬ [ b ] < [ a ]) → [ a ] ≡ [ b ]
+      lem (a , b) (c , d) (¬ad<cb , ¬cb<ad) with (a ℤ.· ℕ₊₁→ℤ d) ℤ.≟ (c ℤ.· ℕ₊₁→ℤ b)
+      ... | ℤ.lt ad<cb = ⊥.rec (¬ad<cb ad<cb)
+      ... | ℤ.eq ad≡cb = eq/ (a , b) (c , d) ad≡cb
+      ... | ℤ.gt cb<ad = ⊥.rec (¬cb<ad cb<ad)
+
+  isProp# : isPropValued _#_
+  isProp# x y = isProp⊎ (isProp< x y) (isProp< y x) (isAsym< x y)
+
+  isIrrefl# : isIrrefl _#_
+  isIrrefl# x (inl x<x) = isIrrefl< x x<x
+  isIrrefl# x (inr x<x) = isIrrefl< x x<x
+
+  isSym# : isSym _#_
+  isSym# _ _ (inl x<y) = inr x<y
+  isSym# _ _ (inr y<x) = inl y<x
+
+  inequalityImplies# : inequalityImplies _#_
+  inequalityImplies#
+    = elimProp2 {P = λ a b → ¬ a ≡ b → a # b}
+                (λ a b → isProp→ (isProp# a b))
+                 lem
+    where
+      lem : (a b : ℤ.ℤ × ℕ₊₁) → ¬ [_] {R = _∼_} a ≡ [ b ] → [ a ] # [ b ]
       lem (a , b) (c , d) ¬a≡b with (a ℤ.· ℕ₊₁→ℤ d) ℤ.≟ (c ℤ.· ℕ₊₁→ℤ b)
       ... | ℤ.lt ad<cb = inl ad<cb
       ... | ℤ.eq ad≡cb = ⊥.rec (¬a≡b (eq/ (a , b) (c , d) ad≡cb))
@@ -250,20 +272,9 @@ module _ where
       lem : (a b c : ℤ.ℤ × ℕ₊₁) → [ a ] < [ b ] → ([ a ] < [ c ]) ⊔′ ([ c ] < [ b ])
       lem a b c a<b with discreteℚ [ a ] [ c ]
       ... | yes a≡c = ∣ inr (subst (_< [ b ]) a≡c a<b) ∣₁
-      ... | no a≢c = ∥₁.map (⊎.map (λ a<c → a<c)
-                                    (λ c<a → isTrans< [ c ] [ a ] [ b ] c<a a<b))
-                             (isConnected< [ a ] [ c ] a≢c)
-
-  isProp# : isPropValued _#_
-  isProp# x y = isProp⊎ (isProp< x y) (isProp< y x) (isAsym< x y)
-
-  isIrrefl# : isIrrefl _#_
-  isIrrefl# x (inl x<x) = isIrrefl< x x<x
-  isIrrefl# x (inr x<x) = isIrrefl< x x<x
-
-  isSym# : isSym _#_
-  isSym# _ _ (inl x<y) = inr x<y
-  isSym# _ _ (inr y<x) = inl y<x
+      ... | no a≢c = ∣ ⊎.map (λ a<c → a<c)
+                             (λ c<a → isTrans< [ c ] [ a ] [ b ] c<a a<b)
+                             (inequalityImplies# [ a ] [ c ] a≢c) ∣₁
 
   isCotrans# : isCotrans _#_
   isCotrans#
@@ -274,10 +285,7 @@ module _ where
         lem : (a b c : ℤ.ℤ × ℕ₊₁) → [ a ] # [ b ] → ([ a ] # [ c ]) ⊔′ ([ b ] # [ c ])
         lem a b c a#b with discreteℚ [ b ] [ c ]
         ... | yes b≡c = ∣ inl (subst ([ a ] #_) b≡c a#b) ∣₁
-        ... | no  b≢c = ∥₁.map inr (isConnected< [ b ] [ c ] b≢c)
-
-  inequalityImplies# : inequalityImplies _#_
-  inequalityImplies# a b = ∥₁.rec (isProp# a b) (λ a#b → a#b) ∘ (isConnected< a b)
+        ... | no  b≢c = ∣ inr (inequalityImplies# [ b ] [ c ] b≢c) ∣₁
 
 ≤-+o : ∀ m n o → m ≤ n → m ℚ.+ o ≤ n ℚ.+ o
 ≤-+o =
@@ -614,7 +622,7 @@ m ≟ n with discreteℚ m n
 ... | yes m≡n = ≡Weaken≤ n m (sym m≡n)
 ... | no  m≢n = ∥₁.elim (λ _ → isProp≤ n m)
                         (⊎.rec (⊥.rec ∘ m≮n) (<Weaken≤ n m))
-                        (isConnected< m n m≢n)
+                         ∣ inequalityImplies# m n m≢n ∣₁
 
 0<+ : ∀ m n → 0 < m ℚ.+ n → (0 < m) ⊎ (0 < n)
 0<+ m n 0<m+n with <Dec 0 m | <Dec 0 n

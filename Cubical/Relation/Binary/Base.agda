@@ -77,19 +77,16 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
 
   -- Sum types don't play nicely with props, so we truncate
   isCotrans : Type (ℓ-max ℓ ℓ')
-  isCotrans = (a b c : A) → R a b → (R a c ⊔′ R b c)
+  isCotrans = (a b c : A) → R a b → R a c ⊔′ R b c
 
   isWeaklyLinear : Type (ℓ-max ℓ ℓ')
   isWeaklyLinear = (a b c : A) → R a b → R a c ⊔′ R c b
 
   isConnected : Type (ℓ-max ℓ ℓ')
-  isConnected = (a b : A) → ¬ (a ≡ b) → R a b ⊔′ R b a
+  isConnected = (a b : A) → (¬ R a b) × (¬ R b a) → a ≡ b
 
-  isStronglyConnected : Type (ℓ-max ℓ ℓ')
-  isStronglyConnected = (a b : A) → R a b ⊔′ R b a
-
-  isStronglyConnected→isConnected : isStronglyConnected → isConnected
-  isStronglyConnected→isConnected strong a b _ = strong a b
+  isTotal : Type (ℓ-max ℓ ℓ')
+  isTotal = (a b : A) → R a b ⊔′ R b a
 
   isIrrefl×isTrans→isAsym : isIrrefl × isTrans → isAsym
   isIrrefl×isTrans→isAsym (irrefl , trans) a₀ a₁ Ra₀a₁ Ra₁a₀
@@ -97,6 +94,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
 
   WellFounded→isIrrefl : WellFounded R → isIrrefl
   WellFounded→isIrrefl well = WFI.induction well λ a f Raa → f a Raa Raa
+
+  isAsym→isIrrefl : isAsym → isIrrefl
+  isAsym→isIrrefl asym a Raa = asym a a Raa Raa
 
   IrreflKernel : Rel A A (ℓ-max ℓ ℓ')
   IrreflKernel a b = R a b × (¬ a ≡ b)
@@ -115,6 +115,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
 
   NegationRel : Rel A A ℓ'
   NegationRel a b = ¬ (R a b)
+
+  Dual : Rel A A ℓ'
+  Dual a b = R b a
 
   module _
     {ℓ'' : Level}
@@ -154,9 +157,14 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isEffective =
     (a b : A) → isEquiv (eq/ {R = R} a b)
 
+  isDecidable : Type (ℓ-max ℓ ℓ')
+  isDecidable = (a b : A) → Dec (R a b)
 
   impliesIdentity : Type _
   impliesIdentity = {a a' : A} → (R a a') → (a ≡ a')
+
+  isTight : Type _
+  isTight = (a b : A) → ¬ R a b → a ≡ b
 
   inequalityImplies : Type _
   inequalityImplies = (a b : A) → ¬ a ≡ b → R a b
@@ -240,14 +248,6 @@ isIrreflIrreflKernel _ _ (_ , ¬a≡a) = ¬a≡a refl
 
 isReflReflClosure : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isRefl (ReflClosure R)
 isReflReflClosure _ _ = inr refl
-
-isConnectedStronglyConnectedIrreflKernel : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ')
-                                         → isStronglyConnected R
-                                         → isConnected (IrreflKernel R)
-isConnectedStronglyConnectedIrreflKernel R strong a b ¬a≡b
-  = ∥₁.map (λ x → ⊎.rec (λ Rab → inl (Rab , ¬a≡b))
-                        (λ Rba → inr (Rba , (λ b≡a → ¬a≡b (sym b≡a)))) x)
-                        (strong a b)
 
 isSymSymKernel : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isSym (SymKernel R)
 isSymSymKernel _ _ _ (Rab , Rba) = Rba , Rab

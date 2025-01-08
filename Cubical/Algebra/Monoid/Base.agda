@@ -140,3 +140,13 @@ module MonoidTheory {ℓ} (M : Monoid ℓ) where
     (y · x) · z ≡⟨ congL _·_ left-inverse ⟩
     ε · z       ≡⟨ ·IdL z ⟩
     z ∎
+
+  -- Added for its use in division rings
+  hasInverse : (x : ⟨ M ⟩) → Type ℓ
+  hasInverse x = Σ[ -x ∈ ⟨ M ⟩ ] (-x · x ≡ ε) × (x · -x ≡ ε)
+
+  isPropHasInverse : ∀ x → isProp (hasInverse x)
+  isPropHasInverse x (y , invly , _) (z , _ , invrz)
+    = Σ≡Prop (λ a → isProp× (is-set (a · x) ε)
+                             (is-set (x · a) ε))
+              (inv-lemma x y z invly invrz)

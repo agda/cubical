@@ -1,6 +1,7 @@
 {-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Order.Apartness.Properties where
 
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Functions.Embedding
@@ -51,3 +52,20 @@ module _
                   (λ a → IsApartness.is-irrefl apa (f a))
                   (λ a b c → IsApartness.is-cotrans apa (f a) (f b) (f c))
                   λ a b → IsApartness.is-sym apa (f a) (f b)
+
+  isApartnessDual : IsApartness R → IsApartness (Dual R)
+  isApartnessDual apa
+    = isapartness (IsApartness.is-set apa)
+                  (λ a b → IsApartness.is-prop-valued apa b a)
+                  (IsApartness.is-irrefl apa)
+                  (λ a b c Rba → ∥₁.map (⊎.rec (inl ∘ s c a)
+                                               (inr ∘ s c b))
+                                        (IsApartness.is-cotrans apa a b c (s a b Rba)))
+                   s
+    where s : isSym (Dual R)
+          s a b = IsApartness.is-sym apa b a
+
+DualApartness : Apartness ℓ ℓ' → Apartness ℓ ℓ'
+DualApartness (_ , apa)
+  = apartness _ (BinaryRelation.Dual (ApartnessStr._#_ apa))
+                (isApartnessDual (ApartnessStr.isApartness apa))

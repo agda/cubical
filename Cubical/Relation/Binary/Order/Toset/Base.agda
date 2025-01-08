@@ -46,7 +46,7 @@ record IsToset {A : Type ℓ} (_≤_ : A → A → Type ℓ') : Type (ℓ-max �
     is-refl : isRefl _≤_
     is-trans : isTrans _≤_
     is-antisym : isAntisym _≤_
-    is-strongly-connected : isStronglyConnected _≤_
+    is-total : isTotal _≤_
 
 unquoteDecl IsTosetIsoΣ = declareRecordIsoΣ IsTosetIsoΣ (quote IsToset)
 
@@ -66,8 +66,8 @@ record TosetStr (ℓ' : Level) (A : Type ℓ) : Type (ℓ-max ℓ (ℓ-suc ℓ')
 Toset : ∀ ℓ ℓ' → Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ'))
 Toset ℓ ℓ' = TypeWithStr ℓ (TosetStr ℓ')
 
-toset : (A : Type ℓ) (_≤_ : A → A → Type ℓ') (h : IsToset _≤_) → Toset ℓ ℓ'
-toset A _≤_ h = A , tosetstr _≤_ h
+toset : (A : Type ℓ) → (_≤_ : Rel A A ℓ') → IsToset _≤_ → Toset ℓ ℓ'
+toset A _≤_ tos = A , (tosetstr _≤_ tos)
 
 record IsTosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
   (M : TosetStr ℓ₀' A) (e : A ≃ B) (N : TosetStr ℓ₁' B)
