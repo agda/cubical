@@ -43,9 +43,10 @@ private
     B : A → Type ℓ
     x y z w : A
 
-refl : x ≡ x
-refl {x = x} _ = x
-{-# INLINE refl #-}
+instance
+  refl : x ≡ x
+  refl {x = x} _ = x
+  {-# INLINE refl #-}
 
 sym : x ≡ y → y ≡ x
 sym p i = p (~ i)
@@ -638,3 +639,7 @@ liftExt x i = lift (x i)
 liftFun : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'}
   (f : A → B) → Lift {j = ℓ''} A → Lift {j = ℓ'''} B
 liftFun f (lift a) = lift (f a)
+
+instance
+  liftInstance : ⦃ A ⦄ → Lift A
+  liftInstance ⦃ a ⦄ = lift a
