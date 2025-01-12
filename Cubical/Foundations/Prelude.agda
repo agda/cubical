@@ -641,5 +641,5 @@ liftFun : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'}
 liftFun f (lift a) = lift (f a)
 
 instance
-  liftInstance : ⦃ A ⦄ → Lift {ℓ = ℓ} {ℓ' = ℓ'} A
+  liftInstance : ⦃ A ⦄ → Lift {i = ℓ} {j = ℓ'} A
   liftInstance ⦃ a ⦄ = lift a
