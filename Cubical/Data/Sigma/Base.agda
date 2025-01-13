@@ -50,3 +50,9 @@ infix 2 ∃!-syntax
 ∃!-syntax = ∃!
 
 syntax ∃!-syntax A (λ x → B) = ∃![ x ∈ A ] B
+
+-- Instance
+
+instance
+  Σ-instance : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {{ x : A }} {{ B x }} → Σ A B
+  Σ-instance {{ x }} {{ y }} = (x , y)
