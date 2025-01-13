@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification --overlapping-instances #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.CommRing.Properties where
 
 open import Cubical.Foundations.Prelude
