@@ -12,7 +12,6 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum as ⊎
 
-open import Cubical.HITs.Pushout.Base
 open import Cubical.HITs.Wedge.Base
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Pushout
@@ -43,6 +42,36 @@ Iso.fun ⋁-commIso = ⋁-commFun
 Iso.inv ⋁-commIso = ⋁-commFun
 Iso.rightInv ⋁-commIso = ⋁-commFun²
 Iso.leftInv ⋁-commIso = ⋁-commFun²
+
+-- Pushout square using Unit* for convenience
+⋁-PushoutSquare : ∀ (A : Pointed ℓ) (B : Pointed ℓ') ℓ'' → PushoutSquare
+⋁-PushoutSquare A B ℓ'' = record
+  { sp = record
+    { A0 = typ A
+    ; A2 = Unit* {ℓ''}
+    ; A4 = typ B
+    ; f1 = λ _ → pt A
+    ; f3 = λ _ → pt B }
+  ; P = A ⋁ B
+  ; inlP = inl
+  ; inrP = inr
+  ; comm = funExt λ _ → push _ } ,
+  isoToIsEquiv (iso _ inv lInv rInv)
+  where
+    inv : _
+    inv (inl a) = inl a
+    inv (inr b) = inr b
+    inv (push _ i) = push _ i
+
+    rInv : _
+    rInv (inl a) = refl
+    rInv (inr b) = refl
+    rInv (push _ i) = refl
+
+    lInv : _
+    lInv (inl a) = refl
+    lInv (inr b) = refl
+    lInv (push _ i) = refl
 
 -- cofibre of A --inl→ A ⋁ B is B
 cofibInl-⋁ : {A : Pointed ℓ} {B : Pointed ℓ'}
@@ -548,3 +577,75 @@ module _ {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : A → Pointed ℓB} (C : 
   ⋁-cofib-Iso = compIso (compIso (invIso A○□Iso)
                                   (invIso (3x3-Iso inst)))
                                   A□○Iso
+
+{-
+  We prove the square
+    X ⋁ Y --> X
+      ↓       ↓
+      Y ----> *
+  is a pushout.
+-}
+
+module _ (X∙ @ (X , x₀) : Pointed ℓ) (Y∙ @ (Y , y₀) : Pointed ℓ') where
+
+  private
+    fX : X∙ ⋁ Y∙ → X
+    fX = ⋁proj₁ X∙ Y∙
+
+    fY : X∙ ⋁ Y∙ → Y
+    fY = ⋁proj₂ X∙ Y∙
+
+    weirdSquare : ∀ {ℓ ℓ' ℓ''} {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''}
+      → (f : X → Y) (g : Y → Z) → commSquare
+    weirdSquare f g = record
+      { sp = record { f1 = idfun _ ; f3 = f }
+      ; inlP = f
+      ; inrP = idfun _
+      ; comm = refl ∙ refl ∙ refl }
+
+    weirdPushoutSquare : ∀ {ℓ ℓ' ℓ''} {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''}
+      → (f : X → Y) (g : Y → Z) → isPushoutSquare (weirdSquare f g)
+    weirdPushoutSquare f g = isoToIsEquiv (iso _ inr (λ _ → refl)
+        λ { (inl x) → sym (push _)
+          ; (inr x) → refl
+          ; (push a i) j → subst
+            (λ t → Square (sym (push _)) refl t (push _))
+              (cong (cong Pushout.inr) (lUnit _ ∙ lUnit _))
+              (λ i j → push a (i ∨ ~ j))
+              i j
+          })
+
+  {-
+  The proof proceeds by applying the pasting lemma twice:
+    1 ----> Y
+    ↓       ↓
+    X --> X ⋁ Y --> X
+    ↓  mid  ↓  bot  ↓
+    1 ----> Y ----> 1
+  -}
+
+  midPushout : isPushoutSquare _
+  midPushout = isPushoutTotSquare→isPushoutBottomSquare
+    (weirdPushoutSquare _ (terminal Y))
+    where
+      open PushoutPasteDown (pushoutToSquare record
+        { A2 = Unit
+        ; f1 = λ _ → x₀
+        ; f3 = λ _ → y₀
+        }) (terminal X) (λ _ → y₀) fY refl
+
+  -- slight help to the unifier here
+  botPushout : isPushoutSquare record { comm = refl }
+  botPushout = isPushoutTotSquare→isPushoutBottomSquare $
+    rotatePushoutSquare (record { comm = refl } , isoToIsEquiv
+      (iso _ inl (λ _ → refl) λ {
+        (inl _) i → inl _
+      ; (inr a) i → push a i
+      ; (push a j) i → push a (i ∧ j)
+      })) .snd
+    where
+      open PushoutPasteDown (rotatePushoutSquare (_ , midPushout))
+        fX (terminal X) (terminal Y) refl
+
+  Pushout⋁≃Unit : Pushout fX fY ≃ Unit
+  Pushout⋁≃Unit = _ , botPushout
