@@ -10,14 +10,17 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Int
+open import Cubical.Data.Nat.Order.Inductive
+open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; _·_ to _·ℤ_)
 open import Cubical.Data.Bool
+open import Cubical.Data.Empty renaming (rec to emptyrec)
 open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Degree renaming (degreeConst to degree-const)
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SphereBouquet
@@ -186,6 +189,26 @@ module _ {ℓ} (C : CWskel ℓ) where
         ∂≡∂↑ : ∂ n ≡ ∂↑
         ∂≡∂↑ = bouquetDegreeSusp (pre∂ n)
 
+  -- alternative description of the boundary for 1-dimensional cells
+  module ∂₀ where
+    src₀ : Fin (C .snd .fst 1) → Fin (C .snd .fst 0)
+    src₀ x = CW₁-discrete C .fst (C .snd .snd .fst 1 (x , true))
+
+    dest₀ : Fin (C .snd .fst 1) → Fin (C .snd .fst 0)
+    dest₀ x = CW₁-discrete C .fst (C .snd .snd .fst 1 (x , false))
+
+    src : AbGroupHom (ℤ[A 1 ]) (ℤ[A 0 ])
+    src = ℤFinFunct src₀
+
+    dest : AbGroupHom (ℤ[A 1 ]) (ℤ[A 0 ])
+    dest = ℤFinFunct dest₀
+
+    ∂₀ : AbGroupHom (ℤ[A 1 ]) (ℤ[A 0 ])
+    ∂₀ = subtrGroupHom (ℤ[A 1 ]) (ℤ[A 0 ]) dest src
+
+    -- ∂₀-alt : ∂ 0 ≡ ∂₀
+    -- ∂₀-alt = agreeOnℤFinGenerator→≡ λ x → funExt λ a → {!!}
+
   -- augmentation map, in order to define reduced homology
   module augmentation where
     ε : Susp (cofibCW 0 C) → SphereBouquet 1 (Fin 1)
@@ -222,6 +245,17 @@ module _ {ℓ} (C : CWskel ℓ) where
 
     ϵ : AbGroupHom (ℤ[A 0 ]) (ℤ[Fin 1 ])
     ϵ = bouquetDegree preϵ
+
+    ϵ-alt : ϵ ≡ sumCoefficients _
+    ϵ-alt = GroupHom≡ (funExt λ (x : ℤ[A 0 ] .fst) → funExt λ y → cong sumFinℤ (funExt (lem1 x y)))
+      where
+        An = snd C .fst 0
+
+        lem0 : (y : Fin 1) (a : Fin An) → (degree _ (pickPetal {k = 1} y ∘ preϵ ∘ inr ∘ (a ,_))) ≡ pos 1
+        lem0 (zero , y₁) a = refl
+
+        lem1 : (x : ℤ[A 0 ] .fst) (y : Fin 1) (a : Fin An) → x a ·ℤ (degree _ (pickPetal {k = 1} y ∘ preϵ ∘ inr ∘ (a ,_))) ≡ x a
+        lem1 x y a = cong (x a ·ℤ_) (lem0 y a) ∙ ·IdR (x a)
 
     opaque
       ϵ∂≡0 : compGroupHom (∂ 0) ϵ ≡ trivGroupHom
