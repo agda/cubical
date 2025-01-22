@@ -142,6 +142,11 @@ suc-< p = pred-≤-pred (≤-suc p)
            (d + m) · k   ≡⟨ cong (_· k) r ⟩
            n · k         ∎
 
+≤-k· : m ≤ n → k · m ≤ k · n
+≤-k· {m} {n} {k} p =
+  subst2 _≤_ (·-comm m k) (·-comm n k)
+    (≤-·k p)
+
 <-k+-cancel : k + m < k + n → m < n
 <-k+-cancel {k} {m} {n} = ≤-k+-cancel ∘ subst (_≤ k + n) (sym (+-suc k m))
 
@@ -223,6 +228,17 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
            d · suc k + suc m · suc k         ≡⟨ ·-distribʳ d (suc m) (suc k) ⟩
            (d + suc m) · suc k               ≡⟨ cong (_· suc k) r ⟩
            n · suc k                         ∎
+
+
+<-·sk-cancel : ∀ {m n k} → m · suc k < n · suc k → m < n
+<-·sk-cancel {n = zero} x = ⊥.rec (¬-<-zero x)
+<-·sk-cancel {zero} {n = suc n} x = suc-≤-suc (zero-≤ {n})
+<-·sk-cancel {suc m} {n = suc n} {k} x =
+  suc-≤-suc {suc m} {n}
+    (<-·sk-cancel {m} {n} {k}
+     (≤-k+-cancel (subst (_≤ (k + n · suc k))
+       (sym (+-suc _ _)) (pred-≤-pred x))))
+
 
 ∸-≤ : ∀ m n → m ∸ n ≤ m
 ∸-≤ m zero = ≤-refl
@@ -480,6 +496,12 @@ n∸l>0  zero   (suc l) r = ⊥.rec (¬-<-zero r)
 n∸l>0 (suc n)  zero   r = suc-≤-suc zero-≤
 n∸l>0 (suc n) (suc l) r = n∸l>0 n l (pred-≤-pred r)
 
+[n-m]+m : ∀ m n → m ≤ n → (n ∸ m) + m ≡ n
+[n-m]+m zero n _ = +-zero n
+[n-m]+m (suc m) zero p = ⊥.rec (¬-<-zero p)
+[n-m]+m (suc m) (suc n) p =
+  +-suc _ _ ∙ cong suc ([n-m]+m m n (pred-≤-pred p))
+
 -- automation
 
 ≤-solver-type : (m n : ℕ) → Trichotomy m n → Type
@@ -545,3 +567,25 @@ pattern s<s {m} {n} m<n = s≤s {m} {n} m<n
 ≤-∸-≥ n (suc l)  zero   r = ⊥.rec (¬-<-zero r)
 ≤-∸-≥  zero   (suc l) (suc k) r = ≤-refl
 ≤-∸-≥ (suc n) (suc l) (suc k) r = ≤-∸-≥ n l k (pred-≤-pred r)
+
+elimBy≤ : ∀ {ℓ} {A : ℕ → ℕ → Type ℓ}
+  → (∀ x y → A x y → A y x)
+  → (∀ x y → x ≤ y → A x y)
+  → ∀ x y → A x y
+elimBy≤ {A = A} s f n m = ≤CaseInduction {P = A}
+  (f _ _) (s _ _ ∘ f _ _ )
+
+elimBy≤+ : ∀ {ℓ} {A : ℕ → ℕ → Type ℓ}
+  → (∀ x y → A x y → A y x)
+  → (∀ x y → A x (y + x))
+  → ∀ x y → A x y
+elimBy≤+ {A = A} s f =
+ elimBy≤ s λ x y (y' , p) → subst (A x) p (f x y')
+
+module Minimal where
+  Least : ∀{ℓ} → (ℕ → Type ℓ) → (ℕ → Type ℓ)
+  Least P m = P m × (∀ n → n < m → ¬ P n)
+
+  isPropLeast : {P : ℕ → Type ℓ} → (∀ m → isProp (P m)) → ∀ m → isProp (Least P m)
+  isPropLeast pP m
+    = isPropΣ (pP m) (λ _ → isPropΠ3 λ _ _ _ → isProp⊥)
