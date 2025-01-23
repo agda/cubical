@@ -7,7 +7,7 @@
 
   where '⊎' is the disjoint sum.
 -}
-module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.OnCoproduct where
+module Cubical.Algebra.CommAlgebra.AsModule.FreeCommAlgebra.OnCoproduct where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -23,8 +23,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
+open import Cubical.Algebra.CommAlgebra.AsModule
+open import Cubical.Algebra.CommAlgebra.AsModule.FreeCommAlgebra
 
 private variable
     ℓ ℓ' : Level
@@ -76,11 +76,11 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
   asHomOverR[I] = Iso.fun isoR[I] R[I⊎J]overR[I]
   asHomOverR = Iso.fun isoR (R [ I ⊎ J ])
 
-  ≡RingHoms : snd asHomOverR[I] ∘r baseRingHom ≡ baseRingHom
+  ≡RingHoms : snd asHomOverR[I] ∘cr baseRingHom ≡ baseRingHom
   ≡RingHoms =
-    RingHom≡
+    CommRingHom≡
       (funExt λ x →
-        fst (snd asHomOverR[I] ∘r baseRingHom) x ≡⟨⟩
+        fst (snd asHomOverR[I] ∘cr baseRingHom) x ≡⟨⟩
         fst (snd asHomOverR[I]) (const x · 1a)   ≡⟨⟩
         (const x · 1a) ⋆ 1a                      ≡⟨ cong (_⋆ 1a) (·IdR (const x)) ⟩
         const x ⋆ 1a                             ≡⟨⟩
@@ -90,12 +90,12 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
 
   ≡R[I⊎J] =
     baseChange baseRingHom R[I⊎J]overR[I]                                                     ≡⟨⟩
-    Iso.inv isoR ((CommAlgebra→CommRing R[I⊎J]overR[I]) , (snd asHomOverR[I]) ∘r baseRingHom) ≡⟨ step1 ⟩
+    Iso.inv isoR ((CommAlgebra→CommRing R[I⊎J]overR[I]) , (snd asHomOverR[I]) ∘cr baseRingHom) ≡⟨ step1 ⟩
     Iso.inv isoR (CommAlgebra→CommRing (R [ I ⊎ J ]) , baseRingHom)                           ≡⟨⟩
     Iso.inv isoR asHomOverR                                                                   ≡⟨ step2 ⟩
     R [ I ⊎ J ] ∎
     where
-      step1 : Iso.inv isoR ((CommAlgebra→CommRing R[I⊎J]overR[I]) , (snd asHomOverR[I]) ∘r baseRingHom)
+      step1 : Iso.inv isoR ((CommAlgebra→CommRing R[I⊎J]overR[I]) , (snd asHomOverR[I]) ∘cr baseRingHom)
               ≡ Iso.inv isoR (CommAlgebra→CommRing (R [ I ⊎ J ]) , baseRingHom)
       step1 i = Iso.inv isoR ((CommAlgebra→CommRing R[I⊎J]overR[I]) , ≡RingHoms i)
 
