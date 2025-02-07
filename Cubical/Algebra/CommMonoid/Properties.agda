@@ -57,3 +57,19 @@ module CommMonoidTheory (M' : CommMonoid ℓ) where
  commAssocSwap : (x y z w : M) → (x · y) · (z · w) ≡ (x · z) · (y · w)
  commAssocSwap x y z w = ·Assoc (x · y) z w ∙∙ cong (_· w) (commAssocr x y z)
                                                ∙∙ sym (·Assoc (x · z) y w)
+
+ hasInverse : (x : M) → Type ℓ
+ hasInverse x = Σ[ -x ∈ M ] -x · x ≡ ε
+
+ isPropHasInverse : ∀ x → isProp (hasInverse x)
+ isPropHasInverse x yinv zinv
+   = Σ≡Prop (λ a → is-set (a · x) ε)
+    (PathPΣ (MonoidTheory.isPropHasInverse (CommMonoid→Monoid M') x
+                                           (hasInverseToMonoid x yinv)
+                                           (hasInverseToMonoid x zinv))
+                                               .fst)
+   where
+     hasInverseToMonoid : ∀ x
+                        → hasInverse x
+                        → MonoidTheory.hasInverse (CommMonoid→Monoid M') x
+     hasInverseToMonoid x (y , yinv) = y , yinv , ·Comm x y ∙ yinv
