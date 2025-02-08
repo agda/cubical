@@ -19,6 +19,7 @@ open import Cubical.HITs.FreeAbGroup
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.Pi
 open import Cubical.Algebra.AbGroup.Instances.Int
+open import Cubical.Algebra.AbGroup.Instances.DirectProduct
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
@@ -413,3 +414,49 @@ agreeOnℤFinGenerator→≡ {n} {m} {ϕ} {ψ} idr =
       λ f p → IsGroupHom.presinv (snd ϕ) f
            ∙∙ (λ i x → -ℤ (p i x))
            ∙∙ sym (IsGroupHom.presinv (snd ψ) f)))
+
+--
+sumCoefficients : (n : ℕ) → AbGroupHom (ℤ[Fin n ]) (ℤ[Fin 1 ])
+fst (sumCoefficients n) v = λ _ → sumFinℤ v
+snd (sumCoefficients n) = makeIsGroupHom (λ x y → funExt λ _ → sumFinℤHom x y)
+
+ℤFinProductIso : (n m : ℕ) → Iso (ℤ[Fin (n +ℕ m) ] .fst) ((AbDirProd ℤ[Fin n ] ℤ[Fin m ]) .fst)
+ℤFinProductIso n m = iso sum→product product→sum product→sum→product sum→product→sum
+  where
+    sum→product : (ℤ[Fin (n +ℕ m) ] .fst) → ((AbDirProd ℤ[Fin n ] ℤ[Fin m ]) .fst)
+    sum→product x = ((λ (a , Ha) → x (a , <→<ᵗ (≤-trans (<ᵗ→< Ha) (≤SumLeft {n}{m}))))
+                    , λ (a , Ha) → x (n +ℕ a , <→<ᵗ (<-k+ {a}{m}{n} (<ᵗ→< Ha))))
+
+    product→sum : ((AbDirProd ℤ[Fin n ] ℤ[Fin m ]) .fst) → (ℤ[Fin (n +ℕ m) ] .fst)
+    product→sum (x , y) (a , Ha) with (a ≟ᵗ n)
+    ... | lt H = x (a , H)
+    ... | eq H = y (a ∸ n , <→<ᵗ (subst (a ∸ n <_) (∸+ m n) (<-∸-< a (n +ℕ m) n (<ᵗ→< Ha) (subst (λ a → a < n +ℕ m) H (<ᵗ→< Ha)))))
+    ... | gt H = y (a ∸ n , <→<ᵗ (subst (a ∸ n <_) (∸+ m n) (<-∸-< a (n +ℕ m) n (<ᵗ→< Ha) (<ᵗ→< (<ᵗ-trans {n}{a}{n +ℕ m} H Ha)))))
+
+    product→sum→product : ∀ x → sum→product (product→sum x) ≡ x
+    product→sum→product (x , y) = ≡-× (funExt (λ (a , Ha) → lemx a Ha)) (funExt (λ (a , Ha) → lemy a Ha))
+      where
+        lemx : (a : ℕ) (Ha : a <ᵗ n) → fst (sum→product (product→sum (x , y))) (a , Ha) ≡ x (a , Ha)
+        lemx a Ha with (a ≟ᵗ n)
+        ... | lt H = cong x (Fin≡ (a , H) (a , Ha) refl)
+        ... | eq H = rec (¬m<ᵗm (subst (λ a → a <ᵗ n) H Ha))
+        ... | gt H = rec (¬m<ᵗm (<ᵗ-trans Ha H))
+
+        lemy : (a : ℕ) (Ha : a <ᵗ m) → snd (sum→product (product→sum (x , y))) (a , Ha) ≡ y (a , Ha)
+        lemy a Ha with ((n +ℕ a) ≟ᵗ n)
+        ... | lt H = rec (¬m<m (≤<-trans (≤SumLeft {n}{a}) (<ᵗ→< H)))
+        ... | eq H = cong y (Fin≡ _ _ (∸+ a n))
+        ... | gt H = cong y (Fin≡ _ _ (∸+ a n))
+
+    sum→product→sum : ∀ x → product→sum (sum→product x) ≡ x
+    sum→product→sum x = funExt (λ (a , Ha) → lem a Ha)
+      where
+        lem : (a : ℕ) (Ha : a <ᵗ (n +ℕ m)) → product→sum (sum→product x) (a , Ha) ≡ x (a , Ha)
+        lem a Ha with (a ≟ᵗ n)
+        ... | lt H = cong x (Fin≡ _ _ refl)
+        ... | eq H = cong x (Fin≡ _ _ ((+-comm n (a ∸ n)) ∙ ≤-∸-+-cancel (subst (n ≤_) (sym H) ≤-refl)))
+        ... | gt H = cong x (Fin≡ _ _ ((+-comm n (a ∸ n)) ∙ ≤-∸-+-cancel (<-weaken (<ᵗ→< H))))
+
+ℤFinProduct : (n m : ℕ) → AbGroupIso ℤ[Fin (n +ℕ m) ] (AbDirProd ℤ[Fin n ] ℤ[Fin m ])
+fst (ℤFinProduct n m) = ℤFinProductIso n m
+snd (ℤFinProduct n m) = makeIsGroupHom (λ x y → refl)

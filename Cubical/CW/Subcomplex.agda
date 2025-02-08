@@ -214,47 +214,38 @@ module _ (C : CWskel ℓ) where
   ... | gt x = ⊥.rec (¬m<ᵗm (<ᵗ-trans x p))
 
 subChainIso : (C : CWskel ℓ) (n : ℕ) (m : Fin n)
-  → AbGroupIso (CWskel-fields.ℤ[A_] C (fst m))
-                (CWskel-fields.ℤ[A_] (subComplex C n) (fst m))
-subChainIso C n (m , p) with (m ≟ᵗ n)
+  → AbGroupIso (CW-AugChainComplex C .ChainComplex.chain (fst m))
+                (CW-AugChainComplex (subComplex C n) .ChainComplex.chain (fst m))
+subChainIso C n (zero , p) = idGroupIso
+subChainIso C n (suc m , p) with (m ≟ᵗ n)
 ... | lt x = idGroupIso
-... | eq x = ⊥.rec (¬m<ᵗm (subst (m <ᵗ_) (sym x) p))
-... | gt x = ⊥.rec (¬m<ᵗm (<ᵗ-trans x p))
+... | eq x = ⊥.rec (¬-suc-n<ᵗn ((subst (suc m <ᵗ_) (sym x) p)))
+... | gt x = ⊥.rec (¬-suc-n<ᵗn ((<ᵗ-trans p x)))
 
 -- main result
 subComplexHomology : (C : CWskel ℓ) (n m : ℕ) (p : suc (suc m) <ᵗ n)
-  → GroupIso (Hˢᵏᵉˡ C m) (Hˢᵏᵉˡ (subComplex C n) m)
+  → GroupIso (H̃ˢᵏᵉˡ C m) (H̃ˢᵏᵉˡ (subComplex C n) m)
 subComplexHomology C n m p =
   homologyIso m _ _
     (subChainIso C n (suc (suc m) , p))
     (subChainIso C n (suc m , <ᵗ-trans <ᵗsucm p))
     (subChainIso C n (m , <ᵗ-trans <ᵗsucm (<ᵗ-trans <ᵗsucm p)))
-    lem₁
-    lem₂
+    (lem₁ m)
+    (lem₁ (suc m))
   where
-  lem₁ : {q : _} {r : _}
-    → Iso.fun (subChainIso C n (m , q) .fst) ∘ ∂ C m .fst
-    ≡ ∂ (subComplex C n) m .fst
+  lem₁ : (m : ℕ) {q : _} {r : _}
+    → Iso.fun (subChainIso C n (m , q) .fst) ∘ CW-AugChainComplex C .ChainComplex.bdry m .fst
+    ≡ CW-AugChainComplex (subComplex C n) .ChainComplex.bdry m .fst
      ∘ Iso.fun (subChainIso C n (suc m , r) .fst)
-  lem₁ {q} {r} with (m ≟ᵗ n) | (suc m ≟ᵗ n) | (suc (suc m) ≟ᵗ n)
+  lem₁ zero with (0 ≟ᵗ n)
+  ... | lt x = refl
+  ... | eq x = ⊥.rec (subst (suc (suc m) <ᵗ_) (sym x) p)
+  ... | gt x = ⊥.rec x
+  lem₁ (suc m) {q} {r} with (m ≟ᵗ n) | (suc m ≟ᵗ n) | (suc (suc m) ≟ᵗ n)
   ... | lt x | lt x₁ | lt x₂ = refl
   ... | lt x | lt x₁ | eq x₂ = refl
   ... | lt x | lt x₁ | gt x₂ = ⊥.rec (¬squeeze (x₁ , x₂))
-  ... | lt x | eq x₁ | t = ⊥.rec (¬m<ᵗm (subst (_<ᵗ n) x₁ r))
-  ... | lt x | gt x₁ | t = ⊥.rec (¬m<ᵗm (<ᵗ-trans x₁ r))
-  ... | eq x | s | t = ⊥.rec (¬-suc-n<ᵗn (subst (suc m <ᵗ_) (sym x) r))
-  ... | gt x | s | t = ⊥.rec (¬-suc-n<ᵗn (<ᵗ-trans r x))
-
-  lem₂ : {q : suc m <ᵗ n} {r : (suc (suc m)) <ᵗ n}
-    → Iso.fun (subChainIso C n (suc m , q) .fst)
-     ∘ ∂ C (suc m) .fst
-     ≡ ∂ (subComplex C n) (suc m) .fst
-     ∘ Iso.fun (subChainIso C n (suc (suc m) , r) .fst)
-  lem₂ {q} with (suc m ≟ᵗ n) | (suc (suc m) ≟ᵗ n) | (suc (suc (suc m)) ≟ᵗ n)
-  ... | lt x | lt x₁ | lt x₂ = refl
-  ... | lt x | lt x₁ | eq x₂ = refl
-  ... | lt x | lt x₁ | gt x₂ = ⊥.rec (¬squeeze (x₁ , x₂))
-  ... | lt x | eq x₁ | t = ⊥.rec (¬m<ᵗm (subst (_<ᵗ n) x₁ p))
-  ... | lt x | gt x₁ | t = ⊥.rec (¬m<ᵗm (<ᵗ-trans x₁ p))
-  ... | eq x | s | t = ⊥.rec (¬m<ᵗm (subst (suc m <ᵗ_) (sym x) q))
-  ... | gt x | s | t = ⊥.rec (¬-suc-n<ᵗn (<ᵗ-trans p x))
+  ... | lt x | eq x₁ | t = ⊥.rec ((¬m<ᵗm (subst (_<ᵗ n) x₁ q)))
+  ... | lt x | gt x₁ | t = ⊥.rec ((¬m<ᵗm (<ᵗ-trans x₁ q)))
+  ... | eq x | s | t = ⊥.rec (¬-suc-n<ᵗn (subst (suc m <ᵗ_) (sym x) q))
+  ... | gt x | s | t = ⊥.rec ((¬-suc-n<ᵗn (<ᵗ-trans q x)))
