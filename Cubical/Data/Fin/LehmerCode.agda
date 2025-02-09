@@ -22,6 +22,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Data.Unit as ⊤
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Properties using (factorial) public
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Fin.Base as F
 open import Cubical.Data.Fin.Properties
@@ -190,10 +191,6 @@ encode = equivFun lehmerEquiv
 
 decode : LehmerCode n → Fin n ≃ Fin n
 decode = invEq lehmerEquiv
-
--- Use the one in Cubical.Data.Nat.Properties instead
-factorial : ℕ → ℕ
-factorial = _!
 
 lehmerFinEquiv : LehmerCode n ≃ Fin (n !)
 lehmerFinEquiv {zero} = isContr→Equiv isContrLehmerZero isContrFin1
