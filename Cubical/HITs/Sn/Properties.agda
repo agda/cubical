@@ -23,6 +23,7 @@ open import Cubical.HITs.PropositionalTruncation as PT hiding (rec ; elim)
 open import Cubical.HITs.SmashProduct.Base
 open import Cubical.HITs.Pushout.Base
 open import Cubical.Homotopy.Connected
+open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Join renaming (joinS¹S¹→S³ to joinS¹S¹→S3)
 open import Cubical.Data.Bool hiding (elim)
 
@@ -523,3 +524,11 @@ invSphere² (suc (suc n)) = invSusp²
                     ∙∙ (λ i → (σSn 1 (loop i)))
                     ∙∙ (rCancel (merid base))) j i)
 σ-invSphere (suc n) x = toSusp-invSusp (S₊∙ (suc n)) x
+
+-- Commutativity of ·→Ω with Sⁿ domain.
+EH-ΠΩ : ∀ {ℓ} {A : Pointed ℓ} {n : ℕ} (f g : S₊∙ (suc n) →∙ Ω A)
+     → ·→Ω f g ≡ ·→Ω g f
+EH-ΠΩ {A = A} {n = n} =
+  subst (λ T → (f g : T →∙ Ω A) → ·→Ω f g ≡ ·→Ω g f)
+        (ua∙ (isoToEquiv (invIso (IsoSucSphereSusp n))) (IsoSucSphereSusp∙ n))
+        (Susp·→Ωcomm (S₊∙ n))

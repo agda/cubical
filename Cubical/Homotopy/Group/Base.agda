@@ -132,6 +132,16 @@ fst (-Π {A = A} {n = suc (suc n)} f) (merid a j) =
  fst f ((merid a ∙ sym (merid (ptSn _))) (~ j))
 snd (-Π {A = A} {n = suc (suc n)} f) = snd f
 
+-- Action of ∙Π on σ
+∙Πσ : ∀ {ℓ} {A : Pointed ℓ} {n : ℕ} (f g : S₊∙ (suc n) →∙ A) (t : S₊ n)
+  → Square (cong (fst (∙Π f g)) (σS t))
+            (Ω→ f .fst (σS t) ∙ Ω→ g .fst (σS t))
+            (snd (∙Π f g)) (snd (∙Π f g))
+∙Πσ {A = A} {zero} f g false = refl
+∙Πσ {A = A} {zero} f g true =
+    rUnit refl
+  ∙ cong₂ _∙_ (sym (Ω→ f .snd)) (sym (Ω→ g .snd))
+∙Πσ {A = A} {suc n} f g t = ·Suspσ f g t
 
 -- to prove that this gives a group structure on π', we first
 -- prove that Ωⁿ A ≃ (Sⁿ →∙ A).

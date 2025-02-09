@@ -57,7 +57,7 @@ open import Cubical.Homotopy.Group.Pi3S2                    as π₃S²
 open import Cubical.Homotopy.Group.Pi4S3.S3PushoutIso       as James₁
 open import Cubical.Homotopy.Group.Pi4S3.S3PushoutIso2      as James₂
 open import Cubical.HITs.S2                                 as Sphere
-open import Cubical.Homotopy.Whitehead                      as Whitehead
+open import Cubical.Homotopy.WhiteheadProducts.Base         as Whitehead
 open import Cubical.Homotopy.BlakersMassey
 module BM = BlakersMassey□
 open BM

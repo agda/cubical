@@ -62,7 +62,7 @@ open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.Group.Pi3S2
 open import Cubical.Homotopy.Group.PinSn
 open import Cubical.Homotopy.Hopf
-open import Cubical.Homotopy.Whitehead using (joinTo⋁)
+open import Cubical.Homotopy.WhiteheadProducts.Base using (joinTo⋁)
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.HopfInvariant.HopfMap using (hopfMap≡HopfMap')
 -- Only imports a simple equality of two constructions of the Hopf map.
@@ -85,6 +85,7 @@ open import Cubical.HITs.Sn
 open import Cubical.HITs.Sn.Multiplication
 open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.Join hiding (joinS¹S¹→S³)
+open import Cubical.HITs.Join.CoHSpace
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.SetTruncation
