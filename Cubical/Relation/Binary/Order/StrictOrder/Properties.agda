@@ -31,13 +31,13 @@ module _
 
   open BinaryRelation
 
-  isStrictOrder→isStrictPoset : IsStrictOrder R → IsQuoset R
-  isStrictOrder→isStrictPoset strictorder = isquoset
-                                (IsStrictOrder.is-set strictorder)
-                                (IsStrictOrder.is-prop-valued strictorder)
-                                (IsStrictOrder.is-irrefl strictorder)
-                                (IsStrictOrder.is-trans strictorder)
-                                (IsStrictOrder.is-asym strictorder)
+  isStrictOrder→isQuoset : IsStrictOrder R → IsQuoset R
+  isStrictOrder→isQuoset strictorder = isquoset
+                        (IsStrictOrder.is-set strictorder)
+                        (IsStrictOrder.is-prop-valued strictorder)
+                        (IsStrictOrder.is-irrefl strictorder)
+                        (IsStrictOrder.is-trans strictorder)
+                        (IsStrictOrder.is-asym strictorder)
 
   private
     transrefl : isTrans R → isTrans (ReflClosure R)
@@ -102,7 +102,7 @@ module _
 StrictOrder→Quoset : StrictOrder ℓ ℓ' → Quoset ℓ ℓ'
 StrictOrder→Quoset (_ , strict)
   = quoset _ (StrictOrderStr._<_ strict)
-             (isStrictOrder→isStrictPoset (StrictOrderStr.isStrictOrder strict))
+             (isStrictOrder→isQuoset (StrictOrderStr.isStrictOrder strict))
 
 StrictOrder→Apartness : StrictOrder ℓ ℓ' → Apartness ℓ ℓ'
 StrictOrder→Apartness (_ , strict)
