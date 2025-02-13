@@ -133,7 +133,7 @@ def contract_composable(G, order):
     print("-----------------------------------")
     print(f"Analysing graph with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
     contractible = [node for node in G.nodes() if G.in_degree(node) == 1 and G.out_degree(node) == 1]
-    print(f"{len(contractible)} of {G.number_of_nodes()} nodes look like the middle one in: *->*")
+    print(f"{len(contractible)} of {G.number_of_nodes()} nodes look like the middle one in: *->*->*")
     print("contracting right * to left one...")
     
     for node in sorted(contractible, key=order):
