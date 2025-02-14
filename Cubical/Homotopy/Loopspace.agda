@@ -13,8 +13,10 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Functions.Morphism
+open import Cubical.Functions.Fibration
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
@@ -460,3 +462,79 @@ EH-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : ∥ typ ((Ω^ (2 + n)) A) �
                → π-comp (1 + n) p q ≡ π-comp (1 + n) q p
 EH-π  n = elim2 (λ x y → isOfHLevelPath 2 isSetSetTrunc _ _)
                              λ p q → cong ∣_∣₂ (EH n p q)
+
+{-
+  If A -> B -> C is a fiber sequence, and Ω B -> Ω C has a section,
+  then Ω B is the product Ω A × Ω C.
+
+  https://gist.github.com/ecavallo/5b75313d36977c51ca3563de82506123
+-}
+
+module _ {ℓ} {B C : Type ℓ} (b₀ : B) (π : B → C) where
+  private
+    c₀ = π b₀
+    A = fiber π c₀
+    a₀ : A
+    a₀ = b₀ , refl
+    ι : A → B
+    ι = fst
+    π∘ι≡0 : ∀ a → π (ι a) ≡ c₀
+    π∘ι≡0 = snd
+
+    A∙ B∙ C∙ : Pointed _
+    A∙ = (A , a₀)
+    B∙ = (B , b₀)
+    C∙ = (C , c₀)
+
+    TwistedProduct : Pointed _
+    TwistedProduct = ((Σ[ p ∈ typ (Ω C∙) ] (b₀ , p) ≡ a₀) , refl , refl)
+
+  -- The middle term of a fiber sequence always splits
+  -- as a twisted product without any conditions.
+  presplit : Ω B∙ ≡ TwistedProduct
+  presplit = cong Ω (ua∙ (totalEquiv π) refl)
+    ∙ sym (ua∙ ΣPath≃PathΣ refl)
+    ∙ Σ-cong-equiv-snd∙ (λ p
+      → PathP≃Path _ _ _ ∙ₑ
+        compPathlEquiv (sym (fromPathP
+          (ΣPathP (refl , λ i j → p (i ∧ j))))))
+      (rCancel λ j → transp (λ _ → A) (~ j) a₀)
+
+  module Split (s : typ (Ω C∙) → typ (Ω B∙))
+      (section : ∀ p → cong π (s p) ≡ p) where
+    movePoint : ∀ p → a₀ ≡ (b₀ , sym p)
+    movePoint p = ΣPathP (s p ,
+      λ i j → slideSquare (section p) i (~ j))
+
+    splitting : typ (Ω B∙) ≡ typ (Ω C∙) × typ (Ω A∙)
+    splitting = cong typ presplit ∙ ua
+      (Σ-cong-equiv-snd λ p → compPathlEquiv (movePoint _))
+
+    -- If the section furthermore respects the base point, then
+    -- the splitting does too.
+    module _ (h : s refl ≡ refl) (coh : cong (cong π) h ≡ section refl) where
+      movePoint-refl : movePoint refl ≡ refl
+      movePoint-refl i j = h i j , λ k →
+        slideSquare (cong sym coh ∙ lemma _ _) (~ i) (~ k) j
+        where
+          lemma : ∀ {ℓ} {X : Type ℓ} {x : X} (p : x ≡ x) (q : p ≡ refl)
+            → sym q ≡ flipSquare (slideSquare q)
+          lemma {x = x} p q = J (λ p (q : refl ≡ p)
+              → q ≡ flipSquare (slideSquare (sym q)))
+            (λ i j k → hfill
+              (slideSquareFaces
+                {a₀₀ = x} {a₋ = refl} {a₁₋ = refl} {a₋₀ = refl}
+                j k) (inS x) i)
+            (sym q)
+
+      twisted∙ : TwistedProduct ≡ Ω C∙ ×∙ Ω A∙
+      twisted∙ = Σ-cong-equiv-snd∙
+        (λ p → compPathlEquiv (movePoint _))
+        (cong (λ t → compPathlEquiv t .fst refl) movePoint-refl ∙ sym (rUnit _))
+
+      splitting∙ : Ω B∙ ≡ Ω C∙ ×∙ Ω A∙
+      splitting∙ = presplit ∙ twisted∙
+
+      -- splitting and splitting∙ agrees
+      splitting-typ : cong typ splitting∙ ≡ splitting
+      splitting-typ = congFunct typ presplit twisted∙
