@@ -35,8 +35,7 @@ FinSymGroup : ℕ → Group₀
 FinSymGroup n = SymGroup (Fin n) isSetFin
 
 Sym0≃1 : GroupEquiv (FinSymGroup 0) UnitGroup₀
-Sym0≃1 = contrGroupEquivUnit $ inhProp→isContr (idEquiv _) $
-         isOfHLevel≃ 1 isProp⊥ isProp⊥
+Sym0≃1 = contrGroupEquivUnit $ inhProp→isContr (idEquiv _) $ isOfHLevel≃ 1 isProp⊥ isProp⊥
 
 Sym0≡1 : FinSymGroup 0 ≡ UnitGroup₀
 Sym0≡1 = uaGroup Sym0≃1
@@ -48,7 +47,7 @@ Sym1≡1 : FinSymGroup 1 ≡ UnitGroup₀
 Sym1≡1 = uaGroup Sym1≃1
 
 Sym2≃Bool : GroupEquiv (FinSymGroup 2) BoolGroup
-Sym2≃Bool = GroupIso→GroupEquiv $ invGroupIso $ ≅Bool $ 
+Sym2≃Bool = GroupIso→GroupEquiv $ invGroupIso $ ≅Bool $
   Fin 2 ≃ Fin 2 Iso⟨ equivCompIso SumFin2≃Bool SumFin2≃Bool ⟩
   Bool ≃ Bool   Iso⟨ invIso univalenceIso ⟩
   Bool ≡ Bool   Iso⟨ invIso reflectIso ⟩
@@ -65,10 +64,10 @@ SymUnit≡Unit : SymGroup Unit isSetUnit ≡ UnitGroup₀
 SymUnit≡Unit = uaGroup SymUnit≃Unit
 
 SymBool≃Bool : GroupEquiv (SymGroup Bool isSetBool) BoolGroup
-SymBool≃Bool = GroupIso→GroupEquiv $ invGroupIso $ ≅Bool $ invIso $
-  Bool        Iso⟨ reflectIso ⟩
-  Bool ≡ Bool Iso⟨ univalenceIso ⟩
-  Bool ≃ Bool ∎Iso
+SymBool≃Bool = GroupIso→GroupEquiv $ invGroupIso $ ≅Bool $
+  Bool ≃ Bool Iso⟨ invIso reflectIso ⟩
+  Bool ≡ Bool Iso⟨ invIso univalenceIso ⟩
+  Bool        ∎Iso
   where open BoolReflection
 
 SymBool≡Bool : SymGroup Bool isSetBool ≡ BoolGroup
