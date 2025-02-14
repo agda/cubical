@@ -22,7 +22,6 @@ open import Cubical.Relation.Nullary
 open import Cubical.Data.Unit as ⊤
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
-open import Cubical.Data.Nat.Properties using (factorial) public
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Fin.Base as F
 open import Cubical.Data.Fin.Properties
