@@ -266,12 +266,14 @@ n∸n (suc n) = n∸n n
 ∸-distribʳ zero    (suc n) k = sym (zero∸ (k + n · k))
 ∸-distribʳ (suc m) (suc n) k = ∸-distribʳ m n k ∙ sym (∸-cancelˡ k (m · k) (n · k))
 
-
+infix 6 _!
+infix 7 _choose_
 
 -- factorial:
-_! : ℕ → ℕ
+_! factorial : ℕ → ℕ
 zero ! = 1
-suc n ! = (suc n) · (n !)
+suc n ! = suc n · (n !)
+factorial = _!
 
 --binomial coefficient:
 _choose_ : ℕ → ℕ → ℕ
