@@ -77,12 +77,11 @@ SymBool≡Bool : SymGroup Bool isSetBool ≡ BoolGroup
 SymBool≡Bool = uaGroup SymBool≃Bool
 
 module _ (n : ℕ) where
-  open import Cubical.Data.Fin.LehmerCode using (factorial)
 
-  ⟨Sym⟩≃factorial : ⟨ FinSymGroup n ⟩ ≃ Fin (factorial n)
+  ⟨Sym⟩≃factorial : ⟨ FinSymGroup n ⟩ ≃ Fin (n !)
   ⟨Sym⟩≃factorial = SumFin≃≃ n
 
-  ⟨Sym⟩≡factorial : ⟨ FinSymGroup n ⟩ ≡ Fin (factorial n)
+  ⟨Sym⟩≡factorial : ⟨ FinSymGroup n ⟩ ≡ Fin (n !)
   ⟨Sym⟩≡factorial = ua ⟨Sym⟩≃factorial
 
 Sym-cong-≃ : ∀ isSetX isSetY → X ≃ Y → GroupEquiv (SymGroup X isSetX) (SymGroup Y isSetY)
