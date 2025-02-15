@@ -69,8 +69,8 @@ SymUnit≡Unit = uaGroup SymUnit≃Unit
 
 SymBool≃Bool : GroupEquiv (SymGroup Bool isSetBool) BoolGroup
 SymBool≃Bool = GroupIso→GroupEquiv $ invGroupIso $ ≅Bool $
-  Bool ≃ Bool Iso⟨ invIso reflectIso ⟩
-  Bool ≡ Bool Iso⟨ invIso univalenceIso ⟩
+  Bool ≃ Bool Iso⟨ invIso univalenceIso ⟩
+  Bool ≡ Bool Iso⟨ invIso reflectIso ⟩
   Bool        ∎Iso
   where open BoolReflection
 
