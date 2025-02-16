@@ -78,7 +78,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
   open isUnivalent
   open Functor
   open isIso
- -- here
+
   private variable
     x y z w : ob C
 
@@ -202,7 +202,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
   inc-⋆ f g = sym (Square≃doubleComp _ _ _ _ .fst (inc-sq f g))
 
   inc-id : inc-ua (idCatIso {x = x}) ≡ refl
-  inc-id =-- here
+  inc-id =
     incId ≡⟨ sym (compPathr-cancel (sym incId) incId) ⟩
     (incId ∙ incId) ∙ sym incId ≡⟨ congL _∙_ (sym (inc-⋆ idCatIso idCatIso)) ⟩
     inc-ua (⋆Iso idCatIso idCatIso) ∙ sym incId ≡⟨ congL _∙_ (cong inc-ua (⋆IsoIdL _)) ⟩
@@ -211,7 +211,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
     where incId = inc-ua idCatIso
 
   inc-inv : (f : CatIso C x y) → inc-ua (invIso f) ≡ sym (inc-ua f)
-  inc-inv f =-- here
+  inc-inv f =
     inc-ua (invIso f) ≡⟨ sym (compPathr-cancel (sym (inc-ua f)) (inc-ua (invIso f))) ⟩
     (inc-ua (invIso f) ∙ inc-ua f) ∙ sym (inc-ua f) ≡⟨ congL _∙_ (sym (inc-⋆ (invIso f) f)) ⟩
     inc-ua (⋆Iso (invIso f) f) ∙ sym (inc-ua f) ≡⟨ congL _∙_ (cong inc-ua (CatIso≡ _ _ (f .snd .sec))) ⟩
@@ -388,7 +388,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
   Rezk .⋆Assoc {x} {y} {z} {w} = Rezk⋆Assoc x y z w
   Rezk .isSetHom {x} {y} = isSetRezkHom x y
 
-  RezkIso→Iso : ∀ {x y} → CatIso Rezk (inc x) (inc y) → CatIso C x y-- here
+  RezkIso→Iso : ∀ {x y} → CatIso Rezk (inc x) (inc y) → CatIso C x y
   RezkIso→Iso (f , isiso g s r) = (f , isiso g s r)
 
   Iso→RezkIso : ∀ {x y} → CatIso C x y → CatIso Rezk (inc x) (inc y)
