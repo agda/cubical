@@ -376,7 +376,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
   Rezk⋆Assoc : ∀ x y z w f g h
              → Rezk⋆ x z w (Rezk⋆ x y z f g) h ≡ Rezk⋆ x y w f (Rezk⋆ y z w g h)
   Rezk⋆Assoc = elimProp₂ (λ x y → isPropΠ5 λ z w _ _ _ → isSetRezkHom x w _ _) λ x y →
-    elimProp₂ (λ z w → isPropΠ3 λ _ _ _ → isSetRezkHom (inc x) w _ _) λ z w → C.⋆Assoc
+               elimProp₂ (λ z w → isPropΠ3 λ _ _ _ → isSetRezkHom (inc x) w _ _) λ z w → C.⋆Assoc
 
   Rezk : Category (ℓ-max ℓ ℓ') ℓ'
   Rezk .ob = RezkOb
@@ -412,9 +412,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
       inc-ua (⋆Iso f' (invIso e)) ∙ inc-ua e
         ≡⟨ sym (inc-⋆ (⋆Iso f' (invIso e)) e) ⟩
       inc-ua (⋆Iso (⋆Iso f' (invIso e)) e)
-        ≡⟨ cong inc-ua (CatIso≡ _ _ (
-          C.⋆Assoc _ _ _ ∙ congR C._⋆_ (e .snd .sec) ∙ C.⋆IdR _)
-        ) ⟩
+        ≡⟨ cong inc-ua (CatIso≡ _ _ (C.⋆Assoc _ _ _ ∙ congR C._⋆_ (e .snd .sec) ∙ C.⋆IdR _)) ⟩
       inc-ua f' ∎
 
     R-ua₂ : {x y z : C.ob} (f : Σ C.Hom[ x , y ] (isIso C))
@@ -422,9 +420,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
               (R-inc x z) (R-inc y z)
     R-ua₂ e = toPathP $ funExt λ f → let f' = RezkIso→Iso f in
       subst2 _≡_ (inc-ua e) refl (inc-ua _)
-        ≡⟨ cong (subst2 _≡_ (inc-ua e) refl ∘ inc-ua) (
-          CatIso≡ _ _ (congR C._⋆_ (transportRefl _))
-        ) ⟩
+        ≡⟨ cong (subst2 _≡_ (inc-ua e) refl ∘ inc-ua) (CatIso≡ _ _ (congR C._⋆_ (transportRefl _))) ⟩
       subst2 _≡_ (inc-ua e) refl (inc-ua (⋆Iso e f'))
         ≡⟨ fromPathP (compPath-filler' (sym (inc-ua e)) (inc-ua (⋆Iso e f'))) ⟩
       sym (inc-ua e) ∙ inc-ua (⋆Iso e f')
@@ -460,8 +456,8 @@ module RezkByHIT (C : Category ℓ ℓ') where
   →RezkSurj = elimProp (λ x → isPropPropTrunc) λ x → ∣ x , idCatIso ∣₁
 
   isWkEquiv→Rezk : isWeakEquivalence →Rezk
-  isWkEquiv→Rezk .isWeakEquivalence.fullfaith = →RezkFF
-  isWkEquiv→Rezk .isWeakEquivalence.esssurj = →RezkSurj
+  isWkEquiv→Rezk .fullfaith = →RezkFF
+  isWkEquiv→Rezk .esssurj = →RezkSurj
 
   isRezkCompletion→Rezk : isRezkCompletion →Rezk
   isRezkCompletion→Rezk = makeIsRezkCompletion isUnivalentRezk isWkEquiv→Rezk
