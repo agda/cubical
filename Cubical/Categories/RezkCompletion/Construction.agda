@@ -78,7 +78,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
   open isUnivalent
   open Functor
   open isIso
-  
+ -- here
   private variable
     x y z w : ob C
 
@@ -202,7 +202,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
   inc-⋆ f g = sym (Square≃doubleComp _ _ _ _ .fst (inc-sq f g))
 
   inc-id : inc-ua (idCatIso {x = x}) ≡ refl
-  inc-id = 
+  inc-id =-- here
     incId ≡⟨ sym (compPathr-cancel (sym incId) incId) ⟩
     (incId ∙ incId) ∙ sym incId ≡⟨ congL _∙_ (sym (inc-⋆ idCatIso idCatIso)) ⟩
     inc-ua (⋆Iso idCatIso idCatIso) ∙ sym incId ≡⟨ congL _∙_ (cong inc-ua (⋆IsoIdL _)) ⟩
@@ -211,7 +211,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
     where incId = inc-ua idCatIso
 
   inc-inv : (f : CatIso C x y) → inc-ua (invIso f) ≡ sym (inc-ua f)
-  inc-inv f = 
+  inc-inv f =-- here
     inc-ua (invIso f) ≡⟨ sym (compPathr-cancel (sym (inc-ua f)) (inc-ua (invIso f))) ⟩
     (inc-ua (invIso f) ∙ inc-ua f) ∙ sym (inc-ua f) ≡⟨ congL _∙_ (sym (inc-⋆ (invIso f) f)) ⟩
     inc-ua (⋆Iso (invIso f) f) ∙ sym (inc-ua f) ≡⟨ congL _∙_ (cong inc-ua (CatIso≡ _ _ (f .snd .sec))) ⟩
@@ -268,7 +268,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
       g .snd .inv C.⋆ (transport (cong fst (H-inc-ua f)) h)
         ≡⟨ sym (uaβ _ _) ⟩
       transport (cong fst (H-ua-inc g)) (transport (cong fst (H-inc-ua f)) h) ∎
-    
+
     H-inc-sq : ∀ {x y z w} (f : CatIso C y z) (g : CatIso C z w)
              → Square (H-inc-ua {x = x} f) (H-inc-ua (⋆Iso f g)) refl (H-inc-ua g)
     H-inc-sq f g = ΣSquareSet (λ _ → isProp→isSet isPropIsSet) $ typeSquare λ h →
@@ -283,7 +283,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
       transport refl h C.⋆ (f .fst C.⋆ g .fst)
         ≡⟨ sym (uaβ _ _) ⟩
       transport (cong fst (H-inc-ua (⋆Iso f g))) (transport refl h) ∎
-    
+
     H-sq-inc : ∀ {x y z w} (f : CatIso C x y) (g : CatIso C y z)
              → Square (H-ua-inc {z = w} f) (H-ua-inc (⋆Iso f g)) refl (H-ua-inc g)
     H-sq-inc f g = ΣSquareSet (λ _ → isProp→isSet isPropIsSet) $ typeSquare λ h →
@@ -298,7 +298,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
       (g .snd .inv C.⋆ f .snd .inv) C.⋆ transport refl h
         ≡⟨ sym (uaβ _ _) ⟩
       transport (cong fst (H-ua-inc (⋆Iso f g))) (transport refl h) ∎
-    
+
   RezkHom : RezkOb → RezkOb → Type ℓ'
   RezkHom x y = RezkHomSet x y .fst
 
@@ -388,15 +388,15 @@ module RezkByHIT (C : Category ℓ ℓ') where
   Rezk .⋆Assoc {x} {y} {z} {w} = Rezk⋆Assoc x y z w
   Rezk .isSetHom {x} {y} = isSetRezkHom x y
 
-  RezkIso→Iso : ∀ {x y} → CatIso Rezk (inc x) (inc y) → CatIso C x y 
+  RezkIso→Iso : ∀ {x y} → CatIso Rezk (inc x) (inc y) → CatIso C x y-- here
   RezkIso→Iso (f , isiso g s r) = (f , isiso g s r)
 
   Iso→RezkIso : ∀ {x y} → CatIso C x y → CatIso Rezk (inc x) (inc y)
   Iso→RezkIso (f , isiso g s r) = (f , isiso g s r)
-    
+
   RezkIsoToPath : ∀ x y → CatIso Rezk x y → x ≡ y
   RezkIsoToPath = elimSet₂ (λ x y → isSet→ (squash x y)) R-inc R-ua₁ R-ua₂ where
-    
+
     R-inc = λ x y f → inc-ua (RezkIso→Iso f)
 
     R-ua₁ : {x y z : C.ob} (f : Σ C.Hom[ y , z ] (isIso C))
