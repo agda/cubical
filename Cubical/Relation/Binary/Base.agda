@@ -15,7 +15,7 @@ open import Cubical.Data.Sum.Base as ⊎
 open import Cubical.HITs.SetQuotients.Base
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 
-open import Cubical.Relation.Nullary.Base
+open import Cubical.Relation.Nullary
 
 open import Cubical.Induction.WellFounded
 
@@ -213,6 +213,25 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
         q : isContr (relSinglAt a)
         q = isOfHLevelRespectEquiv 0 (t , totalEquiv _ _ f λ x → invEquiv (u a x) .snd)
                                    (isContrSingl a)
+  -- Theorem 7.2.2 in the HoTT Book
+
+  reflPropRelImpliesIdentity→isSet : isRefl
+                                   → isPropValued
+                                   → impliesIdentity
+                                   → isSet A
+  reflPropRelImpliesIdentity→isSet Rrefl Rprop R→≡ = Collapsible≡→isSet λ where
+    x y .fst p → R→≡ (subst (R x) p (Rrefl x))
+    x y .snd p q → cong R→≡ (Rprop _ _ _ _)
+
+  reflPropRelImpliesIdentity→isUnivalent : isRefl
+                                         → isPropValued
+                                         → impliesIdentity
+                                         → isUnivalent
+  reflPropRelImpliesIdentity→isUnivalent Rrefl Rprop R→≡ x y =
+    propBiimpl→Equiv (Rprop x y) (Aset x y) R→≡ (λ p → subst (R x) p (Rrefl x)) where
+
+    Aset : isSet A
+    Aset = reflPropRelImpliesIdentity→isSet Rrefl Rprop R→≡
 
 EquivRel : ∀ {ℓ} (A : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 EquivRel A ℓ' = Σ[ R ∈ Rel A A ℓ' ] BinaryRelation.isEquivRel R
