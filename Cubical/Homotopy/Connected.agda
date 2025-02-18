@@ -592,6 +592,19 @@ isConnectedSuc→inhTruncSuc×isConnectedPath : ∀ (k : HLevel)
   → (∥ A ∥ (suc k) × ((a b : A) → isConnected k (a ≡ b)))
 isConnectedSuc→inhTruncSuc×isConnectedPath k = invEq $ inhTruncSuc×isConnectedPath≃isConnectedSuc k
 
+-- In a (k+2)-connected space, all loop spaces are merely equivalent
+isConnected→mereLoopSpaceEquiv : (k : HLevel) → isConnected (2 + k) A → (a b : A) → ∥ (a ≡ a) ≃ (b ≡ b) ∥₁
+isConnected→mereLoopSpaceEquiv {A = A} k conn-A a b = do
+  -- Paths in A are (k+1)-connected:
+  let conn-path-A : (a b : A) → isConnected (suc k) (a ≡ b)
+      conn-path-A = isConnectedPath (suc k) conn-A
+  -- Therefore, there merely exists a path a ≡ b:
+  a≡b ← isConnectedSuc→merelyInh k (conn-path-A a b)
+  -- Conjugation by this path induces an equivance of loop spaces
+  return (conjugatePathEquiv a≡b)
+  where
+    open import Cubical.HITs.PropositionalTruncation.Monad
+
 isConnectedPoint : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isConnected (suc n) A
   → (a : A) → isConnectedFun n (λ(_ : Unit) → a)
