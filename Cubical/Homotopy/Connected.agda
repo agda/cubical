@@ -541,6 +541,57 @@ merelyInh×isConnectedPath≃isConnectedSuc k = propBiimpl→Equiv
   (uncurry $ merelyInh×isConnectedPath→isConnectedSuc k)
   (isConnectedSuc→merelyInh×isConnectedPath k)
 
+-- If a type is (k+1)-inhabited and has k-connected paths, then it is (k+1)-connected.
+inhTruncSuc×isConnectedPath→isConnectedSuc : ∀ (k : HLevel)
+  → ∥ A ∥ (suc k)
+  → ((a b : A) → isConnected k (a ≡ b))
+  → isConnected (suc k) A
+inhTruncSuc×isConnectedPath→isConnectedSuc k = Trunc.rec
+  (isOfHLevelΠ (suc k) λ _ → isProp→isOfHLevelSuc k isPropIsConnected)
+  (pointed×isConnectedPath→isConnectedSuc k)
+
+-- A type is (k+1)-inhabited and has k-connected paths if and only if it is (k+1)-connected.
+--
+-- Note that the left hand side of the equivalence is not a priori a proposition.
+inhTruncSuc×isConnectedPath≃isConnectedSuc : ∀ (k : HLevel)
+  → (∥ A ∥ (suc k) × ((a b : A) → isConnected k (a ≡ b))) ≃ (isConnected (suc k) A)
+inhTruncSuc×isConnectedPath≃isConnectedSuc {A = A} k = equiv where
+  -- The left-to-right implication has been established above.
+  impl : (∥ A ∥ (suc k) × ((a b : A) → isConnected k (a ≡ b))) → (isConnected (suc k) A)
+  impl = uncurry (inhTruncSuc×isConnectedPath→isConnectedSuc k)
+
+  -- Even though ∥ A ∥ₖ₊₁ is not a proposition in general, we know that this is the
+  -- case whenever A is (k+1)-connected.  We can thus prove that fibers of the above
+  -- implication are contractible, since we get to assume (k+1)-connectedness of A:
+  is-contr-fiber-impl : (suc-conn-A : isConnected (suc k) A) → isContr (fiber impl suc-conn-A)
+  is-contr-fiber-impl suc-conn-A = goal where
+    -- (1). By assumption, having k-connected paths is an inhabited proposition, i.e. contractible.
+    is-contr-is-conn-path : isContr (∀ (a b : A) → isConnected k (a ≡ b))
+    is-contr-is-conn-path = inhProp→isContr (isConnectedPath k suc-conn-A) (isPropΠ2 λ _ _ → isPropIsConnected)
+
+    -- (2). Being (k+1)-connected means that ∥ A ∥ₖ₊₁ is contractible.
+    -- Together with (1), it follows that the domain of the implication is contractible.
+    is-contr-trunc×conn-path : isContr (∥ A ∥ (suc k) × ∀ (a b : A) → isConnected k (a ≡ b))
+    is-contr-trunc×conn-path = isContrΣ suc-conn-A λ _ → is-contr-is-conn-path
+
+    -- (3). The codomain is a proposition, so its paths are contractible.  As such, there is a unique homotopy
+    -- connecting points in the image of `impl` to our assumption of connectedness of A.
+    is-contr-impl-conn-path : (trunc×conn : (∥ A ∥ suc k) × (∀ a b → isConnected k (a ≡ b))) → isContr (impl trunc×conn ≡ suc-conn-A)
+    is-contr-impl-conn-path trunc×conn = isProp→isContrPath isPropIsConnected (impl trunc×conn) suc-conn-A
+
+    -- Together, (2) and (3) say that `impl` has contractible fibers.
+    goal : isContr (fiber impl suc-conn-A)
+    goal = isContrΣ is-contr-trunc×conn-path is-contr-impl-conn-path
+
+  equiv : _ ≃ _
+  equiv .fst = impl
+  equiv .snd .equiv-proof = is-contr-fiber-impl
+
+isConnectedSuc→inhTruncSuc×isConnectedPath : ∀ (k : HLevel)
+  → (isConnected (suc k) A)
+  → (∥ A ∥ (suc k) × ((a b : A) → isConnected k (a ≡ b)))
+isConnectedSuc→inhTruncSuc×isConnectedPath k = invEq $ inhTruncSuc×isConnectedPath≃isConnectedSuc k
+
 isConnectedPoint : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isConnected (suc n) A
   → (a : A) → isConnectedFun n (λ(_ : Unit) → a)
