@@ -114,6 +114,20 @@ isOfHLevelIsConnectedStable {A = A} zero =
 isOfHLevelIsConnectedStable {A = A} (suc n) =
   isProp→isOfHLevelSuc n isPropIsConnected
 
+-- A k-connected k-type is contractible.
+isOfHLevel×isConnected→isContr : ∀ {ℓ} (k : HLevel)
+  → (A : Type ℓ)
+  → (isOfHLevel k A)
+  → (isConnected k A)
+  → isContr A
+isOfHLevel×isConnected→isContr zero A is-contr-A _ = is-contr-A
+isOfHLevel×isConnected→isContr (suc k) A is-trunc-A is-conn-A = is-contr-A where
+  universal-property-trunc : ∥ A ∥ suc k ≃ A
+  universal-property-trunc = truncIdempotent≃ (suc k) is-trunc-A
+
+  is-contr-A : isContr A
+  is-contr-A = isOfHLevelRespectEquiv 0 universal-property-trunc is-conn-A
+
 module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) where
   private
     inv : ∀ {ℓ'''} (n : HLevel) (P : B → TypeOfHLevel ℓ''' (suc n))
