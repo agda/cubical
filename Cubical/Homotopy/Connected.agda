@@ -40,7 +40,7 @@ open import Cubical.Homotopy.Loopspace
 private
   variable
     ℓ : Level
-    A X₀ X₁ X₂ Y₀ Y₁ Y₂ : Type ℓ
+    A B X₀ X₁ X₂ Y₀ Y₁ Y₂ : Type ℓ
 
 -- Note that relative to most sources, this notation is off by +2
 isConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
@@ -101,6 +101,10 @@ isConnected→isConnectedFun n h = λ { tt → subst (isConnected n) (typeToFibe
 -- Being a connected type is a proposition.
 isPropIsConnected : ∀ {n : ℕ} → isProp (isConnected n A)
 isPropIsConnected {A = A} {n = n} = isPropIsContr {A = hLevelTrunc n A}
+
+-- Being a connected function is a proposition.
+isPropIsConnectedFun : ∀ {n : HLevel} {f : A → B} → isProp (isConnectedFun n f)
+isPropIsConnectedFun = isPropΠ λ _ → isPropIsConnected
 
 isOfHLevelIsConnectedStable : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
   → isOfHLevel n (isConnected n A)
