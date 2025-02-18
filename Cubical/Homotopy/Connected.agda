@@ -40,7 +40,7 @@ open import Cubical.Homotopy.Loopspace
 private
   variable
     ℓ : Level
-    X₀ X₁ X₂ Y₀ Y₁ Y₂ : Type ℓ
+    A X₀ X₁ X₂ Y₀ Y₁ Y₂ : Type ℓ
 
 -- Note that relative to most sources, this notation is off by +2
 isConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
@@ -98,12 +98,16 @@ isConnected→isConnectedFun : {X : Type ℓ} (n : HLevel)
   → isConnected n X → isConnectedFun n (λ (_ : X) → tt)
 isConnected→isConnectedFun n h = λ { tt → subst (isConnected n) (typeToFiber _) h }
 
+-- Being a connected type is a proposition.
+isPropIsConnected : ∀ {n : ℕ} → isProp (isConnected n A)
+isPropIsConnected {A = A} {n = n} = isPropIsContr {A = hLevelTrunc n A}
+
 isOfHLevelIsConnectedStable : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
   → isOfHLevel n (isConnected n A)
 isOfHLevelIsConnectedStable {A = A} zero =
   (tt* , (λ _ → refl)) , λ _ → refl
 isOfHLevelIsConnectedStable {A = A} (suc n) =
-  isProp→isOfHLevelSuc n isPropIsContr
+  isProp→isOfHLevelSuc n isPropIsConnected
 
 module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) where
   private
