@@ -35,6 +35,7 @@ open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1 hiding (elim)
 open import Cubical.HITs.Truncation as Trunc
   renaming (rec to trRec) hiding (elim)
+open import Cubical.HITs.PropositionalTruncation as PT using (∥_∥₁)
 
 open import Cubical.Homotopy.Loopspace
 
@@ -495,6 +496,50 @@ isConnectedRetractFromIso n e =
     (Iso.fun e)
     (Iso.inv e)
     (Iso.leftInv e)
+
+-- Any (k+1)-connected type is (merely) inhabited.
+isConnectedSuc→merelyInh : ∀ (k : HLevel) → isConnected (suc k) A → ∥ A ∥₁
+isConnectedSuc→merelyInh {A = A} k conn-A = propTruncTrunc1Iso .Iso.inv (is-1-conn-A .fst) where
+  is-1-conn-A : isConnected 1 A
+  is-1-conn-A = isConnectedSubtr' k 1 conn-A
+
+-- A pointed type with k-connected path space is (k+1)-connected.
+pointed×isConnectedPath→isConnectedSuc : ∀ (k : HLevel) → (a : A) → ((a b : A) → isConnected k (a ≡ b)) → isConnected (suc k) A
+pointed×isConnectedPath→isConnectedSuc {A = A} k a conn-path = conn where
+  is-of-hlevel-trunc : isOfHLevel (2 + k) (∥ A ∥ (suc k))
+  is-of-hlevel-trunc = isOfHLevelSuc (1 + k) (isOfHLevelTrunc (1 + k))
+
+  conn : isConnected (suc k) A
+  conn .fst = ∣ a ∣ₕ
+  conn .snd = Trunc.elim
+    (λ y → is-of-hlevel-trunc ∣ a ∣ y)
+    (λ b → PathIdTruncIso k .Iso.inv (conn-path a b .fst))
+
+-- A merely inhabited type with k-connected path space is (k+1)-connected.
+merelyInh×isConnectedPath→isConnectedSuc : ∀ (k : HLevel)
+  → ∥ A ∥₁
+  → ((a b : A) → isConnected k (a ≡ b))
+  → isConnected (suc k) A
+merelyInh×isConnectedPath→isConnectedSuc k = PT.rec
+  (isProp→ isPropIsConnected)
+  (pointed×isConnectedPath→isConnectedSuc k)
+
+-- The converse: A (k+1)-connected type is merely inhabited and has k-connected paths.
+isConnectedSuc→merelyInh×isConnectedPath : (k : HLevel)
+  → isConnected (suc k) A
+  → ∥ A ∥₁ × ((a b : A) → isConnected k (a ≡ b))
+isConnectedSuc→merelyInh×isConnectedPath k suc-conn-A .fst = isConnectedSuc→merelyInh k suc-conn-A
+isConnectedSuc→merelyInh×isConnectedPath k suc-conn-A .snd = isConnectedPath k suc-conn-A
+
+-- HoTT book, Exercise 7.6:
+-- A type is k+1-connected whenever it is merely inhabited and has k-connected paths.
+merelyInh×isConnectedPath≃isConnectedSuc : ∀ {ℓ} {A : Type ℓ} (k : HLevel)
+  → (∥ A ∥₁ × ((a b : A) → isConnected k (a ≡ b))) ≃ (isConnected (suc k) A)
+merelyInh×isConnectedPath≃isConnectedSuc k = propBiimpl→Equiv
+  (isProp× PT.isPropPropTrunc $ isPropΠ2 λ a b → isPropIsConnected)
+  isPropIsConnected
+  (uncurry $ merelyInh×isConnectedPath→isConnectedSuc k)
+  (isConnectedSuc→merelyInh×isConnectedPath k)
 
 isConnectedPoint : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isConnected (suc n) A
