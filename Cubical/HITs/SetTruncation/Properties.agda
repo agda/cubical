@@ -302,7 +302,7 @@ Iso.rightInv setTruncOfProdIso =
 Iso.leftInv setTruncOfProdIso =
   elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _) λ {(a , b) → refl}
 
-IsoSetTruncateSndΣ : {A : Type ℓ} {B : A → Type ℓ'} → Iso ∥ Σ A B ∥₂ ∥ Σ A λ x → ∥ B x ∥₂ ∥₂
+IsoSetTruncateSndΣ : {A : Type ℓ} {B : A → Type ℓ'} → Iso ∥ Σ A B ∥₂ ∥ Σ A (λ x → ∥ B x ∥₂) ∥₂
 Iso.fun IsoSetTruncateSndΣ = map λ (a , b) → a , ∣ b ∣₂
 Iso.inv IsoSetTruncateSndΣ = rec isSetSetTrunc (uncurry λ a → map λ b → a , b)
 Iso.rightInv IsoSetTruncateSndΣ = elim (λ _ → isSetPathImplicit) (uncurry λ _ → elim (λ _ → isSetPathImplicit) λ _ → refl)
