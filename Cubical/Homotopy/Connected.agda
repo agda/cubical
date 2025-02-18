@@ -12,6 +12,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Structure
 
 open import Cubical.Functions.Fibration
 open import Cubical.Functions.FunExtEquiv
@@ -229,6 +230,40 @@ indMapEquiv→conType {A = A} (suc n) BEq =
                                 (λ P → ((λ a _ → a) ∘ invIsEq (BEq (P tt)))
                                , λ a → equiv-proof (BEq (P tt)) a .fst .snd)
                                 tt)
+
+conType→indMapEquiv : ∀ (n : HLevel)
+  → isConnected n A
+  → isOfHLevel n B
+  → isEquiv (λ (b : B) → λ (a : A) → b)
+conType→indMapEquiv {A = A} {B = B} 0 _ is-contr-B = isoToIsEquiv (isContr→Iso' is-contr-B (isContrΠ λ _ → is-contr-B) (λ b a → b))
+conType→indMapEquiv {A = A} {B = B} n@(suc _) conn-A is-of-hlevel-B = subst isEquiv fun-equiv≡const (equivIsEquiv fun-equiv) where
+  fun-equiv : B ≃ (A → B)
+  fun-equiv =
+    B ≃⟨ invEquiv $ Π-contractDom conn-A ⟩
+    (∥ A ∥ n → B) ≃⟨ isoToEquiv (univTrunc n {B = B , is-of-hlevel-B}) ⟩
+    (A → B) ■
+
+  fun-equiv≡const : equivFun fun-equiv ≡ (λ b a → b)
+  fun-equiv≡const = funExt λ b → funExt λ a → transportRefl b
+
+-- Corollary 7.5.9 of the HoTT book:
+-- A type is n-connected if and only every map into an n-type is constant.
+indMapEquiv≃conType : ∀ {ℓ} {A : Type ℓ} (n : HLevel)
+  → ((B : TypeOfHLevel ℓ n) → isEquiv (λ (b : ⟨ B ⟩) → λ (a : A) → b))
+      ≃
+    isConnected n A
+indMapEquiv≃conType n = propBiimpl→Equiv
+  (isPropΠ λ B → isPropIsEquiv (λ b a → b))
+  (isPropIsConnected)
+  (indMapEquiv→conType n)
+  (λ conn-A (B , is-of-hlevel-B) → conType→indMapEquiv n conn-A is-of-hlevel-B)
+
+isConnected→constEquiv : ∀ (n : HLevel)
+  → isConnected n A
+  → isOfHLevel n B
+  → B ≃ (A → B)
+isConnected→constEquiv n conn-A is-of-hlevel-B .fst = λ b a → b
+isConnected→constEquiv n conn-A is-of-hlevel-B .snd = conType→indMapEquiv n conn-A is-of-hlevel-B
 
 isConnectedComp : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
      (f : B → C) (g : A → B) (n : ℕ)
