@@ -191,10 +191,6 @@ encode = equivFun lehmerEquiv
 decode : LehmerCode n → Fin n ≃ Fin n
 decode = invEq lehmerEquiv
 
--- Use the one in Cubical.Data.Nat.Properties instead
-factorial : ℕ → ℕ
-factorial = _!
-
 lehmerFinEquiv : LehmerCode n ≃ Fin (n !)
 lehmerFinEquiv {zero} = isContr→Equiv isContrLehmerZero isContrFin1
 lehmerFinEquiv {suc n} = _ ≃⟨ invEquiv lehmerSucEquiv ⟩

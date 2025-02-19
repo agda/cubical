@@ -168,7 +168,7 @@ module _
   (X : FinSet ℓ) where
 
   isFinSetAut : isFinSet (X .fst ≃ X .fst)
-  isFinSetAut = LehmerCode.factorial (card X) ,
+  isFinSetAut = card X ! ,
     Prop.map (λ p → isFinOrd≃ (X .fst) (card X , p) .snd) (X .snd .snd)
 
   isFinSetTypeAut : isFinSet (X .fst ≡ X .fst)
