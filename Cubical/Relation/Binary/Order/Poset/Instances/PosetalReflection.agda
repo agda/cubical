@@ -35,8 +35,8 @@ module _ (P : Proset ℓ ℓ') where
   Reflection = ⟨ P ⟩ / _~_
 
   _≤'_ : Reflection → Reflection → hProp ℓ'
-  _≤'_ = SetQuot.rec2 isSetHProp (λ a b → a ≲ b , P.is-prop-valued a b) 
-    (λ a b c (a≲b , b≲a) → ⇔toPath (λ a≲c → b ≲⟨ b≲a ⟩ a ≲⟨ a≲c ⟩ c ≲∎) (λ b≲c → a ≲⟨ a≲b ⟩ b ≲⟨ b≲c ⟩ c ≲∎)) 
+  _≤'_ = SetQuot.rec2 isSetHProp (λ a b → a ≲ b , P.is-prop-valued a b)
+    (λ a b c (a≲b , b≲a) → ⇔toPath (λ a≲c → b ≲⟨ b≲a ⟩ a ≲⟨ a≲c ⟩ c ≲∎) (λ b≲c → a ≲⟨ a≲b ⟩ b ≲⟨ b≲c ⟩ c ≲∎))
     (λ a b c (b≲c , c≲b) → ⇔toPath (λ a≲b → a ≲⟨ a≲b ⟩ b ≲⟨ b≲c ⟩ c ≲∎) (λ a≲c → a ≲⟨ a≲c ⟩ c ≲⟨ c≲b ⟩ b ≲∎))
 
   _≤_ : Reflection → Reflection → Type ℓ'
@@ -67,7 +67,7 @@ module _ (P : Proset ℓ ℓ') where
   isProset≤ : IsProset _≤_
   isProset≤ = isPoset→isProset isPoset≤
 
-  private 
+  private
     idEmb : {A : Type ℓ''} → Embedding A ℓ''
     idEmb = _ , id↪ _
 
@@ -86,7 +86,7 @@ module _ (P : Proset ℓ ℓ') where
   hasGreatest greatest = [ greatest .fst ] , []presGreatest (greatest .fst) (greatest .snd)
 
   -- if a preorder has binary meets, then so does its posetal reflection
-  
+
   []presMeets : ∀ meet → isMeet P.isProset a b meet → isMeet isProset≤ [ a ] [ b ] [ meet ]
   []presMeets meet is-meet = SetQuot.elimProp (λ x → isOfHLevel⁺≃ₗ 0 (isPropValued≤ x [ meet ])) is-meet
 
