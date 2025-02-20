@@ -480,8 +480,7 @@ assoc⌣S {n = suc (suc n)} {m = m} {l} (merid a i) y z j =
 
 -- To state it: we'll need iterated negations
 -S^ : {k : ℕ} (n : ℕ) → S₊ k → S₊ k
--S^ zero x = x
--S^ (suc n) x = invSphere (-S^ n x)
+-S^ n = iter n invSphere
 
 -- The folowing is an explicit definition of -S^ (n · m) which is
 -- often easier to reason about
@@ -544,8 +543,11 @@ private
 
 -- Iterated path inversion
 sym^ : ∀ {ℓ} {A : Type ℓ} {x : A} (n : ℕ) → x ≡ x → x ≡ x
-sym^ zero p = p
-sym^ (suc n) p = sym (sym^ n p)
+sym^ n = iter n sym
+
+sym^-refl : ∀ {ℓ} {A : Type ℓ} {x : A} (n : ℕ) → sym^ {x = x} n refl ≡ refl
+sym^-refl zero = refl
+sym^-refl (suc n) = cong sym (sym^-refl n)
 
 -- Interaction between -S^ and sym^
 σS-S^ : {k : ℕ} (n : ℕ) (x : S₊ (suc k))
