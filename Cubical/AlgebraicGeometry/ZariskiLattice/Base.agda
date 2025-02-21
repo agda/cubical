@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.AlgebraicGeometry.ZariskiLattice.Base where
 
 
@@ -99,7 +99,7 @@ module ZarLat (R' : CommRing ℓ) where
   ∼EquivRel : isEquivRel (_∼_)
   ∼EquivRel = isProset→isEquivRelSymKernel isProset≼
 
-  private 
+  private
     AProset : Proset ℓ ℓ
     AProset = _ , prosetstr _≼_ isProset≼
 
