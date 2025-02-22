@@ -41,9 +41,9 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
 
     field
       -- Axioms - strict
-      is-monoid : isMonoid unit _⊗_
+      is-monoid : IsMonoid unit _⊗_
 
-    open isMonoid is-monoid renaming (·Assoc to assoc; ·IdL to idl; ·IdR to idr) public
+    open IsMonoid is-monoid renaming (·Assoc to assoc; ·IdL to idl; ·IdR to idr) public
 
   record MonoidalStr : Type (ℓ-max ℓ ℓ') where
     constructor monstr
