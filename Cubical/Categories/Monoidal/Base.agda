@@ -9,28 +9,31 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Foundations.Prelude
+open import Cubical.Algebra.Monoid
 
 
 module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
   open Category C
 
   record TensorStr : Type (ℓ-max ℓ ℓ') where
-      field
-        ─⊗─ : Functor (C ×C C) C
-        unit : ob
+    constructor tensorstr
+    field
+      ─⊗─ : Functor (C ×C C) C
+      unit : ob
 
-      open Functor
+    open Functor
 
-      -- Useful tensor product notation
-      _⊗_ : ob → ob → ob
-      x ⊗ y = ─⊗─ .F-ob (x , y)
+    -- Useful tensor product notation
+    _⊗_ : ob → ob → ob
+    x ⊗ y = ─⊗─ .F-ob (x , y)
 
-      _⊗ₕ_ : ∀ {x y z w} → Hom[ x , y ] → Hom[ z , w ]
-           → Hom[ x ⊗ z , y ⊗ w ]
-      f ⊗ₕ g = ─⊗─ .F-hom (f , g)
+    _⊗ₕ_ : ∀ {x y z w} → Hom[ x , y ] → Hom[ z , w ]
+         → Hom[ x ⊗ z , y ⊗ w ]
+    f ⊗ₕ g = ─⊗─ .F-hom (f , g)
 
 
   record StrictMonStr : Type (ℓ-max ℓ ℓ') where
+    constructor strictmonstr
     field
       tenstr : TensorStr
 
@@ -38,12 +41,12 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
 
     field
       -- Axioms - strict
-      assoc : ∀ x y z →  x ⊗ (y ⊗ z) ≡ (x ⊗ y) ⊗ z
-      idl : ∀ x →  unit ⊗ x ≡ x
-      idr : ∀ x →  x ⊗ unit ≡ x
+      is-monoid : isMonoid unit _⊗_
 
+    open isMonoid is-monoid renaming (·Assoc to assoc; ·IdL to idl; ·IdR to idr) public
 
   record MonoidalStr : Type (ℓ-max ℓ ℓ') where
+    constructor monstr
     field
       tenstr : TensorStr
 
@@ -71,7 +74,7 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
 
     -- More nice notations
     α⟨_,_,_⟩ : (x y z : ob) → Hom[ x ⊗ (y ⊗ z) , (x ⊗ y) ⊗ z ]
-    α⟨ x , y , z ⟩ = α .trans ⟦ ( x , y , z ) ⟧
+    α⟨ x , y , z ⟩ = α .trans ⟦ (x , y , z) ⟧
 
     η⟨_⟩ : (x : ob) → Hom[ unit ⊗ x , x ]
     η⟨ x ⟩ = η .trans ⟦ x ⟧
