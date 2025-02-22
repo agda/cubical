@@ -16,7 +16,6 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
   open Category C
 
   record TensorStr : Type (ℓ-max ℓ ℓ') where
-    constructor tensorstr
     field
       ─⊗─ : Functor (C ×C C) C
       unit : ob
@@ -33,7 +32,6 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
 
 
   record StrictMonStr : Type (ℓ-max ℓ ℓ') where
-    constructor strictmonstr
     field
       tenstr : TensorStr
 
@@ -46,7 +44,6 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
     open IsMonoid is-monoid renaming (·Assoc to assoc; ·IdL to idl; ·IdR to idr) public
 
   record MonoidalStr : Type (ℓ-max ℓ ℓ') where
-    constructor monstr
     field
       tenstr : TensorStr
 
