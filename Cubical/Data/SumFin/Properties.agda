@@ -294,27 +294,6 @@ FinData≃SumFin = isoToEquiv FinDataSumFinIso
 FinData≡SumFin : FinData.Fin n ≡ SumFin.Fin n
 FinData≡SumFin = ua FinData≃SumFin
 
--- FinDataFinIso : Iso (FinData.Fin n) (Fin.Fin n)
--- FinDataFinIso = iso
---   (λ k → toℕ k , FinData.toℕ<n k)
---   (uncurry (FinData.fromℕ' _))
---   (λ (k , k<n) → Σ≡Prop (λ _ → Ord.isProp≤) (FinData.toFromId' _ k k<n))
---   (λ k → FinData.fromToId' _ k (FinData.toℕ<n k))
-
--- FinData≃Fin : FinData.Fin n ≃ Fin.Fin n
--- FinData≃Fin = isoToEquiv FinDataFinIso
-
--- FinΣ≃ : (n : ℕ) (m : FinData.FinVec ℕ n) → Σ (FinData.Fin n) (FinData.Fin ∘ m) ≃ Fin (FinData.foldrFin _+_ 0 m)
--- FinΣ≃ n m =
---   Σ-cong-equiv FinData≃SumFin (λ fn → ≡→FinData≃SumFin
---     (congS m (sym (retIsEq (FinData≃SumFin .snd) fn))))
---   ∙ SumFinΣ≃ n (m ∘ SumFin→Fin)
---   ∙ invEquiv (≡→FinData≃SumFin (sum≡ n m))
---   where
---   sum≡ : (n : ℕ) (m : FinData.FinVec ℕ n) →
---     FinData.foldrFin _+_ 0 m ≡ SumFin.totalSum (m ∘ SumFin→Fin)
---   sum≡ = Nat.elim (λ _ → refl) λ n x m → congS (m zero +_) (x (m ∘ suc))
-
 DecΣ :
   (n : ℕ) →
   (P : Fin n → Type ℓ) →
@@ -337,11 +316,3 @@ DecΣ = Nat.elim
     (decP fzero)
   )
 
--- FinDataDecΣ : (n : ℕ) →
---   (P : FinData.FinVec (Type ℓ) n) → (∀ k → Dec (P k)) → Dec (Σ (Fin n) P)
--- FinDataDecΣ n P decP = EquivPresDec
---   (Σ-cong-equiv-fst (invEquiv FinData≃SumFin))
---   (DecΣ n (P ∘ SumFin→Fin) (decP ∘ SumFin→Fin))
-
--- isFinSetFin' : ∀ {n} → isFinSet (Fin n)
--- isFinSetFin' = subst isFinSet (sym Fin≡SumFin) isFinSetFin

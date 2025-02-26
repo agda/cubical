@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Cubical.Data.FinData.FinSet where
 
 open import Cubical.Foundations.Prelude
