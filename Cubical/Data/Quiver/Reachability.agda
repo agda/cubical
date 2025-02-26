@@ -283,7 +283,6 @@ module Reachability {ℓ} {ℓ'}
       subst
         (λ n' → Σ[ walk ∈ Walk end start n' ] hasUniqueVertices walk)
           to-and-fro (walk' , uniq)
-    -- m , (hasUniqueVertices→boundedLength walk' uniq , walk' , uniq)
 
   Reachable PathReachable : ⟨ ob ⟩ → ⟨ ob ⟩ → Type _
   Reachable end start =
