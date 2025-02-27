@@ -243,31 +243,40 @@ isOfHLevelPrecomposeConnected (suc k) n P f fConn t =
               f fConn
               (funExt⁻ (p₀ ∙∙ refl ∙∙ sym p₁)))))}
 
-indMapEquiv→conType : ∀ {ℓ} {A : Type ℓ} (n : HLevel)
-                   → ((B : TypeOfHLevel ℓ n)
-                      → isEquiv (λ (b : (fst B)) → λ (a : A) → b))
+-- A type A is n-connected if the map `λ b a → b : B → (A → B)` has a section for any n-type B.
+indMapHasSection→conType : ∀ {ℓ} {A : Type ℓ} (n : HLevel)
+                   → ((B : TypeOfHLevel ℓ n) → hasSection (λ (b : (fst B)) → λ (a : A) → b))
                    → isConnected n A
-indMapEquiv→conType {A = A} zero _ = isConnectedZero A
-indMapEquiv→conType {A = A} (suc n) is-equiv-ind =
+indMapHasSection→conType {A = A} zero _ = isConnectedZero A
+indMapHasSection→conType {A = A} (suc n) ind-map-has-section =
   isConnectedFun→isConnected (suc n) is-conn-fun-const
   where
     module _ (P : Unit → TypeOfHLevel _ (suc n)) where
       B' : Type _
       B' = ⟨ P tt ⟩
 
-      B-equiv : B' ≃ (A → B')
-      B-equiv .fst = λ b a → b
-      B-equiv .snd = is-equiv-ind (P tt)
+      has-section : hasSection λ (b : B') (a : A) → b
+      has-section = ind-map-has-section (P tt)
+
+      point : (A → B') → B'
+      point = has-section .fst
 
       precomp-section : ((a : A) → B') → (b : Unit) → B'
-      precomp-section = (λ b (_ : Unit) → b) ∘ invEq B-equiv
+      precomp-section = (λ b (_ : Unit) → b) ∘ point
 
-      has-section : hasSection (λ s → s ∘ (λ (a : A) → tt))
-      has-section .fst = precomp-section
-      has-section .snd = secEq B-equiv
+      precomp-has-section : hasSection (λ s → s ∘ (λ (a : A) → tt))
+      precomp-has-section .fst = precomp-section
+      precomp-has-section .snd = has-section .snd
 
     is-conn-fun-const : isConnectedFun (suc n) (λ (a : A) → tt)
-    is-conn-fun-const = elim.isConnectedPrecompose _ _ has-section
+    is-conn-fun-const = elim.isConnectedPrecompose _ _ precomp-has-section
+
+-- Corollary: A is n-connected if the constant map `B → (A → B)` is an equivalence for any n-type B.
+indMapEquiv→conType : ∀ {ℓ} {A : Type ℓ} (n : HLevel)
+                   → ((B : TypeOfHLevel ℓ n)
+                      → isEquiv (λ (b : (fst B)) → λ (a : A) → b))
+                   → isConnected n A
+indMapEquiv→conType n is-equiv-ind = indMapHasSection→conType n λ B → _ , secIsEq (is-equiv-ind B)
 
 conType→indMapEquiv : ∀ (n : HLevel)
   → isConnected n A
