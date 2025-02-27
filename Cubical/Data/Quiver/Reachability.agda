@@ -11,6 +11,7 @@ open import Cubical.Functions.Embedding
 open import Cubical.Data.Empty as ⊥ hiding (elim ; rec)
 open import Cubical.Data.FinData as FD
 open import Cubical.Data.FinData.FinSet
+import Cubical.Data.SumFin as SumFin
 open import Cubical.Data.FinSet
 open import Cubical.Data.FinSet.Cardinality
 open import Cubical.Data.FinSet.Constructors
@@ -313,7 +314,7 @@ module Reachability {ℓ} {ℓ'}
     isFinOrdUniqueWalk =
       isFinOrdΣ
         (Fin (ob .snd .fst))
-        ((card ob) , Fin≃SumFin)
+        ((card ob) , SumFin.FinData≃SumFin)
         (λ n → Σ-syntax (Walk end start (toℕ n)) hasUniqueVertices)
         (λ m → isFinOrdΣ
           (Walk end start (toℕ m))
