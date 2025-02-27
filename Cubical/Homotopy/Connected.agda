@@ -91,14 +91,23 @@ private
   typeToFiber : ∀ {ℓ} (A : Type ℓ) → A ≡ fiber (λ (x : A) → tt) tt
   typeToFiber A = isoToPath (typeToFiberIso A)
 
+private
+  truncTypeToFiberIso : (n : HLevel) (X : Type ℓ) → Iso (∥ X ∥ n) (∥ fiber (λ x → tt) tt ∥ n)
+  truncTypeToFiberIso n X = mapCompIso {n = n} (typeToFiberIso X)
+
 isConnectedFun→isConnected : {X : Type ℓ} (n : HLevel)
   → isConnectedFun n (λ (_ : X) → tt) → isConnected n X
-isConnectedFun→isConnected n h =
-  subst (isConnected n) (sym (typeToFiber _)) (h tt)
+isConnectedFun→isConnected {X = X} zero _ = isConnectedZero X
+isConnectedFun→isConnected {X = X} n@(suc _) h =
+  isOfHLevelRetractFromIso 0 (truncTypeToFiberIso n X) is-contr-fiber
+  where
+    is-contr-fiber : isContr (∥ fiber (λ (_ : X) → tt) tt ∥ n)
+    is-contr-fiber = h tt
 
 isConnected→isConnectedFun : {X : Type ℓ} (n : HLevel)
   → isConnected n X → isConnectedFun n (λ (_ : X) → tt)
-isConnected→isConnectedFun n h = λ { tt → subst (isConnected n) (typeToFiber _) h }
+isConnected→isConnectedFun {X = X} zero h = isConnectedZero ∘ fiber {A = X} (λ _ → tt)
+isConnected→isConnectedFun {X = X} n@(suc _) h tt = isOfHLevelRetractFromIso 0 (invIso (truncTypeToFiberIso n X)) h
 
 -- Being a connected type is a proposition.
 isPropIsConnected : ∀ {n : ℕ} → isProp (isConnected n A)
