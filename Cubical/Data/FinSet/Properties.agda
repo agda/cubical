@@ -13,10 +13,13 @@ open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.HITs.PropositionalTruncation as Prop
 
 open import Cubical.Data.Nat
+import Cubical.Data.Nat.Order.Recursive as Ord
+import Cubical.Data.Fin as Fin
 open import Cubical.Data.Unit
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
 
 open import Cubical.Data.Fin.Base renaming (Fin to Finℕ)
 open import Cubical.Data.SumFin
@@ -94,3 +97,45 @@ transpFamily :
     {A : Type ℓ}{B : A → Type ℓ'}
   → ((n , e) : isFinOrd A) → (x : A) → B x ≃ B (invEq e (e .fst x))
 transpFamily {B = B} (n , e) x = pathToEquiv (λ i → B (retEq e x (~ i)))
+
+isContr→isFinOrd : ∀ {ℓ} → {A : Type ℓ} →
+  isContr A → isFinOrd A
+isContr→isFinOrd isContrA = 1 , isContr→Equiv isContrA isContrSumFin1
+
+isFinSet⊥ : isFinSet ⊥
+isFinSet⊥ = isFinSetFin
+
+isFinSetLift :
+  {L L' : Level} →
+  {A : Type L} →
+  isFinSet A → isFinSet (Lift {L}{L'} A)
+fst (isFinSetLift {A = A} isFinSetA) = isFinSetA .fst
+snd (isFinSetLift {A = A} isFinSetA) =
+  Prop.elim
+  {P = λ _ → ∥ Lift A ≃ Fin (isFinSetA .fst) ∥₁}
+  (λ [a] → isPropPropTrunc )
+  (λ A≅Fin → ∣ compEquiv (invEquiv (LiftEquiv {A = A})) A≅Fin ∣₁)
+  (isFinSetA .snd)
+
+EquivPresIsFinOrd : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → A ≃ B → isFinOrd A → isFinOrd B
+EquivPresIsFinOrd e (_ , p) = _ , compEquiv (invEquiv e) p
+
+isFinOrdFin : ∀ {n} → isFinOrd (Fin n)
+isFinOrdFin {n} = n , (idEquiv (Fin n))
+
+isFinOrd⊥ : isFinOrd ⊥
+fst isFinOrd⊥ = 0
+snd isFinOrd⊥ = idEquiv ⊥
+
+isFinOrdUnit : isFinOrd Unit
+isFinOrdUnit =
+  EquivPresIsFinOrd
+    (isContr→Equiv isContrSumFin1 isContrUnit) isFinOrdFin
+
+takeFirstFinOrd : ∀ {ℓ} → (A : Type ℓ) →
+  (the-ord : isFinOrd A) → 0 Ord.< the-ord .fst → A
+takeFirstFinOrd A (suc n , the-eq) x =
+  the-eq .snd .equiv-proof (Fin→SumFin (Fin.fromℕ≤ 0 n x)) .fst .fst
+
+isFinSet⊤ : isFinSet ⊤
+isFinSet⊤ = 1 , ∣ invEquiv ⊎-IdR-⊥-≃ ∣₁
