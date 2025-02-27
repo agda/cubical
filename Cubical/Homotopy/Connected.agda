@@ -247,13 +247,27 @@ indMapEquiv→conType : ∀ {ℓ} {A : Type ℓ} (n : HLevel)
                    → ((B : TypeOfHLevel ℓ n)
                       → isEquiv (λ (b : (fst B)) → λ (a : A) → b))
                    → isConnected n A
-indMapEquiv→conType {A = A} zero BEq = isContrUnit*
-indMapEquiv→conType {A = A} (suc n) BEq =
-  isOfHLevelRetractFromIso 0 (mapCompIso {n = (suc n)} (typeToFiberIso A))
-    (elim.isConnectedPrecompose (λ _ → tt) (suc n)
-                                (λ P → ((λ a _ → a) ∘ invIsEq (BEq (P tt)))
-                               , λ a → equiv-proof (BEq (P tt)) a .fst .snd)
-                                tt)
+indMapEquiv→conType {A = A} zero _ = isConnectedZero A
+indMapEquiv→conType {A = A} (suc n) is-equiv-ind =
+  isConnectedFun→isConnected (suc n) is-conn-fun-const
+  where
+    module _ (P : Unit → TypeOfHLevel _ (suc n)) where
+      B' : Type _
+      B' = ⟨ P tt ⟩
+
+      B-equiv : B' ≃ (A → B')
+      B-equiv .fst = λ b a → b
+      B-equiv .snd = is-equiv-ind (P tt)
+
+      precomp-section : ((a : A) → B') → (b : Unit) → B'
+      precomp-section = (λ b (_ : Unit) → b) ∘ invEq B-equiv
+
+      has-section : hasSection (λ s → s ∘ (λ (a : A) → tt))
+      has-section .fst = precomp-section
+      has-section .snd = secEq B-equiv
+
+    is-conn-fun-const : isConnectedFun (suc n) (λ (a : A) → tt)
+    is-conn-fun-const = elim.isConnectedPrecompose _ _ has-section
 
 conType→indMapEquiv : ∀ (n : HLevel)
   → isConnected n A
