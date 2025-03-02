@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 
-module Dagger.Base where
+module Cubical.Categories.Dagger.Base where
 
 open import Cubical.Foundations.Prelude
 
