@@ -11,7 +11,7 @@ open import Cubical.HITs.PropositionalTruncation as PT using (∥_∥₁; ∣_�
 open import Cubical.Categories.Category
 open import Cubical.Categories.Morphism
 
-open import Dagger.Base
+open import Cubical.Categories.Dagger.Base
 
 private variable
   ℓ ℓ' : Level
