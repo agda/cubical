@@ -17,10 +17,9 @@ private variable
   ℓ ℓ' : Level
 
 module _ (CDagCat : DagCat ℓ ℓ') where
-  open DagCat CDagCat
-  open Category C
+  open DagCat CDagCat renaming (cat to C)
   open areInv
-  
+
   private variable
     x y z w : ob
 
@@ -48,7 +47,7 @@ module _ (CDagCat : DagCat ℓ ℓ') where
     †IsosAreIsos fiso = isiso (f †) (fiso .sec) (fiso .ret)
 
     †Of†MonIs†Epi : is†Monic f → is†Epic (f †)
-    †Of†MonIs†Epi fmon = 
+    †Of†MonIs†Epi fmon =
       f † † ⋆ f † ≡⟨ congL _⋆_ (†-invol f) ⟩
       f ⋆ f †     ≡⟨ fmon ⟩
       id          ∎
@@ -60,7 +59,7 @@ module _ (CDagCat : DagCat ℓ ℓ') where
       id          ∎
 
     †Pres†Iso : is†Iso f → is†Iso (f †)
-    †Pres†Iso fiso .sec = †Of†MonIs†Epi (fiso .ret) 
+    †Pres†Iso fiso .sec = †Of†MonIs†Epi (fiso .ret)
     †Pres†Iso fiso .ret = †Of†EpiIs†Mon (fiso .sec)
 
     †MonicsArePIsos : is†Monic f → is†PIso f
@@ -75,9 +74,9 @@ module _ (CDagCat : DagCat ℓ ℓ') where
       f ⋆ f † ⋆ f ≡⟨ congR _⋆_ fepi ⟩
       f ⋆ id      ≡⟨ ⋆IdR f ⟩
       f           ∎
-    
+
     †PresPIso : is†PIso f → is†PIso (f †)
-    †PresPIso fp = 
+    †PresPIso fp =
       f † ⋆ f † † ⋆ f † ≡⟨ congR _⋆_ (sym (†-seq f (f †))) ⟩
       f † ⋆ (f ⋆ f †) † ≡⟨ sym (†-seq (f ⋆ (f †)) f) ⟩
       ((f ⋆ f †) ⋆ f) † ≡⟨ cong _† (⋆Assoc f (f †) f) ⟩
@@ -97,13 +96,13 @@ module _ (CDagCat : DagCat ℓ ℓ') where
   †CatIso x y = Σ[ f ∈ Hom[ x , y ] ] is†Iso f
 
   idIs†Mon : is†Monic (id {x = x})
-  idIs†Mon = 
+  idIs†Mon =
     id ⋆ id † ≡⟨ ⋆IdL (id †) ⟩
     id †      ≡⟨ †-id ⟩
     id        ∎
 
   seqIs†Mon : (f : Hom[ x , y ]) (g : Hom[ y , z ]) → is†Monic f → is†Monic g → is†Monic (f ⋆ g)
-  seqIs†Mon f g fmon gmon = 
+  seqIs†Mon f g fmon gmon =
     (f ⋆ g) ⋆ (f ⋆ g) † ≡⟨ congR _⋆_ (†-seq f g) ⟩
     (f ⋆ g) ⋆ g † ⋆ f † ≡⟨ ⋆Assoc f g ((g †) ⋆ (f †)) ⟩
     f ⋆ g ⋆ g † ⋆ f †   ≡⟨ congR _⋆_ (sym (⋆Assoc g (g †) (f †))) ⟩
@@ -113,7 +112,7 @@ module _ (CDagCat : DagCat ℓ ℓ') where
     id                  ∎
 
   idIs†Epi : is†Epic (id {x = x})
-  idIs†Epi = 
+  idIs†Epi =
     id † ⋆ id ≡⟨ ⋆IdR (id †) ⟩
     id †      ≡⟨ †-id ⟩
     id        ∎
@@ -154,9 +153,18 @@ module _ (CDagCat : DagCat ℓ ℓ') where
   record is†Univalent : Type (ℓ-max ℓ ℓ') where
     field
       univ : isEquiv (pathTo†Iso {x} {y})
-    
+
+    univEquiv : (x ≡ y) ≃ †CatIso x y
+    univEquiv = pathTo†Iso , univ
+
     †IsoToPath : †CatIso x y → x ≡ y
     †IsoToPath = invIsEq univ
+
+    †IsoToPath-id : †IsoToPath id†Iso ≡ refl {x = x}
+    †IsoToPath-id =
+      †IsoToPath id†Iso            ≡⟨ cong †IsoToPath (sym pathTo†Iso-refl) ⟩
+      †IsoToPath (pathTo†Iso refl) ≡⟨ retIsEq univ refl ⟩
+      refl                         ∎
 
   makeIs†Univalent : (†IsoToPath : ∀ {x y} → †CatIso x y → x ≡ y)
                    → (∀ {x} → †IsoToPath id†Iso ≡ refl {x = x})
@@ -167,7 +175,7 @@ module _ (CDagCat : DagCat ℓ ℓ') where
     private -- This should be in the library
       isPropAreInv : ∀ {f} {g : Hom[ y , x ]} → isProp (areInv C f g)
       isPropAreInv a b i .sec = isSetHom _ _ (a .sec) (b .sec) i
-      isPropAreInv a b i .ret = isSetHom _ _ (a .ret) (b .ret) i 
+      isPropAreInv a b i .ret = isSetHom _ _ (a .ret) (b .ret) i
 
     iso : TypeIso.Iso (x ≡ y) (†CatIso x y)
     iso .TypeIso.Iso.fun = pathTo†Iso
@@ -178,5 +186,5 @@ module _ (CDagCat : DagCat ℓ ℓ') where
         †IsoToPath id†Iso            ≡⟨ †IsoToPath-id ⟩
         refl                         ∎
       )
-  
+
   
