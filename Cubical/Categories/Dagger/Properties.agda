@@ -172,15 +172,10 @@ module _ (CDagCat : DagCat ℓ ℓ') where
                    → is†Univalent
   makeIs†Univalent †IsoToPath †IsoToPath-id †IsoToPath-β .is†Univalent.univ {x} {y} = TypeIso.isoToIsEquiv iso where
 
-    private -- This should be in the library
-      isPropAreInv : ∀ {f} {g : Hom[ y , x ]} → isProp (areInv C f g)
-      isPropAreInv a b i .sec = isSetHom _ _ (a .sec) (b .sec) i
-      isPropAreInv a b i .ret = isSetHom _ _ (a .ret) (b .ret) i
-
     iso : TypeIso.Iso (x ≡ y) (†CatIso x y)
     iso .TypeIso.Iso.fun = pathTo†Iso
     iso .TypeIso.Iso.inv = †IsoToPath
-    iso .TypeIso.Iso.rightInv f = Σ≡Prop (λ _ → isPropAreInv) (†IsoToPath-β f)
+    iso .TypeIso.Iso.rightInv f = Σ≡Prop (λ _ → isPropAreInv C) (†IsoToPath-β f)
     iso .TypeIso.Iso.leftInv = J (λ y p → †IsoToPath (pathTo†Iso p) ≡ p) (
         †IsoToPath (pathTo†Iso refl) ≡⟨ cong †IsoToPath pathTo†Iso-refl ⟩
         †IsoToPath id†Iso            ≡⟨ †IsoToPath-id ⟩
