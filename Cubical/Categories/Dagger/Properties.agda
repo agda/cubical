@@ -182,4 +182,4 @@ module _ (CDagCat : DagCat ℓ ℓ') where
         refl                         ∎
       )
 
-  
+
