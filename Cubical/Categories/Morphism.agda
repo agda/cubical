@@ -71,6 +71,8 @@ module _ (C : Category ℓ ℓ') where
       sec : g ⋆ f ≡ id
       ret : f ⋆ g ≡ id
 
+  open areInv
+
   isPropAreInv : ∀ {f} {g : Hom[ y , x ]} → isProp (areInv C f g)
   isPropAreInv a b i .sec = isSetHom _ _ (a .sec) (b .sec) i
   isPropAreInv a b i .ret = isSetHom _ _ (a .ret) (b .ret) i
