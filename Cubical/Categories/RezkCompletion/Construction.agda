@@ -81,7 +81,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
   private
     variable
       x y z w : ob C
-    
+
     IsoC : ob C → ob C → Type ℓ'
     IsoC = CatIso C
 
@@ -114,7 +114,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
 
   rec : {P : Type ℓ''} → _ → (f : _) → (feq : _) → _ → RezkOb → P
   rec = GQ.rec {A = ob C} ⋆IsoC
-  
+
   module _ {P : RezkOb → RezkOb → Type ℓ''}
     (P-Set : ∀ x y → isSet (P x y))
     (P-inc : ∀ x y → P (inc x) (inc y))
