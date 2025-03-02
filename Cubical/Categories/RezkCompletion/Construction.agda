@@ -32,7 +32,6 @@ open import Cubical.Categories.RezkCompletion.Base
 
 private variable
   ℓ ℓ' ℓ'' ℓ''' : Level
-  A B C D : Type ℓ
 
 open isWeakEquivalence
 
@@ -79,48 +78,43 @@ module RezkByHIT (C : Category ℓ ℓ') where
   open Functor
   open isIso
 
-  private variable
-    x y z w : ob C
+  private
+    variable
+      x y z w : ob C
+    
+    IsoC : ob C → ob C → Type ℓ'
+    IsoC = CatIso C
 
-  data RezkOb : Type (ℓ-max ℓ ℓ') where
-    inc : ob C → RezkOb
-    inc-ua : (f : CatIso C x y) → inc x ≡ inc y
-    inc-sq : (f : CatIso C x y) (g : CatIso C y z)
-           → Square (inc-ua f) (inc-ua (⋆Iso f g)) refl (inc-ua g)
-    squash : isGroupoid RezkOb
+    ⋆IsoC : ∀ x y z → IsoC x y → IsoC y z → IsoC x z
+    ⋆IsoC x y z = ⋆Iso
 
-  module _ {P : RezkOb → Type ℓ''}
-    (P-Grpd : ∀ x → isGroupoid (P x))
-    (P-inc : ∀ x → P (inc x))
-    (P-inc-ua : ∀ {x y} f → PathP (λ i → P (inc-ua f i)) (P-inc x) (P-inc y))
-    (P-inc-sq : ∀ {x y z} f g → SquareP (λ i j → P (inc-sq {x = x} {y} {z} f g i j))
-        (P-inc-ua f) (P-inc-ua (⋆Iso f g)) refl (P-inc-ua g))
-    where
+  RezkOb : Type (ℓ-max ℓ ℓ')
+  RezkOb = ob C // ⋆IsoC
 
-    elim : ∀ x → P x
-    elim (inc x) = P-inc x
-    elim (inc-ua f i) = P-inc-ua f i
-    elim (inc-sq f g i j) = P-inc-sq f g i j
-    elim (squash x y p q r s i j k) =
-      isOfHLevel→isOfHLevelDep 3 P-Grpd _ _ _ _ (cong (cong elim) r) (cong (cong elim) s) (squash x y p q r s) i j k
+  inc : ob C → RezkOb
+  inc = [_]
 
-  module _ {P : RezkOb → Type ℓ''}
-    (P-Set : ∀ x → isSet (P x))
-    (P-inc : ∀ x → P (inc x))
-    (P-inc-ua : ∀ {x y} f → PathP (λ i → P (inc-ua f i)) (P-inc x) (P-inc y))
-    where
+  inc-ua : IsoC x y → inc x ≡ inc y
+  inc-ua = eq//
 
-    elimSet : ∀ x → P x
-    elimSet = elim (λ x → isSet→isGroupoid (P-Set x)) P-inc P-inc-ua λ f g → isSet→SquareP (λ i j → P-Set (inc-sq f g i j)) _ _ _ _
+  inc-sq : (f : IsoC x y) (g : IsoC y z) → Square (inc-ua f) (inc-ua (⋆Iso f g)) refl (inc-ua g)
+  inc-sq = comp//
 
-  module _ {P : RezkOb → Type ℓ''}
-    (P-Prop : ∀ x → isProp (P x))
-    (P-inc : ∀ x → P (inc x))
-    where
+  squash : isGroupoid RezkOb
+  squash = squash//
 
-    elimProp : ∀ x → P x
-    elimProp = elimSet (λ x → isProp→isSet (P-Prop x)) P-inc λ f → isProp→PathP (λ i → P-Prop (inc-ua f i)) _ _
+  elim : {P : RezkOb → Type ℓ''} → _ → (f : _) → (feq : _) → _ → ∀ x → P x
+  elim = GQ.elim {A = ob C} ⋆IsoC
 
+  elimSet : {P : RezkOb → Type ℓ''} → _ → (f : _) → _ → ∀ x → P x
+  elimSet = GQ.elimSet {A = ob C} ⋆IsoC
+
+  elimProp : {P : RezkOb → Type ℓ''} → _ → _ → ∀ x → P x
+  elimProp = GQ.elimProp {A = ob C} ⋆IsoC
+
+  rec : {P : Type ℓ''} → _ → (f : _) → (feq : _) → _ → RezkOb → P
+  rec = GQ.rec {A = ob C} ⋆IsoC
+  
   module _ {P : RezkOb → RezkOb → Type ℓ''}
     (P-Set : ∀ x y → isSet (P x y))
     (P-inc : ∀ x y → P (inc x) (inc y))
@@ -159,25 +153,14 @@ module RezkByHIT (C : Category ℓ ℓ') where
 
   module _ {P : Type ℓ''}
     (P-Grpd : isGroupoid P)
-    (P-inc : ob C → P)
-    (P-inc-ua : ∀ {x y} → CatIso C x y → P-inc x ≡ P-inc y)
-    (P-inc-sq : ∀ {x y z} (f : CatIso C x y) (g : CatIso C y z)
-      → Square (P-inc-ua f) (P-inc-ua (⋆Iso f g)) refl (P-inc-ua g))
-    where
-
-    rec : RezkOb → P
-    rec = elim (λ _ → P-Grpd) P-inc P-inc-ua P-inc-sq
-
-  module _ {P : Type ℓ''}
-    (P-Grpd : isGroupoid P)
     (P-inc : ob C → ob C → P)
-    (P-inc-ua : ∀ {x y z} → CatIso C y z → P-inc x y ≡ P-inc x z)
-    (P-ua-inc : ∀ {x y z} → CatIso C x y → P-inc x z ≡ P-inc y z)
-    (P-ua-inc-ua : ∀ {x y z w} (g : CatIso C z w) (f : CatIso C x y)
+    (P-inc-ua : ∀ {x y z} → IsoC y z → P-inc x y ≡ P-inc x z)
+    (P-ua-inc : ∀ {x y z} → IsoC x y → P-inc x z ≡ P-inc y z)
+    (P-ua-inc-ua : ∀ {x y z w} (g : IsoC z w) (f : IsoC x y)
       → Square (P-ua-inc g) (P-ua-inc g) (P-inc-ua f) (P-inc-ua f))
-    (P-inc-sq : ∀ {x y z w} (f : CatIso C y z) (g : CatIso C z w)
+    (P-inc-sq : ∀ {x y z w} (f : IsoC y z) (g : IsoC z w)
       → Square (P-inc-ua {x = x} f) (P-inc-ua (⋆Iso f g)) refl (P-inc-ua g))
-    (P-sq-inc : ∀ {x y z w} (f : CatIso C x y) (g : CatIso C y z)
+    (P-sq-inc : ∀ {x y z w} (f : IsoC x y) (g : IsoC y z)
       → Square (P-ua-inc {z = w} f) (P-ua-inc (⋆Iso f g)) refl (P-ua-inc g))
     where
 
@@ -197,9 +180,8 @@ module RezkByHIT (C : Category ℓ ℓ') where
         subst⁻ (PathP _ (F-Iso {F = P-inc} f)) (F-Iso-Pres⋆ f g) $
           transportIsoToPathIso P-univ _ _
 
-  inc-⋆ : (f : CatIso C x y) (g : CatIso C y z)
-        → inc-ua (⋆Iso f g) ≡ inc-ua f ∙ inc-ua g
-  inc-⋆ f g = sym (Square≃doubleComp _ _ _ _ .fst (inc-sq f g))
+  inc-⋆ : (f : IsoC x y) (g : IsoC y z) → inc-ua (⋆Iso f g) ≡ inc-ua f ∙ inc-ua g
+  inc-⋆ = GQ.comp'// _ ⋆IsoC
 
   inc-id : inc-ua (idCatIso {x = x}) ≡ refl
   inc-id =
@@ -210,7 +192,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
     refl ∎
     where incId = inc-ua idCatIso
 
-  inc-inv : (f : CatIso C x y) → inc-ua (invIso f) ≡ sym (inc-ua f)
+  inc-inv : (f : IsoC x y) → inc-ua (invIso f) ≡ sym (inc-ua f)
   inc-inv f =
     inc-ua (invIso f) ≡⟨ sym (compPathr-cancel (sym (inc-ua f)) (inc-ua (invIso f))) ⟩
     (inc-ua (invIso f) ∙ inc-ua f) ∙ sym (inc-ua f) ≡⟨ congL _∙_ (sym (inc-⋆ (invIso f) f)) ⟩
@@ -220,9 +202,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
     sym (inc-ua f) ∎
 
   inc-pathToIso : (p : x ≡ y) → inc-ua (pathToIso p) ≡ cong inc p
-  inc-pathToIso = lemma _ where
-    lemma : ∀ y (p : x ≡ y) → inc-ua (pathToIso p) ≡ cong inc p
-    lemma = J> cong inc-ua pathToIso-refl ∙ inc-id
+  inc-pathToIso = J (λ y p → inc-ua (pathToIso p) ≡ cong inc p) (cong inc-ua pathToIso-refl ∙ inc-id)
 
   inc-surj : isSurjection inc
   inc-surj = elimProp (λ x → isPropPropTrunc) λ x → ∣ x , refl ∣₁
@@ -232,16 +212,16 @@ module RezkByHIT (C : Category ℓ ℓ') where
     rec₂ isGroupoidHSet H-inc H-inc-ua H-ua-inc H-ua-inc-ua H-inc-sq H-sq-inc where
 
     H-inc : ob C → ob C → hSet ℓ'
-    H-inc x y = C [ x , y ] , C .isSetHom
+    H-inc x y = C .Hom[_,_] x y , C .isSetHom
 
-    H-inc-ua : ∀ {x y z} → CatIso C y z → H-inc x y ≡ H-inc x z
+    H-inc-ua : ∀ {x y z} → IsoC y z → H-inc x y ≡ H-inc x z
     H-inc-ua f = TypeOfHLevel≡ 2 $ isoToPath λ where
       .Iso.fun → C._⋆ f .fst
       .Iso.inv → C._⋆ f .snd .inv
       .Iso.rightInv _ → C.⋆Assoc _ _ _ ∙∙ congR C._⋆_ (f .snd .sec) ∙∙ C.⋆IdR _
       .Iso.leftInv  _ → C.⋆Assoc _ _ _ ∙∙ congR C._⋆_ (f .snd .ret) ∙∙ C.⋆IdR _
 
-    H-ua-inc : ∀ {x y z} → CatIso C x y → H-inc x z ≡ H-inc y z
+    H-ua-inc : ∀ {x y z} → IsoC x y → H-inc x z ≡ H-inc y z
     H-ua-inc f = TypeOfHLevel≡ 2 $ isoToPath λ where
       .Iso.fun → f .snd .inv C.⋆_
       .Iso.inv → f .fst C.⋆_
@@ -254,7 +234,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
     typeSquare h = compPath→Square $ isInjectiveTransport $ funExt λ x →
       transportComposite _ _ x ∙∙ sym (h x) ∙∙ sym (transportComposite _ _ x)
 
-    H-ua-inc-ua : ∀ {x y z w} (g : CatIso C z w) (f : CatIso C x y)
+    H-ua-inc-ua : ∀ {x y z w} (g : IsoC z w) (f : IsoC x y)
                 → Square (H-ua-inc g) (H-ua-inc g) (H-inc-ua f) (H-inc-ua f)
     H-ua-inc-ua g f = ΣSquareSet (λ _ → isProp→isSet isPropIsSet) $ typeSquare λ h →
       transport (cong fst (H-inc-ua f)) (transport (cong fst (H-ua-inc g)) h)
@@ -269,7 +249,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
         ≡⟨ sym (uaβ _ _) ⟩
       transport (cong fst (H-ua-inc g)) (transport (cong fst (H-inc-ua f)) h) ∎
 
-    H-inc-sq : ∀ {x y z w} (f : CatIso C y z) (g : CatIso C z w)
+    H-inc-sq : ∀ {x y z w} (f : IsoC y z) (g : IsoC z w)
              → Square (H-inc-ua {x = x} f) (H-inc-ua (⋆Iso f g)) refl (H-inc-ua g)
     H-inc-sq f g = ΣSquareSet (λ _ → isProp→isSet isPropIsSet) $ typeSquare λ h →
       transport (cong fst (H-inc-ua g)) (transport (cong fst (H-inc-ua f)) h)
@@ -284,7 +264,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
         ≡⟨ sym (uaβ _ _) ⟩
       transport (cong fst (H-inc-ua (⋆Iso f g))) (transport refl h) ∎
 
-    H-sq-inc : ∀ {x y z w} (f : CatIso C x y) (g : CatIso C y z)
+    H-sq-inc : ∀ {x y z w} (f : IsoC x y) (g : IsoC y z)
              → Square (H-ua-inc {z = w} f) (H-ua-inc (⋆Iso f g)) refl (H-ua-inc g)
     H-sq-inc f g = ΣSquareSet (λ _ → isProp→isSet isPropIsSet) $ typeSquare λ h →
       transport (cong fst (H-ua-inc g)) (transport (cong fst (H-ua-inc f)) h)
@@ -388,10 +368,10 @@ module RezkByHIT (C : Category ℓ ℓ') where
   Rezk .⋆Assoc {x} {y} {z} {w} = Rezk⋆Assoc x y z w
   Rezk .isSetHom {x} {y} = isSetRezkHom x y
 
-  RezkIso→Iso : ∀ {x y} → CatIso Rezk (inc x) (inc y) → CatIso C x y
+  RezkIso→Iso : ∀ {x y} → CatIso Rezk (inc x) (inc y) → IsoC x y
   RezkIso→Iso (f , isiso g s r) = (f , isiso g s r)
 
-  Iso→RezkIso : ∀ {x y} → CatIso C x y → CatIso Rezk (inc x) (inc y)
+  Iso→RezkIso : ∀ {x y} → IsoC x y → CatIso Rezk (inc x) (inc y)
   Iso→RezkIso (f , isiso g s r) = (f , isiso g s r)
 
   RezkIsoToPath : ∀ x y → CatIso Rezk x y → x ≡ y
