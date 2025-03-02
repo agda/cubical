@@ -1,6 +1,6 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 
-module Dagger.Properties where
+module Cubical.Categories.Dagger.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
