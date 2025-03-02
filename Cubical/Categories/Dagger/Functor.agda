@@ -1,6 +1,6 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 
-module Dagger.Functor where
+module Cubical.Categories.Dagger.Functor where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
@@ -8,8 +8,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 
-open import Dagger.Base
-open import Dagger.Properties
+open import Cubical.Categories.Dagger.Base
+open import Cubical.Categories.Dagger.Properties
 
 private variable
   ℓC ℓC' ℓD ℓD' : Level
