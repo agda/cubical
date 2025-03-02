@@ -36,12 +36,12 @@ private variable
   B C D E : DagCat ℓ ℓ'
 
 Id†Func : DagFunctor C C
-Id†Func .F-cat = Id 
+Id†Func .F-cat = Id
 Id†Func .F-† f = refl
 
 Comp†Func : DagFunctor C D → DagFunctor D E → DagFunctor C E
 Comp†Func F G .F-cat = G .F-cat ∘F F .F-cat
-Comp†Func {C = C} {D = D} {E = E} F G .F-† f = 
+Comp†Func {C = C} {D = D} {E = E} F G .F-† f =
   G .F-cat ⟪ F .F-cat ⟪ f †[ C ] ⟫ ⟫ ≡⟨ cong (G .F-hom) (F .F-† f) ⟩
   G .F-cat ⟪ F .F-cat ⟪ f ⟫ †[ D ] ⟫ ≡⟨ G .F-† (F .F-hom f) ⟩
   G .F-cat ⟪ F .F-cat ⟪ f ⟫ ⟫ †[ E ] ∎
@@ -52,6 +52,6 @@ Comp†Func {C = C} {D = D} {E = E} F G .F-† f =
 
 †Func≡ : ∀ (F G : DagFunctor C D) → F .F-cat ≡ G .F-cat → F ≡ G
 †Func≡ {C = C} {D = D} F G p i .F-cat = p i
-†Func≡ {C = C} {D = D} F G p i .F-† f = isProp→PathP {B = λ i → p i ⟪ f †[ C ] ⟫ ≡ p i ⟪ f ⟫ †[ D ]} 
+†Func≡ {C = C} {D = D} F G p i .F-† f = isProp→PathP {B = λ i → p i ⟪ f †[ C ] ⟫ ≡ p i ⟪ f ⟫ †[ D ]}
   (λ _ → D .DagCat.isSetHom _ _) (F .F-† f) (G .F-† f) i
 
