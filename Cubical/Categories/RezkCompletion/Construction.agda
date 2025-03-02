@@ -19,6 +19,7 @@ open import Cubical.Foundations.Equiv.Base
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Functions.Surjection
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; isPropPropTrunc)
+open import Cubical.HITs.GroupoidQuotients as GQ using (_//_; [_]; eq//; comp//; squash//)
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
