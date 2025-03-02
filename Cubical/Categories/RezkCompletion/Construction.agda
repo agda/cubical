@@ -205,7 +205,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
   inc-pathToIso = J (λ y p → inc-ua (pathToIso p) ≡ cong inc p) (cong inc-ua pathToIso-refl ∙ inc-id)
 
   inc-surj : isSurjection inc
-  inc-surj = elimProp (λ x → isPropPropTrunc) λ x → ∣ x , refl ∣₁
+  inc-surj = GQ.isSurjective[] ⋆IsoC
 
   RezkHomSet : RezkOb → RezkOb → hSet ℓ'
   RezkHomSet =
