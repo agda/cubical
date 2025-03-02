@@ -181,5 +181,3 @@ module _ (CDagCat : DagCat ℓ ℓ') where
         †IsoToPath id†Iso            ≡⟨ †IsoToPath-id ⟩
         refl                         ∎
       )
-
-
