@@ -73,7 +73,7 @@ module _ (C : Category ℓ ℓ') where
 
   open areInv
 
-  isPropAreInv : ∀ {f} {g : Hom[ y , x ]} → isProp (areInv C f g)
+  isPropAreInv : ∀ {f : Hom[ x , y ]} {g : Hom[ y , x ]} → isProp (areInv f g)
   isPropAreInv a b i .sec = isSetHom _ _ (a .sec) (b .sec) i
   isPropAreInv a b i .ret = isSetHom _ _ (a .ret) (b .ret) i
 
