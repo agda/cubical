@@ -70,4 +70,4 @@ module _ (C : DagCat ℓ ℓ') (D : DagCat ℓ'' ℓ''') where
   †CatIso× : ∀ {x y z w} → †CatIso C x y → †CatIso D z w → †CatIso (C ×D D) (x , z) (y , w)
   †CatIso× (f , fiso) (g , giso) .fst = f , g
   †CatIso× (f , fiso) (g , giso) .snd .sec = ≡-× (fiso .sec) (giso .sec)
-  †CatIso× (f , fiso) (g , giso) .snd .ret = ≡-× (fiso .ret) (giso .ret) 
+  †CatIso× (f , fiso) (g , giso) .snd .ret = ≡-× (fiso .ret) (giso .ret)
