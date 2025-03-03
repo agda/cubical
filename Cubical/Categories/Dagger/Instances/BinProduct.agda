@@ -1,6 +1,6 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 
-module Dagger.Instances.BinProduct where
+module Cubical.Categories.Dagger.Instances.BinProduct where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
