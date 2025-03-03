@@ -1,6 +1,6 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 
-module Dagger.Instances.Functors where
+module Cubical.Categories.Dagger.Instances.Functors where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
@@ -11,15 +11,15 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.FullSubcategory
 open import Cubical.Categories.Instances.Functors
 
-open import Dagger.Base
-open import Dagger.Properties
-open import Dagger.Functor
+open import Cubical.Categories.Dagger.Base
+open import Cubical.Categories.Dagger.Properties
+open import Cubical.Categories.Dagger.Functor
 
 private variable
   ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
 
 module _ (C : DagCat ℓC ℓC') (D : DagCat ℓD ℓD') where
-    
+
   open Category
   open DagCat
   open DaggerStr
@@ -32,5 +32,3 @@ module _ (C : DagCat ℓC ℓC') (D : DagCat ℓD ℓD') where
   †FUNCTOR .dagstr .is-dag .†-invol n = makeNatTransPath (funExt λ x → D .†-invol (n ⟦ x ⟧))
   †FUNCTOR .dagstr .is-dag .†-id = makeNatTransPath (funExt λ x → D .†-id)
   †FUNCTOR .dagstr .is-dag .†-seq m n = makeNatTransPath (funExt λ x → D .†-seq (m ⟦ x ⟧) (n ⟦ x ⟧))
-
-  
