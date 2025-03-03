@@ -287,7 +287,7 @@ module RezkByHIT (C : Category ℓ ℓ') where
   isSetRezkHom x y = RezkHomSet x y .snd
 
   private
-    tr : transport refl ≡ idfun A
+    tr : {A : Type ℓ''} → transport refl ≡ idfun A
     tr = funExt transportRefl
 
   RezkId : ∀ x → RezkHom x x
