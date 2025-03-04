@@ -10,23 +10,6 @@ open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Dagger.Base
 
-private variable
-  ℓC ℓC' ℓD ℓD' : Level
-
-record DagFunctor (C : DagCat ℓC ℓC') (D : DagCat ℓD ℓD') : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
-  no-eta-equality
-
-  open Category
-  open DagCat
-
-  field
-    F-cat : Functor (C .cat) (D .cat)
-    F-† : ∀ {x y} (f : C .cat [ x , y ]) → F-cat ⟪ f †[ C ] ⟫ ≡ F-cat ⟪ f ⟫ †[ D ]
-
-  isEssentially†Surj = (d : D .ob) → ∃[ c ∈ C .ob ] †CatIso D (F-cat ⟅ c ⟆) d
-
-  open Functor F-cat public
-
 open DagFunctor
 open Functor
 
