@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --hidden-argument-puns #-}
 
 module Cubical.Categories.Dagger.Functor where
 
