@@ -175,7 +175,7 @@ module _ (CDagCat : DagCat ℓ ℓ') where
     iso : TypeIso.Iso (x ≡ y) (†CatIso x y)
     iso .TypeIso.Iso.fun = pathTo†Iso
     iso .TypeIso.Iso.inv = †IsoToPath
-    iso .TypeIso.Iso.rightInv f = Σ≡Prop (λ _ → isPropAreInv) (†IsoToPath-β f)
+    iso .TypeIso.Iso.rightInv f = Σ≡Prop (λ _ → isPropAreInv _) (†IsoToPath-β f)
     iso .TypeIso.Iso.leftInv = J (λ y p → †IsoToPath (pathTo†Iso p) ≡ p) (
         †IsoToPath (pathTo†Iso refl) ≡⟨ cong †IsoToPath pathTo†Iso-refl ⟩
         †IsoToPath id†Iso            ≡⟨ †IsoToPath-id ⟩
