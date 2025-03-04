@@ -7,6 +7,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Functors.Constant
 
 open import Cubical.Categories.Dagger.Base
