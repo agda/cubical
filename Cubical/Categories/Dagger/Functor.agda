@@ -10,9 +10,6 @@ open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Dagger.Base
 
-open DagFunctor
-open Functor
-
 private variable
   ℓC ℓC' ℓD ℓD' ℓ ℓ' ℓ'' ℓ''' : Level
   C D E : DagCat ℓ ℓ'
