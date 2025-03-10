@@ -177,7 +177,7 @@ module Properties-Equiv-QuotientXn-A
 
   PAr→Ar : CommRingHom (A[X1,···,Xn] Ar n) Ar
   fst PAr→Ar = PA→A
-  snd PAr→Ar = makeIsRingHom PA→A-pres1 PA→A-pres+ PA→A-pres·
+  snd PAr→Ar = makeIsCommRingHom PA→A-pres1 PA→A-pres+ PA→A-pres·
 
   PAIr→Ar : CommRingHom (A[X1,···,Xn]/<X1,···,Xn> Ar n) Ar
   PAIr→Ar = Quotient-FGideal-CommRing-CommRing.inducedHom (A[X1,···,Xn] Ar n) Ar PAr→Ar (<X1,···,Xn> Ar n) PA→A-cancel

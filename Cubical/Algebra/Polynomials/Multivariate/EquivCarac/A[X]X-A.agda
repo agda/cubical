@@ -166,7 +166,7 @@ module Properties-Equiv-QuotientXn-A
 
   A[X]→A : CommRingHom A[X] Ar
   fst A[X]→A = A[x]→A
-  snd A[X]→A = makeIsRingHom A[x]→A-pres1 A[x]→A-pres+ A[x]→A-pres·
+  snd A[X]→A = makeIsCommRingHom A[x]→A-pres1 A[x]→A-pres+ A[x]→A-pres·
 
   A[x]→A-cancel : (k : Fin 1) → A[x]→A (<Xkʲ> Ar 1 0 1 k) ≡ 0A
   A[x]→A-cancel zero = refl
@@ -246,4 +246,4 @@ module _
   snd Equiv-A[X]/X-A = snd A[X]/X→A
 
 Equiv-ℤ[X]/X-ℤ : RingEquiv (CommRing→Ring ℤ[X]/X) (CommRing→Ring ℤCR)
-Equiv-ℤ[X]/X-ℤ = Equiv-A[X]/X-A ℤCR
+Equiv-ℤ[X]/X-ℤ = CommRingEquiv→RingEquiv $ Equiv-A[X]/X-A ℤCR
