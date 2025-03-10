@@ -573,6 +573,45 @@ merelyInh×isConnectedPath≃isConnectedSuc k = propBiimpl→Equiv
   (uncurry $ merelyInh×isConnectedPath→isConnectedSuc k)
   (isConnectedSuc→merelyInh×isConnectedPath k)
 
+module Pointed {ℓ} (A : Pointed ℓ) where
+  private
+    a₀ : ⟨ A ⟩
+    a₀ = str A
+
+  -- A pointed type has k-connected path space iff it is (k+1)-connected.
+  isConnectedPath≃isConnectedSuc : ∀ (k : HLevel)
+    → ((a b : ⟨ A ⟩) → isConnected k (a ≡ b)) ≃ (isConnected (suc k) ⟨ A ⟩)
+  isConnectedPath≃isConnectedSuc k = propBiimpl→Equiv
+    (isPropΠ2 λ a b → isPropIsConnected)
+    (isPropIsConnected)
+    (pointed×isConnectedPath→isConnectedSuc k a₀)
+    (isConnectedPath k)
+
+  merePathToBase→isConnectedPath : (∀ x → ∥ x ≡ a₀ ∥₁) → ∀ (a b : ⟨ A ⟩) → isConnected 1 (a ≡ b)
+  merePathToBase→isConnectedPath to-base a b =
+    inhProp→isContr (propTruncTrunc1Iso .Iso.fun mere-path) (isOfHLevelTrunc 1) where
+    open import Cubical.HITs.PropositionalTruncation.Monad
+
+    mere-path : ∥ a ≡ b ∥₁
+    mere-path = do
+      a≡a₀ ← to-base a
+      b≡a₀ ← to-base b
+      return (a≡a₀ ∙ sym b≡a₀)
+
+  isConnectedPath→merePathToBase : (∀ (a b : ⟨ A ⟩) → isConnected 1 (a ≡ b)) → (∀ x → ∥ x ≡ a₀ ∥₁)
+  isConnectedPath→merePathToBase is-conn-path x = isConnectedSuc→merelyInh 0 (is-conn-path x a₀)
+
+  merePathToBase≃isConnectedPath : (∀ x → ∥ x ≡ a₀ ∥₁) ≃ (∀ (a b : ⟨ A ⟩) → isConnected 1 (a ≡ b))
+  merePathToBase≃isConnectedPath = propBiimpl→Equiv
+    (isPropΠ λ x → PT.isPropPropTrunc)
+    (isPropΠ2 λ a b → isPropIsConnected)
+    merePathToBase→isConnectedPath
+    isConnectedPath→merePathToBase
+
+  -- In a pointed type, each point merely has a path to the base point iff the type is 2-connected.
+  merePathToBase≃is2Connected : (∀ x → ∥ x ≡ a₀ ∥₁) ≃ isConnected 2 ⟨ A ⟩
+  merePathToBase≃is2Connected = merePathToBase≃isConnectedPath ∙ₑ isConnectedPath≃isConnectedSuc 1
+
 -- If a type is (k+1)-inhabited and has k-connected paths, then it is (k+1)-connected.
 inhTruncSuc×isConnectedPath→isConnectedSuc : ∀ (k : HLevel)
   → ∥ A ∥ (suc k)
