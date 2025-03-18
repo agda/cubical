@@ -675,10 +675,9 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
     assocDiagPath : Forgetful ∘F (universalPShf ∘F D) ≡ 𝓖 ∘F D
     assocDiagPath = F-assoc
 
-    conePathPCR : PathP (λ i → Cone (assocDiagPath i) (F-ob (Forgetful ∘F universalPShf) c))
+    conePathPCR : PathP (λ i → Cone (assocDiagPath i) (F-ob 𝓖 c))
                    (F-cone Forgetful (F-cone universalPShf cc)) (F-cone 𝓖 cc)
-    conePathPCR = conePathPDiag -- why does everything have to be explicit?
-            (λ v _ → (Forgetful ∘F universalPShf) .F-hom {x = c} {y = D .F-ob v} (cc .coneOut v))
+    conePathPCR = conePathPDiag (λ v _ → 𝓖 .F-hom (cc .coneOut v))
 
 
    toLimCone : isLimCone _ _ (F-cone 𝓖 cc)

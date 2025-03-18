@@ -46,7 +46,7 @@ open SliceHom public
 -- can probably replace these by showing that SliceOb is isomorphic to Sigma and
 -- that paths are isomorphic to Sigma? But sounds like that would need a lot of transp
 
-SliceOb-≡-intro : ∀ {a b} {f g}
+SliceOb-≡-intro : ∀ {a b} {f : C [ a , c ]} {g : C [ b , c ]}
                  → (p : a ≡ b)
                  → PathP (λ i → C [ p i , c ]) f g
                  → sliceob {a} f ≡ sliceob {b} g

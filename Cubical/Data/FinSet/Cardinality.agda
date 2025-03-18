@@ -379,7 +379,7 @@ module _
 module _
   (X : FinSet ℓ ) where
 
-  cardAut : card (_ , isFinSetAut X) ≡ LehmerCode.factorial (card X)
+  cardAut : card (_ , isFinSetAut X) ≡ (card X !)
   cardAut = refl
 
 module _
