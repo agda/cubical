@@ -66,7 +66,7 @@ open ContrPushout
 
 LoopSuspSquare : commSquare
 LoopSuspSquare = record
-  { sp = record { f1 = snd ; f3 = α }
+  { sp = 3span snd α
   ; P = Unit* {ℓ}
   ; comm = refl }
 

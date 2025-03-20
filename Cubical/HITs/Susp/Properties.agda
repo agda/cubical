@@ -77,14 +77,19 @@ Susp≡joinBool : ∀ {ℓ} {A : Type ℓ} → Susp A ≡ join A Bool
 Susp≡joinBool = isoToPath Susp-iso-joinBool
 
 -- Here Unit* types are more convenient for general A
-SuspSquare : ∀ {ℓ} ℓ' ℓ'' (A : Type ℓ) → commSquare
-SuspSquare ℓ' ℓ'' A = record
-  { sp = record { A2 = A ; A0 = Unit* {ℓ'} ; A4 = Unit* {ℓ''} }
-  ; P = Susp A
-  ; inlP = λ _ → north
-  ; inrP = λ _ → south
-  ; comm = funExt merid
-  }
+SuspSpan : ∀ {ℓ} ℓ' ℓ'' (A : Type ℓ) → 3-span {ℓ'} {ℓ} {ℓ''}
+SuspSpan ℓ' ℓ'' A = record { A2 = A ; A0 = Unit* {ℓ'} ; A4 = Unit* {ℓ''} }
+
+SuspSquare : ∀ {ℓ} ℓ' ℓ'' (A : Type ℓ) → commSquare {ℓ'} {ℓ} {ℓ''}
+SuspSquare ℓ' ℓ'' A = cSq
+  where
+  open commSquare
+  cSq : commSquare
+  cSq .sp = SuspSpan ℓ' ℓ'' A
+  cSq .P = Susp A
+  cSq .inlP _ = north
+  cSq .inrP _ = south
+  cSq .comm = funExt merid
 
 SuspPushoutSquare : ∀ {ℓ} ℓ' ℓ'' (A : Type ℓ)
   → isPushoutSquare (SuspSquare ℓ' ℓ'' A)

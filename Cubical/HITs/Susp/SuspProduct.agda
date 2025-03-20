@@ -167,7 +167,7 @@ module _ {ℓ ℓ'} (X : Pointed ℓ) (Y : Pointed ℓ') where
 
   pushoutA₀ : PushoutSquare  -- inrP maps to south, but we want north
   pushoutA₀ = extendPushoutSquare
-      (pushoutToSquare record { f1 = fst ; f3 = snd })
+      (pushoutToSquare (3span fst snd))
       (pathToEquiv (joinPushout≡join _ _) ∙ₑ
         invEquiv (isoToEquiv (SmashJoinIso {A = X} {B = Y})))
 

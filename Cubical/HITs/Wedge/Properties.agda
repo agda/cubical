@@ -45,17 +45,21 @@ Iso.leftInv ⋁-commIso = ⋁-commFun²
 
 -- Pushout square using Unit* for convenience
 ⋁-PushoutSquare : ∀ (A : Pointed ℓ) (B : Pointed ℓ') ℓ'' → PushoutSquare
-⋁-PushoutSquare A B ℓ'' = record
-  { sp = record
-    { A0 = typ A
-    ; A2 = Unit* {ℓ''}
-    ; A4 = typ B
-    ; f1 = λ _ → pt A
-    ; f3 = λ _ → pt B }
-  ; P = A ⋁ B
-  ; inlP = inl
-  ; inrP = inr
-  ; comm = funExt λ _ → push _ } ,
+⋁-PushoutSquare A B ℓ'' .fst = cSq
+  where
+  open commSquare
+  open 3-span
+  cSq : commSquare
+  cSq .sp .A0 = typ A
+  cSq .sp .A2 = Unit* {ℓ''}
+  cSq .sp .A4 = typ B
+  cSq .sp .f1 _ = pt A
+  cSq .sp .f3 _ = pt B
+  cSq .P = A ⋁ B
+  cSq .inlP = inl
+  cSq .inrP = inr
+  cSq .comm = funExt λ _ → push _
+⋁-PushoutSquare A B ℓ'' .snd =
   isoToIsEquiv (iso _ inv lInv rInv)
   where
     inv : _
@@ -588,20 +592,17 @@ module _ {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : A → Pointed ℓB} (C : 
 
 module _ (X∙ @ (X , x₀) : Pointed ℓ) (Y∙ @ (Y , y₀) : Pointed ℓ') where
 
+  open 3-span
+  open commSquare
+
   private
-    fX : X∙ ⋁ Y∙ → X
-    fX = ⋁proj₁ X∙ Y∙
-
-    fY : X∙ ⋁ Y∙ → Y
-    fY = ⋁proj₂ X∙ Y∙
-
     weirdSquare : ∀ {ℓ ℓ' ℓ''} {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''}
       → (f : X → Y) (g : Y → Z) → commSquare
-    weirdSquare f g = record
-      { sp = record { f1 = idfun _ ; f3 = f }
-      ; inlP = f
-      ; inrP = idfun _
-      ; comm = refl ∙ refl ∙ refl }
+    weirdSquare f g .sp = 3span (idfun _) f
+    weirdSquare f g .P = _
+    weirdSquare f g .inlP = f
+    weirdSquare f g .inrP = idfun _
+    weirdSquare f g .comm = refl ∙ refl ∙ refl
 
     weirdPushoutSquare : ∀ {ℓ ℓ' ℓ''} {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''}
       → (f : X → Y) (g : Y → Z) → isPushoutSquare (weirdSquare f g)
@@ -615,37 +616,35 @@ module _ (X∙ @ (X , x₀) : Pointed ℓ) (Y∙ @ (Y , y₀) : Pointed ℓ') wh
               i j
           })
 
-  {-
-  The proof proceeds by applying the pasting lemma twice:
-    1 ----> Y
-    ↓       ↓
-    X --> X ⋁ Y --> X
-    ↓  mid  ↓  bot  ↓
-    1 ----> Y ----> 1
-  -}
+    {-
+    The proof proceeds by applying the pasting lemma twice:
+      1 ----> Y
+      ↓       ↓
+      X --> X ⋁ Y --> X
+      ↓  mid  ↓  bot  ↓
+      1 ----> Y ----> 1
+    -}
 
-  midPushout : isPushoutSquare _
-  midPushout = isPushoutTotSquare→isPushoutBottomSquare
-    (weirdPushoutSquare _ (terminal Y))
-    where
-      open PushoutPasteDown (pushoutToSquare record
-        { A2 = Unit
-        ; f1 = λ _ → x₀
-        ; f3 = λ _ → y₀
-        }) (terminal X) (λ _ → y₀) fY refl
+    midPushout : isPushoutSquare _
+    midPushout = isPushoutTotSquare→isPushoutBottomSquare
+      (weirdPushoutSquare _ (terminal Y))
+      where
+        open PushoutPasteDown
+          (pushoutToSquare (3span (const x₀) (const y₀)))
+          (terminal X) (const y₀) (⋁proj₂ X∙ Y∙) refl
 
-  -- slight help to the unifier here
-  botPushout : isPushoutSquare record { comm = refl }
-  botPushout = isPushoutTotSquare→isPushoutBottomSquare $
-    rotatePushoutSquare (record { comm = refl } , isoToIsEquiv
-      (iso _ inl (λ _ → refl) λ {
-        (inl _) i → inl _
-      ; (inr a) i → push a i
-      ; (push a j) i → push a (i ∧ j)
-      })) .snd
-    where
-      open PushoutPasteDown (rotatePushoutSquare (_ , midPushout))
-        fX (terminal X) (terminal Y) refl
+    -- slight help to the unifier here
+    botPushout : isPushoutSquare record { comm = refl }
+    botPushout = isPushoutTotSquare→isPushoutBottomSquare $
+      rotatePushoutSquare (record { comm = refl } , isoToIsEquiv
+        (iso _ inl (λ _ → refl) λ {
+          (inl _) i → inl _
+        ; (inr a) i → push a i
+        ; (push a j) i → push a (i ∧ j)
+        })) .snd
+      where
+        open PushoutPasteDown (rotatePushoutSquare (_ , midPushout))
+          (⋁proj₁ X∙ Y∙) (terminal X) (terminal Y) refl
 
-  Pushout⋁≃Unit : Pushout fX fY ≃ Unit
+  Pushout⋁≃Unit : Pushout (⋁proj₁ X∙ Y∙) (⋁proj₂ X∙ Y∙) ≃ Unit
   Pushout⋁≃Unit = _ , botPushout

@@ -836,13 +836,12 @@ module _ {ℓ₀ ℓ₂ ℓ₄ ℓP ℓP' : Level}
   open commSquare
   extendCommSquare : (sk : commSquare {ℓ₀} {ℓ₂} {ℓ₄} {ℓP})
     → (sk .P → P') → commSquare
-  extendCommSquare sk f = record
-    { sp = sk .sp
-    ; P = P'
-    ; inlP = f ∘ sk .inlP
-    ; inrP = f ∘ sk .inrP
-    ; comm = cong (f ∘_) (sk .comm)
-    }
+  extendCommSquare sk f .sp = sk .sp
+  extendCommSquare sk f .P = P'
+  extendCommSquare sk f .inlP = f ∘ sk .inlP
+  extendCommSquare sk f .inrP = f ∘ sk .inrP
+  extendCommSquare sk f .comm = cong (f ∘_) (sk .comm)
+
 
   extendPushoutSquare : (sk : PushoutSquare {ℓ₀} {ℓ₂} {ℓ₄} {ℓP})
     → (e : sk .fst .P ≃ P') → PushoutSquare
@@ -857,17 +856,22 @@ module _ {ℓ₀ ℓ₂ ℓ₄ ℓP ℓP' : Level}
 
 -- Pushout itself fits into a pushout square
 pushoutToSquare : 3-span {ℓ} {ℓ'} {ℓ''} → PushoutSquare
-pushoutToSquare sp = record {
-    sp = sp ;
-    P = spanPushout sp ;
-    inlP = inl ;
-    inrP = inr ;
-    comm = funExt push
-  } , subst isEquiv (λ {
-    _ (inl x) → inl x ;
-    _ (inr x) → inr x ;
-    _ (push a j) → push a j
-  }) (idIsEquiv _)
+pushoutToSquare spn .fst = cSq
+  where
+  open commSquare
+  cSq : commSquare
+  cSq .sp = spn
+  cSq .P = spanPushout spn
+  cSq .inlP = inl
+  cSq .inrP = inr
+  cSq .comm = funExt push
+pushoutToSquare sp .snd =
+  subst isEquiv (funExt H) (idIsEquiv _)
+  where
+  H : ∀ p → p ≡ Pushout→commSquare _ p
+  H (inl x) = refl
+  H (inr x) = refl
+  H (push a i) = refl
 
 -- Rotations of commutative squares and pushout squares
 module _ {ℓ₀ ℓ₂ ℓ₄ ℓP : Level} where
