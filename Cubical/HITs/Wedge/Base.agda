@@ -36,11 +36,11 @@ _∨→_ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointe
 
 ⋁proj₁ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
       → A ⋁ B → typ A
-⋁proj₁ A B = idfun∙ A ∨→ ((λ _ → pt A) , refl)
+⋁proj₁ A B = idfun∙ A ∨→ const∙ B A
 
 ⋁proj₂ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
       → A ⋁ B → typ B
-⋁proj₂ A B = ((λ _ → pt B) , refl) ∨→ idfun∙ B
+⋁proj₂ A B = const∙ A B ∨→ idfun∙ B
 
 -- Pointed version
 ∨→∙ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}

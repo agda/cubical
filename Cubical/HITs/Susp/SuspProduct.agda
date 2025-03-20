@@ -38,7 +38,7 @@ module PushoutNull {ℓ ℓ'} (X : Type ℓ) (Y : Type ℓ') (y₀ : Y) where
     open PushoutPasteLeft
       (rotatePushoutSquare (_ , SuspPushoutSquare ℓ-zero ℓ-zero X))
       {B = (Susp X , north) ⋁ (Y , y₀)}
-      (λ _ → y₀) inr inl (funExt (λ _ → push _))
+      (const y₀) inr inl (funExt (λ _ → push _))
 
     squareL : commSquare
     squareL = totSquare
@@ -51,7 +51,7 @@ module PushoutNull {ℓ ℓ'} (X : Type ℓ) (Y : Type ℓ') (y₀ : Y) where
     open PushoutPasteDown
       (_ , SuspPushoutSquare ℓ-zero ℓ-zero X)
       {B = (Susp X , north) ⋁ (Y , y₀)}
-      (λ _ → y₀) inr inl (funExt (λ _ → sym (push _)))
+      (const y₀) inr inl (funExt (λ _ → sym (push _)))
 
     squareR : commSquare
     squareR = totSquare

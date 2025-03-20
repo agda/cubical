@@ -250,7 +250,7 @@ snd (compPathlEquiv∙ p) = refl
   → {a : A} {b₁ : B₁ a} {b₂ : B₂ a}
   → (e : ∀ a → B₁ a ≃ B₂ a)
   → fst (e a) b₁ ≡ b₂
-  → Path (Pointed _) (Σ A B₁ , a , b₁) (Σ A B₂ , a , b₂)
+  → Path (Pointed _) (Σ∙ (A , a) B₁ b₁) (Σ∙ (A , a) B₂ b₂)
 Σ-cong-equiv-snd∙ e p = ua∙ (Σ-cong-equiv-snd e) (ΣPathP (refl , p))
 
 -- a pointed map is constant iff its non-pointed part is constant
