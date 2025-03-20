@@ -110,10 +110,10 @@ SuspPushoutSquare ℓ' ℓ'' A = isoToIsEquiv (iso _ inverse rInv lInv)
     lInv (inr x) = refl
     lInv (push a i) = refl
 
-Susp≃PushoutSusp* : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} → Susp A ≃ Pushout _ _
+Susp≃PushoutSusp* : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} → Susp A ≃ spanPushout (SuspSpan ℓ' ℓ'' A)
 Susp≃PushoutSusp* {ℓ} {ℓ'} {ℓ''} {A} = invEquiv (_ , SuspPushoutSquare ℓ' ℓ'' A)
 
-Susp≡PushoutSusp* : ∀ {ℓ ℓ' ℓ''} {A : Type _} → Susp A ≡ Pushout _ _
+Susp≡PushoutSusp* : ∀ {ℓ ℓ' ℓ''} {A : Type _} → Susp A ≡ spanPushout (SuspSpan ℓ' ℓ'' A)
 Susp≡PushoutSusp* {ℓ} {ℓ'} {ℓ''} = ua
   (Susp≃PushoutSusp* {ℓ-max ℓ (ℓ-max ℓ' ℓ'')} {ℓ'} {ℓ''})
 
