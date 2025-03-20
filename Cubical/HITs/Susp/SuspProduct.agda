@@ -143,10 +143,14 @@ module WedgePushout {ℓ ℓ' ℓ''} (A : Pointed ℓ) (B : Pointed ℓ') (C : P
         ∙ p
         ∙ cong g (c .snd x)
 
+  opaque
+    extendWedgeEq : Pushout f g ≃ ((B ⋁∙ₗ C) ⋁ A)
+    extendWedgeEq = invEquiv A□○≃ ∙ₑ pathToEquiv (3x3-lemma span) ∙ₑ A○□≃
+
   wedgePushout : PushoutSquare
   wedgePushout = extendPushoutSquare
     (pushoutToSquare record { f1 = f ; f3 = g })
-    (invEquiv A□○≃ ∙ₑ pathToEquiv (3x3-lemma span) ∙ₑ A○□≃)
+    extendWedgeEq
 
 
 module _ {ℓ ℓ'} (X : Pointed ℓ) (Y : Pointed ℓ') where
