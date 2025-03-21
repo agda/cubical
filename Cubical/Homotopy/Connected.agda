@@ -460,6 +460,17 @@ isConnectedCong' {x = x} n f conf p =
                     → doubleCompPath-filler (sym p) (cong f q) p i))
     (isConnectedCong n f conf)
 
+isConnectedΣ : ∀ {ℓA ℓB} {A : Type ℓA} {B : A → Type ℓB} (k : HLevel)
+  → isConnected k A
+  → (∀ a → isConnected k (B a))
+  → isConnected k (Σ A B)
+isConnectedΣ {A = A} {B = B} k is-conn-A is-conn-B = isOfHLevelRespectEquiv 0 (invEquiv contr-equiv) is-conn-A where
+  contr-equiv : ∥ Σ A B ∥ k ≃ ∥ A ∥ k
+  contr-equiv =
+    ∥ Σ[ a ∈ A ] B a ∥ k ≃⟨ truncOfΣEquiv k ⟩
+    ∥ Σ[ a ∈ A ] (∥ B a ∥ k) ∥ k ≃⟨ mapCompEquiv (Σ-contractSnd is-conn-B) ⟩
+    ∥ A ∥ k ■
+
 isConnectedΩ→ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
   → (f : A →∙ B)
   → isConnectedFun (suc n) (fst f)
