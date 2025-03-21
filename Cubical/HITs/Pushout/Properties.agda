@@ -75,6 +75,28 @@ pushoutSwitchEquiv = isoToEquiv (iso f inv leftInv rightInv)
         leftInv = λ {(inl x) → refl; (inr x) → refl; (push a i) → refl}
         rightInv = λ {(inl x) → refl; (inr x) → refl; (push a i) → refl}
 
+
+{-
+  Direct proof that pushout along the identity gives an equivalence.
+-}
+pushoutIdfunEquiv : ∀ {ℓ ℓ'} {X : Type ℓ} {Y : Type ℓ'} (f : X → Y)
+  → Y ≃ Pushout f (idfun X)
+pushoutIdfunEquiv f = isoToEquiv (iso inl inv leftInv λ _ → refl)
+  where
+    inv : Pushout f (idfun _) → _
+    inv (inl y) = y
+    inv (inr x) = f x
+    inv (push x i) = f x
+
+    leftInv : section inl inv
+    leftInv (inl y) = refl
+    leftInv (inr x) = push x
+    leftInv (push a i) j = push a (i ∧ j)
+
+pushoutIdfunEquiv' : ∀ {ℓ ℓ'} {X : Type ℓ} {Y : Type ℓ'} (f : X → Y)
+  → Y ≃ Pushout (idfun X) f
+pushoutIdfunEquiv' f = compEquiv (pushoutIdfunEquiv _) pushoutSwitchEquiv
+
 {-
   Definition of pushout diagrams
 -}
@@ -808,6 +830,48 @@ module _ {ℓ₀ ℓ₂ ℓ₄ ℓP : Level} where
 
   PushoutSquare : Type (ℓ-suc ℓ*)
   PushoutSquare = Σ commSquare isPushoutSquare
+
+module _ {ℓ₀ ℓ₂ ℓ₄ ℓP ℓP' : Level}
+  {P' : Type ℓP'} where
+  open commSquare
+  extendCommSquare : (sk : commSquare {ℓ₀} {ℓ₂} {ℓ₄} {ℓP})
+    → (sk .P → P') → commSquare
+  extendCommSquare sk f .sp = sk .sp
+  extendCommSquare sk f .P = P'
+  extendCommSquare sk f .inlP = f ∘ sk .inlP
+  extendCommSquare sk f .inrP = f ∘ sk .inrP
+  extendCommSquare sk f .comm = cong (f ∘_) (sk .comm)
+
+
+  extendPushoutSquare : (sk : PushoutSquare {ℓ₀} {ℓ₂} {ℓ₄} {ℓP})
+    → (e : sk .fst .P ≃ P') → PushoutSquare
+  extendPushoutSquare sk e = (extendCommSquare (sk .fst) (e .fst) ,
+    subst isEquiv H (compEquiv (_ , sk .snd) e .snd))
+    where
+      H : e .fst ∘ _ ≡ _
+      H = funExt λ
+        { (inl x) → refl
+        ; (inr x) → refl
+        ; (push a i) → refl }
+
+-- Pushout itself fits into a pushout square
+pushoutToSquare : 3-span {ℓ} {ℓ'} {ℓ''} → PushoutSquare
+pushoutToSquare spn .fst = cSq
+  where
+  open commSquare
+  cSq : commSquare
+  cSq .sp = spn
+  cSq .P = spanPushout spn
+  cSq .inlP = inl
+  cSq .inrP = inr
+  cSq .comm = funExt push
+pushoutToSquare sp .snd =
+  subst isEquiv (funExt H) (idIsEquiv _)
+  where
+  H : ∀ p → p ≡ Pushout→commSquare _ p
+  H (inl x) = refl
+  H (inr x) = refl
+  H (push a i) = refl
 
 -- Rotations of commutative squares and pushout squares
 module _ {ℓ₀ ℓ₂ ℓ₄ ℓP : Level} where
