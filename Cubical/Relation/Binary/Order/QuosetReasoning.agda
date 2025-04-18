@@ -62,6 +62,7 @@ record SubRelation
   {ℓR}
   {P : Type ℓ}
   (_R_ : Rel P P ℓR ) ℓS ℓIsS : Type (ℓ-max ℓ (ℓ-max ℓR (ℓ-max (ℓ-suc ℓS) (ℓ-suc ℓIsS)))) where
+    no-eta-equality
     field
       _S_ : Rel P P ℓS
       IsS : ∀ {x y} → x R y → Type ℓIsS
@@ -87,17 +88,17 @@ module <-≤-Reasoning
       nonstrict : x ≤ y → x <≤≡ y
       equal     : x ≡ y → x <≤≡ y
 
-  sub : SubRelation _<≤≡_ ℓ< ℓ<
-  sub ._S_ = _<_
-  sub .IsS {x} {y} r with r
-  ...                   | strict x<y  = x < y
-  ...                   | equal _     = ⊥*
-  ...                   | nonstrict _ = ⊥*
-  sub .IsS? r with r
-  ...            | strict x<y  = yes x<y
-  ...            | nonstrict _ = no λ ()
-  ...            | equal     _ = no λ ()
-  sub .extract {xRy = strict _ } x<y = x<y
+    sub : SubRelation _<≤≡_ ℓ< ℓ<
+    sub ._S_ = _<_
+    sub .IsS {x} {y} r with r
+    ...                   | strict x<y  = x < y
+    ...                   | equal _     = ⊥*
+    ...                   | nonstrict _ = ⊥*
+    sub .IsS? r with r
+    ...            | strict x<y  = yes x<y
+    ...            | nonstrict _ = no λ ()
+    ...            | equal     _ = no λ ()
+    sub .extract {xRy = strict _ } x<y = x<y
 
   open SubRelation sub renaming (IsS? to Is<? ; extract to extract<)
   infix 1 begin_
