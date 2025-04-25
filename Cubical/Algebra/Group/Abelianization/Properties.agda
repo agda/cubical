@@ -7,7 +7,7 @@ The definition of the abelianization is not as a set-quotient, since the relatio
 abelianization is cumbersome to work with.
 
 -}
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --cubical #-}
 module Cubical.Algebra.Group.Abelianization.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -195,9 +195,26 @@ module AbelianizationGroupStructure (G : Group ℓ) where
                η (y · x)        ≡⟨ refl ⟩
                (η y) ·Ab (η x) ∎)
 
+  open AbGroupStr
+  open IsAbGroup
+  open IsGroup
+  open import Cubical.Algebra.Monoid.Base
+  open import Cubical.Algebra.Semigroup
+  open IsSemigroup
+  open IsMonoid
   -- The proof that the abelianization is in fact an abelian group.
   asAbelianGroup : AbGroup ℓ
-  asAbelianGroup = makeAbGroup 1Ab _·Ab_ invAb isset assocAb ridAb rinvAb commAb
+  fst asAbelianGroup = Abelianization G
+  0g (snd asAbelianGroup) = 1Ab
+  _+_ (snd asAbelianGroup) = _·Ab_
+  - snd asAbelianGroup = invAb
+  is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd asAbelianGroup))))) = isset
+  ·Assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd asAbelianGroup))))) = assocAb
+  ·IdR (isMonoid (isGroup (isAbGroup (snd asAbelianGroup)))) = ridAb
+  ·IdL (isMonoid (isGroup (isAbGroup (snd asAbelianGroup)))) x = commAb 1Ab x ∙ ridAb x
+  ·InvR (isGroup (isAbGroup (snd asAbelianGroup))) = rinvAb
+  ·InvL (isGroup (isAbGroup (snd asAbelianGroup))) x = commAb (invAb x) x ∙ rinvAb x
+  +Comm (isAbGroup (snd asAbelianGroup)) = commAb
 
   -- The proof that η can be seen as a group homomorphism
   ηAsGroupHom : GroupHom G (AbGroup→Group asAbelianGroup)
@@ -222,7 +239,6 @@ module UniversalProperty (G : Group ℓ) where
   private
     instance
       _ = snd G
-  abstract
     {- The proof of the universal property of the abelianization.
 
     G --η--> abelianization
