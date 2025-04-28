@@ -20,7 +20,7 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-  using (isPropIsGroupHom; compGroupHom; idGroupHom)
+  using (isPropIsGroupHom; compGroupHom; idGroupHom ; makeIsGroupHom)
 
 open import Cubical.Algebra.AbGroup.Base
 
@@ -315,3 +315,18 @@ module UniversalProperty (G : Group ℓ) where
             (λ x → fst g (η x) ≡⟨ cong (λ f → f x) (cong fst p) ⟩
                    (fst f) x   ≡⟨ refl ⟩
                    fst (inducedHom H f) (η x)∎)
+
+
+module _ {ℓ} {G : Group ℓ} (H : AbGroup ℓ) (ϕ : GroupHom G (AbGroup→Group H)) where
+  fromAbelianization : AbGroupHom (AbelianizationAbGroup G) H
+  fst fromAbelianization = rec G (AbGroupStr.is-set (snd H)) (fst ϕ)
+    λ x y z → IsGroupHom.pres· (snd ϕ) _ _
+            ∙ cong₂ (AbGroupStr._+_ (snd H)) refl
+                (IsGroupHom.pres· (snd ϕ) _ _
+                ∙ AbGroupStr.+Comm (snd H) _ _
+                ∙ sym (IsGroupHom.pres· (snd ϕ) _ _))
+            ∙ sym (IsGroupHom.pres· (snd ϕ) _ _)
+  snd fromAbelianization =
+    makeIsGroupHom (elimProp2 _
+      (λ _ _ → AbGroupStr.is-set (snd H) _ _)
+      λ x y → IsGroupHom.pres· (snd ϕ) x y)

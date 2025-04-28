@@ -28,6 +28,7 @@ open import Cubical.HITs.Wedge
 open import Cubical.HITs.SphereBouquet.Base
 
 open import Cubical.Homotopy.Connected
+open import Cubical.Homotopy.Group.Base
 
 private
   variable
@@ -389,3 +390,18 @@ module _ {Cₙ Cₙ₊₁ : Type ℓ} (n mₙ : ℕ)
 
   Bouquet≃-gen : cofib (invEq e ∘ inl) ≃ SphereBouquet n (Fin mₙ)
   Bouquet≃-gen = isoToEquiv BouquetIso-gen
+
+
+
+-- H-space structure
+SphereBouquet∙Π : ∀ {ℓ ℓ'} {n : ℕ} {A : Type ℓ} {B : Pointed ℓ'}
+  → (f g : SphereBouquet∙ (suc n) A →∙ B)
+  → (SphereBouquet∙ (suc n) A →∙ B)
+fst (SphereBouquet∙Π {B = B} f g) (inl x) = pt B
+fst (SphereBouquet∙Π {B = B} f g) (inr (a , s)) =
+  ∙Π ((λ x → fst f (inr (a , x))) , cong (fst f) (sym (push a)) ∙ snd f)
+     ((λ x → fst g (inr (a , x))) , cong (fst g) (sym (push a)) ∙ snd g) .fst s
+fst (SphereBouquet∙Π {B = B} f g) (push a i) =
+  ∙Π ((λ x → fst f (inr (a , x))) , cong (fst f) (sym (push a)) ∙ snd f)
+     ((λ x → fst g (inr (a , x))) , cong (fst g) (sym (push a)) ∙ snd g) .snd (~ i)
+snd (SphereBouquet∙Π f g) = refl

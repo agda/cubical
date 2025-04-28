@@ -79,3 +79,21 @@ isProp<ᵗ {n = suc n} {suc m} = isProp<ᵗ {n = n} {m = m}
 <→<ᵗ {n = suc n} {m = zero} x =
   snotz (sym (+-suc (fst x) (suc n)) ∙ snd x)
 <→<ᵗ {n = suc n} {m = suc m} p = <→<ᵗ {n = n} {m = m} (pred-≤-pred p)
+
+module falseDichotomies where
+  lt-eq : {n m : ℕ} → ¬ m <ᵗ n × (m ≡ suc n)
+  lt-eq {n = n} (p , q) = ¬-suc-n<ᵗn {n = n} (subst (_<ᵗ n) q p)
+
+  lt-gt : {n m : ℕ}  → ¬ m <ᵗ n × (suc n <ᵗ m)
+  lt-gt {n = n} {m} (p , q) =
+    ¬-suc-n<ᵗn {n = n} (<ᵗ-trans {n = suc n} {m} {n} q p)
+
+  eq-eq : {n m : ℕ} → ¬ (m ≡ n) × (m ≡ suc n)
+  eq-eq {n = n} (p , q) =
+    ¬m<ᵗm {n} (subst (_<ᵗ suc n) (sym p ∙ q) (<ᵗsucm {n}))
+
+  eq-gt : {n m : ℕ} → ¬ (m ≡ n) × (suc n <ᵗ m)
+  eq-gt (p , q) = lt-eq (q , cong suc (sym p))
+
+  gt-lt : {n m : ℕ} → ¬ (n <ᵗ m) × (m <ᵗ suc n)
+  gt-lt {n = n} {m = m} = ¬squeeze {n = n} {m = m}

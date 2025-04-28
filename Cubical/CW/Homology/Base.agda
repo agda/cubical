@@ -5,7 +5,7 @@ This file contains:
 2. Construction of cellular homology, including funtoriality
 -}
 
-module Cubical.CW.Homology where
+module Cubical.CW.Homology.Base where
 
 open import Cubical.CW.Base
 open import Cubical.CW.Properties

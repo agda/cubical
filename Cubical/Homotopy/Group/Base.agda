@@ -958,11 +958,11 @@ v         f∘_      v
         → π' (suc n) A → π' (suc n) B
 π'∘∙fun n f = sMap (f ∘∙_)
 
-GroupHomπ≅π'PathP : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') (n : ℕ)
-  → GroupHom (πGr n A) (πGr n B) ≡ GroupHom (π'Gr n A) (π'Gr n B)
-GroupHomπ≅π'PathP A B n i =
+GroupHomπ≅π'PathP : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') (n m : ℕ)
+  → GroupHom (πGr n A) (πGr m B) ≡ GroupHom (π'Gr n A) (π'Gr m B)
+GroupHomπ≅π'PathP A B n m i =
   GroupHom (fst (GroupPath _ _) (GroupIso→GroupEquiv (π'Gr≅πGr n A)) (~ i))
-           (fst (GroupPath _ _) (GroupIso→GroupEquiv (π'Gr≅πGr n B)) (~ i))
+           (fst (GroupPath _ _) (GroupIso→GroupEquiv (π'Gr≅πGr m B)) (~ i))
 
 πFun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
      → π (suc n) A → π (suc n) B
@@ -979,7 +979,7 @@ snd (πHom n f) =
 π'∘∙Hom' : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
         → GroupHom (π'Gr n A) (π'Gr n B)
 π'∘∙Hom' {A = A} {B = B} n f =
-  transport (λ i → GroupHomπ≅π'PathP A B n i)
+  transport (λ i → GroupHomπ≅π'PathP A B n n i)
             (πHom n f)
 
 π'∘∙Hom'≡π'∘∙fun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
@@ -1006,6 +1006,14 @@ snd (π'∘∙Hom {A = A} {B = B} n f) = isHom∘∙
                                    (π'∘∙Hom'≡π'∘∙fun n f i)
                                    (π'Gr n B .snd))
                 (π'∘∙Hom' n f .snd)
+
+GroupHomπ≅π'PathP-hom : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+  (n : ℕ) (f : A →∙ B)
+  → PathP (λ i → GroupHomπ≅π'PathP A B n n i) (πHom n f) (π'∘∙Hom n f)
+GroupHomπ≅π'PathP-hom {A = A} {B = B} n f =
+  (λ j → transp (λ i → GroupHomπ≅π'PathP A B n n (i ∧ j)) (~ j)
+                 (πHom n f))
+  ▷ Σ≡Prop (λ _ → isPropIsGroupHom _ _) (π'∘∙Hom'≡π'∘∙fun n f)
 
 -- post composition with an equivalence induces an
 -- isomorphism of homotopy groups
@@ -1089,3 +1097,9 @@ is-set (isSemigroup (isMonoid (isGroup (snd (hGroupoidπ₁ A a))))) = snd A a a
 ·IdL (isMonoid (isGroup (snd (hGroupoidπ₁ A a)))) = sym ∘ lUnit
 ·InvR (isGroup (snd (hGroupoidπ₁ A a))) = rCancel
 ·InvL (isGroup (snd (hGroupoidπ₁ A a))) = lCancel
+
+-- Adjunction
+sphereFunIso : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+  → Iso (S₊∙ n →∙ (Path (fst A) (pt A) (pt A) , refl)) (S₊∙ (suc n) →∙ A)
+sphereFunIso zero = compIso IsoBool→∙ (invIso (IsoSphereMapΩ 1))
+sphereFunIso (suc n) = ΩSuspAdjointIso

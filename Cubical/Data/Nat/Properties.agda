@@ -46,6 +46,10 @@ znots eq = subst (caseNat ℕ ⊥) eq 0
 snotz : ¬ (suc n ≡ 0)
 snotz eq = subst (caseNat ⊥ ℕ) eq 0
 
+sucn≠n : {n : ℕ} → ¬ (suc n ≡ n)
+sucn≠n {n = zero} = snotz
+sucn≠n {n = suc n} p = sucn≠n {n = n} (cong predℕ p)
+
 injSuc : suc m ≡ suc n → m ≡ n
 injSuc p = cong predℕ p
 
