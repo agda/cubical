@@ -97,8 +97,15 @@ module _ (G' : Group ℓ) (H' : Subgroup G') (Hnormal : isNormal H') where
   ·/H-invr = elimProp (λ x → squash/ _ _) λ x → cong [_] (·InvR x)
 
   asGroup : Group ℓ
-  asGroup = makeGroup-right 1/H _·/H_ inv/H squash/ ·/H-assoc ·/H-rid ·/H-invr
-
+  fst asGroup = G/H
+  GroupStr.1g (snd asGroup) = [ 1g ]
+  GroupStr._·_ (snd asGroup) = _·/H_
+  GroupStr.inv (snd asGroup) = inv/H
+  GroupStr.isGroup (snd asGroup) = isGrp
+   where
+   opaque
+     isGrp : IsGroup [ 1g ] _·/H_ inv/H
+     isGrp = GroupStr.isGroup (makeGroup-right 1/H _·/H_ inv/H squash/ ·/H-assoc ·/H-rid ·/H-invr .snd)
 
 _/_ : (G : Group ℓ) → (H : NormalSubgroup G) → Group ℓ
 G / H = asGroup G (H .fst) (H .snd)

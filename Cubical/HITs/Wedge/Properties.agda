@@ -495,6 +495,50 @@ module _ {A : Type ℓ} {B : Type ℓ'}
     compPath-filler' (push tt) (λ i → inr (push a i)) (~ j) i
   Iso.leftInv ⋁gen⊎Iso (push a i) j = push a (i ∧ j)
 
+-- Chacaterisation of cofibres of first projections
+-- cofib (Σ[ x ∈ A ] (B x) --fst→ A) ≃ ⋁[ x ∈ X ] (Susp (B x)) 
+module _ {ℓ ℓ'} {A : Type ℓ} (B : A → Pointed ℓ')
+  where
+  cofibFst : Type _
+  cofibFst = cofib {A = Σ A (fst ∘ B)} {B = A} fst
+
+  cofibFst→⋁ : cofibFst → ⋁gen A λ a → Susp∙ (fst (B a))
+  cofibFst→⋁ (inl x) = inl x
+  cofibFst→⋁ (inr a) = inr (a , north)
+  cofibFst→⋁ (push (a , b) i) = (push a ∙ λ i → inr (a , toSusp (B a) b i)) i
+
+  ⋁→cofibFst : ⋁gen A (λ a → Susp∙ (fst (B a))) → cofibFst
+  ⋁→cofibFst (inl x) = inl x
+  ⋁→cofibFst (inr (x , north)) = inl tt
+  ⋁→cofibFst (inr (x , south)) = inr x
+  ⋁→cofibFst (inr (x , merid a i)) = push (x , a) i
+  ⋁→cofibFst (push a i) = inl tt
+
+  Iso-cofibFst-⋁ : Iso cofibFst (⋁gen A (λ a → Susp∙ (fst (B a))))
+  Iso.fun Iso-cofibFst-⋁ = cofibFst→⋁
+  Iso.inv Iso-cofibFst-⋁ = ⋁→cofibFst
+  Iso.rightInv Iso-cofibFst-⋁ (inl x) = refl
+  Iso.rightInv Iso-cofibFst-⋁ (inr (x , north)) = push x
+  Iso.rightInv Iso-cofibFst-⋁ (inr (x , south)) i = inr (x , merid (pt (B x)) i)
+  Iso.rightInv Iso-cofibFst-⋁ (inr (x , merid a i)) j =
+    hcomp (λ k → λ {(i = i0) → push x (j ∨ ~ k)
+                   ; (i = i1) → inr (x , merid (pt (B x)) j)
+                   ; (j = i0) → compPath-filler' (push x)
+                                   (λ i₁ → inr (x , toSusp (B x) a i₁)) k i
+                   ; (j = i1) → inr (x , merid a i)})
+          (inr (x , compPath-filler (merid a) (sym (merid (pt (B x)))) (~ j) i))
+  Iso.rightInv Iso-cofibFst-⋁ (push a i) j = push a (i ∧ j)
+  Iso.leftInv Iso-cofibFst-⋁ (inl x) = refl
+  Iso.leftInv Iso-cofibFst-⋁ (inr x) = push (x , snd (B x))
+  Iso.leftInv Iso-cofibFst-⋁ (push (a , b) i) j = help j i
+    where
+    help : Square (cong ⋁→cofibFst ((push a ∙ λ i → inr (a , toSusp (B a) b i))))
+                  (push (a , b)) refl (push (a , (snd (B a))))
+    help = (cong-∙ ⋁→cofibFst (push a) (λ i → inr (a , toSusp (B a) b i))
+         ∙ sym (lUnit _)
+         ∙ cong-∙ (⋁→cofibFst ∘ inr ∘ (a ,_)) (merid b) (sym (merid (snd (B a)))))
+         ◁ λ i j → compPath-filler (push (a , b)) (sym (push (a , pt (B a)))) (~ i) j
+
 -- f : ⋁ₐ Bₐ → C has cofibre the pushout of cofib (f ∘ inr) ← Σₐ → A
 module _ {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : A → Pointed ℓB} (C : Pointed ℓC)
          (f : (⋁gen A B , inl tt) →∙ C) where

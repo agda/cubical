@@ -13,6 +13,8 @@ module Cubical.Algebra.Group.Abelianization.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 
@@ -20,7 +22,8 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-  using (isPropIsGroupHom; compGroupHom; idGroupHom ; makeIsGroupHom)
+  using (isPropIsGroupHom; compGroupHom; idGroupHom
+       ; makeIsGroupHom ; GroupEquiv→GroupHom ; invGroupEquiv)
 
 open import Cubical.Algebra.AbGroup.Base
 
@@ -330,3 +333,43 @@ module _ {ℓ} {G : Group ℓ} (H : AbGroup ℓ) (ϕ : GroupHom G (AbGroup→Gro
     makeIsGroupHom (elimProp2 _
       (λ _ _ → AbGroupStr.is-set (snd H) _ _)
       λ x y → IsGroupHom.pres· (snd ϕ) x y)
+
+AbelianizationFun : ∀ {ℓ} {G : Group ℓ} {H : Group ℓ}
+  → GroupHom G H → AbGroupHom (AbelianizationAbGroup G) (AbelianizationAbGroup H)
+fst (AbelianizationFun {G = G} {H} ϕ) = rec _ isset (λ x → η (fst ϕ x)) λ a b c
+  → cong η (IsGroupHom.pres· (snd ϕ) a _
+         ∙ cong₂ (GroupStr._·_ (snd H)) refl (IsGroupHom.pres· (snd ϕ) b c))
+  ∙ comm _ _ _
+  ∙ sym (cong η (IsGroupHom.pres· (snd ϕ) a _
+         ∙ cong₂ (GroupStr._·_ (snd H)) refl (IsGroupHom.pres· (snd ϕ) c b)))
+snd (AbelianizationFun {G = G} {H} ϕ) = makeIsGroupHom
+  (elimProp2 _ (λ _ _ → isset _ _)
+    λ a b → cong η (IsGroupHom.pres· (snd ϕ) a b))
+
+AbelianizationEquiv : ∀ {ℓ} {G : Group ℓ} {H : Group ℓ}
+  → GroupEquiv G H
+  → AbGroupEquiv (AbelianizationAbGroup G) (AbelianizationAbGroup H)
+fst (AbelianizationEquiv {G = G} {H} ϕ) = isoToEquiv main
+  where
+  main : Iso _ _
+  Iso.fun main = fst (AbelianizationFun (GroupEquiv→GroupHom ϕ))
+  Iso.inv main = fst (AbelianizationFun (GroupEquiv→GroupHom (invGroupEquiv ϕ)))
+  Iso.rightInv main =
+    elimProp _ (λ _ → isset _ _) λ g → cong η (secEq (fst ϕ) g)
+  Iso.leftInv main =
+    elimProp _ (λ _ → isset _ _) λ g → cong η (retEq (fst ϕ) g)
+snd (AbelianizationEquiv {G = G} {H} ϕ) =
+  snd (AbelianizationFun (fst (fst ϕ) , snd ϕ))
+
+AbelianizationIdempotent : ∀ {ℓ} (G : AbGroup ℓ)
+  → AbGroupIso G (AbelianizationAbGroup (AbGroup→Group G))
+Iso.fun (fst (AbelianizationIdempotent G)) = η
+Iso.inv (fst (AbelianizationIdempotent G)) =
+  rec _ (AbGroupStr.is-set (snd G))
+  (λ x → x)
+  λ a b c → cong (AbGroupStr._+_ (snd G) a) (AbGroupStr.+Comm (snd G) _ _)
+Iso.rightInv (fst (AbelianizationIdempotent G)) =
+  elimProp _ (λ _ → isset _ _) (λ _ → refl)
+Iso.leftInv (fst (AbelianizationIdempotent G)) x = refl
+snd (AbelianizationIdempotent G) =
+  snd (AbelianizationGroupStructure.ηAsGroupHom _)

@@ -87,7 +87,7 @@ Sfam0 : (m : ℕ) (p : _) → Sgen.Sfam zero (suc m) p ≃ Bool
 Sfam0 m (eq x) = idEquiv _
 Sfam0 m (gt x) = idEquiv _
 
--- S⁻¹ is contractible
+-- 0-skel of Sⁿ⁺¹ is contractible
 SfamContr : (n : ℕ) (p : _) → isContr (Sgen.Sfam (suc n) (suc zero) p)
 fst (SfamContr n p) = Sgen.Sfam∙ (suc n) zero p
 snd (SfamContr n (lt x)) y = refl
@@ -233,7 +233,18 @@ snd (isCWSphere n) =
   compEquiv (SfamTopElement n)
     (isoToEquiv (converges→ColimIso (suc n) (SˢᵏᵉˡConverges n)))
 
+isFinCWSphere : (n : ℕ) → isFinCW (S₊ n)
+fst (isFinCWSphere n) = suc n
+fst (fst (snd (isFinCWSphere n))) = Sˢᵏᵉˡ n .fst
+fst (snd (fst (snd (isFinCWSphere n)))) = Sˢᵏᵉˡ n .snd
+snd (snd (fst (snd (isFinCWSphere n)))) = SˢᵏᵉˡConverges n
+snd (snd (isFinCWSphere n)) = isCWSphere n .snd
+
 -- Sⁿ as a CW complex
 Sᶜʷ : (n : ℕ) → CW ℓ-zero
 fst (Sᶜʷ n) = S₊ n
 snd (Sᶜʷ n) = ∣ isCWSphere n ∣₁
+
+Sᶠⁱⁿᶜʷ : (n : ℕ) → finCW ℓ-zero
+fst (Sᶠⁱⁿᶜʷ n) = S₊ n
+snd (Sᶠⁱⁿᶜʷ n) = ∣ isFinCWSphere n ∣₁
