@@ -137,14 +137,6 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
                               ; H1 = λ x → refl
                               ; H3 = λ x → refl }
 
-  -- spanPushoutIso : (n : ℕ) → Iso (spanPushout (pushoutSpan n)) (spanPushout (pushoutSpanₛ n))
-  -- spanPushoutIso n =
-  --   pushoutIso _ _ _ _ (Σ-cong-equiv (isoToEquiv (IsoFinSplit3 (card C (suc n)) (card B n) (card D (suc n))))
-  --     λ _ → isoToEquiv (IsoSphereSusp n)) (idEquiv _)
-  --    (isoToEquiv (IsoFinSplit3 (card C (suc n)) (card B n) (card D (suc n))))
-  --    refl
-  --    refl
-
   pushoutₛIso : (n : ℕ) → Iso (spanPushout (pushoutSpan n)) (spanPushout (pushoutSpanₛ n))
   pushoutₛIso n = pushoutIso _ _ _ _
     (Σ-cong-equiv (isoToEquiv (IsoFinSplit3 (card C (suc n)) (card B n) (card D (suc n))))
@@ -152,10 +144,6 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
      (isoToEquiv (IsoFinSplit3 (card C (suc n)) (card B n) (card D (suc n))))
      refl
      refl
-  -- transp (λ i → Iso (spanPushout (pushoutSpan n)) (p i)) i0 idIso
-  --   where
-  --     p : (spanPushout (pushoutSpan n)) ≡ (spanPushout (pushoutSpanₛ n))
-  --     p = spanEquivToPushoutPath (pushoutSpanEquiv n)
 
   pushoutIso₀-fun : pushoutA (suc zero) → Pushout pushoutMap₀ fst
   pushoutIso₀-fun (inl x) = inr (Iso.fun (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero}) (inl (CW₁-discrete C .fst x)))
@@ -340,10 +328,10 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
   pushoutIsoₛ-inv : (n : ℕ) → (Pushout (pushoutMapₛ n) fst) → modifiedPushout n
   pushoutIsoₛ-inv n (inl x) = pushoutIsoₛ-inv↪ n x
   pushoutIsoₛ-inv n (inr (inl (inl c))) = inl (inr c)
-  pushoutIsoₛ-inv n (inr (inl (inr b))) = push (inr b) i0 --inl (inl (∣ f ∣ (suc n) (inr b)))
+  pushoutIsoₛ-inv n (inr (inl (inr b))) = push (inr b) i0
   pushoutIsoₛ-inv n (inr (inr d)) = inr (inr d)
   pushoutIsoₛ-inv n (push (inl (inl c) , x) i) = inl (push (c , x) i)
-  pushoutIsoₛ-inv n (push (inl (inr b) , north) i) = push (inr b) i0 --inl (inl (∣ f ∣ (suc n) (inr b)))
+  pushoutIsoₛ-inv n (push (inl (inr b) , north) i) = push (inr b) i0
   pushoutIsoₛ-inv n (push (inl (inr b) , south) i) = push (inr b) (~ i)
   pushoutIsoₛ-inv n (push (inl (inr b) , merid x j) i) = pushoutIsoₛ-filler2 n b x i j i1
   pushoutIsoₛ-inv n (push (inr d , x) i) = inr (push (d , x) i)
@@ -455,78 +443,6 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
   pushoutSkel : CWskel ℓ
   pushoutSkel = pushoutA , (pushoutCells , pushoutMap , (B .snd .snd .snd .fst) , λ n → isoToEquiv (pushoutIsoₜ n))
 
-  realisePushoutSkel→pts : (n : ℕ) (x : fst pushoutSkel n) → 
-                           (Pushout (realiseCellMap {C = B} {D = C} f)
-                           (realiseCellMap {C = B} {D = D} g))
-  realisePushoutSkel→pts zero x = ⊥.rec {!¬CW₀!}
-  realisePushoutSkel→pts (suc n) (inl x) = inl (incl {n = suc n} x)
-  realisePushoutSkel→pts (suc n) (inr x) = inr (incl {n = suc n} x)
-  realisePushoutSkel→pts (suc n) (push a i) =
-    ((λ i → inl (push {n = n} (∣ f ∣ n a) (~ i)))
-      ∙∙ push (incl {n = n} a)
-      ∙∙ λ i → inr (push {n = n} (∣ g ∣ n a) i)) i
-
-  realisePushoutSkel→ :   realise pushoutSkel → 
-                           (Pushout (realiseCellMap {C = B} {D = C} f)
-                           (realiseCellMap {C = B} {D = D} g))
-  realisePushoutSkel→ (incl {n = n} x) = realisePushoutSkel→pts n x
-  realisePushoutSkel→ (push {n = zero} x i) = {!⊥.rec ?!}
-  realisePushoutSkel→ (push {n = suc n} (inl x) i) = inl (push {n = (suc n)} x i)
-  realisePushoutSkel→ (push {n = suc n} (inr x) i) = inr (push {n = (suc n)} x i)
-  realisePushoutSkel→ (push {n = suc n} (push a j) i) =
-    hcomp (λ k →
-    λ {(i = i0) → doubleCompPath-filler
-                   ((λ i₂ → inl (push {n = n} (∣ f ∣ n a) (~ i₂))))
-                   (push (incl {n = n} a))
-                   (λ i₂ → inr (push {n = n} (∣ g ∣ n a) i₂)) i1 j
-     ; (i = i1) → doubleCompPath-filler
-                   (λ i₂ → inl (push {n = (suc n)} (inl (∣ f ∣ n a)) (~ i₂)))
-                   (push (incl {n = suc n} (inl a)))
-                   (λ i₂ → inr (push {n = (suc n)} (inl (∣ g ∣ n a)) i₂)) k j
-     ; (j = i0) → inl (push {n = suc n} (∣ f ∣ (suc n) (inl a)) (k ∧ i))
-     ; (j = i1) → inr (push {n = suc n} (∣ g ∣ (suc n) (inl a)) (k ∧ i))})
-     (hcomp (λ k →
-    λ {(i = i0) → doubleCompPath-filler
-                   ((λ i₂ → inl (push {n = n} (∣ f ∣ n a) (~ i₂))))
-                   (push (incl {n = n} a))
-                   (λ i₂ → inr (push {n = n} (∣ g ∣ n a) i₂)) k j
-     ; (i = i1) → push (push {n = n} a k) j
-     ; (j = i0) → inl (rUnit (push {n = n}(∣ f ∣ n a)) i k)
-     ; (j = i1) → inr (rUnit (push {n = n}(∣ g ∣ n a)) i k)
-     })
-     (push (incl {n = n} a) j))
-
-  realisePushoutSkel←L : SequenceMap (realiseSeq C) (realiseSeq pushoutSkel)
-  ∣ realisePushoutSkel←L ∣ zero x = ⊥.rec {!!}
-  ∣ realisePushoutSkel←L ∣ (suc n) = inl
-  comm realisePushoutSkel←L zero x = ⊥.rec {!!}
-  comm realisePushoutSkel←L (suc n) x = refl
-
-  realisePushoutSkel←R : SequenceMap (realiseSeq D) (realiseSeq pushoutSkel)
-  ∣ realisePushoutSkel←R ∣ zero x = ⊥.rec {!!}
-  ∣ realisePushoutSkel←R ∣ (suc n) = inr
-  comm realisePushoutSkel←R zero x = ⊥.rec {!!}
-  comm realisePushoutSkel←R (suc n) x = refl
-
-  realisePushoutSkel← : (Pushout (realiseCellMap {C = B} {D = C} f)
-                           (realiseCellMap {C = B} {D = D} g)) → realise pushoutSkel
-  realisePushoutSkel← (inl x) = realiseSequenceMap realisePushoutSkel←L x
-  realisePushoutSkel← (inr x) = realiseSequenceMap realisePushoutSkel←R x
-  realisePushoutSkel← (push (incl {n = zero} x) i) = {!⊥.rec !} -- ⊥.rec {A = incl (⊥.rec {!!}) ≡ incl (⊥.rec {!!})} {!!} i
-  realisePushoutSkel← (push (incl {n = suc n} x) i) =
-    (push (inl (∣ f ∣ (suc n) x)) ∙∙ (λ i → incl {n = suc (suc n)} (push x i)) ∙∙ sym (push (inr (∣ g ∣ (suc n) x)))) i
-  -- (({!refl!} ∙ sym (push (inl (inl (∣ f ∣ n x))))) ∙∙ (λ i → incl {n = suc n} (push x i)) ∙∙ {!push ?!}) i
-  realisePushoutSkel← (push (push x i₁) i) = {!!}
-
-  shiftPushoutStrSeqIso : SequenceIso (realiseSeq pushoutSkel) (PushoutSequence f g)
-  fst shiftPushoutStrSeqIso zero = {!refl!}
-  fst shiftPushoutStrSeqIso (suc n) = pushoutIso _ _ _ _ {!idEquiv _!} {!!} (idEquiv _) {!!} {!!}
-  snd shiftPushoutStrSeqIso = {!!}
-
-  shiftPushoutStrIso : Iso (realise pushoutSkel) (SeqColim (PushoutSequence f g))
-  
-  shiftPushoutStrIso = sequenceEquiv→ColimIso (SequenceIso→SequenceEquiv shiftPushoutStrSeqIso)
-
   f' : SequenceMap (realiseSeq B) (ShiftSeq (realiseSeq C))
   ∣_∣ f' n x = inl (∣ f ∣ n x)
   comm f' n x i = inl (comm f n x i)
@@ -535,65 +451,193 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
   ∣_∣ g' n x = inl (∣ g ∣ n x)
   comm g' n x i = inl (comm g n x i)
 
-  hh : Iso (Pushout (realiseSequenceMap f') (realiseSequenceMap g'))
-           (Pushout (realiseCellMap {C = B} {D = C} f)
-                                    (realiseCellMap {C = B} {D = D} g))
-           
-  hh = pushoutIso _ _ _ _ (idEquiv _)
+  PushoutIsoRealise :
+    Iso (Pushout (realiseSequenceMap f') (realiseSequenceMap g'))
+        (Pushout (realiseCellMap {C = B} {D = C} f)
+                                 (realiseCellMap {C = B} {D = D} g))
+
+  PushoutIsoRealise = pushoutIso _ _ _ _ (idEquiv _)
     (isoToEquiv (invIso (Iso-SeqColim→SeqColimSuc (realiseSeq C))))
     (isoToEquiv (invIso (Iso-SeqColim→SeqColimSuc (realiseSeq D))))
     (λ { i (incl {n = n} x) → push {n = n} (∣ f ∣ n x) (~ i)
-       ; i (push {n = n} x j) → {!n!}}) {!!}
+       ; i (push {n = n} x j) → lem Bʷ Cʷ fʷ n x i j})
+     λ { i (incl {n = n} x) → push {n = n} (∣ g ∣ n x) (~ i)
+       ; i (push {n = n} x j) → lem Bʷ Dʷ gʷ n x i j}
+    where
+    module _ (Bʷ Cʷ : CWskel ℓ) (fʷ : cellMap (str Bʷ) (str Cʷ)) where
+      B' = str Bʷ
+      C' = str Cʷ
+      f'' = strictCwMap fʷ -- strMap fʷ
+      lem : (n : ℕ) (x : fst B' n)
+        → Square {A = SeqColim (realiseSeq C')}
+                  (cong (Iso.inv (Iso-SeqColim→SeqColimSuc (realiseSeq C')))
+                        ((push {n = n} (inl (∣ f'' ∣ n x))
+                       ∙ (λ i₁ → incl {n = suc n} (inl (comm f'' n x i₁))))))
+                  (cong (realiseCellMap {C = B'} {D = C'} f'') (push x))
+                  (sym (push {n = n} (∣ f'' ∣ n x)))
+                  (sym (push {n = suc n} (∣ f'' ∣ (suc n) (inl x))))
+      lem n x =
+        cong-∙ (Iso.inv (Iso-SeqColim→SeqColimSuc (realiseSeq C')))
+               (push {n = n} (inl (∣ f'' ∣ n x)))
+               (λ i₁ → incl {n = suc n} (inl (comm f'' n x i₁)))
+        ◁ (sym (rUnit _)
+        ◁ (invSides-filler {A = SeqColim (realiseSeq C')}
+             (push {n = suc n} (∣ f'' ∣ (suc n) (inl x)))
+             (sym (push {n = n} (∣ f'' ∣ n x)))
+        ▷ rUnit _))
 
-  realisePushoutSkel' : Iso (realise pushoutSkel)
-                           (Pushout (realiseCellMap {C = B} {D = C} f)
-                                    (realiseCellMap {C = B} {D = D} g))
-  realisePushoutSkel' = compIso {!f!} (invIso (Iso-PushoutColim-ColimPushout f g))
+  SeqIs : SequenceIso (ShiftSeq (realiseSeq pushoutSkel))
+                      (PushoutSequence f' g')
+  fst SeqIs n = idIso
+  snd SeqIs n (inl x) = refl
+  snd SeqIs n (inr x) = refl
+  snd SeqIs n (push a i) j =
+    doubleCompPath-filler
+      ((λ i₁ → inl (inl (comm f n a i₁))))
+      (push (CW↪ B n a))
+      (λ i₁ → inr (inl (comm g n a (~ i₁)))) (~ j) i
 
   realisePushoutSkel : Iso (realise pushoutSkel)
                            (Pushout (realiseCellMap {C = B} {D = C} f)
                                     (realiseCellMap {C = B} {D = D} g))
-  Iso.fun realisePushoutSkel = realisePushoutSkel→
-  Iso.inv realisePushoutSkel = realisePushoutSkel←
-  Iso.rightInv realisePushoutSkel = {!!}
-  Iso.leftInv realisePushoutSkel = {!!}
-
--- Iso-PushoutColim-ColimPushout
+  realisePushoutSkel =
+    compIso (Iso-SeqColim→SeqColimSuc _)
+      (compIso (sequenceEquiv→ColimIso
+                (SequenceIso→SequenceEquiv SeqIs))
+       (compIso (invIso (Iso-PushoutColim-ColimPushout f' g'))
+         PushoutIsoRealise))
 
   Pushoutᶜʷstr : isCW (Pushout (realiseCellMap {C = B} {D = C} f)
                               (realiseCellMap {C = B} {D = D} g))
   fst Pushoutᶜʷstr = pushoutSkel
   snd Pushoutᶜʷstr = isoToEquiv (invIso realisePushoutSkel)
 
-  -- show finite if B C D are finite
-
-  isFin : ∀ {ℓ} (C : CWskel ℓ) → Type ℓ 
-  isFin C = Σ[ m ∈ ℕ ] ((k : ℕ) → isEquiv (CW↪ C (k +ℕ m)))
-
-  PushoutᶜʷfinStr : isFin B → isFin C → isFin D → isFin pushoutSkel
-  fst (PushoutᶜʷfinStr (dimB , eB) (dimC , eC) (dimD , eD)) = suc (dimB +ℕ (dimC +ℕ dimD))
-  snd (PushoutᶜʷfinStr (dimB , eB) (dimC , eC) (dimD , eD)) = {!!}
-
+  PushoutᶜʷfinStr : isFinCWskel B → isFinCWskel C → isFinCWskel D → isFinCWskel pushoutSkel
+  fst (PushoutᶜʷfinStr (dimB , eB) (dimC , eC) (dimD , eD)) =
+    suc (dimB +ℕ (dimC +ℕ dimD))
+  snd (PushoutᶜʷfinStr (dimB , eB) (dimC , eC) (dimD , eD)) =
+    λ k → transport (λ j
+        → isEquiv (CW↪ pushoutSkel (+-suc k (dimB +ℕ (dimC +ℕ dimD)) (~ j))))
+            (subst isEquiv (funExt
+              (λ { (inl x) → refl
+                 ; (inr x) → refl
+                 ; (push a i) j → rUnit (push (inl a)) (~ j) i}))
+      (pushoutEquiv _ _ _ _
+        (inl , subst (isEquiv ∘ CW↪ B)
+                     (sym (+-assoc k (dimC +ℕ dimD) dimB)
+                     ∙ cong (k +ℕ_) (+-comm (dimC +ℕ dimD) dimB))
+        (eB (k +ℕ (dimC +ℕ dimD))))
+        (inl , subst (isEquiv ∘ CW↪ C)
+                     (cong suc (sym (+-assoc (k +ℕ dimD) dimB dimC)
+                              ∙ sym (+-assoc k dimD (dimB +ℕ dimC))
+                              ∙ cong (k +ℕ_ ) (+-comm dimD _
+                              ∙ sym (+-assoc dimB dimC dimD))))
+                     (eC (suc (k +ℕ dimD +ℕ dimB))))
+        (inl , subst (isEquiv ∘ CW↪ D)
+                     (cong suc (sym (+-assoc (k +ℕ dimC) dimB dimD)
+                              ∙ sym (+-assoc k dimC (dimB +ℕ dimD))
+                              ∙ cong (k +ℕ_) (+-assoc dimC dimB dimD
+                              ∙ cong (_+ℕ dimD) (+-comm dimC dimB)
+                              ∙ sym (+-assoc dimB dimC dimD))))
+                     (eD (suc (k +ℕ dimC +ℕ dimB))))
+        refl
+        refl .snd))
 
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Equiv
+open import Cubical.CW.Approximation
+
+isFinCWPushout : ∀ {ℓ} (B C D : finCW ℓ)
+  (f : finCW→CW B →ᶜʷ finCW→CW C) (g : finCW→CW B →ᶜʷ finCW→CW D)
+  → ∥ isFinCW (Pushout f g) ∥₁
+isFinCWPushout {ℓ = ℓ} =
+   uncurry λ B  → PT.elim (λ _ → isPropΠ4 λ _ _ _ _ → squash₁) λ isFinCWB
+    → uncurry λ C → PT.elim (λ _ → isPropΠ3 λ _ _ _ → squash₁) λ isCWC
+      → uncurry λ D → PT.elim (λ _ → isPropΠ2 λ _ _ → squash₁) λ isCWD
+        → subst (λ B∞ → (f : B∞ → C) (g : B∞ → D)
+          → ∥ isFinCW (Pushout f g) ∥₁)
+                (sym (ua (isFinCWB .snd .snd)))
+           (subst2 (λ C∞ D∞ → (f : realise ((isFinCWB .snd .fst .fst)
+                                          , (isFinCWB .snd .fst .snd .fst)) → C∞)
+                               (g : realise ((isFinCWB .snd .fst .fst)
+                                          , (isFinCWB .snd .fst .snd .fst)) → D∞)
+                           → ∥ isFinCW (Pushout f g) ∥₁)
+            (sym (ua (isCWC .snd .snd)))
+            (sym (ua (isCWD .snd .snd)))
+            λ f g → PT.rec squash₁ (λ {(f' , fid)
+              → PT.rec squash₁ (λ {(g' , gid)
+                → subst2 (λ f g → ∥ isFinCW (Pushout f g) ∥₁)
+                         fid gid
+                    ∣ main (isFinCW→isCW _ isFinCWB .fst)
+                           (isFinCW→isCW _ isCWC .fst)
+                           (isFinCW→isCW _ isCWD .fst)
+                           (_ , (isFinCWB .snd .fst .snd .snd))
+                           (_ , isCWC .snd .fst .snd .snd)
+                           (_ , isCWD .snd .fst .snd .snd) _ _ ∣₁})
+                (finCWmap→CellMap (isFinCWB .fst) (isFinCWB .snd .fst)
+                 (isFinCW→isCW _ isCWD .fst) g)})
+               (finCWmap→CellMap (isFinCWB .fst) (isFinCWB .snd .fst)
+                 (isFinCW→isCW _ isCWC .fst) f))
+  where
+  main : ∀ {ℓ} (B C D : CWskel ℓ)
+       → isFinCWskel B
+       → isFinCWskel C
+       → isFinCWskel D
+       → (f' : cellMap B C) (g' : cellMap B D)
+       → isFinCW (Pushout (realiseCellMap {C = B} {D = C} f')
+                        (realiseCellMap {C = B} {D = D} g'))
+  main = elimStrictCW λ B → elimStrictCW λ C → elimStrictCW λ D
+    → λ fB fC fD f' g'
+    → subst2 (λ f' g'
+       → isFinCW (Pushout (realiseCellMap {C = str B} {D = str C}  f')
+                       (realiseCellMap {C = str B} {D = str D}  g')))
+          (strictCwMap≡ f') (strictCwMap≡ g')
+          ((CWPushout.PushoutᶜʷfinStr _ B C D f' g' fB fC fD .fst)
+         , ((CWPushout.Pushoutᶜʷstr _ B C D f' g' .fst .fst
+         , (CWPushout.Pushoutᶜʷstr _ B C D f' g' .fst .snd
+         , (CWPushout.PushoutᶜʷfinStr _ B C D f' g' fB fC fD .snd)))
+         , CWPushout.Pushoutᶜʷstr _ B C D f' g' .snd))
+
 isPushoutᶜʷ : ∀ {ℓ} (B : finCW ℓ) (C D : CW ℓ)
   (f : finCW→CW B →ᶜʷ C) (g : finCW→CW B →ᶜʷ D)
   → ∥ isCW (Pushout f g) ∥₁
 isPushoutᶜʷ {ℓ = ℓ} = uncurry λ B
   → PT.elim (λ _ → isPropΠ4 λ _ _ _ _ → squash₁) λ isFinCWB
-    → uncurry λ C → PT.elim (λ _ → isPropΠ3 λ _ _ _ → squash₁) λ isFinCWC
-      → uncurry λ C → PT.elim (λ _ → isPropΠ2 λ _ _ → squash₁) λ isFinCWD
-        → λ f g → {!!}
+    → uncurry λ C → PT.elim (λ _ → isPropΠ3 λ _ _ _ → squash₁) λ isCWC
+      → uncurry λ D → PT.elim (λ _ → isPropΠ2 λ _ _ → squash₁) λ isCWD
+        → subst (λ B∞ → (f : B∞ → C) (g : B∞ → D)
+          → ∥ isCW (Pushout f g) ∥₁)
+                (sym (ua (isFinCWB .snd .snd)))
+           (subst2 (λ C∞ D∞ → (f : realise ((isFinCWB .snd .fst .fst)
+                                          , (isFinCWB .snd .fst .snd .fst)) → C∞)
+                               (g : realise ((isFinCWB .snd .fst .fst)
+                                          , (isFinCWB .snd .fst .snd .fst)) → D∞)
+                           → ∥ isCW (Pushout f g) ∥₁)
+            (sym (ua (isCWC .snd)))
+            (sym (ua (isCWD .snd)))
+            λ f g → PT.rec squash₁ (λ {(f' , fid)
+              → PT.rec squash₁ (λ {(g' , gid)
+                → subst2 (λ f g → ∥ isCW (Pushout f g) ∥₁)
+                         fid gid
+                    ∣ main (isFinCWB .snd .fst .fst , isFinCWB .snd .fst .snd .fst)
+                           (isCWC .fst) (isCWD .fst) f' g' ∣₁})
+                (finCWmap→CellMap (isFinCWB .fst) (isFinCWB .snd .fst)
+                 (fst isCWD) g)})
+               (finCWmap→CellMap (isFinCWB .fst) (isFinCWB .snd .fst)
+                 (fst isCWC) f))
   where
-  module _ (B C D : Type ℓ) (finCW : {!!}) where
+  main : ∀ {ℓ} (B C D : CWskel ℓ) (f' : cellMap B C) (g' : cellMap B D)
+       → isCW (Pushout (realiseCellMap {C = B} {D = C} f') (realiseCellMap {C = B} {D = D} g'))
+  main = elimStrictCW λ B → elimStrictCW λ C → elimStrictCW λ D
+    → λ f' g'
+    → subst2 (λ f' g'
+       → isCW (Pushout (realiseCellMap {C = str B} {D = str C}  f')
+                       (realiseCellMap {C = str B} {D = str D}  g')))
+       (strictCwMap≡ f') (strictCwMap≡ g')
+       (CWPushout.Pushoutᶜʷstr _ B C D f' g')
 
-
-  -- Todo: show that colim pushoutSkel is the indended thing
-
-
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Equiv
-
+-- move
 PushoutEmptyDomainIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
   → Iso (Pushout {A = ⊥} {B = A} {C = B} (λ()) (λ())) (A ⊎ B)
 Iso.fun PushoutEmptyDomainIso (inl x) = inl x

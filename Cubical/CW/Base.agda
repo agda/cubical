@@ -71,6 +71,9 @@ yieldsFinCWskel n X =
 finCWskel : (ℓ : Level) → (n : ℕ) → Type (ℓ-suc ℓ)
 finCWskel ℓ n = Σ[ C ∈ (ℕ → Type ℓ) ] (yieldsFinCWskel n C)
 
+isFinCWskel : ∀ {ℓ} (C : CWskel ℓ) → Type ℓ
+isFinCWskel C = Σ[ m ∈ ℕ ] ((k : ℕ) → isEquiv (CW↪ C (k +ℕ m)))
+
 finCWskel→CWskel : (n : ℕ) → finCWskel ℓ n → CWskel ℓ
 finCWskel→CWskel n C = fst C , fst (snd C)
 
@@ -96,6 +99,9 @@ CWexplicit : (ℓ : Level) → Type (ℓ-suc ℓ)
 CWexplicit ℓ = Σ[ A ∈ Type ℓ ] (isCW A)
 
 -- Finite CW complexes
+isFinIsCW : {X : Type ℓ} → isCW X → Type ℓ
+isFinIsCW X = Σ[ n ∈ ℕ ] (((k : ℕ) → isEquiv (CW↪ (X .fst) (k +ℕ n))))
+
 isFinCW : (X : Type ℓ) → Type (ℓ-suc ℓ)
 isFinCW {ℓ = ℓ} X =
   Σ[ m ∈ ℕ ] (Σ[ X' ∈ finCWskel ℓ m ] X ≃ realise (finCWskel→CWskel m X'))
