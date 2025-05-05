@@ -99,8 +99,8 @@ joinPushout≡join A B = isoToPath (joinPushout-iso-join A B)
 {-
   Proof of associativity of the join
 -}
-join-assoc : (A B C : Type₀) → join (join A B) C ≡ join A (join B C)
-join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
+join-assoc : (A B C : Type ℓ) → join (join A B) C ≡ join A (join B C)
+join-assoc {ℓ} A B C = (joinPushout≡join (join A B) C) ⁻¹
                    ∙ (spanEquivToPushoutPath sp3≃sp4) ⁻¹
                    ∙ (3x3-span.3x3-lemma span) ⁻¹
                    ∙ (spanEquivToPushoutPath sp1≃sp2)
@@ -163,7 +163,7 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
       H1 = H1;
       H3 = H2 }
       where
-        A×join : Type₀
+        A×join : Type ℓ
         A×join = A × (join B C)
 
         A□2→A×join : 3x3-span.A□2 span → A×join
@@ -245,7 +245,7 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
       H1 = H4;
       H3 = H3 }
       where
-        join×C : Type₀
+        join×C : Type ℓ
         join×C = (join A B) × C
 
         A2□→join×C : 3x3-span.A2□ span → join×C
