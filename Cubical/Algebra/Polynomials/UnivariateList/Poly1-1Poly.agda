@@ -174,7 +174,7 @@ module _ (Acr : CommRing ℓ) where
     Iso.inv is = Poly:→Poly1
     Iso.rightInv is = e-sect
     Iso.leftInv is = e-retr
-  snd CRE-Poly1-Poly: = makeIsRingHom
+  snd CRE-Poly1-Poly: = makeIsCommRingHom
                         Poly1→Poly:-pres1
                         Poly1→Poly:-pres+
                         Poly1→Poly:-pres·

@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.Base where
+module Cubical.Algebra.CommAlgebra.AsModule.FreeCommAlgebra.Base where
 {-
   The free commutative algebra over a commutative ring,
   or in other words the ring of polynomials with coefficients in a given ring.
@@ -21,7 +21,7 @@ module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.Base where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommAlgebra.Base
+open import Cubical.Algebra.CommAlgebra.AsModule.Base
 
 private
   variable
@@ -91,6 +91,6 @@ module Construction (R : CommRing ℓ) where
                                     ⋆-assoc ⋆-rdist-+ ⋆-ldist-+ ·-lid ⋆-assoc-·
 
 _[_] : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R (ℓ-max ℓ ℓ')
-(R [ I ]) = R[ I ] , commalgebrastr 0a 1a _+_ _·_ -_ _⋆_ isCommAlgebra
-  where
-  open Construction R
+fst (R [ I ]) = Construction.R[_] R I
+snd (R [ I ]) = makeCommAlgebraStr _ _ _ _ _ _ _ isCommAlgebra
+  where open Construction R
