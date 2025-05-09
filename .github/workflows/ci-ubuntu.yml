@@ -87,15 +87,7 @@ jobs:
           ${{ env.CABAL_INSTALL }}
           cd ..
           rm -rf agda
-
-      - name: Download and install fix-whitespace
-        if: steps.cache-external-restore.outputs.cache-hit != 'true'
-        run: |
-          git clone https://github.com/agda/fix-whitespace --depth=1
-          cd fix-whitespace
-          ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
-          cd ..
-
+	  
       - name: Save external dependencies cache
         if: steps.cache-external-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
