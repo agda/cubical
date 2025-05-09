@@ -87,7 +87,7 @@ jobs:
           ${{ env.CABAL_INSTALL }}
           cd ..
           rm -rf agda
-	  
+
       - name: Download and install fix-whitespace
         if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run: |
