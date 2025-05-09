@@ -103,7 +103,7 @@ jobs:
       # By default github actions do not pull the repo
       - name: Checkout cubical
         uses: actions/checkout@v4
-      - uses: andreasabel/fix-whitespace-action@v1
+        uses: andreasabel/fix-whitespace-action@v1
 
 
       ########################################################################
