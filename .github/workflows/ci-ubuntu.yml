@@ -157,7 +157,7 @@ jobs:
 
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push' && github.ref_name == 'master'
-        uses: JamesIves/github-pages-deploy-action@4.7.3
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
           folder: html
