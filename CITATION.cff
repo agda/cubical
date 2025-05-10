@@ -3,6 +3,6 @@ message: "If you use this software, please cite it as below."
 authors:
 - name: "The Agda Community"
 title: "Cubical Agda Library"
-version: 0.7
-date-released: 2024-02-12
+version: 0.8
+date-released: 2025-05-09
 url: "https://github.com/agda/cubical"
