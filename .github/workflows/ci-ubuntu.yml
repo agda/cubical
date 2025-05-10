@@ -103,7 +103,9 @@ jobs:
       # By default github actions do not pull the repo
       - name: Checkout cubical
         uses: actions/checkout@v4
-      - uses: andreasabel/fix-whitespace-action@v1
+      - name: get fix-whitespace
+        uses: andreasabel/fix-whitespace-action@v1
+      - name: move fix-whitespace
         run: cp '~/.local/bin/fix-whitespace' '~/.cabal/bin/fix-whitespace'
 
       ########################################################################
@@ -120,7 +122,7 @@ jobs:
             library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-
 
       - name: Put installed programs in PATH
-        run: echo "~/.cabal/bin:~/.local/bin" >> "${GITHUB_PATH}"
+        run: echo "~/.cabal/bin" >> "${GITHUB_PATH}"
 
       - name: Test cubical
         run: |
