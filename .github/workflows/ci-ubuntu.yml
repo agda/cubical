@@ -87,7 +87,7 @@ jobs:
           ${{ env.CABAL_INSTALL }}
           cd ..
           rm -rf agda
-          
+
       - name: Save external dependencies cache
         if: steps.cache-external-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
