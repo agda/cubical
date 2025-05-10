@@ -118,8 +118,9 @@ jobs:
           restore-keys: |
             library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-
 
-      - name: Put cabal programs in PATH
+      - name: Put installed programs in PATH
         run: echo "~/.cabal/bin" >> "${GITHUB_PATH}"
+        run: echo "~/.local/bin" >> "${GITHUB_PATH}"
 
       - name: Test cubical
         run: |
