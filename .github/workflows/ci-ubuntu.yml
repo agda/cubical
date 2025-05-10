@@ -103,10 +103,9 @@ jobs:
       # By default github actions do not pull the repo
       - name: Checkout cubical
         uses: actions/checkout@v4
-      - name: get fix-whitespace
+
+      - name: Get and run fix-whitespace
         uses: andreasabel/fix-whitespace-action@v1
-      - name: move fix-whitespace
-        run: cp '~/.local/bin/fix-whitespace' '~/.cabal/bin/fix-whitespace'
 
       ########################################################################
       ## TESTING
@@ -128,7 +127,7 @@ jobs:
         run: |
           make test \
             AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
-            FIX_WHITESPACE='~/.local/bin/fix-whitespace' \
+            FIX_WHITESPACE='~/.local/fix-whitespace/bin/fix-whitespace' \
             EVERYTHINGS='cabal run Everythings'
 
       - name: Save library cache
@@ -148,7 +147,7 @@ jobs:
         run: |
           make listings \
             AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
-            FIX_WHITESPACE='~/.local/bin/fix-whitespace' \
+            FIX_WHITESPACE='~/.local/fix-whitespace/bin/fix-whitespace' \
             EVERYTHINGS='cabal run Everythings'
 
       - name: Deploy to GitHub Pages
