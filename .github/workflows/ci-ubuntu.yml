@@ -104,6 +104,7 @@ jobs:
       - name: Checkout cubical
         uses: actions/checkout@v4
       - uses: andreasabel/fix-whitespace-action@v1
+        run: cp '~/.local/bin/fix-whitespace' '~/.cabal/bin/fix-whitespace'
 
       ########################################################################
       ## TESTING
