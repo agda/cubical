@@ -82,8 +82,6 @@ jobs:
         run: |
           git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
           cd agda
-          mkdir -p doc
-          touch doc/user-manual.pdf
           ${{ env.CABAL_INSTALL }}
           cd ..
           rm -rf agda
