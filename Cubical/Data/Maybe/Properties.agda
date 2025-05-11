@@ -179,3 +179,13 @@ congMaybeEquiv e = isoToEquiv isom
   isom .rightInv (just b) = cong just (secEq e b)
   isom .leftInv nothing = refl
   isom .leftInv (just a) = cong just (retEq e a)
+
+bind : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+          → Maybe A → (A → Maybe B) → Maybe B
+bind nothing _ = nothing
+bind (just x) x₁ = x₁ x
+
+map2-Maybe : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+          → (A → B → C) → Maybe A → Maybe B → Maybe C
+map2-Maybe _ nothing _ = nothing
+map2-Maybe f (just x) = map-Maybe (f x)

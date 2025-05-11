@@ -10,6 +10,7 @@ module Cubical.Tactics.Reflection where
 open import Cubical.Foundations.Prelude
 
 open import Agda.Builtin.Reflection hiding (Type)
+open import Agda.Builtin.String
 
 open import Cubical.Data.Bool
 open import Cubical.Data.List
@@ -23,18 +24,52 @@ private
   variable
     ℓ ℓ' : Level
 
-_<$>_ : ∀ {ℓ ℓ'} {A : Type ℓ}{B : Type ℓ'} → (A → B) → TC A → TC B
-f <$> t = t >>= λ x → returnTC (f x)
+wait-for-term-args : List (Arg Term) → TC (List (Arg Term))
+wait-for-term-clauses : List (Clause) → TC (List Clause)
+wait-for-term-clause : Clause → TC Clause
+wait-for-term : Term → TC Term
+wait-for-term-telescope : Telescope → TC Telescope
 
-_<*>_ : ∀ {ℓ ℓ'} {A : Type ℓ}{B : Type ℓ'} → TC (A → B) → TC A → TC B
-s <*> t = s >>= λ f → t >>= λ x → returnTC (f x)
 
-wait-for-args : List (Arg Term) → TC (List (Arg Term))
+wait-for-term (var x args) = var x <$> wait-for-term-args args
+wait-for-term (con c args) = con c <$> wait-for-term-args args
+wait-for-term (def f args) = def f <$> wait-for-term-args args
+wait-for-term (lam v (abs x t)) = (λ t → (lam v (abs x t))) <$> wait-for-term t
+wait-for-term (pat-lam cs args) =
+  ⦇ pat-lam (wait-for-term-clauses cs) (wait-for-term-args args) ⦈
+wait-for-term (pi (arg i a) (abs x b)) = do
+  a ← wait-for-term a
+  b ← wait-for-term b
+  returnTC (pi (arg i a) (abs x b))
+wait-for-term (agda-sort s) = returnTC (agda-sort s)
+wait-for-term (lit l) = returnTC (lit l)
+wait-for-term (meta x x₁) = blockOnMeta x
+wait-for-term unknown = returnTC unknown
+
+wait-for-term-args [] = ⦇ [] ⦈
+wait-for-term-args (arg i a ∷ xs) =
+  (_∷_ <$> (arg i <$> wait-for-term a)) <*> wait-for-term-args xs
+
+wait-for-term-clause (clause tel ps t) =
+ ⦇ clause (wait-for-term-telescope tel) ⦇ ps ⦈ (wait-for-term t) ⦈
+wait-for-term-clause (absurd-clause tel ps) =
+ ⦇ absurd-clause (wait-for-term-telescope tel) ⦇ ps ⦈ ⦈
+
+wait-for-term-telescope [] = ⦇ [] ⦈
+wait-for-term-telescope ((s , arg i a) ∷ xs) =
+   ⦇ ⦇ ⦇ s ⦈ , (⦇ arg ⦇ i ⦈ (wait-for-term a) ⦈) ⦈ ∷ (wait-for-term-telescope xs) ⦈
+
+
+wait-for-term-clauses [] = ⦇ [] ⦈
+wait-for-term-clauses (x ∷ xs) =
+  ⦇ (wait-for-term-clause x) ∷ wait-for-term-clauses xs ⦈
+
+wait-for-type-args : List (Arg Term) → TC (List (Arg Term))
 wait-for-type : Term → TC Term
 
-wait-for-type (var x args) = var x <$> wait-for-args args
-wait-for-type (con c args) = con c <$> wait-for-args args
-wait-for-type (def f args) = def f <$> wait-for-args args
+wait-for-type (var x args) = var x <$> wait-for-type-args args
+wait-for-type (con c args) = con c <$> wait-for-type-args args
+wait-for-type (def f args) = def f <$> wait-for-type-args args
 wait-for-type (lam v (abs x t)) = returnTC (lam v (abs x t))
 wait-for-type (pat-lam cs args) = returnTC (pat-lam cs args)
 wait-for-type (pi (arg i a) (abs x b)) = do
@@ -46,9 +81,9 @@ wait-for-type (lit l) = returnTC (lit l)
 wait-for-type (meta x x₁) = blockOnMeta x
 wait-for-type unknown = returnTC unknown
 
-wait-for-args [] = returnTC []
-wait-for-args (arg i a ∷ xs) =
-  (_∷_ <$> (arg i <$> wait-for-type a)) <*> wait-for-args xs
+wait-for-type-args [] = returnTC []
+wait-for-type-args (arg i a ∷ xs) =
+  (_∷_ <$> (arg i <$> wait-for-type a)) <*> wait-for-type-args xs
 
 unapply-path : Term → TC (Maybe (Term × Term × Term))
 unapply-path red@(def (quote PathP) (l h∷ T v∷ x v∷ y v∷ [])) = do
@@ -86,6 +121,12 @@ get-boundary tm = unapply-path tm >>= λ where
   (just (_ , x , y)) → returnTC (just (x , y))
   nothing            → returnTC nothing
 
+get-boundaryWithDom : Term → TC (Maybe (Term × (Term × Term)))
+get-boundaryWithDom tm = unapply-path tm >>= λ where
+  (just (A , x , y)) → returnTC (just (A , (x , y)))
+  nothing            → returnTC nothing
+
+
 equation-solver : List Name → (Term -> Term -> TC Term) → Bool → Term → TC Unit
 equation-solver don't-Reduce mk-call debug hole =
     withNormalisation false (
@@ -112,3 +153,9 @@ equation-solver don't-Reduce mk-call debug hole =
         unify-with-goal <|>
         typeError ((strErr "Could not equate the following expressions:\n  "
                   ∷ termErr elhs ∷ strErr "\nAnd\n  " ∷ termErr erhs ∷ []))))))
+
+unifyFromString : String → Term → TC Unit
+unifyFromString s h = do
+ ty ← inferType h
+ t ← checkFromStringTC s ty
+ unify t h
