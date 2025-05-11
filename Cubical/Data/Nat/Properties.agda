@@ -56,6 +56,10 @@ codeℕ zero (suc m) = ⊥
 codeℕ (suc n) zero = ⊥
 codeℕ (suc n) (suc m) = codeℕ n m
 
+codeℕ-trans : codeℕ n m → codeℕ m l → codeℕ n l
+codeℕ-trans {zero} {zero} {zero} _ _ = tt
+codeℕ-trans {suc n} {suc m} {suc l} = codeℕ-trans {n} {m} {l}
+
 encodeℕ : (n m : ℕ) → (n ≡ m) → codeℕ n m
 encodeℕ n m p = subst (λ m → codeℕ n m) p (reflCode n)
  where
