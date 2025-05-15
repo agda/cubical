@@ -4,11 +4,17 @@ module Cubical.Categories.Dagger.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
-import Cubical.Foundations.Isomorphism as TypeIso
+open import Cubical.Foundations.Isomorphism as TypeIso using () renaming (Iso to TypeIso)
+open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation as PT using (∥_∥₁; ∣_∣₁; isPropPropTrunc)
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Category.Path
+open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Equivalence.AdjointEquivalence
+open import Cubical.Categories.Adjoint
 open import Cubical.Categories.Morphism
 
 open import Cubical.Categories.Dagger.Base
@@ -19,9 +25,56 @@ private variable
 module _ (CDagCat : DagCat ℓ ℓ') where
   open DagCat CDagCat renaming (cat to C)
   open areInv
+  open CategoryPath
+
+  -- Every dagger category is equal to its opposite
+  dagCat≡op : C ≡ C ^op
+  dagCat≡op = CategoryPath.mk≡ λ where
+    .ob≡ → refl
+    .Hom≡ → funExt λ x → funExt λ y → 
+      TypeIso.isoToPath λ where
+        .TypeIso.fun → _†
+        .TypeIso.inv → _†
+        .TypeIso.leftInv → †-invol
+        .TypeIso.rightInv → †-invol
+    .id≡ → implicitFunExt (toPathP (transportRefl (id †) ∙ †-id))
+    .⋆≡ → implicitFunExt $ implicitFunExt $ implicitFunExt $ toPathP $ funExt λ f → funExt λ g → 
+      transport refl ((transport refl f † ⋆ transport refl g †) †) ≡⟨ transportRefl _ ⟩
+      (transport refl f † ⋆ transport refl g †) † ≡⟨ cong₂ (λ f g → (f † ⋆ g †) †) (transportRefl _) (transportRefl _) ⟩
+      (f † ⋆ g †) † ≡⟨ cong _† (sym (†-seq g f)) ⟩
+      (g ⋆ f) † † ≡⟨ †-invol (g ⋆ f) ⟩
+      (g ⋆ f) ∎
+
+  -- It is usually more useful to have an equivalence, however
+  module _ where
+    open AdjointEquivalence
+    open Functor
+    open NatIso
+    open NatTrans
+    open UnitCounit.TriangleIdentities
+      
+    dagCatEquivOp : AdjointEquivalence C (C ^op)
+    dagCatEquivOp .fun .F-ob = idfun _
+    dagCatEquivOp .fun .F-hom = _†
+    dagCatEquivOp .fun .F-id = †-id
+    dagCatEquivOp .fun .F-seq = †-seq
+    dagCatEquivOp .inv .F-ob = idfun _
+    dagCatEquivOp .inv .F-hom = _†
+    dagCatEquivOp .inv .F-id = †-id
+    dagCatEquivOp .inv .F-seq = flip †-seq
+    dagCatEquivOp .η .trans .N-ob _ = id
+    dagCatEquivOp .η .trans .N-hom f = ⋆IdR f ∙∙ sym (†-invol f) ∙∙ sym (⋆IdL ((f †) †))
+    dagCatEquivOp .η .nIso _ = idCatIso .snd
+    dagCatEquivOp .ε .trans .N-ob _ = id
+    dagCatEquivOp .ε .trans .N-hom f = ⋆IdL ((f †) †) ∙∙ †-invol f ∙∙ sym (⋆IdR f)
+    dagCatEquivOp .ε .nIso _ = idCatIso .snd
+    dagCatEquivOp .triangleIdentities .Δ₁ _ = ⋆IdL _ ∙ †-id
+    dagCatEquivOp .triangleIdentities .Δ₂ _ = ⋆IdL _ ∙ †-id
 
   private variable
     x y z w : ob
+
+  -- The following definitions are from The Way of The Dagger, Definition 2.1.3
 
   is†Monic is†Epic is†Iso is†PIso : Hom[ x , y ] → Type ℓ'
   is†Monic f = f ⋆ f † ≡ id
@@ -150,6 +203,8 @@ module _ (CDagCat : DagCat ℓ ℓ') where
   pathTo†Iso-refl : pathTo†Iso refl ≡ id†Iso {x}
   pathTo†Iso-refl = transportRefl _
 
+  -- †-Univalence is defined as in the HoTT Book.
+
   record is†Univalent : Type (ℓ-max ℓ ℓ') where
     field
       univ : isEquiv (pathTo†Iso {x} {y})
@@ -171,12 +226,12 @@ module _ (CDagCat : DagCat ℓ ℓ') where
                    → (∀ {x y} (f : †CatIso x y) → pathTo†Iso (†IsoToPath f) .fst ≡ f .fst)
                    → is†Univalent
   makeIs†Univalent †IsoToPath †IsoToPath-id †IsoToPath-β .is†Univalent.univ {x} {y} = TypeIso.isoToIsEquiv iso where
-
-    iso : TypeIso.Iso (x ≡ y) (†CatIso x y)
-    iso .TypeIso.Iso.fun = pathTo†Iso
-    iso .TypeIso.Iso.inv = †IsoToPath
-    iso .TypeIso.Iso.rightInv f = Σ≡Prop (λ _ → isPropAreInv _) (†IsoToPath-β f)
-    iso .TypeIso.Iso.leftInv = J (λ y p → †IsoToPath (pathTo†Iso p) ≡ p) (
+    
+    iso : TypeIso (x ≡ y) (†CatIso x y)
+    iso .TypeIso.fun = pathTo†Iso
+    iso .TypeIso.inv = †IsoToPath
+    iso .TypeIso.rightInv f = Σ≡Prop (λ _ → isPropAreInv _) (†IsoToPath-β f)
+    iso .TypeIso.leftInv = J (λ y p → †IsoToPath (pathTo†Iso p) ≡ p) (
         †IsoToPath (pathTo†Iso refl) ≡⟨ cong †IsoToPath pathTo†Iso-refl ⟩
         †IsoToPath id†Iso            ≡⟨ †IsoToPath-id ⟩
         refl                         ∎
