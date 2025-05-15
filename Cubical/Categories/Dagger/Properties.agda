@@ -31,14 +31,14 @@ module _ (CDagCat : DagCat ℓ ℓ') where
   dagCat≡op : C ≡ C ^op
   dagCat≡op = CategoryPath.mk≡ λ where
     .ob≡ → refl
-    .Hom≡ → funExt λ x → funExt λ y → 
+    .Hom≡ → funExt λ x → funExt λ y →
       TypeIso.isoToPath λ where
         .TypeIso.fun → _†
         .TypeIso.inv → _†
         .TypeIso.leftInv → †-invol
         .TypeIso.rightInv → †-invol
     .id≡ → implicitFunExt (toPathP (transportRefl (id †) ∙ †-id))
-    .⋆≡ → implicitFunExt $ implicitFunExt $ implicitFunExt $ toPathP $ funExt λ f → funExt λ g → 
+    .⋆≡ → implicitFunExt $ implicitFunExt $ implicitFunExt $ toPathP $ funExt λ f → funExt λ g →
       transport refl ((transport refl f † ⋆ transport refl g †) †) ≡⟨ transportRefl _ ⟩
       (transport refl f † ⋆ transport refl g †) † ≡⟨ cong₂ (λ f g → (f † ⋆ g †) †) (transportRefl _) (transportRefl _) ⟩
       (f † ⋆ g †) † ≡⟨ cong _† (sym (†-seq g f)) ⟩
@@ -52,7 +52,7 @@ module _ (CDagCat : DagCat ℓ ℓ') where
     open NatIso
     open NatTrans
     open UnitCounit.TriangleIdentities
-      
+
     dagCatEquivOp : AdjointEquivalence C (C ^op)
     dagCatEquivOp .fun .F-ob = idfun _
     dagCatEquivOp .fun .F-hom = _†
@@ -226,7 +226,7 @@ module _ (CDagCat : DagCat ℓ ℓ') where
                    → (∀ {x y} (f : †CatIso x y) → pathTo†Iso (†IsoToPath f) .fst ≡ f .fst)
                    → is†Univalent
   makeIs†Univalent †IsoToPath †IsoToPath-id †IsoToPath-β .is†Univalent.univ {x} {y} = TypeIso.isoToIsEquiv iso where
-    
+
     iso : TypeIso (x ≡ y) (†CatIso x y)
     iso .TypeIso.fun = pathTo†Iso
     iso .TypeIso.inv = †IsoToPath
