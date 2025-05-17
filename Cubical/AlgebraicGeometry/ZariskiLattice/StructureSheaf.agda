@@ -137,8 +137,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
     open S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f) using (_/1)
     open RadicalIdeal R'
 
-    private
-     instance
+    instance
       _ = snd R[1/ f ]AsCommRing
 
     f∈√⟨g⟩ : f ∈ √ ⟨ g ⟩ₛ

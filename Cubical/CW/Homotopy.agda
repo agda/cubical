@@ -20,6 +20,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
+open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Int renaming (_·_ to _·ℤ_ ; -_ to -ℤ_)
 open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
@@ -85,7 +86,6 @@ finCellHom↓ : {m : ℕ} {C : CWskel ℓ} {D : CWskel ℓ'}
 fhom (finCellHom↓ ϕ) n x = fhom ϕ (injectSuc n) x
 fcoh (finCellHom↓ {m = suc m} ϕ) n x = fcoh ϕ (injectSuc n) x
 
--- Extracting a map between sphere bouquets from a MMmap
 cofibIso : (n : ℕ) (C : CWskel ℓ)
   → Iso (Susp (cofibCW n C)) (SphereBouquet (suc n) (CWskel-fields.A C n))
 cofibIso n C =
@@ -197,7 +197,6 @@ module MMchainHomotopy* (m : ℕ) (C : CWskel ℓ) (D : CWskel ℓ')
         ∙∙ (cong inr (fhom H (injectSuc n) x))
         ∙∙ (cong inr (g .fcomm n x))
 
-  ww = MMΣcellMap
   -- the suspension of f as a MMmap
   MMΣf : MMmap m n merid-f merid-tt
   MMΣf = MMΣcellMap m n f
@@ -390,8 +389,7 @@ module realiseMMmap (C : CWskel ℓ) (D : CWskel ℓ') (m : ℕ)
                                 (cong inr (g .fcomm n x)) (~ l) i) (~ k) })
          south
 
-  -- realisation of MMΣH∂ is equal to Susp H∂
-  -- TODO: it is the same code as before. factorise!
+-- realisation of MMΣH∂ (suc n) is equal to Susp H∂
 realiseMMΣH∂ : (C : CWskel ℓ) (D : CWskel ℓ') (m : ℕ)
   (f g : finCellMap (suc m) C D) (H : finCellHom (suc m) f g)
       (n : Fin m) (x : Susp (cofibCW (suc (fst n)) C)) →
@@ -437,6 +435,40 @@ realiseMMΣH∂ C D (suc m) f g H n x =
                   ∙∙ (sym (push (g .fmap (injectSuc (fsuc n)) x)))) j)
                      (i ∨ (~ k))})
      south
+
+-- realisation of MMΣH∂ zero is constant
+realiseMMΣH∂₀ : (C : CWskel ℓ) (D : CWskel ℓ') (m : ℕ)
+  (f g : finCellMap (suc m) C D) (H : finCellHom (suc m) f g)
+      (x : Susp (cofibCW zero C)) →
+       MMmaps.realiseMMmap C D (suc m) fzero (λ x → inl tt) (λ x → inl tt)
+         (MMchainHomotopy*.MMΣH∂ (suc m) C D f g H fzero) x
+      ≡ north
+realiseMMΣH∂₀ C D m f g H x =
+  realiseMMmap1≡2 fzero fzero (λ x → inl tt)
+    (λ x → inl tt) (MMΣH∂ fzero) x ∙ aux x
+  where
+  open FinSequenceMap
+  open MMmaps C D
+  open MMchainHomotopy* (suc m) C D f g H
+  open preChainHomotopy (suc m) C D f g H
+  open realiseMMmap C D (suc m) f g H
+
+  aux : (x : Susp (cofibCW zero C)) →
+    realiseMMmap.realiseMMmap2 C D (suc m) f g H fzero fzero
+      (λ x₁ → inl tt) (λ x₁ → inl tt)
+      (MMchainHomotopy*.MMΣH∂ (suc m) C D f g H fzero) x
+    ≡ north
+  aux north = refl
+  aux south = refl
+  aux (merid (inl x) i) = refl
+  aux (merid (inr x) i) j =
+    hcomp (λ k → λ { (j = i0) → doubleCompPath-filler (merid (inl tt)) (λ _ → south) (λ i → merid (inl tt) (~ i)) k i
+                   ; (j = i1) → north
+                   ; (i = i0) → merid (inl tt) ((~ j) ∧ (~ k))
+                   ; (i = i1) → merid (inl tt) ((~ j) ∧ (~ k)) })
+          (merid (inl tt) (~ j))
+  aux (merid (push a i₁) i) with (C .snd .snd .snd .fst a)
+  aux (merid (push a i₁) i) | ()
 
 -- Then, we connect the addition of MMmaps to the addition of abelian maps
 module bouquetAdd where
@@ -591,24 +623,24 @@ module bouquetAdd where
 
 -- Now we have all the ingredients, we can get the chain homotopy equation
 module chainHomEquation (m : ℕ) (C : CWskel ℓ) (D : CWskel ℓ')
-  (f g : finCellMap (suc m) C D) (H : finCellHom (suc m) f g) (n : Fin m) where
+  (f g : finCellMap m C D) (H : finCellHom m f g) (n : Fin m) where
   open SequenceMap
-  open MMmaps C D (suc m) (fsuc n)
-  open MMchainHomotopy* (suc m) C D f g H (fsuc n)
-  open preChainHomotopy (suc m) C D f g H
-  -- open realiseMMmap m C D f g H
+  open MMmaps C D m n
+  open MMchainHomotopy* m C D f g H n
+  open preChainHomotopy m C D f g H
 
   private
     ℤ[AC_] = CWskel-fields.ℤ[A_] C
     ℤ[AD_] = CWskel-fields.ℤ[A_] D
 
   -- The four abelian group maps that are involved in the equation
-  ∂H H∂ fn+1 gn+1 : AbGroupHom (ℤ[AC (suc (fst n))]) (ℤ[AD (suc (fst n)) ])
+  ∂H H∂ fn gn : AbGroupHom (ℤ[AC (fst n) ]) (ℤ[AD (fst n) ])
 
-  ∂H = compGroupHom (chainHomotopy (fsuc n)) (∂ D (suc (fst n)))
-  H∂ = compGroupHom (∂ C (fst n)) (chainHomotopy (injectSuc n))
-  fn+1 = prefunctoriality.chainFunct (suc m) f (fsuc n)
-  gn+1 = prefunctoriality.chainFunct (suc m) g (fsuc n)
+  ∂H = compGroupHom (chainHomotopy n) (∂ D (fst n))
+  -- H∂ = compGroupHom (∂ C (fst n)) (chainHomotopy (injectSuc n))
+  H∂ = bouquetDegree (bouquetMMmap merid-tt merid-tt MMΣH∂)
+  fn = prefunctoriality.chainFunct m f n
+  gn = prefunctoriality.chainFunct m g n
 
   -- Technical lemma regarding suspensions of Iso's
   suspIso-suspFun : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'}
@@ -639,34 +671,109 @@ module chainHomEquation (m : ℕ) (C : CWskel ℓ) (D : CWskel ℓ')
   -- connecting MM∂H to ∂H
   bouquet∂H : bouquetDegree (bouquetMMmap merid-f merid-g MM∂H) ≡ ∂H
   bouquet∂H =
-    cong (λ X → bouquetDegree ((Iso.fun (cofibIso (suc (fst n)) D))
-                ∘ X ∘ (Iso.inv (cofibIso (suc (fst n)) C))))
-         (funExt (realiseMMmap.realiseMM∂H C D (suc m) f g H (fsuc n)))
+    cong (λ X → bouquetDegree ((Iso.fun (cofibIso (fst n) D))
+                ∘ X ∘ (Iso.inv (cofibIso (fst n) C))))
+         (funExt (realiseMMmap.realiseMM∂H C D m f g H n))
       ∙ cong bouquetDegree ιδH≡pre∂∘H
-      ∙ bouquetDegreeComp (preboundary.pre∂ D (suc (fst n)))
-                          (bouquetHomotopy (fsuc n))
+      ∙ bouquetDegreeComp (preboundary.pre∂ D (fst n))
+                          (bouquetHomotopy n)
     where
-      ιδH : SphereBouquet (suc (suc (fst n)))
-              (Fin (CWskel-fields.card C (suc (fst n))))
-          → SphereBouquet (suc (suc (fst n)))
-              (Fin (CWskel-fields.card D (suc (fst n))))
-      ιδH = Iso.fun (cofibIso (suc (fst n)) D)
-           ∘ suspFun (to_cofibCW (suc (fst n)) D)
-           ∘ δ (suc (suc (fst n))) D
-           ∘ Hn+1/Hn (fsuc n)
-           ∘ Iso.inv (cofibIso (suc (fst n)) C)
+      ιδH : SphereBouquet (suc (fst n))
+              (Fin (CWskel-fields.card C (fst n)))
+          → SphereBouquet (suc (fst n))
+              (Fin (CWskel-fields.card D (fst n)))
+      ιδH = Iso.fun (cofibIso (fst n) D)
+           ∘ suspFun (to_cofibCW (fst n) D)
+           ∘ δ (suc (fst n)) D
+           ∘ Hn+1/Hn n
+           ∘ Iso.inv (cofibIso (fst n) C)
 
-      ιδH≡pre∂∘H : ιδH ≡ (preboundary.pre∂ D (suc (fst n)))
-                        ∘ bouquetHomotopy (fsuc n)
+      ιδH≡pre∂∘H : ιδH ≡ (preboundary.pre∂ D (fst n))
+                        ∘ bouquetHomotopy n
       ιδH≡pre∂∘H =
-        cong (λ X → Iso.fun (cofibIso (suc (fst n)) D)
-                     ∘ suspFun (to_cofibCW (suc (fst n)) D)
-                     ∘ δ (suc (suc (fst n))) D ∘ X ∘ Hn+1/Hn (fsuc n)
-                     ∘ Iso.inv (cofibIso (suc (fst n)) C))
-              (sym (funExt (Iso.leftInv (BouquetIso D (suc (suc (fst n)))))))
+        cong (λ X → Iso.fun (cofibIso (fst n) D)
+                     ∘ suspFun (to_cofibCW (fst n) D)
+                     ∘ δ (suc (fst n)) D ∘ X ∘ Hn+1/Hn n
+                     ∘ Iso.inv (cofibIso (fst n) C))
+              (sym (funExt (Iso.leftInv (BouquetIso D (suc (fst n))))))
 
-  -- connecting MMΣH∂ to H∂
-  bouquetΣH∂ : bouquetDegree (bouquetMMmap merid-tt merid-tt MMΣH∂) ≡ H∂
+  -- connecting MMΣf to fn+1
+  bouquetΣf : bouquetDegree (bouquetMMmap merid-f merid-tt MMΣf) ≡ fn
+  bouquetΣf = cong (λ X → bouquetDegree ((Iso.fun (cofibIso (fst n) D))
+                         ∘ X ∘ (Iso.inv (cofibIso (fst n) C))))
+         (funExt (realiseMMmap.realiseMMΣf C D m f g H n))
+    ∙ (cong bouquetDegree (cofibIso-suspFun (fst n) C D
+                           (prefunctoriality.fn+1/fn m f n)))
+    ∙ sym (bouquetDegreeSusp (prefunctoriality.bouquetFunct m f n))
+
+  -- connecting MMΣg to gn+1
+  bouquetΣg : bouquetDegree (bouquetMMmap merid-g merid-tt MMΣg) ≡ gn
+  bouquetΣg = cong (λ X → bouquetDegree ((Iso.fun (cofibIso (fst n) D))
+                          ∘ X ∘ (Iso.inv (cofibIso (fst n) C))))
+         (funExt (realiseMMmap.realiseMMΣg C D m f g H n))
+    ∙ (cong bouquetDegree (cofibIso-suspFun (fst n) C D
+                            (prefunctoriality.fn+1/fn m g n)))
+    ∙ sym (bouquetDegreeSusp (prefunctoriality.bouquetFunct m g n))
+
+  -- Alternative formulation of the chain homotopy equation
+  chainHomotopy1 : addGroupHom _ _ (addGroupHom _ _ ∂H gn) H∂ ≡ fn
+  chainHomotopy1 =
+      cong (λ X → addGroupHom _ _ X H∂) aux
+    ∙ aux2
+    ∙ cong (λ X → bouquetDegree (bouquetMMmap merid-f merid-tt X))
+      (funExt MMchainHomotopy)
+    ∙ bouquetΣf
+    where
+      module T = MMchainHomotopy* m C D f g H n
+      MM∂H+MMΣg = MMmap-add T.merid-f T.merid-g T.merid-tt T.MM∂H T.MMΣg
+      MM∂H+MMΣg+MMΣH∂ = MMmap-add merid-f merid-tt merid-tt MM∂H+MMΣg MMΣH∂
+
+      aux : addGroupHom _ _ ∂H gn
+        ≡ bouquetDegree (bouquetMMmap merid-f merid-tt MM∂H+MMΣg)
+      aux = cong₂ (λ X Y → addGroupHom _ _ X Y) (sym bouquet∂H) (sym bouquetΣg)
+            ∙ sym (bouquetAdd.realiseMMmap-hom C D m n
+                    T.merid-f T.merid-g T.merid-tt T.MM∂H T.MMΣg)
+
+      aux2 : addGroupHom _ _
+                (bouquetDegree (bouquetMMmap merid-f merid-tt MM∂H+MMΣg)) H∂
+           ≡ bouquetDegree (bouquetMMmap merid-f merid-tt MM∂H+MMΣg+MMΣH∂)
+      aux2 = sym (bouquetAdd.realiseMMmap-hom C D m n
+                     T.merid-f T.merid-tt T.merid-tt MM∂H+MMΣg T.MMΣH∂)
+
+  -- Standard formulation of the chain homotopy equation
+  chainHomotopy2 : subtrGroupHom _ _ fn gn ≡ addGroupHom _ _ ∂H H∂
+  chainHomotopy2 =
+    GroupHom≡ (funExt λ x → aux (fn .fst x) (∂H .fst x) (gn .fst x)
+               (H∂ .fst x) (cong (λ X → X .fst x) chainHomotopy1))
+     where
+      open AbGroupStr (snd (ℤ[AD (fst n) ]))
+        renaming (_+_ to _+G_ ; -_ to -G_ ; +Assoc to +AssocG ; +Comm to +CommG)
+      aux : ∀ w x y z → (x +G y) +G z ≡ w → w +G (-G y) ≡ x +G z
+      aux w x y z H = cong (λ X → X +G (-G y)) (sym H)
+        ∙ sym (+AssocG (x +G y) z (-G y))
+        ∙ cong (λ X → (x +G y) +G X) (+CommG z (-G y))
+        ∙ +AssocG (x +G y) (-G y) z
+        ∙ cong (λ X → X +G z) (sym (+AssocG x y (-G y))
+                              ∙ cong (λ X → x +G X) (+InvR y)
+                              ∙ +IdR x)
+
+module chainHomEquationSuc (m : ℕ) (C : CWskel ℓ) (D : CWskel ℓ')
+  (f g : finCellMap (suc m) C D) (H : finCellHom (suc m) f g) (n : Fin m) where
+  open SequenceMap
+  open MMmaps C D (suc m) (fsuc n)
+  open MMchainHomotopy* (suc m) C D f g H (fsuc n)
+  open preChainHomotopy (suc m) C D f g H
+  open chainHomEquation (suc m) C D f g H (fsuc n)
+
+  private
+    ℤ[AC_] = CWskel-fields.ℤ[A_] C
+    ℤ[AD_] = CWskel-fields.ℤ[A_] D
+
+  H∂' : AbGroupHom (ℤ[AC (suc (fst n)) ]) (ℤ[AD (suc (fst n)) ])
+  H∂' = compGroupHom (∂ C (fst n)) (chainHomotopy (injectSuc n))
+
+  -- connecting MMΣH∂ to H∂'
+  bouquetΣH∂ : H∂ ≡ H∂'
   bouquetΣH∂ =
      cong (λ X → bouquetDegree ((Iso.fun (cofibIso (suc (fst n)) D))
                 ∘ X ∘ (Iso.inv (cofibIso (suc (fst n)) C))))
@@ -692,75 +799,45 @@ module chainHomEquation (m : ℕ) (C : CWskel ℓ) (D : CWskel ℓ')
                              ∘ Iso.inv (BouquetIso C (suc (fst n))))
                       (sym (funExt (Iso.leftInv (cofibIso (fst n) C))))
 
-  -- connecting MMΣf to fn+1
-  bouquetΣf : bouquetDegree (bouquetMMmap merid-f merid-tt MMΣf) ≡ fn+1
-  bouquetΣf = cong (λ X → bouquetDegree ((Iso.fun (cofibIso (suc (fst n)) D))
-                         ∘ X ∘ (Iso.inv (cofibIso (suc (fst n)) C))))
-         (funExt (realiseMMmap.realiseMMΣf C D (suc m) f g H (fsuc n)))
-    ∙ (cong bouquetDegree (cofibIso-suspFun (suc (fst n)) C D
-                           (prefunctoriality.fn+1/fn (suc m) f (fsuc n))))
-    ∙ sym (bouquetDegreeSusp (prefunctoriality.bouquetFunct (suc m) f (fsuc n)))
+  chainHomotopySuc : subtrGroupHom _ _ fn gn ≡ addGroupHom _ _ ∂H H∂'
+  chainHomotopySuc = chainHomotopy2 ∙ cong (addGroupHom _ _ ∂H) bouquetΣH∂
 
-  -- connecting MMΣg to gn+1
-  bouquetΣg : bouquetDegree (bouquetMMmap merid-g merid-tt MMΣg) ≡ gn+1
-  bouquetΣg = cong (λ X → bouquetDegree ((Iso.fun (cofibIso (suc (fst n)) D))
-                          ∘ X ∘ (Iso.inv (cofibIso (suc (fst n)) C))))
-         (funExt (realiseMMmap.realiseMMΣg C D (suc m) f g H (fsuc n)))
-    ∙ (cong bouquetDegree (cofibIso-suspFun (suc (fst n)) C D
-                            (prefunctoriality.fn+1/fn (suc m) g (fsuc n))))
-    ∙ sym (bouquetDegreeSusp (prefunctoriality.bouquetFunct (suc m) g (fsuc n)))
+module chainHomEquationZero (m : ℕ) (C : CWskel ℓ) (D : CWskel ℓ')
+  (f g : finCellMap (suc m) C D) (H : finCellHom (suc m) f g) where
+  open SequenceMap
+  open MMmaps C D (suc m) fzero
+  open MMchainHomotopy* (suc m) C D f g H fzero
+  open preChainHomotopy (suc m) C D f g H
+  open chainHomEquation (suc m) C D f g H fzero
 
-  -- Alternative formulation of the chain homotopy equation
-  chainHomotopy1 : addGroupHom _ _ (addGroupHom _ _ ∂H gn+1) H∂ ≡ fn+1
-  chainHomotopy1 =
-      cong (λ X → addGroupHom _ _ X H∂) aux
-    ∙ aux2
-    ∙ cong (λ X → bouquetDegree (bouquetMMmap merid-f merid-tt X))
-      (funExt MMchainHomotopy)
-    ∙ bouquetΣf
-    where
-      module T = MMchainHomotopy* (suc m) C D f g H (fsuc n)
-      MM∂H+MMΣg = MMmap-add T.merid-f T.merid-g T.merid-tt T.MM∂H T.MMΣg
-      MM∂H+MMΣg+MMΣH∂ = MMmap-add merid-f merid-tt merid-tt MM∂H+MMΣg MMΣH∂
+  private
+    ℤ[AC_] = CWskel-fields.ℤ[A_] C
+    ℤ[AD_] = CWskel-fields.ℤ[A_] D
 
-      aux : addGroupHom _ _ ∂H gn+1
-        ≡ bouquetDegree (bouquetMMmap merid-f merid-tt MM∂H+MMΣg)
-      aux = cong₂ (λ X Y → addGroupHom _ _ X Y) (sym bouquet∂H) (sym bouquetΣg)
-            ∙ sym (bouquetAdd.realiseMMmap-hom C D (suc m) (fsuc n)
-                    T.merid-f T.merid-g T.merid-tt T.MM∂H T.MMΣg)
+  H∂' : AbGroupHom (ℤ[AC 0 ]) (ℤ[AD 0 ])
+  H∂' = compGroupHom (augmentation.ϵ C) trivGroupHom
 
-      aux2 : addGroupHom _ _
-                (bouquetDegree (bouquetMMmap merid-f merid-tt MM∂H+MMΣg)) H∂
-           ≡ bouquetDegree (bouquetMMmap merid-f merid-tt MM∂H+MMΣg+MMΣH∂)
-      aux2 = cong (addGroupHom _ _ (bouquetDegree
-                                     (bouquetMMmap merid-f merid-tt MM∂H+MMΣg)))
-                  (sym bouquetΣH∂)
-             ∙ sym (bouquetAdd.realiseMMmap-hom C D (suc m) (fsuc n)
-                     T.merid-f T.merid-tt T.merid-tt MM∂H+MMΣg T.MMΣH∂)
+  MMΣH∂-const : ∀ x → bouquetMMmap merid-tt merid-tt MMΣH∂ x ≡ inl tt
+  MMΣH∂-const x = cong (Iso.fun (cofibIso 0 D)) (realiseMMΣH∂₀ C D m f g H (Iso.inv (cofibIso 0 C) x))
 
-  -- Standard formulation of the chain homotopy equation
-  chainHomotopy2 : subtrGroupHom _ _ fn+1 gn+1 ≡ addGroupHom _ _ ∂H H∂
-  chainHomotopy2 =
-    GroupHom≡ (funExt λ x → aux (fn+1 .fst x) (∂H .fst x) (gn+1 .fst x)
-               (H∂ .fst x) (cong (λ X → X .fst x) chainHomotopy1))
-     where
-      open AbGroupStr (snd (ℤ[AD (suc (fst n)) ]))
-        renaming (_+_ to _+G_ ; -_ to -G_ ; +Assoc to +AssocG ; +Comm to +CommG)
-      aux : ∀ w x y z → (x +G y) +G z ≡ w → w +G (-G y) ≡ x +G z
-      aux w x y z H = cong (λ X → X +G (-G y)) (sym H)
-        ∙ sym (+AssocG (x +G y) z (-G y))
-        ∙ cong (λ X → (x +G y) +G X) (+CommG z (-G y))
-        ∙ +AssocG (x +G y) (-G y) z
-        ∙ cong (λ X → X +G z) (sym (+AssocG x y (-G y))
-                              ∙ cong (λ X → x +G X) (+InvR y)
-                              ∙ +IdR x)
+  bouquetΣH∂ : H∂ ≡ H∂'
+  bouquetΣH∂ = cong bouquetDegree (funExt MMΣH∂-const)
+             ∙ bouquetDegreeConst _ _ _
+             ∙ GroupHom≡ refl
+
+  chainHomotopyZero : subtrGroupHom _ _ fn gn ≡ addGroupHom _ _ ∂H H∂'
+  chainHomotopyZero = chainHomotopy2 ∙ cong (addGroupHom _ _ ∂H) bouquetΣH∂
 
 -- Going from a cell homotopy to a chain homotopy
 cellHom-to-ChainHomotopy : {C : CWskel ℓ} {D : CWskel ℓ'} (m : ℕ)
-  {f g : finCellMap (suc m) C D} (H : finCellHom (suc m) f g)
-  → finChainHomotopy m (finCellMap→finChainComplexMap m f)
-                        (finCellMap→finChainComplexMap m g)
-cellHom-to-ChainHomotopy {C = C} {D} m {f} {g} H .finChainHomotopy.fhtpy n =
-  preChainHomotopy.chainHomotopy (suc m) C D f g H n
-cellHom-to-ChainHomotopy {C = C} {D} m {f} {g} H .finChainHomotopy.fbdryhtpy n =
-  chainHomEquation.chainHomotopy2 m C D f g H n
+  {f g : finCellMap (suc (suc m)) C D} (H : finCellHom (suc (suc m)) f g)
+  → finChainHomotopy (suc m) (finCellMap→finChainComplexMap m f)
+                             (finCellMap→finChainComplexMap m g)
+cellHom-to-ChainHomotopy {C = C} {D} m {f} {g} H .finChainHomotopy.fhtpy (zero , _) =
+  trivGroupHom
+cellHom-to-ChainHomotopy {C = C} {D} m {f} {g} H .finChainHomotopy.fhtpy (suc n , n<m) =
+  preChainHomotopy.chainHomotopy (suc (suc m)) C D f g H (injectSuc (n , n<m))
+cellHom-to-ChainHomotopy {C = C} {D} m {f} {g} H .finChainHomotopy.fbdryhtpy (zero , _) =
+  chainHomEquationZero.chainHomotopyZero (suc m) C D f g H
+cellHom-to-ChainHomotopy {C = C} {D} m {f} {g} H .finChainHomotopy.fbdryhtpy (suc n , n<m) =
+  chainHomEquationSuc.chainHomotopySuc (suc m) C D f g H (n , <ᵗ-trans-suc n<m)

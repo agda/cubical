@@ -10,12 +10,15 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 
 open import Cubical.HITs.Join
 open import Cubical.HITs.Susp.Base
+open import Cubical.HITs.Pushout
 open import Cubical.Homotopy.Loopspace
 
 private
@@ -72,6 +75,47 @@ Susp≃joinBool = isoToEquiv Susp-iso-joinBool
 
 Susp≡joinBool : ∀ {ℓ} {A : Type ℓ} → Susp A ≡ join A Bool
 Susp≡joinBool = isoToPath Susp-iso-joinBool
+
+-- Here Unit* types are more convenient for general A
+SuspSpan : ∀ {ℓ} ℓ' ℓ'' (A : Type ℓ) → 3-span {ℓ'} {ℓ} {ℓ''}
+SuspSpan ℓ' ℓ'' A = record { A2 = A ; A0 = Unit* {ℓ'} ; A4 = Unit* {ℓ''} }
+
+SuspSquare : ∀ {ℓ} ℓ' ℓ'' (A : Type ℓ) → commSquare {ℓ'} {ℓ} {ℓ''}
+SuspSquare ℓ' ℓ'' A = cSq
+  where
+  open commSquare
+  cSq : commSquare
+  cSq .sp = SuspSpan ℓ' ℓ'' A
+  cSq .P = Susp A
+  cSq .inlP _ = north
+  cSq .inrP _ = south
+  cSq .comm = funExt merid
+
+SuspPushoutSquare : ∀ {ℓ} ℓ' ℓ'' (A : Type ℓ)
+  → isPushoutSquare (SuspSquare ℓ' ℓ'' A)
+SuspPushoutSquare ℓ' ℓ'' A = isoToIsEquiv (iso _ inverse rInv lInv)
+  where
+    inverse : _
+    inverse north = inl _
+    inverse south = inr _
+    inverse (merid a i) = push a i
+
+    rInv : _
+    rInv north = refl
+    rInv south = refl
+    rInv (merid a i) = refl
+
+    lInv : _
+    lInv (inl x) = refl
+    lInv (inr x) = refl
+    lInv (push a i) = refl
+
+Susp≃PushoutSusp* : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} → Susp A ≃ spanPushout (SuspSpan ℓ' ℓ'' A)
+Susp≃PushoutSusp* {ℓ} {ℓ'} {ℓ''} {A} = invEquiv (_ , SuspPushoutSquare ℓ' ℓ'' A)
+
+Susp≡PushoutSusp* : ∀ {ℓ ℓ' ℓ''} {A : Type _} → Susp A ≡ spanPushout (SuspSpan ℓ' ℓ'' A)
+Susp≡PushoutSusp* {ℓ} {ℓ'} {ℓ''} = ua
+  (Susp≃PushoutSusp* {ℓ-max ℓ (ℓ-max ℓ' ℓ'')} {ℓ'} {ℓ''})
 
 congSuspIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso A B → Iso (Susp A) (Susp B)
 fun (congSuspIso is) = suspFun (fun is)
