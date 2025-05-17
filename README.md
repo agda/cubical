@@ -12,12 +12,14 @@ For detailed install instructions see the
 [INSTALL](https://github.com/agda/cubical/blob/master/INSTALL.md)
 file.
 If you want to use some specific release of Agda,
-the following table lists which releases of Agda you can use with which release of this library.
+the following table lists which releases of Agda are known to work with which release of this library.
+Most likely, a lot more combinations work as well.
 Agda versions as written below, correspond to tags.
 
 | cubical library version | Agda versions                  |
 |-------------------------|--------------------------------|
-| current master          | `v2.6.4` `v2.6.4.1` `v2.6.4.3` |
+| current master          | `v2.7.0.1`                     |
+| `v0.8`                  | `v2.6.4.1` `v2.7.0.1`          |
 | `v0.7`                  | `v2.6.4` `v2.6.4.1`            |
 | `v0.6`                  | `v2.6.4`                       |
 | `v0.5`                  | `v2.6.3` `v2.6.4`              |

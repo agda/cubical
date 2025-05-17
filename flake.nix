@@ -8,10 +8,9 @@
     flake = false;
   };
   inputs.agda = {
-    url = "github:agda/agda/v2.6.4.1";
+    url = "github:agda/agda/v2.7.0.1";
     inputs = {
       nixpkgs.follows = "nixpkgs";
-      flake-utils.follows = "flake-utils";
     };
   };
 
@@ -21,7 +20,7 @@
       overlay = final: prev: {
         cubical = final.agdaPackages.mkDerivation rec {
           pname = "cubical";
-          version = "0.7";
+          version = "0.8";
 
           src = cleanSourceWith {
             filter = name: type:
@@ -47,7 +46,7 @@
         };
         agdaWithCubical = final.agdaPackages.agda.withPackages [final.cubical];
       };
-      overlays = [ agda.overlay overlay ];
+      overlays = [ agda.overlays.default overlay ];
     in
     { overlays.default = overlay; } //
     flake-utils.lib.eachDefaultSystem (system:
