@@ -4,7 +4,7 @@ module Cubical.README where
 
 ------------------------------------------------------------------------
 -- An experimental library for Cubical Agda
------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 -- The library comes with a .agda-lib file, for use with the library
 -- management system.
