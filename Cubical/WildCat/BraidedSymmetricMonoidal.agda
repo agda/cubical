@@ -104,6 +104,6 @@ module _ (M : WildCat ℓ ℓ') where
       hexagon : HexagonType₁ isMonoidal Braid
       symBraiding : isSymmetricBraiding isMonoidal Braid
 
-SymmetricMonoidalPrecat : (ℓ ℓ' : Level) → Type (ℓ-suc (ℓ-max ℓ ℓ'))
-SymmetricMonoidalPrecat ℓ ℓ' =
+SymmetricMonoidalWildCat : (ℓ ℓ' : Level) → Type (ℓ-suc (ℓ-max ℓ ℓ'))
+SymmetricMonoidalWildCat ℓ ℓ' =
   Σ[ C ∈ WildCat ℓ ℓ' ] isSymmetricWildCat C
