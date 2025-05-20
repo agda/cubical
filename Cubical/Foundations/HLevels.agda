@@ -21,6 +21,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence using (ua ; univalenceIso)
+open import Cubical.Foundations.CartesianKanOps
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
@@ -863,3 +864,24 @@ module _ (B : (i j k : I) → Type ℓ)
 
 Π-contractDom : (c : isContr A) → ((x : A) → B x) ≃ B (c .fst)
 Π-contractDom c = isoToEquiv (Π-contractDomIso c)
+
+
+lem722 : {A : Type ℓ} (R : A → A → Type ℓ')
+  (isPropR : ∀ a a' → isProp (R a a'))
+  (impliesId : ∀ a a' → R a a' → a ≡ a')
+  (reflA : ∀ a → R a a)
+  → isSet A
+lem722 R isPropR f ρ x =
+ let u : (p : x ≡ x) →
+          PathP (λ z → p z ≡ x) (f x x (ρ x)) (f x x (transp (λ j → R (p j) x) i0 (ρ x)))
+     u p = λ i → f (p i) x (coe0→i (λ i → R (p i) x) i (ρ x))
+ in λ y → J (λ y p → ∀ q → p ≡ q)
+     λ q i j →
+        hcomp (λ z → λ {
+          (i = i1) → u q j (~ z)
+         ;(i = i0) → f x x
+              (isPropR _ _ (ρ x) (transp (λ j₁ → R (q j₁) x) i0 (ρ x))
+                j) (~ z)
+         ;(j = i0) → u q j (~ z)
+         ;(j = i1) → u q j (~ z)})
+         x
