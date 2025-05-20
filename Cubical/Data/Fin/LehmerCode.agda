@@ -191,11 +191,7 @@ encode = equivFun lehmerEquiv
 decode : LehmerCode n → Fin n ≃ Fin n
 decode = invEq lehmerEquiv
 
-factorial : ℕ → ℕ
-factorial zero = 1
-factorial (suc n) = suc n · factorial n
-
-lehmerFinEquiv : LehmerCode n ≃ Fin (factorial n)
+lehmerFinEquiv : LehmerCode n ≃ Fin (n !)
 lehmerFinEquiv {zero} = isContr→Equiv isContrLehmerZero isContrFin1
 lehmerFinEquiv {suc n} = _ ≃⟨ invEquiv lehmerSucEquiv ⟩
                          _ ≃⟨ ≃-× (idEquiv _) lehmerFinEquiv ⟩

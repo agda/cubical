@@ -25,6 +25,12 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.AbGroup.Base using (move4)
 
+Fin≡ : {m : ℕ} (a b : Fin m) → fst a ≡ fst b → a ≡ b
+Fin≡ {m} (a , Ha) (b , Hb) H i =
+  (H i , hcomp (λ j → λ { (i = i0) → Ha
+                        ; (i = i1) → isProp<ᵗ {b}{m} (transp (λ j → H j <ᵗ m) i0 Ha) Hb j })
+               (transp (λ j → H (i ∧ j) <ᵗ m) (~ i) Ha))
+
 fsuc-injectSuc : {m : ℕ} (n : Fin m)
   → injectSuc {n = suc m} (fsuc {n = m} n) ≡ fsuc (injectSuc n)
 fsuc-injectSuc {m = suc m} (x , p) = refl

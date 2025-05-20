@@ -1,4 +1,4 @@
-name: cubical-0.7
+name: cubical-0.8
 include: .
 depend:
 flags: --cubical --no-import-sorts -WnoUnsupportedIndexedMatch

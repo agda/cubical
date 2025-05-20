@@ -67,13 +67,8 @@ commK (gluer b x) = refl
 
 --- Alternative definition
 
-i∧ : {A : Pointed ℓ} {B : Pointed ℓ'} → A ⋁ B → (typ A) × (typ B)
-i∧ {A = A , ptA} {B = B , ptB} (inl x) = x , ptB
-i∧ {A = A , ptA} {B = B , ptB} (inr x) = ptA , x
-i∧ {A = A , ptA} {B = B , ptB} (push tt i) = ptA , ptB
-
 _⋀_ : Pointed ℓ → Pointed ℓ' → Type (ℓ-max ℓ ℓ')
-A ⋀ B = Pushout {A = (A ⋁ B)} (λ _ → tt) i∧
+A ⋀ B = Pushout {A = (A ⋁ B)} (λ _ → tt) ⋁↪
 
 _⋀∙_ : Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
 A ⋀∙ B = (A ⋀ B) , (inl tt)

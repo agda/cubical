@@ -43,3 +43,5 @@ Fill in the form with something like this:
   zip -r cubical-0.5.zip cubical
   tar cfz cubical-0.5.tar.gz cubical
   ```
+
+Create and push a tag for the new version of the library.

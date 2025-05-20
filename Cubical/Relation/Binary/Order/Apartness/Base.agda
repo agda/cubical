@@ -66,8 +66,8 @@ record ApartnessStr (ℓ' : Level) (A : Type ℓ) : Type (ℓ-max ℓ (ℓ-suc �
 Apartness : ∀ ℓ ℓ' → Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ'))
 Apartness ℓ ℓ' = TypeWithStr ℓ (ApartnessStr ℓ')
 
-apartness : (A : Type ℓ) (_#_ : A → A → Type ℓ') (h : IsApartness _#_) → Apartness ℓ ℓ'
-apartness A _#_ h = A , apartnessstr _#_ h
+apartness : (A : Type ℓ) → (_#_ : Rel A A ℓ') → IsApartness _#_ → Apartness ℓ ℓ'
+apartness A _#_ apart = A , (apartnessstr _#_ apart)
 
 record IsApartnessEquiv {A : Type ℓ₀} {B : Type ℓ₁}
   (M : ApartnessStr ℓ₀' A) (e : A ≃ B) (N : ApartnessStr ℓ₁' B)
