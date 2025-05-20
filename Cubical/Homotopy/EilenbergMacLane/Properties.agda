@@ -812,6 +812,25 @@ module _ where
              →∙ →∙EMPath {G = L} (EM-raw'∙ H (suc m)) (suc (suc (l + n + m))) (~ i))
         (isOfHLevel↑∙∙'' n m l)
 
+-- A homomorphism φ : G → H of (not necessarily abelian) groups induces a homomorphism
+-- φ' : K(G,1) → K(H,1)
+
+inducedFun-EM₁ : {G : Group ℓ} {H : Group ℓ'} (f : GroupHom G H) → EM₁ G → EM₁ H
+inducedFun-EM₁ f = EMrec _ emsquash embase (λ g → emloop (fst f g)) λ g h i j → hcomp (λ k → λ where
+    (i = i0) → emloop (f .fst g) j
+    (i = i1) → emloop (f .snd .pres· g h (~ k)) j
+    (j = i0) → embase
+    (j = i1) → emloop (f .fst h) i
+  ) (emcomp (f .fst g) (f. fst h) i j)
+  where open IsGroupHom
+
+inducedFun-EM₁-id : {G : Group ℓ} (x : EM₁ G) → inducedFun-EM₁ idGroupHom x ≡ x
+inducedFun-EM₁-id = elimSet _ (λ _ → emsquash _ _) refl λ x i → refl
+
+inducedFun-EM₁-comp : {G : Group ℓ} {H : Group ℓ'} {L : Group ℓ''} (f : GroupHom G H) (g : GroupHom H L) (x : EM₁ G)
+                    → inducedFun-EM₁ (compGroupHom f g) x ≡ inducedFun-EM₁ g (inducedFun-EM₁ f x)
+inducedFun-EM₁-comp f g = elimSet _ (λ _ → emsquash _ _) refl λ x i → refl
+
 -- A homomorphism φ : G → H of AbGroups induces a homomorphism
 -- φ' : K(G,n) → K(H,n)
 inducedFun-EM-raw : {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
@@ -1014,6 +1033,15 @@ Iso.leftInv (inducedFun-EM-rawIso e n) = h n
     λ n p → λ { north → refl
                ; south → refl
                ; (merid a i) k → merid (p a k) i}
+
+Iso→EM₁Iso : {G : Group ℓ} {H : Group ℓ'} → GroupIso G H → Iso (EM₁ G) (EM₁ H)
+Iso→EM₁Iso e .Iso.fun = inducedFun-EM₁ (GroupIso→GroupHom e)
+Iso→EM₁Iso e .Iso.inv = inducedFun-EM₁ (GroupIso→GroupHom (invGroupIso e))
+Iso→EM₁Iso e .Iso.rightInv = elimSet _ (λ _ → emsquash _ _) refl λ x i j → emloop (e .fst .Iso.rightInv x j) i
+Iso→EM₁Iso e .Iso.leftInv = elimSet _ (λ _ → emsquash _ _) refl λ x i j → emloop (e .fst .Iso.leftInv x j) i
+
+Equiv→EM₁Equiv : {G : Group ℓ} {H : Group ℓ'} → GroupEquiv G H → EM₁ G ≃ EM₁ H
+Equiv→EM₁Equiv e = isoToEquiv (Iso→EM₁Iso (GroupEquiv→GroupIso e))
 
 module _ {G : AbGroup ℓ} {H : AbGroup ℓ'} (e : AbGroupEquiv G H) where
   Iso→EMIso : ∀ n → Iso (EM G n) (EM H n)
