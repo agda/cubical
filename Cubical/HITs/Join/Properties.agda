@@ -19,6 +19,7 @@ module Cubical.HITs.Join.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Path
@@ -99,8 +100,8 @@ joinPushout≡join A B = isoToPath (joinPushout-iso-join A B)
 {-
   Proof of associativity of the join
 -}
-join-assoc : (A B C : Type ℓ) → join (join A B) C ≡ join A (join B C)
-join-assoc {ℓ} A B C = (joinPushout≡join (join A B) C) ⁻¹
+join-assoc-samelevel : (A B C : Type ℓ) → join (join A B) C ≡ join A (join B C)
+join-assoc-samelevel {ℓ} A B C = (joinPushout≡join (join A B) C) ⁻¹
                    ∙ (spanEquivToPushoutPath sp3≃sp4) ⁻¹
                    ∙ (3x3-span.3x3-lemma span) ⁻¹
                    ∙ (spanEquivToPushoutPath sp1≃sp2)
@@ -299,6 +300,41 @@ join-assoc {ℓ} A B C = (joinPushout≡join (join A B) C) ⁻¹
         H4 (inl (a , c)) = refl
         H4 (inr (b , c)) = refl
         H4 (push (a , (b , c)) i) j = fst (joinPushout≃join _ _) (doubleCompPath-filler refl (λ i → push (a , b) i) refl j i)
+
+join-assoc : ∀ {ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') → join (join A B) C ≡ join A (join B C)
+join-assoc {ℓ} {ℓ'} {ℓ''} A B C =
+  LiftExt {ℓ' = ℓ-max (ℓ-max ℓ ℓ') ℓ''} (join-lift ⁻¹
+                                        ∙ cong₂ join join-lift refl ⁻¹
+                                        ∙ join-assoc-samelevel (Lift A) (Lift B) (Lift C)
+                                        ∙ cong₂ join refl join-lift
+                                        ∙ join-lift)
+  where
+    join-lift : ∀ {ℓ ℓ' ℓ-out} {A : Type ℓ} {B : Type ℓ'} →
+      join (Lift {j = ℓ-out} A) (Lift {j = ℓ-out} B) ≡ Lift {j = ℓ-out} (join A B)
+    join-lift {ℓ-out = ℓ-out} {A = A} {B = B} = isoToPath (iso f g fg gf)
+      where
+        f : join (Lift {j = ℓ-out} A) (Lift {j = ℓ-out} B) → Lift {j = ℓ-out} (join A B)
+        f (inl (lift x)) = lift (inl x)
+        f (inr (lift x)) = lift (inr x)
+        f (push (lift a) (lift b) i) = lift (push a b i)
+
+        g : Lift {j = ℓ-out} (join A B) → join (Lift {j = ℓ-out} A) (Lift {j = ℓ-out} B)
+        g (lift (inl x)) = inl (lift x)
+        g (lift (inr x)) = inr (lift x)
+        g (lift (push a b i)) = push (lift a) (lift b) i
+
+        fg : ∀ x → f (g x) ≡ x
+        fg (lift (inl x)) = refl
+        fg (lift (inr x)) = refl
+        fg (lift (push a b i)) = refl
+
+        gf : ∀ x → g (f x) ≡ x
+        gf (inl (lift x)) = refl
+        gf (inr (lift x)) = refl
+        gf (push (lift a) (lift b) i) = refl
+
+    LiftExt : ∀ {ℓ ℓ'} {A B : Type ℓ} → Lift {j = ℓ'} A ≡ Lift {j = ℓ'} B → A ≡ B
+    LiftExt p = ua (LiftEquiv ∙ₑ pathToEquiv p ∙ₑ invEquiv LiftEquiv)
 
 {-
   Direct proof of an associativity-related property. Combined with
