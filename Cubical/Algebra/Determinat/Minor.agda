@@ -1,4 +1,3 @@
-{-# OPTIONS --cubical #-}
 {-# OPTIONS --safe #-}
 
 module Cubical.Algebra.Determinat.Minor where
@@ -192,4 +191,3 @@ module Minor (ℓ : Level) where
     ≡⟨ cong (λ a → M (suc k) a) (removeIndexId j l lej) ⟩
     M (suc k) (weakenFin l)
     ∎
-
