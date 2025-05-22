@@ -31,8 +31,8 @@ private
     ℓ ℓ' : Level
 
 record IsExactAt {ℓ ℓ' ℓ'' : Level}
-                 {A : Group ℓ} {B : Group ℓ'} {C : Group ℓ''} 
-                 (f : GroupHom A B) (g : GroupHom B C) (b : ⟨ B ⟩) 
+                 {A : Group ℓ} {B : Group ℓ'} {C : Group ℓ''}
+                 (f : GroupHom A B) (g : GroupHom B C) (b : ⟨ B ⟩)
                  : Type (ℓ-max ℓ (ℓ-max ℓ' ℓ'')) where
   field
     im∈ker : isInIm f b → isInKer g b
