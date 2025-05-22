@@ -30,17 +30,17 @@ private
   variable
     ℓ ℓ' : Level
 
--- Exactness except the intersecting Group is only propositionally equal
-isWeakExactAt : {A B B' C : Group ℓ} (f : GroupHom A B) (g : GroupHom B' C) (p : B ≡ B') → Type ℓ
-isWeakExactAt {ℓ = ℓ} {B = B} {B' = B'} f g p = (b : ⟨ B ⟩) → (isInKer g (tr b) → isInIm f b) × (isInIm f b → isInKer g (tr b)) where
-  tr = λ (b : ⟨ B ⟩) → subst (λ (a : Σ (Type ℓ) GroupStr) → fst a) p b
+record IsExactAt {ℓ ℓ' ℓ'' : Level}
+                 {A : Group ℓ} {B : Group ℓ'} {C : Group ℓ''} 
+                 (f : GroupHom A B) (g : GroupHom B C) (b : ⟨ B ⟩) 
+                 : Type (ℓ-max ℓ (ℓ-max ℓ' ℓ'')) where
+  field
+    im∈ker : isInIm f b → isInKer g b
+    ker∈im : isInKer g b → isInIm f b
+open IsExactAt public
 
-isExactAt : {A B C : Group ℓ} (f : GroupHom A B) (g : GroupHom B C) → Type ℓ
-isExactAt {B = B} f g = (b : ⟨ B ⟩) → (isInKer g b → isInIm f b) × (isInIm f b → isInKer g b)
-
-isWeakExactAtRefl : {A B C : Group ℓ} (f : GroupHom A B) (g : GroupHom B C)
-  → isWeakExactAt f g refl ≡ isExactAt f g
-isWeakExactAtRefl {ℓ = ℓ} {B = B} f g i = (b : ⟨ B ⟩) → (isInKer g (transportRefl b i) → isInIm f b) × (isInIm f b → isInKer g (transportRefl b i))
+IsExact : {A B C : Group ℓ} (f : GroupHom A B) (g : GroupHom B C) → Type ℓ
+IsExact {B = B} f g = (b : ⟨ B ⟩) → IsExactAt f g b
 
 SES→isEquiv : {L R : Group ℓ-zero}
   → {G : Group ℓ} {H : Group ℓ'}

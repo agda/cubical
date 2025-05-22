@@ -29,12 +29,12 @@ private
     ℓ ℓ' : Level
 
 module _
-  (A B C D E A' B' C' D' E' : Group ℓ)
-  (f : GroupHom A B) (g : GroupHom B C) (h : GroupHom C D) (j : GroupHom D E)
-  (l : GroupHom A A') (m : BijectionIso B B') (n : GroupHom C C') (p : BijectionIso D D') (q : GroupHom E E')
-  (r : GroupHom A' B') (s : GroupHom B' C') (t : GroupHom C' D') (u : GroupHom D' E')
-  (fg : isExactAt f g) (gh : isExactAt g h) (hj : isExactAt h j)
-  (rs : isExactAt r s) (st : isExactAt s t) (tu : isExactAt t u)
+  {A B C D E A' B' C' D' E' : Group ℓ}
+  {f : GroupHom A B} {g : GroupHom B C} {h : GroupHom C D} {j : GroupHom D E}
+  {l : GroupHom A A'} {m : BijectionIso B B'} {n : GroupHom C C'} {p : BijectionIso D D'} {q : GroupHom E E'}
+  {r : GroupHom A' B'} {s : GroupHom B' C'} {t : GroupHom C' D'} {u : GroupHom D' E'}
+  (fg : IsExact f g) (gh : IsExact g h) (hj : IsExact h j)
+  (rs : IsExact r s) (st : IsExact s t) (tu : IsExact t u)
   (lSurj : isSurjective l)
   (qInj : isInjective q)
   (sq1 : (a : fst A) → r .fst (l .fst a) ≡ m .fun .fst (f .fst a))
@@ -65,7 +65,7 @@ module _
         c-in-ker[h] = h[c]≡0
 
         c-in-im[g] : isInIm g c
-        c-in-im[g] = gh c .fst c-in-ker[h]
+        c-in-im[g] = gh c .ker∈im c-in-ker[h]
 
         rest : (b : ⟨ B ⟩) → (g .fst b ≡ c) → goalTy
 
@@ -89,7 +89,7 @@ module _
           m[b]-in-ker[s] = s[m[b]]≡0
 
           m[b]-in-im[r] : isInIm r m[b]
-          m[b]-in-im[r] = rs m[b] .fst m[b]-in-ker[s]
+          m[b]-in-im[r] = rs m[b] .ker∈im m[b]-in-ker[s]
 
           rest2 : (a' : ⟨ A' ⟩) → (r .fst a' ≡ m[b]) → (a : ⟨ A ⟩) → l .fst a ≡ a' → goalTy
 
@@ -118,7 +118,7 @@ module _
             f[a]-in-im[f] = ∣ a , refl ∣₁
 
             f[a]-in-ker[g] : isInKer g (f .fst a)
-            f[a]-in-ker[g] = fg (f .fst a) .snd f[a]-in-im[f]
+            f[a]-in-ker[g] = fg (f .fst a) .im∈ker f[a]-in-im[f]
 
             g[f[a]]≡0 : g .fst (f .fst a) ≡ C .snd .GroupStr.1g
             g[f[a]]≡0 = f[a]-in-ker[g]
@@ -158,8 +158,7 @@ module _
         u[p[d]]≡q[j[d]] = sq4 d
 
         d'-in-ker[u] : isInKer u d'
-        d'-in-ker[u] = let im[t]→ker[u] = tu d' .snd in
-          im[t]→ker[u] ∣ (c' , refl) ∣₁
+        d'-in-ker[u] = tu d' .im∈ker ∣ (c' , refl) ∣₁
 
         u[p[d]]≡0 : u[p[d]] ≡ E' .snd .GroupStr.1g
         u[p[d]]≡0 = cong (u .fst) p[d]≡t[c'] ∙ d'-in-ker[u]
@@ -174,9 +173,7 @@ module _
         d-in-ker[j] = j[d]≡0
 
         d-in-im[h] : isInIm h d
-        d-in-im[h] =
-          let ker[j]→im[h] = hj d .fst in
-          ker[j]→im[h] d-in-ker[j]
+        d-in-im[h] = hj d .ker∈im d-in-ker[j]
 
         rest : (c : ⟨ C ⟩) → h .fst c ≡ d → goalTy
 
@@ -216,9 +213,7 @@ module _
           [c'-n[c]]-in-ker[t] = t[c'-n[c]]≡0
 
           [c'-n[c]]-in-im[s] : isInIm s c'-n[c]
-          [c'-n[c]]-in-im[s] =
-            let ker[t]→im[s] = st c'-n[c] .fst in
-            ker[t]→im[s] [c'-n[c]]-in-ker[t]
+          [c'-n[c]]-in-im[s] = st c'-n[c] .ker∈im [c'-n[c]]-in-ker[t]
 
           rest2 : (b' : ⟨ B' ⟩) → s .fst b' ≡ c'-n[c] → goalTy
 
