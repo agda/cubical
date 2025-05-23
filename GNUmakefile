@@ -57,7 +57,7 @@ timings: clean gen-everythings
 	$(AGDA) -v profile.modules:10 Cubical/README.agda
 
 .PHONY : listings
-listings: $(wildcard Cubical/**/*.agda)
+listings: gen-everythings $(wildcard Cubical/**/*.agda)
 	$(AGDA) -i. -isrc --html Cubical/README.agda -v0
 
 .PHONY : clean
