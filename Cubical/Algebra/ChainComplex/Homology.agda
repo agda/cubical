@@ -35,42 +35,30 @@ open ChainComplex
 open finChainComplexMap
 open IsGroupHom
 
--- Definition of homology
-homology : (n : ℕ) → ChainComplex ℓ → Group ℓ
-homology n C = ker∂n / img∂+1⊂ker∂n
-  where
-  Cn+2 = AbGroup→Group (chain C (suc (suc n)))
-  ∂n = bdry C n
-  ∂n+1 = bdry C (suc n)
-  ker∂n = kerGroup ∂n
+module _ (n : ℕ) (C : ChainComplex ℓ) where
+  ker∂n = kerGroup (bdry C n)
 
-  -- Restrict ∂n+1 to ker∂n
-  ∂'-fun : Cn+2 .fst → ker∂n .fst
-  fst (∂'-fun x) = ∂n+1 .fst x
-  snd (∂'-fun x) = t
+  ∂ker : GroupHom (AbGroup→Group (chain C (suc (suc n)))) ker∂n
+  ∂ker .fst x = (bdry C (suc n) .fst x) , t
     where
     opaque
-     t : ⟨ fst (kerSubgroup ∂n) (∂n+1 .fst x) ⟩
+     t : ⟨ fst (kerSubgroup (bdry C n)) (bdry C (suc n) .fst x) ⟩
      t = funExt⁻ (cong fst (bdry²=0 C n)) x
-
-  ∂' : GroupHom Cn+2 ker∂n
-  fst ∂' = ∂'-fun
-  snd ∂' = isHom
-    where
-    opaque
-      isHom : IsGroupHom (Cn+2 .snd) ∂'-fun (ker∂n .snd)
-      isHom = makeIsGroupHom λ x y
-        → kerGroup≡ ∂n (∂n+1 .snd .pres· x y)
+  ∂ker .snd = makeIsGroupHom (λ x y → kerGroup≡ (bdry C n) ((bdry C (suc n) .snd .pres· x y)))
 
   img∂+1⊂ker∂n : NormalSubgroup ker∂n
-  fst img∂+1⊂ker∂n = imSubgroup ∂'
+  fst img∂+1⊂ker∂n = imSubgroup ∂ker
   snd img∂+1⊂ker∂n = isNormalImSubGroup
     where
     opaque
       module C1 = AbGroupStr (chain C (suc n)  .snd)
-      isNormalImSubGroup : isNormal (imSubgroup ∂')
-      isNormalImSubGroup = isNormalIm ∂'
-        (λ x y → kerGroup≡ ∂n (C1.+Comm (fst x) (fst y)))
+      isNormalImSubGroup : isNormal (imSubgroup ∂ker)
+      isNormalImSubGroup = isNormalIm ∂ker
+        (λ x y → kerGroup≡ (bdry C n) (C1.+Comm (fst x) (fst y)))
+
+-- Definition of homology
+homology : (n : ℕ) → ChainComplex ℓ → Group ℓ
+homology n C = (ker∂n n C) / (img∂+1⊂ker∂n n C)
 
 -- Induced maps on cohomology by finite chain complex maps/homotopies
 module _ where

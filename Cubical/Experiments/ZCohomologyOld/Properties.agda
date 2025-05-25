@@ -268,12 +268,12 @@ cancelₖ (suc (suc (suc (suc (suc n))))) x = cong (ΩKn+1→Kn (5 + n)) (rCance
                  ∙∙ cong (ΩKn+1→Kn (suc n)) (sym (rUnit (Kn→ΩKn+1 (suc n) x)))
                  ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 (suc n)) x
 
+open Iso renaming (inv to inv')
 abstract
   isCommΩK1 : (n : ℕ) → isComm∙ ((Ω^ n) (coHomK-ptd 1))
   isCommΩK1 zero = isCommA→isCommTrunc 2 comm-ΩS¹ isGroupoidS¹
   isCommΩK1 (suc n) = EH n
 
-  open Iso renaming (inv to inv')
   isCommΩK : (n : ℕ) → isComm∙ (coHomK-ptd n)
   isCommΩK zero p q = isSetℤ _ _ (p ∙ q) (q ∙ p)
   isCommΩK (suc zero) = isCommA→isCommTrunc 2 comm-ΩS¹ isGroupoidS¹

@@ -31,6 +31,7 @@ open import Cubical.CW.Base
 open import Cubical.CW.Properties
 open import Cubical.CW.ChainComplex
 
+open import Cubical.HITs.S1
 open import Cubical.HITs.Sn.Degree
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Susp
@@ -320,34 +321,85 @@ module functoriality (m : ℕ) (f : finCellMap (suc m) C D) where
       degree-pre∂∘funct n =
         bouquetDegreeComp (preboundary.pre∂ D (fst n)) (bouquetFunct (fsuc n))
 
+-- Now we prove the commutativity condition for the augmentation map
+module augmentationFunct (m : ℕ) (f : finCellMap (suc m) C D) where
+  open CWskel-fields
+  open SequenceMap
+  module pf* = prefunctoriality m (finCellMap↓ f)
+  open prefunctoriality (suc m) f
+  open FinSequenceMap
+
+  commε : (x : Susp (cofibCW 0 C))
+    → ((augmentation.ε D) ∘ (suspFun (fn+1/fn fzero))) x
+     ≡ augmentation.ε C x
+  commε north = refl
+  commε south = refl
+  commε (merid (inl x) i) = refl
+  commε (merid (inr x) i) = refl
+  commε (merid (push x i₁) i) with (C .snd .snd .snd .fst x)
+  commε (merid (push x i₁) i) | ()
+
+  commPreϵ : (x : SphereBouquet 1 (A C 0))
+           → ((augmentation.preϵ D) ∘ (bouquetSusp→ (bouquetFunct fzero))) x ≡ augmentation.preϵ C x
+  commPreϵ x = cong ((ε D) ∘ (suspFun (inv (iso2 D)))) (leftInv (iso1 D) (((suspFun (bouquetFunct fzero)) ∘ (inv (iso1 C))) x))
+             ∙ cong (ε D) (funExt⁻ aux (inv (iso1 C) x))
+             ∙ commε (((suspFun (inv (iso2 C))) ∘ (inv (iso1 C))) x)
+    where
+      open Iso
+      open augmentation
+
+      bouquet : (C : CWskel ℓ) (n : ℕ) → Type
+      bouquet = λ C n → SphereBouquet n (Fin (snd C .fst 0))
+
+      iso1 : (C : CWskel ℓ) → Iso (Susp (bouquet C 0)) (bouquet C 1)
+      iso1 C = sphereBouquetSuspIso
+
+      iso2 : (C : CWskel ℓ) → Iso (cofibCW 0 C) (bouquet C 0)
+      iso2 C = BouquetIso-gen 0 (snd C .fst 0) (snd C .snd .fst 0) (snd C .snd .snd .snd 0)
+
+      aux : (suspFun (inv (iso2 D))) ∘ (suspFun (bouquetFunct fzero))
+             ≡ (suspFun (fn+1/fn fzero)) ∘ (suspFun (inv (iso2 C)))
+      aux = (sym (suspFunComp (inv (iso2 D)) (bouquetFunct fzero)))
+          ∙ cong suspFun (funExt (λ x → leftInv (iso2 D) (((fn+1/fn fzero) ∘ (inv (iso2 C))) x)))
+          ∙ (suspFunComp (fn+1/fn fzero) (inv (iso2 C)))
+
+  commϵFunct : compGroupHom (chainFunct fzero) (augmentation.ϵ D)
+               ≡ compGroupHom (augmentation.ϵ C) (idGroupHom)
+  commϵFunct = (λ i → compGroupHom (bouquetDegreeSusp (bouquetFunct fzero) i) (augmentation.ϵ D))
+             ∙ sym (bouquetDegreeComp (augmentation.preϵ D) (bouquetSusp→ (bouquetFunct fzero)))
+             ∙ cong bouquetDegree (funExt commPreϵ)
+             ∙ sym (compGroupHomId (augmentation.ϵ C))
+
 open finChainComplexMap
+
 -- Main statement of functoriality
--- From a cellMap, we can get a ChainComplexMap
-finCellMap→finChainComplexMap : (m : ℕ) (f : finCellMap (suc m) C D)
-  → finChainComplexMap m (CW-ChainComplex C) (CW-ChainComplex D)
-fchainmap (finCellMap→finChainComplexMap m f) n =
-  prefunctoriality.chainFunct (suc m) f n
-fbdrycomm (finCellMap→finChainComplexMap m f) n = functoriality.comm∂Funct m f n
+-- From a cellMap, we can get a ChainComplexMap between augmented chain complexes
+finCellMap→finChainComplexMap : (m : ℕ) (f : finCellMap (suc (suc m)) C D)
+  → finChainComplexMap (suc m) (CW-AugChainComplex C) (CW-AugChainComplex D)
+fchainmap (finCellMap→finChainComplexMap m f) (zero , _) = idGroupHom
+fchainmap (finCellMap→finChainComplexMap m f) (suc n , n<m) = prefunctoriality.chainFunct (suc (suc m)) f (injectSuc (n , n<m))
+fbdrycomm (finCellMap→finChainComplexMap m f) (zero , _) = augmentationFunct.commϵFunct (suc m) f
+fbdrycomm (finCellMap→finChainComplexMap m f) (suc n , n<m) = functoriality.comm∂Funct (suc m) f (n , <ᵗ-trans-suc n<m)
 
 finCellMap→finChainComplexMapId : (m : ℕ)
-  → finCellMap→finChainComplexMap m (idFinCellMap (suc m) C)
-   ≡ idFinChainMap m (CW-ChainComplex C)
+  → finCellMap→finChainComplexMap m (idFinCellMap (suc (suc m)) C)
+   ≡ idFinChainMap (suc m) (CW-AugChainComplex C)
 finCellMap→finChainComplexMapId m = finChainComplexMap≡
-  λ x → cong bouquetDegree (bouquetFunct-id _ _ x) ∙ bouquetDegreeId
+  λ { (zero , _) → refl
+    ; (suc n , n<m) → cong bouquetDegree (bouquetFunct-id _ _ (injectSuc (n , n<m))) ∙ bouquetDegreeId }
 
 finCellMap→finChainComplexMapComp : (m : ℕ)
-  (g : finCellMap (suc m) D E) (f : finCellMap (suc m) C D)
+  (g : finCellMap (suc (suc m)) D E) (f : finCellMap (suc (suc m)) C D)
   → finCellMap→finChainComplexMap m (composeFinCellMap _ g f)
    ≡ compFinChainMap (finCellMap→finChainComplexMap m f)
                      (finCellMap→finChainComplexMap m g)
-finCellMap→finChainComplexMapComp m g f =
-  finChainComplexMap≡ λ x
-    → cong bouquetDegree (sym (bouquetFunct-comp _ g f x))
-     ∙ bouquetDegreeComp _ _
+finCellMap→finChainComplexMapComp m g f = finChainComplexMap≡
+  λ { (zero , _) → sym (compGroupHomId idGroupHom)
+    ; (suc n , n<m) → cong bouquetDegree (sym (bouquetFunct-comp _ g f (injectSuc (n , n<m)))) ∙ bouquetDegreeComp _ _ }
 
 -- And thus a map of homology
 finCellMap→HomologyMap : (m : ℕ) (f : finCellMap (suc (suc (suc m))) C D)
-  → GroupHom (Hˢᵏᵉˡ C m) (Hˢᵏᵉˡ D m)
+  → GroupHom (H̃ˢᵏᵉˡ C m) (H̃ˢᵏᵉˡ D m)
 finCellMap→HomologyMap {C = C} {D = D} m f =
   finChainComplexMap→HomologyMap (suc m)
     (finCellMap→finChainComplexMap _ f) flast
