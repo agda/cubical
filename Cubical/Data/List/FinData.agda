@@ -11,7 +11,7 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.Nat
 
-variable
+private variable
   ℓ : Level
   A B : Type ℓ
 
@@ -21,8 +21,7 @@ lookup (x ∷ xs) zero    = x
 lookup (x ∷ xs) (suc i) = lookup xs i
 
 tabulate : ∀ n → (Fin n → A) → List A
-tabulate zero ^a = []
-tabulate (suc n) ^a = ^a zero ∷ tabulate n (^a ∘ suc)
+tabulate n = foldrFinVec _∷_ []
 
 length-tabulate : ∀ n → (^a : Fin n → A) → length (tabulate n ^a) ≡ n
 length-tabulate zero ^a = refl
@@ -58,3 +57,32 @@ lookup-map f (x ∷ xs) zero zero p = refl
 lookup-map f (x ∷ xs) zero (suc p1) p = ⊥.rec (znotsP p)
 lookup-map f (x ∷ xs) (suc p0) zero p = ⊥.rec (snotzP p)
 lookup-map f (x ∷ xs) (suc p0) (suc p1) p = lookup-map f xs p0 p1 (injSucFinP p)
+
+tabulate' : ∀ n → (Fin n → A) → List A
+tabulate' n ^a = foldrFinVec _++_ [] (mapFinVec [_] ^a)
+
+tabulate'≡tabulate : ∀ n (^a : Fin n → A) → tabulate' n ^a ≡ tabulate n ^a
+tabulate'≡tabulate zero ^a = refl
+tabulate'≡tabulate (suc n) ^a = congR _∷_ (tabulate'≡tabulate n (^a ∘ suc))
+
+length-tabulate' : ∀ n → (^a : Fin n → A) → length (tabulate' n ^a) ≡ n
+length-tabulate' zero ^a = refl
+length-tabulate' (suc n) ^a = cong suc (length-tabulate' n (^a ∘ suc))
+
+tabulate'-lookup : ∀ (xs : List A) → tabulate' (length xs) (lookup xs) ≡ xs
+tabulate'-lookup [] = refl
+tabulate'-lookup (x ∷ xs) = cong (x ∷_) (tabulate'-lookup xs)
+
+lookup-tabulate' : ∀ n → (^a : Fin n → A)  → PathP (λ i → (Fin (length-tabulate' n ^a i) → A)) (lookup (tabulate' n ^a)) ^a
+lookup-tabulate' (suc n) ^a i zero = ^a zero
+lookup-tabulate' (suc n) ^a i (suc p) = lookup-tabulate' n (^a ∘ suc) i p
+
+lookup-tabulate'-iso : (A : Type ℓ) → Iso (List A) (Σ[ n ∈ ℕ ] (Fin n → A))
+fun (lookup-tabulate'-iso A) xs = (length xs) , lookup xs
+inv (lookup-tabulate'-iso A) (n , f) = tabulate' n f
+leftInv (lookup-tabulate'-iso A) = tabulate'-lookup
+rightInv (lookup-tabulate'-iso A) (n , f) =
+  ΣPathP ((length-tabulate' n f) , lookup-tabulate' n f)
+
+lookup-tabulate'-equiv : (A : Type ℓ) → List A ≃ (Σ[ n ∈ ℕ ] (Fin n → A))
+lookup-tabulate'-equiv A = isoToEquiv (lookup-tabulate'-iso A)

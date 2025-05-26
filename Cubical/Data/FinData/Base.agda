@@ -79,8 +79,18 @@ FinVec A n = Fin n → A
 replicateFinVec : (n : ℕ) → A → FinVec A n
 replicateFinVec _ a _ = a
 
-
 _++Fin_ : {n m : ℕ} → FinVec A n → FinVec A m → FinVec A (n + m)
 _++Fin_ {n = zero} _ W i = W i
 _++Fin_ {n = suc n} V _ zero = V zero
 _++Fin_ {n = suc n} V W (suc i) = ((V ∘ suc) ++Fin W) i
+
+foldrFinVec : {n : ℕ} → (A → B → B) → B → FinVec A n → B
+foldrFinVec {n = zero} f x V = x
+foldrFinVec {n = suc n} f x V = f (V zero) (foldrFinVec f x (V ∘ suc))
+
+foldlFinVec : {n : ℕ} → (B → A → B) → B → FinVec A n → B
+foldlFinVec {n = zero} f x V = x
+foldlFinVec {n = suc n} f x V = foldlFinVec f (f x (V zero)) (V ∘ suc)
+
+mapFinVec : {n : ℕ} → (A → B) → FinVec A n → FinVec B n
+mapFinVec f ^a k = f (^a k)
