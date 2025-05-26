@@ -1,11 +1,22 @@
 {-# OPTIONS --safe #-}
+
 module Cubical.Algebra.Group.Exact where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.HLevels
 
+open import Cubical.Data.Empty
+open import Cubical.Data.Fin
+open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Order
+open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
 open import Cubical.Data.Unit
+open import Cubical.Data.Vec
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Morphisms
@@ -15,11 +26,23 @@ open import Cubical.Algebra.Group.Instances.Unit
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
+private
+  variable
+    ℓ ℓ' : Level
 
--- TODO : Define exact sequences
--- (perhaps short, finite, ℕ-indexed and ℤ-indexed)
+record IsExactAt {ℓ ℓ' ℓ'' : Level}
+                 {A : Group ℓ} {B : Group ℓ'} {C : Group ℓ''}
+                 (f : GroupHom A B) (g : GroupHom B C) (b : ⟨ B ⟩)
+                 : Type (ℓ-max ℓ (ℓ-max ℓ' ℓ'')) where
+  field
+    im∈ker : isInIm f b → isInKer g b
+    ker∈im : isInKer g b → isInIm f b
+open IsExactAt public
 
-SES→isEquiv : ∀ {ℓ ℓ'} {L R : Group ℓ-zero}
+IsExact : {A B C : Group ℓ} (f : GroupHom A B) (g : GroupHom B C) → Type ℓ
+IsExact {B = B} f g = (b : ⟨ B ⟩) → IsExactAt f g b
+
+SES→isEquiv : {L R : Group ℓ-zero}
   → {G : Group ℓ} {H : Group ℓ'}
   → UnitGroup₀ ≡ L
   → UnitGroup₀ ≡ R
@@ -138,3 +161,4 @@ transportExact4 {G = G} {G₂ = G₂} {H = H} {H₂ = H₂} {L = L} {L₂ = L₂
       (J (λ z q → (r : x₃ ≡ w) (s : x₄ ≡ u) → B x z w u refl q r s)
         (J (λ w r → (s : x₄ ≡ u) → B x x₂ w u refl refl r s)
           (J (λ u s → B x x₂ x₃ u refl refl refl s) b)))
+
