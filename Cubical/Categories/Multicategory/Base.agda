@@ -92,12 +92,11 @@ record Multicategory (S : ArityType ℓa) ℓ ℓ' : Type (ℓ-suc (ℓ-max (ℓ
   -- field
   --   ⋆IdL : {I : Arity} {xs : ⟨ I ⟩ → ob} {y : ob} (f : Hom I xs y)
   --        → PathA (ArityΣ-idr I) ((λ _ → id) ⋆ f) f
-    
+
   --   ⋆IdR : {I : Arity} {xs : ⟨ I ⟩ → ob} {y : ob} (f : Hom I xs y)
   --        → PathA (ArityΣ-idl I) ((λ _ → f) ⋆ id) f
-    
+
   --   ⋆Assoc : {I : Arity} {J : ⟨ I ⟩ → Arity} {K : ∀ a → ⟨ J a ⟩ → Arity}
   --          → {xsss : ∀ a b → ⟨ K a b ⟩ → ob} {yss : ∀ a → ⟨ J a ⟩ → ob} {zs : ⟨ I ⟩ → ob} {w : ob}
   --          → (fss : ∀ a b → Hom (K a b) (xsss a b) (yss a b)) (gs : ∀ a → Hom (J a) (yss a) (zs a)) (h : Hom I zs w)
   --          → PathA (ArityΣ-assoc I J K) (uncurry fss ⋆ (gs ⋆ h)) ((λ a → fss a ⋆ gs a) ⋆ h)
-
