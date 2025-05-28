@@ -1125,7 +1125,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
                      (assocConvert ind x (EM-raw→EM _ _ a) (EM-raw'→EM _ _ z)
                     ∙ preSubstFunLoop _
                        (Iso.fun (Iso→EMIso ⨂assoc (suc (suc (n + l)))) _)))
-              ∙ (EMFun-EM→ΩEM+1 _ (_⌣ₖ_ {n = zero} {m = suc n +' suc l}
+              ∙ (EMFun-EM→ΩEM+1 {ϕ = assocHom⁻} _ (_⌣ₖ_ {n = zero} {m = suc n +' suc l}
                      x (EM-raw→EM H' (suc n) a ⌣ₖ EM-raw'→EM L' (suc l) z)))
              ∙∙ cong (cong ((swapFun zero (suc (suc n)) (suc l))))
                  (EM→ΩEM+1-distr₀ₙ _ x (_⌣ₖ_ {n = suc n} {m = suc l}
@@ -1167,7 +1167,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
              ≡ cong (λ x → (_⌣ₖ_ {n = suc zero} {m = suc zero}
                     (_⌣ₖ_ {G' = G'} {H' = H'} {n = suc zero} {m = 0} x y)
                      (EM-raw'→EM _ _ z))) (emloop g)
-        help = (sym (EMFun-EM→ΩEM+1 (suc zero)
+        help = (sym (EMFun-EM→ΩEM+1 {ϕ = assocHom⁻} (suc zero)
           (cup∙ zero 1 g .fst (cup∙ zero 1 y .fst (EM-raw'→EM _ _ z)))))
              ∙ cong (EM→ΩEM+1 1)
                   (sym (transportRefl _)
@@ -1198,7 +1198,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
                 ∙ preSubstFunLoop (+'-assoc zero zero (suc (suc n)))
                    (swapFun zero zero (suc (suc n))
                    (g ⌣ₖ (y ⌣ₖ ∣ z ∣))))
-             ∙ (EMFun-EM→ΩEM+1 (suc (suc n))
+             ∙ (EMFun-EM→ΩEM+1 {ϕ = assocHom⁻} (suc (suc n))
                    (cup∙ zero (suc (suc n)) g .fst
                     (cup∙ zero (suc (suc n)) y .fst ∣ z ∣)))
 
@@ -1269,7 +1269,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
                     (assocConvert ind
                      (EM-raw→EM G' (suc n) a) y (EM-raw'→EM L' (suc zero) z)
                   ∙ preSubstFunLoop _ (swapFun (suc n) zero (suc zero) _))
-            ∙∙ EMFun-EM→ΩEM+1 _ _
+            ∙∙ EMFun-EM→ΩEM+1 {ϕ = assocHom⁻} _ _
     assocₙ₀ₗ (suc n) (suc (suc l)) ind =
       assocInd (suc (suc n)) zero (suc (suc l)) _ _
         λ x y z →
@@ -1301,7 +1301,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
                     (assocConvert ind
                      (EM-raw→EM G' (suc n) a) y (EM-raw'→EM L' (suc (suc l)) z)
                   ∙ preSubstFunLoop _ (swapFun (suc n) zero (suc (suc l)) _))
-            ∙∙ EMFun-EM→ΩEM+1 _ _
+            ∙∙ EMFun-EM→ΩEM+1 {ϕ = assocHom⁻} _ _
 
     assocₙₘ₀ : (n m : ℕ)
       → assL n (suc m) zero ≡ assR n (suc m) zero
@@ -1330,7 +1330,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
                   (swapFun zero (suc zero) zero
                   (·₀ g 1 (_⌣ₖ_ {n = suc zero} {m = zero}
                    (EM-raw'→EM _ _ y) z))))
-             ∙ EMFun-EM→ΩEM+1 _
+             ∙ EMFun-EM→ΩEM+1 {ϕ = assocHom⁻} _
                 (·₀ g 1 (_⌣ₖ_ {n = suc zero} {m = zero}
                  (EM-raw'→EM _ _ y) z))
     assocₙₘ₀ zero (suc m) ind =
@@ -1358,7 +1358,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
                     (swapFun zero (suc (suc m)) zero
                     (·₀ g (suc (suc m)) (_⌣ₖ_ {n = suc (suc m)} {m = zero}
                       ∣ y ∣ₕ z))))
-             ∙ EMFun-EM→ΩEM+1 _
+             ∙ EMFun-EM→ΩEM+1 {ϕ = assocHom⁻} _
                     (·₀ g (suc (suc m)) (_⌣ₖ_ {n = suc (suc m)} {m = zero}
                      ∣ y ∣ₕ z))
     assocₙₘ₀ (suc n) zero ind =
@@ -1387,7 +1387,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
             ∙∙ cong (EM→ΩEM+1 (suc (suc (n + 0))))
                     (assocConvert ind (EM-raw→EM _ _ a) (EM-raw'→EM _ _ y) z
                   ∙ preSubstFunLoop _ _)
-            ∙∙ EMFun-EM→ΩEM+1 _ _
+            ∙∙ EMFun-EM→ΩEM+1 {ϕ = assocHom⁻} _ _
     assocₙₘ₀ (suc n) (suc m) ind =
       assocInd (suc (suc n)) (suc (suc m)) zero _ _
         λ x y z →
@@ -1414,7 +1414,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
             ∙∙ cong (EM→ΩEM+1 _)
                     (assocConvert ind (EM-raw→EM _ _ a) (EM-raw'→EM _ _ y) z
                   ∙ preSubstFunLoop _ _)
-            ∙∙ EMFun-EM→ΩEM+1 _ _
+            ∙∙ EMFun-EM→ΩEM+1 {ϕ = assocHom⁻} _ _
 
     assocₙₘₗ₊ : (n m l : ℕ)
       → assL n (suc m) (suc l) ≡ assR n (suc m) (suc l)
@@ -1447,7 +1447,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
                   ∙ preSubstFunLoop _ (swapFun zero (suc m) (suc l)
                       (·₀ g (suc (suc (m + l)))
                        (EM-raw'→EM H' (suc m) y ⌣ₖ EM-raw'→EM L' (suc l) z))))
-            ∙∙ EMFun-EM→ΩEM+1 _ _
+            ∙∙ EMFun-EM→ΩEM+1 {ϕ = assocHom⁻} _ _
     assocₙₘₗ₊ (suc n) m l ind =
       assocInd (suc (suc n)) (suc m) (suc l) _ _
         λ { north y z → refl ; south y z → refl
@@ -1491,7 +1491,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
                              (EM-raw'→EM H' (suc m) y) .fst
                               (EM-raw'→EM L' (suc l) z))))) ) j))
           ∙ cong (cong (substFun (suc (suc n)) (suc m) (suc l)))
-                 (EMFun-EM→ΩEM+1 _ _)
+                 (EMFun-EM→ΩEM+1 {ϕ = assocHom⁻} _ _)
 
     mainAssoc : (n m l : ℕ) → assL n m l ≡ assR n m l
     mainAssoc zero m l = mainAssoc₀ₘₗ m l
