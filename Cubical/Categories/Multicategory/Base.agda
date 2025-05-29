@@ -1,3 +1,5 @@
+{-# OPTIONS --safe #-}
+
 module Cubical.Categories.Multicategory.Base where
 
 open import Cubical.Foundations.Prelude
