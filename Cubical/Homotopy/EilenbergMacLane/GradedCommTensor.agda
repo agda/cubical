@@ -600,7 +600,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
             (EM→ΩEM+1 (suc m) (cp'∙ zero (suc m) x
               .fst (EM-raw→EM _ _ a)))
        lem a = cong (EM→ΩEM+1 (suc m)) (⌣ₖ-comm₀ m x (EM-raw→EM _ _ a))
-          ∙ EMFun-EM→ΩEM+1 (suc m) (cp'∙ zero (suc m) x .fst (EM-raw→EM _ _ a))
+          ∙ EMFun-EM→ΩEM+1 {ϕ = GroupEquiv→GroupHom ⨂-comm} (suc m) (cp'∙ zero (suc m) x .fst (EM-raw→EM _ _ a))
 
    -- graded commutativity of ⌣ₖ with one arg in dim 1.
    ⌣ₖ-comm₁ : (m : ℕ) (p : isEvenT m ⊎ isOddT m)
@@ -698,7 +698,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                 (comm⨂-EM 1
                  (_⌣ₖ_ {n = zero} {m = suc zero} h (EM-raw'→EM G' 1 x)))))
               ∙ cong (cong (-ₖ^< 1 · 1 > 2 (inr tt) (inr tt)))
-                     (EMFun-EM→ΩEM+1 1 (_⌣ₖ_ {n = zero} {m = suc zero}
+                     (EMFun-EM→ΩEM+1 {ϕ = GroupEquiv→GroupHom ⨂-comm} 1 (_⌣ₖ_ {n = zero} {m = suc zero}
                                         h (EM-raw'→EM G' 1 x)))
      -- higher cases
      module _ (n : ℕ)
@@ -803,7 +803,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                      (comm⨂-EM (suc (suc (n +ℕ 0))) a⌣x))
                ∙ cong (cong (-ₖ^< 1 · (suc (suc n)) > ((suc (suc n)) +' 1)
                                                       (inr tt) p))
-                  (EMFun-EM→ΩEM+1 _ a⌣x)))
+                  (EMFun-EM→ΩEM+1 {ϕ = GroupEquiv→GroupHom ⨂-comm} _ a⌣x)))
 
            where
            a⌣x = _⌣ₖ_ {n = suc n} {m = 1}
@@ -1125,7 +1125,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                    ∙ cong (cong (Iso.inv (Iso→EMIso ⨂-comm _)))
                           (cong-ₖ^< suc (suc n) · suc m >₂ _
                             p (evenOrOdd (suc m)) _)
-                   ∙ sym (EMFun-EM→ΩEM+1 _ _)
+                   ∙ sym (EMFun-EM→ΩEM+1 {ϕ = GroupEquiv→GroupHom ⨂-comm} _ _)
                    ∙ cong (EM→ΩEM+1 (suc (m +ℕ suc n))) expr₃≡expr₂
 
           lem₁ :
@@ -1185,7 +1185,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                         (cong (cong (-ₖ^< suc n · suc (suc m) >
                                       (suc (suc m) +' suc n)
                               (evenOrOdd (suc n)) q))
-                              (sym (EMFun-EM→ΩEM+1 _
+                              (sym (EMFun-EM→ΩEM+1 {ϕ = GroupEquiv→GroupHom ⨂-comm} _
                                  (_⌣ₖ_ {n = suc m} {m = suc n}
                                  (EM-raw→EM H' (suc m) a)
                                  (EM-raw→EM G' (suc n) b))))
@@ -1230,7 +1230,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                         ∙ sym (cong-ₖ^< 2 +ℕ n · 2 +ℕ m >₂ (m +ℕ suc n) p q _)
                         ∙ cong (cong (-ₖ^< 2 +ℕ n · 2 +ℕ m >
                                      (suc (suc (m +ℕ suc n))) p q))
-                            (EMFun-EM→ΩEM+1 _ _))
+                            (EMFun-EM→ΩEM+1 {ϕ = GroupEquiv→GroupHom ⨂-comm} _ _))
                   ∙ sym lem₁)
             ∙ cong sym (sym (cong-cong-ₖ^< (2 +ℕ n) · (2 +ℕ m) >₂
                     (n +ℕ suc m) p q
