@@ -1,14 +1,14 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Algebra.DistributiveLaw.MndDistributiveLaw where
+module Cubical.Algebra.DistributiveLaw.Mnd.Base where
 
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
-open import Cubical.Algebra.MndContainer.Base as MC
+open import Cubical.Algebra.MndContainer.Base
 open import Cubical.Algebra.DistributiveLaw.Base
 open import Cubical.Data.Containers.Set.Base
 
-open MC.MndContainer
+open MndContainer
 
 private
   variable

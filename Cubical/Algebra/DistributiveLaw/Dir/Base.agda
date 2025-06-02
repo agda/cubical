@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Algebra.DistributiveLaw.DirDistributiveLaw where
+module Cubical.Algebra.DistributiveLaw.Dir.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Algebra.DirContainer as DC

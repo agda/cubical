@@ -13,7 +13,6 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Empty
 open import Cubical.Data.Sum
 
-
 private
   variable
     ℓs ℓp ℓ ℓ' ℓ'' : Level
@@ -34,16 +33,6 @@ isSetJustOrNothing {_} {_} {lift true} = isSetUnit*
 
 Maybe : SetCon {ℓs} {ℓp}
 Maybe {ℓs} {ℓp} = Bool* {ℓs} ◁ JustOrNothing {ℓs} {ℓp} & isSetBool* & (λ {s} → isSetJustOrNothing {_} {_} {s})
-  where
-    isSetBool* : isSet (Bool* {ℓ})
-    isSetBool* {ℓ} a b = J (λ _ p → ∀ q → p ≡ q) (K-Bool* {ℓ} (refl ≡_) refl)
-      where
-        K-Bool*
-          : ∀ {ℓ} → (P : {b : Bool* {ℓ}} → b ≡ b → Type ℓ)
-          → (∀{b} → P {b} refl)
-          → ∀{b} → (q : b ≡ b) → P q
-        K-Bool* P Pr {lift false} = J (λ{ (lift false) q → P q ; (lift true) _ → Lift ⊥ }) Pr
-        K-Bool* P Pr {lift true}  = J (λ{ (lift true) q → P q ; (lift false) _ → Lift ⊥ }) Pr
 
 LOrR : {A : Type ℓ} {B : Type ℓ'} → A ⊎ B → Type ℓ''
 LOrR (inl a) = Unit*
