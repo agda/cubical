@@ -9,3 +9,5 @@ open import Cubical.Algebra.DistributiveLaw.Dir public
 open import Cubical.Algebra.DistributiveLaw.MndDir public
 open import Cubical.Algebra.DistributiveLaw.DirMnd public
 
+open import Cubical.Algebra.DistributiveLaw.NoGoTheorem public
+
