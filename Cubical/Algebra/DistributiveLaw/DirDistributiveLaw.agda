@@ -7,7 +7,7 @@ open import Cubical.Algebra.DirContainer as DC
 open import Cubical.Algebra.DistributiveLaw.Base
 open import Cubical.Data.Containers.Set.Base
 
-open DC.DirectedContainer
+open DC.DirContainer
 
 private
   variable
@@ -16,7 +16,7 @@ private
 -- Distributive law direction: Aₘ ∘ Bₘ → Bₘ ∘ Aₘ
 record DirectedDistributiveLaw (S : Type ℓs) (P : S → Type ℓp) (setS : isSet S) (setP : ∀ {s} → isSet (P s))
                                (T : Type ℓs) (Q : T → Type ℓp) (setT : isSet T) (setQ : ∀ {t} → isSet (Q t))
-                               (Aₘ : DirectedContainer (S ◁ P & setS & setP)) (Bₘ : DirectedContainer (T ◁ Q & setT & setQ)) :
+                               (Aₘ : DirContainer (S ◁ P & setS & setP)) (Bₘ : DirContainer (T ◁ Q & setT & setQ)) :
                                Type (ℓ-suc (ℓ-max ℓs ℓp)) where
   
   _⊕ᵃ_ = _⊕_ Aₘ

@@ -11,7 +11,7 @@ private
 
 open SetCon
 
-record DirectedContainer (C : SetCon {ℓs} {ℓp}) : Type (ℓ-suc (ℓ-max ℓs ℓp)) where
+record DirContainer (C : SetCon {ℓs} {ℓp}) : Type (ℓ-suc (ℓ-max ℓs ℓp)) where
   S = Shape C
   P = Position C
   field
