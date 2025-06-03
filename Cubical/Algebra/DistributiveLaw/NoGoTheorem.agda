@@ -86,10 +86,9 @@ transpFun {B = B} a a' e f i b = transportRefl (f (transp (λ j → B (e (~ j)))
 
 --------
 
-ConstantShape : (ℓs ℓp : Level) 
-                (S : Type ℓs) (P : S → Type ℓp) 
+ConstantShape : (S : Type ℓs) (P : S → Type ℓp) 
                 (s : S) → Type (ℓ-suc ℓp)
-ConstantShape _ _ S P s = P s ≡ ⊥* 
+ConstantShape S P s = P s ≡ ⊥* 
 
 record S3Property (S : Type ℓs) (P : S → Type ℓp) {setS : isSet S} {setP : ∀ {s} → isSet (P s)}
                   (Aₘ : MndContainer (S ◁ P & setS & setP)) 
@@ -170,7 +169,7 @@ module _ (S : Type ℓs) (P : S → Type ℓp) {setS : isSet S} {setP : ∀ {s} 
          (Bₘ : MndContainer (T ◁ Q & setT & setQ))
          (distr : MndDistributiveLaw S P setS setP T Q setT setQ Aₘ Bₘ) where
 
-  step₁ : (t t' : T) (constt : ConstantShape _ _ _ Q t)
+  step₁ : (t t' : T) (constt : ConstantShape _ Q t)
           (p p' : P s)
         → σ Bₘ t (const (ι Bₘ))
         ≡ σ Bₘ (u₁ distr s (λ y → case t (ι Bₘ) (decEq s3 y p)))
@@ -212,14 +211,14 @@ module _ (S : Type ℓs) (P : S → Type ℓp) {setS : isSet S} {setP : ∀ {s} 
         ≡ u₁ distr s (λ y → case t (case t' (ι Bₘ) (decEq s3 y p')) (decEq s3 y p))
   step₃ t t' p p' pdist i = u₁ distr s (λ y → step₃Aux t t' p p' pdist y i)
 
-  mainLem : (t t' : T) (constt : ConstantShape _ _ _ Q t)
+  mainLem : (t t' : T) (constt : ConstantShape _ Q t)
             (p p' : P s) (pdist : ¬ (p ≡ p')) 
           → t ≡ u₁ distr s (λ y → case t (case t' (ι Bₘ) (decEq s3 y p')) (decEq s3 y p))
   mainLem t t' constt p p' pdist = sym (unit-r (isMndContainer Bₘ) t) ∙ step₁ t t' constt p p' ∙ step₂ t t' p p' ∙ step₃ t t' p p' pdist
 
   noGoTheorem : (t t' : T) (tdist : ¬ (t ≡ t'))
-                (constt : ConstantShape _ _ _ Q t)
-                (constt' : ConstantShape _ _ _ Q t')
+                (constt : ConstantShape _ Q t)
+                (constt' : ConstantShape _ Q t')
                 (p p' : P s) (pdist : ¬ (p ≡ p'))
               → ⊥
   noGoTheorem t t' tdist constt constt' p p' pdist = tdist (mainLem t t' constt p p' pdist 
