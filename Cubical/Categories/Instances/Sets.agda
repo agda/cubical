@@ -243,7 +243,6 @@ module _ {ℓ} {F F' G : Functor (SET ℓ) (SET ℓ)} where
   N-hom (natEqSET F-eq α β obP i) {X} {Y} f j =
       isSet→SquareP {ℓ} {A = λ i' _ → fst (F-ob (F-eq i') X) → fst (F-ob G Y)} 
                     (λ _ _ → isSetΠ (λ _ → snd (G .F-ob Y)))
-                    {N-hom α f i0} {N-hom α f i1} (N-hom α f) 
-                    {N-hom β f i0} {N-hom β f i1} (N-hom β f)
+                    (N-hom α f) (N-hom β f)
                     (λ k z → obP Y k (F-hom (F-eq k) f z))
                     (λ k z → F-hom G f (obP X k z)) i j
