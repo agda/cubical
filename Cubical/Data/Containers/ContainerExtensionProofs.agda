@@ -27,7 +27,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Yoneda
 
-open import Cubical.Data.Containers.Base
+open import Cubical.Data.Containers.Generalised.Base
 open import Cubical.Data.Sigma
 
 private
