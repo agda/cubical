@@ -230,3 +230,20 @@ module _ {ℓ : Level} where
     cInv (snd (limSetIso J D)) cc = liftCone J D (cc .lower)
     sec (snd (limSetIso J D)) = funExt (λ _ → liftExt (cone≡ λ _ → refl))
     ret (snd (limSetIso J D)) = funExt (λ _ → cone≡ λ _ → refl)
+
+-- Paths between the object maps of natural transformations between functors 
+-- into SET can be lifted to paths between the natural transformations. 
+module _ {ℓ} {F F' G : Functor (SET ℓ) (SET ℓ)} where
+  open NatTrans
+
+  natEqSET : (F-eq : F ≡ F') (α : NatTrans F G) (β : NatTrans F' G) → 
+             (∀ X → PathP (λ i → SET ℓ [ F-ob (F-eq i) X , F-ob G X ]) (N-ob α X) (N-ob β X)) →
+             PathP (λ i → NatTrans (F-eq i) G) α β
+  N-ob (natEqSET F-eq α β obP i) X = obP X i
+  N-hom (natEqSET F-eq α β obP i) {X} {Y} f j =
+      isSet→SquareP {ℓ} {A = λ i' _ → fst (F-ob (F-eq i') X) → fst (F-ob G Y)} 
+                    (λ _ _ → isSetΠ (λ _ → snd (G .F-ob Y)))
+                    {N-hom α f i0} {N-hom α f i1} (N-hom α f) 
+                    {N-hom β f i0} {N-hom β f i1} (N-hom β f)
+                    (λ k z → obP Y k (F-hom (F-eq k) f z))
+                    (λ k z → F-hom G f (obP X k z)) i j
