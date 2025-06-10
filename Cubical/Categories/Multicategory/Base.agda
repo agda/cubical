@@ -89,15 +89,15 @@ record Multicategory (S : ArityType ℓa) ℓ ℓ' : Type (ℓ-suc (ℓ-max (ℓ
         → (h : Hom I (λ a → x (e .fst .fst a)) y) (h' : Hom J x y) → Type ℓ'
   PathA {x = x} {y = y} (e , p) h h' = PathP (λ i → Hom (ua e i , p i) (λ a → x (ua-unglue e i a)) y) h h'
 
-  -- This gives an error for some reason
-  -- field
-  --   ⋆IdL : {I : Arity} {xs : ⟨ I ⟩ → ob} {y : ob} (f : Hom I xs y)
-  --        → PathA (ArityΣ-idr I) ((λ _ → id) ⋆ f) f
+  -- This gives an error for some reason (fixed in the latest version of Cubical which the library does not support yet)
+  field
+    ⋆IdL : {I : Arity} {xs : ⟨ I ⟩ → ob} {y : ob} (f : Hom I xs y)
+         → PathA (ArityΣ-idr I) ((λ _ → id) ⋆ f) f
 
-  --   ⋆IdR : {I : Arity} {xs : ⟨ I ⟩ → ob} {y : ob} (f : Hom I xs y)
-  --        → PathA (ArityΣ-idl I) ((λ _ → f) ⋆ id) f
+    ⋆IdR : {I : Arity} {xs : ⟨ I ⟩ → ob} {y : ob} (f : Hom I xs y)
+         → PathA (ArityΣ-idl I) ((λ _ → f) ⋆ id) f
 
-  --   ⋆Assoc : {I : Arity} {J : ⟨ I ⟩ → Arity} {K : ∀ a → ⟨ J a ⟩ → Arity}
-  --          → {xsss : ∀ a b → ⟨ K a b ⟩ → ob} {yss : ∀ a → ⟨ J a ⟩ → ob} {zs : ⟨ I ⟩ → ob} {w : ob}
-  --          → (fss : ∀ a b → Hom (K a b) (xsss a b) (yss a b)) (gs : ∀ a → Hom (J a) (yss a) (zs a)) (h : Hom I zs w)
-  --          → PathA (ArityΣ-assoc I J K) (uncurry fss ⋆ (gs ⋆ h)) ((λ a → fss a ⋆ gs a) ⋆ h)
+    ⋆Assoc : {I : Arity} {J : ⟨ I ⟩ → Arity} {K : ∀ a → ⟨ J a ⟩ → Arity}
+           → {xsss : ∀ a b → ⟨ K a b ⟩ → ob} {yss : ∀ a → ⟨ J a ⟩ → ob} {zs : ⟨ I ⟩ → ob} {w : ob}
+           → (fss : ∀ a b → Hom (K a b) (xsss a b) (yss a b)) (gs : ∀ a → Hom (J a) (yss a) (zs a)) (h : Hom I zs w)
+           → PathA (ArityΣ-assoc I J K) (uncurry fss ⋆ (gs ⋆ h)) ((λ a → fss a ⋆ gs a) ⋆ h)
