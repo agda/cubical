@@ -6,6 +6,9 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Bool
@@ -14,17 +17,26 @@ open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
+open import Cubical.Data.Sequence
+open import Cubical.Data.FinSequence
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.SequentialColimit
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.Truncation as TR
+open import Cubical.HITs.PropositionalTruncation as PT
+
+open import Cubical.Homotopy.Connected
+open import Cubical.Homotopy.Group.Base
 
 open import Cubical.Relation.Nullary
 
 open import Cubical.CW.Base
+open import Cubical.CW.Map
+open import Cubical.CW.Properties
+open import Cubical.CW.Approximation
 
 open Iso
 
@@ -46,6 +58,18 @@ Sfam n m = Sgen.Sfam n m (m ≟ᵗ suc n)
 
 Sfam∙ : (n m : ℕ) → Sfam n (suc m)
 Sfam∙ n m = Sgen.Sfam∙ n m (suc m ≟ᵗ suc n)
+
+Sn→SfamGen : ∀ {n k : ℕ} (p : Trichotomyᵗ k (suc n))
+  → 0 <ᵗ k → S₊ n → Sgen.Sfam n k p
+Sn→SfamGen {n = n} {suc k} (lt x₁) _ x = tt
+Sn→SfamGen {n = n} {suc k} (eq x₁) _ x = x
+Sn→SfamGen {n = n} {suc k} (gt x₁) _ x = x
+
+Sn→SfamGen∙ : ∀ {n k : ℕ} (p : Trichotomyᵗ (suc k) (suc n))
+  → Sn→SfamGen p tt (ptSn n) ≡ Sgen.Sfam∙ n k p
+Sn→SfamGen∙ (lt x) = refl
+Sn→SfamGen∙ (eq x) = refl
+Sn→SfamGen∙ (gt x) = refl
 
 -- Cells of Sⁿ
 ScardGen : (n m : ℕ) (s : Trichotomyᵗ (suc m) (suc n)) → ℕ
@@ -248,3 +272,200 @@ snd (Sᶜʷ n) = ∣ isCWSphere n ∣₁
 Sᶠⁱⁿᶜʷ : (n : ℕ) → finCW ℓ-zero
 fst (Sᶠⁱⁿᶜʷ n) = S₊ n
 snd (Sᶠⁱⁿᶜʷ n) = ∣ isFinCWSphere n ∣₁
+
+
+--- cellular approximations of maps from spheres into CW complexes
+module _ {ℓ} (X : CWskel ℓ) (n : ℕ) (x₀ : fst X 1)
+  (f : S₊ n → fst X (suc n))
+  (f₀ : f (ptSn n) ≡ CWskel∙ X x₀ n) where
+  private
+    <ᵗ→0<ᵗ : {n m : ℕ} → n <ᵗ m → 0 <ᵗ m
+    <ᵗ→0<ᵗ {n} {suc m} _ = tt
+
+  cellMapSˢᵏᵉˡFunGenGen : ∀ k → (p : _) → Sgen.Sfam n k p → fst X k
+  cellMapSˢᵏᵉˡFunGenGen (suc k) (lt x₁) x = CWskel∙ X x₀ k
+  cellMapSˢᵏᵉˡFunGenGen (suc k) (eq x₁) x = subst (fst X) (sym x₁) (f x)
+  cellMapSˢᵏᵉˡFunGenGen (suc k) (gt x₁) x =
+    CW↪ X k (cellMapSˢᵏᵉˡFunGenGen k (k ≟ᵗ suc n) (Sn→SfamGen _ (<ᵗ→0<ᵗ x₁) x))
+
+  cellMapSˢᵏᵉˡFunGenGen∙ : ∀ k → (p : _)
+    → cellMapSˢᵏᵉˡFunGenGen (suc k) p (Sgen.Sfam∙ n k p) ≡ CWskel∙ X x₀ k
+  cellMapSˢᵏᵉˡFunGenGen∙ k (lt x) = refl
+  cellMapSˢᵏᵉˡFunGenGen∙ k (eq x) =
+    cong₂ (λ p q → subst (fst X) p q) (isSetℕ _ _ _ _) f₀ ∙ H _ (cong predℕ x)
+    where
+    H : (n : ℕ) (x : k ≡ n)
+      → subst (fst X) (cong suc (sym x)) (CWskel∙ X x₀ n) ≡ CWskel∙ X x₀ k
+    H = J> transportRefl _
+  cellMapSˢᵏᵉˡFunGenGen∙ (suc k) (gt x) =
+    cong (CW↪ X (suc k))
+      (cong (cellMapSˢᵏᵉˡFunGenGen (suc k) (Trichotomyᵗ-suc (k ≟ᵗ n)))
+            (Sn→SfamGen∙ (Trichotomyᵗ-suc (k ≟ᵗ n)))
+      ∙ cellMapSˢᵏᵉˡFunGenGen∙ k (suc k ≟ᵗ suc n))
+
+  cellMapSˢᵏᵉˡFunGenComm : (k : ℕ) (p : _) (q : _) (x : _)
+    → cellMapSˢᵏᵉˡFunGenGen (suc k) p (invEq (SαEqGen n k p q) (inl x))
+    ≡ CW↪ X k (cellMapSˢᵏᵉˡFunGenGen k q x)
+  cellMapSˢᵏᵉˡFunGenComm (suc k) (lt x₁) (lt x₂) x = refl
+  cellMapSˢᵏᵉˡFunGenComm (suc k) (lt x₁) (eq x₂) x =
+    ⊥.rec (¬-suc-n<ᵗn (subst (suc k <ᵗ_) (cong predℕ (sym x₂)) x₁))
+  cellMapSˢᵏᵉˡFunGenComm (suc k) (lt x₁) (gt x₂) x =
+    ⊥.rec (¬-suc-n<ᵗn (<ᵗ-trans x₁ x₂))
+  cellMapSˢᵏᵉˡFunGenComm (suc k) (eq x₁) (lt x₂) x =
+    cong (subst (fst X) (sym x₁) ∘ f) (invEqSαEqGen∙ n k _ _)
+    ∙ cellMapSˢᵏᵉˡFunGenGen∙ (suc k) (eq x₁)
+  cellMapSˢᵏᵉˡFunGenComm k (eq x₁) (eq x₂) x =
+    ⊥.rec (falseDichotomies.eq-eq (refl , sym (x₁ ∙ sym x₂)))
+  cellMapSˢᵏᵉˡFunGenComm k (eq x₁) (gt x₂) x =
+    ⊥.rec (¬-suc-n<ᵗn {n} (subst (suc (suc n) <ᵗ_) x₁ x₂))
+  cellMapSˢᵏᵉˡFunGenComm k (gt x₁) (lt x₂) x = ⊥.rec (¬squeeze (x₁ , x₂))
+  cellMapSˢᵏᵉˡFunGenComm (suc k) (gt x₁) (eq x₂) x with (k ≟ᵗ n)
+  ... | lt x₃ = ⊥.rec (¬m<ᵗm (subst (_<ᵗ n) (cong predℕ x₂) x₃))
+  ... | eq x₃ = cong (CW↪ X (suc k))
+    (cong (subst (fst X) (cong suc (sym x₃))) (cong f (lem n x x₁ x₂))
+    ∙ cong (λ p → subst (fst X) p (f x))
+      (isSetℕ _ _ (cong suc (sym x₃)) (sym x₂)))
+    where
+    lem : (n : ℕ) (x : _) (x₁ : _) (x₂ : _)
+      → invEq (SαEqGen n (suc k) (gt x₁) (eq x₂)) (inl x) ≡ x
+    lem zero x x₁ x₂ = refl
+    lem (suc n) x x₁ x₂ = refl
+  ... | gt x₃ = ⊥.rec (¬m<ᵗm (subst (n <ᵗ_) (cong predℕ  x₂) x₃))
+  cellMapSˢᵏᵉˡFunGenComm (suc k) (gt x₁) (gt x₂) x with k ≟ᵗ n
+  ... | lt x₃ = ⊥.rec (¬m<ᵗm (<ᵗ-trans x₂ x₃))
+  ... | eq x₃ = ⊥.rec (¬m<ᵗm (subst (n <ᵗ_) x₃ x₂))
+  ... | gt x₃ =
+    cong (CW↪ X (suc k))
+       (cong (CW↪ X k ∘ cellMapSˢᵏᵉˡFunGenGen k (k ≟ᵗ suc n))
+         (cong (λ w → Sn→SfamGen (k ≟ᵗ suc n) (<ᵗ→0<ᵗ w)
+           (invEq (SαEqGen n (suc k) (gt x₁) (gt x₂)) (inl x))) (isProp<ᵗ x₃ x₂)
+       ∙ cong (Sn→SfamGen (k ≟ᵗ suc n) (<ᵗ→0<ᵗ x₂))
+          (lem n k x₁ x₂ x (k ≟ᵗ suc n)))
+      ∙ cellMapSˢᵏᵉˡFunGenComm k (gt x₂) (k ≟ᵗ suc n) _)
+      where
+      lem : (n k : ℕ) (x₁ : _) (x₂ : _) (x : _) (w : _)
+        → invEq (SαEqGen n (suc k) (gt x₁) (gt x₂)) (inl x) ≡
+                         invEq (SαEqGen n k (gt x₂) w)
+                         (inl (Sn→SfamGen w (<ᵗ→0<ᵗ x₂) x))
+      lem n k x₁ x₂ x (lt x₃) = ⊥.rec (¬squeeze (x₂ , x₃))
+      lem zero (suc k) x₁ x₂ x (eq x₃) = refl
+      lem (suc n) (suc k) x₁ x₂ x (eq x₃) = refl
+      lem zero (suc k) x₁ x₂ x (gt x₃) = refl
+      lem (suc n) (suc k) x₁ x₂ x (gt x₃) = refl
+
+  cellMapSˢᵏᵉˡ : cellMap (Sˢᵏᵉˡ n) X
+  SequenceMap.map cellMapSˢᵏᵉˡ k = cellMapSˢᵏᵉˡFunGenGen k (k ≟ᵗ suc n)
+  SequenceMap.comm cellMapSˢᵏᵉˡ k x =
+    sym (cellMapSˢᵏᵉˡFunGenComm k (suc k ≟ᵗ suc n) (k ≟ᵗ suc n) x)
+
+approxSphereMap∙ : ∀ {ℓ} (Xsk : CWskel ℓ) → (x₀ : fst Xsk (suc zero)) (n : ℕ)
+  (f : S₊∙ (suc n) →∙ (realise Xsk , incl x₀))
+  → ∃[ f' ∈ S₊∙ (suc n) →∙ (fst Xsk (suc (suc n)) , CWskel∙ Xsk x₀ (suc n)) ]
+      (incl∙ Xsk x₀ ∘∙ f' ≡ f)
+approxSphereMap∙ Xsk x₀ n f =
+  PT.rec squash₁
+     (λ F → TR.rec squash₁
+              (λ fp → ∣ ((λ x → F x .fst .fst)
+                       , sym (cong fst fp))
+       , ΣPathP ((funExt (λ x → F x .fst .snd))
+       , (SQ' _ _ _ _ _ _ _ _ (cong snd fp))) ∣₁)
+     (F (ptSn (suc n)) .snd refl))
+     approxSphereMap
+  where
+  SQ' : ∀ {ℓ} {A : Type ℓ} (x y : A) (p : x ≡ y)
+        (z : A) (q : y ≡ z) (w : A) (r : x ≡ w) (t :  w ≡ z)
+    → Square (p ∙ q) t r refl → Square (sym r ∙ p) (sym q) t refl
+  SQ' x = J> (J> (J> λ t s → sym (rUnit refl)
+        ◁ λ i j → (rUnit refl ◁ s) (~ j) i))
+
+  approxSphereMap : ∥ ((x : S₊ (suc n))
+    → Σ[ fb ∈ fiber (CW↪∞ Xsk (suc (suc n))) (fst f x) ]
+                ((p : ptSn (suc n) ≡ x)
+              → hLevelTrunc 1 (PathP (λ i
+                → fiber (CW↪∞ Xsk (suc (suc n))) (fst f (p i)))
+                  ((CWskel∙ Xsk x₀ (suc n))
+                 , (CWskel∞∙Id Xsk x₀ (suc n) ∙ sym (snd f))) fb))) ∥₁
+  approxSphereMap = sphereToTrunc (suc n)
+    {λ x → Σ[ fb ∈ fiber (CW↪∞ Xsk (suc (suc n))) (fst f x) ]
+                ((p : ptSn (suc n) ≡ x)
+     → hLevelTrunc 1 (PathP (λ i → fiber (CW↪∞ Xsk (suc (suc n))) (fst f (p i)))
+                  ((CWskel∙ Xsk x₀ (suc n))
+                 , (CWskel∞∙Id Xsk x₀ (suc n) ∙ sym (snd f))) fb) )}
+      λ a → TR.rec (isOfHLevelTrunc (suc (suc n)))
+      (λ fa → ∣ fa
+      , (λ p → J (λ a p → (fa : fiber (CW↪∞ Xsk (suc (suc n))) (fst f a))
+       → hLevelTrunc 1 (PathP (λ i → fiber (CW↪∞ Xsk (suc (suc n))) (fst f (p i)))
+           (CWskel∙ Xsk x₀ (suc n)
+           , CWskel∞∙Id Xsk x₀ (suc n) ∙ (λ i → snd f (~ i))) fa))
+                  (λ fa → isConnectedPathP 1 (isConnectedSubtr' n 2
+                           (isConnected-CW↪∞ (suc (suc n))
+                             Xsk (fst f (ptSn (suc n))))) _ _ .fst) p fa) ∣ₕ)
+      (isConnected-CW↪∞ (suc (suc n)) Xsk (fst f a) .fst)
+
+module _ {ℓ} (X : CWskel ℓ) (n : ℕ) (x₀ : fst X 1)
+  (faprx : S₊∙ n →∙ (fst X (suc n) , CWskel∙ X x₀ n))
+  (f : S₊∙ n →∙ (realise X , incl x₀))
+  (faprx≡ : (x : _) → incl {n = suc n} (fst faprx x) ≡ fst f x) where
+
+  cellMapSˢᵏᵉˡImproved : cellMap (Sˢᵏᵉˡ n) X
+  cellMapSˢᵏᵉˡImproved = cellMapSˢᵏᵉˡ X n x₀ (fst faprx) (snd faprx)
+
+  isApproxCellMapSˢᵏᵉˡImproved : realiseSequenceMap cellMapSˢᵏᵉˡImproved
+           ≡ fst f ∘ invEq (isCWSphere n .snd)
+  isApproxCellMapSˢᵏᵉˡImproved =
+    funExt λ x → cong (realiseSequenceMap cellMapSˢᵏᵉˡImproved)
+                       (sym (secEq (isCWSphere n .snd) x))
+                ∙ lem _
+    where
+    lem : (x : _)
+      → realiseSequenceMap cellMapSˢᵏᵉˡImproved (fst (isCWSphere n .snd) x)
+       ≡ fst f x
+    lem x with (n ≟ᵗ n)
+    ... | lt x₁ = ⊥.rec (¬m<ᵗm x₁)
+    ... | eq x₁ = cong (incl {n = suc n})
+                  (cong (λ p → subst (fst X) p (fst faprx x))
+                   (isSetℕ _ _ _ refl)
+                ∙ transportRefl (fst faprx x)) ∙ faprx≡ x
+    ... | gt x₁ = ⊥.rec (¬m<ᵗm x₁)
+
+  finCellApproxSˢᵏᵉˡImproved : (k : ℕ)
+    → finCellApprox (Sˢᵏᵉˡ n) X (fst f ∘ invEq (isCWSphere n .snd)) k
+  FinSequenceMap.fmap (fst (finCellApproxSˢᵏᵉˡImproved k)) =
+    SequenceMap.map cellMapSˢᵏᵉˡImproved ∘ fst
+  FinSequenceMap.fcomm (fst (finCellApproxSˢᵏᵉˡImproved k)) =
+    SequenceMap.comm cellMapSˢᵏᵉˡImproved ∘ fst
+  snd (finCellApproxSˢᵏᵉˡImproved k) = →FinSeqColimHomotopy _ _
+    (funExt⁻ isApproxCellMapSˢᵏᵉˡImproved ∘ FinSeqColim→Colim k ∘ (fincl flast))
+
+-- cellMapSˢᵏᵉˡ preserves ∙Π (homotopy group addition)
+cellMapSˢᵏᵉˡ∙Π : ∀ {ℓ} (X : CWskel ℓ) (n : ℕ) (x₀ : fst X 1)
+  (faprx gaprx : S₊∙ (suc n) →∙ (fst X (suc (suc n)) , CWskel∙ X x₀ (suc n)))
+  (f : S₊∙ (suc n) →∙ (realise X , incl x₀))
+  (faprx≡ : incl∙ X x₀ ∘∙ faprx ≡ f)
+  (g : S₊∙ (suc n) →∙ (realise X , incl x₀))
+  (gaprx≡ : incl∙ X x₀ ∘∙ gaprx ≡ g)
+  → realiseCellMap (cellMapSˢᵏᵉˡImproved X (suc n) x₀ (∙Π faprx gaprx) (∙Π f g)
+      (λ x → funExt⁻ (cong fst (∙Π∘∙ n faprx gaprx (incl∙ X x₀))) x
+            ∙ λ i → ∙Π (faprx≡ i) (gaprx≡ i) .fst x))
+    ≡ (∙Π f g .fst ∘ invEq (isCWSphere (suc n) .snd))
+cellMapSˢᵏᵉˡ∙Π X n x₀ faprx gaprx =
+  J> (J> funExt λ x → cong h (sym (secEq (isCWSphere (suc n) .snd) x))
+                     ∙ main _
+                     ∙ cong (∙Π (incl∙ X x₀ ∘∙ faprx) (incl∙ X x₀ ∘∙ gaprx) .fst)
+                         (retEq (SfamTopElement (suc n)) _))
+  where
+  h = realiseCellMap (cellMapSˢᵏᵉˡImproved X (suc n) x₀
+      (∙Π faprx gaprx) (∙Π (incl∙ X x₀ ∘∙ faprx) (incl∙ X x₀ ∘∙ gaprx))
+      (λ x → (funExt⁻ (cong fst (∙Π∘∙ n faprx gaprx (incl∙ X x₀))) x) ∙ refl))
+
+  main : (x : Sgen.Sfam (suc n) (suc (suc n)) (suc (suc n) ≟ᵗ suc (suc n)))
+       → h (incl {n = suc (suc n)} x)
+       ≡ ∙Π (incl∙ X x₀ ∘∙ faprx) (incl∙ X x₀ ∘∙ gaprx) .fst (invEq (SfamTopElement (suc n)) x)
+  main with (n ≟ᵗ n)
+  ... | lt x = ⊥.rec (¬m<ᵗm x)
+  ... | eq x = λ x
+    → cong (incl {n = suc (suc n)})
+         (cong (λ p → subst (fst X) p (fst (∙Π faprx gaprx) x)) (isSetℕ _ _ _ refl)
+          ∙ transportRefl _)
+      ∙ funExt⁻ (cong fst (∙Π∘∙ n faprx gaprx (incl∙ X x₀))) x
+  ... | gt x = ⊥.rec (¬m<ᵗm x)

@@ -1103,3 +1103,43 @@ sphereFunIso : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
   → Iso (S₊∙ n →∙ (Path (fst A) (pt A) (pt A) , refl)) (S₊∙ (suc n) →∙ A)
 sphereFunIso zero = compIso IsoBool→∙ (invIso (IsoSphereMapΩ 1))
 sphereFunIso (suc n) = ΩSuspAdjointIso
+
+--
+∙Π∘∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+  (n : ℕ) (f g : S₊∙ (suc n) →∙ A) (h : A →∙ B)
+  → h ∘∙ ∙Π f g ≡ ∙Π (h ∘∙ f) (h ∘∙ g)
+∙Π∘∙ {A = A} n f g h =
+     cong (h ∘∙_) (cong₂ ∙Π (sym (Iso.rightInv (sphereFunIso n) f))
+                            (sym (Iso.rightInv (sphereFunIso n) g)))
+  ∙∙ lem2 n (Iso.inv (sphereFunIso n) f) (Iso.inv (sphereFunIso n) g)
+  ∙∙ cong₂ (λ f g → ∙Π (h ∘∙ f) (h ∘∙ g))
+           (Iso.rightInv (sphereFunIso n) f)
+           (Iso.rightInv (sphereFunIso n) g)
+  where
+  lem : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → Square p refl (refl ∙ p) refl
+  lem p = lUnit p ◁ λ i j → (refl ∙ p) (i ∨ j)
+
+  mainEq : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (a : A) (b : B)
+    (fp : f a ≡ b) (l1 l2 : a ≡ a)
+    → Square (cong f ((l1 ∙ refl) ∙ (l2 ∙ refl)))
+             ((sym (refl ∙ fp) ∙∙ cong f l1 ∙∙ (refl ∙ fp))
+            ∙ (sym (refl ∙ fp) ∙∙ cong f l2 ∙∙ (refl ∙ fp)))
+              fp fp
+  mainEq f a = J> λ l1 l2 → cong-∙ f _ _
+    ∙ cong₂ _∙_ (cong-∙ f l1 refl  ∙ cong₃ _∙∙_∙∙_ (rUnit refl) refl (rUnit refl))
+                (cong-∙ f l2 refl ∙ cong₃ _∙∙_∙∙_ (rUnit refl) refl (rUnit refl))
+
+  lem2 : (n : ℕ) (f g : S₊∙ n →∙ Ω A)
+    → (h ∘∙ ∙Π (Iso.fun (sphereFunIso n) f) (Iso.fun (sphereFunIso n) g))
+    ≡ ∙Π (h ∘∙ Iso.fun (sphereFunIso n) f) (h ∘∙ Iso.fun (sphereFunIso n) g)
+  fst (lem2 zero f g i) base = snd h i
+  fst (lem2 zero f g i) (loop i₁) =
+    mainEq (fst h) _ _ (snd h) (fst f false) (fst g false) i i₁
+  fst (lem2 (suc n) f g i) north = snd h i
+  fst (lem2 (suc n) f g i) south = snd h i
+  fst (lem2 (suc n) f g i) (merid a i₁) =
+    mainEq (fst h) _ _ (snd h)
+      (cong (Iso.fun (sphereFunIso (suc n)) f .fst) (σS a))
+      (cong (Iso.fun (sphereFunIso (suc n)) g .fst) (σS a)) i i₁
+  snd (lem2 zero f g i) j = lem (snd h) j i
+  snd (lem2 (suc n) f g i) j = lem (snd h) j i

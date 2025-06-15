@@ -121,6 +121,22 @@ isFinCW→isCW X (n , X' , str) = (finCWskel→CWskel n X') , str
 finCW→CW : finCW ℓ → CW ℓ
 finCW→CW (X , p) = X , PT.map (isFinCW→isCW X) p
 
+-- Pointed complexes (with basepoint in X₀)
+CWskel∙ : ∀ {ℓ} (X : CWskel ℓ) → fst X 1 → (n : ℕ) → fst X (suc n)
+CWskel∙ X x zero = x
+CWskel∙ X x (suc n) = CW↪ X (suc n) (CWskel∙ X x n)
+
+CWskel∞∙ : ∀ {ℓ} (X : CWskel ℓ) → fst X 1 → (n : ℕ) → realise X
+CWskel∞∙ X x₀ n = incl (CWskel∙ X x₀ n)
+
+CWskel∞∙Id : ∀ {ℓ} (X : CWskel ℓ) (x₀ : fst X 1) (n : ℕ) → CWskel∞∙ X x₀ n ≡ incl x₀
+CWskel∞∙Id X x₀ zero = refl
+CWskel∞∙Id X x₀ (suc n) = sym (push (CWskel∙ X x₀ n)) ∙ CWskel∞∙Id X x₀ n
+
+incl∙ : ∀ {ℓ} (X : CWskel ℓ) (x₀ : fst X 1) {n : ℕ}
+  → (fst X (suc n) , CWskel∙ X x₀ n) →∙ (realise X , incl x₀)
+fst (incl∙ X x₀ {n = n}) = incl
+snd (incl∙ X x₀ {n = n}) = CWskel∞∙Id X x₀ n
 
 -- morphisms
 _→ᶜʷ_ : CW ℓ → CW ℓ' → Type (ℓ-max ℓ ℓ')

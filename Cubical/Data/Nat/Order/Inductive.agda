@@ -80,6 +80,19 @@ isProp<ᵗ {n = suc n} {suc m} = isProp<ᵗ {n = n} {m = m}
   snotz (sym (+-suc (fst x) (suc n)) ∙ snd x)
 <→<ᵗ {n = suc n} {m = suc m} p = <→<ᵗ {n = n} {m = m} (pred-≤-pred p)
 
+module _ {n m : ℕ} where
+  isPropTrichotomyᵗ : isProp (Trichotomyᵗ n m)
+  isPropTrichotomyᵗ (lt x) (lt y) i = lt (isProp<ᵗ {n = n} {m} x y i)
+  isPropTrichotomyᵗ (lt x) (eq y) = ⊥.rec (¬m<ᵗm {m} (subst (_<ᵗ m) y x))
+  isPropTrichotomyᵗ (lt x) (gt y) = ⊥.rec (¬m<ᵗm {m} (<ᵗ-trans {m} {n} {m} y x))
+  isPropTrichotomyᵗ (eq x) (lt y) =
+    ⊥.rec (¬m<ᵗm {m} (subst (_<ᵗ m) x y))
+  isPropTrichotomyᵗ (eq x) (eq y) i = eq (isSetℕ n m x y i)
+  isPropTrichotomyᵗ (eq x) (gt y) = ⊥.rec (¬m<ᵗm {n} (subst (_<ᵗ n) (sym x) y))
+  isPropTrichotomyᵗ (gt x) (lt y) = ⊥.rec (¬m<ᵗm {n} (<ᵗ-trans {n} {m} {n} y x))
+  isPropTrichotomyᵗ (gt x) (eq y) = ⊥.rec (¬m<ᵗm {n} (subst (_<ᵗ n) (sym y) x))
+  isPropTrichotomyᵗ (gt x) (gt y) i = gt (isProp<ᵗ {n = m} {n} x y i)
+
 module falseDichotomies where
   lt-eq : {n m : ℕ} → ¬ m <ᵗ n × (m ≡ suc n)
   lt-eq {n = n} (p , q) = ¬-suc-n<ᵗn {n = n} (subst (_<ᵗ n) q p)

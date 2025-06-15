@@ -148,6 +148,12 @@ IsMonoid.·IdL (isMonoid (isGroup (isAbGroup (snd (π₁ᵃᵇAbGroup A))))) = �
 ·InvL (isGroup (isAbGroup (snd (π₁ᵃᵇAbGroup A)))) = ·πᵃᵇlCancel
 IsAbGroup.+Comm (isAbGroup (snd (π₁ᵃᵇAbGroup A))) = ·πᵃᵇcomm
 
+-πᵃᵇinvDistr : ∀ {ℓ} {A : Pointed ℓ} (p q : ∥ Ωᵃᵇ A ∥₂)
+  → -πᵃᵇ {x = pt A} (·πᵃᵇ p q) ≡ ·πᵃᵇ (-πᵃᵇ p) (-πᵃᵇ q)
+-πᵃᵇinvDistr {A = A} p q =
+  GroupTheory.invDistr (AbGroup→Group (π₁ᵃᵇAbGroup A)) p q
+  ∙ ·πᵃᵇcomm (-πᵃᵇ q) (-πᵃᵇ p)
+
 Ωᵃᵇ→Abelianizeπ₁ : ∀ {ℓ} {A : Pointed ℓ} →  Ωᵃᵇ A → Abelianization (πGr 0 A)
 Ωᵃᵇ→Abelianizeπ₁ (paths x) = η ∣ x ∣₂
 Ωᵃᵇ→Abelianizeπ₁ {A = A} (com p q r i) = help i
