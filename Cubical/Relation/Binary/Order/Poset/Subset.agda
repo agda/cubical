@@ -4,6 +4,7 @@ module Cubical.Relation.Binary.Order.Poset.Subset where
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Transport
 
@@ -179,15 +180,23 @@ module _
       UpwardClosure : Embedding ⟨ P ⟩ (ℓ-max ℓ ℓ')
       UpwardClosure = (Σ[ x ∈ ⟨ P ⟩ ] ∃[ y ∈ ⟨ S ⟩ ] f y ≤ x) , EmbeddingΣProp λ _ → squash₁
 
+      DownwardClosureMembership : ∀ x → (∃[ y ∈ ⟨ S ⟩ ] x ≤ f y)
+                                ≃ x ∈ₑ DownwardClosure
+      DownwardClosureMembership x = propBiimpl→Equiv squash₁ (isProp∈ₑ _ DownwardClosure) 
+                                      (λ x∈d → (x , x∈d) , refl)
+                                      (λ ((x' , x'∈d) , x≡x') → subst _ x≡x' x'∈d)
+
+      UpwardClosureMembership : ∀ x → (∃[ y ∈ ⟨ S ⟩ ] f y ≤ x) 
+                              ≃ x ∈ₑ UpwardClosure
+      UpwardClosureMembership x = propBiimpl→Equiv squash₁ (isProp∈ₑ _ UpwardClosure) 
+                                    (λ x∈d → (x , x∈d) , refl)
+                                    (λ ((x' , x'∈d) , x≡x') → subst _ x≡x' x'∈d)
+
       isDownsetDownwardClosure : isDownset DownwardClosure
-      isDownsetDownwardClosure (x , p) y y≤x = ∥₁.rec (isProp∈ₑ _ DownwardClosure) (λ (z , x≤z) →
-          (y , ∣ z , trans _ _ _ y≤x x≤z ∣₁) , refl
-        ) p
+      isDownsetDownwardClosure (x , p) y y≤x = equivFun (DownwardClosureMembership y) $ ∥₁.map (map-snd (trans _ _ _ y≤x)) p
 
       isUpsetUpwardClosure : isUpset UpwardClosure
-      isUpsetUpwardClosure (x , p) y x≤y = ∥₁.rec (isProp∈ₑ _ UpwardClosure) (λ (z , z≤x) →
-          (y , ∣ z , trans _ _ _ z≤x x≤y ∣₁) , refl
-        ) p
+      isUpsetUpwardClosure (x , p) y x≤y = equivFun (UpwardClosureMembership y) $ ∥₁.map (map-snd (flip (trans _ _ _) x≤y)) p
 
     module _
       (S : Embedding ⟨ P ⟩ (ℓ-max ℓ ℓ'))
