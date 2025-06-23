@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat hiding (_·_) renaming (_+_ to _+ℕ_)
@@ -16,6 +17,7 @@ open import Cubical.Data.Empty as ⊥
 
 open import Cubical.HITs.FreeAbGroup
 open import Cubical.HITs.FreeGroup as FG hiding (rec)
+open import Cubical.HITs.SetQuotients as SQ hiding (_/_ ; rec)
 
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.Pi
@@ -26,6 +28,8 @@ open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Abelianization.Base
 open import Cubical.Algebra.Group.Abelianization.Properties as Abi hiding (rec)
+open import Cubical.Algebra.Group.Subgroup
+open import Cubical.Algebra.Group.QuotientGroup
 
 
 private variable
@@ -95,7 +99,6 @@ module _ {A : Type ℓ} where
 -- Alternative definition of case when A = Fin n
 ℤ[Fin_] : (n : ℕ) → AbGroup ℓ-zero
 ℤ[Fin n ] = ΠℤAbGroup (Fin n)
-
 
 --  generator of ℤ[Fin_]
 ℤFinGenerator : {n : ℕ} (k : Fin n) → ℤ[Fin n ] .fst
@@ -457,21 +460,21 @@ snd (ℤFinFunct {n = n} {m} f) =
   ... | gt _ = refl
 
 -- Homs are equal if they agree on generators
-agreeOnℤFinGenerator→≡ : ∀ {n m : ℕ}
-  → {ϕ ψ : AbGroupHom (ℤ[Fin n ]) (ℤ[Fin m ])}
+agreeOnℤFinGenerator→≡ : ∀ {ℓ} {n : ℕ} {G : Group ℓ}
+  → {ϕ ψ : GroupHom (AbGroup→Group (ℤ[Fin n ])) G}
   → ((x : _) → fst ϕ (ℤFinGenerator x) ≡ fst ψ (ℤFinGenerator x))
   → ϕ ≡ ψ
-agreeOnℤFinGenerator→≡ {n} {m} {ϕ} {ψ} w =
+agreeOnℤFinGenerator→≡ {G = G} {ϕ} {ψ} w =
   Σ≡Prop (λ _ → isPropIsGroupHom _ _)
    (funExt
-    (elimPropℤFin _ _ (λ _ → isOfHLevelPath' 1 (isSetΠ (λ _ → isSetℤ)) _ _)
+    (elimPropℤFin _ _ (λ _ → isOfHLevelPath' 1 (GroupStr.is-set (snd G)) _ _)
       (IsGroupHom.pres1 (snd ϕ) ∙ sym (IsGroupHom.pres1 (snd ψ)))
       w
       (λ f g p q → IsGroupHom.pres· (snd ϕ) f g
-                 ∙∙ (λ i x → p i x + q i x)
+                 ∙∙ (λ i → GroupStr._·_ (snd G) (p i) (q i))
                  ∙∙ sym (IsGroupHom.pres· (snd ψ) f g ))
       λ f p → IsGroupHom.presinv (snd ϕ) f
-           ∙∙ (λ i x → -ℤ (p i x))
+           ∙∙ cong (GroupStr.inv (G .snd) ) p
            ∙∙ sym (IsGroupHom.presinv (snd ψ) f)))
 
 --
@@ -519,3 +522,46 @@ snd (sumCoefficients n) = makeIsGroupHom (λ x y → funExt λ _ → sumFinℤHo
 ℤFinProduct : (n m : ℕ) → AbGroupIso ℤ[Fin (n +ℕ m) ] (AbDirProd ℤ[Fin n ] ℤ[Fin m ])
 fst (ℤFinProduct n m) = ℤFinProductIso n m
 snd (ℤFinProduct n m) = makeIsGroupHom (λ x y → refl)
+
+-- lemmas about quotients of Free abelian groups
+ℤ[]/-GroupHom≡ : ∀ {ℓ} {n : ℕ} (G : Group ℓ)
+  {Q : NormalSubgroup (AbGroup→Group ℤ[Fin n ])}
+  (ϕ ψ : GroupHom (AbGroup→Group (ℤ[Fin n ]) / Q ) G)
+ → ((k : _) → fst ϕ [ ℤFinGenerator k ] ≡ fst ψ [ ℤFinGenerator k ])
+ → ϕ ≡ ψ
+ℤ[]/-GroupHom≡ G ϕ ψ s = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+  (funExt (SQ.elimProp (λ _ → GroupStr.is-set (snd G) _ _)
+    λ x → funExt⁻ (cong fst (agreeOnℤFinGenerator→≡
+      {ϕ = compGroupHom ([_] , makeIsGroupHom λ f g → refl) ϕ}
+      {ψ = compGroupHom ([_] , makeIsGroupHom λ f g → refl) ψ}
+      s)) x))
+
+makeℤ[]/Equiv : ∀ {ℓ ℓ'} {G : Group ℓ} {H : Group ℓ'} {n : ℕ}
+  {T : NormalSubgroup (AbGroup→Group ℤ[Fin n ])}
+  (ϕ : GroupEquiv (AbGroup→Group ℤ[Fin n ] / T) G)
+  (ψ : GroupEquiv (AbGroup→Group ℤ[Fin n ] / T) H)
+  (m : GroupHom G H)
+  → ((k : _) → fst m (fst (fst ϕ) [ ℤFinGenerator k ])
+              ≡ fst (fst ψ) [ ℤFinGenerator k ])
+  → isEquiv (fst m)
+makeℤ[]/Equiv {n = n} {T = T} ϕ ψ m ind =
+  subst isEquiv (cong fst lem) (compEquiv (invEquiv (fst ϕ)) (fst ψ) .snd)
+  where
+  ξ : GroupHom (AbGroup→Group ℤ[Fin n ] / T) (AbGroup→Group ℤ[Fin n ] / T)
+  ξ = compGroupHom (GroupEquiv→GroupHom ϕ)
+          (compGroupHom m (GroupEquiv→GroupHom (invGroupEquiv ψ)))
+
+  ξ≡id : ξ ≡ idGroupHom
+  ξ≡id = ℤ[]/-GroupHom≡ _ _ _
+    λ w → cong (invEq (fst ψ)) (ind w)
+         ∙ retEq (fst ψ) [ ℤFinGenerator w ]
+
+  lem : compGroupHom (GroupEquiv→GroupHom (invGroupEquiv ϕ))
+                      (GroupEquiv→GroupHom ψ)
+       ≡ m
+  lem = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+    (funExt λ x → (sym (funExt⁻
+      (cong fst (cong (compGroupHom (GroupEquiv→GroupHom (invGroupEquiv ϕ)))
+             (cong (λ X → compGroupHom X (GroupEquiv→GroupHom ψ)) ξ≡id))) x))
+       ∙ secEq (fst ψ) _
+       ∙ cong (fst m) (secEq (fst ϕ) x))

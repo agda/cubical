@@ -2,7 +2,7 @@
 {-
 This file computes πₙ(cofib α) for n ≥ 2 and α : ⋁Sⁿ →∙ ⋁Sⁿ
 -}
-module Cubical.Homotopy.Group.PiCofibBouquetMap where
+module Cubical.Homotopy.Group.PiCofibFinSphereBouquetMap where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -66,7 +66,7 @@ module _ {n m k : ℕ}
   ℤ[]/BouquetDegree = AbGroup→Group ℤ[Fin k ] / BouquetDegreeNormalSubGroup
 
 
-module πCofibBouquetMap (n k m : ℕ)
+module πCofibFinSphereBouquetMap (n k m : ℕ)
   (α : SphereBouquet∙ (suc (suc n)) (Fin m)
    →∙ SphereBouquet∙ (suc (suc n)) (Fin k)) where
 
@@ -201,12 +201,12 @@ module πCofibBouquetMap (n k m : ℕ)
 
 
 -- Main result
-π'CofibBouquetMap≅ℤ[]/BouquetDegree : {n m k : ℕ}
+π'CofibFinSphereBouquetMap≅ℤ[]/BouquetDegree : {n m k : ℕ}
   (α : SphereBouquet∙ (suc (suc n)) (Fin m)
    →∙ SphereBouquet∙ (suc (suc n)) (Fin k))
   → GroupIso (π'Gr (suc n) (cofib (fst α) , inl tt))
               (ℤ[]/BouquetDegree α)
-π'CofibBouquetMap≅ℤ[]/BouquetDegree {n = n} {m} {k} α =
-  compGroupIso (compGroupIso (πCofibBouquetMap.Iso1 n k m α)
-                             (πCofibBouquetMap.Iso2 n k m α))
-                             (πCofibBouquetMap.Iso3 n k m α)
+π'CofibFinSphereBouquetMap≅ℤ[]/BouquetDegree {n = n} {m} {k} α =
+  compGroupIso (compGroupIso (πCofibFinSphereBouquetMap.Iso1 n k m α)
+                             (πCofibFinSphereBouquetMap.Iso2 n k m α))
+                             (πCofibFinSphereBouquetMap.Iso3 n k m α)
