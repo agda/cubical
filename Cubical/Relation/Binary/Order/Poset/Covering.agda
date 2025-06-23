@@ -29,9 +29,11 @@ open import Cubical.Reflection.RecordEquiv
 private variable
   ℓ ℓ' : Level
 
-module _ (P' : Poset ℓ ℓ') where
+module Cover (P' : Poset ℓ ℓ') where
   private P = ⟨ P' ⟩
   open PosetStr (snd P')
+
+  infixl 20 _covers_
 
   _covers_ : P → P → Type (ℓ-max ℓ ℓ')
   y covers x = Σ[ x≤y ∈ x ≤ y ] isEquiv (2→Interval P' x y x≤y)
@@ -62,3 +64,16 @@ module _ (P' : Poset ℓ ℓ') where
       isom .leftInv false | inr x≡y = ⊥.rec (x≠y x≡y)
       isom .leftInv true  | inl y≡x = ⊥.rec (x≠y (sym y≡x))
       isom .leftInv true  | inr _ = refl
+
+  -- Subset of faces and cofaces (terminology from "Combinatorics of higher-categorical diagrams" by Amar Hadzihasanovic)
+  Δ : P → Embedding P (ℓ-max ℓ ℓ')
+  Δ x = (Σ[ y ∈ P ] x covers y) , EmbeddingΣProp λ _ → isPropCovers _ _
+
+  ∇ : P → Embedding P (ℓ-max ℓ ℓ')
+  ∇ x = (Σ[ y ∈ P ] y covers x) , EmbeddingΣProp λ _ → isPropCovers _ _
+
+  ΔMembership : ∀ x y → x covers y ≃ y ∈ₑ Δ x
+  ΔMembership x y = invEquiv (fiberEquiv _ _)
+
+  ∇Membership : ∀ x y → y covers x ≃ y ∈ₑ ∇ x
+  ∇Membership x y = invEquiv (fiberEquiv _ _)
