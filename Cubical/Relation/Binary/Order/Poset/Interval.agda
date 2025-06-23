@@ -8,11 +8,13 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Functions.Embedding
 open import Cubical.Functions.Fibration
 
 open import Cubical.Data.Bool as B using (Bool; true; false)
+open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary.Order.Poset.Base
 open import Cubical.Relation.Binary.Order.Poset.Properties
@@ -35,7 +37,7 @@ module _ (P' : Poset ℓ ℓ') where
         z : P
         x≤z : x ≤ z
         z≤y : z ≤ y
-    
+
     unquoteDecl IntervalIsoΣ = declareRecordIsoΣ IntervalIsoΣ (quote Interval)
 
     isSetInterval : isSet Interval
@@ -54,6 +56,9 @@ module _ (P' : Poset ℓ ℓ') where
     IntervalPoset : Poset (ℓ-max ℓ ℓ') ℓ'
     IntervalPoset = Interval , IntervalPosetStr
 
+    Interval≡ : ∀ i j → i .Interval.z ≡ j .Interval.z → i ≡ j
+    Interval≡ _ _ = isoFunInjective IntervalIsoΣ _ _ ∘ Σ≡Prop (λ _ → isProp× (is-prop-valued _ _) (is-prop-valued _ _))
+
     module _ (x≤y : x ≤ y) where
       intervalTop : Interval
       intervalTop = interval y x≤y (is-refl y)
@@ -62,5 +67,5 @@ module _ (P' : Poset ℓ ℓ') where
       intervalBot = interval x (is-refl x) x≤y
 
       2→Interval : Bool → Interval
-      2→Interval false = intervalTop
-      2→Interval true  = intervalBot
+      2→Interval false = intervalBot
+      2→Interval true  = intervalTop
