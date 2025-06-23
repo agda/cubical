@@ -168,6 +168,26 @@ module _
     principalDownsetInclusion x y x≤y z z∈x↓
       = equivFun (principalDownsetMembership z y)
                  (trans z x y (invEq (principalDownsetMembership z x) z∈x↓) x≤y)
+    
+    module _ (S : Embedding ⟨ P ⟩ (ℓ-max ℓ ℓ')) where
+      private f = str S .fst
+
+      -- Not to be confused with the notion of a 'closure operator' (a monad on a poset) in Poset.Mappings
+      DownwardClosure : Embedding ⟨ P ⟩ (ℓ-max ℓ ℓ')
+      DownwardClosure = (Σ[ x ∈ ⟨ P ⟩ ] ∃[ y ∈ ⟨ S ⟩ ] x ≤ f y) , EmbeddingΣProp λ _ → squash₁
+
+      UpwardClosure : Embedding ⟨ P ⟩ (ℓ-max ℓ ℓ')
+      UpwardClosure = (Σ[ x ∈ ⟨ P ⟩ ] ∃[ y ∈ ⟨ S ⟩ ] f y ≤ x) , EmbeddingΣProp λ _ → squash₁
+
+      isDownsetDownwardClosure : isDownset DownwardClosure
+      isDownsetDownwardClosure (x , p) y y≤x = ∥₁.rec (isProp∈ₑ _ DownwardClosure) (λ (z , x≤z) →
+          (y , ∣ z , trans _ _ _ y≤x x≤z ∣₁) , refl
+        ) p
+
+      isUpsetUpwardClosure : isUpset UpwardClosure
+      isUpsetUpwardClosure (x , p) y x≤y = ∥₁.rec (isProp∈ₑ _ UpwardClosure) (λ (z , z≤x) →
+          (y , ∣ z , trans _ _ _ z≤x x≤y ∣₁) , refl
+        ) p
 
     module _
       (S : Embedding ⟨ P ⟩ (ℓ-max ℓ ℓ'))
