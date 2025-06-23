@@ -15,6 +15,7 @@ open import Cubical.Data.Fin.Inductive
 open import Cubical.Data.Empty as ⊥
 
 open import Cubical.HITs.FreeAbGroup
+open import Cubical.HITs.FreeGroup as FG hiding (rec)
 
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.Pi
@@ -23,6 +24,8 @@ open import Cubical.Algebra.AbGroup.Instances.DirectProduct
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Abelianization.Base
+open import Cubical.Algebra.Group.Abelianization.Properties as Abi hiding (rec)
 
 
 private variable
@@ -32,6 +35,62 @@ module _ {A : Type ℓ} where
 
   FAGAbGroup : AbGroup ℓ
   FAGAbGroup = makeAbGroup {G = FreeAbGroup A} ε _·_ _⁻¹ trunc assoc identityᵣ invᵣ comm
+
+FAGAbGroup→AbGroupHom : ∀ {ℓ ℓ'} {A : Type ℓ} {G : AbGroup ℓ'}
+  → (A → fst G) → AbGroupHom (FAGAbGroup {A = A}) G
+fst (FAGAbGroup→AbGroupHom {G = G} f) =
+  Rec.f (AbGroupStr.is-set (snd G)) f
+    (AbGroupStr.0g (snd G)) (AbGroupStr._+_ (snd G)) (AbGroupStr.-_ (snd G))
+    (AbGroupStr.+Assoc (snd G)) (AbGroupStr.+Comm (snd G))
+    (AbGroupStr.+IdR (snd G)) (AbGroupStr.+InvR (snd G))
+snd (FAGAbGroup→AbGroupHom {G = G} f) = makeIsGroupHom λ x y → refl
+
+FAGAbGroupGroupHom≡ : ∀ {ℓ ℓ'} {A : Type ℓ} {G : AbGroup ℓ'}
+  (f g : AbGroupHom (FAGAbGroup {A = A}) G)
+  → (∀ a → (fst f) (⟦ a ⟧) ≡ (fst g) (⟦ a ⟧)) → f ≡ g
+FAGAbGroupGroupHom≡ {G = G} f g p =
+  GroupHom≡ (funExt (ElimProp.f (AbGroupStr.is-set (snd G) _ _)
+    p (IsGroupHom.pres1 (snd f) ∙ sym (IsGroupHom.pres1 (snd g)))
+    (λ p q → IsGroupHom.pres· (snd f) _ _
+            ∙ cong₂ (AbGroupStr._+_ (snd G)) p q
+            ∙ sym (IsGroupHom.pres· (snd g) _ _))
+    λ p → IsGroupHom.presinv (snd f) _
+        ∙ cong (AbGroupStr.-_ (snd G)) p
+        ∙ sym (IsGroupHom.presinv (snd g) _)))
+
+module _ {A : Type ℓ} where
+  freeGroup→freeAbGroup : GroupHom (freeGroupGroup A)
+                                    (AbGroup→Group (FAGAbGroup {A = A}))
+  freeGroup→freeAbGroup = FG.rec {Group = AbGroup→Group (FAGAbGroup {A = A})} ⟦_⟧
+
+  AbelienizeFreeGroup→FreeAbGroup :
+    AbGroupHom (AbelianizationAbGroup (freeGroupGroup A)) (FAGAbGroup {A = A})
+  AbelienizeFreeGroup→FreeAbGroup =
+    fromAbelianization FAGAbGroup freeGroup→freeAbGroup
+
+  FreeAbGroup→AbelienizeFreeGroup :
+    AbGroupHom (FAGAbGroup {A = A}) (AbelianizationAbGroup (freeGroupGroup A))
+  FreeAbGroup→AbelienizeFreeGroup = FAGAbGroup→AbGroupHom λ a → η (η a)
+
+  GroupIso-AbelienizeFreeGroup→FreeAbGroup :
+    AbGroupIso (AbelianizationAbGroup (freeGroupGroup A)) (FAGAbGroup {A = A})
+  Iso.fun (fst GroupIso-AbelienizeFreeGroup→FreeAbGroup) =
+    AbelienizeFreeGroup→FreeAbGroup .fst
+  Iso.inv (fst GroupIso-AbelienizeFreeGroup→FreeAbGroup) =
+    FreeAbGroup→AbelienizeFreeGroup .fst
+  Iso.rightInv (fst GroupIso-AbelienizeFreeGroup→FreeAbGroup) x i =
+    FAGAbGroupGroupHom≡
+      (compGroupHom FreeAbGroup→AbelienizeFreeGroup
+                    AbelienizeFreeGroup→FreeAbGroup)
+      idGroupHom (λ _ → refl) i .fst x
+  Iso.leftInv (fst GroupIso-AbelienizeFreeGroup→FreeAbGroup) =
+    Abi.elimProp _ (λ _ → isset _ _)
+    (funExt⁻ (cong fst (freeGroupHom≡
+      {f = compGroupHom  freeGroup→freeAbGroup FreeAbGroup→AbelienizeFreeGroup}
+      {g = AbelianizationGroupStructure.ηAsGroupHom (freeGroupGroup A)}
+      λ _ → refl)))
+  snd GroupIso-AbelienizeFreeGroup→FreeAbGroup =
+    AbelienizeFreeGroup→FreeAbGroup .snd
 
 -- Alternative definition of case when A = Fin n
 ℤ[Fin_] : (n : ℕ) → AbGroup ℓ-zero
@@ -402,12 +461,12 @@ agreeOnℤFinGenerator→≡ : ∀ {n m : ℕ}
   → {ϕ ψ : AbGroupHom (ℤ[Fin n ]) (ℤ[Fin m ])}
   → ((x : _) → fst ϕ (ℤFinGenerator x) ≡ fst ψ (ℤFinGenerator x))
   → ϕ ≡ ψ
-agreeOnℤFinGenerator→≡ {n} {m} {ϕ} {ψ} idr =
+agreeOnℤFinGenerator→≡ {n} {m} {ϕ} {ψ} w =
   Σ≡Prop (λ _ → isPropIsGroupHom _ _)
    (funExt
     (elimPropℤFin _ _ (λ _ → isOfHLevelPath' 1 (isSetΠ (λ _ → isSetℤ)) _ _)
       (IsGroupHom.pres1 (snd ϕ) ∙ sym (IsGroupHom.pres1 (snd ψ)))
-      idr
+      w
       (λ f g p q → IsGroupHom.pres· (snd ϕ) f g
                  ∙∙ (λ i x → p i x + q i x)
                  ∙∙ sym (IsGroupHom.pres· (snd ψ) f g ))

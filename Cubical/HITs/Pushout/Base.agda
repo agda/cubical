@@ -6,6 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
@@ -36,6 +37,10 @@ Pushout→ f₁ f₂ g₁ g₂ h₀ h₁ h₂ e₁ e₂ (push a i) =
 -- cofiber (equivalent to Cone in Cubical.HITs.MappingCones.Base)
 cofib : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type _
 cofib f = Pushout (λ _ → tt) f
+
+cofib∙ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Pointed _
+fst (cofib∙ f) = cofib f
+snd (cofib∙ f) = inl tt
 
 cfcod : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → B → cofib f
 cfcod f = inr

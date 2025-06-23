@@ -232,6 +232,9 @@ module AbelianizationGroupStructure (G : Group ℓ) where
 AbelianizationAbGroup : (G : Group ℓ) → AbGroup ℓ
 AbelianizationAbGroup G = AbelianizationGroupStructure.asAbelianGroup G
 
+AbelianizationGroup : (G : Group ℓ) → Group ℓ
+AbelianizationGroup G = AbGroup→Group (AbelianizationAbGroup G)
+
 AbelianizationHom : (G : Group ℓ) → GroupHom G (AbGroup→Group (AbelianizationAbGroup G))
 AbelianizationHom G = AbelianizationGroupStructure.ηAsGroupHom G
 
