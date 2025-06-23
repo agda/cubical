@@ -139,30 +139,26 @@ module _
     isUpsetPrincipalUpset : ∀ x → isUpset (principalUpset x)
     isUpsetPrincipalUpset x (y , x≤y) z y≤z = (z , (trans x y z x≤y y≤z)) , refl
 
-    principalDownsetMembership : ∀ x y
-                               → x ≤ y
+    principalDownsetMembership : ∀ x y → x ≤ y
                                ≃ x ∈ₑ principalDownset y
     principalDownsetMembership x y = invEquiv (fiberEquiv _ _)
 
-    principalUpsetMembership : ∀ x y
-                             → x ≤ y
+    principalUpsetMembership : ∀ x y → x ≤ y
                              ≃ y ∈ₑ principalUpset x
     principalUpsetMembership x y = invEquiv (fiberEquiv _ _)
 
-    principalUpsetInclusion : ∀ x y
-                            → x ≤ y
+    principalUpsetInclusion : ∀ x y → x ≤ y
                             → principalUpset y ⊆ₑ principalUpset x
     principalUpsetInclusion x y x≤y z z∈y↑
       = equivFun (principalUpsetMembership x z)
                  (trans x y z x≤y (invEq (principalUpsetMembership y z) z∈y↑))
 
-    principalDownsetInclusion : ∀ x y
-                              → x ≤ y
+    principalDownsetInclusion : ∀ x y → x ≤ y
                               → principalDownset x ⊆ₑ principalDownset y
     principalDownsetInclusion x y x≤y z z∈x↓
       = equivFun (principalDownsetMembership z y)
                  (trans z x y (invEq (principalDownsetMembership z x) z∈x↓) x≤y)
-    
+
     module _ (S : Embedding ⟨ P ⟩ ℓ'') where
       private f = str S .fst
 
@@ -179,7 +175,7 @@ module _
                                 ≃ x ∈ₑ DownwardClosure
       DownwardClosureMembership x = invEquiv (fiberEquiv _ _)
 
-      UpwardClosureMembership : ∀ x → (∃[ y ∈ ⟨ S ⟩ ] f y ≤ x) 
+      UpwardClosureMembership : ∀ x → (∃[ y ∈ ⟨ S ⟩ ] f y ≤ x)
                               ≃ x ∈ₑ UpwardClosure
       UpwardClosureMembership x = invEquiv (fiberEquiv _ _)
 
@@ -191,7 +187,7 @@ module _
 
       is⊆DownwardClosure : S ⊆ₑ DownwardClosure
       is⊆DownwardClosure x (y , fy≡x) = equivFun (DownwardClosureMembership x) $ ∣ y , subst (_≤ f y) fy≡x (rfl _) ∣₁
-      
+
       is⊆UpwardClosure : S ⊆ₑ UpwardClosure
       is⊆UpwardClosure x (y , fy≡x) = equivFun (UpwardClosureMembership x) $ ∣ y , subst (f y ≤_) fy≡x (rfl _) ∣₁
 
@@ -210,13 +206,13 @@ module _
           ) (invEq (UpwardClosureMembership x) x∈U)
 
     module _ (A : Embedding ⟨ P ⟩ ℓ₀) (B : Embedding ⟨ P ⟩ ℓ₁) (A⊆B : A ⊆ₑ B) where
-      DownwardClosureIsotone : DownwardClosure A ⊆ₑ DownwardClosure B
-      DownwardClosureIsotone = DownwardClosureUniversal A (DownwardClosure B) (
+      DownwardClosureInclusion : DownwardClosure A ⊆ₑ DownwardClosure B
+      DownwardClosureInclusion = DownwardClosureUniversal A (DownwardClosure B) (
           isTrans⊆ₑ A B (DownwardClosure B) A⊆B (is⊆DownwardClosure B)
         ) (isDownsetDownwardClosure B)
-      
-      UpwardClosureIsotone : UpwardClosure A ⊆ₑ UpwardClosure B
-      UpwardClosureIsotone = UpwardClosureUniversal A (UpwardClosure B) (
+
+      UpwardClosureInclusion : UpwardClosure A ⊆ₑ UpwardClosure B
+      UpwardClosureInclusion = UpwardClosureUniversal A (UpwardClosure B) (
           isTrans⊆ₑ A B (UpwardClosure B) A⊆B (is⊆UpwardClosure B)
         ) (isUpsetUpwardClosure B)
 
