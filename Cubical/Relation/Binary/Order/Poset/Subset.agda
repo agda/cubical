@@ -163,14 +163,16 @@ module _
       = equivFun (principalDownsetMembership z y)
                  (trans z x y (invEq (principalDownsetMembership z x) z∈x↓) x≤y)
     
-    module _ (S : Embedding ⟨ P ⟩ (ℓ-max ℓ ℓ')) where
+    module _ (S : Embedding ⟨ P ⟩ ℓ'') where
       private f = str S .fst
 
       -- Not to be confused with the notion of a 'closure operator' (a monad on a poset) in Poset.Mappings
-      DownwardClosure : Embedding ⟨ P ⟩ (ℓ-max ℓ ℓ')
+      -- Though they are related, as the downward/upward closure is a closure operator on the poset of embeddings
+      -- (not proved here)
+      DownwardClosure : Embedding ⟨ P ⟩ (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
       DownwardClosure = (Σ[ x ∈ ⟨ P ⟩ ] ∃[ y ∈ ⟨ S ⟩ ] x ≤ f y) , EmbeddingΣProp λ _ → squash₁
 
-      UpwardClosure : Embedding ⟨ P ⟩ (ℓ-max ℓ ℓ')
+      UpwardClosure : Embedding ⟨ P ⟩ (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
       UpwardClosure = (Σ[ x ∈ ⟨ P ⟩ ] ∃[ y ∈ ⟨ S ⟩ ] f y ≤ x) , EmbeddingΣProp λ _ → squash₁
 
       DownwardClosureMembership : ∀ x → (∃[ y ∈ ⟨ S ⟩ ] x ≤ f y)
@@ -186,6 +188,37 @@ module _
 
       isUpsetUpwardClosure : isUpset UpwardClosure
       isUpsetUpwardClosure (x , p) y x≤y = equivFun (UpwardClosureMembership y) $ ∥₁.map (map-snd (flip (trans _ _ _) x≤y)) p
+
+      is⊆DownwardClosure : S ⊆ₑ DownwardClosure
+      is⊆DownwardClosure x (y , fy≡x) = equivFun (DownwardClosureMembership x) $ ∣ y , subst (_≤ f y) fy≡x (rfl _) ∣₁
+      
+      is⊆UpwardClosure : S ⊆ₑ UpwardClosure
+      is⊆UpwardClosure x (y , fy≡x) = equivFun (UpwardClosureMembership x) $ ∣ y , subst (f y ≤_) fy≡x (rfl _) ∣₁
+
+      -- universal property
+      module _ (S' : Embedding ⟨ P ⟩ ℓ''') (S⊆S' : S ⊆ₑ S') where
+        DownwardClosureUniversal : isDownset S' → DownwardClosure ⊆ₑ S'
+        DownwardClosureUniversal SDown x x∈D = ∃-rec (isProp∈ₑ _ S') (λ y x≤y →
+            let fib = S⊆S' (f y) (y , refl) in
+            SDown (fib .fst) x (subst (x ≤_) (sym (fib .snd)) x≤y)
+          ) (invEq (DownwardClosureMembership x) x∈D)
+
+        UpwardClosureUniversal : isUpset S' → UpwardClosure ⊆ₑ S'
+        UpwardClosureUniversal SUp x x∈U = ∃-rec (isProp∈ₑ _ S') (λ y y≤x →
+            let fib = S⊆S' (f y) (y , refl) in
+            SUp (fib .fst) x (subst (_≤ x) (sym (fib .snd)) y≤x)
+          ) (invEq (UpwardClosureMembership x) x∈U)
+
+    module _ (A : Embedding ⟨ P ⟩ ℓ₀) (B : Embedding ⟨ P ⟩ ℓ₁) (A⊆B : A ⊆ₑ B) where
+      DownwardClosureIsotone : DownwardClosure A ⊆ₑ DownwardClosure B
+      DownwardClosureIsotone = DownwardClosureUniversal A (DownwardClosure B) (
+          isTrans⊆ₑ A B (DownwardClosure B) A⊆B (is⊆DownwardClosure B)
+        ) (isDownsetDownwardClosure B)
+      
+      UpwardClosureIsotone : UpwardClosure A ⊆ₑ UpwardClosure B
+      UpwardClosureIsotone = UpwardClosureUniversal A (UpwardClosure B) (
+          isTrans⊆ₑ A B (UpwardClosure B) A⊆B (is⊆UpwardClosure B)
+        ) (isUpsetUpwardClosure B)
 
     module _
       (S : Embedding ⟨ P ⟩ (ℓ-max ℓ ℓ'))
