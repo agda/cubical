@@ -12,6 +12,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎
 
 open import Cubical.Functions.Embedding
+open import Cubical.Functions.Fibration
 open import Cubical.Functions.Preimage
 
 open import Cubical.HITs.PropositionalTruncation as ∥₁
@@ -141,20 +142,12 @@ module _
     principalDownsetMembership : ∀ x y
                                → x ≤ y
                                ≃ x ∈ₑ principalDownset y
-    principalDownsetMembership x y
-      = propBiimpl→Equiv (prop x y)
-                         (isProp∈ₑ x (principalDownset y))
-                         (λ x≤y → (x , x≤y) , refl)
-                          λ { ((a , a≤y) , fib) → subst (_≤ y) fib a≤y}
+    principalDownsetMembership x y = invEquiv (fiberEquiv _ _)
 
     principalUpsetMembership : ∀ x y
                              → x ≤ y
                              ≃ y ∈ₑ principalUpset x
-    principalUpsetMembership x y
-      = propBiimpl→Equiv (prop x y)
-                         (isProp∈ₑ y (principalUpset x))
-                         (λ x≤y → (y , x≤y) , refl)
-                          λ { ((a , x≤a) , fib) → subst (x ≤_) fib x≤a }
+    principalUpsetMembership x y = invEquiv (fiberEquiv _ _)
 
     principalUpsetInclusion : ∀ x y
                             → x ≤ y
@@ -182,15 +175,11 @@ module _
 
       DownwardClosureMembership : ∀ x → (∃[ y ∈ ⟨ S ⟩ ] x ≤ f y)
                                 ≃ x ∈ₑ DownwardClosure
-      DownwardClosureMembership x = propBiimpl→Equiv squash₁ (isProp∈ₑ _ DownwardClosure) 
-                                      (λ x∈d → (x , x∈d) , refl)
-                                      (λ ((x' , x'∈d) , x≡x') → subst _ x≡x' x'∈d)
+      DownwardClosureMembership x = invEquiv (fiberEquiv _ _)
 
       UpwardClosureMembership : ∀ x → (∃[ y ∈ ⟨ S ⟩ ] f y ≤ x) 
                               ≃ x ∈ₑ UpwardClosure
-      UpwardClosureMembership x = propBiimpl→Equiv squash₁ (isProp∈ₑ _ UpwardClosure) 
-                                    (λ x∈d → (x , x∈d) , refl)
-                                    (λ ((x' , x'∈d) , x≡x') → subst _ x≡x' x'∈d)
+      UpwardClosureMembership x = invEquiv (fiberEquiv _ _)
 
       isDownsetDownwardClosure : isDownset DownwardClosure
       isDownsetDownwardClosure (x , p) y y≤x = equivFun (DownwardClosureMembership y) $ ∥₁.map (map-snd (trans _ _ _ y≤x)) p
