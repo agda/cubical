@@ -46,6 +46,9 @@ rec3 Pprop f ∣ x ∣₁ ∣ y ∣₁ (squash₁ z w i) = Pprop (rec3 Pprop f �
 rec3 Pprop f ∣ x ∣₁ (squash₁ y z i) w = Pprop (rec3 Pprop f ∣ x ∣₁ y w) (rec3 Pprop f ∣ x ∣₁ z w) i
 rec3 Pprop f (squash₁ x y i) z w = Pprop (rec3 Pprop f x z w) (rec3 Pprop f y z w) i
 
+∃-rec : {B : A → Type ℓ'} {P : Type ℓ} → isProp P → (∀ x → B x → P) → ∃[ x ∈ A ] B x → P
+∃-rec Pprop f = rec Pprop (uncurry f)
+
 -- Old version
 -- rec2 : ∀ {P : Type ℓ} → isProp P → (A → A → P) → ∥ A ∥ → ∥ A ∥ → P
 -- rec2 Pprop f = rec (isProp→ Pprop) (λ a → rec Pprop (f a))
@@ -132,6 +135,10 @@ elimFin {m = suc m} {P = P} {B = B} isPropB untruncHyp x =
   curriedishTrunc = elim (λ _ → isPropΠ λ _ → isPropB _)
                     λ x₀ xₛ → subst B (funExt (λ { zero → refl ; (suc i) → refl}))
                                       (curriedish x₀ xₛ)
+
+∃-elim : {B : A → Type ℓ'} {P : ∃[ x ∈ A ] B x → Type ℓ} (Pprop : ∀ s → isProp (P s))
+       → (∀ x y → P ∣ x , y ∣₁) → ∀ s → P s
+∃-elim Pprop f = elim Pprop (uncurry f)
 
 isPropPropTrunc : isProp ∥ A ∥₁
 isPropPropTrunc x y = squash₁ x y
