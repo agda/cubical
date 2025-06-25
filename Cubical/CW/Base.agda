@@ -98,6 +98,9 @@ CW ℓ = Σ[ A ∈ Type ℓ ] ∥ isCW A ∥₁
 CWexplicit : (ℓ : Level) → Type (ℓ-suc ℓ)
 CWexplicit ℓ = Σ[ A ∈ Type ℓ ] (isCW A)
 
+CWexplicit→CW : ∀ {ℓ} → CWexplicit ℓ → CW ℓ
+CWexplicit→CW C = fst C , ∣ snd C ∣₁
+
 -- Finite CW complexes
 isFinIsCW : {X : Type ℓ} → isCW X → Type ℓ
 isFinIsCW X = Σ[ n ∈ ℕ ] (((k : ℕ) → isEquiv (CW↪ (X .fst) (k +ℕ n))))

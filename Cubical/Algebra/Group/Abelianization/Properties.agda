@@ -31,7 +31,7 @@ open import Cubical.Algebra.Group.Abelianization.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 module _ (G : Group ℓ) where
   open GroupStr {{...}}
@@ -41,7 +41,7 @@ module _ (G : Group ℓ) where
       _ = snd G
 
   -- Some helpful lemmas, similar to those in Cubical/HITs/SetQuotients/Properties.agda
-  elimProp : {B : Abelianization G → Type ℓ}
+  elimProp : {B : Abelianization G → Type ℓ'}
         → (Bprop : (x : Abelianization G) → isProp (B x))
         → (f : (g : fst G) → B (η g))
         → (x : Abelianization G)
@@ -55,7 +55,7 @@ module _ (G : Group ℓ) where
     where
     g = elimProp Bprop f
 
-  elimProp2 : {C : Abelianization G → Abelianization G → Type ℓ}
+  elimProp2 : {C : Abelianization G → Abelianization G → Type ℓ'}
         → (Cprop : (x y : Abelianization G) → isProp (C x y))
         → (f : (a b : fst G) → C (η a) (η b))
         → (x y : Abelianization G)
@@ -63,7 +63,7 @@ module _ (G : Group ℓ) where
   elimProp2 Cprop f = elimProp (λ x → isPropΠ (λ y → Cprop x y))
                                (λ x → elimProp (λ y → Cprop (η x) y) (f x))
 
-  elimProp3 : {D : Abelianization G → Abelianization G → Abelianization G → Type ℓ}
+  elimProp3 : {D : Abelianization G → Abelianization G → Abelianization G → Type ℓ'}
         → (Dprop : (x y z : Abelianization G) → isProp (D x y z))
         → ((a b c : fst G) → D (η a) (η b) (η c))
         → (x y z : Abelianization G)
@@ -71,21 +71,21 @@ module _ (G : Group ℓ) where
   elimProp3 Dprop f = elimProp (λ x → isPropΠ2 (λ y z → Dprop x y z))
                                (λ x → elimProp2 (λ y z → Dprop (η x) y z) (f x))
 
-  elimContr : {B : Abelianization G → Type ℓ}
+  elimContr : {B : Abelianization G → Type ℓ'}
         → (Bcontr : ∀ (a : fst G) → isContr (B (η a)))
         → (x : Abelianization G)
         → B x
   elimContr Bcontr = elimProp (elimProp (λ _ → isPropIsProp) λ _ → isContr→isProp (Bcontr _))
                               λ _ → Bcontr _ .fst
 
-  elimContr2 : {C : Abelianization G → Abelianization G → Type ℓ}
+  elimContr2 : {C : Abelianization G → Abelianization G → Type ℓ'}
         → (Ccontr : ∀ (a b : fst G) → isContr (C (η a) (η b)))
         → (x y : Abelianization G)
         → C x y
   elimContr2 Ccontr = elimContr λ _ → isOfHLevelΠ 0
                      (elimContr λ _ → inhProp→isContr (Ccontr _ _) isPropIsContr)
 
-  rec : {M : Type ℓ}
+  rec : {M : Type ℓ'}
         (Mset : isSet M)
         (f : fst G → M)
         (fcomm : (a b c : fst G) → f (a · (b · c)) ≡ f (a · (c · b)))
@@ -96,7 +96,7 @@ module _ (G : Group ℓ) where
     where
     g = rec Mset f fcomm
 
-  rec2 : {M : Type ℓ}
+  rec2 : {M : Type ℓ'}
         (Mset : isSet M)
         (f : fst G → fst G → M)
         (fcomml : (a b c d : fst G) → f (a · (b · c)) d ≡ f (a · (c · b)) d)

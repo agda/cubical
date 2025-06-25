@@ -230,6 +230,15 @@ realiseSubComplex n C =
   compIso (equivToIso (complex≃subcomplex' C n n (<ᵗsucm {n}) (n ≟ᵗ n)))
           (realiseFin n (finSubComplex C n))
 
+subCWExplicit : ∀ {ℓ} (n : ℕ) → CWexplicit ℓ → CWexplicit ℓ
+fst (subCWExplicit n (X , Xsk , e)) = Xsk .fst n
+fst (snd (subCWExplicit n (X , Xsk , e))) = subComplex Xsk n
+snd (snd (subCWExplicit n (X , Xsk , e))) =
+  isoToEquiv (realiseSubComplex n Xsk)
+
+subCW : ∀ {ℓ} (n : ℕ) → CWexplicit ℓ → CW ℓ
+subCW n X = CWexplicit→CW (subCWExplicit n X)
+
 -- Strictifying finCWskel
 niceFinCWskel : ∀ {ℓ} (n : ℕ) → finCWskel ℓ n → finCWskel ℓ n
 fst (niceFinCWskel n (A , AC , fin)) = finSubComplex (A , AC) n .fst

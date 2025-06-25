@@ -85,6 +85,18 @@ isConnectedCW' : ∀ {ℓ} (n : ℕ) → Type ℓ → Type (ℓ-suc ℓ)
 isConnectedCW' {ℓ = ℓ} n A =
   Σ[ sk ∈ combinatorialConnectedCWskel ℓ n ] realise (_ , (snd sk .fst)) ≃ A
 
+ConnectedCW : (ℓ : Level) (n : ℕ) → Type (ℓ-suc ℓ)
+ConnectedCW ℓ n = Σ[ X ∈ Type ℓ ] isConnectedCW n X
+
+ConnectedCW→CWexplicit : ∀ {ℓ} {n : ℕ} → ConnectedCW ℓ n → CWexplicit ℓ
+fst (ConnectedCW→CWexplicit (X , p , con)) = X
+fst (fst (snd (ConnectedCW→CWexplicit (X , (Xsk , _ , _) , con)))) = Xsk
+snd (fst (snd (ConnectedCW→CWexplicit (X , (Xsk , p , _) , con)))) = p
+snd (snd (ConnectedCW→CWexplicit (X , (Xsk , _ , _) , con))) = invEquiv con
+
+ConnectedCW→CW : ∀ {ℓ} {n : ℕ} → ConnectedCW ℓ n → CW ℓ
+ConnectedCW→CW X = CWexplicit→CW (ConnectedCW→CWexplicit X)
+
 --- Goal: show that these two definitions coincide (note that indexing is off by 2) ---
 -- For the base case, we need to analyse α₀ : Fin n × S⁰ → X₁ (recall,
 -- indexing of skeleta is shifted by 1). In partiuclar, we will need

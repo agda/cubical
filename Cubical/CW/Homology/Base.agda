@@ -22,15 +22,19 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Sigma
+open import Cubical.Data.Int
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.GroupPath
+open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.ChainComplex
 
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SequentialColimit
+open import Cubical.HITs.SetQuotients as SQ
 
 private
   variable
@@ -242,3 +246,25 @@ snd (H̃ᶜʷ→Iso m e) = snd (H̃ᶜʷ→ m (fst e))
 H̃ᶜʷ→Equiv : {C : CW ℓ} {D : CW ℓ'} (m : ℕ)
   (e : fst C ≃ fst D) → GroupEquiv (H̃ᶜʷ C m) (H̃ᶜʷ D m)
 H̃ᶜʷ→Equiv m e = GroupIso→GroupEquiv (H̃ᶜʷ→Iso m e)
+
+-- As abelian groups
+H̃ˢᵏᵉˡ-comm : ∀ {ℓ} {n : ℕ} {X : CWskel ℓ} (x y : H̃ˢᵏᵉˡ X (suc n) .fst)
+  → GroupStr._·_ (H̃ˢᵏᵉˡ X (suc n) .snd) x y
+   ≡ GroupStr._·_ (H̃ˢᵏᵉˡ X (suc n) .snd) y x
+H̃ˢᵏᵉˡ-comm = SQ.elimProp2 (λ _ _ → GroupStr.is-set (H̃ˢᵏᵉˡ _ _ .snd) _ _)
+  λ a b → cong [_] (Σ≡Prop (λ _ → isSetΠ (λ _ → isSetℤ) _ _)
+    (funExt λ _ → +Comm _ _))
+
+H̃ᶜʷ-comm : ∀ {ℓ} {n : ℕ} (X : CW ℓ) (x y : H̃ᶜʷ X (suc n) .fst)
+  → GroupStr._·_ (H̃ᶜʷ X (suc n) .snd) x y
+   ≡ GroupStr._·_ (H̃ᶜʷ X (suc n) .snd) y x
+H̃ᶜʷ-comm {n = n} = uncurry λ X
+  → PT.elim (λ _ → isPropΠ2 λ _ _
+                  → GroupStr.is-set (H̃ᶜʷ (X , _) (suc n) .snd) _ _)
+            λ x → H̃ˢᵏᵉˡ-comm
+
+H̃ˢᵏᵉˡAb : ∀ {ℓ} → CWskel ℓ → ℕ → AbGroup ℓ-zero
+H̃ˢᵏᵉˡAb X n = Group→AbGroup (H̃ˢᵏᵉˡ X (suc n)) H̃ˢᵏᵉˡ-comm
+
+H̃ᶜʷAb : ∀ {ℓ} → CW ℓ → ℕ → AbGroup ℓ-zero
+H̃ᶜʷAb X n = Group→AbGroup (H̃ᶜʷ X (suc n)) (H̃ᶜʷ-comm X)
