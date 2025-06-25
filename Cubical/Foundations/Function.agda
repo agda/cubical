@@ -22,7 +22,7 @@ idfun _ x = x
 
 infixr -8 idfun
 
--- The membership relation (used to clarify the type of a term to Agda, when inside a definition like :: in Haskell)
+-- The membership relation (used to clarify the type of a term to Agda when inside a definition, like :: in Haskell)
 syntax idfun A x = x ∶ A -- \:1 in emacs
 
 infixr -1 _$_
