@@ -160,7 +160,11 @@ module ZarLat (R' : CommRing ℓ) where
       to α∨β⊆γ .snd = ⊆-trans _ _ _ 
         (√Resp⊆ ⟨ β ⟩ ⟨ α ++Fin β ⟩ (⊆-trans _ _ _ (+iRincl ⟨ α ⟩ ⟨ β ⟩) (FGIdealAddLemmaRIncl _ α β))) α∨β⊆γ
       fo : _
-      fo (α⊆γ , β⊆γ) = {!   !}
+      fo (α⊆γ , β⊆γ) = ⊆-trans _ _ _ (√Resp⊆ ⟨ α ++Fin β ⟩ (⟨ α ⟩ +i ⟨ β ⟩) $ FGIdealAddLemmaLIncl _ α β) λ x x∈√α+β → do
+        (n , x^n∈α+β) ← x∈√α+β
+        ((y , z) , y∈α , z∈β , x^n≡y+z) ← x^n∈α+β
+        ^∈√→∈√ _ x n $ subst-∈ (√ ⟨ γ ⟩) (sym x^n≡y+z) $ 
+          √ ⟨ γ ⟩ .snd .+Closed (α⊆γ y (∈→∈√ _ y y∈α)) (β⊆γ z (∈→∈√ _ z z∈β))
 
   ZL-joins : isJoinSemipseudolattice ZLPoset
   ZL-joins = hasBinJoins AProset λ x y → _ , ∨a-join x y
@@ -176,11 +180,14 @@ module ZarLat (R' : CommRing ℓ) where
     where
       to : _
       to γ≼α∧β .fst = ⊆-trans _ _ _ γ≼α∧β $ √Resp⊆ ⟨ α ··Fin β ⟩ ⟨ α ⟩ $
-                      ⊆-trans _ _ _ (FGIdealMultLemmaLIncl R' α β) (·iLincl ⟨ α ⟩ ⟨ β ⟩)
+                      ⊆-trans _ _ _ (FGIdealMultLemmaLIncl _ α β) (·iLincl ⟨ α ⟩ ⟨ β ⟩)
       to γ≼α∧β .snd = ⊆-trans _ _ _ γ≼α∧β $ √Resp⊆ ⟨ α ··Fin β ⟩ ⟨ β ⟩ $
-                      ⊆-trans _ _ _ (FGIdealMultLemmaLIncl R' α β) (·iRincl ⟨ α ⟩ ⟨ β ⟩)
+                      ⊆-trans _ _ _ (FGIdealMultLemmaLIncl _ α β) (·iRincl ⟨ α ⟩ ⟨ β ⟩)
       fo : _
-      fo = {!   !}
+      fo (γ≼α , γ≼β) = ⊆-trans _ _ _ (λ x x∈√γ → 
+          ∣ 2 , subst-∈ (√ ⟨ α ⟩ ·i √ ⟨ β ⟩) (solve! R') (prodInProd _ _ x x (γ≼α x x∈√γ) (γ≼β x x∈√γ)) ∣₁
+        ) $ ⊆-trans _ _ _ (√·ContrLIncl ⟨ α ⟩ ⟨ β ⟩) $ 
+        √Resp⊆ (⟨ α ⟩ ·i ⟨ β ⟩) ⟨ α ··Fin β ⟩ $ FGIdealMultLemmaRIncl _ α β
 
   ZL-meets : isMeetSemipseudolattice ZLPoset
   ZL-meets = hasBinMeets AProset λ x y → _ , ∧a-meet x y
