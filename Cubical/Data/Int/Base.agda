@@ -6,7 +6,7 @@ module Cubical.Data.Int.Base where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat hiding (_+_ ; _·_) renaming (isEven to isEvenℕ ; isOdd to isOddℕ)
+open import Cubical.Data.Nat as ℕ hiding (_+_ ; _·_) renaming (isEven to isEvenℕ ; isOdd to isOddℕ)
 open import Cubical.Data.Fin.Inductive.Base
 
 infix  8 -_
@@ -60,6 +60,13 @@ _+_ : ℤ → ℤ → ℤ
 m + pos n = m +pos n
 m + negsuc n = m +negsuc n
 
+_+f_ : ℤ → ℤ → ℤ
+pos n +f pos n₁ = pos (n ℕ.+ n₁)
+negsuc n +f negsuc n₁ = negsuc (suc (n ℕ.+ n₁))
+n +f m = n + m
+-- pos n +f negsuc n₁ = {!!}
+-- negsuc n +f pos n₁ = {!!}
+
 -_ : ℤ → ℤ
 - pos zero = pos zero
 - pos (suc n) = negsuc n
@@ -73,6 +80,16 @@ pos zero · m = pos zero
 pos (suc n) · m = m + pos n · m
 negsuc zero · m = - m
 negsuc (suc n) · m = - m + negsuc n · m
+
+_·f_ : ℤ → ℤ → ℤ
+pos n ·f pos n₁ = pos (n ℕ.· n₁)
+pos zero ·f negsuc n₁ = pos zero
+pos (suc n) ·f negsuc n₁ = negsuc (suc n ℕ.· suc n₁)
+negsuc n ·f pos zero = pos zero
+negsuc n ·f pos (suc n₁) = negsuc (suc n ℕ.· suc n₁)
+negsuc n ·f negsuc n₁ = pos (suc n ℕ.· suc n₁)
+
+
 
 -- Natural number and negative integer literals for ℤ
 

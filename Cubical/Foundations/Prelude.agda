@@ -311,6 +311,10 @@ subst2 : ∀ {ℓ' ℓ''} {B : Type ℓ'} {z w : B} (C : A → B → Type ℓ'')
         (p : x ≡ y) (q : z ≡ w) → C x z → C y w
 subst2 B p q b = transport (λ i → B (p i) (q i)) b
 
+subst3 : ∀ {ℓ' ℓ'' ℓ'''} {B : Type ℓ'} {C : Type ℓ''} {z w : B} {u v : C} (D : A → B → C → Type ℓ''')
+        (p : x ≡ y) (q : z ≡ w) (r : u ≡ v) → D x z u → D y w v
+subst3 D p q r b = transport (λ i → D (p i) (q i) (r i)) b
+
 substRefl : ∀ {B : A → Type ℓ} {x} → (px : B x) → subst B refl px ≡ px
 substRefl px = transportRefl px
 
