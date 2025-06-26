@@ -155,15 +155,15 @@ module ZarLat (R' : CommRing ℓ) where
   ∨a-join (_ , α) (_ , β) (_ , γ) = propBiimpl→Equiv (≼PropValued _ _) (isProp× (≼PropValued _ _) (≼PropValued _ _)) to fo
     where
       to : _
-      to α∨β⊆γ .fst = ⊆-trans _ _ _ 
+      to α∨β⊆γ .fst = ⊆-trans _ _ _
         (√Resp⊆ ⟨ α ⟩ ⟨ α ++Fin β ⟩ (⊆-trans _ _ _ (+iLincl ⟨ α ⟩ ⟨ β ⟩) (FGIdealAddLemmaRIncl _ α β))) α∨β⊆γ
-      to α∨β⊆γ .snd = ⊆-trans _ _ _ 
+      to α∨β⊆γ .snd = ⊆-trans _ _ _
         (√Resp⊆ ⟨ β ⟩ ⟨ α ++Fin β ⟩ (⊆-trans _ _ _ (+iRincl ⟨ α ⟩ ⟨ β ⟩) (FGIdealAddLemmaRIncl _ α β))) α∨β⊆γ
       fo : _
       fo (α⊆γ , β⊆γ) = ⊆-trans _ _ _ (√Resp⊆ ⟨ α ++Fin β ⟩ (⟨ α ⟩ +i ⟨ β ⟩) $ FGIdealAddLemmaLIncl _ α β) λ x x∈√α+β → do
         (n , x^n∈α+β) ← x∈√α+β
         ((y , z) , y∈α , z∈β , x^n≡y+z) ← x^n∈α+β
-        ^∈√→∈√ _ x n $ subst-∈ (√ ⟨ γ ⟩) (sym x^n≡y+z) $ 
+        ^∈√→∈√ _ x n $ subst-∈ (√ ⟨ γ ⟩) (sym x^n≡y+z) $
           √ ⟨ γ ⟩ .snd .+Closed (α⊆γ y (∈→∈√ _ y y∈α)) (β⊆γ z (∈→∈√ _ z z∈β))
 
   ZL-joins : isJoinSemipseudolattice ZLPoset
@@ -184,9 +184,9 @@ module ZarLat (R' : CommRing ℓ) where
       to γ≼α∧β .snd = ⊆-trans _ _ _ γ≼α∧β $ √Resp⊆ ⟨ α ··Fin β ⟩ ⟨ β ⟩ $
                       ⊆-trans _ _ _ (FGIdealMultLemmaLIncl _ α β) (·iRincl ⟨ α ⟩ ⟨ β ⟩)
       fo : _
-      fo (γ≼α , γ≼β) = ⊆-trans _ _ _ (λ x x∈√γ → 
+      fo (γ≼α , γ≼β) = ⊆-trans _ _ _ (λ x x∈√γ →
           ∣ 2 , subst-∈ (√ ⟨ α ⟩ ·i √ ⟨ β ⟩) (solve! R') (prodInProd _ _ x x (γ≼α x x∈√γ) (γ≼β x x∈√γ)) ∣₁
-        ) $ ⊆-trans _ _ _ (√·ContrLIncl ⟨ α ⟩ ⟨ β ⟩) $ 
+        ) $ ⊆-trans _ _ _ (√·ContrLIncl ⟨ α ⟩ ⟨ β ⟩) $
         √Resp⊆ (⟨ α ⟩ ·i ⟨ β ⟩) ⟨ α ··Fin β ⟩ $ FGIdealMultLemmaRIncl _ α β
 
   ZL-meets : isMeetSemipseudolattice ZLPoset

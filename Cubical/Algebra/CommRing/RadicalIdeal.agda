@@ -240,7 +240,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
  √·Absorb+ I J = CommIdeal≡Char (√·Absorb+LIncl I J) (√·Absorb+RIncl I J)
 
  √·ContrLIncl : ∀ (I J : CommIdeal) → √ (√ I ·i √ J) ⊆ √ (I ·i J)
- √·ContrLIncl I J x = √·RContrLIncl I J x ∘ subst (x ∈_) (√·LContr I (√ J)) 
+ √·ContrLIncl I J x = √·RContrLIncl I J x ∘ subst (x ∈_) (√·LContr I (√ J))
 
  √Pres·LIncl : ∀ (I J : CommIdeal) → (√ I ·i √ J) ⊆ √ (I ·i J)
  √Pres·LIncl I J x = √·ContrLIncl I J x ∘ ∈→∈√ (√ I ·i √ J) x
