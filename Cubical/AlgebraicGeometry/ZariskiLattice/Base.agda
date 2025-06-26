@@ -9,6 +9,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Powerset renaming (_∈_ to _∈p_; _⊆_ to _⊆p_; subst-∈ to subst-∈p)
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
@@ -16,8 +17,9 @@ open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm
                                       ; ·-identityʳ to ·ℕ-rid)
-open import Cubical.Data.Sigma.Base
-open import Cubical.Data.Sigma.Properties
+open import Cubical.Data.Sigma
+open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.PropositionalTruncation.Monad
 open import Cubical.Data.FinData
 open import Cubical.Data.Unit
 open import Cubical.Relation.Nullary
@@ -75,16 +77,16 @@ module ZarLat (R' : CommRing ℓ) where
 
   -- This is small!
   _≼_ : A → A → Type ℓ
-  (_ , α) ≼ (_ , β) = ∀ i → α i ∈ √ ⟨ β ⟩
+  (_ , α) ≼ (_ , β) = √ ⟨ α ⟩ ⊆ √ ⟨ β ⟩
 
   isRefl≼ : ∀ {a} → a ≼ a
-  isRefl≼ i = ∈→∈√ _ _ (indInIdeal _ _ i)
+  isRefl≼ = ⊆-refl _
 
   isTrans≼ : ∀ {a b c : A} → a ≼ b → b ≼ c → a ≼ c
-  isTrans≼ a≼b b≼c i = (√FGIdealCharRImpl _ _ b≼c) _ (a≼b i)
+  isTrans≼ = ⊆-trans _ _ _
 
   ≼PropValued : isPropValued _≼_
-  ≼PropValued (_ , α) (_ , β) = isPropΠ λ i → √ ⟨ β ⟩ .fst (α i) .snd
+  ≼PropValued x y = ⊆-isProp _ _
 
   isProset≼ : IsProset _≼_
   isProset≼ = isproset (isSetΣ isSetℕ λ x → isSet→ is-set) ≼PropValued (λ _ → isRefl≼) (λ _ _ _ → isTrans≼)
@@ -93,8 +95,7 @@ module ZarLat (R' : CommRing ℓ) where
   _∼_ = SymKernel _≼_
 
   ∼PropValued : isPropValued (_∼_)
-  ∼PropValued (_ , α) (_ , β) = isProp× (isPropΠ (λ i → √ ⟨ β ⟩ .fst (α i) .snd))
-                                        (isPropΠ (λ i → √ ⟨ α ⟩ .fst (β i) .snd))
+  ∼PropValued _ _ = isProp× (≼PropValued _ _) (≼PropValued _ _)
 
   ∼EquivRel : isEquivRel (_∼_)
   ∼EquivRel = isProset→isEquivRelSymKernel isProset≼
@@ -121,16 +122,15 @@ module ZarLat (R' : CommRing ℓ) where
   1a = 1 , λ _ → 1r
 
   --  need something big in our proofs though:
+
   _∼≡_ : A → A → Type (ℓ-suc ℓ)
   (_ , α) ∼≡ (_ , β) = √ ⟨ α ⟩ ≡ √ ⟨ β ⟩
 
   ≡→∼ : ∀ {a b : A} → a ∼≡ b → a ∼ b
-  ≡→∼ r = √FGIdealCharLImpl _ ⟨ _ ⟩ (λ x h → subst (λ p → x ∈ p) r h)
-        , √FGIdealCharLImpl _ ⟨ _ ⟩ (λ x h → subst (λ p → x ∈ p) (sym r) h)
+  ≡→∼ r = ⊆-refl-consequence _ _ (cong fst r)
 
   ∼→≡ : ∀ {a b : A} → a ∼ b → a ∼≡ b
-  ∼→≡ r = CommIdeal≡Char (√FGIdealCharRImpl _ ⟨ _ ⟩ (fst r))
-                         (√FGIdealCharRImpl _ ⟨ _ ⟩ (snd r))
+  ∼→≡ r = CommIdeal≡Char (r .fst) (r .snd)
 
   ∼≃≡ : ∀ {a b : A} → (a ∼ b) ≃ (a ∼≡ b)
   ∼≃≡ = propBiimpl→Equiv (∼PropValued _ _) (isSetCommIdeal _ _) ∼→≡ ≡→∼
@@ -139,19 +139,28 @@ module ZarLat (R' : CommRing ℓ) where
   0z = [ 0a ]
 
   0z-least : isLeast isProsetZL (_ , id↪ _) 0z
-  0z-least = []presLeast AProset 0a λ x ()
+  0z-least = []presLeast AProset 0a λ x → √FGIdealCharRImpl _ _ λ ()
 
   1z : ZL
   1z = [ 1a ]
 
   1z-greatest : isGreatest isProsetZL (_ , id↪ _) 1z
-  1z-greatest = []presGreatest AProset 1a λ x i → ∣ 0 , ∣ const 1r , solve! R' ∣₁ ∣₁
+  1z-greatest = []presGreatest AProset 1a λ x → √FGIdealCharRImpl _ _ λ _ →
+    ∣ 0 , ∣ (λ _ → 1r) , solve! R' ∣₁ ∣₁
 
   _∨a_ : A → A → A
   (_ , α) ∨a (_ , β) = _ , α ++Fin β
 
   ∨a-join : ∀ x y → isJoin isProset≼ x y (x ∨a y)
-  ∨a-join x y z = {!   !}
+  ∨a-join (_ , α) (_ , β) (_ , γ) = propBiimpl→Equiv (≼PropValued _ _) (isProp× (≼PropValued _ _) (≼PropValued _ _)) to fo
+    where
+      to : _
+      to α∨β⊆γ .fst = ⊆-trans _ _ _ 
+        (√Resp⊆ ⟨ α ⟩ ⟨ α ++Fin β ⟩ (⊆-trans _ _ _ (+iLincl ⟨ α ⟩ ⟨ β ⟩) (FGIdealAddLemmaRIncl _ α β))) α∨β⊆γ
+      to α∨β⊆γ .snd = ⊆-trans _ _ _ 
+        (√Resp⊆ ⟨ β ⟩ ⟨ α ++Fin β ⟩ (⊆-trans _ _ _ (+iRincl ⟨ α ⟩ ⟨ β ⟩) (FGIdealAddLemmaRIncl _ α β))) α∨β⊆γ
+      fo : _
+      fo (α⊆γ , β⊆γ) = {!   !}
 
   ZL-joins : isJoinSemipseudolattice ZLPoset
   ZL-joins = hasBinJoins AProset λ x y → _ , ∨a-join x y
@@ -163,7 +172,15 @@ module ZarLat (R' : CommRing ℓ) where
   (_ , α) ∧a (_ , β) = _ , α ··Fin β
 
   ∧a-meet : ∀ x y → isMeet isProset≼ x y (x ∧a y)
-  ∧a-meet x y z = {!   !}
+  ∧a-meet (_ , α) (_ , β) (_ , γ) = propBiimpl→Equiv (≼PropValued _ _) (isProp× (≼PropValued _ _) (≼PropValued _ _)) to fo
+    where
+      to : _
+      to γ≼α∧β .fst = ⊆-trans _ _ _ γ≼α∧β $ √Resp⊆ ⟨ α ··Fin β ⟩ ⟨ α ⟩ $
+                      ⊆-trans _ _ _ (FGIdealMultLemmaLIncl R' α β) (·iLincl ⟨ α ⟩ ⟨ β ⟩)
+      to γ≼α∧β .snd = ⊆-trans _ _ _ γ≼α∧β $ √Resp⊆ ⟨ α ··Fin β ⟩ ⟨ β ⟩ $
+                      ⊆-trans _ _ _ (FGIdealMultLemmaLIncl R' α β) (·iRincl ⟨ α ⟩ ⟨ β ⟩)
+      fo : _
+      fo = {!   !}
 
   ZL-meets : isMeetSemipseudolattice ZLPoset
   ZL-meets = hasBinMeets AProset λ x y → _ , ∧a-meet x y
@@ -198,7 +215,6 @@ module ZarLat (R' : CommRing ℓ) where
     ⟨ α ⟩ ·i 1Ideal                     ≡⟨ ·iRid _ ⟩
     ⟨ α ⟩ ∎
 
-
   -- absorption and distributivity
   ∧zAbsorb∨z : ∀ (𝔞 𝔟 : ZL) → 𝔞 ∧z (𝔞 ∨z 𝔟) ≡ 𝔞
   ∧zAbsorb∨z = MeetAbsorbLJoin ZLPoset (ZL-meets , ZL-joins)
@@ -216,7 +232,6 @@ module ZarLat (R' : CommRing ℓ) where
                                                       (sym (FGIdealMultLemma _ _ _)) ⟩
         √ (⟨ α ··Fin β ⟩ +i ⟨ α ··Fin γ ⟩)   ≡⟨ cong √ (sym (FGIdealAddLemma _ _ _)) ⟩
         √ ⟨ (α ··Fin β) ++Fin (α ··Fin γ) ⟩  ∎))
-
 
   ZariskiLattice : DistLattice ℓ
   fst ZariskiLattice = ZL

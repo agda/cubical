@@ -101,6 +101,9 @@ module RadicalIdeal (R' : CommRing ℓ) where
 
  -- important lemma for characterization of the Zariski lattice
  open KroneckerDelta (CommRing→Ring R')
+ √Resp⊆ : (I J : CommIdeal) → I ⊆ J → √ I ⊆ √ J
+ √Resp⊆ I J I⊆J x = map (map-snd λ {a} → I⊆J (x ^ a))
+
  √FGIdealCharLImpl : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
          → √ ⟨ V ⟩[ R' ] ⊆ √ I → (∀ i → V i ∈ √ I)
  √FGIdealCharLImpl V I √⟨V⟩⊆√I i = √⟨V⟩⊆√I _ (∈→∈√ ⟨ V ⟩[ R' ] (V i)
