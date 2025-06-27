@@ -58,6 +58,12 @@ subst-∈ A = subst (_∈ A)
 ⊆-extensionality A B (φ , ψ) =
   funExt (λ x → TypeOfHLevel≡ 1 (hPropExt (A x .snd) (B x .snd) (φ x) (ψ x)))
 
+⊆-trans : (A B C : ℙ X) → A ⊆ B → B ⊆ C → A ⊆ C
+⊆-trans A B C φ ψ x = ψ x ∘ φ x
+
+⊆-antisym : (A B : ℙ X) → A ⊆ B → B ⊆ A → A ≡ B
+⊆-antisym A B φ ψ = ⊆-extensionality A B (φ , ψ)
+
 ⊆-extensionalityEquiv : (A B : ℙ X) → (A ⊆ B) × (B ⊆ A) ≃ (A ≡ B)
 ⊆-extensionalityEquiv A B = isoToEquiv (iso (⊆-extensionality A B)
                                             (⊆-refl-consequence A B)

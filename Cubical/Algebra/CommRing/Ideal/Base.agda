@@ -89,6 +89,12 @@ module CommIdeal (R' : CommRing ℓ) where
  ∑Closed I {n = zero} _ _ = I .snd .contains0
  ∑Closed I {n = suc n} V h = I .snd .+Closed (h zero) (∑Closed I (V ∘ suc) (h ∘ suc))
 
+ open Exponentiation R'
+
+ ^sucClosed : (I : CommIdeal) (x : R) {n : ℕ}
+            → x ∈ I → x ^ suc n ∈ I
+ ^sucClosed I x x∈I = subst-∈ I (·Comm _ x) (·Closed (snd I) _ x∈I)
+
  0Ideal : CommIdeal
  fst 0Ideal x = (x ≡ 0r) , is-set _ _
  +Closed (snd 0Ideal) x≡0 y≡0 = cong₂ (_+_) x≡0 y≡0 ∙ +IdR _
