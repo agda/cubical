@@ -1,5 +1,11 @@
 {-# OPTIONS --cubical --safe #-}
 
+-- The posetal reflection is the universal way to turn a preorder into a poset
+-- In abstract-nonsense terms, the posetal reflection exhibits Pos as a reflective subcategory of preorders.
+-- https://ncatlab.org/nlab/show/posetal+reflection
+-- When a preorder is viewed as a category, posets are univalent categories
+-- and the posetal reflection is a special case of the Rezk completion.
+
 module Cubical.Relation.Binary.Order.Poset.Instances.PosetalReflection where
 
 open import Cubical.Foundations.Prelude
