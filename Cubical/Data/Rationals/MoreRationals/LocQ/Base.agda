@@ -30,6 +30,12 @@ open Locℚ using (_≈_) renaming (
     locRefl to ≈refl; locSym to ≈sym; locTrans to ≈trans; locIsEquivRel to ≈isEquivRel;
     _+ₗ_ to _+_; +ₗ-assoc to +-assoc; +ₗ-rid to +-rid; +ₗ-comm to +-comm; -ₗ_ to -_; +ₗ-rinv to +-rinv;
     _·ₗ_ to _·_; ·ₗ-assoc to ·-assoc; ·ₗ-rid to ·-rid; ·ₗ-comm to ·-comm
+  ) public
+
+module ℚUniversalProp = S⁻¹RUniversalProp ℤCommRing isPositive isPositiveMultclosed
+
+open ℚUniversalProp using (_/1; /1AsCommRingHom) renaming (
+    S⁻¹Rˣ to ℚˣ; S/1⊆S⁻¹Rˣ to ℤ⁺⊆ℚˣ; S⁻¹RHasUniversalProp to ℚHasUniversalProp
   )
 
 --- Natural number and negative integer literals for ℚ
@@ -43,7 +49,7 @@ instance
   fromNatPositive .HasFromNat.fromNat (suc n) = pos (suc n) , n , ℤ.+Comm 1 (pos n)
 
   fromNatℚ : HasFromNat ℚ
-  fromNatℚ = record { Constraint = λ _ → Unit ; fromNat = λ n → [ pos n , 1 ] }
+  fromNatℚ = record { Constraint = λ _ → Unit ; fromNat = λ n → pos n /1 }
 
   fromNegℚ : HasFromNeg ℚ
-  fromNegℚ = record { Constraint = λ _ → Unit ; fromNeg = λ n → [ neg n , 1 ] }
+  fromNegℚ = record { Constraint = λ _ → Unit ; fromNeg = λ n → neg n /1 }
