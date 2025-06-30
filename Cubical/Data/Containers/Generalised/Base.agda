@@ -12,7 +12,7 @@
 
 {-# OPTIONS --safe #-}
 
-module Cubical.Data.Containers.Base where
+module Cubical.Data.Containers.Generalised.Base where
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
