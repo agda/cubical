@@ -78,6 +78,13 @@ rCancel-filler' {x = x} {y} p i j k =
 rCancel' : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → p ∙ p ⁻¹ ≡ refl
 rCancel' p j k = rCancel-filler' p i0 j k
 
+midCancel : (p : y ≡ x) (q : z ≡ x) (r : w ≡ x)
+   → (p ∙∙ refl ∙∙ sym q) ∙ (q ∙∙ refl ∙∙ sym r) ≡ (p ∙∙ refl ∙∙ sym r)
+midCancel p q r j =
+     (λ i → p (i ∧ j))
+  ∙∙ doubleCompPath-filler p refl (sym q) (~ j)
+  ∙∙ λ i → hcomp (λ k → λ {(i = i0) → q (~ k ∨ j)  ; (i = i1) → r (~ k) ; (j = i1) → r (~ i ∨ ~ k) }) (r i1)
+
 lCancel : (p : x ≡ y) → p ⁻¹ ∙ p ≡ refl
 lCancel p = rCancel (p ⁻¹)
 
