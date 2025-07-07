@@ -35,7 +35,7 @@ Preprint: https://arxiv.org/abs/2403.13088
 <a id="1194" class="Keyword">module</a> <a id="LocalizationInvElUniversalProp"></a><a id="1201" href="Cubical.Papers.FunctorialQcQsSchemes.html#1201" class="Module">LocalizationInvElUniversalProp</a> <a id="1232" class="Symbol">=</a> <a id="1234" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html#10906" class="Module">LocalizationInvElBase.UniversalProp</a>
 
 <a id="1271" class="Keyword">import</a> <a id="1278" href="Cubical.AlgebraicGeometry.ZariskiLattice.Base.html" class="Module">Cubical.AlgebraicGeometry.ZariskiLattice.Base</a>                 <a id="1340" class="Symbol">as</a> <a id="1343" class="Module">ZLB</a>
-<a id="1347" class="Keyword">module</a> <a id="ZariskiLatDef"></a><a id="1354" href="Cubical.Papers.FunctorialQcQsSchemes.html#1354" class="Module">ZariskiLatDef</a> <a id="1368" class="Symbol">=</a> <a id="1370" href="Cubical.AlgebraicGeometry.ZariskiLattice.Base.html#1697" class="Module">ZLB.ZarLat</a>
+<a id="1347" class="Keyword">module</a> <a id="ZariskiLatDef"></a><a id="1354" href="Cubical.Papers.FunctorialQcQsSchemes.html#1354" class="Module">ZariskiLatDef</a> <a id="1368" class="Symbol">=</a> <a id="1370" href="Cubical.AlgebraicGeometry.ZariskiLattice.Base.html#2124" class="Module">ZLB.ZarLat</a>
 
 <a id="1382" class="Keyword">import</a> <a id="1389" href="Cubical.AlgebraicGeometry.ZariskiLattice.UniversalProperty.html" class="Module">Cubical.AlgebraicGeometry.ZariskiLattice.UniversalProperty</a>    <a id="1451" class="Symbol">as</a> <a id="1454" class="Module">ZLUP</a>
 <a id="1459" class="Keyword">module</a> <a id="ZariskiLatUnivProp"></a><a id="1466" href="Cubical.Papers.FunctorialQcQsSchemes.html#1466" class="Module">ZariskiLatUnivProp</a> <a id="1485" class="Symbol">=</a> <a id="1487" href="Cubical.AlgebraicGeometry.ZariskiLattice.UniversalProperty.html#6048" class="Module">ZLUP.ZarLatUniversalProp</a>
@@ -100,7 +100,7 @@ Preprint: https://arxiv.org/abs/2403.13088
 <a id="3302" class="Keyword">open</a> <a id="3307" href="Cubical.Papers.FunctorialQcQsSchemes.html#1201" class="Module">LocalizationInvElUniversalProp</a> <a id="3338" class="Keyword">using</a> <a id="3344" class="Symbol">(</a><a id="3345" href="Cubical.Algebra.CommRing.Localisation.UniversalProperty.html#2651" class="Function Operator">_/1</a> <a id="3349" class="Symbol">;</a> <a id="3351" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html#11042" class="Function">invElemUniversalProp</a><a id="3371" class="Symbol">)</a>
 
 <a id="3374" class="Comment">-- Zariski lattice</a>
-<a id="3393" class="Keyword">open</a> <a id="3398" href="Cubical.Papers.FunctorialQcQsSchemes.html#1354" class="Module">ZariskiLatDef</a> <a id="3412" class="Keyword">using</a> <a id="3418" class="Symbol">(</a><a id="3419" href="Cubical.AlgebraicGeometry.ZariskiLattice.Base.html#8097" class="Function">ZariskiLattice</a> <a id="3434" class="Symbol">;</a> <a id="3436" href="Cubical.AlgebraicGeometry.ZariskiLattice.Base.html#2958" class="Function Operator">_∼≡_</a><a id="3440" class="Symbol">)</a>
+<a id="3393" class="Keyword">open</a> <a id="3398" href="Cubical.Papers.FunctorialQcQsSchemes.html#1354" class="Module">ZariskiLatDef</a> <a id="3412" class="Keyword">using</a> <a id="3418" class="Symbol">(</a><a id="3419" href="Cubical.AlgebraicGeometry.ZariskiLattice.Base.html#8338" class="Function">ZariskiLattice</a> <a id="3434" class="Symbol">;</a> <a id="3436" href="Cubical.AlgebraicGeometry.ZariskiLattice.Base.html#3640" class="Function Operator">_∼≡_</a><a id="3440" class="Symbol">)</a>
 
 <a id="3443" class="Comment">-- supports</a>
 <a id="3455" class="Keyword">open</a> <a id="3460" href="Cubical.AlgebraicGeometry.ZariskiLattice.UniversalProperty.html#2484" class="Module">ZLUP.IsSupport</a>
@@ -117,7 +117,7 @@ Preprint: https://arxiv.org/abs/2403.13088
 <a id="3814" class="Keyword">open</a> <a id="3819" href="Cubical.AlgebraicGeometry.ZariskiLattice.Properties.html" class="Module">ZLP</a> <a id="3823" class="Keyword">using</a> <a id="3829" class="Symbol">(</a><a id="3830" href="Cubical.AlgebraicGeometry.ZariskiLattice.Properties.html#1775" class="Function">unitLemmaZarLat</a><a id="3845" class="Symbol">)</a>
 
 <a id="3848" class="Comment">-- D(f₁,...,fₙ) = D(1) implies 1 ∈ ⟨f₁,...,fₙ⟩</a>
-<a id="3895" class="Keyword">open</a> <a id="3900" href="Cubical.AlgebraicGeometry.ZariskiLattice.Properties.html" class="Module">ZLP</a> <a id="3904" class="Keyword">using</a> <a id="3910" class="Symbol">(</a><a id="3911" href="Cubical.AlgebraicGeometry.ZariskiLattice.Properties.html#2222" class="Function">oneIdealLemmaZarLat</a><a id="3930" class="Symbol">)</a>
+<a id="3895" class="Keyword">open</a> <a id="3900" href="Cubical.AlgebraicGeometry.ZariskiLattice.Properties.html" class="Module">ZLP</a> <a id="3904" class="Keyword">using</a> <a id="3910" class="Symbol">(</a><a id="3911" href="Cubical.AlgebraicGeometry.ZariskiLattice.Properties.html#2246" class="Function">oneIdealLemmaZarLat</a><a id="3930" class="Symbol">)</a>
 
 
 
