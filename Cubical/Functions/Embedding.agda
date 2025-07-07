@@ -44,7 +44,7 @@ private
 -- is not well-behaved with higher h-levels, while embeddings
 -- are.
 isEmbedding : (A → B) → Type _
-isEmbedding f = ∀ w x → isEquiv (cong f ∶ (w ≡ x → f w ≡ f x))
+isEmbedding f = ∀ w x → isEquiv (cong f :> (w ≡ x → f w ≡ f x))
 
 isPropIsEmbedding : isProp (isEmbedding f)
 isPropIsEmbedding {f = f} = isPropΠ2 λ _ _ → isPropIsEquiv (cong f)
