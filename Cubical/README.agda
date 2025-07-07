@@ -15,76 +15,76 @@ module Cubical.README where
 
 -- The core library for Cubical Agda.
 -- It contains basic primitives, equivalences, glue types.
-import Cubical.Core.Everything
+-- import Cubical.Core.Everything
 
 -- The foundations for Cubical Agda.
 -- The Prelude module is self-explanatory.
-import Cubical.Foundations.Prelude
-import Cubical.Foundations.Everything
+-- import Cubical.Foundations.Prelude
+-- import Cubical.Foundations.Everything
 
 -- Kinds and properties of functions
-import Cubical.Functions.Everything
+-- import Cubical.Functions.Everything
 
 -- Data types and properties
-import Cubical.Data.Everything
+-- import Cubical.Data.Everything
 
 -- Higher-inductive types
-import Cubical.HITs.Everything
+-- import Cubical.HITs.Everything
 
 -- Coinductive data types and properties
-import Cubical.Codata.Everything
+-- import Cubical.Codata.Everything
 
 -- Papers
-import Cubical.Papers.Everything
+-- import Cubical.Papers.Everything
 
 -- Properties and proofs about relations
-import Cubical.Relation.Everything
+-- import Cubical.Relation.Everything
 
 -- Wild category theory
-import Cubical.WildCat.Everything
+-- import Cubical.WildCat.Everything
 
 -- Category theory
-import Cubical.Categories.Everything
+-- import Cubical.Categories.Everything
 
 -- Homotopy theory
-import Cubical.Homotopy.Everything
+-- import Cubical.Homotopy.Everything
 
 -- Properties and kinds of Modalities
-import Cubical.Modalities.Everything
+-- import Cubical.Modalities.Everything
 
 -- Various experiments using Cubical Agda
-import Cubical.Experiments.Everything
+-- import Cubical.Experiments.Everything
 
 -- Other modules (TODO: add descriptions)
-import Cubical.Induction.Everything
-import Cubical.Structures.Everything
+-- import Cubical.Induction.Everything
+-- import Cubical.Structures.Everything
 
 -- general definition of cohomology
-import Cubical.Cohomology.Everything
+-- import Cubical.Cohomology.Everything
 
 -- cohomology with constant Integer coefficients
-import Cubical.ZCohomology.Everything
+-- import Cubical.ZCohomology.Everything
 
 -- Algebra library (in development)
-import Cubical.Algebra.Everything
+-- import Cubical.Algebra.Everything
 
 -- Algebraic geometry
-import Cubical.AlgebraicGeometry.Everything
+-- import Cubical.AlgebraicGeometry.Everything
 
 -- Various talks
-import Cubical.Talks.Everything
+-- import Cubical.Talks.Everything
 
 -- Reflection
-import Cubical.Reflection.Everything
+-- import Cubical.Reflection.Everything
 
 -- Displayed univalent graphs
-import Cubical.Displayed.Everything
+-- import Cubical.Displayed.Everything
 
 -- Various axioms and consequences
-import Cubical.Axiom.Everything
+-- import Cubical.Axiom.Everything
 
 -- Automatic proving, solvers
-import Cubical.Tactics.Everything
+-- import Cubical.Tactics.Everything
 
 -- CW complexes, cellular (co)homology
-import Cubical.CW.Everything
+-- import Cubical.CW.Everything
