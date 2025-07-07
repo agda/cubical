@@ -165,7 +165,7 @@ module _ (R' : CommRing ℓ) where
     Df≤Dg = subst2 _≤_ (sym p) (sym q) 𝔞≤𝔟
 
     f∈√⟨g⟩ : f ∈ √ ⟨ g ⟩
-    f∈√⟨g⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun Df≤Dg .fst zero
+    f∈√⟨g⟩ = √FGIdealCharLImpl _ _ (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun Df≤Dg .fst) zero
 
 
  open PreSheafFromUniversalProp ZariskiCat P 𝓕 uniqueHom
@@ -277,16 +277,16 @@ module _ (R' : CommRing ℓ) where
     DHelper = Dh≡𝔞∨𝔟 ∙ cong₂ (_∨z_) (sym Df≡𝔞) (sym Dg≡𝔟)
 
     f∈√⟨h⟩ : f ∈ √ ⟨ h ⟩
-    f∈√⟨h⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun (sym DHelper) .fst zero
+    f∈√⟨h⟩ = √FGIdealCharLImpl _ _ (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun (sym DHelper) .fst) zero
 
     g∈√⟨h⟩ : g ∈ √ ⟨ h ⟩
-    g∈√⟨h⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun (sym DHelper) .fst one
+    g∈√⟨h⟩ = √FGIdealCharLImpl _ _ (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun (sym DHelper) .fst) one
 
     fg∈√⟨h⟩ : (f · g) ∈ √ ⟨ h ⟩
     fg∈√⟨h⟩ = √ ⟨ h ⟩ .snd .·Closed f g∈√⟨h⟩
 
     1∈fgIdeal : 1r ∈ₕ ⟨ (f /1) , (g /1) ⟩ₕ
-    1∈fgIdeal = helper1 (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun DHelper .fst zero)
+    1∈fgIdeal = helper1 $ √FGIdealCharLImpl _ _ (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun DHelper .fst) zero
      where
      helper1 : h ∈ √ ⟨ f , g ⟩ₚ
              → 1r ∈ₕ ⟨ (f /1) , (g /1) ⟩ₕ
