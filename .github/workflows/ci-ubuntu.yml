@@ -126,7 +126,7 @@ jobs:
           make test \
             AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
             FIX_WHITESPACE='~/.local/fix-whitespace/bin/fix-whitespace'
-	    
+
       - name: Save library cache
         if: steps.cache-library-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
