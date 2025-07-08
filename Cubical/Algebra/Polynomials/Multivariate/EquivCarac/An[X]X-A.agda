@@ -22,9 +22,9 @@ open import Cubical.Algebra.CommRing.Quotient
 
 
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly
      renaming (PolyCommRing to A[X1,···,Xn] ; Poly to A[x1,···,xn])
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly-Quotient
 
 open import Cubical.Relation.Nullary
 

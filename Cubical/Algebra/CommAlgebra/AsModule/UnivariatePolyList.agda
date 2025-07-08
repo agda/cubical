@@ -13,7 +13,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.CommAlgebra.AsModule
 open import Cubical.Algebra.Algebra
-open import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyList
+open import Cubical.Algebra.CommRing.Polynomials.UnivariatePolyList
 open import Cubical.Algebra.Polynomials.UnivariateList.Base
 open import Cubical.Algebra.Polynomials.UnivariateList.Properties
 
