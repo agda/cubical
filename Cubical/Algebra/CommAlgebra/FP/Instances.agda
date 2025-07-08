@@ -28,7 +28,7 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal using (inclOfFGIdeal)
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.Instances.Polynomials
+open import Cubical.Algebra.CommAlgebra.Polynomials
 open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn; 0Ideal)
 open import Cubical.Algebra.CommAlgebra.FGIdeal

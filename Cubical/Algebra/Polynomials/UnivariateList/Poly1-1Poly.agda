@@ -14,8 +14,8 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Polynomials.UnivariateList.Base renaming (Poly to Poly:)
 open import Cubical.Algebra.Polynomials.UnivariateList.Properties
-open import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyList
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
+open import Cubical.Algebra.CommRing.Polynomials.UnivariatePolyList
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly
 
 private variable
   ℓ : Level

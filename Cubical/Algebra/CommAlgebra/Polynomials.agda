@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.Instances.Polynomials where
+module Cubical.Algebra.CommAlgebra.Polynomials where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function using (_$_; _∘_)
