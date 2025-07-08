@@ -11,8 +11,8 @@ open import Cubical.Data.FinData
 
 open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.CommAlgebra.Base
-open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate as Poly hiding (var)
-import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.UniversalProperty
+open import Cubical.Algebra.CommRing.Polynomials.Typevariate as Poly hiding (var)
+import Cubical.Algebra.CommRing.Polynomials.Typevariate.UniversalProperty
   as Poly
 
 private
@@ -42,10 +42,12 @@ module _ {R : CommRing ℓ} {I : Type ℓ'} where
 
   inducedHomUnique :
     (A : CommAlgebra R ℓ'') (φ : I → ⟨ A ⟩ₐ )
-    → (f : CommAlgebraHom (R [ I ]ₐ) A) → ((i : I) → ⟨ f ⟩ₐ→ ∘ var ≡ φ)
-    → f ≡ inducedHom A φ
-  inducedHomUnique A φ f p = {!isoFunInjective (homMapIso A) f (inducedHom A φ) λ j i → p i j!}
-    --
+    → (f : CommAlgebraHom (R [ I ]ₐ) A) → (⟨ f ⟩ₐ→ ∘ var ≡ φ)
+    → inducedHom A φ ≡ f
+  inducedHomUnique A φ f p =
+    CommAlgebraHom≡ $
+    cong fst $
+    Poly.inducedHomUnique _ _ φ (CommAlgebraHom→CommRingHom f) (cong fst (CommAlgebraHom→Triangle f)) p
 
 {-
 evaluateAt : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
