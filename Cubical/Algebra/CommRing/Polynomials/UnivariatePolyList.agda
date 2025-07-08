@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyList where
+module Cubical.Algebra.CommRing.Polynomials.UnivariatePolyList where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat using (ℕ ; zero ; suc)

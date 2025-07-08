@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.Base where
+module Cubical.Algebra.CommRing.Polynomials.Typevariate.Base where
 {-
   The ring of polynomials with coefficients in a given ring,
   or in other words the free commutative algebra over a commutative ring.

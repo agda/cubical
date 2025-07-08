@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.UniversalProperty where
+module Cubical.Algebra.CommRing.Polynomials.Typevariate.UniversalProperty where
 {-
   This file contains
   * an elimination principle for proving some proposition for all elements of R[I]ᵣ
@@ -19,7 +19,7 @@ open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 open import Cubical.HITs.SetTruncation
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.Base
+open import Cubical.Algebra.CommRing.Polynomials.Typevariate.Base
 open import Cubical.Algebra.Ring.Properties
 
 open import Cubical.Data.Empty

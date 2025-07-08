@@ -7,7 +7,7 @@
 
   where '⊎' is the disjoint sum.
 -}
-module Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.OnCoproduct where
+module Cubical.Algebra.CommRing.Polynomials.Typevariate.OnCoproduct where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function using (_∘_; _$_)
@@ -17,8 +17,8 @@ open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.Base
-open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.UniversalProperty
+open import Cubical.Algebra.CommRing.Polynomials.Typevariate.Base
+open import Cubical.Algebra.CommRing.Polynomials.Typevariate.UniversalProperty
 
 private
   variable

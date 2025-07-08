@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.Properties where
+module Cubical.Algebra.CommRing.Polynomials.Typevariate.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -13,8 +13,8 @@ open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 open import Cubical.HITs.SetTruncation
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.Base
-open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.UniversalProperty
+open import Cubical.Algebra.CommRing.Polynomials.Typevariate.Base
+open import Cubical.Algebra.CommRing.Polynomials.Typevariate.UniversalProperty
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
