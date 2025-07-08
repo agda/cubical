@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --lossy-unification #-}
-module Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyHIT where
+module Cubical.Algebra.CommRing.Polynomials.UnivariatePolyFun where
 
 open import Cubical.Foundations.Prelude
 
@@ -9,17 +9,12 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.Monoid.Instances.Nat
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.GradedRing.DirectSumHIT
+open import Cubical.Algebra.GradedRing.DirectSumFun
 
 private variable
   ℓ : Level
-
-open GradedRing-⊕HIT-index
-open GradedRing-⊕HIT-⋆
-open ExtensionCommRing
 
 module _
   (ACommRing@(A , Astr) : CommRing ℓ)
@@ -28,9 +23,9 @@ module _
   open CommRingStr Astr
   open RingTheory (CommRing→Ring ACommRing)
 
-  UnivariatePolyHIT-CommRing : CommRing ℓ
-  UnivariatePolyHIT-CommRing = ⊕HITgradedRing-CommRing
-                   NatMonoid
+  UnivariatePolyFun-CommRing : CommRing ℓ
+  UnivariatePolyFun-CommRing = ⊕FunGradedRing-CommRing
+                   _+n_ (makeIsMonoid isSetℕ +-assoc +-zero λ _ → refl) (λ _ _ → refl)
                    (λ _ → A)
                    (λ _ → snd (Ring→AbGroup (CommRing→Ring ACommRing)))
                    1r _·_ 0LeftAnnihilates 0RightAnnihilates
@@ -41,6 +36,6 @@ module _
                    ·DistL+
                    λ x y → ΣPathP ((+-comm _ _) , (·Comm _ _))
 
-nUnivariatePolyHIT : (A' : CommRing ℓ) → (n : ℕ) → CommRing ℓ
-nUnivariatePolyHIT A' zero = A'
-nUnivariatePolyHIT A' (suc n) = UnivariatePolyHIT-CommRing (nUnivariatePolyHIT A' n)
+nUnivariatePolyFun : (A' : CommRing ℓ) → (n : ℕ) → CommRing ℓ
+nUnivariatePolyFun A' zero = A'
+nUnivariatePolyFun A' (suc n) = UnivariatePolyFun-CommRing (nUnivariatePolyFun A' n)
