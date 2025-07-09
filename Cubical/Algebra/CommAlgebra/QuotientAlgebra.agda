@@ -97,9 +97,9 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
       inducedHom∘quotientHom = CommAlgebraHom≡ (funExt (λ _ → refl))
 
     opaque
-      isUnique : (ψ : CommAlgebraHom (A / I) B) (ψIsSolution : ⟨ ψ ⟩ₐ→ ∘ ⟨ quotientHom A I ⟩ₐ→ ≡ ⟨ ϕ ⟩ₐ→)
+      inducedHomUnique : (ψ : CommAlgebraHom (A / I) B) (ψIsSolution : ⟨ ψ ⟩ₐ→ ∘ ⟨ quotientHom A I ⟩ₐ→ ≡ ⟨ ϕ ⟩ₐ→)
                → ψ ≡ inducedHom
-      isUnique ψ ψIsSolution =
+      inducedHomUnique ψ ψIsSolution =
         CommAlgebraHom≡
          (cong fst $
           CommRing.UniversalProperty.isUnique
@@ -108,9 +108,6 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
 
 
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ') (I : IdealsIn R A) where
-  open CommRingStr {{...}}
-  open CommAlgebraStr {{...}}
-
   opaque
     quotientHomEpi : (S : hSet ℓ'')
                      → (f g : ⟨ A / I ⟩ₐ → ⟨ S ⟩)
@@ -169,7 +166,7 @@ module _
   {I : IdealsIn R A}
   where
   open CommRingStr ⦃...⦄
-  private instance
+  instance
     _ = A .fst .snd
     _ = (A / I).fst .snd
 

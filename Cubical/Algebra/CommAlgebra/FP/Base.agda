@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.FP.Base where
 
 open import Cubical.Foundations.Prelude
@@ -39,21 +39,30 @@ module _ (R : CommRing ℓ) where
       relations : FinVec ⟨ Polynomials n ⟩ₐ m
 
     opaque
-      ideal : IdealsIn R (Polynomials n)
-      ideal = ⟨ relations ⟩[ Polynomials n ]
+      fgIdeal : IdealsIn R (Polynomials n)
+      fgIdeal = ⟨ relations ⟩[ Polynomials n ]
+
+      asFGIdeal : fgIdeal ≡ ⟨ relations ⟩[ Polynomials n ]
+      asFGIdeal = refl
 
     opaque
-      algebra : CommAlgebra R ℓ
-      algebra = Polynomials n / ideal
+      fpAlg : CommAlgebra R ℓ
+      fpAlg = Polynomials n / fgIdeal
 
-      π : CommAlgebraHom (Polynomials n) algebra
-      π = quotientHom (Polynomials n) ideal
+      π : CommAlgebraHom (Polynomials n) fpAlg
+      π = quotientHom (Polynomials n) fgIdeal
 
-      generator : (i : Fin n) → ⟨ algebra ⟩ₐ
+      generator : (i : Fin n) → ⟨ fpAlg ⟩ₐ
       generator = ⟨ π ⟩ₐ→ ∘ var
 
+      computeGenerator : (i : Fin n) → π $ca (var i) ≡ generator i
+      computeGenerator i = refl
+
+      fpAlgAsQuotient : CommAlgebraEquiv fpAlg (Polynomials n / fgIdeal)
+      fpAlgAsQuotient = idCAlgEquiv fpAlg
+
   isFP : (A : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
-  isFP A = ∃[ p ∈ FinitePresentation ] CommAlgebraEquiv (FinitePresentation.algebra p) A
+  isFP A = ∃[ p ∈ FinitePresentation ] CommAlgebraEquiv (FinitePresentation.fpAlg p) A
 
   opaque
     isFPIsProp : {A : CommAlgebra R ℓ'} → isProp (isFP A)
