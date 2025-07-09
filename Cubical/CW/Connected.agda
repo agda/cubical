@@ -1345,9 +1345,8 @@ makeConnectedCW {ℓ = ℓ} (suc n) {C = C} (cwsk , eqv) cA with
                     , (λ n → C'-realise-coh n _ _)))
                     (invIso (SeqColimIso _ (4 +ℕ n)))))) (ind .snd)
 
--- As a consequence, we can compute Xₘ for m≤n+2 for an n-connected CW complex.
--- This is done in the following three theorems
-
+-- As a consequence, we can compute Xₘ for m small enough when X is an
+-- n-connected CW complex.  This is done in the following three theorems
 open CWskel-fields
 connectedCWContr : (n m : ℕ) (l : m <ᵗ suc n) (X : Type)
   (cwX : isConnectedCW n X) → isContr (fst (fst cwX) (suc m))
@@ -1387,64 +1386,65 @@ connectedCW≃SphereBouquet n X cwX =
 module _ (n : ℕ) (X : Type) (cwX : isConnectedCW n X)
          (str : ∥ isCW (fst cwX .fst (suc (suc (suc n)))) ∥₁) where
 
-  X₃₊ₙ = fst cwX .fst (suc (suc (suc n)))
-  Xˢᵏᵉˡ = connectedCWskel→CWskel (fst cwX)
+  private
+   X₃₊ₙ = fst (fst cwX) (suc (suc (suc n)))
+   X₂₊ₙ = fst (fst cwX) (suc (suc n))
+   Xˢᵏᵉˡ = connectedCWskel→CWskel (fst cwX)
 
-  X₃₊ₙᶜʷ : CW ℓ-zero
-  X₃₊ₙᶜʷ = X₃₊ₙ , str
+   X₃₊ₙᶜʷ : CW ℓ-zero
+   X₃₊ₙᶜʷ = X₃₊ₙ , str
 
   connectedCW≃CofibFinSphereBouquetMap :
-     ∃[ α ∈ FinSphereBouquetMap∙ 
-                (card (connectedCWskel→CWskel (fst cwX)) (suc (suc n)))
-                (card (connectedCWskel→CWskel (fst cwX)) (suc n)) n ]
-         X₃₊ₙᶜʷ ≡ SphereBouquet/ᶜʷ  (fst α)
+     ∃[ α ∈ FinSphereBouquetMap∙
+              (card Xˢᵏᵉˡ (suc (suc n))) (card Xˢᵏᵉˡ (suc n)) n ]
+      (X₃₊ₙᶜʷ ≡ SphereBouquet/ᶜʷ  (fst α))
   connectedCW≃CofibFinSphereBouquetMap =
     PT.rec squash₁
-    (λ {(x , ptz , t) → ∣ F x ptz t
-      , Σ≡Prop (λ _ → squash₁) (isoToPath (connectedCW≃CofibFinSphereBouquetMap' x ptz t)) ∣₁})
-    EX
+    (λ {(x , ptz , t) →
+      ∣ ≃∘α' x ptz t
+      , Σ≡Prop (λ _ → squash₁)
+               (isoToPath (connectedCW≅CofibFinSphereBouquetMap x ptz t)) ∣₁})
+    lem
     where
-    open import Cubical.Axiom.Choice
-    CON : isConnected 2 (fst (fst cwX) (suc (suc n)))
-    CON = subst (isConnected 2) (ua (invEquiv (connectedCW≃SphereBouquet n X cwX)))
+    isConX₂₊ₙ : isConnected 2 X₂₊ₙ
+    isConX₂₊ₙ =
+      subst (isConnected 2) (ua (invEquiv (connectedCW≃SphereBouquet n X cwX)))
             (isConnectedSubtr' n 2 isConnectedSphereBouquet')
 
-    EX : ∃[ x ∈ fst (fst cwX) (suc (suc n)) ]
-          (((a : Fin (fst (fst (snd (fst cwX))) (suc (suc n))))
-         → x ≡ fst (snd (fst (snd (fst cwX)))) (suc (suc n))
-                 (a , ptSn (suc n)))
+    lem : ∃[ x ∈ X₂₊ₙ ]
+          (((a : Fin (card Xˢᵏᵉˡ (suc (suc n))))
+         → x ≡ α Xˢᵏᵉˡ (suc (suc n)) (a , ptSn (suc n)))
          × (fst (connectedCW≃SphereBouquet n X cwX) x ≡ inl tt))
-    EX = TR.rec (isProp→isSet squash₁)
+    lem = TR.rec (isProp→isSet squash₁)
       (λ x₀ → TR.rec squash₁
         (λ pts → TR.rec squash₁ (λ F → ∣ x₀ , F , pts ∣₁)
-          (invEq (_ , InductiveFinSatAC 1 (fst (fst (snd (fst cwX))) (suc (suc n))) _)
-                λ a → isConnectedPath 1 CON _ _ .fst))
+          (invEq (_ , InductiveFinSatAC 1 (card Xˢᵏᵉˡ (suc (suc n))) _)
+                λ a → isConnectedPath 1 isConX₂₊ₙ _ _ .fst))
         (isConnectedPath 1 (isConnectedSubtr' n 2 isConnectedSphereBouquet')
           (fst (connectedCW≃SphereBouquet n X cwX) x₀) (inl tt) .fst))
-      (fst CON)
+      (fst isConX₂₊ₙ)
 
-    module _ (x : fst (fst cwX) (suc (suc n)))
-             (pts : (a : Fin (fst (fst (snd (fst cwX))) (suc (suc n))))
-                  → x ≡ fst (snd (fst (snd (fst cwX)))) (suc (suc n)) (a , ptSn (suc n)))
+    module _ (x : X₂₊ₙ)
+             (pts : ((a : Fin (card Xˢᵏᵉˡ (suc (suc n))))
+                  → x ≡ α Xˢᵏᵉˡ (suc (suc n)) (a , ptSn (suc n))))
              (ptd : fst (connectedCW≃SphereBouquet n X cwX) x ≡ inl tt) where
-      F' : SphereBouquet (suc n) (Fin (fst (fst (snd (fst cwX))) (suc (suc n))))
-        → fst (fst cwX) (suc (suc n))
-      F' (inl tt) = x
-      F' (inr x) = fst (snd (fst (snd (fst cwX)))) (suc (suc n)) x
-      F' (push a i) = pts a i
+      α' : SphereBouquet (suc n) (Fin (card Xˢᵏᵉˡ (suc (suc n)))) → X₂₊ₙ
+      α' (inl tt) = x
+      α' (inr x) = α Xˢᵏᵉˡ (suc (suc n)) x
+      α' (push a i) = pts a i
 
-      F : SphereBouquet∙ (suc n) (Fin (fst (fst (snd (fst cwX))) (suc (suc n))))
-       →∙ SphereBouquet∙ (suc n) (Fin (fst (fst (snd (fst cwX))) (suc n)))
-      fst F = fst (connectedCW≃SphereBouquet n X cwX) ∘ F'
-      snd F = ptd
+      ≃∘α' : SphereBouquet∙ (suc n) (Fin (card Xˢᵏᵉˡ (suc (suc n))))
+       →∙ SphereBouquet∙ (suc n) (Fin (card Xˢᵏᵉˡ (suc n)))
+      fst ≃∘α' = fst (connectedCW≃SphereBouquet n X cwX) ∘ α'
+      snd ≃∘α' = ptd
 
-      connectedCW≃CofibFinSphereBouquetMap' :
-        Iso (fst (fst cwX) (suc (suc (suc n)))) (cofib (fst F))
-      connectedCW≃CofibFinSphereBouquetMap' =
+      connectedCW≅CofibFinSphereBouquetMap :
+        Iso X₃₊ₙ (cofib (fst ≃∘α'))
+      connectedCW≅CofibFinSphereBouquetMap =
         compIso (equivToIso (compEquiv
-          (snd (snd (snd (fst (snd (fst cwX))))) (suc (suc n)))
-          (pushoutEquiv _ _ _ _ (idEquiv _) (connectedCW≃SphereBouquet n X cwX) (idEquiv _)
-            (λ i x → fst F (inr x))
+          (e Xˢᵏᵉˡ (suc (suc n)))
+          (pushoutEquiv _ _ _ _
+            (idEquiv _) (connectedCW≃SphereBouquet n X cwX) (idEquiv _)
+            (λ i x → fst ≃∘α' (inr x))
             (λ i x → fst x))))
-        (⋁-cofib-Iso (SphereBouquet∙ (suc n)
-                       (Fin (fst (fst (snd (fst cwX))) (suc n)))) F)
+        (⋁-cofib-Iso (SphereBouquet∙ (suc n) (Fin (card Xˢᵏᵉˡ (suc n)))) ≃∘α')

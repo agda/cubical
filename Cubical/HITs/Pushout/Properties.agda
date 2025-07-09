@@ -38,6 +38,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.List
+open import Cubical.Data.Sum
 
 open import Cubical.HITs.Pushout.Base
 open import Cubical.HITs.Susp.Base
@@ -694,6 +695,17 @@ rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C {f = f} {g = g}) (push a i) j 
                      (push a) (λ _ → inl (f a)) (⊥.rec (¬C (g a)))}
          (¬A a) j i
 leftInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) x = refl
+
+PushoutEmptyDomainIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+  → Iso (Pushout {A = ⊥} {B = A} {C = B} (λ()) (λ())) (A ⊎ B)
+Iso.fun PushoutEmptyDomainIso (inl x) = inl x
+Iso.fun PushoutEmptyDomainIso (inr x) = inr x
+Iso.inv PushoutEmptyDomainIso (inl x) = inl x
+Iso.inv PushoutEmptyDomainIso (inr x) = inr x
+Iso.rightInv PushoutEmptyDomainIso (inl x) = refl
+Iso.rightInv PushoutEmptyDomainIso (inr x) = refl
+Iso.leftInv PushoutEmptyDomainIso (inl x) = refl
+Iso.leftInv PushoutEmptyDomainIso (inr x) = refl
 
 PushoutCompEquivIso : ∀ {ℓA ℓA' ℓB ℓB' ℓC}
   {A : Type ℓA} {A' : Type ℓA'} {B : Type ℓB} {B' : Type ℓB'}
