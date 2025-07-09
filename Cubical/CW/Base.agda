@@ -98,6 +98,9 @@ CW ℓ = Σ[ A ∈ Type ℓ ] ∥ isCW A ∥₁
 CWexplicit : (ℓ : Level) → Type (ℓ-suc ℓ)
 CWexplicit ℓ = Σ[ A ∈ Type ℓ ] (isCW A)
 
+CWexplicit→CWskel : ∀ {ℓ} → CWexplicit ℓ → CWskel ℓ
+CWexplicit→CWskel C = fst (snd C)
+
 CWexplicit→CW : ∀ {ℓ} → CWexplicit ℓ → CW ℓ
 CWexplicit→CW C = fst C , ∣ snd C ∣₁
 

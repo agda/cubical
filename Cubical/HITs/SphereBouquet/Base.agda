@@ -20,3 +20,7 @@ SphereBouquet∙ n A = ⋁gen∙ A λ a → S₊∙ n
 FinSphereBouquetMap : (c1 c2 : ℕ) (n : ℕ) → Type
 FinSphereBouquetMap c1 c2 n =
   SphereBouquet (suc n) (Fin c1) → SphereBouquet (suc n) (Fin c2)
+
+FinSphereBouquetMap∙ : (c1 c2 : ℕ) (n : ℕ) → Type
+FinSphereBouquetMap∙ c1 c2 n =
+  SphereBouquet∙ (suc n) (Fin c1) →∙ SphereBouquet∙ (suc n) (Fin c2)
