@@ -1,5 +1,9 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.Instances.Unit where
+{-
+  Define terminal R-algebra as a commutative algebra and prove the universal property.
+  The universe level of the terminal R-algebra is fixed to be the universe level of R.
+-}
+module Cubical.Algebra.CommAlgebra.Instances.Terminal where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -12,7 +16,7 @@ open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommRing.Instances.Unit
-import Cubical.Algebra.CommAlgebra.Notation as CAlgNotation
+open import Cubical.Algebra.CommAlgebra.Notation
 
 open import Cubical.Tactics.CommRingSolver
 
@@ -21,44 +25,29 @@ private
     ℓ ℓ' ℓ'' : Level
 
 module _ (R : CommRing ℓ) where
-  terminalCAlg : CommAlgebra R ℓ'
+  terminalCAlg : CommAlgebra R ℓ
   terminalCAlg = UnitCommRing , mapToUnitCommRing R
 
   module _ (A : CommAlgebra R ℓ'') where
-    terminalMap : CommAlgebraHom A (terminalCAlg {ℓ' = ℓ})
+    terminalMap : CommAlgebraHom A terminalCAlg
     terminalMap = CommRingHom→CommAlgebraHom (mapToUnitCommRing (A .fst)) $ isPropMapToUnitCommRing _ _ _
 
   module _ (A : CommAlgebra R ℓ'') where
-    terminalityContr : isContr (CommAlgebraHom A (terminalCAlg {ℓ' = ℓ}))
+    terminalityContr : isContr (CommAlgebraHom A terminalCAlg)
     terminalityContr = (terminalMap A) , λ f → CommAlgebraHom≡ (funExt (λ _ → refl))
 
-{-
+    isContr→EquivTerminal : isContr ⟨ A ⟩ₐ → CommAlgebraEquiv A terminalCAlg
+    isContr→EquivTerminal isContrA =
+      (isContr→≃Unit* isContrA) ,
+      record { isCommRingHom = mapToUnitCommRing (A .fst) .snd ;
+               commutes = CommRingHom≡ (funExt (λ _ → refl)) }
 
-    open CAlgNotation A
-    equivFrom1≡0 : (1≡0 : 1r ≡ 0r)
+    open InstancesForCAlg A
+    equivFrom1≡0 : 1r ≡ (0r :> ⟨ A ⟩ₐ)
                    → CommAlgebraEquiv A terminalCAlg
-    equivFrom1≡0 = ?
-
-  module _ (A : CommAlgebra R ℓ) where
-
-    terminalityContr : isContr (CommAlgebraHom A UnitCommAlgebra)
-    terminalityContr = terminalMap , path
-      where path : (ϕ : CommAlgebraHom A UnitCommAlgebra) → terminalMap ≡ ϕ
-            path ϕ = Σ≡Prop (isPropIsCommAlgebraHom {M = A} {N = UnitCommAlgebra})
-                            λ i _ → isPropUnit* _ _ i
-
-    open CommAlgebraStr (snd A)
-    module _ (1≡0 : 1a ≡ 0a) where
-
-      1≡0→isContr : isContr ⟨ A ⟩
-      1≡0→isContr = 0a , λ a →
-        0a      ≡⟨ solve! S ⟩
-        a · 0a  ≡⟨ cong (λ b → a · b) (sym 1≡0) ⟩
-        a · 1a  ≡⟨ solve! S ⟩
-        a       ∎
-          where S = CommAlgebra→CommRing A
-
-      equivFrom1≡0 : CommAlgebraEquiv A UnitCommAlgebra
-      equivFrom1≡0 = isContr→Equiv 1≡0→isContr isContrUnit*  ,
-                     snd terminalMap
--}
+    equivFrom1≡0 1≡0 = isContr→EquivTerminal (0r , λ x →
+                                                   0r ≡⟨ solve! A' ⟩
+                                                   0r · x ≡⟨ cong (λ u → u · x) (sym 1≡0) ⟩
+                                                   1r · x ≡⟨ solve! A' ⟩
+                                                   x  ∎)
+      where A' = CommAlgebra→CommRing A

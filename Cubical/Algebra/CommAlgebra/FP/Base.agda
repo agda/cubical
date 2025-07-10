@@ -7,6 +7,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat
@@ -21,6 +22,7 @@ open import Cubical.Algebra.CommAlgebra.Polynomials
 open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.FGIdeal
+open import Cubical.Algebra.CommAlgebra.Notation
 
 
 private
@@ -48,12 +50,16 @@ module _ (R : CommRing ℓ) where
     opaque
       fpAlg : CommAlgebra R ℓ
       fpAlg = Polynomials n / fgIdeal
+      open InstancesForCAlg fpAlg
 
       π : CommAlgebraHom (Polynomials n) fpAlg
       π = quotientHom (Polynomials n) fgIdeal
 
       generator : (i : Fin n) → ⟨ fpAlg ⟩ₐ
       generator = ⟨ π ⟩ₐ→ ∘ var
+
+      fgIdealZero : (x : ⟨ Polynomials n ⟩ₐ) → x ∈ fst fgIdeal → π $ca x ≡ 0r
+      fgIdealZero x x∈I = isZeroFromIdeal {A = Polynomials n} {I = fgIdeal} x x∈I
 
       computeGenerator : (i : Fin n) → π $ca (var i) ≡ generator i
       computeGenerator i = refl

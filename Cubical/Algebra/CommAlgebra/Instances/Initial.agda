@@ -18,9 +18,8 @@ import Cubical.Algebra.Algebra.Properties
 
 open AlgebraHoms
 
-private
-  variable
-    ℓ : Level
+private variable
+  ℓ : Level
 
 module _ (R : CommRing ℓ) where
   module _ where
