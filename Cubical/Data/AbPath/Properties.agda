@@ -78,7 +78,8 @@ actL·πᵃᵇ p (com q r s i) = pathsᵃᵇLemmaL _ (sym p) q r s i
     where
     lem : (s : y ≡ᵃᵇ z) → ∣ actL·πᵃᵇ (p ∙ sym q ∙ r) s ∣₂
                         ≡ ∣ actL·πᵃᵇ (r ∙ sym q ∙ p) s ∣₂
-    lem = elimProp≡ᵃᵇ (λ _ → squash₂ _ _) λ s i → ∣ pathsᵃᵇLemmaR _ s p q r i ∣₂
+    lem = elimProp≡ᵃᵇ (λ _ → squash₂ _ _)
+      λ s i → ∣ pathsᵃᵇLemmaR _ s p q r i ∣₂
 
 symᵃᵇ : ∀ {ℓ} {A : Type ℓ} {x y : A} → x ≡ᵃᵇ y → y ≡ᵃᵇ x
 symᵃᵇ (paths x) = paths (sym x)
@@ -141,7 +142,8 @@ fst (π₁ᵃᵇAbGroup (A , a)) = ∥ a ≡ᵃᵇ a ∥₂
 _+_ (snd (π₁ᵃᵇAbGroup A)) = ·πᵃᵇ
 - snd (π₁ᵃᵇAbGroup A) = -πᵃᵇ
 is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd (π₁ᵃᵇAbGroup A)))))) = squash₂
-IsSemigroup.·Assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd (π₁ᵃᵇAbGroup A)))))) = ·πᵃᵇassoc
+IsSemigroup.·Assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd (π₁ᵃᵇAbGroup A)))))) =
+  ·πᵃᵇassoc
 IsMonoid.·IdR (isMonoid (isGroup (isAbGroup (snd (π₁ᵃᵇAbGroup A))))) = ·πᵃᵇrUnit
 IsMonoid.·IdL (isMonoid (isGroup (isAbGroup (snd (π₁ᵃᵇAbGroup A))))) = ·πᵃᵇlUnit
 ·InvR (isGroup (isAbGroup (snd (π₁ᵃᵇAbGroup A)))) = ·πᵃᵇrCancel
@@ -179,7 +181,8 @@ snd π₁→π₁ᵃᵇHom =
 -- Below definition is verbose to speed up type checking
 Abelianizeπ₁→π₁ᵃᵇ : ∀ {ℓ} {A : Pointed ℓ}
   → AbGroupHom (AbelianizationAbGroup (πGr 0 A)) (π₁ᵃᵇAbGroup A)
-fst (Abelianizeπ₁→π₁ᵃᵇ {A = A}) = fst (fromAbelianization (π₁ᵃᵇAbGroup A) π₁→π₁ᵃᵇHom)
+fst (Abelianizeπ₁→π₁ᵃᵇ {A = A}) =
+  fst (fromAbelianization (π₁ᵃᵇAbGroup A) π₁→π₁ᵃᵇHom)
 snd (Abelianizeπ₁→π₁ᵃᵇ {A = A}) =
   makeIsGroupHom (elimProp2 _ (λ _ _ → squash₂ _ _ )
     (ST.elim2 (λ _ _ → isSetPathImplicit)

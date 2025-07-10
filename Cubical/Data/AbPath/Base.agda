@@ -4,7 +4,7 @@ module Cubical.Data.AbPath.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 
--- 'Abelianised' path types
+-- 'Abelianised' path types (useful for encode-decode computations of π₁ᵃᵇ)
 data _≡ᵃᵇ_ {ℓ} {A : Type ℓ} (x y : A) : Type ℓ
   where
   paths : x ≡ y → x ≡ᵃᵇ y

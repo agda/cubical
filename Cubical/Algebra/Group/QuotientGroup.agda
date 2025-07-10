@@ -105,7 +105,8 @@ module _ (G' : Group ℓ) (H' : Subgroup G') (Hnormal : isNormal H') where
    where
    opaque
      isGrp : IsGroup [ 1g ] _·/H_ inv/H
-     isGrp = GroupStr.isGroup (makeGroup-right 1/H _·/H_ inv/H squash/ ·/H-assoc ·/H-rid ·/H-invr .snd)
+     isGrp = GroupStr.isGroup (makeGroup-right 1/H _·/H_ inv/H squash/
+                                 ·/H-assoc ·/H-rid ·/H-invr .snd)
 
 _/_ : (G : Group ℓ) → (H : NormalSubgroup G) → Group ℓ
 G / H = asGroup G (H .fst) (H .snd)

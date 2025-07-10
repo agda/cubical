@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --safe #-}
 {-
 CW structure on suspensions
 -}

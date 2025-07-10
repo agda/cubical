@@ -26,9 +26,7 @@ record FinitePresentation (A : AbGroup ℓ) : Type ℓ where
     nRels : ℕ
     rels : AbGroupHom ℤ[Fin nRels ] ℤ[Fin nGens ]
     fpiso : GroupIso (AbGroup→Group A)
-                     (AbGroup→Group ℤ[Fin nGens ]
-                       / imNormalSubgroup rels
-                          (λ f g → funExt (λ x → +Comm (f x) (g x))))
+                     (ℤ[Fin nGens ] /Im rels)
 
 isFinitelyPresented : AbGroup ℓ → Type ℓ
 isFinitelyPresented G = ∥ FinitePresentation G ∥₁

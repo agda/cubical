@@ -1,4 +1,7 @@
-{-# OPTIONS --cubical --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
+{-
+CW structure on spheres
+-}
 module Cubical.CW.Instances.Sn where
 
 open import Cubical.Foundations.Prelude
@@ -117,10 +120,12 @@ fst (SfamContr n p) = Sgen.Sfam∙ (suc n) zero p
 snd (SfamContr n (lt x)) y = refl
 snd (SfamContr n (eq x)) y = ⊥.rec (snotz (sym (cong predℕ x)))
 
-isContrSfamGen : (n m : ℕ) (s : m <ᵗ n) (q : _) → isContr (Sgen.Sfam n (suc m) q)
+isContrSfamGen : (n m : ℕ) (s : m <ᵗ n) (q : _)
+  → isContr (Sgen.Sfam n (suc m) q)
 fst (isContrSfamGen n m s q) = Sgen.Sfam∙ n m q
 snd (isContrSfamGen n m s (lt x)) y = refl
-snd (isContrSfamGen n m s (eq x)) y = ⊥.rec (¬m<ᵗm (subst (m <ᵗ_) (sym (cong predℕ x)) s))
+snd (isContrSfamGen n m s (eq x)) y =
+  ⊥.rec (¬m<ᵗm (subst (m <ᵗ_) (sym (cong predℕ x)) s))
 snd (isContrSfamGen n m s (gt x)) y = ⊥.rec (¬m<ᵗm (<ᵗ-trans x s))
 
 isPushoutSuspSphereIso : (n m : ℕ) (x : n ≡ m) (q : _)
@@ -172,7 +177,8 @@ fun (IsoSucSphereSusp' n) = fun (IsoSucSphereSusp n)
 inv (IsoSucSphereSusp' n) = SuspSphere→Sphere n
 rightInv (IsoSucSphereSusp' zero) north = refl
 rightInv (IsoSucSphereSusp' zero) south = SuspBool→S¹→SuspBool south
-rightInv (IsoSucSphereSusp' zero) (merid a i) = SuspBool→S¹→SuspBool (merid a i)
+rightInv (IsoSucSphereSusp' zero) (merid a i) =
+  SuspBool→S¹→SuspBool (merid a i)
 rightInv (IsoSucSphereSusp' (suc n)) north = refl
 rightInv (IsoSucSphereSusp' (suc n)) south = refl
 rightInv (IsoSucSphereSusp' (suc n)) (merid a i) = refl
@@ -192,9 +198,10 @@ SαEqGen zero zero p q =
 SαEqGen (suc n) zero p q =
   compEquiv (isContr→Equiv (SfamContr n p) (flast , (λ {(zero , tt) → refl})))
     (compEquiv (isoToEquiv (PushoutEmptyFam (λ()) λ())) (symPushout _ _))
-SαEqGen (suc n) (suc m) (lt x) q =
-  invEquiv (isContr→≃Unit ((inl (isContrSfamGen (suc n) m (<ᵗ-trans x <ᵗsucm) q .fst))
-    , λ { (inl t) i → inl (isContrSfamGen (suc n) m (<ᵗ-trans x <ᵗsucm) q .snd t i)}))
+SαEqGen (suc n) (suc m) (lt x) q = invEquiv
+  (isContr→≃Unit ((inl (isContrSfamGen (suc n) m (<ᵗ-trans x <ᵗsucm) q .fst))
+  , λ { (inl t) i → inl (isContrSfamGen (suc n) m (<ᵗ-trans x <ᵗsucm) q .snd
+                           t i)}))
 SαEqGen zero (suc m) (eq x) q = ⊥.rec (snotz (cong predℕ x))
 SαEqGen (suc n) (suc m) (eq x) q =
   isoToEquiv (compIso (IsoSucSphereSusp' n)
@@ -203,18 +210,21 @@ SαEqGen (suc n) (suc m) (eq x) q =
 SαEqGen zero (suc m) (gt x) (eq x₁) = isoToEquiv (PushoutEmptyFam (λ()) λ())
 SαEqGen zero (suc m) (gt x) (gt x₁) = isoToEquiv (PushoutEmptyFam (λ()) λ())
 SαEqGen (suc n) (suc m) (gt x) q =
-  compEquiv (SfamGenTopElement (suc n) (suc m) x q) (isoToEquiv (PushoutEmptyFam (λ()) λ()))
+  compEquiv (SfamGenTopElement (suc n) (suc m) x q)
+            (isoToEquiv (PushoutEmptyFam (λ()) λ()))
 
 invEqSαEqGen∙ : (n m : ℕ) (p : Trichotomyᵗ (suc (suc m)) (suc n)) (q : _)
   → invEq (SαEqGen n (suc m) p q) (inl (Sgen.Sfam∙ n m q))
    ≡ Sgen.Sfam∙ n (suc m) p
 invEqSαEqGen∙ (suc n) m (lt x) (lt x₁) = refl
 invEqSαEqGen∙ n m (lt x) (eq x₁) = ⊥.rec (¬-suc-n<ᵗn (subst (_<ᵗ n) x₁ x))
-invEqSαEqGen∙ (suc n) (suc m) (lt x) (gt x₁) = ⊥.rec (¬-suc-n<ᵗn (<ᵗ-trans x x₁))
+invEqSαEqGen∙ (suc n) (suc m) (lt x) (gt x₁) =
+  ⊥.rec (¬-suc-n<ᵗn (<ᵗ-trans x x₁))
 invEqSαEqGen∙ (suc n) m (eq x) (lt x₁) = refl
 invEqSαEqGen∙ n m (eq x) (eq x₁) =
   ⊥.rec (¬m<ᵗm (subst (_<ᵗ suc (suc m)) (x₁ ∙ sym x) <ᵗsucm))
-invEqSαEqGen∙ n m (eq x) (gt x₁) = ⊥.rec (¬-suc-n<ᵗn (subst (_<ᵗ suc m) (sym x) x₁))
+invEqSαEqGen∙ n m (eq x) (gt x₁) =
+  ⊥.rec (¬-suc-n<ᵗn (subst (_<ᵗ suc m) (sym x) x₁))
 invEqSαEqGen∙ (suc n) m (gt x) (lt x₁) = ⊥.rec (¬squeeze (x , x₁))
 invEqSαEqGen∙ zero m (gt x) (eq x₁) = refl
 invEqSαEqGen∙ (suc n) m (gt x) (eq x₁) = refl
@@ -394,7 +404,8 @@ approxSphereMap∙ Xsk x₀ n f =
       λ a → TR.rec (isOfHLevelTrunc (suc (suc n)))
       (λ fa → ∣ fa
       , (λ p → J (λ a p → (fa : fiber (CW↪∞ Xsk (suc (suc n))) (fst f a))
-       → hLevelTrunc 1 (PathP (λ i → fiber (CW↪∞ Xsk (suc (suc n))) (fst f (p i)))
+       → hLevelTrunc 1
+           (PathP (λ i → fiber (CW↪∞ Xsk (suc (suc n))) (fst f (p i)))
            (CWskel∙ Xsk x₀ (suc n)
            , CWskel∞∙Id Xsk x₀ (suc n) ∙ (λ i → snd f (~ i))) fa))
                   (λ fa → isConnectedPathP 1 (isConnectedSubtr' n 2
@@ -460,7 +471,8 @@ cellMapSˢᵏᵉˡ∙Π X n x₀ faprx gaprx =
 
   main : (x : Sgen.Sfam (suc n) (suc (suc n)) (suc (suc n) ≟ᵗ suc (suc n)))
        → h (incl {n = suc (suc n)} x)
-       ≡ ∙Π (incl∙ X x₀ ∘∙ faprx) (incl∙ X x₀ ∘∙ gaprx) .fst (invEq (SfamTopElement (suc n)) x)
+       ≡ ∙Π (incl∙ X x₀ ∘∙ faprx) (incl∙ X x₀ ∘∙ gaprx) .fst
+             (invEq (SfamTopElement (suc n)) x)
   main with (n ≟ᵗ n)
   ... | lt x = ⊥.rec (¬m<ᵗm x)
   ... | eq x = λ x

@@ -168,7 +168,8 @@ degreeIdfun (suc n) =
   ∙∙ degreeIdfun n
 
 degreeHom : {n : ℕ} (f g : S₊∙ (suc n) →∙ S₊∙ (suc n))
-  → degree (suc n) (∙Π f g .fst) ≡ degree (suc n) (fst f) +ℤ degree (suc n) (fst g)
+  → degree (suc n) (∙Π f g .fst)
+   ≡ degree (suc n) (fst f) +ℤ degree (suc n) (fst g)
 degreeHom {n = n} f g =
    cong (Iso.fun (Hⁿ-Sⁿ≅ℤ n .fst)) (cong ∣_∣₂ (funExt
      λ x → cong ∣_∣ₕ (cong₂ (λ f g → ∙Π f g .fst x)
@@ -182,7 +183,8 @@ degreeHom {n = n} f g =
   where
   help : (n : ℕ) (f g : S₊∙ n →∙ Ω (S₊∙ (suc n))) (x : S₊ (suc n))
                       → Path (coHomK (suc n))
-                  ∣ ∙Π (Iso.fun (sphereFunIso n) f) (Iso.fun (sphereFunIso n) g) .fst x ∣ₕ
+                  ∣ ∙Π (Iso.fun (sphereFunIso n) f)
+                       (Iso.fun (sphereFunIso n) g) .fst x ∣ₕ
                   (∣ fst (Iso.fun (sphereFunIso n) f) x ∣
        +[ suc n ]ₖ ∣ fst (Iso.fun (sphereFunIso n) g) x ∣)
   help zero f g base = refl
@@ -207,9 +209,11 @@ degreeHom {n = n} f g =
         ≡ cong₂ (λ x y → ∣ x ∣ₕ +[ suc (suc n) ]ₖ ∣ y ∣ₕ)
                 (fst f a) (fst g a)
     lem = cong-∙ ∣_∣ₕ _ _
-      ∙ cong₂ _∙_ (cong (cong ∣_∣ₕ) (funExt⁻ (cong fst (Iso.leftInv ΩSuspAdjointIso f)) a)
+      ∙ cong₂ _∙_ (cong (cong ∣_∣ₕ)
+                    (funExt⁻ (cong fst (Iso.leftInv ΩSuspAdjointIso f)) a)
                   ∙ λ j i → rUnitₖ (suc (suc n)) ∣ fst f a i ∣ₕ (~ j))
-                  (cong (cong ∣_∣ₕ) (funExt⁻ (cong fst (Iso.leftInv ΩSuspAdjointIso g)) a)
+                  (cong (cong ∣_∣ₕ)
+                    (funExt⁻ (cong fst (Iso.leftInv ΩSuspAdjointIso g)) a)
                   ∙ (λ j i → lUnitₖ (suc (suc n)) ∣ fst g a i ∣ₕ (~ j)))
       ∙ sym (cong₂Funct (λ x y → ∣ x ∣ₕ +[ suc (suc n) ]ₖ ∣ y ∣ₕ)
               (fst f a) (fst g a))

@@ -646,7 +646,7 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   repairLeft (inr x) = idEquiv _
   repairLeft (push a i) = help i
     where
-    help : PathP (λ i → X (push a i) ≃ E (push a i)) (idEquiv _) (idEquiv _) 
+    help : PathP (λ i → X (push a i) ≃ E (push a i)) (idEquiv _) (idEquiv _)
     help = ΣPathPProp (λ _ → isPropIsEquiv _)
                       (toPathP (funExt λ x →
                         transportRefl _ ∙ substSubst⁻ X (push a) x))

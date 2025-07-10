@@ -28,7 +28,7 @@ open import Cubical.CW.Instances.Sn
 open import Cubical.CW.Instances.SphereBouquetMap
 open import Cubical.CW.Homology.Base
 open import Cubical.CW.Homology.Groups.Sn
-open import Cubical.CW.Homology.Groups.SphereBouquetMap
+open import Cubical.CW.Homology.Groups.CofibFinSphereBouquetMap
 open import Cubical.CW.Homology.Groups.Subcomplex
 
 open import Cubical.Data.Empty as ⊥

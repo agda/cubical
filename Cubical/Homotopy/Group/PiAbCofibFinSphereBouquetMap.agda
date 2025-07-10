@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 {-
 This file computes πₙᵃᵇ(cofib α) and α : ⋁Sⁿ →∙ ⋁Sⁿ
 -}

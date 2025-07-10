@@ -7,7 +7,7 @@ The definition of the abelianization is not as a set-quotient, since the relatio
 abelianization is cumbersome to work with.
 
 -}
-{-# OPTIONS --safe --cubical #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Abelianization.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -24,7 +24,8 @@ open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
   using (isPropIsGroupHom; compGroupHom; idGroupHom
        ; makeIsGroupHom ; GroupEquiv→GroupHom ; invGroupEquiv)
-
+open import Cubical.Algebra.Monoid.Base
+open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.AbGroup.Base
 
 open import Cubical.Algebra.Group.Abelianization.Base
@@ -201,8 +202,6 @@ module AbelianizationGroupStructure (G : Group ℓ) where
   open AbGroupStr
   open IsAbGroup
   open IsGroup
-  open import Cubical.Algebra.Monoid.Base
-  open import Cubical.Algebra.Semigroup
   open IsSemigroup
   open IsMonoid
   -- The proof that the abelianization is in fact an abelian group.

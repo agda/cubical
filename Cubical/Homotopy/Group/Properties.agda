@@ -25,22 +25,22 @@ connectedFun→πEquiv : ∀ {ℓ} {A B : Pointed ℓ} (n : ℕ) (f : A →∙ B
 connectedFun→πEquiv {ℓ = ℓ}  {A = A} {B = B} n f conf =
   (πHom n f .fst
   , subst isEquiv (funExt (ST.elim (λ _ → isSetPathImplicit) (λ _ → refl)))
-    (sss .snd))
+    (πA≃πB .snd))
   , πHom n f .snd
   where
   lem : (n : ℕ) → suc (suc n) ∸ n ≡ 2
   lem zero = refl
   lem (suc n) = lem n
 
-  Bat : isConnectedFun 2 (fst (Ω^→ (suc n) f))
-  Bat = subst (λ k → isConnectedFun k (fst (Ω^→ (suc n) f)))
+  connΩ^→f : isConnectedFun 2 (fst (Ω^→ (suc n) f))
+  connΩ^→f = subst (λ k → isConnectedFun k (fst (Ω^→ (suc n) f)))
               (lem n)
               (isConnectedΩ^→ (suc (suc n)) (suc n) f conf)
 
-  sss : π (suc n) A ≃ π (suc n) B
-  sss = compEquiv setTrunc≃Trunc2
+  πA≃πB : π (suc n) A ≃ π (suc n) B
+  πA≃πB = compEquiv setTrunc≃Trunc2
          (compEquiv (connectedTruncEquiv 2
-                     (fst (Ω^→ (suc n) f)) Bat)
+                     (fst (Ω^→ (suc n) f)) connΩ^→f)
           (invEquiv setTrunc≃Trunc2))
 
 connectedFun→π'Equiv : ∀ {ℓ} {A B : Pointed ℓ} (n : ℕ) (f : A →∙ B)
@@ -62,16 +62,17 @@ connectedFun→πSurj : ∀ {ℓ} {A B : Pointed ℓ} (n : ℕ) (f : A →∙ B)
   → isSurjective {G = πGr n A} {H = πGr n B} (πHom n f)
 connectedFun→πSurj {ℓ = ℓ}  {A = A} {B = B} n f conf =
   ST.elim (λ _ → isProp→isSet squash₁)
-    λ p → TR.rec squash₁ (λ {(q , r) → ∣ ∣ q ∣₂ , (cong ∣_∣₂ r) ∣₁}) (Bat p .fst)
+    λ p → TR.rec squash₁ (λ {(q , r) → ∣ ∣ q ∣₂ , (cong ∣_∣₂ r) ∣₁})
+                 (connΩ^→f p .fst)
   where
   lem : (n : ℕ) → suc n ∸ n ≡ 1
   lem zero = refl
   lem (suc n) = lem n
 
-  Bat : isConnectedFun 1 (fst (Ω^→ (suc n) f))
-  Bat = subst (λ k → isConnectedFun k (fst (Ω^→ (suc n) f)))
-              (lem n)
-              (isConnectedΩ^→ (suc n) (suc n) f conf)
+  connΩ^→f : isConnectedFun 1 (fst (Ω^→ (suc n) f))
+  connΩ^→f = subst (λ k → isConnectedFun k (fst (Ω^→ (suc n) f)))
+                    (lem n)
+                    (isConnectedΩ^→ (suc n) (suc n) f conf)
 
 connectedFun→π'Surj : ∀ {ℓ} {A B : Pointed ℓ} (n : ℕ) (f : A →∙ B)
   → isConnectedFun (2 + n) (fst f)
