@@ -736,11 +736,10 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
       s₁ (cospanPath i) = DLRan F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
       s₂ (cospanPath i) = DLRan F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
 
-      private
-        F[⋁β]Cone = limitC _ (F* (⋁ β)) .limCone
-        F[⋁γ]Cone = limitC _ (F* (⋁ γ)) .limCone
-        F[⋁β∧⋁γ]Cone = limitC _ (F* (⋁ β ∧l ⋁ γ)) .limCone
-        F[⋁β++γ]Cone = limitC _ (F* (⋁ (β ++Fin γ))) .limCone
+      F[⋁β]Cone = limitC _ (F* (⋁ β)) .limCone
+      F[⋁γ]Cone = limitC _ (F* (⋁ γ)) .limCone
+      F[⋁β∧⋁γ]Cone = limitC _ (F* (⋁ β ∧l ⋁ γ)) .limCone
+      F[⋁β++γ]Cone = limitC _ (F* (⋁ (β ++Fin γ))) .limCone
 
       -- the family of squares we need to construct cones over β++γ
       to++ConeSquare : {c : ob C} (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])

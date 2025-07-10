@@ -373,12 +373,10 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
                                       ; ·IdR to ·A-rid)
   open Units A' renaming (Rˣ to Aˣ ; RˣInvClosed to AˣInvClosed)
   open PathToS⁻¹R ⦃...⦄
-  private
-   A = fst A'
-   instance
-    _ = cond
-   χ = (S⁻¹RHasUniversalProp A' φ φS⊆Aˣ .fst .fst)
-   open RingHomTheory χ
+  A = fst A'
+  instance _ = cond
+  χ = (S⁻¹RHasUniversalProp A' φ φS⊆Aˣ .fst .fst)
+  open RingHomTheory χ
 
   S⁻¹R≃A : S⁻¹R ≃ A
   S⁻¹R≃A = fst χ , isEmbedding×isSurjection→isEquiv (Embχ , Surχ)

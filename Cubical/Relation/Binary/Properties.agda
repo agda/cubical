@@ -11,12 +11,34 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary.Base
+open import Cubical.Relation.Nullary
 
 private
   variable
     ℓ ℓ' : Level
     A B : Type ℓ
 
+-- Theorem 7.2.2 in the HoTT Book
+module _ (R : Rel A A ℓ') where
+  open BinaryRelation R
+
+  reflPropRelImpliesIdentity→isSet : isRefl
+                                   → isPropValued
+                                   → impliesIdentity
+                                   → isSet A
+  reflPropRelImpliesIdentity→isSet Rrefl Rprop R→≡ = Collapsible≡→isSet λ where
+    x y .fst p → R→≡ (subst (R x) p (Rrefl x))
+    x y .snd p q → cong R→≡ (Rprop _ _ _ _)
+
+  reflPropRelImpliesIdentity→isUnivalent : isRefl
+                                         → isPropValued
+                                         → impliesIdentity
+                                         → isUnivalent
+  reflPropRelImpliesIdentity→isUnivalent Rrefl Rprop R→≡ x y =
+    propBiimpl→Equiv (Rprop x y) (Aset x y) R→≡ (λ p → subst (R x) p (Rrefl x)) where
+
+    Aset : isSet A
+    Aset = reflPropRelImpliesIdentity→isSet Rrefl Rprop R→≡
 
 -- Pulling back a relation along a function.
 -- This can for example be used when restricting an equivalence relation to a subset:
@@ -53,8 +75,8 @@ module _ {A B : Type ℓ} (e : A ≃ B) {_∼_ : Rel A A ℓ'} {_∻_ : Rel B B 
 
   RelPathP : PathP (λ i → ua e i → ua e i → Type _)
               _∼_ _∻_
-  RelPathP i x y = Glue  (ua-unglue e i x ∻ ua-unglue e i y)
-      λ { (i = i0) → _ ,  x h y
+  RelPathP i x y = Glue (ua-unglue e i x ∻ ua-unglue e i y)
+      λ { (i = i0) → _ , x h y
         ; (i = i1) → _ , idEquiv _ }
 
 
@@ -62,7 +84,7 @@ module _ {ℓ''} {B : Type ℓ} {_∻_ : B → B → Type ℓ'} where
 
   JRelPathP-Goal : Type _
   JRelPathP-Goal = ∀ (A : Type ℓ) (e : A ≃ B) (_~_ : A → A → Type ℓ')
-             → (_h_ :  ∀ x y → x ~ y ≃ (fst e x ∻ fst e  y)) → Type ℓ''
+             → (_h_ :  ∀ x y → x ~ y ≃ (fst e x ∻ fst e y)) → Type ℓ''
 
 
   EquivJRel : (Goal : JRelPathP-Goal)
