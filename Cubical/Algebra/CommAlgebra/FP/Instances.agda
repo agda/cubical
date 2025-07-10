@@ -33,8 +33,8 @@ open import Cubical.Algebra.CommAlgebra.QuotientAlgebra as Quot
 open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn; 0Ideal)
 open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Instances.Initial
-open import Cubical.Algebra.CommAlgebra.Instances.Unit
-import Cubical.Algebra.CommAlgebra.Notation as CAlgNotation
+open import Cubical.Algebra.CommAlgebra.Instances.Terminal
+open import Cubical.Algebra.CommAlgebra.Notation
 
 open import Cubical.Algebra.CommAlgebra.FP as FP
 
@@ -104,7 +104,7 @@ module _ (R : CommRing ℓ) where
   private
     unitGen : FinVec ⟨ R[⊥] ⟩ₐ 1
     unitGen zero = 1r
-      where open CAlgNotation R[⊥]
+      where open InstancesForCAlg R[⊥]
 
     terminalCAlgFP : FinitePresentation R
     terminalCAlgFP = record { n = 0 ; m = 1 ; relations = unitGen }
@@ -112,25 +112,19 @@ module _ (R : CommRing ℓ) where
     R[⊥]/⟨1⟩ : CommAlgebra R ℓ
     R[⊥]/⟨1⟩ = fpAlg terminalCAlgFP
 
-  terminalCAlgIsFP : isFP R (terminalCAlg R)
-  terminalCAlgIsFP = ?
+  opaque
+    unfolding fpAlg fgIdeal
+    terminalCAlgIsFP : isFP R (terminalCAlg R)
+    terminalCAlgIsFP = ∣ (terminalCAlgFP ,
+                         (equivFrom1≡0 R R[⊥]/⟨1⟩
+                           (1r                        ≡⟨ sym pres1 ⟩
+                            (π terminalCAlgFP) $ca 1r ≡⟨ isZeroFromIdeal 1r (incInIdeal (Polynomials R 0) unitGen zero) ⟩
+                            0r ∎))) ∣₁
+      where open InstancesForCAlg (fpAlg terminalCAlgFP)
+            open InstancesForCAlg (Polynomials R 0)
+            open IsCommAlgebraHom (π terminalCAlgFP .snd)
+
 {-
-
-  private
-    unitGen : FinVec (fst R[⊥]) 1
-    unitGen zero = 1a
-      where open CommAlgebraStr (snd R[⊥])
-
-    R[⊥]/⟨1⟩ : CommAlgebra R ℓ
-    R[⊥]/⟨1⟩ = FPAlgebra 0 unitGen
-
-  terminalCAlgFP : FinitePresentation (TerminalCAlg R)
-  n terminalCAlgFP = 0
-  m terminalCAlgFP = 1
-  relations terminalCAlgFP = unitGen
-  equiv terminalCAlgFP = equivFrom1≡0 R R[⊥]/⟨1⟩ (sym (⋆IdL 1a) ∙ relationsHold 0 unitGen zero)
-    where open CommAlgebraStr (snd R[⊥]/⟨1⟩)
-
 
   {-
     Quotients of the base ring by finitely generated ideals are finitely presented.

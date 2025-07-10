@@ -12,6 +12,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Univalence
+open import Cubical.Algebra.CommAlgebra.Notation
 
 private
   variable
@@ -55,8 +56,6 @@ module _
   {f : ⟨ A ⟩ₐ → ⟨ B ⟩ₐ}
   where
 
-  open CommAlgebraStr ⦃...⦄
-  open CommRingStr ⦃...⦄
   private instance
     _ = CommAlgebra→CommRingStr A
     _ = CommAlgebra→CommRingStr B

@@ -25,16 +25,16 @@ open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Kernel
 open import Cubical.Algebra.CommAlgebra.FP.Base
+open import Cubical.Algebra.CommAlgebra.Notation
 import Cubical.Algebra.CommAlgebra.Polynomials as Poly
 import Cubical.Algebra.CommAlgebra.QuotientAlgebra as Quot
-import Cubical.Algebra.CommAlgebra.Notation as AlgNotation
 
 private variable
     ℓ ℓ' : Level
 
 module _ (R : CommRing ℓ) (fp : FinitePresentation R) (A : CommAlgebra R ℓ) where
   open FinitePresentation fp
-  open AlgNotation A
+  open InstancesForCAlg A
 
   module _ (φ : FinVec ⟨ A ⟩ₐ n) (p : (i : Fin m) → Poly.inducedHom A φ $ca relations i ≡ 0r) where
     opaque

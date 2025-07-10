@@ -18,7 +18,7 @@ open import Cubical.Algebra.CommRing.Ideal hiding (IdealsIn)
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.Kernel
-open import Cubical.Algebra.CommAlgebra.Instances.Unit
+open import Cubical.Algebra.CommAlgebra.Instances.Terminal
 open import Cubical.Algebra.Ring
 open import Cubical.Tactics.CommRingSolver
 
@@ -120,7 +120,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ') (I : IdealsIn R A) where
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
   open CommRingStr (A .fst .snd)
 
-  oneIdealQuotient : CommAlgebraEquiv (A / (1Ideal R A)) (UnitCommAlgebra R {ℓ' = ℓ})
+  oneIdealQuotient : CommAlgebraEquiv (A / (1Ideal R A)) (terminalCAlg R)
   oneIdealQuotient .fst =
     (withOpaqueStr $
     isoToEquiv (iso ⟨ terminalMap R (A / 1Ideal R A) ⟩ₐ→
@@ -171,5 +171,5 @@ module _
     _ = (A / I).fst .snd
 
   opaque
-    isZeroFromIdeal : (x : ⟨ A ⟩ₐ) → x ∈ (fst I) → ⟨ quotientHom A I ⟩ₐ→ x ≡ 0r
+    isZeroFromIdeal : (x : ⟨ A ⟩ₐ) → x ∈ (fst I) → quotientHom A I $ca x ≡ 0r
     isZeroFromIdeal x x∈I = eq/ x 0r (subst (_∈ fst I) (solve! (CommAlgebra→CommRing A)) x∈I )
