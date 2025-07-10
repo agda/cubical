@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Data.AbPath.Base where
+module Cubical.HITs.AbPath.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed

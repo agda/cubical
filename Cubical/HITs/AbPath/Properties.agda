@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Data.AbPath.Properties where
+module Cubical.HITs.AbPath.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws as GLaws
@@ -7,7 +7,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Pointed
 
-open import Cubical.Data.AbPath.Base
+open import Cubical.HITs.AbPath.Base
 
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetTruncation as ST

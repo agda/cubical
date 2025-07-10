@@ -16,7 +16,6 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Int renaming (_·_ to _·ℤ_)
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_)
-open import Cubical.Data.AbPath
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Fin.Inductive
 open import Cubical.Data.Nat.Order.Inductive
@@ -34,6 +33,7 @@ open import Cubical.HITs.Bouquet as Bouq
 open import Cubical.HITs.FreeGroup as FG
 open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/s_)
 open import Cubical.HITs.SetQuotients.Properties as SQ
+open import Cubical.HITs.AbPath
 
 open import Cubical.Relation.Nullary hiding (⟪_⟫)
 
