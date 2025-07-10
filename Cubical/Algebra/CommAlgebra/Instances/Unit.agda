@@ -12,21 +12,33 @@ open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommRing.Instances.Unit
+import Cubical.Algebra.CommAlgebra.Notation as CAlgNotation
+
 open import Cubical.Tactics.CommRingSolver
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
 module _ (R : CommRing ℓ) where
-  UnitCommAlgebra : CommAlgebra R ℓ'
-  UnitCommAlgebra = UnitCommRing , mapToUnitCommRing R
+  terminalCAlg : CommAlgebra R ℓ'
+  terminalCAlg = UnitCommRing , mapToUnitCommRing R
 
-  module _ (A : CommAlgebra R ℓ') where
-    terminalMap : CommAlgebraHom A (UnitCommAlgebra {ℓ' = ℓ})
+  module _ (A : CommAlgebra R ℓ'') where
+    terminalMap : CommAlgebraHom A (terminalCAlg {ℓ' = ℓ})
     terminalMap = CommRingHom→CommAlgebraHom (mapToUnitCommRing (A .fst)) $ isPropMapToUnitCommRing _ _ _
 
+  module _ (A : CommAlgebra R ℓ'') where
+    terminalityContr : isContr (CommAlgebraHom A (terminalCAlg {ℓ' = ℓ}))
+    terminalityContr = (terminalMap A) , λ f → CommAlgebraHom≡ (funExt (λ _ → refl))
+
 {-
+
+    open CAlgNotation A
+    equivFrom1≡0 : (1≡0 : 1r ≡ 0r)
+                   → CommAlgebraEquiv A terminalCAlg
+    equivFrom1≡0 = ?
+
   module _ (A : CommAlgebra R ℓ) where
 
     terminalityContr : isContr (CommAlgebraHom A UnitCommAlgebra)

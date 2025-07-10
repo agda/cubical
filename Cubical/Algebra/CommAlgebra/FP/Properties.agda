@@ -67,7 +67,10 @@ module _ (R : CommRing ℓ) (fp : FinitePresentation R) (A : CommAlgebra R ℓ) 
                         uniqueOnPoly
                         ⟨relations⟩⊆kernel)
                  f refl)
-             ∙ (subst (λ h → Quot.inducedHom (Polynomials R n) fgIdeal A (fst h) (snd h) ≡ inducedHom) (Σ≡Prop {B = λ g → fst ⟨ relations ⟩[ Polynomials R n ] ⊆ fst (kernel (Polynomials R n) A g)} (λ _ → ⊆-isProp _ _) uniqueOnPoly) refl))
+             ∙ (subst (λ h → Quot.inducedHom (Polynomials R n) fgIdeal A (fst h) (snd h) ≡ inducedHom)
+                      (Σ≡Prop {B = λ g → fst ⟨ relations ⟩[ Polynomials R n ] ⊆ fst (kernel (Polynomials R n) A g)}
+                              (λ _ → ⊆-isProp _ _) uniqueOnPoly)
+                      refl))
         where
           uniqueOnPoly : polyInduced ≡ f ∘ca π
           uniqueOnPoly = Poly.inducedHomUnique A φ (f ∘ca π) (funExt λ k → cong ⟨ f ⟩ₐ→ (computeGenerator k) ∙ q k)

@@ -12,3 +12,4 @@
 module Cubical.Algebra.CommAlgebra.FP where
 
 open import Cubical.Algebra.CommAlgebra.FP.Base public
+open import Cubical.Algebra.CommAlgebra.FP.Properties public
