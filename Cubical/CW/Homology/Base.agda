@@ -5,7 +5,7 @@ This file contains:
 2. Construction of cellular homology, including funtoriality
 -}
 
-module Cubical.CW.Homology where
+module Cubical.CW.Homology.Base where
 
 open import Cubical.CW.Base
 open import Cubical.CW.Properties
@@ -22,15 +22,19 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Sigma
+open import Cubical.Data.Int
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.GroupPath
+open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.ChainComplex
 
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SequentialColimit
+open import Cubical.HITs.SetQuotients as SQ
 
 private
   variable
@@ -138,7 +142,7 @@ H̃ᶜʷ (C , CWstr) n =
       coh
       CWstr
   where
-  coh : (Cskel Dskel Eskel : isCW C) (t : fst (H̃ˢᵏᵉˡ (Cskel .fst) n))
+  coh : (Cskel Dskel Eskel : hasCWskel C) (t : fst (H̃ˢᵏᵉˡ (Cskel .fst) n))
     → fst (fst (H̃ˢᵏᵉˡ→Equiv n (compEquiv (invEquiv (snd Dskel)) (snd Eskel))))
         (fst (fst (H̃ˢᵏᵉˡ→Equiv n (compEquiv (invEquiv (snd Cskel)) (snd Dskel)))) t)
     ≡ fst (fst (H̃ˢᵏᵉˡ→Equiv n (compEquiv (invEquiv (snd Cskel)) (snd Eskel)))) t
@@ -151,7 +155,7 @@ H̃ᶜʷ (C , CWstr) n =
 -- lemmas for functoriality
 private
   module _ {C : Type ℓ} {D : Type ℓ'} (f : C → D) (n : ℕ) where
-    right : (cwC : isCW C) (cwD1 : isCW D) (cwD2 : isCW D)
+    right : (cwC : hasCWskel C) (cwD1 : hasCWskel D) (cwD2 : hasCWskel D)
       → PathP (λ i → GroupHom (H̃ᶜʷ (C , ∣ cwC ∣₁) n)
                          (H̃ᶜʷ (D , squash₁ ∣ cwD1 ∣₁ ∣ cwD2 ∣₁ i) n))
         (H̃ˢᵏᵉˡ→ n (λ x → fst (snd cwD1) (f (invEq (snd cwC) x))))
@@ -162,7 +166,7 @@ private
           → cong (fst (snd cwD2)) (sym (retEq (snd cwD1) _))))
         ∙ H̃ˢᵏᵉˡ→comp n _ _)
 
-    left : (cwC1 : isCW C) (cwC2 : isCW C) (cwD : isCW D)
+    left : (cwC1 : hasCWskel C) (cwC2 : hasCWskel C) (cwD : hasCWskel D)
       → PathP (λ i → GroupHom (H̃ᶜʷ (C , squash₁ ∣ cwC1 ∣₁ ∣ cwC2 ∣₁ i) n)
                                   (H̃ᶜʷ (D , ∣ cwD ∣₁) n))
                  (H̃ˢᵏᵉˡ→ n (λ x → fst (snd cwD) (f (invEq (snd cwC1) x))))
@@ -175,7 +179,7 @@ private
               → cong (fst (snd cwD) ∘ f)
                   (retEq (snd cwC2) _))))
 
-    left-right : (x y : isCW C) (v w : isCW D) →
+    left-right : (x y : hasCWskel C) (v w : hasCWskel D) →
       SquareP
       (λ i j →
          GroupHom (H̃ᶜʷ (C , squash₁ ∣ x ∣₁ ∣ y ∣₁ i) n)
@@ -184,7 +188,7 @@ private
     left-right _ _ _ _ = isSet→SquareP
        (λ _ _ → isSetGroupHom) _ _ _ _
 
-    H̃ᶜʷ→pre : (cwC : ∥ isCW C ∥₁) (cwD : ∥ isCW D ∥₁)
+    H̃ᶜʷ→pre : (cwC : isCW C) (cwD : isCW D)
       → GroupHom (H̃ᶜʷ (C , cwC) n) (H̃ᶜʷ (D , cwD) n)
     H̃ᶜʷ→pre =
       elim2→Set (λ _ _ → isSetGroupHom)
@@ -242,3 +246,25 @@ snd (H̃ᶜʷ→Iso m e) = snd (H̃ᶜʷ→ m (fst e))
 H̃ᶜʷ→Equiv : {C : CW ℓ} {D : CW ℓ'} (m : ℕ)
   (e : fst C ≃ fst D) → GroupEquiv (H̃ᶜʷ C m) (H̃ᶜʷ D m)
 H̃ᶜʷ→Equiv m e = GroupIso→GroupEquiv (H̃ᶜʷ→Iso m e)
+
+-- As abelian groups
+H̃ˢᵏᵉˡ-comm : ∀ {ℓ} {n : ℕ} {X : CWskel ℓ} (x y : H̃ˢᵏᵉˡ X (suc n) .fst)
+  → GroupStr._·_ (H̃ˢᵏᵉˡ X (suc n) .snd) x y
+   ≡ GroupStr._·_ (H̃ˢᵏᵉˡ X (suc n) .snd) y x
+H̃ˢᵏᵉˡ-comm = SQ.elimProp2 (λ _ _ → GroupStr.is-set (H̃ˢᵏᵉˡ _ _ .snd) _ _)
+  λ a b → cong [_] (Σ≡Prop (λ _ → isSetΠ (λ _ → isSetℤ) _ _)
+    (funExt λ _ → +Comm _ _))
+
+H̃ᶜʷ-comm : ∀ {ℓ} {n : ℕ} (X : CW ℓ) (x y : H̃ᶜʷ X (suc n) .fst)
+  → GroupStr._·_ (H̃ᶜʷ X (suc n) .snd) x y
+   ≡ GroupStr._·_ (H̃ᶜʷ X (suc n) .snd) y x
+H̃ᶜʷ-comm {n = n} = uncurry λ X
+  → PT.elim (λ _ → isPropΠ2 λ _ _
+                  → GroupStr.is-set (H̃ᶜʷ (X , _) (suc n) .snd) _ _)
+            λ x → H̃ˢᵏᵉˡ-comm
+
+H̃ˢᵏᵉˡAb : ∀ {ℓ} → CWskel ℓ → ℕ → AbGroup ℓ-zero
+H̃ˢᵏᵉˡAb X n = Group→AbGroup (H̃ˢᵏᵉˡ X (suc n)) H̃ˢᵏᵉˡ-comm
+
+H̃ᶜʷAb : ∀ {ℓ} → CW ℓ → ℕ → AbGroup ℓ-zero
+H̃ᶜʷAb X n = Group→AbGroup (H̃ᶜʷ X (suc n)) (H̃ᶜʷ-comm X)
