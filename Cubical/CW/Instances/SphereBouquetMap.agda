@@ -300,9 +300,9 @@ module _ {c1 c2 : ℕ} {n : ℕ} (α : FinSphereBouquetMap c1 c2 n) where
     SphereBouquet/EqGen c1 c2 m α
       (suc m ≟ᵗ suc (suc n)) (m ≟ᵗ suc n) (m ≟ᵗ suc (suc n))
 
-  isCWSphereBouquet/ : isCW (cofib α)
-  fst isCWSphereBouquet/ = SphereBouquet/ˢᵏᵉˡ
-  snd isCWSphereBouquet/ =
+  hasCWskelSphereBouquet/ : hasCWskel (cofib α)
+  fst hasCWskelSphereBouquet/ = SphereBouquet/ˢᵏᵉˡ
+  snd hasCWskelSphereBouquet/ =
     compEquiv (SphereBouquet/FamTopElementGen c1 c2 (suc (suc (suc n))) α
                (<ᵗsucm {n}) (suc (suc (suc n)) ≟ᵗ suc (suc n)))
       (isoToEquiv (converges→ColimIso (suc (suc (suc n)))
@@ -318,4 +318,4 @@ module _ {c1 c2 : ℕ} {n : ℕ} (α : FinSphereBouquetMap c1 c2 n) where
 
   SphereBouquet/ᶜʷ : CW ℓ-zero
   fst SphereBouquet/ᶜʷ = cofib α
-  snd SphereBouquet/ᶜʷ = ∣ isCWSphereBouquet/ ∣₁
+  snd SphereBouquet/ᶜʷ = ∣ hasCWskelSphereBouquet/ ∣₁

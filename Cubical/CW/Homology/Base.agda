@@ -142,7 +142,7 @@ H̃ᶜʷ (C , CWstr) n =
       coh
       CWstr
   where
-  coh : (Cskel Dskel Eskel : isCW C) (t : fst (H̃ˢᵏᵉˡ (Cskel .fst) n))
+  coh : (Cskel Dskel Eskel : hasCWskel C) (t : fst (H̃ˢᵏᵉˡ (Cskel .fst) n))
     → fst (fst (H̃ˢᵏᵉˡ→Equiv n (compEquiv (invEquiv (snd Dskel)) (snd Eskel))))
         (fst (fst (H̃ˢᵏᵉˡ→Equiv n (compEquiv (invEquiv (snd Cskel)) (snd Dskel)))) t)
     ≡ fst (fst (H̃ˢᵏᵉˡ→Equiv n (compEquiv (invEquiv (snd Cskel)) (snd Eskel)))) t
@@ -155,7 +155,7 @@ H̃ᶜʷ (C , CWstr) n =
 -- lemmas for functoriality
 private
   module _ {C : Type ℓ} {D : Type ℓ'} (f : C → D) (n : ℕ) where
-    right : (cwC : isCW C) (cwD1 : isCW D) (cwD2 : isCW D)
+    right : (cwC : hasCWskel C) (cwD1 : hasCWskel D) (cwD2 : hasCWskel D)
       → PathP (λ i → GroupHom (H̃ᶜʷ (C , ∣ cwC ∣₁) n)
                          (H̃ᶜʷ (D , squash₁ ∣ cwD1 ∣₁ ∣ cwD2 ∣₁ i) n))
         (H̃ˢᵏᵉˡ→ n (λ x → fst (snd cwD1) (f (invEq (snd cwC) x))))
@@ -166,7 +166,7 @@ private
           → cong (fst (snd cwD2)) (sym (retEq (snd cwD1) _))))
         ∙ H̃ˢᵏᵉˡ→comp n _ _)
 
-    left : (cwC1 : isCW C) (cwC2 : isCW C) (cwD : isCW D)
+    left : (cwC1 : hasCWskel C) (cwC2 : hasCWskel C) (cwD : hasCWskel D)
       → PathP (λ i → GroupHom (H̃ᶜʷ (C , squash₁ ∣ cwC1 ∣₁ ∣ cwC2 ∣₁ i) n)
                                   (H̃ᶜʷ (D , ∣ cwD ∣₁) n))
                  (H̃ˢᵏᵉˡ→ n (λ x → fst (snd cwD) (f (invEq (snd cwC1) x))))
@@ -179,7 +179,7 @@ private
               → cong (fst (snd cwD) ∘ f)
                   (retEq (snd cwC2) _))))
 
-    left-right : (x y : isCW C) (v w : isCW D) →
+    left-right : (x y : hasCWskel C) (v w : hasCWskel D) →
       SquareP
       (λ i j →
          GroupHom (H̃ᶜʷ (C , squash₁ ∣ x ∣₁ ∣ y ∣₁ i) n)
@@ -188,7 +188,7 @@ private
     left-right _ _ _ _ = isSet→SquareP
        (λ _ _ → isSetGroupHom) _ _ _ _
 
-    H̃ᶜʷ→pre : (cwC : ∥ isCW C ∥₁) (cwD : ∥ isCW D ∥₁)
+    H̃ᶜʷ→pre : (cwC : isCW C) (cwD : isCW D)
       → GroupHom (H̃ᶜʷ (C , cwC) n) (H̃ᶜʷ (D , cwD) n)
     H̃ᶜʷ→pre =
       elim2→Set (λ _ _ → isSetGroupHom)

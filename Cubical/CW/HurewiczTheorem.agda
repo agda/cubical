@@ -169,7 +169,7 @@ module _ where
        open CWskel-fields Xsk
        finCellApprox∙Π : finCellApprox (Sˢᵏᵉˡ (suc n)) Xsk
          (fst (∙Π (incl∙ Xsk x₀ ∘∙ f') (incl∙ Xsk x₀ ∘∙ g')) ∘
-           invEq (isCWSphere (suc n) .snd)) (suc (suc (suc (suc n))))
+           invEq (hasCWskelSphere (suc n) .snd)) (suc (suc (suc (suc n))))
        finCellApprox∙Π =
          finCellApproxSˢᵏᵉˡImproved Xsk (suc n) x₀
           (∙Π f' g') (∙Π (incl∙ Xsk x₀ ∘∙ f') (incl∙ Xsk x₀ ∘∙ g'))
@@ -518,7 +518,7 @@ module _ where
        goal' =
          funExt⁻ (cong fst (H̃ˢᵏᵉˡ→β (Sˢᵏᵉˡ (suc n)) Xsk (suc n)
            {f = (fst (∙Π (incl∙ Xsk x₀ ∘∙ f') (incl∙ Xsk x₀ ∘∙ g')) ∘
-             invEq (isCWSphere (suc n) .snd))} finCellApprox∙Π)) (genHₙSⁿ n)
+             invEq (hasCWskelSphere (suc n) .snd))} finCellApprox∙Π)) (genHₙSⁿ n)
            ∙ cong [_] (Σ≡Prop (λ _ → isSetΠ (λ _ → isSetℤ) _ _)
              ((λ i → bouquetDegree (λ x → CTB∘cofib→cofibCW∘BTC-Hom' x i)
                        .fst (λ _ → pos 1))
@@ -530,10 +530,10 @@ module _ where
               λ _ → pos 1))
            ∙ cong₂ (GroupStr._·_ (snd (H̃ᶜʷ X' (suc n))))
                    (funExt⁻ (cong fst (sym (H̃ˢᵏᵉˡ→β (Sˢᵏᵉˡ (suc n)) Xsk (suc n)
-                     {f = incl ∘ fst f' ∘ invEq (isCWSphere (suc n) .snd)} f)))
+                     {f = incl ∘ fst f' ∘ invEq (hasCWskelSphere (suc n) .snd)} f)))
                      (genHₙSⁿ n))
                    ((funExt⁻ (cong fst (sym (H̃ˢᵏᵉˡ→β (Sˢᵏᵉˡ (suc n)) Xsk (suc n)
-                     {f = incl ∘ fst g' ∘ invEq (isCWSphere (suc n) .snd)} g)))
+                     {f = incl ∘ fst g' ∘ invEq (hasCWskelSphere (suc n) .snd)} g)))
                      (genHₙSⁿ n)))
 
        goal : (f : _) (fp : incl∙ Xsk x₀ ∘∙ f' ≡ f)
@@ -671,9 +671,9 @@ HurewiczMapCofibEquiv {n = n} {m} {k} α isC = makeHurewiczMapCofibEquiv α
 
   realiseInr : (w : Fin k)
     → realise (Sˢᵏᵉˡ (suc n)) → realise (SphereBouquet/ˢᵏᵉˡ (fst α))
-  realiseInr w = fst (isCWSphereBouquet/ (fst α) .snd)
+  realiseInr w = fst (hasCWskelSphereBouquet/ (fst α) .snd)
         ∘ preπ'FinSphereBouquetMapGenerator α w .fst
-        ∘ invEq (isCWSphere (suc n) .snd)
+        ∘ invEq (hasCWskelSphere (suc n) .snd)
 
   Sⁿ→cofib : {n : ℕ} (m k : _) (α : FinSphereBouquetMap∙ m k n)
       (w : Fin k) (r : _) (P : _)
@@ -1002,12 +1002,12 @@ HurewiczMapCofibEquiv {n = n} {m} {k} α isC = makeHurewiczMapCofibEquiv α
     lem1 (gt x) = λ _ → refl
 
     lem2 : (x : Sfam (suc n) (suc (suc (suc n))))
-      → invEq (isCWSphere (suc n) .snd) (incl x)
+      → invEq (hasCWskelSphere (suc n) .snd) (incl x)
        ≡ invEq (SfamGenTopElement (suc n) (suc (suc (suc n)))
                 (<ᵗ-trans {n = n} {m = suc n} {k = suc (suc n)} <ᵗsucm <ᵗsucm)
                 (suc (suc (suc n)) ≟ᵗ suc (suc n))) x
-    lem2 x = cong (invEq (isCWSphere (suc n) .snd)) genLem
-           ∙ retEq (isCWSphere (suc n) .snd) _
+    lem2 x = cong (invEq (hasCWskelSphere (suc n) .snd)) genLem
+           ∙ retEq (hasCWskelSphere (suc n) .snd) _
      where
      gen : (P : _) (Q : _) (x : Sgen.Sfam (suc n) (suc (suc (suc n))) P)
        → x ≡ invEq (SαEqGen (suc n) (suc (suc n)) P Q)
@@ -1022,7 +1022,7 @@ HurewiczMapCofibEquiv {n = n} {m} {k} α isC = makeHurewiczMapCofibEquiv α
      gen P (gt s) x = ⊥.rec (¬m<ᵗm s)
 
      genLem : incl x
-       ≡ fst (isCWSphere (suc n) .snd)
+       ≡ fst (hasCWskelSphere (suc n) .snd)
               (invEq (SfamGenTopElement (suc n) (suc (suc (suc n)))
                       (<ᵗ-trans {n = n} {m = suc n} {k = suc (suc n)}
                         <ᵗsucm <ᵗsucm)
@@ -1238,7 +1238,7 @@ HurewiczTheorem n =
       J> (subst (λ c → isEquiv (HurewiczHomAb cw1 x' c n .fst))
                (isPropIsContr _ _))
 
-   module _ (X : Type) (cw : isCW X) (cw' : isConnectedCW n X)
+   module _ (X : Type) (cw : hasCWskel X) (cw' : isConnectedCW n X)
             (isc : isConnected (suc (suc n)) X) (x : X) where
      Xˢᵏᵉˡ Xˢᵏᵉˡ' : CWskel ℓ-zero
      Xˢᵏᵉˡ = fst cw

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 {-
 This file computes πₙ(cofib α) for n ≥ 2 and α : ⋁Sⁿ →∙ ⋁Sⁿ
 -}
@@ -38,6 +38,7 @@ open import Cubical.Algebra.Group.IsomorphismTheorems
 open import Cubical.Algebra.Group.QuotientGroup
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.FreeAbGroup as FAB
+open import Cubical.Algebra.AbGroup.FinitePresentation
 
 open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.Group.Properties
@@ -48,7 +49,7 @@ open import Cubical.Homotopy.Connected
 
 open import Cubical.Relation.Nullary
 
-
+open FinitePresentation
 
 module _ {n m k : ℕ}
   (α : SphereBouquet∙ (suc (suc n)) (Fin m)
@@ -200,7 +201,7 @@ module πCofibFinSphereBouquetMap (n k m : ℕ)
       ... | gt x₁ = sym (push w)
 
 
--- Main result
+-- Main results
 π'CofibFinSphereBouquetMap≅ℤ[]/BouquetDegree : {n m k : ℕ}
   (α : SphereBouquet∙ (suc (suc n)) (Fin m)
    →∙ SphereBouquet∙ (suc (suc n)) (Fin k))
@@ -210,3 +211,14 @@ module πCofibFinSphereBouquetMap (n k m : ℕ)
   compGroupIso (compGroupIso (πCofibFinSphereBouquetMap.Iso1 n k m α)
                              (πCofibFinSphereBouquetMap.Iso2 n k m α))
                              (πCofibFinSphereBouquetMap.Iso3 n k m α)
+
+hasFPπ'CofibFinSphereBouquetMap : {n m k : ℕ}
+  (α : FinSphereBouquetMap∙ m k (suc n))
+  → FinitePresentation (Group→AbGroup (π'Gr (suc n) (cofib (fst α) , inl tt))
+                                       (π'-comm n))
+nGens (hasFPπ'CofibFinSphereBouquetMap {n = n} {m = m} {k = k} α) = k
+nRels (hasFPπ'CofibFinSphereBouquetMap {n = n} {m = m} {k = k} α) = m
+rels (hasFPπ'CofibFinSphereBouquetMap {n = n} {m = m} {k = k} α) =
+  bouquetDegree (fst α)
+fpiso (hasFPπ'CofibFinSphereBouquetMap {n = n} {m = m} {k = k} α) =
+  π'CofibFinSphereBouquetMap≅ℤ[]/BouquetDegree α

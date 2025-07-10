@@ -1,6 +1,7 @@
 {-# OPTIONS --lossy-unification --safe #-}
-{- Cellular approximation theorems for
--- cellular maps and homotopies
+{-
+Cellular approximation theorems for
+cellular maps and homotopies
 -}
 
 module Cubical.CW.Approximation where
@@ -148,7 +149,7 @@ module _ (C : CWskel ℓ) (D : CWskel ℓ') (f : realise C → realise D) where
       invEq propTrunc≃Trunc1
        (invEq (_ , InductiveFinSatAC 1 (CWskel-fields.card C (suc m)) _)
         λ a → fst propTrunc≃Trunc1
-           (sphereToTrunc m λ y →
+           (sphereToTrunc (suc m) λ y →
              TR.map fst (isConnectedCong _ _ (isConnected-CW↪∞ (suc (suc m)) D)
                      (sym (push _)
                      ∙ (fh (CWskel-fields.α C (suc m) (a , y))
@@ -192,7 +193,7 @@ module _ (C : CWskel ℓ) (D : CWskel ℓ') (f : realise C → realise D) where
                     (fib-f-r x)) ∥₁
         mere-fib-f-coh = invEq propTrunc≃Trunc1
           (invEq (_ , InductiveFinSatAC 1 (card (suc m)) _)
-            λ a → fst propTrunc≃Trunc1 (sphereToTrunc m
+            λ a → fst propTrunc≃Trunc1 (sphereToTrunc (suc m)
               (sphereElim' m
                 (λ x → isOfHLevelRetractFromIso m
                 (invIso (PathPIdTruncIso (suc m)))
@@ -645,7 +646,7 @@ module approx {C : CWskel ℓ} {D : CWskel ℓ'}
       Iso.inv propTruncTrunc1Iso
         (invEq (_ , InductiveFinSatAC 1 _ _)
         λ x → Iso.fun propTruncTrunc1Iso
-                (sphereToTrunc n' (fiber-cong²-hₙ₊₁-push∞ x)))
+                (sphereToTrunc (suc n') (fiber-cong²-hₙ₊₁-push∞ x)))
 
     module _ (q : (x : Fin (fst (snd C) (suc n'))) (y : S₊ n')
                 → fiber (cong² x y) (hₙ₊₁-push∞ x y)) where

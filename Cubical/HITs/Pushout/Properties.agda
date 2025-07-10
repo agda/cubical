@@ -41,6 +41,7 @@ open import Cubical.Data.List
 open import Cubical.Data.Sum
 
 open import Cubical.HITs.Pushout.Base
+open import Cubical.HITs.Pushout.Flattening
 open import Cubical.HITs.Susp.Base
 
 private
@@ -625,6 +626,34 @@ module _ {ℓA₁ ℓB₁ ℓC₁ ℓA₂ ℓB₂ ℓC₂}
 
   pushoutEquiv : Pushout f₁ g₁ ≃ Pushout f₂ g₂
   pushoutEquiv = isoToEquiv pushoutIso
+
+-- Pushouts commute with Σ
+module _ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+  (f : A → B) (g : A → C) (X : Pushout f g → Type ℓ''') where
+  open FlatteningLemma f g (X ∘ inl) (X ∘ inr) (λ a → substEquiv X (push a))
+
+  PushoutΣL : Σ[ a ∈ A ] X (inl (f a)) → Σ[ b ∈ B ] X (inl b)
+  PushoutΣL (a , x) = f a , x
+
+  PushoutΣR : Σ[ a ∈ A ] X (inl (f a)) → Σ[ c ∈ C ] X (inr c)
+  PushoutΣR (a , x) = g a , subst X (push a) x
+
+  PushoutΣ : Type _
+  PushoutΣ = Pushout PushoutΣL PushoutΣR
+
+  repairLeft : (a : Pushout f g) → X a ≃ E a
+  repairLeft (inl x) = idEquiv _
+  repairLeft (inr x) = idEquiv _
+  repairLeft (push a i) = help i
+    where
+    help : PathP (λ i → X (push a i) ≃ E (push a i)) (idEquiv _) (idEquiv _) 
+    help = ΣPathPProp (λ _ → isPropIsEquiv _)
+                      (toPathP (funExt λ x →
+                        transportRefl _ ∙ substSubst⁻ X (push a) x))
+
+  ΣPushout≃PushoutΣ : Σ (Pushout f g) X ≃ PushoutΣ
+  ΣPushout≃PushoutΣ =
+    compEquiv (Σ-cong-equiv-snd repairLeft) flatten
 
 module _ {C : Type ℓ} {B : Type ℓ'} where
   PushoutAlongEquiv→ : {A : Type ℓ}

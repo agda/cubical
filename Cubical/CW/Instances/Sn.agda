@@ -251,27 +251,27 @@ SˢᵏᵉˡConverges n k =
   ... | gt x = isoToIsEquiv (PushoutEmptyFam (¬Scard n (suc m) p ∘ fst)
                             (¬Scard n (suc m) p))
 
-isCWSphere : (n : ℕ) → isCW (S₊ n)
-fst (isCWSphere n) = Sˢᵏᵉˡ n
-snd (isCWSphere n) =
+hasCWskelSphere : (n : ℕ) → hasCWskel (S₊ n)
+fst (hasCWskelSphere n) = Sˢᵏᵉˡ n
+snd (hasCWskelSphere n) =
   compEquiv (SfamTopElement n)
     (isoToEquiv (converges→ColimIso (suc n) (SˢᵏᵉˡConverges n)))
 
-isFinCWSphere : (n : ℕ) → isFinCW (S₊ n)
-fst (isFinCWSphere n) = suc n
-fst (fst (snd (isFinCWSphere n))) = Sˢᵏᵉˡ n .fst
-fst (snd (fst (snd (isFinCWSphere n)))) = Sˢᵏᵉˡ n .snd
-snd (snd (fst (snd (isFinCWSphere n)))) = SˢᵏᵉˡConverges n
-snd (snd (isFinCWSphere n)) = isCWSphere n .snd
+hasFinCWskelSphere : (n : ℕ) → hasFinCWskel (S₊ n)
+fst (hasFinCWskelSphere n) = suc n
+fst (fst (snd (hasFinCWskelSphere n))) = Sˢᵏᵉˡ n .fst
+fst (snd (fst (snd (hasFinCWskelSphere n)))) = Sˢᵏᵉˡ n .snd
+snd (snd (fst (snd (hasFinCWskelSphere n)))) = SˢᵏᵉˡConverges n
+snd (snd (hasFinCWskelSphere n)) = hasCWskelSphere n .snd
 
 -- Sⁿ as a CW complex
 Sᶜʷ : (n : ℕ) → CW ℓ-zero
 fst (Sᶜʷ n) = S₊ n
-snd (Sᶜʷ n) = ∣ isCWSphere n ∣₁
+snd (Sᶜʷ n) = ∣ hasCWskelSphere n ∣₁
 
 Sᶠⁱⁿᶜʷ : (n : ℕ) → finCW ℓ-zero
 fst (Sᶠⁱⁿᶜʷ n) = S₊ n
-snd (Sᶠⁱⁿᶜʷ n) = ∣ isFinCWSphere n ∣₁
+snd (Sᶠⁱⁿᶜʷ n) = ∣ hasFinCWskelSphere n ∣₁
 
 
 --- cellular approximations of maps from spheres into CW complexes
@@ -385,7 +385,7 @@ approxSphereMap∙ Xsk x₀ n f =
                 → fiber (CW↪∞ Xsk (suc (suc n))) (fst f (p i)))
                   ((CWskel∙ Xsk x₀ (suc n))
                  , (CWskel∞∙Id Xsk x₀ (suc n) ∙ sym (snd f))) fb))) ∥₁
-  approxSphereMap = sphereToTrunc (suc n)
+  approxSphereMap = sphereToTrunc (suc (suc n))
     {λ x → Σ[ fb ∈ fiber (CW↪∞ Xsk (suc (suc n))) (fst f x) ]
                 ((p : ptSn (suc n) ≡ x)
      → hLevelTrunc 1 (PathP (λ i → fiber (CW↪∞ Xsk (suc (suc n))) (fst f (p i)))
@@ -411,14 +411,14 @@ module _ {ℓ} (X : CWskel ℓ) (n : ℕ) (x₀ : fst X 1)
   cellMapSˢᵏᵉˡImproved = cellMapSˢᵏᵉˡ X n x₀ (fst faprx) (snd faprx)
 
   isApproxCellMapSˢᵏᵉˡImproved : realiseSequenceMap cellMapSˢᵏᵉˡImproved
-           ≡ fst f ∘ invEq (isCWSphere n .snd)
+           ≡ fst f ∘ invEq (hasCWskelSphere n .snd)
   isApproxCellMapSˢᵏᵉˡImproved =
     funExt λ x → cong (realiseSequenceMap cellMapSˢᵏᵉˡImproved)
-                       (sym (secEq (isCWSphere n .snd) x))
+                       (sym (secEq (hasCWskelSphere n .snd) x))
                 ∙ lem _
     where
     lem : (x : _)
-      → realiseSequenceMap cellMapSˢᵏᵉˡImproved (fst (isCWSphere n .snd) x)
+      → realiseSequenceMap cellMapSˢᵏᵉˡImproved (fst (hasCWskelSphere n .snd) x)
        ≡ fst f x
     lem x with (n ≟ᵗ n)
     ... | lt x₁ = ⊥.rec (¬m<ᵗm x₁)
@@ -429,7 +429,7 @@ module _ {ℓ} (X : CWskel ℓ) (n : ℕ) (x₀ : fst X 1)
     ... | gt x₁ = ⊥.rec (¬m<ᵗm x₁)
 
   finCellApproxSˢᵏᵉˡImproved : (k : ℕ)
-    → finCellApprox (Sˢᵏᵉˡ n) X (fst f ∘ invEq (isCWSphere n .snd)) k
+    → finCellApprox (Sˢᵏᵉˡ n) X (fst f ∘ invEq (hasCWskelSphere n .snd)) k
   FinSequenceMap.fmap (fst (finCellApproxSˢᵏᵉˡImproved k)) =
     SequenceMap.map cellMapSˢᵏᵉˡImproved ∘ fst
   FinSequenceMap.fcomm (fst (finCellApproxSˢᵏᵉˡImproved k)) =
@@ -447,9 +447,9 @@ cellMapSˢᵏᵉˡ∙Π : ∀ {ℓ} (X : CWskel ℓ) (n : ℕ) (x₀ : fst X 1)
   → realiseCellMap (cellMapSˢᵏᵉˡImproved X (suc n) x₀ (∙Π faprx gaprx) (∙Π f g)
       (λ x → funExt⁻ (cong fst (∙Π∘∙ n faprx gaprx (incl∙ X x₀))) x
             ∙ λ i → ∙Π (faprx≡ i) (gaprx≡ i) .fst x))
-    ≡ (∙Π f g .fst ∘ invEq (isCWSphere (suc n) .snd))
+    ≡ (∙Π f g .fst ∘ invEq (hasCWskelSphere (suc n) .snd))
 cellMapSˢᵏᵉˡ∙Π X n x₀ faprx gaprx =
-  J> (J> funExt λ x → cong h (sym (secEq (isCWSphere (suc n) .snd) x))
+  J> (J> funExt λ x → cong h (sym (secEq (hasCWskelSphere (suc n) .snd) x))
                      ∙ main _
                      ∙ cong (∙Π (incl∙ X x₀ ∘∙ faprx) (incl∙ X x₀ ∘∙ gaprx) .fst)
                          (retEq (SfamTopElement (suc n)) _))

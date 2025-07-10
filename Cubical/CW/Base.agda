@@ -89,14 +89,17 @@ realise : CWskel ℓ → Type ℓ
 realise C = SeqColim (realiseSeq C)
 
 -- Finally: definition of CW complexes
+hasCWskel : (X : Type ℓ) → Type (ℓ-suc ℓ)
+hasCWskel {ℓ = ℓ} X = Σ[ X' ∈ CWskel ℓ ] X ≃ realise X'
+
 isCW : (X : Type ℓ) → Type (ℓ-suc ℓ)
-isCW {ℓ = ℓ} X = Σ[ X' ∈ CWskel ℓ ] X ≃ realise X'
+isCW X = ∥ hasCWskel X ∥₁
 
 CW : (ℓ : Level) → Type (ℓ-suc ℓ)
-CW ℓ = Σ[ A ∈ Type ℓ ] ∥ isCW A ∥₁
+CW ℓ = Σ[ A ∈ Type ℓ ] (isCW A)
 
 CWexplicit : (ℓ : Level) → Type (ℓ-suc ℓ)
-CWexplicit ℓ = Σ[ A ∈ Type ℓ ] (isCW A)
+CWexplicit ℓ = Σ[ A ∈ Type ℓ ] (hasCWskel A)
 
 CWexplicit→CWskel : ∀ {ℓ} → CWexplicit ℓ → CWskel ℓ
 CWexplicit→CWskel C = fst (snd C)
@@ -105,27 +108,30 @@ CWexplicit→CW : ∀ {ℓ} → CWexplicit ℓ → CW ℓ
 CWexplicit→CW C = fst C , ∣ snd C ∣₁
 
 -- Finite CW complexes
-isFinIsCW : {X : Type ℓ} → isCW X → Type ℓ
+isFinIsCW : {X : Type ℓ} → hasCWskel X → Type ℓ
 isFinIsCW X = Σ[ n ∈ ℕ ] (((k : ℕ) → isEquiv (CW↪ (X .fst) (k +ℕ n))))
 
-isFinCW : (X : Type ℓ) → Type (ℓ-suc ℓ)
-isFinCW {ℓ = ℓ} X =
+hasFinCWskel : (X : Type ℓ) → Type (ℓ-suc ℓ)
+hasFinCWskel {ℓ = ℓ} X =
   Σ[ m ∈ ℕ ] (Σ[ X' ∈ finCWskel ℓ m ] X ≃ realise (finCWskel→CWskel m X'))
 
+isFinCW : (X : Type ℓ) → Type (ℓ-suc ℓ)
+isFinCW {ℓ = ℓ} X = ∥ hasFinCWskel X ∥₁
+
 finCW : (ℓ : Level) → Type (ℓ-suc ℓ)
-finCW ℓ = Σ[ A ∈ Type ℓ ] ∥ isFinCW A ∥₁
+finCW ℓ = Σ[ A ∈ Type ℓ ] (isFinCW A)
 
 finCW∙ : (ℓ : Level) → Type (ℓ-suc ℓ)
-finCW∙ ℓ = Σ[ A ∈ Pointed ℓ ] ∥ isFinCW (fst A) ∥₁
+finCW∙ ℓ = Σ[ A ∈ Pointed ℓ ] (isFinCW (fst A))
 
 finCWexplicit : (ℓ : Level) → Type (ℓ-suc ℓ)
-finCWexplicit ℓ = Σ[ A ∈ Type ℓ ] (isFinCW A)
+finCWexplicit ℓ = Σ[ A ∈ Type ℓ ] (hasFinCWskel A)
 
-isFinCW→isCW : (X : Type ℓ) → isFinCW X → isCW X
-isFinCW→isCW X (n , X' , str) = (finCWskel→CWskel n X') , str
+hasFinCWskel→hasCWskel : (X : Type ℓ) → hasFinCWskel X → hasCWskel X
+hasFinCWskel→hasCWskel X (n , X' , str) = (finCWskel→CWskel n X') , str
 
 finCW→CW : finCW ℓ → CW ℓ
-finCW→CW (X , p) = X , PT.map (isFinCW→isCW X) p
+finCW→CW (X , p) = X , PT.map (hasFinCWskel→hasCWskel X) p
 
 -- Pointed complexes (with basepoint in X₀)
 CWskel∙ : ∀ {ℓ} (X : CWskel ℓ) → fst X 1 → (n : ℕ) → fst X (suc n)

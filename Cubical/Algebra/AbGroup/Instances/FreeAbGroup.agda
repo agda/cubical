@@ -545,7 +545,8 @@ makeℤ[]/Equiv : ∀ {ℓ ℓ'} {G : Group ℓ} {H : Group ℓ'} {n : ℕ}
               ≡ fst (fst ψ) [ ℤFinGenerator k ])
   → isEquiv (fst m)
 makeℤ[]/Equiv {n = n} {T = T} ϕ ψ m ind =
-  subst isEquiv (cong fst lem) (compEquiv (invEquiv (fst ϕ)) (fst ψ) .snd)
+  subst isEquiv (cong fst lem)
+    (compEquiv (invEquiv (fst ϕ)) (fst ψ) .snd)
   where
   ξ : GroupHom (AbGroup→Group ℤ[Fin n ] / T) (AbGroup→Group ℤ[Fin n ] / T)
   ξ = compGroupHom (GroupEquiv→GroupHom ϕ)

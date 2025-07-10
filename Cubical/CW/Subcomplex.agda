@@ -244,12 +244,12 @@ niceFinCWskel : ∀ {ℓ} (n : ℕ) → finCWskel ℓ n → finCWskel ℓ n
 fst (niceFinCWskel n (A , AC , fin)) = finSubComplex (A , AC) n .fst
 snd (niceFinCWskel n (A , AC , fin)) = finSubComplex (A , AC) n .snd
 
-makeNiceFinCWskel : ∀ {ℓ} {A : Type ℓ} → isFinCW A → isFinCW A
+makeNiceFinCWskel : ∀ {ℓ} {A : Type ℓ} → hasFinCWskel A → hasFinCWskel A
 makeNiceFinCWskel {A = A} (dim , cwsk , e) = better
   where
   improved = finSubComplex (cwsk .fst , cwsk .snd .fst) dim
 
-  better : isFinCW A
+  better : hasFinCWskel A
   fst better = dim
   fst (snd better) = improved
   snd (snd better) =
@@ -272,13 +272,12 @@ makeNiceFinCWElim : ∀ {ℓ ℓ'} {A : finCW ℓ → Type ℓ'}
   → (C : _) → A C
 makeNiceFinCWElim {A = A} ind C = subst A (makeNiceFinCW≡ C) (ind C)
 
-makeNiceFinCWElim' : ∀ {ℓ ℓ'} {C : Type ℓ} {A : ∥ isFinCW C ∥₁ → Type ℓ'}
+makeNiceFinCWElim' : ∀ {ℓ ℓ'} {C : Type ℓ} {A : isFinCW C → Type ℓ'}
   → ((x : _) → isProp (A x))
-  → ((cw : isFinCW C) → A (makeNiceFinCW (C , ∣ cw ∣₁) .snd))
+  → ((cw : hasFinCWskel C) → A (makeNiceFinCW (C , ∣ cw ∣₁) .snd))
   → (cw : _) → A cw
 makeNiceFinCWElim' {A = A} pr ind =
   PT.elim pr λ cw → subst A (squash₁ _ _) (ind cw)
-
 
 -- Pointed subcomplexes
 CWskel∙Gen : ∀ {ℓ} (X : CWskel ℓ) → fst X 1 → (n m : ℕ) (p : _)
