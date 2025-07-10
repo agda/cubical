@@ -244,82 +244,83 @@ module UniversalProperty (G : Group ℓ) where
   private
     instance
       _ = snd G
-    {- The proof of the universal property of the abelianization.
 
-    G --η--> abelianization
-    \         .
-      \       .
-        f   ∃! inducedHom
-          \   .
-            \ .
-              H
-    commuting diagram
-    -}
-    inducedHom : (H : AbGroup ℓ)
-               → (f : GroupHom G (AbGroup→Group H))
-               → AbGroupHom asAbelianGroup H
-    inducedHom H f = g , gIsHom
-      where open IsGroupHom
-            instance
-              _ : GroupStr (fst H)
-              _ = snd (AbGroup→Group H)
-            f' : fst G → fst H
-            f' = fst f
-            g : Abelianization G → fst H
-            g = (rec G)
-                  is-set
-                  (λ x → (f') x)
-                  (λ a b c → f' (a · b · c)           ≡⟨ (snd f).pres· a (b · c) ⟩
-                             (f' a) · (f' (b · c))    ≡⟨ cong
-                                                           (λ x → (f' a) · x)
-                                                           ((snd f).pres· b c) ⟩
-                             (f' a) · (f' b) · (f' c) ≡⟨ cong
-                                                           (λ x → (f' a) · x)
-                                                           ((snd H).AbGroupStr.+Comm (f' b) (f' c)) ⟩
-                             (f' a) · (f' c) · (f' b) ≡⟨ cong
-                                                           (λ x → (f' a) · x)
-                                                           (sym ((snd f).pres· c b)) ⟩
-                             (f' a) · (f' (c · b))    ≡⟨ sym ((snd f).pres· a (c · b)) ⟩
-                             f' (a · c · b) ∎)
-            gIsHom : IsGroupHom (snd (AbGroup→Group asAbelianGroup)) g (snd (AbGroup→Group H))
-            pres· gIsHom =
-              (elimProp2 G)
-                (λ x y → is-set _ _)
-                ((snd f).pres·)
-            pres1 gIsHom = (snd f).pres1
-            presinv gIsHom =
-              (elimProp G)
-                (λ x → is-set _ _)
-                ((snd f).presinv)
+  {- The proof of the universal property of the abelianization.
 
-    commutativity : (H : AbGroup ℓ)
-                  → (f : GroupHom G (AbGroup→Group H))
-                  → (compGroupHom ηAsGroupHom (inducedHom H f) ≡ f)
-    commutativity H f =
-        Σ≡Prop
-          (λ _ → isPropIsGroupHom _ _)
-          (λ i x → q x i)
-      where q : (x : fst  G)
-              → fst (compGroupHom ηAsGroupHom (inducedHom H f)) x ≡ fst f x
-            q = (λ x → refl)
+  G --η--> abelianization
+  \         .
+    \       .
+      f   ∃! inducedHom
+        \   .
+          \ .
+            H
+  commuting diagram
+  -}
+  inducedHom : (H : AbGroup ℓ)
+             → (f : GroupHom G (AbGroup→Group H))
+             → AbGroupHom asAbelianGroup H
+  inducedHom H f = g , gIsHom
+    where open IsGroupHom
+          instance
+            _ : GroupStr (fst H)
+            _ = snd (AbGroup→Group H)
+          f' : fst G → fst H
+          f' = fst f
+          g : Abelianization G → fst H
+          g = (rec G)
+                is-set
+                (λ x → (f') x)
+                (λ a b c → f' (a · b · c)           ≡⟨ (snd f).pres· a (b · c) ⟩
+                           (f' a) · (f' (b · c))    ≡⟨ cong
+                                                         (λ x → (f' a) · x)
+                                                         ((snd f).pres· b c) ⟩
+                           (f' a) · (f' b) · (f' c) ≡⟨ cong
+                                                         (λ x → (f' a) · x)
+                                                         ((snd H).AbGroupStr.+Comm (f' b) (f' c)) ⟩
+                           (f' a) · (f' c) · (f' b) ≡⟨ cong
+                                                         (λ x → (f' a) · x)
+                                                         (sym ((snd f).pres· c b)) ⟩
+                           (f' a) · (f' (c · b))    ≡⟨ sym ((snd f).pres· a (c · b)) ⟩
+                           f' (a · c · b) ∎)
+          gIsHom : IsGroupHom (snd (AbGroup→Group asAbelianGroup)) g (snd (AbGroup→Group H))
+          pres· gIsHom =
+            (elimProp2 G)
+              (λ x y → is-set _ _)
+              ((snd f).pres·)
+          pres1 gIsHom = (snd f).pres1
+          presinv gIsHom =
+            (elimProp G)
+              (λ x → is-set _ _)
+              ((snd f).presinv)
 
-    uniqueness : (H : AbGroup ℓ)
-               → (f : GroupHom G (AbGroup→Group H))
-               → (g : AbGroupHom asAbelianGroup H)
-               → (p : compGroupHom ηAsGroupHom g ≡ f)
-               → (g ≡ inducedHom H f)
-    uniqueness H f g p =
-        Σ≡Prop
-          (λ _ → isPropIsGroupHom _ _)
-          (λ i x →  q x i)
-      where
-      module H = AbGroupStr (str H)
-      q : (x : Abelianization G) → fst g x ≡ fst (inducedHom H f) x
-      q = (elimProp G)
-            (λ _ → H.is-set _ _)
-            (λ x → fst g (η x) ≡⟨ cong (λ f → f x) (cong fst p) ⟩
-                   (fst f) x   ≡⟨ refl ⟩
-                   fst (inducedHom H f) (η x)∎)
+  commutativity : (H : AbGroup ℓ)
+                → (f : GroupHom G (AbGroup→Group H))
+                → (compGroupHom ηAsGroupHom (inducedHom H f) ≡ f)
+  commutativity H f =
+      Σ≡Prop
+        (λ _ → isPropIsGroupHom _ _)
+        (λ i x → q x i)
+    where q : (x : fst  G)
+            → fst (compGroupHom ηAsGroupHom (inducedHom H f)) x ≡ fst f x
+          q = (λ x → refl)
+
+  uniqueness : (H : AbGroup ℓ)
+             → (f : GroupHom G (AbGroup→Group H))
+             → (g : AbGroupHom asAbelianGroup H)
+             → (p : compGroupHom ηAsGroupHom g ≡ f)
+             → (g ≡ inducedHom H f)
+  uniqueness H f g p =
+      Σ≡Prop
+        (λ _ → isPropIsGroupHom _ _)
+        (λ i x →  q x i)
+    where
+    module H = AbGroupStr (str H)
+    q : (x : Abelianization G) → fst g x ≡ fst (inducedHom H f) x
+    q = (elimProp G)
+          (λ _ → H.is-set _ _)
+          (λ x → fst g (η x) ≡⟨ cong (λ f → f x) (cong fst p) ⟩
+                 (fst f) x   ≡⟨ refl ⟩
+                 fst (inducedHom H f) (η x)∎)
 
 
 module _ {ℓ} {G : Group ℓ} (H : AbGroup ℓ) (ϕ : GroupHom G (AbGroup→Group H)) where
