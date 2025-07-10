@@ -39,7 +39,7 @@ open import Cubical.CW.Strictification renaming (strictCWskel to str)
 open import Cubical.CW.Approximation
 
 -- Lemmas
-private
+module pushoutCWLemmas where
   IsoFinSplit3 : ∀ n m l
     → Iso (Fin ((n +ℕ m) +ℕ l)) (((Fin n) ⊎ (Fin m)) ⊎ (Fin l))
   IsoFinSplit3 n m l =
@@ -78,6 +78,8 @@ private
                      ; (j = i0) → q (i)
                      ; (j = i1) → p (~ i ∧ k)})
             (inS (q (i ∧ (~ j))))
+
+open pushoutCWLemmas
 
 -- This module defines a CW structure when B, C, D are strict CW skeleta
 -- The non-strict version can be derived from there using the fact that every
