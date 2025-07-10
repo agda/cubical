@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --cubical #-}
+{-# OPTIONS --safe #-}
 {-
 File contains : a direct description of cell structure for cofibre
 of a map α : ⋁ₐ Sⁿ → ⋁ₑ Sⁿ (with a and e finite sets)

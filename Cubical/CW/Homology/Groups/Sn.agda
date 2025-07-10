@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.CW.Homology.Groups.Sn where
 
 open import Cubical.Foundations.Prelude
