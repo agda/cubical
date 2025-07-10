@@ -28,19 +28,18 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal using (inclOfFGIdeal)
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.Polynomials
-open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
+open import Cubical.Algebra.CommAlgebra.Polynomials as Poly
+open import Cubical.Algebra.CommAlgebra.QuotientAlgebra as Quot
 open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn; 0Ideal)
 open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Instances.Initial
 open import Cubical.Algebra.CommAlgebra.Instances.Unit
+import Cubical.Algebra.CommAlgebra.Notation as CAlgNotation
 
-open import Cubical.Algebra.CommAlgebra.FP.Base
+open import Cubical.Algebra.CommAlgebra.FP as FP
 
-private
-  variable
-    ℓ ℓ' : Level
-
+private variable
+  ℓ ℓ' : Level
 
 module _ (R : CommRing ℓ) where
   open FinitePresentation
@@ -68,7 +67,7 @@ module _ (R : CommRing ℓ) where
       }
 
     opaque
-      unfolding algebra ideal
+      unfolding fpAlg fgIdeal
       isFPPolynomials : isFP R (Polynomials R n)
       isFPPolynomials = ∣ polynomialsFP , invCommAlgebraEquiv compute ∣₁
 
@@ -85,37 +84,38 @@ module _ (R : CommRing ℓ) where
     initialAlgFP = record { n = 0 ; m = 0 ; relations = emptyGen }
 
     R[⊥]/⟨0⟩ : CommAlgebra R ℓ
-    R[⊥]/⟨0⟩ = algebra initialAlgFP
-{-
+    R[⊥]/⟨0⟩ = fpAlg initialAlgFP
 
     R[⊥]/⟨0⟩IsInitial : (B : CommAlgebra R ℓ)
                      → isContr (CommAlgebraHom R[⊥]/⟨0⟩ B)
-    R[⊥]/⟨0⟩IsInitial B = {!!} , {!!}
+    R[⊥]/⟨0⟩IsInitial B = indHom , uniqueness
       where
-        iHom : CommAlgebraHom R[⊥]/⟨0⟩ B
-        iHom = inducedHom 0 emptyGen B (λ ()) (λ ())
+        indHom : CommAlgebraHom R[⊥]/⟨0⟩ B
+        indHom = FP.inducedHom R initialAlgFP B (emptyFinVec ⟨ B ⟩ₐ) (λ ())
+
         uniqueness : (f : CommAlgebraHom R[⊥]/⟨0⟩ B) →
-                     iHom ≡ f
-        uniqueness f = unique 0 emptyGen B (λ ()) (λ ()) f (λ ())
+                     indHom ≡ f
+        uniqueness f = FP.inducedHomUnique R initialAlgFP B (emptyFinVec ⟨ B ⟩ₐ) (λ ()) f (λ ())
 
-  R[⊥]/⟨0⟩IsInitial : (B : CommAlgebra R ℓ)
-                     → isContr (CommAlgebraHom R[⊥]/⟨0⟩ B)
-  R[⊥]/⟨0⟩IsInitial B = iHom , uniqueness
-    where
-      iHom : CommAlgebraHom R[⊥]/⟨0⟩ B
-      iHom = inducedHom 0 emptyGen B (λ ()) (λ ())
-      uniqueness : (f : CommAlgebraHom R[⊥]/⟨0⟩ B) →
-                   iHom ≡ f
-      uniqueness f = unique 0 emptyGen B (λ ()) (λ ()) f (λ ())
-
-  initialCAlgFP : FinitePresentation (initialCAlg R)
-  n initialCAlgFP = 0
-  m initialCAlgFP = 0
-  relations initialCAlgFP = emptyGen
-  equiv initialCAlgFP =
-    equivByInitiality R R[⊥]/⟨0⟩ R[⊥]/⟨0⟩IsInitial
+  initialCAlgIsFP : isFP R (initialCAlg R)
+  initialCAlgIsFP = ∣ (initialAlgFP , equivByInitiality R R[⊥]/⟨0⟩ R[⊥]/⟨0⟩IsInitial) ∣₁
 
   {- The terminal R-algebra is finitely presented -}
+  private
+    unitGen : FinVec ⟨ R[⊥] ⟩ₐ 1
+    unitGen zero = 1r
+      where open CAlgNotation R[⊥]
+
+    terminalCAlgFP : FinitePresentation R
+    terminalCAlgFP = record { n = 0 ; m = 1 ; relations = unitGen }
+
+    R[⊥]/⟨1⟩ : CommAlgebra R ℓ
+    R[⊥]/⟨1⟩ = fpAlg terminalCAlgFP
+
+  terminalCAlgIsFP : isFP R (terminalCAlg R)
+  terminalCAlgIsFP = ?
+{-
+
   private
     unitGen : FinVec (fst R[⊥]) 1
     unitGen zero = 1a
