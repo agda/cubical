@@ -46,9 +46,9 @@ import Cubical.Algebra.Ring                                       as Ring
 -- 4: Polynomial rings
 
 import Cubical.Algebra.Polynomials.UnivariateList.Base                   as ListPoly
-import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyFun  as UniPolyFun
-import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyHIT  as UniPolyHIT
-import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly   as MultiPolyHIT
+import Cubical.Algebra.CommRing.Polynomials.UnivariatePolyFun  as UniPolyFun
+import Cubical.Algebra.CommRing.Polynomials.UnivariatePolyHIT  as UniPolyHIT
+import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly   as MultiPolyHIT
 
 -- 5: Cohomology rings
 
