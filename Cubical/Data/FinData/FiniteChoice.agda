@@ -20,6 +20,6 @@ import Cubical.Data.FinSet.FiniteChoice as FinSet
 private variable
    ℓ : Level
 
-choice : {n : ℕ} {T : Fin n → Type ℓ} → ((x : Fin n) → ∥ T x ∥₁) → ∥ ((x : Fin n) → T x) ∥₁
-choice {n = n} {T = T} t =
+choice : {n : ℕ} (T : Fin n → Type ℓ) → ((x : Fin n) → ∥ T x ∥₁) → ∥ ((x : Fin n) → T x) ∥₁
+choice {n = n} T t =
   FinSet.choice (Fin n , n , ∣ compEquiv (Fin.FinData≃Fin n) (invEquiv (SumFin.SumFin≃Fin n)) ∣₁) T t
