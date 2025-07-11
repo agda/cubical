@@ -41,12 +41,19 @@ module _ {R : CommRing ℓ} where
     where f⁻¹ = invCommRingEquiv (CommAlgebra→CommRing A) (CommAlgebra→CommRing B) (CommAlgebraEquiv→CommRingEquiv f)
           f⁻¹∘f≡Id : f⁻¹ .fst .fst ∘ f .fst .fst ≡ idfun _
           f⁻¹∘f≡Id = funExt (secIsEq (equivIsEquiv (f⁻¹ .fst)))
-          abstract
+          opaque
             commutes : (f⁻¹ .fst .fst) ∘ B .snd .fst ≡ A .snd .fst
             commutes =
                 f⁻¹ .fst .fst ∘ B .snd .fst                ≡⟨ sym ( cong ((f⁻¹ .fst .fst) ∘_) (cong fst (IsCommAlgebraHom.commutes (f .snd)))) ⟩
                 f⁻¹ .fst .fst ∘  f .fst .fst ∘ A .snd .fst ≡⟨ cong (_∘ A .snd .fst) f⁻¹∘f≡Id  ⟩
                 A .snd .fst ∎
+
+  compCommAlgebraEquiv : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
+                      → (f : CommAlgebraEquiv A B) → (g : CommAlgebraEquiv B C)
+                      → CommAlgebraEquiv A C
+  compCommAlgebraEquiv {A = A} {B = B} {C = C} (f , fIsHom) (g , gIsHom) =
+    (compEquiv f g) , snd (compCommAlgebraHom ((fst f) , fIsHom) ((fst g) , gIsHom))
+
 
 module _
   -- Variable generalization would fail below without the module parameters A and B.
@@ -56,11 +63,8 @@ module _
   {f : ⟨ A ⟩ₐ → ⟨ B ⟩ₐ}
   where
 
-  private instance
-    _ = CommAlgebra→CommRingStr A
-    _ = CommAlgebra→CommRingStr B
-    _ = CommAlgebra→CommAlgebraStr A
-    _ = CommAlgebra→CommAlgebraStr B
+  open InstancesForCAlg A
+  open InstancesForCAlg B
 
   module _
     (p1 : f 1r ≡ 1r)
