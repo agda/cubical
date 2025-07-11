@@ -24,9 +24,7 @@ open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Notation
 
-
-private
-  variable
+private variable
     ℓ ℓ' : Level
 
 module _ (R : CommRing ℓ) where
@@ -67,9 +65,15 @@ module _ (R : CommRing ℓ) where
       fpAlgAsQuotient : CommAlgebraEquiv fpAlg (Polynomials n / fgIdeal)
       fpAlgAsQuotient = idCAlgEquiv fpAlg
 
+  FPsOf : (A : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
+  FPsOf A = Σ[ p ∈ FinitePresentation ] CommAlgebraEquiv (FinitePresentation.fpAlg p) A
+
   isFP : (A : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
-  isFP A = ∃[ p ∈ FinitePresentation ] CommAlgebraEquiv (FinitePresentation.fpAlg p) A
+  isFP A = ∥ FPsOf A ∥₁
 
   opaque
     isFPIsProp : {A : CommAlgebra R ℓ'} → isProp (isFP A)
     isFPIsProp = isPropPropTrunc
+
+  FPCAlg : (ℓ' : Level) → Type _
+  FPCAlg ℓ' = Σ[ A ∈ CommAlgebra R ℓ' ] isFP A

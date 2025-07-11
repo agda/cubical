@@ -7,6 +7,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Powerset using (_∈_; _⊆_)
 open import Cubical.Foundations.Structure
+open import Cubical.Functions.Surjection
 
 open import Cubical.HITs.SetQuotients hiding (_/_)
 open import Cubical.Data.Unit
@@ -19,7 +20,9 @@ open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.Kernel
 open import Cubical.Algebra.CommAlgebra.Instances.Terminal
+open import Cubical.Algebra.CommAlgebra.Notation
 open import Cubical.Algebra.Ring
+
 open import Cubical.Tactics.CommRingSolver
 
 private
@@ -27,15 +30,8 @@ private
     ℓ ℓ' ℓ'' : Level
 
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ') (I : IdealsIn R A) where
-  open CommRingStr ⦃...⦄
-  open CommAlgebraStr ⦃...⦄
   open RingTheory (CommRing→Ring (fst A)) using (-DistR·)
-  instance
-    _ : CommRingStr ⟨ R ⟩
-    _ = snd R
-    _ : CommRingStr ⟨ A .fst ⟩
-    _ = A .fst .snd
-    _ = A
+  open InstancesForCAlg A
 
   _/_ : CommAlgebra R ℓ'
   _/_ = ((fst A) CommRing./ I) ,
@@ -45,15 +41,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ') (I : IdealsIn R A) where
   quotientHom = CommRingHom→CommAlgebraHom (CommRing.quotientHom (fst A) I) $ CommRingHom≡ refl
 
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
-  open CommRingStr ⦃...⦄
-  open CommAlgebraStr ⦃...⦄
-
-  instance
-    _ : CommRingStr ⟨ R ⟩
-    _ = snd R
-    _ : CommRingStr ⟨ A ⟩ₐ
-    _ = A .fst .snd
-    _ = A
+  open InstancesForCAlg A
 
   module _
     (B : CommAlgebra R ℓ)
@@ -62,13 +50,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
     where
 
     open RingTheory (CommRing→Ring (CommAlgebra→CommRing B))
-
-    open CommAlgebraStr ⦃...⦄
-    private
-      instance
-        _ = B
-        _ : CommRingStr ⟨ B ⟩ₐ
-        _ = snd (CommAlgebra→CommRing B)
+    open InstancesForCAlg B
 
     inducedHom : CommAlgebraHom (A / I) B
     inducedHom =
@@ -115,10 +97,13 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ') (I : IdealsIn R A) where
                      → f ≡ g
     quotientHomEpi = CommRing.quotientHomEpi (fst A) I
 
+    quotientHomSurjective : isSurjection ⟨ quotientHom A I ⟩ₐ→
+    quotientHomSurjective = CommRing.quotientHomSurjective (fst A) I
+
 
 {- trivial quotient -}
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
-  open CommRingStr (A .fst .snd)
+  open InstancesForCAlg A
 
   oneIdealQuotient : CommAlgebraEquiv (A / (1Ideal R A)) (terminalCAlg R)
   oneIdealQuotient .fst =
@@ -165,10 +150,8 @@ module _
   {A : CommAlgebra R ℓ}
   {I : IdealsIn R A}
   where
-  open CommRingStr ⦃...⦄
-  instance
-    _ = A .fst .snd
-    _ = (A / I).fst .snd
+  open InstancesForCAlg (A / I)
+  open InstancesForCAlg A
 
   opaque
     isZeroFromIdeal : (x : ⟨ A ⟩ₐ) → x ∈ (fst I) → quotientHom A I $ca x ≡ 0r
