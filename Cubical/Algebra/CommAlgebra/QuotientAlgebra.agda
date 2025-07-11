@@ -65,7 +65,9 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
 
         step1 = cong (ind .fst ∘_) (sym (cong fst (CommAlgebraHom→Triangle $ quotientHom A I)))
         step2 = cong fst (compAssocCommRingHom (A .snd) (CommRing.quotientHom (A .fst) I) ind)
-        step3 = cong (_∘ A .snd .fst) (cong fst (CommRing.UniversalProperty.isSolution (A .fst) (B .fst) I (CommAlgebraHom→CommRingHom ϕ) I⊆kernel))
+        step3 = cong (_∘ A .snd .fst)
+                     (cong fst
+                           (CommRing.UniversalProperty.isSolution (A .fst) (B .fst) I (CommAlgebraHom→CommRingHom ϕ) I⊆kernel))
         opaque
           p : (ind .fst ∘ snd (A / I) .fst) ≡ B .snd .fst
           p = ind .fst ∘ snd (A / I) .fst                     ≡⟨ step1 ⟩
