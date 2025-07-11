@@ -310,3 +310,18 @@ BijectionIso→GroupIso {G = G} {H = H} i = grIso
 
 BijectionIsoToGroupEquiv : BijectionIso G H → GroupEquiv G H
 BijectionIsoToGroupEquiv i = GroupIso→GroupEquiv (BijectionIso→GroupIso i)
+
+Aut[_] : Group ℓ → Group ℓ
+Aut[ Ĝ@(G , Gstr) ] =
+  makeGroup {G = GroupIso Ĝ Ĝ}
+    idGroupIso compGroupIso
+      invGroupIso  (isSetΣ (isSet-SetsIso (is-set Gstr) (is-set Gstr)) (λ _ → isProp→isSet (isPropIsGroupHom _ _)))
+        (λ _ _ _ → GroupIso≡ (i≡ refl))
+         (λ _ → GroupIso≡ (i≡ refl))
+         (λ _ → GroupIso≡ (i≡ refl))
+         (λ (x , _) → GroupIso≡ (i≡ (funExt (Iso.leftInv x))))
+         (λ (x , _) → GroupIso≡ (i≡ (funExt (Iso.rightInv x))))
+ where
+ open GroupStr Gstr
+
+ i≡ = SetsIso≡fun (is-set Gstr) (is-set Gstr)

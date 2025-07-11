@@ -54,6 +54,26 @@ isProp≤ {suc m} {suc n} = isProp≤ {m} {n}
 ≤-k+ {k = zero}  m≤n = m≤n
 ≤-k+ {k = suc k} m≤n = ≤-k+ {k = k} m≤n
 
+<-weaken : m < n → m ≤ n
+<-weaken {zero} _ = _
+<-weaken {suc m} {suc n} = <-weaken {m}
+
+<-+-weaken : m < n → m < k + n
+<-+-weaken {k = zero} x = x
+<-+-weaken {m = zero} {n = suc n} {k = suc k} x = _
+<-+-weaken {m = suc m} {n = n} {k = suc k} x = <-+-weaken {m = m} {n = n} {k = k} (<-weaken {suc m} {n} x)
+
++-<-+ : k < l → m < n →  k + m < l + n
++-<-+ {zero} {l = suc l} {m} {n = suc n} x x₁ = <-+-weaken {m = m} {n = suc n} {k = 1 + l} x₁
++-<-+ {suc k} {l = suc l} {m} {n = n} x x₁ = +-<-+ {k} {l} {m} {n} x x₁
+
++-≤-+ : k ≤ l → m ≤ n →  k + m ≤ l + n
++-≤-+ {zero} {zero} {n = n} _ x = x
++-≤-+ {zero} {suc l} {zero} {n = n} x y = _
++-≤-+ {zero} {suc l} {suc m} {n = n} x y = +-≤-+ {0} {l} {m} {n} x (<-weaken {m} {n} y)
++-≤-+ {suc k} {zero} {n = n} ()
++-≤-+ {suc k} {suc l} {m} {n = n} = +-≤-+ {k} {l} {m} {n}
+
 ≤-+k : m ≤ n → m + k ≤ n + k
 ≤-+k {m} {n} {k} m≤n
   = transport (λ i → +-comm k m i ≤ +-comm k n i) (≤-k+ {m} {n} {k} m≤n)
@@ -86,10 +106,6 @@ isProp≤ {suc m} {suc n} = isProp≤ {m} {n}
 
 ¬m+n<m : ¬ m + n < m
 ¬m+n<m {suc m} = ¬m+n<m {m}
-
-<-weaken : m < n → m ≤ n
-<-weaken {zero} _ = _
-<-weaken {suc m} {suc n} = <-weaken {m}
 
 <-trans : k < m → m < n → k < n
 <-trans {k} {m} {n} k<m m<n
@@ -124,6 +140,10 @@ n≤k+n {k} n = transport (λ i → n ≤ +-comm n k i) (k≤k+n n)
 ≤-split {zero} {suc n} m≤n = inl _
 ≤-split {suc m} {suc n} m≤n
   = Sum.map (idfun _) (cong suc) (≤-split {m} {n} m≤n)
+
+<→¬≥ : n < m → ¬ m ≤ n
+<→¬≥ {suc n} {suc m} p q = <→¬≥ {n} {m} p q
+
 
 module WellFounded where
   wf-< : WellFounded _<_

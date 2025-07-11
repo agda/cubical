@@ -21,11 +21,12 @@ open Iso
 
 private
   variable
-    ℓa ℓb ℓc ℓd ℓe : Level
+    ℓa ℓb ℓc ℓd ℓe ℓf : Level
     A : Type ℓa
     B : Type ℓb
     C : Type ℓc
     D : Type ℓd
+    F : Type ℓf
     E : A ⊎ B → Type ℓe
 
 
@@ -133,6 +134,14 @@ rightInv (⊎Iso iac ibd) (inl x) = cong inl (iac .rightInv x)
 rightInv (⊎Iso iac ibd) (inr x) = cong inr (ibd .rightInv x)
 leftInv (⊎Iso iac ibd) (inl x)  = cong inl (iac .leftInv x)
 leftInv (⊎Iso iac ibd) (inr x)  = cong inr (ibd .leftInv x)
+
+⊎Iso' : Iso A C → Iso B D → Iso (A ⊎ B) (C ⊎ D)
+fun (⊎Iso' iac ibd) = map (iac .fun) (ibd .fun)
+inv (⊎Iso' iac ibd) = map (iac .inv) (ibd .inv)
+rightInv (⊎Iso' iac ibd) (inl x) = cong inl (iac .rightInv x)
+rightInv (⊎Iso' iac ibd) (inr x) = cong inr (ibd .rightInv x)
+leftInv (⊎Iso' iac ibd) (inl x)  = cong inl (iac .leftInv x)
+leftInv (⊎Iso' iac ibd) (inr x)  = cong inr (ibd .leftInv x)
 
 ⊎-equiv : A ≃ C → B ≃ D → (A ⊎ B) ≃ (C ⊎ D)
 ⊎-equiv p q = isoToEquiv (⊎Iso (equivToIso p) (equivToIso q))
@@ -357,3 +366,9 @@ Iso⊎→Iso {A = A} {C = C} {B = B} {D = D} f e p = Iso'
   Iso.inv Iso' = e⁻-pres-inr
   Iso.rightInv Iso' x = lem2 x (_ , refl) (_ , refl)
   Iso.leftInv Iso' x = lem1 x (_ , refl) (_ , refl)
+
+rec-map : (f : C → F) (g : D → F) (h : A → C) (k : B → D)
+        → (x : A ⊎ B)
+        → ⊎.rec f g (⊎.map h k x) ≡ ⊎.rec (f ∘ h) (g ∘ k) x
+rec-map f g h k (inl a) = refl
+rec-map f g h k (inr b) = refl

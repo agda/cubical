@@ -90,6 +90,13 @@ module RingTheory (R' : Ring ℓ) where
                     (0r · x) + (0r · x)  ∎
               in +Idempotency→0 _ 0·x-is-idempotent
 
+
+  0RightAnnihilates' : (x y : R) → y ≡ 0r → x · y ≡ 0r
+  0RightAnnihilates' x y p = cong (x ·_) p ∙ 0RightAnnihilates x
+
+  0LeftAnnihilates' : (x y : R) → x ≡ 0r → x · y ≡ 0r
+  0LeftAnnihilates' x y p = cong (_· y) p ∙ 0LeftAnnihilates y
+
   -DistR· : (x y : R) →  x · (- y) ≡ - (x · y)
   -DistR· x y = implicitInverse (x · y) (x · (- y))
 
@@ -151,6 +158,42 @@ module RingTheory (R' : Ring ℓ) where
 
   ·-assoc2 : (x y z w : R) → (x · y) · (z · w) ≡ x · (y · z) · w
   ·-assoc2 x y z w = ·Assoc (x · y) z w ∙ congL _·_ (sym (·Assoc x y z))
+
+  +IdR' : ∀ x y → y ≡ 0r → x + y ≡ x
+  +IdR' x y y=0 = cong (x +_) y=0 ∙ +IdR x
+
+  +IdL' : ∀ x y → x ≡ 0r → x + y ≡ y
+  +IdL' x y x=0 = cong (_+ y) x=0 ∙ +IdL y
+
+  +InvL' : ∀ x y → x ≡ y → - x + y ≡ 0r
+  +InvL' x y x=y = cong (- x +_) (sym x=y) ∙ (+InvL x)
+
+  +InvR' : ∀ x y → x ≡ y → x + - y ≡ 0r
+  +InvR' x y x=y = cong (_+ - y) x=y ∙ (+InvR y)
+
+  plusMinus : ∀ x y → (x + y) - y ≡ x
+  plusMinus x y = sym (+Assoc _ _ _) ∙ +IdR' _ _ (+InvR y)
+
+  plusMinus' : ∀ x y y' → y ≡ y' → (x + y) - y' ≡ x
+  plusMinus' x y y' p = sym (+Assoc _ _ _) ∙ +IdR' _ _ (+InvR' y y' p)
+
+  minusPlus : ∀ x y → (x - y) + y ≡ x
+  minusPlus x y = sym (+Assoc _ _ _) ∙ +IdR' _ _ (+InvL y)
+
+  minusPlus' : ∀ x y y' → y ≡ y' → (x - y) + y' ≡ x
+  minusPlus' x y y' p = sym (+Assoc _ _ _) ∙ +IdR' _ _ (+InvL' y y' p)
+
+  ·IdR' : ∀ x y → y ≡ 1r → x · y ≡ x
+  ·IdR' x y y=0 = cong (x ·_) y=0 ∙ ·IdR x
+
+  ·IdL' : ∀ x y → x ≡ 1r → x · y ≡ y
+  ·IdL' x y x=0 = cong (_· y) x=0 ∙ ·IdL y
+
+  ·DistR- : (x y z : R) → x · (y - z) ≡ (x · y) - (x · z)
+  ·DistR- _ _ _ = ·DistR+ _ _ _ ∙ cong (_ +_) (-DistR· _ _)
+
+  ·DistL- : (x y z : R) → (x - y) · z ≡ (x · z) - (y · z)
+  ·DistL- _ _ _ = ·DistL+ _ _ _ ∙ cong (_ +_) (-DistL· _ _)
 
 Ring→Semiring : Ring ℓ → Semiring ℓ
 Ring→Semiring R =

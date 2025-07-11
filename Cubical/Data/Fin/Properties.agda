@@ -16,7 +16,7 @@ open import Cubical.HITs.PropositionalTruncation renaming (rec to ∥∥rec)
 
 open import Cubical.Data.Fin.Base as Fin
 open import Cubical.Data.Nat
-open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order hiding (<-·sk-cancel)
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
