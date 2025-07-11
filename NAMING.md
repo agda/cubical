@@ -52,7 +52,7 @@ For naming conventions specific to the Algebra subfolder, see
   [here](https://github.com/agda/cubical/blob/master/Cubical/HITs/SetQuotients/Properties.agda#L42-L92)
   and
   [here](https://github.com/agda/cubical/blob/master/Cubical/HITs/S1/Properties.agda#L14-L20)
-  to see how diffrent versions of `elim` and `rec` are named and typed.
+  to see how different versions of `elim` and `rec` are named and typed.
 
 * The `elim` and `rec` should be used as much as possible without
   renaming, but by importing and renaming the module.
