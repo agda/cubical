@@ -34,7 +34,7 @@ module _ {R : CommRing ℓ} where
                          →  h ∘ca (g ∘ca f) ≡ (h ∘ca g) ∘ca f
     compAssocCommAlgebraHom f g h = CommAlgebraHom≡ refl
 
-  invCommAlgebraEquiv : {A B : CommAlgebra R ℓ'}
+  invCommAlgebraEquiv : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
                         → CommAlgebraEquiv A B
                         → CommAlgebraEquiv B A
   invCommAlgebraEquiv {A = A} {B = B} f = CommRingEquiv→CommAlgebraEquiv f⁻¹ commutes

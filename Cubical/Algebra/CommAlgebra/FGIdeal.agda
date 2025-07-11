@@ -15,19 +15,19 @@ open import Cubical.Algebra.CommAlgebra.Ideal
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     R : CommRing ℓ
 
-generatedIdeal : {n : ℕ} (A : CommAlgebra R ℓ) → FinVec ⟨ A ⟩ₐ n → IdealsIn R A
+generatedIdeal : {n : ℕ} (A : CommAlgebra R ℓ') → FinVec ⟨ A ⟩ₐ n → IdealsIn R A
 generatedIdeal A = CRing.generatedIdeal (CommAlgebra→CommRing A)
 
-incInIdeal :   {n : ℕ} (A : CommAlgebra R ℓ)
+incInIdeal :   {n : ℕ} (A : CommAlgebra R ℓ')
               (U : FinVec ⟨ A ⟩ₐ n) (i : Fin n) → U i ∈ fst (generatedIdeal A U)
 incInIdeal A = CRing.indInIdeal (CommAlgebra→CommRing A)
 
 syntax generatedIdeal A V = ⟨ V ⟩[ A ]
 
-module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
+module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ') where
   open CommRingStr (A .fst .snd)
 
   opaque
