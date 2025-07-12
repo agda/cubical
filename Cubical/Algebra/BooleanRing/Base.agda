@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude hiding (_∧_;_∨_)
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Algebra.Ring
+open RingTheory
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.CommRing
 open import Cubical.Tactics.CommRingSolver
@@ -47,6 +48,12 @@ BooleanStr→CommRingStr x = record { isCommRing = IsBooleanRing.isCommRing (Boo
 
 BooleanRing→CommRing : BooleanRing ℓ → CommRing ℓ
 BooleanRing→CommRing (carrier , structure ) = carrier , BooleanStr→CommRingStr structure
+
+BooleanStr→RingStr : { A : Type ℓ } → BooleanStr A → RingStr A
+BooleanStr→RingStr S = CommRingStr→RingStr (BooleanStr→CommRingStr S) 
+
+BooleanRing→Ring : BooleanRing ℓ → Ring ℓ
+BooleanRing→Ring (carrier , structure ) = carrier , BooleanStr→RingStr structure  
 
 module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   open BooleanStr (A . snd)
@@ -95,9 +102,9 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
 
   ∧AnnihilL : 𝟘 ∧ x ≡ 𝟘
   ∧AnnihilL = RingTheory.0LeftAnnihilates (CommRing→Ring (BooleanRing→CommRing A)) _
-
-  -IsId : x + x ≡ 𝟘
-  -IsId {x = x} =  RingTheory.+Idempotency→0 (CommRing→Ring (BooleanRing→CommRing A)) (x + x) 2x≡4x
+ 
+  characteristic2 : x + x ≡ 𝟘
+  characteristic2 {x = x} =  RingTheory.+Idempotency→0 (CommRing→Ring (BooleanRing→CommRing A)) (x + x) 2x≡4x
     where
       2x≡4x : x + x ≡ (x + x) + (x + x)
       2x≡4x =
@@ -108,11 +115,14 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
         ((x · x) + (x · x)) + ((x · x) + (x · x))
           ≡⟨ cong₂ _+_ (cong₂ _+_ (·Idem x) (·Idem x)) (cong₂ _+_ (·Idem x) (·Idem x)) ⟩
         (x + x) + (x + x) ∎
+  
+  -IsId : x ≡ - x
+  -IsId {x = x} = implicitInverse (BooleanRing→Ring A) x x characteristic2
 
   ∨Idem   : x ∨ x ≡ x
   ∨Idem { x = x } =
     x + x + x · x
-      ≡⟨ cong (λ y → y + x · x) -IsId ⟩
+      ≡⟨ cong (λ y → y + x · x) characteristic2 ⟩
     𝟘  + x · x
       ≡⟨ +IdL (x · x) ⟩
     x · x
@@ -124,7 +134,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
     (x + 𝟙) + (x · 𝟙)
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     𝟙 + (x + x)
-      ≡⟨ cong (λ y → 𝟙 + y) -IsId ⟩
+      ≡⟨ cong (λ y → 𝟙 + y) characteristic2 ⟩
     𝟙 + 𝟘
       ≡⟨ +IdR 𝟙 ⟩
     𝟙 ∎
@@ -152,7 +162,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
     x + 𝟘 + 𝟘 + y · z + 𝟘 + x · y · z
       ≡⟨ cong (λ a → a + 𝟘 + 𝟘 + y · z + 𝟘 + a · y · z) (sym (·Idem x)) ⟩
     x · x + 𝟘  + 𝟘  + y · z + 𝟘 + x · x · y · z
-      ≡⟨ cong (λ a → x · x + 𝟘 + 𝟘 + y · z + a + x · x · y · z) (sym (-IsId {x = (x · y) · z})) ⟩
+      ≡⟨ cong (λ a → x · x + 𝟘 + 𝟘 + y · z + a + x · x · y · z) (sym (characteristic2 {x = (x · y) · z})) ⟩
     x · x + 𝟘 + 𝟘 + y · z + (x · y · z + x · y · z) + x · x · y · z
       ≡⟨ (cong₂ (λ a b → x · x + a + b + y · z + (x · y · z + x · y · z) + x · x · y · z)) (xa-xxa≡0 z) (xa-xxa≡0 y) ⟩
     x · x + (x · z + x · x · z) + (x · y + x · x · y) + y · z + (x · y · z + x · y · z) + x · x · y · z
@@ -163,7 +173,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
       xa-xxa≡0 : (a : ⟨ A ⟩) → 𝟘 ≡ x · a + x · x · a
       xa-xxa≡0 a =
        𝟘
-         ≡⟨ sym -IsId ⟩
+         ≡⟨ sym characteristic2 ⟩
        x · a + x · a
          ≡⟨ cong (λ y → x · a + y · a) (sym (·Idem x)) ⟩
        x · a + x · x · a ∎
@@ -178,7 +188,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
     x · x + (x · y + x · x · y)
       ≡⟨ cong (λ z → z + ((x · y) + (z · y))) (·Idem x) ⟩
     x + (x · y + x · y)
-      ≡⟨ cong (_+_ x) -IsId ⟩
+      ≡⟨ cong (_+_ x) characteristic2 ⟩
     x + 𝟘
       ≡⟨ +IdR x ⟩
     x ∎
@@ -190,7 +200,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
     x + (x · y + x · x · y)
       ≡⟨ cong (λ z → x + (x · y + z · y)) (·Idem x) ⟩
     x + (x · y + x · y)
-      ≡⟨ cong (_+_ x) -IsId ⟩
+      ≡⟨ cong (_+_ x) characteristic2 ⟩
     x + 𝟘
       ≡⟨ +IdR x ⟩
     x ∎
@@ -202,7 +212,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
     x + x · x
       ≡⟨ cong (λ y → x + y) (·Idem x) ⟩
     x + x
-      ≡⟨ -IsId ⟩
+      ≡⟨ characteristic2 ⟩
     𝟘 ∎
 
   ¬Cancels∧L : ¬ x ∧ x ≡ 𝟘
@@ -226,7 +236,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
     𝟙 + (𝟙 + x)
       ≡⟨ +Assoc 𝟙 𝟙 x ⟩
     (𝟙 + 𝟙) + x
-      ≡⟨ cong (λ y → y + x) ( -IsId {x = 𝟙}) ⟩
+      ≡⟨ cong (λ y → y + x) ( characteristic2 {x = 𝟙}) ⟩
     𝟘 + x
       ≡⟨ +IdL x ⟩
     x ∎
@@ -235,7 +245,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
   ¬0≡1 = +IdR 𝟙
 
   ¬1≡0 : ¬ 𝟙 ≡ 𝟘
-  ¬1≡0 = -IsId {x = 𝟙}
+  ¬1≡0 = characteristic2 {x = 𝟙}
 
   DeMorgan¬∨ : ¬ (x ∨ y) ≡ ¬ x ∧ ¬ y
   DeMorgan¬∨ = solve! (BooleanRing→CommRing A)
@@ -245,7 +255,7 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
     𝟙 + x · y
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     𝟘 + 𝟘 + 𝟙 + x · y
-      ≡⟨ cong₂ (λ a b → ((a + b) + 𝟙) + (x · y)) (sym (-IsId {x = 𝟙 + x})) (sym (-IsId {x = y})) ⟩
+      ≡⟨ cong₂ (λ a b → ((a + b) + 𝟙) + (x · y)) (sym (characteristic2 {x = 𝟙 + x})) (sym (characteristic2 {x = y})) ⟩
     ((𝟙 + x)  + (𝟙 + x)) + (y + y)  + 𝟙 + x · y
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     ¬ x ∨ ¬ y ∎
