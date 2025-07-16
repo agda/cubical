@@ -47,10 +47,10 @@ nthPrime (suc n) = (next-prime .fst , next-prime .snd .fst .snd , snprimes) wher
 
 open Iso
 ℕ≅primeℕ : Iso ℕ (Σ ℕ isPrime)
-fun      ℕ≅primeℕ n = (pn .fst , pn .snd .fst) where pn = nthPrime n
-inv      ℕ≅primeℕ (p , _) = countBelow isPrime DecPrime p
-leftInv  ℕ≅primeℕ n = nthPrime n .snd .snd
-rightInv ℕ≅primeℕ (p , p-prime) =
+ℕ≅primeℕ .fun n = (pn .fst , pn .snd .fst) where pn = nthPrime n
+ℕ≅primeℕ .inv (p , _) = countBelow isPrime DecPrime p
+ℕ≅primeℕ .leftInv n = nthPrime n .snd .snd
+ℕ≅primeℕ .rightInv (p , p-prime) =
     ΣPathP (answer , isProp→PathP (λ i → primeProp (answer i)) pn-prime p-prime) where
         pn = nthPrime (countBelow isPrime DecPrime p)
         pn-prime = pn .snd .fst
