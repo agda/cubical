@@ -22,6 +22,7 @@ Start by making a branch for the release. Change the following things:
    include: .
    depend:
   ```
+  Once [this agda issue](https://github.com/agda/agda/issues/8005) is fixed, remove `--guardedness` from `cubical.agda-lib`.
 
 * Update CITATION.cff with the new version and date of release.
 
