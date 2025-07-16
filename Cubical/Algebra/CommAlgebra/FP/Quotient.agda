@@ -3,8 +3,6 @@
 module Cubical.Algebra.CommAlgebra.FP.Quotient where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 
@@ -20,9 +18,9 @@ open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.FP
 
 private variable
-  ℓ ℓ' : Level
+  ℓ : Level
 
-module _ {R : CommRing ℓ} {k : ℕ} (A : CommAlgebra R ℓ') (fpA : FPsOf R A) (G : FinVec ⟨ A ⟩ₐ k)  where
+module _ {R : CommRing ℓ} {k : ℕ} (A : CommAlgebra R ℓ) (fpA : FPsOf R A) (G : FinVec ⟨ A ⟩ₐ k)  where
   open FinitePresentation (fst fpA)
   ψ⁻¹ : CommAlgebraHom (A) fpAlg
   ψ⁻¹ = CommAlgebraEquiv→CommAlgebraHom (invCommAlgebraEquiv (snd fpA))
