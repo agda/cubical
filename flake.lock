@@ -8,16 +8,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1726161230,
-        "narHash": "sha256-IupM/HJk1vpHTRWOakYDDliKn+RLzPjNzGlLTlF0CbY=",
+        "lastModified": 1751745194,
+        "narHash": "sha256-ysvgf0sum3eH5GwSYYv8kUbJ38x8LZ9UdUaDbVzqAQg=",
         "owner": "agda",
         "repo": "agda",
-        "rev": "a6fc20c27ae953149b53a8997ba4a1c8b17d628a",
+        "rev": "3d04bacca842729f9c0869b9287256321b5f450f",
         "type": "github"
       },
       "original": {
         "owner": "agda",
-        "ref": "v2.7.0.1",
+        "ref": "v2.8.0",
         "repo": "agda",
         "type": "github"
       }
