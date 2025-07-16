@@ -8,7 +8,7 @@
     flake = false;
   };
   inputs.agda = {
-    url = "github:agda/agda/v2.7.0.1";
+    url = "github:agda/agda/v2.8.0";
     inputs = {
       nixpkgs.follows = "nixpkgs";
     };
@@ -20,7 +20,7 @@
       overlay = final: prev: {
         cubical = final.agdaPackages.mkDerivation rec {
           pname = "cubical";
-          version = "0.8";
+          version = "0.9";
 
           src = cleanSourceWith {
             filter = name: type:
