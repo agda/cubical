@@ -218,28 +218,3 @@ module _ (P : ℕ → Type ℓ) (Pdec : ∀ n → Dec (P n)) where
     ... | eq x=y = x=y
     ... | lt x<y = ⊥.rec (<≠ (countBelow-lt x y Px q1 x<y) p)
     ... | gt y<x = ⊥.rec (<≠ (countBelow-lt y x Py q2 y<x) (sym p))
-
-
-
-    -- cRange0≡cBelow : (n : ℕ) → countRange 0 n zero-≤ ≡ countBelow n
-    -- cRange0≡cBelow n = cong length
-    --              (cong₂ (λ Q Qdec → splitBelow Q Qdec n .fst .fst)
-    --                     (funExt (P×0≤=P P))
-    --                     (funExt lem)) where
-    --     lem : (x : ℕ) → PathP (λ i → Dec (funExt (P×0≤=P P) i x))
-    --                           (DecProd Pdec (≤Dec 0) x) (Pdec x)
-    --     lem x = toPathP answer where
-    --         answer-aux : (compProd : Dec (funExt (P×0≤=P P) i0 x)) →
-    --                      (DecProd Pdec (≤Dec 0) x) ≡ compProd →
-    --                      (compPdec : Dec (P x)) → Pdec x ≡ compPdec →
-    --                      transport (λ i → Dec (funExt (P×0≤=P P) i x)) compProd ≡ Pdec x
-    --         answer-aux (yes (Px , 0≤x)) p _ _ =
-    --             sym (DecProdComp
-    --                     Pdec (≤Dec 0) x Px zero-≤
-    --                     (p ∙ cong (λ ineq → yes (Px , ineq)) (isProp≤ _ _)) .fst
-    --                     ∙ cong yes (λ i → transp (λ j → P x) (~ i) Px))
-    --         answer-aux (no ¬Px0≤x) _ (yes Px) p2 = ⊥.rec (¬Px0≤x (Px , zero-≤))
-    --         answer-aux (no _) _ (no _) p2 = cong no (isProp¬ (P x) _ _) ∙ sym p2
-    --         answer : transport (λ i → Dec (funExt (P×0≤=P P) i x)) (DecProd Pdec (≤Dec 0) x)
-    --                  ≡ Pdec x
-    --         answer = answer-aux (DecProd Pdec (≤Dec 0) x) refl (Pdec x) refl
