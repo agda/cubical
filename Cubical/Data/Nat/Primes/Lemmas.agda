@@ -12,15 +12,15 @@ private
 
 -- some successive implication syntax
 
-step→ : {A : Type ℓ} (B : Type ℓ') → (A → B) → A → B
-step→ _ f = f
+step⇒ : {A : Type ℓ} (B : Type ℓ') → (A → B) → A → B
+step⇒ _ f = f
 
-step→⟨⟩ : (A : Type ℓ) → A → A
-step→⟨⟩ A a = a
+step⇒⟨⟩ : (A : Type ℓ) → A → A
+step⇒⟨⟩ A a = a
 
-syntax step→ B f x = x →⟨ f ⟩ B
-syntax step→⟨⟩ A a = a →⟨⟩ A
-infixl 2 step→ step→⟨⟩
+syntax step⇒ B f x = x ⇒⟨ f ⟩ B
+syntax step⇒⟨⟩ A a = a ⇒⟨⟩ A
+infixl -9 step⇒ step⇒⟨⟩
 
 -- auxiliary inequality, multiplication, divisibility lemmas
 
@@ -123,17 +123,12 @@ PropFac< (suc a) (suc (suc b)) zero _ 0<n ab=n = ⊥.rec (¬n<n 0<n)
 PropFac< (suc a) (suc (suc b)) (suc n) _ _ ab=n = lem a b n ab=n where
     lem : ∀ a b n → suc (suc (b + a · suc (suc b))) ≡ suc n → suc a < suc n
     lem a b n p =
-        p
-          →⟨ injSuc ⟩
-        suc (b + a · suc (suc b)) ≡ n
-          →⟨ 0 ,_ ⟩
-        b + a · suc (suc b) < n
-          →⟨ +a<n b (a · suc (suc b)) n ⟩
-        a · suc (suc b) < n
-          →⟨ a·pos<n a (suc b) n ⟩
-        a < n
-          →⟨ suc< ⟩
-        suc a < suc n
+        p :>                   suc (suc (b + a · suc (suc b))) ≡ suc n
+        ⇒⟨ injSuc ⟩                  suc (b + a · suc (suc b)) ≡ n
+        ⇒⟨ 0 ,_ ⟩                          b + a · suc (suc b) < n
+        ⇒⟨ +a<n b (a · suc (suc b)) n ⟩        a · suc (suc b) < n
+        ⇒⟨ a·pos<n a (suc b) n ⟩                             a < n
+        ⇒⟨ suc< ⟩                                        suc a < suc n
 
 ∣+-cancel : ∀ n a b → n ∣ b → n ∣ (a + b) → n ∣ a
 ∣+-cancel n a b tn∣b tn∣a+b = n∣a where
@@ -148,13 +143,10 @@ PropFac< (suc a) (suc (suc b)) (suc n) _ _ ab=n = lem a b n ab=n where
 
     n∣a : n ∣ a
     n∣a = ∣ (q ∸ p) , (
-            qn=a+b
-              →⟨ subst (λ x → q · n ≡ a + x) (sym pn=b) ⟩
-            q · n ≡ a + p · n
-              →⟨ (λ x → cong (_∸ (p · n)) x ∙ +∸ a (p · n)) ⟩
-            q · n ∸ p · n ≡ a
-              →⟨ (∸-distribʳ q p n) ∙_ ⟩
-            (q ∸ p) · n ≡ a )
+            qn=a+b :>                                                    q · n ≡ a + b
+            ⇒⟨ subst (λ x → q · n ≡ a + x) (sym pn=b) ⟩                  q · n ≡ a + p · n
+            ⇒⟨ (λ x → cong (_∸ (p · n)) x ∙ +∸ a (p · n)) ⟩     q · n ∸ p · n ≡ a
+            ⇒⟨ (∸-distribʳ q p n) ∙_ ⟩                            (q ∸ p) · n ≡ a )
          ∣₁
 
 
@@ -209,51 +201,11 @@ DecProd : {A : Type ℓ} {P : A → Type ℓ'} {Q : A → Type ℓ''} →
           (∀ a → Dec (P a)) → (∀ a → Dec (Q a)) → (∀ a → Dec (P a × Q a))
 DecProd {P = P} {Q = Q} Pdec Qdec a = DecProd-aux P Q (Pdec a) (Qdec a)
 
-DecToSum : {A : Type ℓ} → (Dec A) → (A ⊎ (¬ A))
-DecToSum (yes a) = inl a
-DecToSum (no ¬a) = inr ¬a
-
-×-≡elim : {A : Type ℓ} {B : Type ℓ'} → {(a , b) (a' , b') : (A × B)} →
-          ((a , b) ≡ (a' , b')) → (a ≡ a') × (b ≡ b')
-×-≡elim p = (λ i → p i .fst) , (λ i → p i .snd)
-
-DecProd-aux-inj : {A : Type ℓ} (P : A → Type ℓ') (Q : A → Type ℓ'') → ∀ {a} →
-                  (DPa : Dec (P a)) → (DQa : Dec (Q a)) → (Pa : P a) → (Qa : Q a) →
-                  (DecProd-aux P Q DPa DQa ≡ DecProd-aux P Q (yes Pa) (yes Qa)) →
-                  (DPa ≡ yes Pa) × (DQa ≡ yes Qa)
-DecProd-aux-inj P Q (yes p₁) (no ¬p) Pa Qa p = ⊥.rec (¬p Qa)
-DecProd-aux-inj P Q (no ¬p) (yes p₁) Pa Qa p = ⊥.rec (¬p Pa)
-DecProd-aux-inj P Q (no ¬p) (no ¬p₁) Pa Qa p = ⊥.rec (¬p Pa)
-DecProd-aux-inj P Q (yes Pa') (yes Qa') Pa Qa y'=y = cong yes (pq .fst) , cong yes (pq .snd) where
-    inlPQ'=inlPQ : inl (Pa' , Qa') ≡ inl (Pa , Qa)
-    inlPQ'=inlPQ = cong DecToSum y'=y
-    Pa'Qa'=PaQa : (Pa' , Qa') ≡ (Pa , Qa)
-    Pa'Qa'=PaQa = lower (⊎Path.encode (inl (Pa' , Qa')) (inl (Pa , Qa)) inlPQ'=inlPQ)
-    pq : (Pa' ≡ Pa) × (Qa' ≡ Qa)
-    pq = ×-≡elim Pa'Qa'=PaQa
-
-DecProdComp : {A : Type ℓ} {P : A → Type ℓ'} {Q : A → Type ℓ''} →
-              (Pdec : ∀ a → Dec (P a)) → (Qdec : ∀ a → Dec (Q a)) → (a : A) →
-              (Pa : P a) → (Qa : Q a) → (DecProd Pdec Qdec) a ≡ yes (Pa , Qa) →
-              (Pdec a ≡ yes Pa) × (Qdec a ≡ yes Qa)
-DecProdComp {P = P} {Q = Q} Pdec Qdec a = DecProd-aux-inj P Q (Pdec a) (Qdec a)
-
 HasFactor : (n k : ℕ) → Type
 HasFactor n k = (1 < k) × (k ∣ n)
 
 DecHF : ∀ {n} k → Dec (HasFactor n k)
 DecHF = DecProd Dec-1<n Dec-k∣n
-
--- a few helpers for using DecProdComp with a contractible type
-
-×contrIso : (A : Type ℓ) (B : Type ℓ') → isContr B → Iso (A × B) A
-×contrIso A B (b0 , contract) = iso fst (_, b0) (λ b → refl) (λ (a , b) → ≡-× refl (contract b))
-
-≤-0contr : {n : ℕ} → isContr (0 ≤ n)
-≤-0contr = zero-≤ , (isProp≤ zero-≤)
-
-P×0≤=P : (P : ℕ → Type ℓ) (n : ℕ) → ((P n) × (0 ≤ n)) ≡ P n
-P×0≤=P P n = isoToPath (×contrIso (P n) (0 ≤ n) ≤-0contr)
 
 -- find least natural with a given property, assuming there is one
 -- essentially the well-ordering principle: any inhabited subset has a least element

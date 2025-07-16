@@ -1,4 +1,4 @@
-{-# OPTIONS --safe -W noUnsupportedIndexedMatch #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Data.Nat.Primes.Infinitude where
 
