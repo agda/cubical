@@ -33,132 +33,42 @@ primeProp n np np' i .primality =
     λ x=1 x=n → ¬n<n (subst (λ y → y < n) (sym x=1 ∙ x=n) (np .n-proper))))
     (np .primality) (np' .primality)) i
 
-
 compProp : ∀ n → isProp (isComposite n)
-compProp n nc nc' i .p = ≤-antisym (least1 p2 1<p2 p2∣n) (least2 p1 1<p1 p1∣n) i where
-        least1 = nc .least
-        least2 = nc' .least
-        p1 = nc .p
-        p2 = nc' .p
-        pp1 = nc .p-prime
-        pp2 = nc' .p-prime
-        1<p1 = pp1 .n-proper
-        1<p2 = pp2 .n-proper
-        q1 = nc .q
-        q2 = nc' .q
-        pq=n = nc .factors
-        pq=n' = nc' .factors
-        p1∣n = ∣ (q1 , ·-comm q1 p1 ∙ pq=n) ∣₁
-        p2∣n = ∣ (q2 , ·-comm q2 p2 ∙ pq=n') ∣₁
+compProp n nc nc' = answer where
+    p1 = nc .p
+    p2 = nc' .p
+    q1 = nc .q
+    q2 = nc' .q
+    pp1 = nc .p-prime
+    pp2 = nc' .p-prime
+    1<p1 = pp1 .n-proper
+    1<p2 = pp2 .n-proper
+    1<q1 = nc .q-proper
+    1<q2 = nc' .q-proper
+    pq=n = nc .factors
+    pq=n' = nc' .factors
+    least1 = nc .least
+    least2 = nc' .least
 
-compProp n nc nc' i .q = q1=q2 i where
-        p1 = nc .p
-        p2 = nc' .p
-        q1 = nc .q
-        q2 = nc' .q
-        pp1 = nc .p-prime
-        pp2 = nc' .p-prime
-        1<p1 = pp1 .n-proper
-        1<p2 = pp2 .n-proper
-        pq=n = nc .factors
-        pq=n' = nc' .factors
-        1<q1 = nc .q-proper
-        1<q2 = nc' .q-proper
-        least1 = nc .least
-        least2 = nc' .least
-        p1∣n = ∣ (q1 , ·-comm q1 p1 ∙ pq=n) ∣₁
-        p2∣n = ∣ (q2 , ·-comm q2 p2 ∙ pq=n') ∣₁
-        p1=p2 : p1 ≡ p2
-        p1=p2 = ≤-antisym (least1 p2 1<p2 p2∣n) (least2 p1 1<p1 p1∣n)
-        q1=q2 : q1 ≡ q2
-        q1=q2 = inj-·0< q1 q2 (<-weaken 1<p1) (pq=n ∙ sym (subst (λ x → x · q2 ≡ n) (sym p1=p2) pq=n'))
+    p1∣n = ∣ (q1 , ·-comm q1 p1 ∙ pq=n) ∣₁
+    p2∣n = ∣ (q2 , ·-comm q2 p2 ∙ pq=n') ∣₁
 
-compProp n nc nc' i .p-prime = (isProp→PathP (λ j → primeProp (p1=p2 j)) pp1 pp2) i where
-        p1 = nc .p
-        p2 = nc' .p
-        q1 = nc .q
-        q2 = nc' .q
-        pp1 = nc .p-prime
-        pp2 = nc' .p-prime
-        1<p1 = pp1 .n-proper
-        1<p2 = pp2 .n-proper
-        pq=n = nc .factors
-        pq=n' = nc' .factors
-        1<q1 = nc .q-proper
-        1<q2 = nc' .q-proper
-        least1 = nc .least
-        least2 = nc' .least
-        p1∣n = ∣ (q1 , ·-comm q1 p1 ∙ pq=n) ∣₁
-        p2∣n = ∣ (q2 , ·-comm q2 p2 ∙ pq=n') ∣₁
-        p1=p2 : p1 ≡ p2
-        p1=p2 = ≤-antisym (least1 p2 1<p2 p2∣n) (least2 p1 1<p1 p1∣n)
+    p1=p2 : p1 ≡ p2
+    p1=p2 = ≤-antisym (least1 p2 1<p2 p2∣n) (least2 p1 1<p1 p1∣n)
 
-compProp n nc nc' i .q-proper = (isProp→PathP (λ j → isProp≤ {n = q1=q2 j}) 1<q1 1<q2) i where
-        p1 = nc .p
-        p2 = nc' .p
-        q1 = nc .q
-        q2 = nc' .q
-        pp1 = nc .p-prime
-        pp2 = nc' .p-prime
-        1<p1 = pp1 .n-proper
-        1<p2 = pp2 .n-proper
-        pq=n = nc .factors
-        pq=n' = nc' .factors
-        1<q1 = nc .q-proper
-        1<q2 = nc' .q-proper
-        least1 = nc .least
-        least2 = nc' .least
-        p1∣n = ∣ (q1 , ·-comm q1 p1 ∙ pq=n) ∣₁
-        p2∣n = ∣ (q2 , ·-comm q2 p2 ∙ pq=n') ∣₁
-        p1=p2 : p1 ≡ p2
-        p1=p2 = ≤-antisym (least1 p2 1<p2 p2∣n) (least2 p1 1<p1 p1∣n)
-        q1=q2 : q1 ≡ q2
-        q1=q2 = inj-·0< q1 q2 (<-weaken 1<p1) (pq=n ∙ sym (subst (λ x → x · q2 ≡ n) (sym p1=p2) pq=n'))
+    q1=q2 : q1 ≡ q2
+    q1=q2 = inj-·0< q1 q2 (<-weaken 1<p1) (pq=n ∙ sym (subst (λ x → x · q2 ≡ n) (sym p1=p2) pq=n'))
 
-compProp n nc nc' i .factors = (isProp→PathP (λ j → isSetℕ (p1=p2 j · q1=q2 j) n) pq=n pq=n') i where
-        p1 = nc .p
-        p2 = nc' .p
-        q1 = nc .q
-        q2 = nc' .q
-        pp1 = nc .p-prime
-        pp2 = nc' .p-prime
-        1<p1 = pp1 .n-proper
-        1<p2 = pp2 .n-proper
-        pq=n = nc .factors
-        pq=n' = nc' .factors
-        1<q1 = nc .q-proper
-        1<q2 = nc' .q-proper
-        least1 = nc .least
-        least2 = nc' .least
-        p1∣n = ∣ (q1 , ·-comm q1 p1 ∙ pq=n) ∣₁
-        p2∣n = ∣ (q2 , ·-comm q2 p2 ∙ pq=n') ∣₁
-        p1=p2 : p1 ≡ p2
-        p1=p2 = ≤-antisym (least1 p2 1<p2 p2∣n) (least2 p1 1<p1 p1∣n)
-        q1=q2 : q1 ≡ q2
-        q1=q2 = inj-·0< q1 q2 (<-weaken 1<p1) (pq=n ∙ sym (subst (λ x → x · q2 ≡ n) (sym p1=p2) pq=n'))
+    leastProp : ∀ x → isProp ((p2' : ℕ) → 1 < p2' → p2' ∣ n → x ≤ p2')
+    leastProp x = funcProp (λ a → funcProp (λ 1<a → funcProp (λ a∣n → isProp≤)))
 
-compProp n nc nc' i .least = (isProp→PathP (λ j → leastProp (p1=p2 j)) least1 least2) i where
-        p1 = nc .p
-        p2 = nc' .p
-        q1 = nc .q
-        q2 = nc' .q
-        pp1 = nc .p-prime
-        pp2 = nc' .p-prime
-        1<p1 = pp1 .n-proper
-        1<p2 = pp2 .n-proper
-        pq=n = nc .factors
-        pq=n' = nc' .factors
-        1<q1 = nc .q-proper
-        1<q2 = nc' .q-proper
-        least1 = nc .least
-        least2 = nc' .least
-        p1∣n = ∣ (q1 , ·-comm q1 p1 ∙ pq=n) ∣₁
-        p2∣n = ∣ (q2 , ·-comm q2 p2 ∙ pq=n') ∣₁
-        p1=p2 : p1 ≡ p2
-        p1=p2 = ≤-antisym (least1 p2 1<p2 p2∣n) (least2 p1 1<p1 p1∣n)
-        leastProp : ∀ x → isProp ((p2' : ℕ) → 1 < p2' → p2' ∣ n → x ≤ p2')
-        leastProp x = funcProp (λ a → funcProp (λ 1<a → funcProp (λ a∣n → isProp≤)))
-
+    answer : nc ≡ nc'
+    answer i .p = ≤-antisym (least1 p2 1<p2 p2∣n) (least2 p1 1<p1 p1∣n) i
+    answer i .q = q1=q2 i
+    answer i .p-prime = isProp→PathP (λ j → primeProp (p1=p2 j)) pp1 pp2 i
+    answer i .q-proper = isProp→PathP (λ j → isProp≤ {n = q1=q2 j}) 1<q1 1<q2 i
+    answer i .factors = isProp→PathP (λ j → isSetℕ (p1=p2 j · q1=q2 j) n) pq=n pq=n' i
+    answer i .least = isProp→PathP (λ j → leastProp (p1=p2 j)) least1 least2 i
 
 
 prime→¬comp : ∀ n → isPrime n → ¬ isComposite n
