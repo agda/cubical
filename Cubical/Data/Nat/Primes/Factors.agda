@@ -59,15 +59,18 @@ primeOrComp n@(suc n-1) 1<n = answer where
                                                         (sym (·-identityʳ p)) ∙ pq=n)
                                                   p<n))
 
+open isPrime
+open isComposite
+
 newPrime : ∀ n → Σ[ p ∈ ℕ ] (n < p) × (isPrime p)
 newPrime n with primeOrComp (suc (factorial n)) (suc< (0<factorial n))
 ... | inl sfnp = (suc (factorial n)) , suc-≤-suc (n≤! n) , sfnp
-... | inr (composite p q pp 1<q pq=n least) with Dichotomyℕ p n
-... | inr n<p = p , n<p , pp
-... | inl p≤n = ⊥.rec (<≠ 1<p (sym (div1→1 p p∣1))) where
-        1<p = pp .isPrime.n-proper
-        p∣1 : p ∣ 1
-        p∣1 = ∣+-cancel p 1 (n !) (≤n∣n! p n p≤n (1<→¬=0 p 1<p)) (∥_∥₁.∣ q , ·-comm q p ∙ pq=n ∣₁)
+... | inr cn with Dichotomyℕ (cn .p) n
+... | inr n<p = (cn .p) , n<p , (cn .p-prime)
+... | inl p≤n = ⊥.rec (<≠ 1<p (sym (div1→1 (cn .p) p∣1))) where
+        1<p = cn .p-prime .n-proper
+        p∣1 : (cn .p) ∣ 1
+        p∣1 = ∣+-cancel (cn .p) 1 (n !) (≤n∣n! (cn .p) n p≤n (1<→¬=0 (cn .p) 1<p)) (∣ (cn .q) , ·-comm (cn .q) (cn .p) ∙ (cn .factors) ∣₁)
 
 
 record PrimeFactors (n : ℕ) : Type where
@@ -84,16 +87,22 @@ PF-prime n np = pfs (n ∷ []) (·-identityʳ n) (np ∷ [])
 
 PF-comp-work : ∀ n → (∀ m → m < n → isComposite m → PrimeFactors m) → isComposite n →
                PrimeFactors n
-PF-comp-work n rec nComp@(composite p q p-prime 1<q pq=n _) =
-    pfs (p ∷ primes qFacs)
-        (subst (λ x → p · x ≡ n) (sym (factored qFacs)) pq=n)
-        (p-prime ∷ allPrime qFacs)
+PF-comp-work n rec nComp =
+    pfs (pfac ∷ primes qFacs)
+        (subst (λ x → pfac · x ≡ n) (sym (factored qFacs)) pq=n)
+        (pp ∷ allPrime qFacs)
         where
-            qFacs : PrimeFactors q
-            qFacs with (primeOrComp q 1<q)
-            ... | inl qp = PF-prime q qp
-            ... | inr qc = rec q (PropFac< q p n 1<p 0<n (·-comm q p ∙ pq=n)) qc where
-                    1<p = isPrime.n-proper p-prime
+            pfac = nComp .p
+            qfac = nComp .q
+            pp = nComp .p-prime
+            1<q = nComp .q-proper
+            pq=n = nComp .factors
+
+            qFacs : PrimeFactors qfac
+            qFacs with (primeOrComp qfac 1<q)
+            ... | inl qp = PF-prime qfac qp
+            ... | inr qc = rec qfac (PropFac< qfac pfac n 1<p 0<n (·-comm qfac pfac ∙ pq=n)) qc where
+                    1<p = isPrime.n-proper pp
                     0<n = <-trans (2 , refl) (isComposite.3<n nComp)
 
 PF-comp : ∀ n → isComposite n → PrimeFactors n

@@ -11,14 +11,14 @@ open import Cubical.Data.Nat.Primes.Lemmas using (1<·1<=3<)
 
 
 record isPrime (n : ℕ) : Type where
-    -- no-eta-equality
+    no-eta-equality
     constructor prime
     field
         n-proper : 1 < n
         primality : ∀ d → d ∣ n → (d ≡ 1) ⊎ (d ≡ n)
 
 record isComposite (n : ℕ) : Type where
-    -- no-eta-equality
+    no-eta-equality
     constructor composite
     field
         p q : ℕ
