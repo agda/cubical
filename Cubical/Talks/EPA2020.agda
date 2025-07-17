@@ -282,8 +282,7 @@ open import Cubical.HITs.Pushout
 open import Cubical.Homotopy.Hopf
 open S¹Hopf
 
--- There is also some integer cohomology:
-open import Cubical.ZCohomology.Everything
+-- There is also some integer cohomology in Cubical.ZCohomology.
 -- To compute cohomology groups of various spaces we need a bunch of
 -- interesting theorems: Freudenthal suspension theorem,
 -- Mayer-Vietoris sequence...
