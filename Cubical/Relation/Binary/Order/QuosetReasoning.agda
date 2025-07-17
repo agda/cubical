@@ -2,11 +2,11 @@
   Equational reasoning in a Quoset that is also a Poset,
   i.e. for writing a chain of <, ≤, ≡.
 
-  Use begin< to obtain a strict inequality (in this case, at least one < is required in the chain).
-  Use begin≤ to obtain a nonstrict inequality.
-
   Import <-≤-StrictReasoning if you only need to obtain strict inequalities,
   import <-≤-Reasoning otherwise.
+
+  Use begin< to obtain a strict inequality (in this case, at least one < is required in the chain).
+  Use begin≤ to obtain a nonstrict inequality.
 -}
 
 {-# OPTIONS --safe #-}
