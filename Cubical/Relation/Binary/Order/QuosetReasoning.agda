@@ -2,8 +2,12 @@
 {-
   Equational reasoning in a Quoset that is also a Poset, i.e.
   for writing a chain of <,≤,≡ .
-  - Use begin< to obtain a strict inequality (in this case, at least one < is required in the chain)
-  - Use begin≤ to obtain a nonstrict inequality
+
+  Use begin< to obtain a strict inequality (in this case, at least one < is required in the chain).
+  Use begin≤ to obtain a nonstrict inequality.
+
+  Import <-≤-StrictReasoning if you only need begin<,
+  otherwise import <-≤-Reasoning.
 -}
 module Cubical.Relation.Binary.Order.QuosetReasoning where
 
@@ -38,11 +42,10 @@ record SubRelation
       IsS? : ∀ {x y} → (xRy : x R y) → Dec (IsS xRy)
       extract : ∀ {x y} → {xRy : x R y} → IsS xRy → x S y
 
-module <-≤-Reasoning
+module <-≤-StrictReasoning
   (P : Type ℓ)
   ((posetstr  (_≤_) isPoset)  : PosetStr ℓ≤ P)
   ((quosetstr (_<_) isQuoset) : QuosetStr ℓ< P)
-  (<-≤-weaken : ∀ {x y}   → x < y → x ≤ y)
   (<-≤-trans  : ∀ x {y z} → x < y → y ≤ z → x < z)
   (≤-<-trans  : ∀ x {y z} → x ≤ y → y < z → x < z)  where
 
@@ -50,14 +53,14 @@ module <-≤-Reasoning
   open IsQuoset
   open SubRelation
 
+  data _<≤≡_ : P → P → Type (ℓ-max ℓ (ℓ-max ℓ< ℓ≤)) where
+    strict    : ∀ {x y} → x < y → x <≤≡ y
+    nonstrict : ∀ {x y} → x ≤ y → x <≤≡ y
+    equal     : ∀ {x y} → x ≡ y → x <≤≡ y
+
   private
     variable
       x y z : P
-    data _<≤≡_ : P → P → Type (ℓ-max ℓ (ℓ-max ℓ< ℓ≤)) where
-      strict    : x < y → x <≤≡ y
-      nonstrict : x ≤ y → x <≤≡ y
-      equal     : x ≡ y → x <≤≡ y
-
     sub : SubRelation _<≤≡_ ℓ< ℓ<
     sub ._S_ = _<_
     sub .IsS {x} {y} (strict    _) = x < y
@@ -70,15 +73,9 @@ module <-≤-Reasoning
 
   open SubRelation sub renaming (IsS? to Is<? ; extract to extract<)
 
-  infix 1 begin<_ begin≤_
-
+  infix 1 begin<_
   begin<_ : (r : x <≤≡ y) → {True (Is<? r)} → x < y
   begin<_ r {s} = extract< {xRy = r} (toWitness s)
-
-  begin≤_ : (r : x <≤≡ y) → x ≤ y
-  begin≤_ (strict    x<y) = <-≤-weaken x<y
-  begin≤_ (nonstrict x≤y) = x≤y
-  begin≤_ (equal {x} x≡y) = subst (x ≤_) x≡y (isPoset .is-refl x)
 
   -- Partial order syntax
   module ≤-syntax where
@@ -110,22 +107,35 @@ module <-≤-Reasoning
   _◾ : ∀ x → x <≤≡ x
   x ◾ = equal refl
 
+
+module <-≤-Reasoning
+  (P : Type ℓ)
+  ((posetstr  (_≤_) isPoset)  : PosetStr ℓ≤ P)
+  ((quosetstr (_<_) isQuoset) : QuosetStr ℓ< P)
+  (<-≤-trans  : ∀ x {y z} → x < y → y ≤ z → x < z)
+  (≤-<-trans  : ∀ x {y z} → x ≤ y → y < z → x < z)
+  (<-≤-weaken : ∀ {x y}   → x < y → x ≤ y) where
+
+  open <-≤-StrictReasoning P
+    (posetstr  (_≤_) isPoset) (quosetstr (_<_) isQuoset)
+    <-≤-trans ≤-<-trans public
+
+  open IsPoset
+
+  infix 1 begin≤_
+  begin≤_ : ∀ {x y} → (r : x <≤≡ y) → x ≤ y
+  begin≤_ (strict    x<y) = <-≤-weaken x<y
+  begin≤_ (nonstrict x≤y) = x≤y
+  begin≤_ (equal {x} x≡y) = subst (x ≤_) x≡y (isPoset .is-refl x)
+
 -- Examples of usage:
 
 module Examples (P : Type ℓ)
   ((posetstr  (_≤_) isPoset)  : PosetStr ℓ≤ P)
   ((quosetstr (_<_) isQuoset) : QuosetStr ℓ< P)
-  (<-≤-weaken : ∀ {x y}   → x < y → x ≤ y)
   (<-≤-trans  : ∀ x {y z} → x < y → y ≤ z → x < z)
-  (≤-<-trans  : ∀ x {y z} → x ≤ y → y < z → x < z) where
-
-  open <-≤-Reasoning P
-    (posetstr (_≤_) isPoset) (quosetstr (_<_) isQuoset)
-    <-≤-weaken <-≤-trans ≤-<-trans
-
-  open <-syntax
-  open ≤-syntax
-  open ≡-syntax
+  (≤-<-trans  : ∀ x {y z} → x ≤ y → y < z → x < z)
+  (<-≤-weaken : ∀ {x y}   → x < y → x ≤ y) where
 
   example< : ∀ (x y z u v w α γ δ : P)
            → x < y
@@ -153,6 +163,17 @@ module Examples (P : Type ℓ)
             δ   ∎
           ⟩
     δ ◾
+      where
+        open <-≤-StrictReasoning P
+          (posetstr (_≤_) isPoset) (quosetstr (_<_) isQuoset)
+          <-≤-trans ≤-<-trans
+        open <-syntax
+        open ≤-syntax
+        open ≡-syntax
+
+  open <-≤-Reasoning P
+    (posetstr (_≤_) isPoset) (quosetstr (_<_) isQuoset)
+    <-≤-trans ≤-<-trans <-≤-weaken
 
   example≤ : ∀ (x y z u v w α γ δ : P)
            → x < y
@@ -180,6 +201,10 @@ module Examples (P : Type ℓ)
             δ   ∎
           ⟩
     δ ◾
+      where
+        open <-syntax
+        open ≤-syntax
+        open ≡-syntax
 
   example≤' : ∀ (y z u w α γ δ : P)
             → y ≤ z
@@ -203,3 +228,6 @@ module Examples (P : Type ℓ)
             δ   ∎
           ⟩
     δ ◾
+      where
+        open ≤-syntax
+        open ≡-syntax
