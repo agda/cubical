@@ -4,6 +4,10 @@ NAMING
 This file provides a guide for how to name things. Note that many
 files in the library do not currently follow these guidelines.
 
+It should work to use other file ending than ".agda", e.g. ".lagda.md"
+for more flexible documentation - at the time of writing, this has not
+been tested though.
+
 For naming conventions specific to the Algebra subfolder, see
 [Cubical/Algebra/NAMING.md](https://github.com/agda/cubical/blob/master/Cubical/Algebra/NAMING.md).
 
