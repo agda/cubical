@@ -5,7 +5,7 @@
   Use begin< to obtain a strict inequality (in this case, at least one < is required in the chain).
   Use begin≤ to obtain a nonstrict inequality.
 
-  Import <-≤-StrictReasoning if you only need begin<,
+  Import <-≤-StrictReasoning if you only need to obtain strict inequalities,
   import <-≤-Reasoning otherwise.
 -}
 
@@ -23,7 +23,8 @@ open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.Binary.Order.Poset.Base
 open import Cubical.Relation.Binary.Order.Quoset.Base
 
-private variable ℓ ℓ≤ ℓ< : Level
+private variable
+  ℓ ℓ≤ ℓ< : Level
 
 module <-≤-StrictReasoning
     (P : Type ℓ)
@@ -33,14 +34,15 @@ module <-≤-StrictReasoning
     (≤-<-trans : ∀ x {y z} → x ≤ y → y < z → x < z)
   where
 
+  private variable
+    x y z : P
+
   data _<≤≡_ : P → P → Type (ℓ-max ℓ (ℓ-max ℓ< ℓ≤)) where
-    strict    : ∀ {x y} → x < y → x <≤≡ y
-    nonstrict : ∀ {x y} → x ≤ y → x <≤≡ y
-    equal     : ∀ {x y} → x ≡ y → x <≤≡ y
+    strict    : x < y → x <≤≡ y
+    nonstrict : x ≤ y → x <≤≡ y
+    equal     : x ≡ y → x <≤≡ y
 
   private
-    variable x y z : P
-
     Is< : ∀ {x y} → x <≤≡ y → Type ℓ<
     Is< {x} {y} (strict    _) = x < y
     Is<         (nonstrict _) = ⊥*
