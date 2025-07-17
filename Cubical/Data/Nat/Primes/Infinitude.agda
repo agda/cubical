@@ -5,10 +5,10 @@ module Cubical.Data.Nat.Primes.Infinitude where
 open import Cubical.Data.Nat.Primes.Imports
 open import Cubical.Data.Nat.Primes.Lemmas
 open import Cubical.Data.Nat.Primes.Base
-open import Cubical.Data.Nat.Primes.Split
 open import Cubical.Data.Nat.Primes.Concrete
 open import Cubical.Data.Nat.Primes.Factors
 open import Cubical.Data.Nat.Primes.DecProps
+open import Cubical.Data.Nat.Count
 
 
 nextPrime : (n : ℕ) → Σ[ p ∈ ℕ ] ((n < p) × (isPrime p)) × ((z : ℕ) → (n < z) × isPrime z → p ≤ z)

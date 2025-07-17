@@ -40,12 +40,8 @@ infixl -9 step⇒ step⇒⟨⟩
 1<→¬=0 : ∀ a → 1 < a → ¬ a ≡ 0
 1<→¬=0 a (b , b+2=a) a=0 = snotz (+-comm 2 b ∙ b+2=a ∙ a=0)
 
-¬a+sn=n : ∀ {a} n → ¬ a + suc n ≡ n
-¬a+sn=n {a} zero a+sn=n = snotz (subst (λ x → x ≡ 0) (+-suc a 0) a+sn=n)
-¬a+sn=n {a} (suc n) a+sn=n = ¬a+sn=n n (injSuc (subst (λ x → x ≡ suc n) (+-suc a (suc n)) a+sn=n))
-
 <≠ : forall {m} {n} → m < n → ¬ m ≡ n
-<≠ {m = m} (a , a+sm=n) m=n = ¬a+sn=n m (subst (λ x → a + suc m ≡ x) (sym m=n) a+sm=n)
+<≠ {m = m} m<n m=n = <-asym m<n (0 , sym m=n)
 
 ¬n<n : ∀ {n} → ¬ n < n
 ¬n<n n<n = <≠ n<n refl
@@ -166,8 +162,8 @@ div1→1 n ∣n∣1∣ = ab=1→1 k n kn=1 where
 
 -- decidability lemmas
 
-Dec-1<n : ∀ k → Dec (1 < k)
-Dec-1<n k with (1 ≟ k)
+Dec-1<k : ∀ k → Dec (1 < k)
+Dec-1<k k with (1 ≟ k)
 ...     | lt 1<k = yes 1<k
 ...     | eq 1=k = no (λ x → <≠ x 1=k)
 ...     | gt k<1 = no (<<-asym k<1)
@@ -191,21 +187,14 @@ Dec-k∣n {n@(suc n-1)} k with (any? {n = n} (λ (x , _) → discreteℕ (x · k
                      (suc< (z<suc k)) (z<suc n-1) (snd (∣-untrunc |ddiv|))) ,
             snd (∣-untrunc |ddiv|)))
 
-DecProd-aux : {A : Type ℓ} (P : A → Type ℓ') (Q : A → Type ℓ'') → ∀ {a} →
-              Dec (P a) → Dec (Q a) → Dec (P a × Q a)
-DecProd-aux _ _ (yes Pa) (yes Qa) = yes (Pa , Qa)
-DecProd-aux _ _ (yes Pa) (no ¬Qa) = no (λ pf → ¬Qa (pf .snd))
-DecProd-aux _ _ (no ¬Pa) _        = no (λ pf → ¬Pa (pf .fst))
-
-DecProd : {A : Type ℓ} {P : A → Type ℓ'} {Q : A → Type ℓ''} →
-          (∀ a → Dec (P a)) → (∀ a → Dec (Q a)) → (∀ a → Dec (P a × Q a))
-DecProd {P = P} {Q = Q} Pdec Qdec a = DecProd-aux P Q (Pdec a) (Qdec a)
-
 HasFactor : (n k : ℕ) → Type
 HasFactor n k = (1 < k) × (k ∣ n)
 
 DecHF : ∀ {n} k → Dec (HasFactor n k)
-DecHF = DecProd Dec-1<n Dec-k∣n
+DecHF k with (Dec-1<k k) | (Dec-k∣n k)
+... | (yes 1<k) | (yes k∣n) = yes (1<k , k∣n)
+... | (yes 1<k) | (no ¬k∣n) = no (λ (_ , k∣n) → ¬k∣n k∣n)
+... | (no ¬1<k) | _        = no (λ (1<k , _) → ¬1<k 1<k)
 
 -- find least natural with a given property, assuming there is one
 -- essentially the well-ordering principle: any inhabited subset has a least element
@@ -262,12 +251,8 @@ n≤! (suc n) = n≤n·pos (suc n) (n !) (0<factorial n)
     a∣n! : a ∣ (n !)
     a∣n! = ≤n∣n! a n (k , injSuc (sym (+-suc k a) ∙ k+sa=sn)) na=0
 
--- All and mapAll
+-- All
 
 data All {A : Type ℓ} (P : A → Type ℓ') : List A → Type (ℓ-max ℓ ℓ') where
   []  :                             All P []
   _∷_ : ∀ {x xs} → P x → All P xs → All P (x ∷ xs)
-
-mapAll : {A : Type ℓ} {P Q : A → Type ℓ'} {xs : List A} → (∀ {a} → P a → Q a) → All P xs → All Q xs
-mapAll f [] = []
-mapAll f (Px ∷ Pxs) = f Px ∷ mapAll f Pxs

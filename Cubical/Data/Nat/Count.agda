@@ -1,19 +1,54 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Data.Nat.Primes.Split where
+module Cubical.Data.Nat.Count where
 
-open import Cubical.Data.Nat.Primes.Imports
-open import Cubical.Data.Nat.Primes.Lemmas
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Order
+open import Cubical.Data.Sigma
+open import Cubical.Data.Sum hiding (elim ; rec ; map)
+open import Cubical.Data.List hiding (elim ; rec ; map)
+
+open import Cubical.Relation.Nullary
 open import Cubical.Data.Empty as ⊥ hiding (elim)
 
 
 private
     variable
-        ℓ ℓ' : Level
+        ℓ ℓ' ℓ'' : Level
+
+    -- some definitions and lemmas
 
     decToN : {A : Type ℓ} → Dec A → ℕ
     decToN (yes _) = 1
     decToN (no  _) = 0
+
+    data All {A : Type ℓ} (P : A → Type ℓ') : List A → Type (ℓ-max ℓ ℓ') where
+      []  :                             All P []
+      _∷_ : ∀ {x xs} → P x → All P xs → All P (x ∷ xs)
+
+    mapAll : {A : Type ℓ} {P Q : A → Type ℓ'} {xs : List A} → (∀ {a} → P a → Q a) → All P xs → All Q xs
+    mapAll f [] = []
+    mapAll f (Px ∷ Pxs) = f Px ∷ mapAll f Pxs
+
+    add-equations : ∀ {a} {b} {c} {d} → a ≡ b → c ≡ d → a + c ≡ b + d
+    add-equations {b = b} {c = c} a=b c=d = cong (_+ c) a=b ∙ cong (b +_) c=d
+
+    <≠ : forall {m} {n} → m < n → ¬ m ≡ n
+    <≠ {m = m} m<n m=n = <-asym m<n (0 , sym m=n)
+
+
+DecProd-aux : {A : Type ℓ} (P : A → Type ℓ') (Q : A → Type ℓ'') → ∀ {a} →
+              Dec (P a) → Dec (Q a) → Dec (P a × Q a)
+DecProd-aux _ _ (yes Pa) (yes Qa) = yes (Pa , Qa)
+DecProd-aux _ _ (yes Pa) (no ¬Qa) = no (λ pf → ¬Qa (pf .snd))
+DecProd-aux _ _ (no ¬Pa) _        = no (λ pf → ¬Pa (pf .fst))
+
+DecProd : {A : Type ℓ} {P : A → Type ℓ'} {Q : A → Type ℓ''} →
+          (∀ a → Dec (P a)) → (∀ a → Dec (Q a)) → (∀ a → Dec (P a × Q a))
+DecProd {P = P} {Q = Q} Pdec Qdec a = DecProd-aux P Q (Pdec a) (Qdec a)
+
 
 -- splitting naturals below a bound
 -- into those for which a given decidable property holds
