@@ -218,6 +218,14 @@ module _ {R : CommRing ℓ} where
               r ⋆ 1r                        ≡⟨ ·IdR _ ⟩
               B .snd .fst r ∎))
 
+  CommAlgebraEquivFromCommRingEquiv :
+    {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
+    → (f : CommRingEquiv (A .fst) (B .fst))
+    → ((f .fst .fst , f .snd)  ∘cr A .snd ≡ B .snd)
+    → CommAlgebraEquiv A B
+  CommAlgebraEquivFromCommRingEquiv f p .fst = f .fst
+  CommAlgebraEquivFromCommRingEquiv f p .snd = record { isCommRingHom = f .snd ; commutes = p }
+
 
 {- Convenient forgetful functions -}
 module _ {R : CommRing ℓ} where

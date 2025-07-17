@@ -27,7 +27,7 @@ open import Cubical.Algebra.CommAlgebra.Kernel
 open import Cubical.Algebra.CommAlgebra.FP.Base
 open import Cubical.Algebra.CommAlgebra.Notation
 import Cubical.Algebra.CommAlgebra.Polynomials as Poly
-import Cubical.Algebra.CommAlgebra.QuotientAlgebra as Quot
+import Cubical.Algebra.CommAlgebra.Quotient as Quot
 
 private variable
     ℓ ℓ' : Level

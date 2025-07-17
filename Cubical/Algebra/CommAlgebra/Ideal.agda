@@ -7,8 +7,8 @@ open import Cubical.Foundations.Powerset
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal renaming (IdealsIn to IdealsInCommRing;
                                                      makeIdeal to makeIdealCommRing)
+
 open import Cubical.Algebra.CommAlgebra.Base
--- open import Cubical.Algebra.Ring
 
 open import Cubical.Data.Unit
 
