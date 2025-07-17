@@ -23,8 +23,35 @@ open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.Binary.Order.Poset.Base
 open import Cubical.Relation.Binary.Order.Quoset.Base
 
-private variable
-  ℓ ℓ≤ ℓ< : Level
+private
+  variable
+    ℓ ℓ≤ ℓ< : Level
+
+  module Triple
+      (P : Type ℓ)
+      ((posetstr  (_≤_) isPoset ) : PosetStr ℓ≤ P)
+      ((quosetstr (_<_) isQuoset) : QuosetStr ℓ< P)
+    where
+      private variable
+        x y : P
+
+      data _<≤≡_ : P → P → Type (ℓ-max ℓ (ℓ-max ℓ< ℓ≤)) where
+        strict    : x < y → x <≤≡ y
+        nonstrict : x ≤ y → x <≤≡ y
+        equal     : x ≡ y → x <≤≡ y
+
+      Is< : ∀ {x y} → x <≤≡ y → Type ℓ<
+      Is< {x} {y} (strict    _) = x < y
+      Is<         (nonstrict _) = ⊥*
+      Is<         (equal     _) = ⊥*
+
+      Is<? : (x<y : x <≤≡ y) → Dec(Is< x<y)
+      Is<? (strict  x<y) = yes x<y
+      Is<? (nonstrict _) = no λ ()
+      Is<? (equal     _) = no λ ()
+
+      extract< : {xRy : x <≤≡ y} → Is< xRy → x < y
+      extract< {xRy = strict _} x<y = x<y
 
 module <-≤-StrictReasoning
     (P : Type ℓ)
@@ -34,27 +61,10 @@ module <-≤-StrictReasoning
     (≤-<-trans : ∀ x {y z} → x ≤ y → y < z → x < z)
   where
 
+  open Triple P (posetstr (_≤_) isPoset) (quosetstr (_<_) isQuoset)
+
   private variable
     x y z : P
-
-  data _<≤≡_ : P → P → Type (ℓ-max ℓ (ℓ-max ℓ< ℓ≤)) where
-    strict    : x < y → x <≤≡ y
-    nonstrict : x ≤ y → x <≤≡ y
-    equal     : x ≡ y → x <≤≡ y
-
-  private
-    Is< : ∀ {x y} → x <≤≡ y → Type ℓ<
-    Is< {x} {y} (strict    _) = x < y
-    Is<         (nonstrict _) = ⊥*
-    Is<         (equal     _) = ⊥*
-
-    Is<? : (x<y : x <≤≡ y) → Dec(Is< x<y)
-    Is<? (strict  x<y) = yes x<y
-    Is<? (nonstrict _) = no λ ()
-    Is<? (equal     _) = no λ ()
-
-    extract< : {xRy : x <≤≡ y} → Is< xRy → x < y
-    extract< {xRy = strict _} x<y = x<y
 
   infix 1 begin<_
   begin<_ : (r : x <≤≡ y) → {True (Is<? r)} → x < y
@@ -109,6 +119,7 @@ module <-≤-Reasoning
       <-≤-trans ≤-<-trans
     public
 
+  open Triple P (posetstr (_≤_) isPoset) (quosetstr (_<_) isQuoset)
   open IsPoset
 
   infix 1 begin≤_
