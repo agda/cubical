@@ -1,6 +1,7 @@
 {-# OPTIONS --lossy-unification --safe #-}
-{- Cellular approximation theorems for
--- cellular maps and homotopies
+{-
+Cellular approximation theorems for
+cellular maps and homotopies
 -}
 
 module Cubical.CW.Approximation where
@@ -18,6 +19,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
@@ -26,6 +28,7 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sequence
 open import Cubical.Data.FinSequence
 open import Cubical.Data.Nat.Order.Inductive
+open import Cubical.Data.Sum as ⊎
 
 open import Cubical.HITs.SequentialColimit
 open import Cubical.HITs.PropositionalTruncation as PT hiding (elimFin)
@@ -146,7 +149,7 @@ module _ (C : CWskel ℓ) (D : CWskel ℓ') (f : realise C → realise D) where
       invEq propTrunc≃Trunc1
        (invEq (_ , InductiveFinSatAC 1 (CWskel-fields.card C (suc m)) _)
         λ a → fst propTrunc≃Trunc1
-           (sphereToTrunc m λ y →
+           (sphereToTrunc (suc m) λ y →
              TR.map fst (isConnectedCong _ _ (isConnected-CW↪∞ (suc (suc m)) D)
                      (sym (push _)
                      ∙ (fh (CWskel-fields.α C (suc m) (a , y))
@@ -190,7 +193,7 @@ module _ (C : CWskel ℓ) (D : CWskel ℓ') (f : realise C → realise D) where
                     (fib-f-r x)) ∥₁
         mere-fib-f-coh = invEq propTrunc≃Trunc1
           (invEq (_ , InductiveFinSatAC 1 (card (suc m)) _)
-            λ a → fst propTrunc≃Trunc1 (sphereToTrunc m
+            λ a → fst propTrunc≃Trunc1 (sphereToTrunc (suc m)
               (sphereElim' m
                 (λ x → isOfHLevelRetractFromIso m
                 (invIso (PathPIdTruncIso (suc m)))
@@ -268,6 +271,129 @@ CWmap→finCellMap C D f m =
   → finsequencemap (fst ∘ g) (λ r x → sym (hom r x))
    , →FinSeqColimHomotopy _ _ (g flast .snd)})
      (approx C D f m)
+
+-- Version for finite CW complexes
+finCWmap→CellMap : ∀ {ℓ ℓ'} (n : ℕ) (C : finCWskel ℓ n) (D : CWskel ℓ')
+  (f : realise (finCWskel→CWskel n C) → realise D)
+  → ∃[ ϕ ∈ cellMap (finCWskel→CWskel n C) D ]
+      realiseCellMap ϕ ≡ f
+finCWmap→CellMap n C D f =
+  PT.map (λ {(ϕ , p) → ψ ϕ (funExt⁻ p)
+  , funExt λ x
+    → subst (λ x → realiseCellMap (ψ ϕ (funExt⁻ p)) x ≡ f x)
+            (Iso.rightInv (converges→ColimIso
+              {seq = realiseSeq (finCWskel→CWskel n C)} n (C .snd .snd)) x)
+            (cong (incl {n = n})
+              (silly ϕ (funExt⁻ p) _)
+            ∙ funExt⁻ p (fincl (n , (<ᵗsucm {n}))
+               (Iso.inv (converges→ColimIso n (C .snd .snd)) x)))})
+  (CWmap→finCellMap
+    (finCWskel→CWskel n C) D f n)
+  where
+  open SequenceMap renaming (map to smap)
+  open FinSequenceMap
+  module _ (ϕ : finCellMap n (finCWskel→CWskel n C) D)
+           (ϕid : (x : FinSeqColim n
+                      (realiseSeq (finCWskel→CWskel n C)))
+         → FinSeqColim→Colim n
+            (finCellMap→FinSeqColim (finCWskel→CWskel n C) D ϕ x)
+          ≡ f (FinSeqColim→Colim n x)) where
+    -- ψm' : (m : ℕ) → fst (finCWskel→CWskel n C) m → fst D m
+    -- ψm' m with (m ≟ suc n)
+    -- ... | lt q = fmap ϕ (m , q)
+    -- ... | eq q = fmap ϕ (m , {!!})
+    -- ... | gt q = {!!}
+
+    C≃ : (k : ℕ) → fst C n ≃ fst C (k +ℕ n)
+    C≃ zero = idEquiv _
+    C≃ (suc k) = compEquiv (C≃ k) (_ , snd (snd C) k)
+
+    C→D : (k : ℕ) → fst C (k +ℕ n) → fst D (k +ℕ n)
+    C→D k = CW↪Iterate D n k
+          ∘ fmap ϕ (n , <ᵗsucm {n})
+          ∘ invEq (C≃ k)
+
+    C→D-cellular : (k : ℕ) (x : fst (finCWskel→CWskel n C) (k +ℕ n))
+      → C→D (suc k) (CW↪ (finCWskel→CWskel n C) (k +ℕ n) x)
+       ≡ CW↪ D (k +ℕ n) (C→D k x)
+    C→D-cellular k x =
+      cong (CW↪ D (k +ℕ n) ∘ CW↪Iterate D n k ∘ fmap ϕ (n , <ᵗsucm))
+        (cong (invEq (C≃ k)) (retEq (_ , snd (snd C) k) x))
+
+    mainlem : ∀ {ℓ ℓ'} (D : ℕ → Type ℓ) (C : ℕ → Type ℓ') (n : ℕ)
+      → (C→D : (k : ℕ) → C (k +ℕ n) → D (k +ℕ n))
+      → (D↑ : (n : ℕ) → D n → D (suc n))
+      → (C↑ : (n : ℕ) → C n → C (suc n))
+      → (cm : (k : ℕ) (x : _)
+              → C→D (suc k) (C↑ (k +ℕ n) x)
+              ≡ D↑ (k +ℕ n) (C→D k x))
+      (r : ℕ) (k : ℕ) (p4 : r +ℕ n ≡ k)
+      (x : C k) (z : ℕ) (p0 : suc r ≡ z) (p1 : suc k ≡ z +ℕ n)
+                          (m : ℕ) (p3 : r +ℕ n ≡ m)
+                          (p2 : z +ℕ n ≡ suc m)
+      → D↑ m (subst D p3 (C→D r (subst C (sym p4) x)))
+      ≡ subst D p2 (C→D z (subst C p1 (C↑ k x)))
+    mainlem C D n C→D D↑ C↑ cm r =
+      J> λ x → J> λ p1 → J> λ p2
+        → cong (D↑ (r +ℕ n))
+                (transportRefl _ ∙ cong (C→D r) (transportRefl _))
+        ∙ sym ((λ i → subst C (isSetℕ _ _ p2 refl i)
+                        (C→D (suc r) (subst D (isSetℕ _ _ p1 refl i)
+                          (C↑ (r +ℕ n) x))))
+             ∙ transportRefl _
+             ∙ cong (C→D (suc r)) (transportRefl _)
+             ∙ cm r x)
+
+    ψm : (m : ℕ) → fst (finCWskel→CWskel n C) m → fst D m
+    ψm m with (Dichotomyℕ n m)
+    ... | inl q = subst (fst D) (snd q)
+                ∘ C→D (fst q)
+                ∘ subst (fst C) (sym (snd q))
+    ... | inr q = fmap ϕ (m , <ᵗ-trans (<→<ᵗ q) (<ᵗsucm {n}))
+
+    ψ : cellMap (finCWskel→CWskel n C) D
+    smap ψ = ψm
+    comm ψ m x with (Dichotomyℕ n m) | Dichotomyℕ n (suc m)
+    ... | inl n≤m | inl n≤sucm =
+        mainlem (fst D) (fst C) n C→D (CW↪ D) (CW↪ (finCWskel→CWskel n C))
+          C→D-cellular _ _ _ _ _
+            (inj-+m  {m = n} (cong suc (snd n≤m)
+              ∙ sym (cong predℕ (cong suc (snd n≤sucm))))) _ _ _ _
+    ... | inl n≤m | inr n>sucm =
+      ⊥.rec (<-asym (<≤-trans n>sucm n≤m) (1 , refl))
+    ... | inr n>m | inl (zero , n≤sucm) =
+        (cong (CW↪ D m)
+          (cong (λ p → fmap ϕ (m , p) x) (isProp<ᵗ _ _))
+        ∙ fcomm ϕ (m , <→<ᵗ n>m) x)
+      ∙ cong (λ p → fmap ϕ (suc m , p) c) (isProp<ᵗ _ _)
+      ∙ λ j → transp (λ i → fst D (n≤sucm (i ∨ ~ j))) (~ j)
+                (fmap ϕ (n≤sucm (~ j) ,
+                  isProp→PathP {B = λ j → n≤sucm (~ j) <ᵗ suc n}
+                    (λ _ → isProp<ᵗ) (<→<ᵗ n>m) <ᵗsucm j)
+                 (transp (λ i → fst C (n≤sucm (~ i ∨ ~ j))) (~ j)
+                   c))
+      where
+      c = CW↪ (finCWskel→CWskel n C) m x
+      lem : n>m ≡ (0 , sym n≤sucm)
+      lem = isProp≤ _ _
+    ... | inr n>m | inl (suc diff , n≤sucm) =
+      ⊥.rec (<-asym (<≤-trans (diff , +-suc diff n ∙ n≤sucm) n>m) (0 , refl))
+    ... | inr n>m | inr n>sucm =
+         cong (CW↪ D m)
+           (funExt⁻ (cong (fmap ϕ) (ΣPathP (refl , (isProp<ᵗ _ _)))) x)
+       ∙ fcomm ϕ (m , <→<ᵗ n>m) x
+       ∙ funExt⁻ (cong (fmap ϕ) (ΣPathP (refl , (isProp<ᵗ _ _)))) _
+
+    silly : (x : _) → smap ψ n x ≡ fmap ϕ (n , <ᵗsucm {n}) x
+    silly x with (Dichotomyℕ n n)
+    ... | inl (zero , p) =
+       cong (λ p → subst (fst D) p (C→D zero (subst (fst C) (sym p) x)))
+            (isSetℕ _ _ p refl)
+      ∙ transportRefl _
+      ∙ cong (C→D zero) (transportRefl x)
+    ... | inl (suc diff , p) =
+      ⊥.rec (¬m<ᵗm {n} (<→<ᵗ (diff , (+-suc diff n ∙ p))))
+    ... | inr p = ⊥.rec (¬m<ᵗm (<→<ᵗ p))
 
 ---- Part 3. The (finite) cellular approximation theorem for cellular homotopies: -----
 -- Given two (m)-finite cellular maps fₙ, gₙ : Cₙ → Dₙ agreeing on
@@ -520,7 +646,7 @@ module approx {C : CWskel ℓ} {D : CWskel ℓ'}
       Iso.inv propTruncTrunc1Iso
         (invEq (_ , InductiveFinSatAC 1 _ _)
         λ x → Iso.fun propTruncTrunc1Iso
-                (sphereToTrunc n' (fiber-cong²-hₙ₊₁-push∞ x)))
+                (sphereToTrunc (suc n') (fiber-cong²-hₙ₊₁-push∞ x)))
 
     module _ (q : (x : Fin (fst (snd C) (suc n'))) (y : S₊ n')
                 → fiber (cong² x y) (hₙ₊₁-push∞ x y)) where

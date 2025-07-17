@@ -958,11 +958,11 @@ v         f∘_      v
         → π' (suc n) A → π' (suc n) B
 π'∘∙fun n f = sMap (f ∘∙_)
 
-GroupHomπ≅π'PathP : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') (n : ℕ)
-  → GroupHom (πGr n A) (πGr n B) ≡ GroupHom (π'Gr n A) (π'Gr n B)
-GroupHomπ≅π'PathP A B n i =
+GroupHomπ≅π'PathP : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') (n m : ℕ)
+  → GroupHom (πGr n A) (πGr m B) ≡ GroupHom (π'Gr n A) (π'Gr m B)
+GroupHomπ≅π'PathP A B n m i =
   GroupHom (fst (GroupPath _ _) (GroupIso→GroupEquiv (π'Gr≅πGr n A)) (~ i))
-           (fst (GroupPath _ _) (GroupIso→GroupEquiv (π'Gr≅πGr n B)) (~ i))
+           (fst (GroupPath _ _) (GroupIso→GroupEquiv (π'Gr≅πGr m B)) (~ i))
 
 πFun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
      → π (suc n) A → π (suc n) B
@@ -979,7 +979,7 @@ snd (πHom n f) =
 π'∘∙Hom' : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
         → GroupHom (π'Gr n A) (π'Gr n B)
 π'∘∙Hom' {A = A} {B = B} n f =
-  transport (λ i → GroupHomπ≅π'PathP A B n i)
+  transport (λ i → GroupHomπ≅π'PathP A B n n i)
             (πHom n f)
 
 π'∘∙Hom'≡π'∘∙fun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
@@ -1006,6 +1006,14 @@ snd (π'∘∙Hom {A = A} {B = B} n f) = isHom∘∙
                                    (π'∘∙Hom'≡π'∘∙fun n f i)
                                    (π'Gr n B .snd))
                 (π'∘∙Hom' n f .snd)
+
+GroupHomπ≅π'PathP-hom : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+  (n : ℕ) (f : A →∙ B)
+  → PathP (λ i → GroupHomπ≅π'PathP A B n n i) (πHom n f) (π'∘∙Hom n f)
+GroupHomπ≅π'PathP-hom {A = A} {B = B} n f =
+  (λ j → transp (λ i → GroupHomπ≅π'PathP A B n n (i ∧ j)) (~ j)
+                 (πHom n f))
+  ▷ Σ≡Prop (λ _ → isPropIsGroupHom _ _) (π'∘∙Hom'≡π'∘∙fun n f)
 
 -- post composition with an equivalence induces an
 -- isomorphism of homotopy groups
@@ -1089,3 +1097,49 @@ is-set (isSemigroup (isMonoid (isGroup (snd (hGroupoidπ₁ A a))))) = snd A a a
 ·IdL (isMonoid (isGroup (snd (hGroupoidπ₁ A a)))) = sym ∘ lUnit
 ·InvR (isGroup (snd (hGroupoidπ₁ A a))) = rCancel
 ·InvL (isGroup (snd (hGroupoidπ₁ A a))) = lCancel
+
+-- Adjunction
+sphereFunIso : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+  → Iso (S₊∙ n →∙ (Path (fst A) (pt A) (pt A) , refl)) (S₊∙ (suc n) →∙ A)
+sphereFunIso zero = compIso IsoBool→∙ (invIso (IsoSphereMapΩ 1))
+sphereFunIso (suc n) = ΩSuspAdjointIso
+
+--
+∙Π∘∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+  (n : ℕ) (f g : S₊∙ (suc n) →∙ A) (h : A →∙ B)
+  → h ∘∙ ∙Π f g ≡ ∙Π (h ∘∙ f) (h ∘∙ g)
+∙Π∘∙ {A = A} n f g h =
+     cong (h ∘∙_) (cong₂ ∙Π (sym (Iso.rightInv (sphereFunIso n) f))
+                            (sym (Iso.rightInv (sphereFunIso n) g)))
+  ∙∙ lem2 n (Iso.inv (sphereFunIso n) f) (Iso.inv (sphereFunIso n) g)
+  ∙∙ cong₂ (λ f g → ∙Π (h ∘∙ f) (h ∘∙ g))
+           (Iso.rightInv (sphereFunIso n) f)
+           (Iso.rightInv (sphereFunIso n) g)
+  where
+  lem : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → Square p refl (refl ∙ p) refl
+  lem p = lUnit p ◁ λ i j → (refl ∙ p) (i ∨ j)
+
+  mainEq : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (a : A) (b : B)
+    (fp : f a ≡ b) (l1 l2 : a ≡ a)
+    → Square (cong f ((l1 ∙ refl) ∙ (l2 ∙ refl)))
+             ((sym (refl ∙ fp) ∙∙ cong f l1 ∙∙ (refl ∙ fp))
+            ∙ (sym (refl ∙ fp) ∙∙ cong f l2 ∙∙ (refl ∙ fp)))
+              fp fp
+  mainEq f a = J> λ l1 l2 → cong-∙ f _ _
+    ∙ cong₂ _∙_ (cong-∙ f l1 refl  ∙ cong₃ _∙∙_∙∙_ (rUnit refl) refl (rUnit refl))
+                (cong-∙ f l2 refl ∙ cong₃ _∙∙_∙∙_ (rUnit refl) refl (rUnit refl))
+
+  lem2 : (n : ℕ) (f g : S₊∙ n →∙ Ω A)
+    → (h ∘∙ ∙Π (Iso.fun (sphereFunIso n) f) (Iso.fun (sphereFunIso n) g))
+    ≡ ∙Π (h ∘∙ Iso.fun (sphereFunIso n) f) (h ∘∙ Iso.fun (sphereFunIso n) g)
+  fst (lem2 zero f g i) base = snd h i
+  fst (lem2 zero f g i) (loop i₁) =
+    mainEq (fst h) _ _ (snd h) (fst f false) (fst g false) i i₁
+  fst (lem2 (suc n) f g i) north = snd h i
+  fst (lem2 (suc n) f g i) south = snd h i
+  fst (lem2 (suc n) f g i) (merid a i₁) =
+    mainEq (fst h) _ _ (snd h)
+      (cong (Iso.fun (sphereFunIso (suc n)) f .fst) (σS a))
+      (cong (Iso.fun (sphereFunIso (suc n)) g .fst) (σS a)) i i₁
+  snd (lem2 zero f g i) j = lem (snd h) j i
+  snd (lem2 (suc n) f g i) j = lem (snd h) j i

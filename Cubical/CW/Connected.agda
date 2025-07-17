@@ -8,12 +8,17 @@ is defined by saying that it has non-trivial cells only in dimension
 The main result is packaged up in makeConnectedCW. This says that the
 usual notion of connectedness in terms of truncations (merely)
 coincides with the above definition for CW complexes.
+
+It also contains a proof that of πₙ₊₂X is finitely presented for X an
+(n+1)-connected CW complex
 -}
 
 module Cubical.CW.Connected where
 
 open import Cubical.CW.Base
 open import Cubical.CW.Properties
+open import Cubical.CW.Instances.SphereBouquetMap
+open import Cubical.CW.Subcomplex
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -51,6 +56,13 @@ open import Cubical.Axiom.Choice
 open import Cubical.Relation.Nullary
 
 open import Cubical.Homotopy.Connected
+open import Cubical.Homotopy.Group.Base
+open import Cubical.Homotopy.Group.Properties
+open import Cubical.Homotopy.Group.PiCofibFinSphereBouquetMap
+
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.AbGroup.Base
+open import Cubical.Algebra.AbGroup.FinitePresentation
 
 open Sequence
 
@@ -73,9 +85,19 @@ yieldsCombinatorialConnectedCWskel A n =
 connectedCWskel : (ℓ : Level) (n : ℕ) → Type (ℓ-suc ℓ)
 connectedCWskel ℓ n = Σ[ X ∈ (ℕ → Type ℓ) ] (yieldsConnectedCWskel X n)
 
+connectedCWskel→CWskel : ∀ {ℓ} {n : ℕ}
+  → connectedCWskel ℓ n → CWskel ℓ
+fst (connectedCWskel→CWskel sk) = fst sk
+snd (connectedCWskel→CWskel sk) = fst (snd sk)
+
 combinatorialConnectedCWskel : (ℓ : Level) (n : ℕ) → Type (ℓ-suc ℓ)
 combinatorialConnectedCWskel ℓ n =
   Σ[ X ∈ (ℕ → Type ℓ) ] (yieldsCombinatorialConnectedCWskel X n)
+
+combinatorialConnectedCWskel→CWskel : ∀ {ℓ} {n : ℕ}
+  → combinatorialConnectedCWskel ℓ n → CWskel ℓ
+fst (combinatorialConnectedCWskel→CWskel sk) = fst sk
+snd (combinatorialConnectedCWskel→CWskel sk) = fst (snd sk)
 
 isConnectedCW : ∀ {ℓ} (n : ℕ) → Type ℓ → Type (ℓ-suc ℓ)
 isConnectedCW {ℓ = ℓ} n A =
@@ -84,6 +106,18 @@ isConnectedCW {ℓ = ℓ} n A =
 isConnectedCW' : ∀ {ℓ} (n : ℕ) → Type ℓ → Type (ℓ-suc ℓ)
 isConnectedCW' {ℓ = ℓ} n A =
   Σ[ sk ∈ combinatorialConnectedCWskel ℓ n ] realise (_ , (snd sk .fst)) ≃ A
+
+ConnectedCW : (ℓ : Level) (n : ℕ) → Type (ℓ-suc ℓ)
+ConnectedCW ℓ n = Σ[ X ∈ Type ℓ ] isConnectedCW n X
+
+ConnectedCW→CWexplicit : ∀ {ℓ} {n : ℕ} → ConnectedCW ℓ n → CWexplicit ℓ
+fst (ConnectedCW→CWexplicit (X , p , con)) = X
+fst (fst (snd (ConnectedCW→CWexplicit (X , (Xsk , _ , _) , con)))) = Xsk
+snd (fst (snd (ConnectedCW→CWexplicit (X , (Xsk , p , _) , con)))) = p
+snd (snd (ConnectedCW→CWexplicit (X , (Xsk , _ , _) , con))) = invEquiv con
+
+ConnectedCW→CW : ∀ {ℓ} {n : ℕ} → ConnectedCW ℓ n → CW ℓ
+ConnectedCW→CW X = CWexplicit→CW (ConnectedCW→CWexplicit X)
 
 --- Goal: show that these two definitions coincide (note that indexing is off by 2) ---
 -- For the base case, we need to analyse α₀ : Fin n × S⁰ → X₁ (recall,
@@ -622,7 +656,7 @@ isConnectedCW→Contr (suc n) sk (suc x , p)
                  ind)
 
 makeConnectedCW : ∀ {ℓ} (n : ℕ) {C : Type ℓ}
-  → isCW C
+  → hasCWskel C
   → isConnected (suc (suc n)) C
   → ∥ isConnectedCW n C ∥₁
 makeConnectedCW zero {C = C} (cwsk , e) cA =
@@ -903,7 +937,7 @@ makeConnectedCW {ℓ = ℓ} (suc n) {C = C} (cwsk , eqv) cA with
           sphereVanish : (f : S₊ (suc n) → C4+n)
                       → ∥ ((x : S₊ (suc n)) → f x ≡ C⋆) ∥₁
           sphereVanish f =
-            sphereToTrunc (suc n)
+            sphereToTrunc (suc (suc n))
               λ x → isConnectedPath 2+n isConnectedC4+n _ _ .fst
 
           pted = Iso.fun (PathIdTruncIso 2+n)
@@ -1041,7 +1075,7 @@ makeConnectedCW {ℓ = ℓ} (suc n) {C = C} (cwsk , eqv) cA with
               invEq propTrunc≃Trunc1
                 (invEq (_ , InductiveFinSatAC _ _ _)
                   λ x → fst propTrunc≃Trunc1
-                    (sphereToTrunc 2+n
+                    (sphereToTrunc (suc 2+n)
                       λ y → isConnectedInr-cofib∘inr (inl (inr (x , y))) .fst))
               where
               isConnectedInr-cofibβ :
@@ -1321,3 +1355,185 @@ makeConnectedCW {ℓ = ℓ} (suc n) {C = C} (cwsk , eqv) cA with
                     ((λ m → C'-realise m ((m +ℕ 4+n) ≟ᵗ 3+n))
                     , (λ n → C'-realise-coh n _ _)))
                     (invIso (SeqColimIso _ (4 +ℕ n)))))) (ind .snd)
+
+-- As a consequence, we can compute Xₘ for m small enough when X is an
+-- n-connected CW complex.  This is done in the following three theorems
+open CWskel-fields
+connectedCWContr : (n m : ℕ) (l : m <ᵗ suc n) (X : Type)
+  (cwX : isConnectedCW n X) → isContr (fst (fst cwX) (suc m))
+connectedCWContr n zero l X cwX =
+  subst isContr (cong Fin (sym ((snd (fst cwX)) .snd .fst))
+                ∙ sym (ua (CW₁-discrete (connectedCWskel→CWskel (fst cwX)))))
+       (inhProp→isContr fzero isPropFin1)
+connectedCWContr n (suc m) l X cwX =
+  subst isContr
+    (ua (compEquiv (isoToEquiv (PushoutEmptyFam
+      (¬Fin0 ∘ subst Fin cardₘ₊₁≡0 ∘ fst)
+      (¬Fin0 ∘ subst Fin cardₘ₊₁≡0)))
+      (invEquiv (e (connectedCWskel→CWskel (fst cwX)) (suc m)))
+      ))
+    (connectedCWContr n m (<ᵗ-trans l <ᵗsucm) X cwX)
+  where
+  cardₘ₊₁≡0 = snd (snd (snd (fst cwX))) m l
+
+connectedCW≃SphereBouquet : (n : ℕ) (X : Type) (cwX : isConnectedCW n X)
+  → fst (fst cwX) (suc (suc n))
+  ≃ SphereBouquet (suc n) (Fin (card (connectedCWskel→CWskel (fst cwX)) (suc n)))
+connectedCW≃SphereBouquet n X cwX =
+  compEquiv
+    (e (connectedCWskel→CWskel (fst cwX)) (suc n))
+    (compEquiv
+     (pushoutEquiv _ _ _ fst
+       (idEquiv _)
+       (isContr→≃Unit (connectedCWContr n n <ᵗsucm X cwX))
+       (idEquiv _)
+       (λ _ _ → tt)
+       (λ i x → fst x))
+     (compEquiv (isoToEquiv (Iso-cofibFst-⋁ (λ A → S₊∙ n)))
+     (pushoutEquiv _ _ _ _ (idEquiv _) (idEquiv _)
+       (Σ-cong-equiv-snd (λ _ → isoToEquiv (invIso (IsoSucSphereSusp n))))
+       (λ _ _ → tt) (λ i x → x , IsoSucSphereSusp∙ n i))))
+
+module _ (n : ℕ) (X : Type) (cwX : isConnectedCW n X)
+         (str : isCW (fst cwX .fst (suc (suc (suc n))))) where
+
+  private
+   X₃₊ₙ = fst (fst cwX) (suc (suc (suc n)))
+   X₂₊ₙ = fst (fst cwX) (suc (suc n))
+   Xˢᵏᵉˡ = connectedCWskel→CWskel (fst cwX)
+
+   X₃₊ₙᶜʷ : CW ℓ-zero
+   X₃₊ₙᶜʷ = X₃₊ₙ , str
+
+  connectedCW≃CofibFinSphereBouquetMap :
+     ∃[ α ∈ FinSphereBouquetMap∙
+              (card Xˢᵏᵉˡ (suc (suc n))) (card Xˢᵏᵉˡ (suc n)) n ]
+      (X₃₊ₙᶜʷ ≡ SphereBouquet/ᶜʷ  (fst α))
+  connectedCW≃CofibFinSphereBouquetMap =
+    PT.rec squash₁
+    (λ {(x , ptz , t) →
+      ∣ ≃∘α' x ptz t
+      , Σ≡Prop (λ _ → squash₁)
+               (isoToPath (connectedCW≅CofibFinSphereBouquetMap x ptz t)) ∣₁})
+    lem
+    where
+    isConX₂₊ₙ : isConnected 2 X₂₊ₙ
+    isConX₂₊ₙ =
+      subst (isConnected 2) (ua (invEquiv (connectedCW≃SphereBouquet n X cwX)))
+            (isConnectedSubtr' n 2 isConnectedSphereBouquet')
+
+    lem : ∃[ x ∈ X₂₊ₙ ]
+          (((a : Fin (card Xˢᵏᵉˡ (suc (suc n))))
+         → x ≡ α Xˢᵏᵉˡ (suc (suc n)) (a , ptSn (suc n)))
+         × (fst (connectedCW≃SphereBouquet n X cwX) x ≡ inl tt))
+    lem = TR.rec (isProp→isSet squash₁)
+      (λ x₀ → TR.rec squash₁
+        (λ pts → TR.rec squash₁ (λ F → ∣ x₀ , F , pts ∣₁)
+          (invEq (_ , InductiveFinSatAC 1 (card Xˢᵏᵉˡ (suc (suc n))) _)
+                λ a → isConnectedPath 1 isConX₂₊ₙ _ _ .fst))
+        (isConnectedPath 1 (isConnectedSubtr' n 2 isConnectedSphereBouquet')
+          (fst (connectedCW≃SphereBouquet n X cwX) x₀) (inl tt) .fst))
+      (fst isConX₂₊ₙ)
+
+    module _ (x : X₂₊ₙ)
+             (pts : ((a : Fin (card Xˢᵏᵉˡ (suc (suc n))))
+                  → x ≡ α Xˢᵏᵉˡ (suc (suc n)) (a , ptSn (suc n))))
+             (ptd : fst (connectedCW≃SphereBouquet n X cwX) x ≡ inl tt) where
+      α' : SphereBouquet (suc n) (Fin (card Xˢᵏᵉˡ (suc (suc n)))) → X₂₊ₙ
+      α' (inl tt) = x
+      α' (inr x) = α Xˢᵏᵉˡ (suc (suc n)) x
+      α' (push a i) = pts a i
+
+      ≃∘α' : SphereBouquet∙ (suc n) (Fin (card Xˢᵏᵉˡ (suc (suc n))))
+       →∙ SphereBouquet∙ (suc n) (Fin (card Xˢᵏᵉˡ (suc n)))
+      fst ≃∘α' = fst (connectedCW≃SphereBouquet n X cwX) ∘ α'
+      snd ≃∘α' = ptd
+
+      connectedCW≅CofibFinSphereBouquetMap :
+        Iso X₃₊ₙ (cofib (fst ≃∘α'))
+      connectedCW≅CofibFinSphereBouquetMap =
+        compIso (equivToIso (compEquiv
+          (e Xˢᵏᵉˡ (suc (suc n)))
+          (pushoutEquiv _ _ _ _
+            (idEquiv _) (connectedCW≃SphereBouquet n X cwX) (idEquiv _)
+            (λ i x → fst ≃∘α' (inr x))
+            (λ i x → fst x))))
+        (⋁-cofib-Iso (SphereBouquet∙ (suc n) (Fin (card Xˢᵏᵉˡ (suc n)))) ≃∘α')
+
+-- Proof that πₙ₊₂(X) is FP when X is (n+1)-connected
+-- first: a proof of the result with some additional explicit assumptions
+-- (which we later get for free up to propositional truncation)
+module isFinitelyPresented-π'connectedCW-lemmas
+  (X : Pointed ℓ-zero) (n : ℕ)
+  (X' : isConnectedCW (1 +ℕ n) (typ X))
+  (isConX' : isConnected 2 (X' .fst .fst (4 +ℕ n)))
+  (x : X' .fst .fst (4 +ℕ n))
+  (x≡ : X' .snd .fst (CW↪∞ (connectedCWskel→CWskel (fst X')) (4 +ℕ n) x)
+          ≡ snd X)
+  where
+  private
+    Xˢᵏᵉˡ : CWskel _
+    Xˢᵏᵉˡ = connectedCWskel→CWskel (fst X')
+
+    e∞ = X' .snd
+
+    X₄₊ₙ∙ : Pointed _
+    fst X₄₊ₙ∙ = X' .fst .fst (4 +ℕ n)
+    snd X₄₊ₙ∙ = x
+
+  firstEquiv : GroupEquiv (π'Gr (suc n) X₄₊ₙ∙) (π'Gr (suc n) X)
+  firstEquiv =
+     (connectedFun→π'Equiv (suc n)
+       (fst e∞ ∘ CW↪∞ Xˢᵏᵉˡ (4 +ℕ n) , x≡)
+       (isConnectedComp (fst e∞) (CW↪∞ Xˢᵏᵉˡ (4 +ℕ n)) _
+         (isEquiv→isConnected _ (snd e∞) (4 +ℕ n))
+         (isConnected-CW↪∞ (4 +ℕ n) Xˢᵏᵉˡ)))
+
+  isFP-π'X₄₊ₙ : isFinitelyPresented (Group→AbGroup (π'Gr (suc n) X₄₊ₙ∙)
+                                    (π'-comm n))
+  isFP-π'X₄₊ₙ = PT.rec squash₁
+    (λ {(α , e) → PT.map
+      (λ pp → subst FinitePresentation
+                      (cong (λ X → Group→AbGroup (π'Gr (suc n) X) (π'-comm n))
+                     (ΣPathP ((sym (cong fst e)) , pp)))
+                     (hasFPπ'CofibFinSphereBouquetMap α))
+      (lem α (cong fst e))})
+     (connectedCW≃CofibFinSphereBouquetMap (suc n) (fst X)
+        X' (subCW (4 +ℕ n) (fst X , Xˢᵏᵉˡ , invEquiv e∞) .snd))
+      where
+      lem : (α : FinSphereBouquetMap∙
+                   (card Xˢᵏᵉˡ (suc (suc (suc n)))) (card Xˢᵏᵉˡ (suc (suc n)))
+                   (suc n))
+             (e : fst X₄₊ₙ∙ ≡ cofib (fst α))
+        → ∥ PathP (λ i → e (~ i)) (inl tt) x ∥₁
+      lem α e = TR.rec squash₁ ∣_∣₁ (isConnectedPathP _ isConX' _ _ .fst)
+
+  isFPX : isFinitelyPresented (Group→AbGroup (π'Gr (suc n) X) (π'-comm n))
+  isFPX =
+    PT.map (λ fp → subst FinitePresentation (AbGroupPath _ _ .fst firstEquiv) fp)
+           isFP-π'X₄₊ₙ
+
+-- Main result
+isFinitelyPresented-π'connectedCW : (X : Pointed ℓ-zero)
+  (cwX : isCW (fst X)) (n : ℕ) (cX : isConnected (3 +ℕ n) (typ X))
+  → isFinitelyPresented (Group→AbGroup (π'Gr (suc n) X) (π'-comm n))
+isFinitelyPresented-π'connectedCW X =
+  PT.rec (isPropΠ2 (λ _ _ → squash₁)) λ cwX n cX →
+  PT.rec squash₁ (λ a →
+  PT.rec squash₁ (λ b →
+  PT.rec squash₁ (λ c →
+  PT.rec squash₁ (isFPX X n a b c)
+    (TR.rec (isProp→isOfHLevelSuc (suc n) squash₁) ∣_∣₁
+            (isConnectedPath _ cX _ _ .fst)))
+    (TR.rec (isOfHLevelSuc 1 squash₁) ∣_∣₁ (b .fst)))
+    ∣ connectedFunPresConnected 2
+       {f = fst (snd a) ∘ CW↪∞ (connectedCWskel→CWskel (fst a)) (4 +ℕ n)}
+         (isConnectedSubtr' (suc n) 2 cX)
+         (isConnectedComp (fst (snd a)) _ _
+           (isEquiv→isConnected _ (snd (snd a)) 2)
+         λ b → isConnectedSubtr' (suc (suc n)) 2
+                 ((isConnected-CW↪∞ (4 +ℕ n)
+                   (connectedCWskel→CWskel (fst a))) b)) ∣₁)
+    (makeConnectedCW (1 +ℕ n) cwX cX)
+  where
+  open isFinitelyPresented-π'connectedCW-lemmas
