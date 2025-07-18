@@ -316,3 +316,14 @@ module _ {C : Category ℓC ℓC'}
   compFunctorᴰGlobalSection : Functorᴰ F Cᴰ Dᴰ → GlobalSection Cᴰ → Section F Dᴰ
   compFunctorᴰGlobalSection Fᴰ Gᴰ = reindS' (Eq.refl , Eq.refl)
     (compFunctorᴰSection Fᴰ Gᴰ)
+
+module _ {C : Category ℓC ℓC'}
+         {D : Category ℓD ℓD'}
+         {F : Functor C D}
+         {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'} where
+  _^opS : Section F Dᴰ → Section (F ^opF) (Dᴰ ^opᴰ)
+  (S ^opS) .Section.F-obᴰ d = S .Section.F-obᴰ d
+  (S ^opS) .Section.F-homᴰ = S .Section.F-homᴰ
+  (S ^opS) .Section.F-idᴰ = S .Section.F-idᴰ
+  (S ^opS) .Section.F-seqᴰ f g = S .Section.F-seqᴰ g f
+  

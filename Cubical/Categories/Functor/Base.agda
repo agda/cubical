@@ -149,21 +149,21 @@ _^opF  : Functor C D → Functor (C ^op) (D ^op)
 (F ^opF) .F-id      = F .F-id
 (F ^opF) .F-seq f g = F .F-seq g f
 
-open Iso
-Iso^opF : Iso (Functor C D) (Functor (C ^op) (D ^op))
-fun Iso^opF = _^opF
-inv Iso^opF = _^opF
-F-ob (rightInv Iso^opF b i) = F-ob b
-F-hom (rightInv Iso^opF b i) = F-hom b
-F-id (rightInv Iso^opF b i) = F-id b
-F-seq (rightInv Iso^opF b i) = F-seq b
-F-ob (leftInv Iso^opF a i) = F-ob a
-F-hom (leftInv Iso^opF a i) = F-hom a
-F-id (leftInv Iso^opF a i) = F-id a
-F-seq (leftInv Iso^opF a i) = F-seq a
+-- open Iso
+-- Iso^opF : Iso (Functor C D) (Functor (C ^op) (D ^op))
+-- fun Iso^opF = _^opF
+-- inv Iso^opF = _^opF
+-- F-ob (rightInv Iso^opF b i) = F-ob b
+-- F-hom (rightInv Iso^opF b i) = F-hom b
+-- F-id (rightInv Iso^opF b i) = F-id b
+-- F-seq (rightInv Iso^opF b i) = F-seq b
+-- F-ob (leftInv Iso^opF a i) = F-ob a
+-- F-hom (leftInv Iso^opF a i) = F-hom a
+-- F-id (leftInv Iso^opF a i) = F-id a
+-- F-seq (leftInv Iso^opF a i) = F-seq a
 
-^opFEquiv : Functor C D ≃ Functor (C ^op) (D ^op)
-^opFEquiv = isoToEquiv Iso^opF
+-- ^opFEquiv : Functor C D ≃ Functor (C ^op) (D ^op)
+-- ^opFEquiv = isoToEquiv Iso^opF
 
 -- Functoriality on full subcategories defined by propositions
 ΣPropCatFunc : {P : ℙ (ob C)} {Q : ℙ (ob D)} (F : Functor C D)

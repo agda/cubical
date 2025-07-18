@@ -198,8 +198,8 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
 module _
   {C : Category ℓ ℓ'} (isUnivC : isUnivalent C) (P : Presheaf C ℓS) where
   open Contravariant
-  isPropUniversalElement : isProp (UniversalElement C P)
-  isPropUniversalElement = isOfHLevelRetractFromIso 1
-    (invIso (TerminalElement≅UniversalElement C P))
-    (isPropTerminal (∫ᴾ_ {C = C} P)
-    (isUnivalentOp (Covariant.isUnivalent∫ (isUnivalentOp isUnivC) P)))
+  -- isPropUniversalElement : isProp (UniversalElement C P)
+  -- isPropUniversalElement = isOfHLevelRetractFromIso 1
+  --   (invIso (TerminalElement≅UniversalElement C P))
+  --   (isPropTerminal (∫ᴾ_ {C = C} P)
+  --   (isUnivalentOp (Covariant.isUnivalent∫ (isUnivalentOp isUnivC) P)))

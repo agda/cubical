@@ -48,97 +48,97 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
 
   -- If F is essential surjective and full, (- ∘ F) is full.
 
-  isEssSurj+Full→isFullPrecomp : isEssentiallySurj F → isFull F → isFull (precomposeF E F)
-  isEssSurj+Full→isFullPrecomp surj full A B α = ∣ ext , ext≡ ∣₁
-    where
-    Mor : (d : D .ob) → Type _
-    Mor d =
-      Σ[ g ∈ E [ A .F-ob d , B .F-ob d ] ]
-        ((c : C .ob)(f : CatIso D (F .F-ob c) d)
-        → α .N-ob c ≡ A .F-hom (f .fst) ⋆⟨ E ⟩ g ⋆⟨ E ⟩ B .F-hom (f .snd .inv))
+  -- isEssSurj+Full→isFullPrecomp : isEssentiallySurj F → isFull F → isFull (precomposeF E F)
+  -- isEssSurj+Full→isFullPrecomp surj full A B α = ∣ ext , ext≡ ∣₁
+  --   where
+  --   Mor : (d : D .ob) → Type _
+  --   Mor d =
+  --     Σ[ g ∈ E [ A .F-ob d , B .F-ob d ] ]
+  --       ((c : C .ob)(f : CatIso D (F .F-ob c) d)
+  --       → α .N-ob c ≡ A .F-hom (f .fst) ⋆⟨ E ⟩ g ⋆⟨ E ⟩ B .F-hom (f .snd .inv))
 
-    isPropMor : (d : D .ob) → isProp (Mor d)
-    isPropMor d x y = Σ≡Prop (λ _ → isPropΠ2 (λ _ _ → E .isSetHom _ _)) path
-      where
-      path : x .fst ≡ y .fst
-      path = Prop.rec (E .isSetHom _ _)
-        (λ (c , f) →
-          ⋆CancelL (F-Iso {F = A} f) (⋆CancelR (invIso (F-Iso {F = B} f))
-            (sym (x .snd c f) ∙ y .snd c f)))
-        (surj d)
+  --   isPropMor : (d : D .ob) → isProp (Mor d)
+  --   isPropMor d x y = Σ≡Prop (λ _ → isPropΠ2 (λ _ _ → E .isSetHom _ _)) path
+  --     where
+  --     path : x .fst ≡ y .fst
+  --     path = Prop.rec (E .isSetHom _ _)
+  --       (λ (c , f) →
+  --         ⋆CancelL (F-Iso {F = A} f) (⋆CancelR (invIso (F-Iso {F = B} f))
+  --           (sym (x .snd c f) ∙ y .snd c f)))
+  --       (surj d)
 
-    isContrMor : (d : D .ob) → isContr (Mor d)
-    isContrMor d = inhProp→isContr inhab (isPropMor d)
-      where
-      inhab : Mor d
-      inhab = Prop.rec (isPropMor d)
-        (λ (a , h) →
-          A .F-hom (h .snd .inv) ⋆⟨ E ⟩ α .N-ob a ⋆⟨ E ⟩ B .F-hom (h .fst) ,
-          λ c f →
-            Prop.rec (E .isSetHom _ _)
-            (λ (k , p) →
-              let isom-path = subst-filler (isIso D) (sym p) (⋆Iso f (invIso h) .snd) in
-                ⋆InvRMove (F-Iso {F = B} (_ , isom-path i1)) (sym (α .N-hom k))
-              ∙ (λ i → A .F-hom (p i) ⋆⟨ E ⟩ α .N-ob a ⋆⟨ E ⟩ F-Iso {F = B} (p i , isom-path (~ i)) .snd .inv)
-              ∙ (λ i → A .F-seq (f .fst) (h .snd .inv) i ⋆⟨ E ⟩ α .N-ob a ⋆⟨ E ⟩ F-Iso-Pres⋆ {F = B} h (invIso f) i .fst)
-              ∙ sym (E .⋆Assoc _ _ _)
-              ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (E .⋆Assoc _ _ _)
-              ∙ cong (λ x → x ⋆⟨ E ⟩ _) (E .⋆Assoc _ _ _))
-            (full _ _ (f .fst ⋆⟨ D ⟩ h .snd .inv)))
-        (surj d)
+  --   isContrMor : (d : D .ob) → isContr (Mor d)
+  --   isContrMor d = inhProp→isContr inhab (isPropMor d)
+  --     where
+  --     inhab : Mor d
+  --     inhab = Prop.rec (isPropMor d)
+  --       (λ (a , h) →
+  --         A .F-hom (h .snd .inv) ⋆⟨ E ⟩ α .N-ob a ⋆⟨ E ⟩ B .F-hom (h .fst) ,
+  --         λ c f →
+  --           Prop.rec (E .isSetHom _ _)
+  --           (λ (k , p) →
+  --             let isom-path = subst-filler (isIso D) (sym p) (⋆Iso f (invIso h) .snd) in
+  --               ⋆InvRMove (F-Iso {F = B} (_ , isom-path i1)) (sym (α .N-hom k))
+  --             ∙ (λ i → A .F-hom (p i) ⋆⟨ E ⟩ α .N-ob a ⋆⟨ E ⟩ F-Iso {F = B} (p i , isom-path (~ i)) .snd .inv)
+  --             ∙ (λ i → A .F-seq (f .fst) (h .snd .inv) i ⋆⟨ E ⟩ α .N-ob a ⋆⟨ E ⟩ F-Iso-Pres⋆ {F = B} h (invIso f) i .fst)
+  --             ∙ sym (E .⋆Assoc _ _ _)
+  --             ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (E .⋆Assoc _ _ _)
+  --             ∙ cong (λ x → x ⋆⟨ E ⟩ _) (E .⋆Assoc _ _ _))
+  --           (full _ _ (f .fst ⋆⟨ D ⟩ h .snd .inv)))
+  --       (surj d)
 
-    mor-eq : (d : D .ob)(c : C .ob)(f : CatIso D (F .F-ob c) d)
-      → isContrMor d .fst .fst ≡ A .F-hom (f .snd .inv) ⋆⟨ E ⟩ α .N-ob c ⋆⟨ E ⟩ B .F-hom (f .fst)
-    mor-eq d c f =
-        ⋆InvLMove (F-Iso {F = A} f) (⋆InvRMove (invIso (F-Iso {F = B} f)) (sym (isContrMor d .fst .snd c f)))
-      ∙ sym (E .⋆Assoc _ _ _)
+  --   mor-eq : (d : D .ob)(c : C .ob)(f : CatIso D (F .F-ob c) d)
+  --     → isContrMor d .fst .fst ≡ A .F-hom (f .snd .inv) ⋆⟨ E ⟩ α .N-ob c ⋆⟨ E ⟩ B .F-hom (f .fst)
+  --   mor-eq d c f =
+  --       ⋆InvLMove (F-Iso {F = A} f) (⋆InvRMove (invIso (F-Iso {F = B} f)) (sym (isContrMor d .fst .snd c f)))
+  --     ∙ sym (E .⋆Assoc _ _ _)
 
-    F-seq3 : (F : Functor D E) {x y z w : D .ob}
-      → {f : D [ x , y ]}{g : D [ y , z ]}{h : D [ z , w ]}
-      → F .F-hom (f ⋆⟨ D ⟩ g ⋆⟨ D ⟩ h) ≡ F .F-hom f ⋆⟨ E ⟩ F .F-hom g ⋆⟨ E ⟩ F .F-hom h
-    F-seq3 F = F .F-seq _ _ ∙ cong (λ x → x ⋆⟨ E ⟩ _) (F .F-seq _ _)
+  --   F-seq3 : (F : Functor D E) {x y z w : D .ob}
+  --     → {f : D [ x , y ]}{g : D [ y , z ]}{h : D [ z , w ]}
+  --     → F .F-hom (f ⋆⟨ D ⟩ g ⋆⟨ D ⟩ h) ≡ F .F-hom f ⋆⟨ E ⟩ F .F-hom g ⋆⟨ E ⟩ F .F-hom h
+  --   F-seq3 F = F .F-seq _ _ ∙ cong (λ x → x ⋆⟨ E ⟩ _) (F .F-seq _ _)
 
-    ext : NatTrans A B
-    ext .N-ob d = isContrMor d .fst .fst
-    ext .N-hom {x = d} {y = d'} f = Prop.rec2 (E .isSetHom _ _)
-        (λ (c , h) (c' , h') → Prop.rec (E .isSetHom _ _)
-        (λ (k , p) →
-            (λ i → A .F-hom f ⋆⟨ E ⟩ mor-eq d' c' h' i)
-          ∙ cong (λ x → A .F-hom f ⋆⟨ E ⟩ x) (E .⋆Assoc _ _ _)
-          ∙ sym (E .⋆Assoc _ _ _) ∙ sym (E .⋆Assoc _ _ _)
-          ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (E .⋆IdL _))
-          ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (F-Iso {F = A} h .snd .sec))
-          ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (E .⋆Assoc _ _ _)
-          ∙ cong (λ x → _ ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (E .⋆Assoc _ _ _))
-          ∙ cong (λ x → _ ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (F-seq3 A))
-          ∙ cong (λ x → A .F-hom (invIso h .fst) ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (cong (A .F-hom) p))
-          ∙ cong (λ x → x ⋆⟨ E ⟩ _) (E .⋆Assoc _ _ _)
-          ∙ cong (λ x → _ ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _) (α .N-hom k)
-          ∙ cong (λ x → x ⋆⟨ E ⟩ _) (sym (E .⋆Assoc _ _ _))
-          ∙ E .⋆Assoc _ _ _
-          ∙ cong (λ x → _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ (x ⋆⟨ E ⟩ B .F-hom (h' .fst))) (cong (B .F-hom) p)
-          ∙ cong (λ x → _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ (x ⋆⟨ E ⟩ B .F-hom (h' .fst))) (F-seq3 B)
-          ∙ cong (λ x → _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ x) (E .⋆Assoc _ _ _)
-          ∙ cong (λ x → _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ (_ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ x)) (F-Iso {F = B} h' .snd .sec)
-          ∙ cong (λ x → _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ x) (E .⋆IdR _)
-          ∙ sym (E .⋆Assoc _ _ _)
-          ∙ (λ i → mor-eq d c h (~ i) ⋆⟨ E ⟩ B .F-hom f))
-        (full _ _ (h .fst ⋆⟨ D ⟩ f ⋆⟨ D ⟩ h' .snd .inv)))
-        (surj d) (surj d')
+  --   ext : NatTrans A B
+  --   ext .N-ob d = isContrMor d .fst .fst
+  --   ext .N-hom {x = d} {y = d'} f = Prop.rec2 (E .isSetHom _ _)
+  --       (λ (c , h) (c' , h') → Prop.rec (E .isSetHom _ _)
+  --       (λ (k , p) →
+  --           (λ i → A .F-hom f ⋆⟨ E ⟩ mor-eq d' c' h' i)
+  --         ∙ cong (λ x → A .F-hom f ⋆⟨ E ⟩ x) (E .⋆Assoc _ _ _)
+  --         ∙ sym (E .⋆Assoc _ _ _) ∙ sym (E .⋆Assoc _ _ _)
+  --         ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (E .⋆IdL _))
+  --         ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (F-Iso {F = A} h .snd .sec))
+  --         ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (E .⋆Assoc _ _ _)
+  --         ∙ cong (λ x → _ ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (E .⋆Assoc _ _ _))
+  --         ∙ cong (λ x → _ ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (F-seq3 A))
+  --         ∙ cong (λ x → A .F-hom (invIso h .fst) ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (cong (A .F-hom) p))
+  --         ∙ cong (λ x → x ⋆⟨ E ⟩ _) (E .⋆Assoc _ _ _)
+  --         ∙ cong (λ x → _ ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _) (α .N-hom k)
+  --         ∙ cong (λ x → x ⋆⟨ E ⟩ _) (sym (E .⋆Assoc _ _ _))
+  --         ∙ E .⋆Assoc _ _ _
+  --         ∙ cong (λ x → _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ (x ⋆⟨ E ⟩ B .F-hom (h' .fst))) (cong (B .F-hom) p)
+  --         ∙ cong (λ x → _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ (x ⋆⟨ E ⟩ B .F-hom (h' .fst))) (F-seq3 B)
+  --         ∙ cong (λ x → _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ x) (E .⋆Assoc _ _ _)
+  --         ∙ cong (λ x → _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ (_ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ x)) (F-Iso {F = B} h' .snd .sec)
+  --         ∙ cong (λ x → _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ x) (E .⋆IdR _)
+  --         ∙ sym (E .⋆Assoc _ _ _)
+  --         ∙ (λ i → mor-eq d c h (~ i) ⋆⟨ E ⟩ B .F-hom f))
+  --       (full _ _ (h .fst ⋆⟨ D ⟩ f ⋆⟨ D ⟩ h' .snd .inv)))
+  --       (surj d) (surj d')
 
-    ext≡ : precomposeF E F .F-hom ext ≡ α
-    ext≡ = makeNatTransPath (λ i c →
-        (mor-eq _ c idCatIso
-      ∙ (λ i → A .F-id i ⋆⟨ E ⟩ α .N-ob c ⋆⟨ E ⟩ B .F-id i)
-      ∙ E .⋆IdR _ ∙ E .⋆IdL _) i)
+  --   ext≡ : precomposeF E F .F-hom ext ≡ α
+  --   ext≡ = makeNatTransPath (λ i c →
+  --       (mor-eq _ c idCatIso
+  --     ∙ (λ i → A .F-id i ⋆⟨ E ⟩ α .N-ob c ⋆⟨ E ⟩ B .F-id i)
+  --     ∙ E .⋆IdR _ ∙ E .⋆IdL _) i)
 
 
-  -- As a corollary, if F is essential surjective and full, (- ∘ F) is fully faithfull.
+  -- -- As a corollary, if F is essential surjective and full, (- ∘ F) is fully faithfull.
 
-  isEssSurj+Full→isFullyFaithfulPrecomp : isEssentiallySurj F → isFull F → isFullyFaithful (precomposeF E F)
-  isEssSurj+Full→isFullyFaithfulPrecomp surj full =
-    isFull+Faithful→isFullyFaithful {F = precomposeF E F}
-      (isEssSurj+Full→isFullPrecomp surj full) (isEssSurj→isFaithfulPrecomp surj)
+  -- isEssSurj+Full→isFullyFaithfulPrecomp : isEssentiallySurj F → isFull F → isFullyFaithful (precomposeF E F)
+  -- isEssSurj+Full→isFullyFaithfulPrecomp surj full =
+  --   isFull+Faithful→isFullyFaithful {F = precomposeF E F}
+  --     (isEssSurj+Full→isFullPrecomp surj full) (isEssSurj→isFaithfulPrecomp surj)
 
 
 module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
@@ -401,17 +401,17 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
 
   -- As a corollary, if F is weak equivalence and the target category is univalent, (- ∘ F) is a weak equivalence.
 
-  isWeakEquiv→isWeakEquivPrecomp : isWeakEquivalence F → isWeakEquivalence (precomposeF E F)
-  isWeakEquiv→isWeakEquivPrecomp w-equiv .fullfaith =
-    isEssSurj+Full→isFullyFaithfulPrecomp E F (w-equiv .esssurj) (isFullyFaithful→Full {F = F} (w-equiv .fullfaith))
-  isWeakEquiv→isWeakEquivPrecomp w-equiv .esssurj   = isWeakEquiv→isEssSurjPrecomp w-equiv
+  -- isWeakEquiv→isWeakEquivPrecomp : isWeakEquivalence F → isWeakEquivalence (precomposeF E F)
+  -- isWeakEquiv→isWeakEquivPrecomp w-equiv .fullfaith =
+  --   isEssSurj+Full→isFullyFaithfulPrecomp E F (w-equiv .esssurj) (isFullyFaithful→Full {F = F} (w-equiv .fullfaith))
+  -- isWeakEquiv→isWeakEquivPrecomp w-equiv .esssurj   = isWeakEquiv→isEssSurjPrecomp w-equiv
 
   -- Moreover, using assumption of being univalent, (- ∘ F) is actually an equivalence.
 
-  isWeakEquiv→isEquivPrecomp : isWeakEquivalence F → isEquivalence (precomposeF E F)
-  isWeakEquiv→isEquivPrecomp w-equiv =
-    isWeakEquiv→isEquiv (isUnivalentFUNCTOR _ _ isUnivE) (isUnivalentFUNCTOR _ _ isUnivE)
-      (isWeakEquiv→isWeakEquivPrecomp w-equiv)
+  -- isWeakEquiv→isEquivPrecomp : isWeakEquivalence F → isEquivalence (precomposeF E F)
+  -- isWeakEquiv→isEquivPrecomp w-equiv =
+  --   isWeakEquiv→isEquiv (isUnivalentFUNCTOR _ _ isUnivE) (isUnivalentFUNCTOR _ _ isUnivE)
+  --     (isWeakEquiv→isWeakEquivPrecomp w-equiv)
 
 module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {E : Category ℓE ℓE'}

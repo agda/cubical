@@ -156,46 +156,46 @@ module _
 
  open Iso
 
- IsoCategoryPath : Iso (WeakEquivalence C C') (CategoryPath C C')
- fun IsoCategoryPath = WeakEquivlance→CategoryPath ∘f isWeakEquiv
- inv IsoCategoryPath = ≡→WeakEquivlance ∘f mk≡
- rightInv IsoCategoryPath b = CategoryPath≡
-   (WeakEquivlance→CategoryPath (isWeakEquiv (≡→WeakEquivlance (mk≡ b)))) b
-   (λ i j → Glue (C' .Category.ob) {φ = ~ j ∨ j ∨ i}
-         (λ _ → _ , equivPathP
-         {e = ob≃ (isWeakEquiv (≡→WeakEquivlance (mk≡ b)))} {f = idEquiv _}
-         (transport-fillerExt⁻ (ob≡ b)) j))
-    λ i j x y → Glue (C' [ unglue (~ j ∨ j ∨ i) x , unglue (~ j ∨ j ∨ i) y ])
-        λ {(j = i0) → _ , Hom≃ (isWeakEquiv (≡→WeakEquivlance (mk≡ b))) _ _
-          ;(j = i1) → _ , idEquiv _
-          ;(i = i1) → _ , _
-            , isProp→PathP (λ j → isPropΠ2 λ x y → isPropIsEquiv (transp (λ i₂ →
-               let tr = transp (λ j' → ob≡ b (j ∨ (i₂ ∧ j'))) (~ i₂ ∨ j)
-               in Hom≡ b (i₂ ∨ j) (tr x) (tr y)) j))
-                (λ _ _ → fullfaith (isWeakEquiv (≡→WeakEquivlance (mk≡ b))) _ _)
-                (λ _ _ → idIsEquiv _) j x y }
+ -- IsoCategoryPath : Iso (WeakEquivalence C C') (CategoryPath C C')
+ -- fun IsoCategoryPath = WeakEquivlance→CategoryPath ∘f isWeakEquiv
+ -- inv IsoCategoryPath = ≡→WeakEquivlance ∘f mk≡
+ -- rightInv IsoCategoryPath b = CategoryPath≡
+ --   (WeakEquivlance→CategoryPath (isWeakEquiv (≡→WeakEquivlance (mk≡ b)))) b
+ --   (λ i j → Glue (C' .Category.ob) {φ = ~ j ∨ j ∨ i}
+ --         (λ _ → _ , equivPathP
+ --         {e = ob≃ (isWeakEquiv (≡→WeakEquivlance (mk≡ b)))} {f = idEquiv _}
+ --         (transport-fillerExt⁻ (ob≡ b)) j))
+ --    λ i j x y → Glue (C' [ unglue (~ j ∨ j ∨ i) x , unglue (~ j ∨ j ∨ i) y ])
+ --        λ {(j = i0) → _ , Hom≃ (isWeakEquiv (≡→WeakEquivlance (mk≡ b))) _ _
+ --          ;(j = i1) → _ , idEquiv _
+ --          ;(i = i1) → _ , _
+ --            , isProp→PathP (λ j → isPropΠ2 λ x y → isPropIsEquiv (transp (λ i₂ →
+ --               let tr = transp (λ j' → ob≡ b (j ∨ (i₂ ∧ j'))) (~ i₂ ∨ j)
+ --               in Hom≡ b (i₂ ∨ j) (tr x) (tr y)) j))
+ --                (λ _ _ → fullfaith (isWeakEquiv (≡→WeakEquivlance (mk≡ b))) _ _)
+ --                (λ _ _ → idIsEquiv _) j x y }
 
 
- leftInv IsoCategoryPath we = cong₂ weakEquivalence
-   (Functor≡ (transportRefl ∘f (F-ob (func we)))
-              λ {c} {c'} f → (λ j → transport
-      (λ i → HomPathP (isWeakEquiv we) i
-         (transport-filler-ua (ob≃ (isWeakEquiv we)) c  j i)
-         (transport-filler-ua (ob≃ (isWeakEquiv we)) c' j i))
-      f) ▷ transportRefl _ )
-   (isProp→PathP (λ _ → isPropIsWeakEquivalence) _ _ )
+ -- leftInv IsoCategoryPath we = cong₂ weakEquivalence
+ --   (Functor≡ (transportRefl ∘f (F-ob (func we)))
+ --              λ {c} {c'} f → (λ j → transport
+ --      (λ i → HomPathP (isWeakEquiv we) i
+ --         (transport-filler-ua (ob≃ (isWeakEquiv we)) c  j i)
+ --         (transport-filler-ua (ob≃ (isWeakEquiv we)) c' j i))
+ --      f) ▷ transportRefl _ )
+ --   (isProp→PathP (λ _ → isPropIsWeakEquivalence) _ _ )
 
- WeakEquivalence≃Path : WeakEquivalence C C' ≃ (C ≡ C')
- WeakEquivalence≃Path =
-   isoToEquiv (compIso IsoCategoryPath CategoryPathIso)
+ -- WeakEquivalence≃Path : WeakEquivalence C C' ≃ (C ≡ C')
+ -- WeakEquivalence≃Path =
+ --   isoToEquiv (compIso IsoCategoryPath CategoryPathIso)
 
- Equivalence≃Path : C ≃ᶜ C' ≃ (C ≡ C')
- Equivalence≃Path = Equivalence≃WeakEquivalence isUnivC isUnivC' ∙ₑ WeakEquivalence≃Path
+ -- Equivalence≃Path : C ≃ᶜ C' ≃ (C ≡ C')
+ -- Equivalence≃Path = Equivalence≃WeakEquivalence isUnivC isUnivC' ∙ₑ WeakEquivalence≃Path
 
-is2GroupoidUnivalentCategory : is2Groupoid (Σ (Category ℓC ℓC') isUnivalent)
-is2GroupoidUnivalentCategory (C , isUnivalentC) (C' , isUnivalentC') =
-  isOfHLevelRespectEquiv 3
-   (isoToEquiv (iso (uncurry weakEquivalence) _ (λ _ → refl) λ _ → refl)
-      ∙ₑ WeakEquivalence≃Path isUnivalentC isUnivalentC' ∙ₑ Σ≡PropEquiv λ _ → isPropIsUnivalent)
-    λ _ _ → isOfHLevelRespectEquiv 2 (Σ≡PropEquiv λ _ → isPropIsWeakEquivalence)
-       (isOfHLevelFunctor 1 (isUnivalent.isGroupoid-ob isUnivalentC') _ _)
+-- is2GroupoidUnivalentCategory : is2Groupoid (Σ (Category ℓC ℓC') isUnivalent)
+-- is2GroupoidUnivalentCategory (C , isUnivalentC) (C' , isUnivalentC') =
+--   isOfHLevelRespectEquiv 3
+--    (isoToEquiv (iso (uncurry weakEquivalence) _ (λ _ → refl) λ _ → refl)
+--       ∙ₑ WeakEquivalence≃Path isUnivalentC isUnivalentC' ∙ₑ Σ≡PropEquiv λ _ → isPropIsUnivalent)
+--     λ _ _ → isOfHLevelRespectEquiv 2 (Σ≡PropEquiv λ _ → isPropIsWeakEquivalence)
+--        (isOfHLevelFunctor 1 (isUnivalent.isGroupoid-ob isUnivalentC') _ _)

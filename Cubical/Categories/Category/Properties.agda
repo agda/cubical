@@ -30,8 +30,8 @@ module _ {C : Category ℓ ℓ'} where
 
 
 -- opposite of opposite is definitionally equal to itself
-involutiveOp : ∀ {C : Category ℓ ℓ'} → C ^op ^op ≡ C
-involutiveOp = refl
+-- involutiveOp : ∀ {C : Category ℓ ℓ'} → C ^op ^op ≡ C
+-- involutiveOp = refl
 
 module _ {C : Category ℓ ℓ'} where
   -- Other useful operations on categories
