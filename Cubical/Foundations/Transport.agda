@@ -254,3 +254,25 @@ transport-reorder B f g p a =
                  (transport (λ i → B (f (p i))) (g a))
                  (g (transport (λ i → B (p i)) a)))
           (lCancel (cong f p)) composite
+
+resubst : ∀ {ℓ ℓ'} {A : Type ℓ} (B : A → Type ℓ')
+        → (c : (z : A) → B z)
+        → {x y : A} (p : x ≡ y)
+        → c y ≡ subst B p (c x)
+resubst B c {x = x} {y = y} p =
+  let step1 : (λ i → B (p (~ i))) [ c y ≡ c x ]
+      step1 i = c (p (~ i))
+      step2 : (λ i → B (p i))
+            [ c x
+            ≡ subst B p (c x)
+            ]
+      step2 = transport-filler (λ i → B (p i)) (c x)
+      composite : (λ i → B ((sym p ∙ p) i))
+        [ c y
+        ≡ subst B p (c x)
+        ]
+      composite = compPathP' {B = B} step1 step2
+  in subst (λ ○ → PathP (λ i → (B (○ i)))
+                  (c y)
+                  (subst B p (c x)))
+           (lCancel p) composite
