@@ -223,3 +223,34 @@ transport-filler-ua {A = A} {B = B} (e , _) a j i =
  in glue (λ { (i = i0) → a ; (i = i1) → tr j })
       (hcomp (λ k → λ { (i = i0) → b ; (i = i1) → tr (j ∧ k) ; (j = i1) → tr (~ i ∨ k)  })
       (hcomp (λ k → λ { (i = i0) → tr (j ∨ k) ; (i = i1) → z ; (j = i1) → z }) z))
+
+
+transport-reorder
+  : ∀ {ℓ ℓ'} {A : Type ℓ} (B : A → Type ℓ') {x y : A}
+  → (f : A → A) (g : {z : A} → B z → B (f z)) (p : x ≡ y) (a : B x)
+  → transport (λ i → B (f (p i))) (g a)
+  ≡ g (transport (λ i → B (p i)) a)
+transport-reorder B f g p a =
+  let
+    step1 : (λ j → B (f (p (~ j))))
+      [ transport (λ i → B (f (p i))) (g a)
+      ≡ g a
+      ]
+    step1 = symP (transport-filler (λ i → B (f (p i))) (g a))
+    step2 : (λ j → B (f (p j)))
+      [ g a
+      ≡ g (transport (λ i → B (p i)) a)
+      ]
+    step2 = congP (λ i ○ → g ○) (transport-filler (λ i → B (p i)) a)
+    composite : (λ i → B ((sym (cong f p) ∙ (cong f p)) i))
+      [ transport (λ i → B (f (p i))) (g a)
+      ≡ g (transport (λ i → B (p i)) a)
+      ]
+    composite = compPathP' {B = B} step1 step2
+  in
+    -- Our path index goes out and back along the same path,
+    -- so contract that to a point to give a non-dependent path.
+    subst (λ ○ → PathP (λ i → B (○ i))
+                 (transport (λ i → B (f (p i))) (g a))
+                 (g (transport (λ i → B (p i)) a)))
+          (lCancel (cong f p)) composite
