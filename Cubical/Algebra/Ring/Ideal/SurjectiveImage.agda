@@ -26,7 +26,7 @@ private
   variable
     ℓ : Level
 
-module _ {R S : Ring ℓ} (f : RingHom R S) (f-epi : isSurjection (fst f)) (I : IdealsIn R) where
+module _ {R S : Ring ℓ} (f : RingHom R S) (f-surjective : isSurjection (fst f)) (I : IdealsIn R) where
   open isIdeal
   open IsRingHom (snd f)
   open RingStr ⦃...⦄
@@ -61,7 +61,7 @@ module _ {R S : Ring ℓ} (f : RingHom R S) (f-epi : isSurjection (fst f)) (I : 
                                  (fst f (s · x)     ≡⟨ pres· s x ⟩
                                   fst f s · fst f x ≡[ i ]⟨ fs≡r i · fx≡- i ⟩
                                    (r · _) ∎) ∣₁)
-    (f-epi r)
+    (f-surjective r)
 
   (snd imageIdeal) .·-closedRight r =
     (rec (isPropΠ (λ _ → isPropPropTrunc))
@@ -72,15 +72,15 @@ module _ {R S : Ring ℓ} (f : RingHom R S) (f-epi : isSurjection (fst f)) (I : 
                                  (fst f (x · s)     ≡⟨ pres· x s ⟩
                                   fst f x · fst f s ≡[ i ]⟨ fx≡- i · fs≡r i ⟩
                                    (_ · r) ∎) ∣₁)
-    (f-epi r)
+    (f-surjective r)
 
-module _ {R S : Ring ℓ} (f : RingHom R S) (f-epi : isSurjection (fst f)) where
+module _ {R S : Ring ℓ} (f : RingHom R S) (f-surjective : isSurjection (fst f)) where
   open IsRingHom (snd f)
   open RingStr ⦃...⦄
   private instance _ = snd R
                    _ = snd S
 
-  image0Ideal : imageIdeal f f-epi (zeroIdeal R) ≡ (zeroIdeal S)
+  image0Ideal : imageIdeal f f-surjective (zeroIdeal R) ≡ (zeroIdeal S)
   image0Ideal = Σ≡Prop (isPropIsIdeal _)
     $ ⊆-extensionality _ _
       ((λ x x∈image → rec (zeroIdeal S .fst x .snd)
