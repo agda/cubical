@@ -28,7 +28,7 @@ module _ {X Y : Spectrum ℓ} (f : X →Sp Y) where
   -- This is just EquivJ but the other way around
   EquivJ' : {ℓ ℓ' : Level} {A B : Type ℓ} (P : (B : Type ℓ) → (e : A ≃ B) → Type ℓ')
       → (r : P A (idEquiv A)) → (e : A ≃ B) → P B e
-  EquivJ' {A = A} {B} P r e = 
+  EquivJ' {A = A} {B} P r e =
     let r' = subst (λ z → P A z) (sym pathToEquivRefl) r in
     let zz = J (λ B' p' → P B' (pathToEquiv p')) r' (ua e) in
     subst (λ z → P B z) (pathToEquiv-ua e) zz
@@ -36,10 +36,10 @@ module _ {X Y : Spectrum ℓ} (f : X →Sp Y) where
   Equiv∙J' : {ℓ ℓ' : Level} {A : Pointed ℓ} (C : (B : Pointed ℓ) → A ≃∙ B → Type ℓ')
         → C A (idEquiv (fst A) , refl)
         → {B : _} (e : A ≃∙ B) → C B e
-  Equiv∙J' {ℓ = ℓ} {ℓ'} {A} C ind {B} (e , e₀) = let 
-    ind2 = 
+  Equiv∙J' {ℓ = ℓ} {ℓ'} {A} C ind {B} (e , e₀) = let
+    ind2 =
       EquivJ'
-      (λ B' e' → (a' : ⟨ A ⟩) → (b' : B') 
+      (λ B' e' → (a' : ⟨ A ⟩) → (b' : B')
         → (p' : e' .fst a' ≡ b')
         → (C' : (B'' : Pointed ℓ) → A .fst , a' ≃∙ B'' → Type ℓ')
         → C' (A .fst , a') ((idEquiv (A .fst)) , refl)
@@ -50,7 +50,7 @@ module _ {X Y : Spectrum ℓ} (f : X →Sp Y) where
   FiberSpMap : (n : ℤ) → FiberSpSpace n ≃∙ Ω (FiberSpSpace (sucℤ n))
   FiberSpMap n = compEquiv∙ fib[fn]≡fib[Ωfn+1] Ωfib[fn+1]≡fib[Ωfn+1] where
     preEquivFiber : {ℓ : Level} {A B C : Pointed ℓ} (e : A ≃∙ B) (f : B →∙ C) → fiber∙ f ≃∙ fiber∙ (f ∘∙ ≃∙map e)
-    preEquivFiber {A = A} {B} {C} e∙ @ (e , e₀) f∙ @ (f , f₀) = 
+    preEquivFiber {A = A} {B} {C} e∙ @ (e , e₀) f∙ @ (f , f₀) =
       Equiv∙J' (λ B' e' → (f' : B' →∙ C) → fiber∙ f' ≃∙ fiber∙ (f' ∘∙ ≃∙map e')) reflCase e∙ f∙ where
         reflCase : (f' : (fst A , A .snd) →∙ C) → fiber∙ f' ≃∙ fiber∙ (f' ∘∙ ≃∙map (idEquiv (fst A) , refl))
         reflCase f' .fst = isoToEquiv (iso (idfun _) (idfun _) (λ _ → refl) (λ _ → refl))

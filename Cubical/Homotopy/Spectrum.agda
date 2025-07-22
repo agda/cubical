@@ -42,7 +42,7 @@ module _ where
   spectrumEquiv E n = (E .map n .fst , E .equiv n) , E .map n .snd
 
 isSpectrumMap : (X Y : Spectrum ℓ) → (f : (n : ℤ) → (X .space n →∙ Y .space n)) → Type ℓ
-isSpectrumMap X Y f = (n : ℤ) → (Y .map n ∘∙ f n) ∙∼ (Ω→ (f (sucℤ n)) ∘∙ X .map n) 
+isSpectrumMap X Y f = (n : ℤ) → (Y .map n ∘∙ f n) ∙∼ (Ω→ (f (sucℤ n)) ∘∙ X .map n)
 
 _→Sp_ : (X Y : Spectrum ℓ) → Type ℓ
 X →Sp Y = Σ ((n : ℤ) → (X .space n →∙ Y .space n)) (isSpectrumMap X Y)
