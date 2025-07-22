@@ -30,7 +30,7 @@ open import Cubical.Tactics.CommRingSolver
 private variable
     ℓ ℓ' ℓ'' : Level
 
-module _ {R : CommRing ℓ} {n m : ℕ} (A : CommAlgebra R ℓ') (I J : IdealsIn R A) where
+module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ') (I J : IdealsIn R A) where
   private
     π = quotientHom A I
 
