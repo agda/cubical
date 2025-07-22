@@ -19,7 +19,7 @@ private
   variable
     ℓ : Level
 
-imageIdeal : {R S : CommRing ℓ}
+imageIdeal : {R S : CommRing ℓ}   -- same universe level is needed with our definition of ideals
              (f : CommRingHom R S) (f-epi : isSurjection (fst f))
              (I : IdealsIn R)
               → IdealsIn S
