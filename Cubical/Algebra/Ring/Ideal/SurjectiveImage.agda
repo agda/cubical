@@ -9,6 +9,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
+open import Cubical.Foundations.Function
 open import Cubical.Functions.Image
 
 open import Cubical.Functions.Surjection
@@ -72,3 +73,22 @@ module _ {R S : Ring ℓ} (f : RingHom R S) (f-epi : isSurjection (fst f)) (I : 
                                   fst f x · fst f s ≡[ i ]⟨ fx≡- i · fs≡r i ⟩
                                    (_ · r) ∎) ∣₁)
     (f-epi r)
+
+module _ {R S : Ring ℓ} (f : RingHom R S) (f-epi : isSurjection (fst f)) where
+  open IsRingHom (snd f)
+  open RingStr ⦃...⦄
+  private instance _ = snd R
+                   _ = snd S
+
+  image0Ideal : imageIdeal f f-epi (zeroIdeal R) ≡ (zeroIdeal S)
+  image0Ideal = Σ≡Prop (isPropIsIdeal _)
+    $ ⊆-extensionality _ _
+      ((λ x x∈image → rec (zeroIdeal S .fst x .snd)
+                          (λ (r , r∈image0) →
+                              x         ≡⟨ sym (r∈image0 .snd) ⟩
+                              fst f r   ≡⟨ cong (fst f) (fst r∈image0) ⟩
+                              fst f 0r  ≡⟨ pres0 ⟩
+                              0r ∎) x∈image) ,
+       λ s s∈0Ideal → ∣ (0r , (refl , (fst f 0r ≡⟨ pres0 ⟩
+                                       0r       ≡⟨ sym s∈0Ideal ⟩
+                                       s ∎))) ∣₁)
