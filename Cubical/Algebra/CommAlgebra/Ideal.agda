@@ -5,8 +5,9 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Ideal renaming (IdealsIn to IdealsInCommRing;
-                                                     makeIdeal to makeIdealCommRing)
+import Cubical.Algebra.CommRing.Ideal as CommRing
+import Cubical.Algebra.CommRing.Ideal.Base
+
 
 open import Cubical.Algebra.CommAlgebra.Base
 
@@ -18,7 +19,7 @@ private
 
 module _ (R : CommRing ℓ) (A : CommAlgebra R ℓ') where
   IdealsIn : Type _
-  IdealsIn = IdealsInCommRing (fst A)
+  IdealsIn = CommRing.IdealsIn (fst A)
 
   open CommRingStr (A .fst .snd)
 
@@ -27,10 +28,12 @@ module _ (R : CommRing ℓ) (A : CommAlgebra R ℓ') where
               → (0-closed : 0r ∈ I)
               → (·-closedLeft : {x : A .fst .fst} → (r : A .fst .fst) → x ∈ I → r · x ∈ I)
               → IdealsIn
-  makeIdeal = makeIdealCommRing {R = fst A}
+  makeIdeal = CommRing.makeIdeal {R = fst A}
 
   0Ideal : IdealsIn
-  0Ideal = CommIdeal.0Ideal (fst A)
+  0Ideal = CommRing.CommIdeal.0Ideal (fst A)
 
   1Ideal : IdealsIn
-  1Ideal = CommIdeal.1Ideal (fst A)
+  1Ideal = CommRing.CommIdeal.1Ideal (fst A)
+
+open Cubical.Algebra.CommRing.Ideal.Base.CommIdeal using (isPropIsCommIdeal) public
