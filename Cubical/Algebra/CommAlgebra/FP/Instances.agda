@@ -29,7 +29,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal using (inclOfFGIdeal)
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Polynomials as Poly
-open import Cubical.Algebra.CommAlgebra.QuotientAlgebra as Quot
+open import Cubical.Algebra.CommAlgebra.Quotient as Quot
 open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn; 0Ideal)
 open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Instances.Initial
