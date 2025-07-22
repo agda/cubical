@@ -12,9 +12,9 @@ open import Cubical.Foundations.Pointed.Fiber
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Univalence
+open import Cubical.Homotopy.Group.LES
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Prespectrum
-open import Cubical.Homotopy.Group.LES
 open import Cubical.Homotopy.Spectrum
 
 private variable ℓ ℓ' : Level

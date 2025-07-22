@@ -6,6 +6,7 @@ open import Cubical.Data.NatMinusOne
 open import Cubical.HITs.Truncation.Base
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
@@ -583,3 +584,29 @@ transportTrunc : {n : HLevel}{p : A ≡ B}
                → transport (λ i → hLevelTrunc n (p i)) ∣ a ∣ₕ ≡ ∣ transport (λ i → p i) a ∣ₕ
 transportTrunc {n = zero} a = refl
 transportTrunc {n = suc n} a = refl
+
+{- pointed version of truncation -}
+
+trunc-respects-≃ : {X Y : Type ℓ} (n : ℕ) → (H : X ≃ Y) → ∥ X ∥ n ≃ ∥ Y ∥ n
+trunc-respects-≃ n H = isoToEquiv (iso f g fg gf) where
+  f = map (H .fst)
+  g = map (invEq H)
+
+  fg : section f g
+  fg x = elim (λ x → isOfHLevelTruncPath {x = f (g x)} {y = x}) 
+    (λ y →  
+      cong f (recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ invEq H) y) 
+      ∙ recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ H .fst) (invEq H y) 
+      ∙ cong ∣_∣ₕ (secEq H y)) x
+
+  gf : retract f g
+  gf x = elim (λ x → isOfHLevelTruncPath {x = g (f x)} {y = x}) 
+    (λ x → cong g (recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ H .fst) x) 
+    ∙ recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ invEq H) (H .fst x) 
+    ∙ cong ∣_∣ₕ (retEq H x)) x
+
+hLevelTrunc∙-≃ : {X Y : Pointed ℓ} (n : ℕ) → (H : X ≃∙ Y) → hLevelTrunc∙ n X ≃∙ hLevelTrunc∙ n Y
+hLevelTrunc∙-≃ {X = X} {Y} n H = (trunc-respects-≃ n (H .fst)) , prf X Y n H where
+  prf : (X Y : Pointed ℓ) (n : ℕ) → (H : X ≃∙ Y) → fst (trunc-respects-≃ n (H .fst)) (pt (hLevelTrunc∙ n X)) ≡ pt (hLevelTrunc∙ n Y)
+  prf X Y zero H = refl
+  prf X Y (suc n) H = cong ∣_∣ₕ (H .snd)

@@ -1,12 +1,12 @@
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.Pointed.Fiber where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.Equiv.Base
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Data.Sigma
+open import Cubical.Foundations.Equiv.Base
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Prelude
 
 private variable ℓ ℓ' : Level
 
