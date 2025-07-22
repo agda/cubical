@@ -35,6 +35,6 @@ hLevelTrunc∙-≃-clamp X (negsuc zero) = hLevelTrunc∙-Ω-zero X
 hLevelTrunc∙-≃-clamp X (negsuc (suc n)) = hLevelTrunc∙-Ω-zero X
 
 ∥_∥ₛ :  (n : ℤ) (E : Spectrum ℓ) → Spectrum ℓ
-∥_∥ₛ n  E = mkSpectrum 
+∥_∥ₛ n  E = mkSpectrum
   (λ x → hLevelTrunc∙ (clamp x) (E .space x))
   (λ x → compEquiv∙ (hLevelTrunc∙-≃ (clamp x) (spectrumEquiv E x)) (invEquiv∙ (hLevelTrunc∙-≃-clamp (E .space (sucℤ x)) x)))

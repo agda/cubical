@@ -593,16 +593,16 @@ trunc-respects-≃ n H = isoToEquiv (iso f g fg gf) where
   g = map (invEq H)
 
   fg : section f g
-  fg x = elim (λ x → isOfHLevelTruncPath {x = f (g x)} {y = x}) 
-    (λ y →  
-      cong f (recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ invEq H) y) 
-      ∙ recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ H .fst) (invEq H y) 
+  fg x = elim (λ x → isOfHLevelTruncPath {x = f (g x)} {y = x})
+    (λ y →
+      cong f (recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ invEq H) y)
+      ∙ recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ H .fst) (invEq H y)
       ∙ cong ∣_∣ₕ (secEq H y)) x
 
   gf : retract f g
-  gf x = elim (λ x → isOfHLevelTruncPath {x = g (f x)} {y = x}) 
-    (λ x → cong g (recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ H .fst) x) 
-    ∙ recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ invEq H) (H .fst x) 
+  gf x = elim (λ x → isOfHLevelTruncPath {x = g (f x)} {y = x})
+    (λ x → cong g (recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ H .fst) x)
+    ∙ recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ invEq H) (H .fst x)
     ∙ cong ∣_∣ₕ (retEq H x)) x
 
 hLevelTrunc∙-≃ : {X Y : Pointed ℓ} (n : ℕ) → (H : X ≃∙ Y) → hLevelTrunc∙ n X ≃∙ hLevelTrunc∙ n Y
