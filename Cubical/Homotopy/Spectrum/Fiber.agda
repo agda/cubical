@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Cubical.Homotopy.Spectrum.Fiber where
 
 open import Cubical.Data.Int

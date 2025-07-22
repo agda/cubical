@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Pointed.Fiber where
 
 open import Cubical.Foundations.Prelude
