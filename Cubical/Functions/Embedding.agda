@@ -44,7 +44,7 @@ private
 -- is not well-behaved with higher h-levels, while embeddings
 -- are.
 isEmbedding : (A → B) → Type _
-isEmbedding f = ∀ w x → isEquiv {A = w ≡ x} (cong f)
+isEmbedding f = ∀ w x → isEquiv (cong f :> (w ≡ x → f w ≡ f x))
 
 isPropIsEmbedding : isProp (isEmbedding f)
 isPropIsEmbedding {f = f} = isPropΠ2 λ _ _ → isPropIsEquiv (cong f)
@@ -54,8 +54,7 @@ isEmbedding→Inj
   : {f : A → B}
   → isEmbedding f
   → ∀ w x → f w ≡ f x → w ≡ x
-isEmbedding→Inj {f = f} embb w x p
-  = equiv-proof (embb w x) p .fst .fst
+isEmbedding→Inj embb w x p = invIsEq (embb w x) p
 
 -- The converse implication holds if B is an h-set, see injEmbedding below.
 

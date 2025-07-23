@@ -221,11 +221,11 @@ module _ (R : CommRing ℓ) where
 
 
     {- Reforumlation in terms of the R-AlgebraHom from R[X] to A -}
-    indcuedHomEquivalence : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A ≃ ⟨ A ⟩
-    fst indcuedHomEquivalence f = fst f X
-    fst (fst (equiv-proof (snd indcuedHomEquivalence) x)) = inducedHom x
-    snd (fst (equiv-proof (snd indcuedHomEquivalence) x)) = inducedMapGenerator x
-    snd (equiv-proof (snd indcuedHomEquivalence) x) (g , gX≡x) =
+    inducedHomEquivalence : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A ≃ ⟨ A ⟩
+    fst inducedHomEquivalence f = fst f X
+    fst (fst (equiv-proof (snd inducedHomEquivalence) x)) = inducedHom x
+    snd (fst (equiv-proof (snd inducedHomEquivalence) x)) = inducedMapGenerator x
+    snd (equiv-proof (snd inducedHomEquivalence) x) (g , gX≡x) =
       Σ≡Prop (λ _ → is-set _ _) (sym (inducedHomUnique x g gX≡x))
 
     equalByUMP : (f g : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A)
