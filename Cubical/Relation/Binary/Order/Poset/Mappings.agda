@@ -38,6 +38,7 @@ record IsIsotone {A : Type ℓ₀} {B : Type ℓ₁}
   (M : PosetStr ℓ₀' A) (f : A → B) (N : PosetStr ℓ₁' B)
   : Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') ℓ₁')
   where
+  constructor isisotone
   -- Shorter qualified names
   private
     module M = PosetStr M
@@ -67,8 +68,7 @@ record IsAntitone {A : Type ℓ₀} {B : Type ℓ₁}
   (M : PosetStr ℓ₀' A) (f : A → B) (N : PosetStr ℓ₁' B)
   : Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') ℓ₁')
   where
-  constructor
-    isantitone
+  constructor isantitone
   -- Shorter qualified names
   private
     module M = PosetStr M
