@@ -74,13 +74,13 @@ module _ (CDagCat : DagCat ℓ ℓ') where
   private variable
     x y z w : ob
 
-  -- The following definitions are from The Way of The Dagger, Definition 2.1.3
+  -- The following definitions are Definition 2.1.3 from The Way of The Dagger by Martti Karvonen (https://arxiv.org/abs/1904.10805)
 
-  is†Monic is†Epic is†Iso is†PIso : Hom[ x , y ] → Type ℓ'
+  is†Monic is†Epic is†Iso is†PartialIso : Hom[ x , y ] → Type ℓ'
   is†Monic f = f ⋆ f † ≡ id
   is†Epic f = f † ⋆ f ≡ id
   is†Iso f = areInv C f (f †)
-  is†PIso f = f ⋆ f † ⋆ f ≡ f
+  is†PartialIso f = f ⋆ f † ⋆ f ≡ f
 
   isSelfAdjoint is†Idem : Hom[ x , x ] → Type ℓ'
   isSelfAdjoint f = f † ≡ f
@@ -115,21 +115,21 @@ module _ (CDagCat : DagCat ℓ ℓ') where
     †Pres†Iso fiso .sec = †Of†MonIs†Epi (fiso .ret)
     †Pres†Iso fiso .ret = †Of†EpiIs†Mon (fiso .sec)
 
-    †MonicsArePIsos : is†Monic f → is†PIso f
-    †MonicsArePIsos fmon =
+    †MonicsArePartialIsos : is†Monic f → is†PartialIso f
+    †MonicsArePartialIsos fmon =
       f ⋆ f † ⋆ f   ≡⟨ sym (⋆Assoc f (f †) f) ⟩
       (f ⋆ f †) ⋆ f ≡⟨ congL _⋆_ fmon ⟩
       id ⋆ f        ≡⟨ ⋆IdL f ⟩
       f             ∎
 
-    †EpicsArePIsos : is†Epic f → is†PIso f
-    †EpicsArePIsos fepi =
+    †EpicsArePartialIsos : is†Epic f → is†PartialIso f
+    †EpicsArePartialIsos fepi =
       f ⋆ f † ⋆ f ≡⟨ congR _⋆_ fepi ⟩
       f ⋆ id      ≡⟨ ⋆IdR f ⟩
       f           ∎
 
-    †PresPIso : is†PIso f → is†PIso (f †)
-    †PresPIso fp =
+    †PresPartialIso : is†PartialIso f → is†PartialIso (f †)
+    †PresPartialIso fp =
       f † ⋆ f † † ⋆ f † ≡⟨ congR _⋆_ (sym (†-seq f (f †))) ⟩
       f † ⋆ (f ⋆ f †) † ≡⟨ sym (†-seq (f ⋆ (f †)) f) ⟩
       ((f ⋆ f †) ⋆ f) † ≡⟨ cong _† (⋆Assoc f (f †) f) ⟩
@@ -148,7 +148,7 @@ module _ (CDagCat : DagCat ℓ ℓ') where
   †CatIso : ob → ob → Type ℓ'
   †CatIso x y = Σ[ f ∈ Hom[ x , y ] ] is†Iso f
 
-  idIs†Mon : is†Monic (id {x = x})
+  idIs†Mon : is†Monic (id {x})
   idIs†Mon =
     id ⋆ id † ≡⟨ ⋆IdL (id †) ⟩
     id †      ≡⟨ †-id ⟩
@@ -164,7 +164,7 @@ module _ (CDagCat : DagCat ℓ ℓ') where
     f ⋆ f †             ≡⟨ fmon ⟩
     id                  ∎
 
-  idIs†Epi : is†Epic (id {x = x})
+  idIs†Epi : is†Epic (id {x})
   idIs†Epi =
     id † ⋆ id ≡⟨ ⋆IdR (id †) ⟩
     id †      ≡⟨ †-id ⟩
