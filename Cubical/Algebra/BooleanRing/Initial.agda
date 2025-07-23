@@ -4,6 +4,7 @@ module Cubical.Algebra.BooleanRing.Initial where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Function
 
 open import Cubical.Algebra.BooleanRing.Base
 open import Cubical.Data.Bool renaming (elim to bool-ind)
@@ -59,7 +60,7 @@ module _ {ℓ : Level} (B : BooleanRing ℓ) where
     ; true  true  → solve! B'
     }
   pres- BoolBR→BAIsCommRingHom false = solve! B'
-  pres- BoolBR→BAIsCommRingHom true =  1r ≡⟨ -IsId ⟩ - 1r ∎
+  pres- BoolBR→BAIsCommRingHom true  = -IsId :> 1r ≡ - 1r
 
   BoolBR→ : BoolHom BoolBR B
   BoolBR→ = BoolBR→BAMap , BoolBR→BAIsCommRingHom
