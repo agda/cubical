@@ -8,7 +8,7 @@
     flake = false;
   };
   inputs.agda = {
-    url = "github:agda/agda/v2.8.0";
+    url = "github:agda/agda";
     inputs = {
       nixpkgs.follows = "nixpkgs";
     };
@@ -17,20 +17,6 @@
   outputs = { self, flake-compat, flake-utils, nixpkgs, agda }:
     let
       inherit (nixpkgs.lib) cleanSourceWith hasSuffix;
-
-      # Required until the upstream agda overlay is fixed (https://github.com/agda/agda/issues/7755).
-      # Afterwards, use agda.overlays.default instead.
-      agdaOverlay = final: prev: {
-        haskellPackages = prev.haskellPackages.override (old: {
-          overrides = prev.lib.composeExtensions (old.overrides or (_: _: { }))
-            (hfinal: hprev: {
-              # The agda wrapper expects a separate bin output
-              # (fixed in https://github.com/NixOS/nixpkgs/pull/424180/commits/ee74abc225)
-              Agda = final.haskell.lib.enableSeparateBinOutput
-                agda.packages.${prev.system}.default;
-            });
-        });
-      };
 
       overlay = final: prev: {
         cubical = final.agdaPackages.mkDerivation rec {
@@ -62,7 +48,7 @@
         agdaWithCubical = final.agdaPackages.agda.withPackages [final.cubical];
       };
 
-      overlays = [ agdaOverlay overlay ];
+      overlays = [ agda.overlays.default overlay ];
     in
     { overlays.default = overlay; } //
     flake-utils.lib.eachDefaultSystem (system:
