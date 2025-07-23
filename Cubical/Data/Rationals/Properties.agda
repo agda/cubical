@@ -462,6 +462,21 @@ _·_ = onCommonDenomSym
 -Invol : ∀ x → - - x ≡ x
 -Invol x = ·Assoc -1 -1 x ∙ ·IdL x
 
+-Dist+ : ∀ x y → - (x + y) ≡ (- x) + (- y)
+-Dist+ x y = ·DistL+ -1 x y
+
+-DistL· : (b c : ℚ) → - (b · c) ≡ - b · c
+-DistL· x y = ·Assoc -1 x y
+
+-DistR· : (b c : ℚ) → - (b · c) ≡ b · - c
+-DistR· x y = ·Assoc -1 x y ∙ cong (_· y) (·Comm -1 x) ∙ sym (·Assoc x -1 y)
+
+-DistLR· : (b c : ℚ) → - b · c ≡ b · - c
+-DistLR· b c = sym (-DistL· b c) ∙ -DistR· b c
+
+-·- : (b d : ℚ) → (- b) · (- d) ≡ b · d
+-·- b d = sym (-DistL· b (- d)) ∙ cong -_ (sym (-DistR· b d)) ∙ -Invol (b · d)
+
 negateEquiv : ℚ ≃ ℚ
 negateEquiv = isoToEquiv (iso -_ -_ -Invol -Invol)
 
