@@ -264,3 +264,9 @@ module _ {R : CommRing ℓ} where
                              → CommAlgebraEquiv A B
                              → CommRingEquiv (CommAlgebra→CommRing A) (CommAlgebra→CommRing B)
   CommAlgebraEquiv→CommRingEquiv e = (e .fst) , (IsCommAlgebraHom.isCommRingHom (e .snd))
+
+  ⟨_⟩ₐ≃ :
+        {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
+        → CommAlgebraEquiv A B
+        → ⟨ A ⟩ₐ → ⟨ B ⟩ₐ
+  ⟨ e ⟩ₐ≃ = ⟨ CommAlgebraEquiv→CommAlgebraHom e ⟩ₐ→

@@ -19,7 +19,8 @@ module Cubical.Algebra.CommRing.Polynomials.Typevariate.Base where
   For more, see the Properties file.
 -}
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Structure using (⟨_⟩)
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Function using (_$_)
 
 open import Cubical.Algebra.CommRing.Base
 
@@ -55,7 +56,7 @@ module Construction (R : CommRing ℓ) where
 
   opaque
     isCommRing : (I : Type ℓ') → IsCommRing (const {I = I} 0r) (const 1r) _+_ _·_ -_
-    isCommRing I =
+    isCommRing I = makeOpaque $
       makeIsCommRing 0-trunc
                      +-assoc +-rid +-rinv +-comm
                       ·-assoc (λ x → ·-comm _ _ ∙ ·-lid x)

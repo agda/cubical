@@ -158,3 +158,11 @@ module _
   opaque
     isZeroFromIdeal : (x : ⟨ A ⟩ₐ) → x ∈ (fst I) → quotientHom A I $ca x ≡ 0r
     isZeroFromIdeal x x∈I = eq/ x 0r (subst (_∈ fst I) (solve! (CommAlgebra→CommRing A)) x∈I )
+
+module _
+  {R : CommRing ℓ}
+  {A : CommAlgebra R ℓ}
+  {I : IdealsIn R A}
+  where
+  commuteCommRingQuot : CommRingEquiv ((A / I) .fst) ((A .fst) CommRing./ I)
+  commuteCommRingQuot = idCommRingEquiv ((A / I) .fst)

@@ -14,7 +14,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma
 
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra
@@ -25,7 +25,7 @@ open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Notation
 
 private variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
 module _ (R : CommRing ℓ) where
   Polynomials : (n : ℕ) → CommAlgebra R ℓ
@@ -77,3 +77,10 @@ module _ (R : CommRing ℓ) where
 
   FPCAlg : (ℓ' : Level) → Type _
   FPCAlg ℓ' = Σ[ A ∈ CommAlgebra R ℓ' ] isFP A
+
+  isFPByEquiv : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') → CommAlgebraEquiv A B → isFP A → isFP B
+  isFPByEquiv A B A≅B ∥fpA∥ =
+    PT.rec
+      isPropPropTrunc
+      (λ (fp , fp≅A) → ∣ fp , compCommAlgebraEquiv fp≅A A≅B ∣₁)
+      ∥fpA∥
