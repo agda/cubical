@@ -72,7 +72,7 @@ module _ (†C : †Category ℓ ℓ') where
 module †Morphisms (†C : †Category ℓ ℓ') where
   open †Category †C renaming (cat to C)
   open areInv
-  
+
   private variable
     x y z w : ob
 
