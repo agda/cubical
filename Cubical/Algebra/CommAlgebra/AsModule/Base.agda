@@ -1,6 +1,7 @@
 {-# OPTIONS --safe #-}
 {-
   This used to be the default definition of CommAlgebra.
+  The plan is to remove duplicated constructions based on this definition.
 -}
 module Cubical.Algebra.CommAlgebra.AsModule.Base where
 
