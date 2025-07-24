@@ -22,9 +22,8 @@ open import Cubical.Categories.Dagger.Base
 private variable
   ℓ ℓ' : Level
 
-module _ (CDagCat : DagCat ℓ ℓ') where
-  open DagCat CDagCat renaming (cat to C)
-  open areInv
+module _ (†C : †Category ℓ ℓ') where
+  open †Category †C renaming (cat to C)
   open CategoryPath
 
   -- Every dagger category is equal to its opposite
@@ -46,31 +45,34 @@ module _ (CDagCat : DagCat ℓ ℓ') where
       (g ⋆ f) ∎
 
   -- It is usually more useful to have an equivalence, however
-  module _ where
-    open AdjointEquivalence
-    open Functor
-    open NatIso
-    open NatTrans
-    open UnitCounit.TriangleIdentities
+  open AdjointEquivalence
+  open Functor
+  open NatIso
+  open NatTrans
+  open UnitCounit.TriangleIdentities
 
-    dagCatEquivOp : AdjointEquivalence C (C ^op)
-    dagCatEquivOp .fun .F-ob = idfun _
-    dagCatEquivOp .fun .F-hom = _†
-    dagCatEquivOp .fun .F-id = †-id
-    dagCatEquivOp .fun .F-seq = †-seq
-    dagCatEquivOp .inv .F-ob = idfun _
-    dagCatEquivOp .inv .F-hom = _†
-    dagCatEquivOp .inv .F-id = †-id
-    dagCatEquivOp .inv .F-seq = flip †-seq
-    dagCatEquivOp .η .trans .N-ob _ = id
-    dagCatEquivOp .η .trans .N-hom f = ⋆IdR f ∙∙ sym (†-invol f) ∙∙ sym (⋆IdL ((f †) †))
-    dagCatEquivOp .η .nIso _ = idCatIso .snd
-    dagCatEquivOp .ε .trans .N-ob _ = id
-    dagCatEquivOp .ε .trans .N-hom f = ⋆IdL ((f †) †) ∙∙ †-invol f ∙∙ sym (⋆IdR f)
-    dagCatEquivOp .ε .nIso _ = idCatIso .snd
-    dagCatEquivOp .triangleIdentities .Δ₁ _ = ⋆IdL _ ∙ †-id
-    dagCatEquivOp .triangleIdentities .Δ₂ _ = ⋆IdL _ ∙ †-id
+  dagCatEquivOp : AdjointEquivalence C (C ^op)
+  dagCatEquivOp .fun .F-ob = idfun _
+  dagCatEquivOp .fun .F-hom = _†
+  dagCatEquivOp .fun .F-id = †-id
+  dagCatEquivOp .fun .F-seq = †-seq
+  dagCatEquivOp .inv .F-ob = idfun _
+  dagCatEquivOp .inv .F-hom = _†
+  dagCatEquivOp .inv .F-id = †-id
+  dagCatEquivOp .inv .F-seq = flip †-seq
+  dagCatEquivOp .η .trans .N-ob _ = id
+  dagCatEquivOp .η .trans .N-hom f = ⋆IdR f ∙∙ sym (†-invol f) ∙∙ sym (⋆IdL ((f †) †))
+  dagCatEquivOp .η .nIso _ = idCatIso .snd
+  dagCatEquivOp .ε .trans .N-ob _ = id
+  dagCatEquivOp .ε .trans .N-hom f = ⋆IdL ((f †) †) ∙∙ †-invol f ∙∙ sym (⋆IdR f)
+  dagCatEquivOp .ε .nIso _ = idCatIso .snd
+  dagCatEquivOp .triangleIdentities .Δ₁ _ = ⋆IdL _ ∙ †-id
+  dagCatEquivOp .triangleIdentities .Δ₂ _ = ⋆IdL _ ∙ †-id
 
+module †Morphisms (†C : †Category ℓ ℓ') where
+  open †Category †C renaming (cat to C)
+  open areInv
+  
   private variable
     x y z w : ob
 
@@ -221,18 +223,19 @@ module _ (CDagCat : DagCat ℓ ℓ') where
       †IsoToPath (pathTo†Iso refl) ≡⟨ retIsEq univ refl ⟩
       refl                         ∎
 
-  makeIs†Univalent : (†IsoToPath : ∀ {x y} → †CatIso x y → x ≡ y)
-                   → (∀ {x} → †IsoToPath id†Iso ≡ refl {x = x})
-                   → (∀ {x y} (f : †CatIso x y) → pathTo†Iso (†IsoToPath f) .fst ≡ f .fst)
-                   → is†Univalent
-  makeIs†Univalent †IsoToPath †IsoToPath-id †IsoToPath-β .is†Univalent.univ {x} {y} = TypeIso.isoToIsEquiv iso where
+  module _ (†IsoToPath : ∀ {x y} → †CatIso x y → x ≡ y)
+           (†IsoToPath-id : ∀ {x} → †IsoToPath id†Iso ≡ refl {x = x})
+           (†IsoToPath-β : ∀ {x y} (f : †CatIso x y) → pathTo†Iso (†IsoToPath f) .fst ≡ f .fst) where
 
-    iso : TypeIso (x ≡ y) (†CatIso x y)
-    iso .TypeIso.fun = pathTo†Iso
-    iso .TypeIso.inv = †IsoToPath
-    iso .TypeIso.rightInv f = Σ≡Prop (λ _ → isPropAreInv _) (†IsoToPath-β f)
-    iso .TypeIso.leftInv = J (λ y p → †IsoToPath (pathTo†Iso p) ≡ p) (
-        †IsoToPath (pathTo†Iso refl) ≡⟨ cong †IsoToPath pathTo†Iso-refl ⟩
-        †IsoToPath id†Iso            ≡⟨ †IsoToPath-id ⟩
-        refl                         ∎
-      )
+    makeIs†Univalent : is†Univalent
+    makeIs†Univalent .is†Univalent.univ {x} {y} = TypeIso.isoToIsEquiv iso where
+
+      iso : TypeIso (x ≡ y) (†CatIso x y)
+      iso .TypeIso.fun = pathTo†Iso
+      iso .TypeIso.inv = †IsoToPath
+      iso .TypeIso.rightInv f = Σ≡Prop (λ _ → isPropAreInv _) (†IsoToPath-β f)
+      iso .TypeIso.leftInv = J (λ y p → †IsoToPath (pathTo†Iso p) ≡ p) (
+          †IsoToPath (pathTo†Iso refl) ≡⟨ cong †IsoToPath pathTo†Iso-refl ⟩
+          †IsoToPath id†Iso            ≡⟨ †IsoToPath-id ⟩
+          refl                         ∎
+        )

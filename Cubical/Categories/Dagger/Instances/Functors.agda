@@ -18,15 +18,15 @@ open import Cubical.Categories.Dagger.Functor
 private variable
   ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
 
-module _ (C : DagCat ℓC ℓC') (D : DagCat ℓD ℓD') where
+module _ (C : †Cat ℓC ℓC') (D : †Category ℓD ℓD') where
 
   open Category
-  open DagCat
+  open †Category
   open DaggerStr
   open IsDagger
   open NatTrans
 
-  †FUNCTOR : DagCat (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) (ℓ-max (ℓ-max ℓC ℓC') ℓD')
+  †FUNCTOR : †Category (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) (ℓ-max (ℓ-max ℓC ℓC') ℓD')
   †FUNCTOR .cat = FullSubcategory (FUNCTOR (C .cat) (D .cat)) (IsDagFunctor C D)
   †FUNCTOR .dagstr ._† {x = F} {y = G} = NT† F G
   †FUNCTOR .dagstr .is-dag .†-invol n = makeNatTransPath (funExt λ x → D .†-invol (n ⟦ x ⟧))

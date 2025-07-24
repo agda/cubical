@@ -44,7 +44,7 @@ module _ (C : Category ℓ ℓ') where
     open IsDagger is-dag public
 
 
-record DagCat (ℓ ℓ' : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
+record †Category (ℓ ℓ' : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   no-eta-equality
 
   field
@@ -56,19 +56,9 @@ record DagCat (ℓ ℓ' : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
 
 open IsDagger
 open DaggerStr
-open DagCat
+open †Category
 
-dag : ∀ (C : DagCat ℓ ℓ') {x y} → C .cat [ x , y ] → C .cat [ y , x ]
-dag C x = C ._† x
+dag : ∀ (C : †Category ℓ ℓ') {x y} → C .cat [ x , y ] → C .cat [ y , x ]
+dag C f = C ._† f
 
-syntax dag C x = x †[ C ]
-
-opDaggerStr : {C : Category ℓ ℓ'} → DaggerStr C → DaggerStr (C ^op)
-opDaggerStr d ._†     = d ._†
-opDaggerStr d .is-dag .†-invol = d .is-dag .†-invol
-opDaggerStr d .is-dag .†-id    = d .is-dag .†-id
-opDaggerStr d .is-dag .†-seq   f g = d .is-dag .†-seq g f
-
-opDagCat : DagCat ℓ ℓ' → DagCat ℓ ℓ'
-opDagCat C .cat    = C .cat ^op
-opDagCat C .dagstr = opDaggerStr (C .dagstr)
+syntax dag C f = f †[ C ]
