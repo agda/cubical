@@ -18,7 +18,7 @@ open import Cubical.Categories.Dagger.Functor
 private variable
   ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
 
-module _ (C : †Cat ℓC ℓC') (D : †Category ℓD ℓD') where
+module _ (C : †Category ℓC ℓC') (D : †Category ℓD ℓD') where
 
   open Category
   open †Category
