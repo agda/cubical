@@ -6,7 +6,6 @@ https://arxiv.org/abs/1901.06022
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Pushout.KrausVonRaumer where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.Cylinder.Base where
 

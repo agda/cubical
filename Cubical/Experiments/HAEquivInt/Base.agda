@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Experiments.HAEquivInt.Base where
 
 open import Cubical.Foundations.Prelude

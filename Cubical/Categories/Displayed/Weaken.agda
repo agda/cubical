@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Weaken where
 
 open import Cubical.Foundations.Prelude

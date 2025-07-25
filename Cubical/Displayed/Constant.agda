@@ -3,7 +3,6 @@
   Functions building DUARels on constant families
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Displayed.Constant where
 
 open import Cubical.Foundations.Prelude

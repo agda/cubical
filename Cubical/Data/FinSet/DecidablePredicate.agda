@@ -5,7 +5,6 @@ This files contains:
   (P.S. We use the alternative definition of decidability for computational effectivity.)
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.DecidablePredicate where
 

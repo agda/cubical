@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.OrderedCommMonoid.Base where
 {-
   Definition of an ordered monoid.

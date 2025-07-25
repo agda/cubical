@@ -52,7 +52,6 @@
    that factorizes through the universal displayed functor.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.Reindex.Base where
 
 open import Cubical.Foundations.Prelude

@@ -5,7 +5,6 @@ This file contains:
 - the coequalizer of sets as a HIT as performed in https://1lab.dev/Data.Set.Coequaliser.html
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.SetCoequalizer.Properties where
 
 open import Cubical.HITs.SetCoequalizer.Base

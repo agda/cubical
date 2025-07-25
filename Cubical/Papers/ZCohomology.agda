@@ -14,7 +14,6 @@ Computer Science Logic (CSL) 2022
 
 -- The "--safe" flag ensures that there are no postulates or
 -- unfinished goals
-{-# OPTIONS --safe #-}
 module Cubical.Papers.ZCohomology where
 
 -- Misc.

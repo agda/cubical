@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Sigma where
 
 open import Cubical.Data.Sigma.Base public

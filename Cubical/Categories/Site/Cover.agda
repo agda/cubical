@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Site.Cover where
 
 -- A cover of an object is just a family of arrows into that object.

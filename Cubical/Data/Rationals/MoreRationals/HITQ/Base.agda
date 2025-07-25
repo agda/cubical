@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Rationals.MoreRationals.HITQ.Base where
 
 open import Cubical.Foundations.Prelude

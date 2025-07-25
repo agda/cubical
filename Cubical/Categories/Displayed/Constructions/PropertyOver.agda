@@ -1,5 +1,4 @@
 -- | Property displayed over a category.
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.PropertyOver where
 
 open import Cubical.Foundations.Prelude

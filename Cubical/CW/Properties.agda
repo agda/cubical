@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 {-This file contains elimination principles and basic properties of CW
 complexes/skeleta.

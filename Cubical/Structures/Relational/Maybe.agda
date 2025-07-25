@@ -3,7 +3,7 @@
 Maybe structure: X ↦ Maybe (S X)
 
 -}
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Structures.Relational.Maybe where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 -- Definition of Fin n in terms of the inductively defined <
 

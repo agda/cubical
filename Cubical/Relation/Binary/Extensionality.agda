@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.Relation.Binary.Extensionality where
 

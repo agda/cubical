@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.DirectSum.Equiv-DSHIT-DSFun where
 
 open import Cubical.Foundations.Prelude

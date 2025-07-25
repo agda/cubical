@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.SequentialColimit where
 
 open import Cubical.HITs.SequentialColimit.Base public

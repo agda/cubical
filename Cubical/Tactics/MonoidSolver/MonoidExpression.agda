@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Tactics.MonoidSolver.MonoidExpression where
 
 open import Cubical.Foundations.Prelude

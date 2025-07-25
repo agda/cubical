@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Order.Proset where
 
 open import Cubical.Relation.Binary.Order.Proset.Base public

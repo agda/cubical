@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Order where
 
 open import Cubical.Relation.Binary.Order.Apartness public

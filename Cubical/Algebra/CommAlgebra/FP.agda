@@ -8,7 +8,6 @@
   (where f₁,⋯,fₘ ∈ R[X₁,⋯,Xₙ])
   Our definition is more explicit.
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.FP where
 
 open import Cubical.Algebra.CommAlgebra.FP.Base public

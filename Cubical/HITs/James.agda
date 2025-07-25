@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.James where
 
 open import Cubical.HITs.James.Base public

@@ -5,7 +5,6 @@ This file contains:
   - The connectivity of pushout-product maps.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Pushout.PushoutProduct where
 
 open import Cubical.Foundations.Prelude

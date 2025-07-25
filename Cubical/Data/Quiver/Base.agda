@@ -32,7 +32,6 @@
 -- 2. *Use* Quivers
 -- when you can get away with it.
 
-{-# OPTIONS --safe #-}
 module Cubical.Data.Quiver.Base where
 
 open import Cubical.Foundations.Prelude

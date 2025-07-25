@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.Cohomology.EilenbergMacLane.Groups.Wedge where
 

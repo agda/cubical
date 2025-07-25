@@ -3,7 +3,6 @@
 Whitehead's lemma for truncated spaces.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Homotopy.WhiteheadsLemma where
 
 open import Cubical.Foundations.Prelude

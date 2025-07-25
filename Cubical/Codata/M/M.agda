@@ -4,7 +4,7 @@
 -- "Non-wellfounded trees in Homotopy Type Theory"
 -- Benedikt Ahrens, Paolo Capriotti, Régis Spadotti
 -}
-{-# OPTIONS --guardedness --safe #-}
+{-# OPTIONS --guardedness #-}
 module Cubical.Codata.M.M where
 
 open import Cubical.Codata.M.M.Base public

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Instances.Rings where
 
 open import Cubical.Foundations.Prelude

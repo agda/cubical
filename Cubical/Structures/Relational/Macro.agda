@@ -3,7 +3,7 @@
 Descriptor language for easily defining relational structures
 
 -}
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Structures.Relational.Macro where
 
 open import Cubical.Foundations.Prelude

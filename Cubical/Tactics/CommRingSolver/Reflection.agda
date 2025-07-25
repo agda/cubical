@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Tactics.CommRingSolver.Reflection where
 
 open import Cubical.Foundations.Prelude hiding (Type)

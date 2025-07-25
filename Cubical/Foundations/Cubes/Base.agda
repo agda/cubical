@@ -7,7 +7,6 @@ This file contains:
 - Some basic operations.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Cubes.Base where
 
 open import Cubical.Foundations.Prelude hiding (Cube)

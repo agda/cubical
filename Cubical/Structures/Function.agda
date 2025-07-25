@@ -3,7 +3,6 @@
 Functions between structures S and T: X ↦ S X → T X
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Structures.Function where
 
 open import Cubical.Foundations.Prelude

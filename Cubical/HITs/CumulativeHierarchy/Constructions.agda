@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 Constructions of "sets" in the cumulative hierarchy. Including:
 - the empty set

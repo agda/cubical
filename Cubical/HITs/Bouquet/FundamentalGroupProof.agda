@@ -11,7 +11,6 @@ This file contains:
 - Proof that π₁Bouquet ≡ FreeGroup A
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.Bouquet.FundamentalGroupProof where
 

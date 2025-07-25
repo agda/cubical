@@ -3,7 +3,6 @@
   Functions building UARels and DUARels on Σ-types
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Displayed.Sigma where
 
 open import Cubical.Foundations.Prelude

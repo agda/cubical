@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --guardedness #-}
+{-# OPTIONS --guardedness #-}
 module Cubical.Codata.Everything where
 
 import Cubical.Codata.Conat

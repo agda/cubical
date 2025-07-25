@@ -1,5 +1,5 @@
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Site.Instances.ZariskiCommRing where
 
 

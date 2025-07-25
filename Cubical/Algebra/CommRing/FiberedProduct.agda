@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.FiberedProduct where
 
 open import Cubical.Foundations.Prelude

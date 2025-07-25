@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.CommAlgebra.Quotient.FGIdealSum where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

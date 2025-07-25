@@ -6,7 +6,7 @@
 
 -}
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.AlgebraicGeometry.Functorial.ZFunctors.QcQsScheme where
 
 open import Cubical.Foundations.Prelude

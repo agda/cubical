@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Site.Sieve where
 
 -- Definition of sieves on an object

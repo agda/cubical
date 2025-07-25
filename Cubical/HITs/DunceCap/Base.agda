@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.DunceCap.Base where
 

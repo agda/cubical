@@ -3,7 +3,6 @@
   Generic UARel, DUARel, and SubstRel: the path relation is always univalent
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Displayed.Generic where
 
 open import Cubical.Foundations.Prelude

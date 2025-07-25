@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Functions.Image where
 
 open import Cubical.Foundations.Prelude

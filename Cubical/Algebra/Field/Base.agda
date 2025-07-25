@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
    Keep in mind, that here are many different notions of "field" in constructive algebra.
    In the terminology of "A Course in Constructive Algebra" (by Mines, Richman, Ruitenburg) (p. 45),

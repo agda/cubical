@@ -31,7 +31,6 @@
 --            ⟩
 --      δ ◾
 
-{-# OPTIONS --safe #-}
 {-
   Equational reasoning in a Quoset that is also a Poset, i.e.
   for writing a chain of <,≤,≡ with at least a <

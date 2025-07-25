@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.FinData.FiniteChoice where
 {-
   Finite choice for 'Fin n'

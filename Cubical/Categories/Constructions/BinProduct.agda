@@ -1,5 +1,4 @@
 -- Product of two categories
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Constructions.BinProduct where
 

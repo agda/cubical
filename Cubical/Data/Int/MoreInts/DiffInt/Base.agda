@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Int.MoreInts.DiffInt.Base where
 
 open import Cubical.Foundations.Prelude

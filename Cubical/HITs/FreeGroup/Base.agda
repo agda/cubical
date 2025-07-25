@@ -5,7 +5,6 @@ This file contains:
 - An implementation of the free group of a type of generators as a HIT
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.FreeGroup.Base where
 

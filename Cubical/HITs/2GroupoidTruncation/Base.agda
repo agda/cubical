@@ -5,7 +5,6 @@ This file contains:
 - Definition of 2-groupoid truncations
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.2GroupoidTruncation.Base where
 
 open import Cubical.Foundations.Prelude

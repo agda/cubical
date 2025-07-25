@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Int.MoreInts.DiffInt.Properties where
 
 open import Cubical.Foundations.HLevels

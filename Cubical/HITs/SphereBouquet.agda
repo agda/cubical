@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.SphereBouquet where
 
 open import Cubical.HITs.SphereBouquet.Base public

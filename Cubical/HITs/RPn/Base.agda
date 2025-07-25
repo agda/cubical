@@ -6,7 +6,6 @@
            (2017) https://arxiv.org/abs/1704.05770
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.RPn.Base where
 
 open import Cubical.Foundations.Prelude

@@ -6,7 +6,6 @@
  we have a join or meet semilattice.
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Semilattice.Base where
 
 open import Cubical.Foundations.Prelude

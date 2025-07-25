@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.FullSubcategory where
 -- Full subcategory (not necessarily injective on objects)
 

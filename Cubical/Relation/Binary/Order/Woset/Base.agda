@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Order.Woset.Base where
 
 open import Cubical.Foundations.Prelude

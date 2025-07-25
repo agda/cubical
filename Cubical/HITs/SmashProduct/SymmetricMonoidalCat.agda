@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 {-
 This file contians a proof that the smash product turns the universe

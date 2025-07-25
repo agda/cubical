@@ -10,7 +10,6 @@ This construction can be viewed as repeated application of `ΣPath≃PathΣ` and
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Category.Path where
 
 open import Cubical.Foundations.Prelude

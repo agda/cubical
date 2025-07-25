@@ -4,7 +4,6 @@ This file contains:
 - Some basic properties of Rijke finite types.
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinType.Properties where
 

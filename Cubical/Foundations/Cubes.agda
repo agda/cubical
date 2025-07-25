@@ -3,7 +3,6 @@
 The Internal n-Cubes
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Cubes where
 
 open import Cubical.Foundations.Prelude hiding (Cube)

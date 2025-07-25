@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Order.Quoset.Properties where
 
 open import Cubical.Data.Sum as ⊎

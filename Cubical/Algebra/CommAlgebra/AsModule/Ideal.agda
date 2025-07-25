@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.AsModule.Ideal where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

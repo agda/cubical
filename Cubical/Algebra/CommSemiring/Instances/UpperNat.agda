@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommSemiring.Instances.UpperNat where
 {-
   based on:

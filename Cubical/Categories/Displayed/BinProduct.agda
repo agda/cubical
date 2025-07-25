@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.BinProduct where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Polynomials.MultivariatePoly-notationZ2 where
 
 open import Cubical.Foundations.Prelude

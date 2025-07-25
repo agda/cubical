@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Interval where
 
 open import Cubical.HITs.Interval.Base public

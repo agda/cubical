@@ -2,7 +2,6 @@
   The image of an ideal under a surjective ring homomorphism is an ideal.
   (imported from Ring.Ideal.SurjectiveImage)
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Ideal.SurjectiveImage where
 
 open import Cubical.Foundations.Prelude

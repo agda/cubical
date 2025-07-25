@@ -8,7 +8,6 @@
 -- isProp proofs making it easier to just give them explicitly instead
 -- of having them bundled up with the type.
 --
-{-# OPTIONS --safe #-}
 module Cubical.Functions.Logic where
 
 open import Cubical.Foundations.Prelude

@@ -3,7 +3,7 @@
   - Automatically generate UARel and DUARel instances
 
 -}
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Displayed.Auto where
 
 open import Cubical.Foundations.Prelude

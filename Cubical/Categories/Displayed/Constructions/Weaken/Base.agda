@@ -1,7 +1,6 @@
 {-
   Weaken a category to be a displayed category.
 -}
-{-# OPTIONS --safe #-}
 --
 module Cubical.Categories.Displayed.Constructions.Weaken.Base where
 

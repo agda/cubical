@@ -10,7 +10,6 @@ Every subfinite set is guaranteed to be a set and discrete.
 
 -}
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.SubFinSet where
 

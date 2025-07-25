@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.DirProd where
 
 open import Cubical.Foundations.Prelude

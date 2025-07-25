@@ -6,7 +6,6 @@ This file contains:
 - Preordering of cardinalities
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Data.Cardinal.Properties where
 
 open import Cubical.HITs.SetTruncation as ∥₂
