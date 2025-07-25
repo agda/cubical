@@ -33,11 +33,11 @@ check:
 
 .PHONY : timings
 timings: clean
-	$(AGDA) -v profile.modules:10 Cubical/README.agda
+	$(AGDA) --build-library -v profile.modules:10
 
 .PHONY : listings
 listings: $(wildcard Cubical/**/*.agda)
-	$(AGDA) -i. -isrc --html Cubical/README.agda -v0
+	$(AGDA) --build-library -i. -isrc --html -v0
 
 .PHONY : clean
 clean:
