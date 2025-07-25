@@ -186,6 +186,10 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
       ((x H.· y) H.· H.inv x)    ≡⟨ sym (H.·Assoc x y (H.inv x)) ⟩
       x H.· y H.· H.inv x        ∎ )}
 
+  imNormalSubgroup : ((x y : ⟨ H ⟩) → x H.· y ≡ y H.· x) → NormalSubgroup H
+  fst (imNormalSubgroup _) = imSubgroup
+  snd (imNormalSubgroup comm) = isNormalIm comm
+
   kerSubset : ℙ ⟨ G ⟩
   kerSubset x = isInKer ϕ x , isPropIsInKer ϕ x
 
