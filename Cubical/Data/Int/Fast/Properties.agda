@@ -12,7 +12,8 @@ open import Cubical.Relation.Nullary
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.NatPlusOne.Base as ℕ₊₁
 open import Cubical.Data.Nat as ℕ
-  hiding   (+-assoc ; +-comm ; min ; max ; minComm ; maxComm)
+  hiding   (+-assoc ; +-comm ; min ; max ; minComm ; maxComm ; minIdem ; maxIdem ;
+            minSucL ; minSucR ; maxSucL ; maxSucR)
   renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ;
             ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
 open import Cubical.Data.Sum
@@ -29,9 +30,9 @@ open import Cubical.Data.Int.Properties as P public
  hiding (·lCancel ; ·rCancel; +Assoc ;+Comm;-DistL·;-DistR·;minusPlus;plusMinus
    ;·Assoc;·Comm;·DistL+;·DistR+;·IdL;·IdR;·DistPosRMin;·DistPosRMax;·DistPosLMin;·DistPosLMax;abs·
    ; inj-z+ ;
-   min ; minComm ; minIdem ; max ; maxComm ; maxIdem ; 
-   sucPred ; predSuc ; 
-   sucDistMin ; predDistMin ; minSucL ; minSucR ; minPredL ; minPredR ; 
+   min ; minComm ; minIdem ; max ; maxComm ; maxIdem ;
+   sucPred ; predSuc ;
+   sucDistMin ; predDistMin ; minSucL ; minSucR ; minPredL ; minPredR ;
    sucDistMax ; predDistMax ; maxSucL ; maxSucR ; maxPredL ; maxPredR ;
    predℤ+pos ;
    predℤ+ ; +predℤ ; sucℤ+ ; +sucℤ ; pos0+ ; negsuc0+ ;
@@ -58,21 +59,21 @@ open import Cubical.Data.Int.Properties as P public
 ℕ-lem (suc n) (suc m) =
   predℤ+negsuc m (pos (suc n)) ∙ ℕ-lem n m
 
-+≡+f : ∀ n m → n ℤ.+ m ≡ n + m 
++≡+f : ∀ n m → n ℤ.+ m ≡ n + m
 +≡+f (pos n) (pos n₁) = sym (P.pos+ n n₁)
 +≡+f (pos n) (negsuc n₁) = ℕ-lem n n₁
 +≡+f (negsuc n) (pos n₁) = P.+Comm (negsuc n) (pos n₁) ∙ ℕ-lem n₁ n
 +≡+f (negsuc n) (negsuc n₁) = sym (P.neg+ (suc n) (suc n₁))
   ∙ cong negsuc (ℕ.+-suc _ _)
 
-·≡·f : ∀ n m → n ℤ.· m ≡ n · m 
+·≡·f : ∀ n m → n ℤ.· m ≡ n · m
 ·≡·f (pos n) (pos n₁) = sym (P.pos·pos n n₁)
 ·≡·f (pos zero) (negsuc n₁) = refl
 ·≡·f (pos (suc n)) (negsuc n₁) =
    P.pos·negsuc (suc n) n₁ ∙
      cong -_ (sym (P.pos·pos (suc n) (suc n₁)))
 ·≡·f (negsuc n) (pos zero) = P.·AnnihilR (negsuc n)
-·≡·f (negsuc n) (pos (suc n₁)) = 
+·≡·f (negsuc n) (pos (suc n₁)) =
     P.negsuc·pos n (suc n₁) ∙
       cong -_ (sym (P.pos·pos (suc n) (suc n₁)))
 ·≡·f (negsuc n) (negsuc n₁) = P.negsuc·negsuc n n₁ ∙ sym (P.pos·pos (suc n) (suc n₁))
@@ -131,19 +132,9 @@ minComm (negsuc m) (pos n)    = refl
 minComm (negsuc m) (negsuc n) = cong negsuc (ℕ.maxComm m n)
 
 -- To move into Nat.Properties:
-ℕminIdem : ∀ n → ℕ.min n n ≡ n
-ℕminIdem zero    = refl
-ℕminIdem (suc n) = cong suc (ℕminIdem n)
-
-ℕmaxIdem : ∀ n → ℕ.max n n ≡ n
-ℕmaxIdem zero    = refl
-ℕmaxIdem (suc n) = cong suc (ℕmaxIdem n)
--- -----
-
--- To move into Nat.Properties:
 -- test for faster min
 open import Agda.Builtin.Bool as B using ()
-open import Agda.Builtin.Nat using () renaming ( _<_ to _<ᵇ_ )  
+open import Agda.Builtin.Nat using () renaming ( _<_ to _<ᵇ_ )
 
 ℕmin' : ℕ → ℕ → ℕ
 ℕmin' m n with (m <ᵇ n)
@@ -152,13 +143,13 @@ open import Agda.Builtin.Nat using () renaming ( _<_ to _<ᵇ_ )
 -- -----
 
 -- _ : ℕ.min 9008019290921 1000000000 ≡ 1000000000
--- _ = refl 
+-- _ = refl
 
 
 
 minIdem : ∀ n → min n n ≡ n
-minIdem (pos n)    = cong pos (ℕminIdem n)
-minIdem (negsuc n) = cong negsuc (ℕmaxIdem n)
+minIdem (pos n)    = cong pos (ℕ.minIdem n)
+minIdem (negsuc n) = cong negsuc (ℕ.maxIdem n)
 
 max : ℤ → ℤ → ℤ
 max (pos m)    (pos n)    = pos (ℕ.max m n )
@@ -166,15 +157,15 @@ max (pos m)    (negsuc n) = pos m
 max (negsuc m) (pos n)    = pos n
 max (negsuc m) (negsuc n) = negsuc (ℕ.min m n)
 
-maxComm : ∀ m n → max m n ≡ max n m 
+maxComm : ∀ m n → max m n ≡ max n m
 maxComm (pos m)    (pos n)    = cong pos (ℕ.maxComm m n)
 maxComm (pos m)    (negsuc n) = refl
 maxComm (negsuc m) (pos n)    = refl
 maxComm (negsuc m) (negsuc n) = cong negsuc (ℕ.minComm m n)
 
-maxIdem : ∀ n → max n n ≡ n 
-maxIdem (pos n)    = cong pos (ℕmaxIdem n)
-maxIdem (negsuc n) = cong negsuc (ℕminIdem n)
+maxIdem : ∀ n → max n n ≡ n
+maxIdem (pos n)    = cong pos (ℕ.maxIdem n)
+maxIdem (negsuc n) = cong negsuc (ℕ.minIdem n)
 
 sucPred : ∀ n → sucℤ (predℤ n) ≡ n
 sucPred (pos zero)    = refl
@@ -210,36 +201,18 @@ predDistMin (negsuc m)    (pos zero)    = refl
 predDistMin (negsuc m)    (pos (suc n)) = refl
 predDistMin (negsuc m)    (negsuc n)    = refl
 
--- to move in Nat.Properties:
-ℕminSucL : ∀ n → ℕ.min (suc n) n ≡ n
-ℕminSucL zero    = refl
-ℕminSucL (suc n) = cong suc (ℕminSucL n)
-
-ℕminSucR : ∀ n → ℕ.min n (suc n) ≡ n
-ℕminSucR zero    = refl
-ℕminSucR (suc n) = cong suc (ℕminSucR n)
-
-ℕmaxSucL : ∀ n → ℕ.max (suc n) n ≡ suc n
-ℕmaxSucL zero    = refl
-ℕmaxSucL (suc n) = cong suc (ℕmaxSucL n)
-
-ℕmaxSucR : ∀ n → ℕ.max n (suc n) ≡ suc n
-ℕmaxSucR zero    = refl
-ℕmaxSucR (suc n) = cong suc (ℕmaxSucR n)
--- ----
-
 minSucL : ∀ m → min (sucℤ m) m ≡ m
-minSucL (pos m)          = cong pos (ℕminSucL m)
+minSucL (pos m)          = cong pos (ℕ.minSucL m)
 minSucL (negsuc zero)    = refl
-minSucL (negsuc (suc m)) = cong negsuc (ℕmaxSucR m)
+minSucL (negsuc (suc m)) = cong negsuc (ℕ.maxSucR m)
 
 minSucR : ∀ m → min m (sucℤ m)  ≡ m
 minSucR m = minComm m (sucℤ m) ∙ minSucL m
 
 minPredL : ∀ m → min (predℤ m) m ≡ predℤ m
 minPredL (pos zero)    = refl
-minPredL (pos (suc m)) = cong pos (ℕminSucR m)
-minPredL (negsuc m)    = cong negsuc (ℕmaxSucL m)
+minPredL (pos (suc m)) = cong pos (ℕ.minSucR m)
+minPredL (negsuc m)    = cong negsuc (ℕ.maxSucL m)
 
 minPredR : ∀ m → min m (predℤ m) ≡ predℤ m
 minPredR m = minComm m (predℤ m) ∙ minPredL m
@@ -267,17 +240,17 @@ predDistMax (negsuc m)    (pos (suc n)) = refl
 predDistMax (negsuc m)    (negsuc n)    = refl
 
 maxSucL : ∀ m → max (sucℤ m) m ≡ sucℤ m
-maxSucL (pos m)          = cong pos (ℕmaxSucL m)
+maxSucL (pos m)          = cong pos (ℕ.maxSucL m)
 maxSucL (negsuc zero)    = refl
-maxSucL (negsuc (suc m)) = cong negsuc (ℕminSucR m)
+maxSucL (negsuc (suc m)) = cong negsuc (ℕ.minSucR m)
 
 maxSucR : ∀ m → max m (sucℤ m) ≡ sucℤ m
 maxSucR m = maxComm m (sucℤ m) ∙ maxSucL m
 
 maxPredL : ∀ m → max (predℤ m) m ≡ m
 maxPredL (pos zero)    = refl
-maxPredL (pos (suc m)) = cong pos (ℕmaxSucR m)
-maxPredL (negsuc m)    = cong negsuc (ℕminSucL m)
+maxPredL (pos (suc m)) = cong pos (ℕ.maxSucR m)
+maxPredL (negsuc m)    = cong negsuc (ℕ.minSucL m)
 
 maxPredR : ∀ m → max m (predℤ m) ≡ m
 maxPredR m = maxComm m (predℤ m) ∙ maxPredL m
@@ -316,7 +289,7 @@ predℕ-≡ℕ-suc (suc m)       (suc n) = predℕ-≡ℕ-suc m n
 predℤ+ : ∀ m n → predℤ (m + n) ≡ (predℤ m) + n
 predℤ+ (pos zero)    (pos zero)          = refl
 predℤ+ (pos zero)    (pos (suc zero))    = refl -- sym(ℕ-f0-pos n)
-predℤ+ (pos zero)    (pos (suc (suc n))) = refl -- ↙ 
+predℤ+ (pos zero)    (pos (suc (suc n))) = refl -- ↙
 predℤ+ (pos (suc m)) (pos n)             = refl
 predℤ+ (pos zero)    (negsuc n)          = refl
 predℤ+ (pos (suc m)) (negsuc n)          = predℕ-≡ℕ-suc m n
@@ -393,12 +366,12 @@ negsuc0+ (negsuc n)          = refl
 +negsuc0 (pos zero)          = refl
 +negsuc0 (pos (suc zero))    = refl
 +negsuc0 (pos (suc (suc n))) = refl
-+negsuc0 (negsuc n)          = cong (negsuc ∘ suc) $ sym (ℕ.+-zero n) 
++negsuc0 (negsuc n)          = cong (negsuc ∘ suc) $ sym (ℕ.+-zero n)
 
 +Comm : ∀ m n → m + n ≡ n + m
 +Comm (pos m)    (pos n)     = cong pos (ℕ.+-comm m n)
 +Comm (negsuc m) (pos n)     = refl
-+Comm (pos m)    (negsuc n)  = refl  
++Comm (pos m)    (negsuc n)  = refl
 +Comm (negsuc m) (negsuc n)  = cong (negsuc ∘ suc) (ℕ.+-comm m n)
 
 +Comm' : ∀ m n → m + n ≡ n + m
@@ -428,7 +401,7 @@ nℕ-n≡0 (suc n) = nℕ-n≡0 n
                  ∙∙ cong (_ℕ- k) (ℕ.+-comm n m)
 
 +NegsucDistLℕ- : ∀ m n k → (n ℕ- k) + negsuc m ≡ n ℕ- (suc k ℕ.+ m)
-+NegsucDistLℕ- m zero zero       = refl  
++NegsucDistLℕ- m zero zero       = refl
 +NegsucDistLℕ- m zero (suc k)    = refl
 +NegsucDistLℕ- m (suc n) zero    = refl
 +NegsucDistLℕ- m (suc n) (suc k) = +NegsucDistLℕ- m n k
@@ -444,7 +417,7 @@ nℕ-n≡0 (suc n) = nℕ-n≡0 n
 +Assoc (pos m)    (negsuc n) (pos k)    =
   pos m + k ℕ- suc n ≡⟨ +PosDistRℕ- m k (suc n) ⟩
   (m +ℕ k) ℕ- suc n  ≡⟨ sym (+PosDistLℕ- k m (suc n)) ⟩
-  m ℕ- suc n + pos k ∎ 
+  m ℕ- suc n + pos k ∎
 +Assoc (pos m)    (negsuc n) (negsuc k) = sym $ +NegsucDistLℕ- k m (suc n)
 +Assoc (negsuc m) (pos n)    (pos k)    = sym $ +PosDistLℕ- k n (suc m)
 +Assoc (negsuc m) (pos n)    (negsuc k) =
@@ -458,18 +431,18 @@ nℕ-n≡0 (suc n) = nℕ-n≡0 n
   suc (m +ℕ (n +ℕ k)) ≡⟨ cong suc (ℕ.+-assoc m n k)  ⟩
   suc (m +ℕ n +ℕ k)   ∎
 
--- +'≡+ : _+'_ ≡ _+_
--- +'≡+ =  P.+'≡+ ∙ (λ i x y → +≡+f x y i)
++'≡+ : _+'_ ≡ _+_
++'≡+ =  P.+'≡+ ∙ (λ i x y → +≡+f x y i)
 
--- isEquivAddℤ : (m : ℤ) → isEquiv (λ n → n + m)
--- isEquivAddℤ = subst (λ add → (m : ℤ) → isEquiv (λ n → add n m)) +'≡+ P.isEquivAddℤ'
+isEquivAddℤ : (m : ℤ) → isEquiv (λ n → n + m)
+isEquivAddℤ = subst (λ add → (m : ℤ) → isEquiv (λ n → add n m)) +'≡+ P.isEquivAddℤ'
 
 -- below is an alternate proof of isEquivAddℤ for comparison
 -- We also have two useful lemma here.
 
 -Cancel : ∀ z → z - z ≡ 0
 -Cancel (pos zero) = refl
--Cancel (pos (suc n)) = nℕ-n≡0 n 
+-Cancel (pos (suc n)) = nℕ-n≡0 n
 -Cancel (negsuc n) = nℕ-n≡0 n
 
 -Cancel' : ∀ z → - z + z ≡ 0
@@ -478,12 +451,12 @@ nℕ-n≡0 (suc n) = nℕ-n≡0 n
 minusPlus : ∀ m n → (n - m) + m ≡ n
 minusPlus m n = (sym (+Assoc n (- m) m))
              ∙∙ cong (n +_) (-Cancel' m)
-             ∙∙ sym (+pos0 n) 
+             ∙∙ sym (+pos0 n)
 
 plusMinus : ∀ m n → (n + m) - m ≡ n
 plusMinus m n = sym (+Assoc n m (- m))
              ∙∙ cong (n +_) (-Cancel m)
-             ∙∙ sym (+pos0 n) 
+             ∙∙ sym (+pos0 n)
 
 private
   alternateProof : (m : ℤ) → isEquiv (λ n → n + m)
@@ -497,7 +470,7 @@ private
   m         ≡⟨ sym (minusPlus n m) ⟩
   m - n + n ≡⟨ cong (_+ n) p  ⟩
   pos 0 + n ≡⟨ sym (pos0+ n) ⟩
-  n         ∎ 
+  n         ∎
 
 pos+ : ∀ m n → pos (m +ℕ n) ≡ pos m + pos n
 pos+ m n = refl
@@ -524,10 +497,10 @@ pos- (suc m) zero    = cong (pos ∘ suc) (sym (ℕ.+-zero m))
 pos- m       (suc n) = refl
 
 -AntiComm : ∀ m n → m - n ≡ - (n - m)
--AntiComm (pos m)       (pos n)       = sym (pos- m n) ∙∙ ℕ-AntiComm m n ∙∙ cong -_ (pos- n m) 
+-AntiComm (pos m)       (pos n)       = sym (pos- m n) ∙∙ ℕ-AntiComm m n ∙∙ cong -_ (pos- n m)
 -AntiComm (pos zero)    (negsuc n)    = refl
--AntiComm (pos (suc m)) (negsuc n)    = cong (pos ∘ suc) (ℕ.+-comm m (suc n)) 
--AntiComm (negsuc m)    (pos zero)    = refl 
+-AntiComm (pos (suc m)) (negsuc n)    = cong (pos ∘ suc) (ℕ.+-comm m (suc n))
+-AntiComm (negsuc m)    (pos zero)    = refl
 -AntiComm (negsuc m)    (pos (suc n)) = cong negsuc (ℕ.+-comm (suc m) n)
 -AntiComm (negsuc m)    (negsuc n)    = ℕ-AntiComm n m
 
@@ -550,7 +523,7 @@ inj-z+ {z} {l} {n} p =
   - z + (z + l) ≡⟨ cong (- z +_) p ⟩
   - z + (z + n) ≡⟨ +Assoc (- z) z n ⟩
   - z + z + n   ≡⟨ cong (_+ n) (-Cancel' z) ⟩
-  0 + n         ≡⟨ sym (pos0+ n) ⟩ 
+  0 + n         ≡⟨ sym (pos0+ n) ⟩
   n             ∎
 
 inj-+z : ∀ {z l n} → l + z ≡ n + z → l ≡ n
@@ -573,7 +546,7 @@ negsuc·pos n (suc m) = refl
 negsuc·negsuc : (n m : ℕ) → negsuc n · negsuc m ≡ pos (suc n) · pos (suc m)
 negsuc·negsuc n m = refl
 
-negsuc·ℤ : (n : ℕ) → (m : ℤ) → negsuc n · m ≡ - (pos (suc n) · m) 
+negsuc·ℤ : (n : ℕ) → (m : ℤ) → negsuc n · m ≡ - (pos (suc n) · m)
 negsuc·ℤ n (pos m)    = negsuc·pos n m
 negsuc·ℤ n (negsuc m) = refl
 
@@ -603,7 +576,7 @@ negsuc·ℤ n (negsuc m) = refl
 
 private
   distrHelper : (x y z w : ℤ) → (x + y) + (z + w) ≡ ((x + z) + (y + w))
-  distrHelper x y z w = 
+  distrHelper x y z w =
       +Assoc (x + y) z w
    ∙∙ cong (_+ w) (sym (+Assoc x y z) ∙∙ cong (x +_) (+Comm y z) ∙∙ +Assoc x z y)
    ∙∙ sym (+Assoc (x + z) y w)
@@ -628,7 +601,7 @@ Pos·DistRℕ- (suc x) (suc y) (suc z) =
   (suc x ·ℕ suc y) ℕ- (suc x ·ℕ suc z)           ∎
 
 Negsuc·DistRℕ- : ∀ x y z → negsuc x · y ℕ- z ≡ (suc x ·ℕ suc z) ℕ- (suc x ·ℕ suc y)
-Negsuc·DistRℕ- m n l = 
+Negsuc·DistRℕ- m n l =
   negsuc m · (suc n ℕ- suc l)                  ≡⟨ negsuc·ℤ m (n ℕ- l) ⟩
   - (pos (suc m) · (suc n ℕ- suc l))           ≡⟨ cong -_ (Pos·DistRℕ- (suc m) (suc n) (suc l)) ⟩
   - ((suc m ·ℕ suc n) ℕ- (suc m ·ℕ suc l))     ≡⟨ sym $ ℕ-AntiComm (suc m ·ℕ suc l) (suc m ·ℕ suc n) ⟩
@@ -644,7 +617,7 @@ Negsuc·DistRℕ- m n l =
 ·DistR+ (pos (suc m)) (negsuc n) (negsuc l) = cong neg $
   suc m ·ℕ suc (suc (n +ℕ l))               ≡⟨ cong (suc m ·ℕ_) (sym (ℕ.+-suc (suc n) l)) ⟩
   suc m ·ℕ (suc n +ℕ suc l)                 ≡⟨ sym (ℕ.·-distribˡ (suc m) (suc n) (suc l)) ⟩
-  suc m ·ℕ suc n +ℕ suc m ·ℕ suc l          ≡⟨⟩ 
+  suc m ·ℕ suc n +ℕ suc m ·ℕ suc l          ≡⟨⟩
   suc m ·ℕ suc n +ℕ suc (l +ℕ m ·ℕ suc l)   ≡⟨ ℕ.+-suc (suc m ·ℕ suc n) (l +ℕ m ·ℕ suc l) ⟩
   suc (suc m ·ℕ suc n) +ℕ (l +ℕ m ·ℕ suc l) ∎
 ·DistR+ (negsuc m) (pos zero)    (pos zero)    = refl
@@ -714,7 +687,7 @@ private
 ·Assoc (pos (suc m)) (negsuc n)    (negsuc l)    = pos·Assoc (suc m) (suc n) (suc l)
 ·Assoc (negsuc m)    (pos zero)    (pos l)       = refl
 ·Assoc (negsuc m)    (pos (suc n)) (pos zero)    =
-  negsuc m · pos (n ·ℕ 0) ≡⟨ cong ((negsuc m ·_) ∘ pos) $ sym $ ℕ.0≡m·0 n ⟩ 
+  negsuc m · pos (n ·ℕ 0) ≡⟨ cong ((negsuc m ·_) ∘ pos) $ sym $ ℕ.0≡m·0 n ⟩
   negsuc m · 0            ≡⟨ ·AnnihilR (negsuc m) ⟩
   0                       ∎
 ·Assoc (negsuc m)    (pos (suc n)) (pos (suc l)) = neg·Assoc m n l
@@ -741,7 +714,7 @@ sucℤ· : (a b : ℤ) → sucℤ a · b ≡ b + a · b
 sucℤ· a b =
   sucℤ a · b    ≡⟨ cong (_· b) (sucℤ≡1+ a) ⟩
   (1 + a) · b   ≡⟨ ·DistL+ 1 a b ⟩
-  1 · b + a · b ≡⟨ cong (_+ a · b) (·IdL b) ⟩ 
+  1 · b + a · b ≡⟨ cong (_+ a · b) (·IdL b) ⟩
   b + a · b     ∎
 
 ·sucℤ : (a b : ℤ) → a · sucℤ b ≡ a · b + a
@@ -759,7 +732,7 @@ predℤ· a b =
   (a - 1) · b       ≡⟨ cong (_· b) (+Comm a -1) ⟩
   (-1 + a) · b      ≡⟨ ·DistL+ -1 a b ⟩
   -1 · b + a · b    ≡⟨ cong (_+ a · b) (negsuc·ℤ 0 b) ⟩
-  - (1 · b) + a · b ≡⟨ cong ((_+ a · b) ∘ -_) (·IdL b) ⟩ 
+  - (1 · b) + a · b ≡⟨ cong ((_+ a · b) ∘ -_) (·IdL b) ⟩
   - b + a · b       ∎
 
 ·predℤ : ∀ a b → a · predℤ b ≡ a · b - a
@@ -777,7 +750,7 @@ isIntegralℤPosPos : (c m : ℕ) → pos c · pos m ≡ 0 → ¬ c ≡ 0 → m 
 isIntegralℤPosPos zero    m p c≠0 =  ⊥.rec (c≠0 refl)
 isIntegralℤPosPos (suc c) m p _   = sym $ ℕ.0≡n·sm→0≡n $ injPos $
   pos 0               ≡⟨ sym p ⟩
-  pos (suc c) · pos m ≡⟨ ·Comm (pos (suc c)) (pos m)  ⟩ 
+  pos (suc c) · pos m ≡⟨ ·Comm (pos (suc c)) (pos m)  ⟩
   pos m · pos (suc c) ∎
 
 isIntegralℤ : (c m : ℤ) → c · m ≡ 0 → ¬ c ≡ 0 → m ≡ 0
