@@ -9,7 +9,7 @@
 
 -}
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.AlgebraicGeometry.Functorial.ZFunctors.OpenSubscheme where
 
 open import Cubical.Foundations.Prelude

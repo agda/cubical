@@ -10,7 +10,7 @@ the paper:
 
 -- The "--safe" flag ensures that there are no postulates or
 -- unfinished goals
-{-# OPTIONS --safe --cubical #-}
+{-# OPTIONS --cubical #-}
 
 module Cubical.Papers.Pi4S3-JournalVersion where
 

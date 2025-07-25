@@ -3,7 +3,6 @@
 The Cube-Filling Characterization of hLevels
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Cubes.HLevels where
 
 open import Cubical.Foundations.Prelude hiding (Cube)

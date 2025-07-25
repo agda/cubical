@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.SmashProduct.Pentagon where
 
 open import Cubical.HITs.SmashProduct.Base

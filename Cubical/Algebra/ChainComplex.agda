@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.ChainComplex where
 
 open import Cubical.Algebra.ChainComplex.Base public

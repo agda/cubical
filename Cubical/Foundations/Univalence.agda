@@ -12,7 +12,6 @@ various consequences of univalence
 - Isomorphism induction ([elimIso])
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Univalence where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Ordinal where
 
 open import Cubical.Data.Ordinal.Base public

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Polynomials.Typevariate.Properties where
 
 open import Cubical.Foundations.Prelude

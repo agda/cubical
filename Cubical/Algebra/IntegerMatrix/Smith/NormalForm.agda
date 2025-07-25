@@ -3,7 +3,6 @@
 Definition of and facts about Smith normal form
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.IntegerMatrix.Smith.NormalForm where
 
 open import Cubical.Foundations.Prelude

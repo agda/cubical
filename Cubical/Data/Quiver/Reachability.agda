@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Quiver.Reachability where
 
 open import Cubical.Foundations.Prelude

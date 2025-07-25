@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.AsModule.UnivariatePolyList where
 
 open import Cubical.Foundations.Prelude

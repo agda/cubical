@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.WildCat.Instances.Types where
 
 open import Cubical.Foundations.Prelude

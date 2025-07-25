@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   Tosets are totally-ordered sets,
   i.e. strongly connected posets,

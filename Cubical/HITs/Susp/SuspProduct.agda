@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 {-
   The suspension of a Cartesian product is given by a triple wedge sum

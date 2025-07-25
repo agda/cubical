@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Nat.Coprime where
 
 open import Cubical.Foundations.Prelude

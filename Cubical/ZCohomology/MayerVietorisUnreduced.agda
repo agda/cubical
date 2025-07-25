@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.ZCohomology.MayerVietorisUnreduced where
 
 open import Cubical.Foundations.HLevels

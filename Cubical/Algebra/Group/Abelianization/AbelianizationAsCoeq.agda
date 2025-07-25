@@ -8,7 +8,6 @@ This file contains:
       abelian groups
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Abelianization.AbelianizationAsCoeq where
 
 open import Cubical.Foundations.Prelude

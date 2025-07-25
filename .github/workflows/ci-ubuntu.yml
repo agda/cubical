@@ -42,7 +42,7 @@ on:
 ########################################################################
 
 env:
-  AGDA_BRANCH: v2.7.0.1
+  AGDA_BRANCH: v2.8.0
   GHC_VERSION: 9.10.2
   CABAL_VERSION: 3.12.1.0
   CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS'
@@ -114,7 +114,7 @@ jobs:
         id: cache-library-restore
         with:
           path: ./_build
-          key: library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('Cubical/**', 'cubical.agda-lib', 'Everythings.hs') }}
+          key: library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('Cubical/**', 'cubical.agda-lib') }}
           restore-keys: |
             library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-
 
@@ -125,8 +125,7 @@ jobs:
         run: |
           make test \
             AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
-            FIX_WHITESPACE='~/.local/fix-whitespace/bin/fix-whitespace' \
-            EVERYTHINGS='cabal run Everythings'
+            FIX_WHITESPACE='~/.local/fix-whitespace/bin/fix-whitespace'
 
       - name: Save library cache
         if: steps.cache-library-restore.outputs.cache-hit != 'true'
@@ -145,8 +144,7 @@ jobs:
         run: |
           make listings \
             AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
-            FIX_WHITESPACE='~/.local/fix-whitespace/bin/fix-whitespace' \
-            EVERYTHINGS='cabal run Everythings'
+            FIX_WHITESPACE='~/.local/fix-whitespace/bin/fix-whitespace'
 
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push' && github.ref_name == 'master'

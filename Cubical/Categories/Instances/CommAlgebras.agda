@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Instances.CommAlgebras where
 
 open import Cubical.Foundations.Prelude

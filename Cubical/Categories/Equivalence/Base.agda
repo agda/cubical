@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Equivalence.Base where
 
 open import Cubical.Foundations.Prelude

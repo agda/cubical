@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Structures.TypeEqvTo where
 
 open import Cubical.Foundations.Prelude

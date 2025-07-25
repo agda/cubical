@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Nat.GCD where
 
 open import Cubical.Foundations.Prelude

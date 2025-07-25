@@ -17,7 +17,6 @@ ArXiv version: https://arxiv.org/abs/2212.02902
 -}
 
 -- The "--safe" flag ensures that there are no postulates or unfinished goals
-{-# OPTIONS --safe #-}
 module Cubical.Papers.AffineSchemes where
 
 

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Presheaf.Morphism where
 
 open import Cubical.Foundations.Prelude

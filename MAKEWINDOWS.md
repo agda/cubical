@@ -12,20 +12,9 @@ Here are some steps you could take to get `make` working on a Windows machine:
     choco install make
     ```
 
-3.  The [makefile](GNUmakefile) runs the `runhaskell` command, which might not
-    work on your system. Test this by running in terminal
-    ```
-    runhaskell
-    ```
-    If that doesn't work, create a file called `runhaskell.bat` with the contents
-    ```
-    runghc %*
-    ```
-    and put this somewhere in your PATH.
+3.  Give your user account `Read & Execute` access to `C:\Windows\System32\pthread.dll`
 
-4.  Give your user account `Read & Execute` access to `C:\Windows\System32\pthread.dll`
-
-5.  Now, **each time before you run `make`,** run the following command in your terminal:
+4.  Now, **each time before you run `make`,** run the following command in your terminal:
     ```
     chcp.com 65001
     ```

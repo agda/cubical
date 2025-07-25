@@ -6,7 +6,6 @@ This file contains:
   - Characterisation of colimits over finite sequences
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.SequentialColimit.Properties where
 
 open import Cubical.Foundations.Prelude

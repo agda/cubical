@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.Base where
 
 open import Cubical.Foundations.Function

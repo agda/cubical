@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.FinData.Base where
 
 open import Cubical.Foundations.Prelude

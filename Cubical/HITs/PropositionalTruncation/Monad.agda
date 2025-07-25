@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 Implements the monadic interface of propositional truncation, for reasoning in do-syntax.
 -}

@@ -1,5 +1,4 @@
 -- Internal monoid in a strict monoidal category
-{-# OPTIONS --safe #-}
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Monoidal.Base

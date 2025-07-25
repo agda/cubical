@@ -4,7 +4,6 @@ This file contains:
 - The quotient of finite sets by decidable equivalence relation is still finite, by using equivalence class.
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.Quotients where
 

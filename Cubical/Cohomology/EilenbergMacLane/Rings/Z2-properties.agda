@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Cohomology.EilenbergMacLane.Rings.Z2-properties where
 
 open import Cubical.Foundations.Prelude

@@ -4,7 +4,7 @@ Groupoid quotients:
 
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts #-}
 module Cubical.HITs.GroupoidQuotients.Properties where
 
 open import Cubical.HITs.GroupoidQuotients.Base

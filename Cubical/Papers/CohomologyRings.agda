@@ -10,7 +10,6 @@ Computing Cohomology Rings in Cubical Agda
 -}
 
 -- The "--safe" flag ensures that there are no postulates or unfinished goals
-{-# OPTIONS --safe #-}
 module Cubical.Papers.CohomologyRings where
 
 -- 1: Introduction

@@ -3,7 +3,6 @@
 Definition of the Klein bottle as a HIT
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.KleinBottle.Properties where
 
 open import Cubical.Foundations.Prelude

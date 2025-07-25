@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Polynomials.UnivariateHIT.Base where
 
 open import Cubical.Algebra.CommRing.Polynomials.UnivariatePolyHIT public

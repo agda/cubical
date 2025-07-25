@@ -1,6 +1,5 @@
 -- We define ZigZag-complete relations and prove that quasi equivalence relations
 -- give rise to equivalences on the set quotients.
-{-# OPTIONS --safe #-}
 module Cubical.Relation.ZigZag.Base where
 
 open import Cubical.Foundations.Prelude

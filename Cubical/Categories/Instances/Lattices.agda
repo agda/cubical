@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Instances.Lattices where
 
 open import Cubical.Foundations.Prelude

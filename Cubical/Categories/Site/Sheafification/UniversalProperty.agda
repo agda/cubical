@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Site.Sheafification.UniversalProperty where
 
 -- We prove the universal property of the sheafification,

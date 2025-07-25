@@ -3,7 +3,6 @@
 Freudenthal suspension theorem
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Homotopy.Freudenthal where
 
 open import Cubical.Foundations.Prelude

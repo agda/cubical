@@ -8,7 +8,7 @@
     flake = false;
   };
   inputs.agda = {
-    url = "github:agda/agda/v2.7.0.1";
+    url = "github:agda/agda";
     inputs = {
       nixpkgs.follows = "nixpkgs";
     };
@@ -17,10 +17,11 @@
   outputs = { self, flake-compat, flake-utils, nixpkgs, agda }:
     let
       inherit (nixpkgs.lib) cleanSourceWith hasSuffix;
+
       overlay = final: prev: {
         cubical = final.agdaPackages.mkDerivation rec {
           pname = "cubical";
-          version = "0.8";
+          version = "0.9";
 
           src = cleanSourceWith {
             filter = name: type:
@@ -46,6 +47,7 @@
         };
         agdaWithCubical = final.agdaPackages.agda.withPackages [final.cubical];
       };
+
       overlays = [ agda.overlays.default overlay ];
     in
     { overlays.default = overlay; } //

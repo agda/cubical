@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Tactics.CommRingSolver.HornerForms where
 
 open import Cubical.Foundations.Prelude

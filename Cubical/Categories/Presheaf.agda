@@ -1,4 +1,4 @@
-{-# OPTIONS --postfix-projections --safe #-}
+{-# OPTIONS --postfix-projections #-}
 
 module Cubical.Categories.Presheaf where
 

@@ -58,7 +58,7 @@ but it has the virtue of being a bit simpler to prove equivalent to
 http://www.cs.bham.ac.uk/~mhe/agda-new/BinaryNaturals.html
 
 -}
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Data.BinNat.BinNat where
 
 open import Cubical.Foundations.Prelude

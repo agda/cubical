@@ -3,7 +3,6 @@
 ℚ is a Commutative Ring
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Instances.Rationals where
 
 open import Cubical.Foundations.Prelude

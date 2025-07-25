@@ -1,5 +1,4 @@
 -- Free category over a directed graph/quiver
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Constructions.Free where
 

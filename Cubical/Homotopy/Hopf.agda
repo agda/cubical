@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Homotopy.Hopf where
 
 open import Cubical.Homotopy.HSpace

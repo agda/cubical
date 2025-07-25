@@ -4,7 +4,6 @@
 -- In other words, Ab is cartesian closed.
 -- This is needed to show Ab is an abelian category.
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Algebra.AbGroup.Instances.Hom where
 

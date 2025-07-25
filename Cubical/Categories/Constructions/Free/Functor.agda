@@ -1,6 +1,6 @@
 -- Free functor between categories generated from two graphs and a
 -- function on nodes between them
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Constructions.Free.Functor where
 
 open import Cubical.Foundations.Prelude hiding (J)

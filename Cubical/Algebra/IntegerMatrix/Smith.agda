@@ -8,7 +8,6 @@ Referrences:
   (https://arxiv.org/abs/1601.07472)
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.IntegerMatrix.Smith where
 
 open import Cubical.Algebra.IntegerMatrix.Smith.NormalForm public

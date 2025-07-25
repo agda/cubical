@@ -1,4 +1,4 @@
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Data.InfNat where
 
 open import Cubical.Data.InfNat.Base public

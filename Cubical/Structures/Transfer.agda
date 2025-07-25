@@ -3,7 +3,6 @@
 Transferring properties of terms between equivalent structures
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Structures.Transfer where
 
 open import Cubical.Foundations.Prelude

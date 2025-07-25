@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Sn.Base where
 
 open import Cubical.HITs.Susp.Base

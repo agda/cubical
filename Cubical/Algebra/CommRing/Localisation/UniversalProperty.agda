@@ -4,7 +4,6 @@
 -- by the universal property, and give sufficient criteria for
 -- satisfying the universal property.
 
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Localisation.UniversalProperty where
 
 open import Cubical.Foundations.Prelude

@@ -3,7 +3,6 @@
 
 -- This differs from the implementation in Free.Category, which
 -- assumes the vertices of the input graph form a Set.
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Constructions.Free.Category.Base where
 

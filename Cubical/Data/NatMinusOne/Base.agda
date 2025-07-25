@@ -1,4 +1,4 @@
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Data.NatMinusOne.Base where
 
 open import Cubical.Core.Primitives

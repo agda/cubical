@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Sequence.Properties where
 
 open import Cubical.Foundations.Prelude

@@ -10,7 +10,6 @@
   with slightly modified definitions.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Displayed.Base where
 
 open import Cubical.Foundations.Prelude

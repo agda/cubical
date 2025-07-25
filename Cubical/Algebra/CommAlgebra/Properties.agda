@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.Properties where
 
 open import Cubical.Foundations.Prelude

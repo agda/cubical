@@ -1,5 +1,4 @@
 -- The category Ab of abelian groups
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Instances.AbGroups where
 

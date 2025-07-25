@@ -1,4 +1,4 @@
-{-# OPTIONS --guardedness --safe #-}
+{-# OPTIONS --guardedness #-}
 
 -- Construction of M-types from
 -- https://arxiv.org/pdf/1504.02949.pdf

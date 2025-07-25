@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 This file has been split in two due to slow type checking
 combined with insufficient reductions when the

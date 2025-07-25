@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 {-
    The functor solver solveFunctor! C D F solves equations in a

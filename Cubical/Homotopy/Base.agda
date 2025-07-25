@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.Homotopy.Base where
 

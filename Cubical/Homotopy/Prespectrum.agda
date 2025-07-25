@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   This uses ideas from Floris van Doorn's phd thesis and the code in
   https://github.com/cmu-phil/Spectral/blob/master/spectrum/basic.hlean

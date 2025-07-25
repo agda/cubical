@@ -3,7 +3,6 @@
 Normalize Integer Matrices
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Experiments.IntegerMatrix where
 

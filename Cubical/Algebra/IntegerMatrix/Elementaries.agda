@@ -3,7 +3,6 @@
 Elementary transformation specific to coefficient ℤ
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.IntegerMatrix.Elementaries where
 
 open import Cubical.Foundations.Prelude

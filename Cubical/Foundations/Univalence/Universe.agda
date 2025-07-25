@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --postfix-projections #-}
+{-# OPTIONS --postfix-projections #-}
 
 open import Cubical.Foundations.Prelude
 

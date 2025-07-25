@@ -6,7 +6,6 @@ The univalence corresponds to the dependent equivalences/isomorphisms,
 c.f. `Cubical.Foundations.Equiv.Dependent`.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Univalence.Dependent where
 
 open import Cubical.Foundations.Prelude

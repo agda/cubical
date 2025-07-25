@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.BooleanRing.Base where
 
 open import Cubical.Foundations.Prelude hiding (_∧_;_∨_)

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Morphism where
 
 open import Cubical.Foundations.HLevels

@@ -14,7 +14,6 @@
   Cubical.WildCat (so it's not considered part of the Categories sublibrary!)
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Category where
 
 open import Cubical.Categories.Category.Base public

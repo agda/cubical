@@ -17,7 +17,7 @@ The --lossy-unification flag is used to speed up type checking.
 The file still type checks without it, but it's a lot slower (about 10 times).
 
 -}
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Homotopy.Group.Pi4S3.Summary where
 
 open import Cubical.Foundations.Prelude

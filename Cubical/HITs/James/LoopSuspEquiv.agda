@@ -5,7 +5,6 @@ This file contains:
     (KANG Rongji, Feb. 2022)
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.James.LoopSuspEquiv where
 
 open import Cubical.Foundations.Prelude
