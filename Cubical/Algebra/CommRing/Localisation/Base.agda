@@ -44,6 +44,7 @@ private
 
 -- A multiplicatively closed subset is assumed to contain 1
 record isMultClosedSubset (R' : CommRing ℓ) (S' : ℙ (fst R')) : Type ℓ where
+ no-eta-equality
  constructor
    multclosedsubset
  field
