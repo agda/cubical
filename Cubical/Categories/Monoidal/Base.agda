@@ -43,6 +43,21 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
 
     open IsMonoid is-monoid renaming (·Assoc to assoc; ·IdL to idl; ·IdR to idr) public
 
+    field
+      -- Axioms for the morphisms
+      assocₕ : ∀ {x y z x' y' z'}
+             → (f : Hom[ x , x' ]) (g : Hom[ y , y' ]) (h : Hom[ z , z' ])
+             → (λ i → Hom[ assoc x y z i , assoc x' y' z' i ])
+               [ f ⊗ₕ (g ⊗ₕ h) ≡ (f ⊗ₕ g) ⊗ₕ h ]
+
+      idlₕ : ∀ {x x'} (f : Hom[ x , x' ])
+           → (λ i → Hom[ idl x i , idl x' i ])
+             [ id ⊗ₕ f ≡ f ]
+
+      idrₕ : ∀ {x x'} (f : Hom[ x , x' ])
+           → (λ i → Hom[ idr x i , idr x' i ])
+             [ f ⊗ₕ id ≡ f ]
+
   record MonoidalStr : Type (ℓ-max ℓ ℓ') where
     field
       tenstr : TensorStr
