@@ -41,7 +41,8 @@ module Cover (P' : Poset ℓ ℓ') where
   isPropCovers : ∀ y x → isProp (y covers x)
   isPropCovers y x = isPropΣ (is-prop-valued x y) (λ _ → isPropIsEquiv _)
 
-  module _ (x y : P) (x≤y : x ≤ y) (x≠y : ¬ x ≡ y) (cov : ∀ z → x ≤ z → z ≤ y → (z ≡ x) ⊎ (z ≡ y)) where
+  module _ (x y : P) (x≤y : x ≤ y) (x≠y : ¬ x ≡ y)
+           (cov : ∀ z → x ≤ z → z ≤ y → (z ≡ x) ⊎ (z ≡ y)) where
     open Iso
 
     private
@@ -65,7 +66,8 @@ module Cover (P' : Poset ℓ ℓ') where
       isom .leftInv true  | inl y≡x = ⊥.rec (x≠y (sym y≡x))
       isom .leftInv true  | inr _ = refl
 
-  -- Subset of faces and cofaces (terminology from "Combinatorics of higher-categorical diagrams" by Amar Hadzihasanovic)
+  -- Subset of faces and cofaces
+  -- terminology from "Combinatorics of higher-categorical diagrams" by Amar Hadzihasanovic
   Δ : P → Embedding P (ℓ-max ℓ ℓ')
   Δ x = (Σ[ y ∈ P ] x covers y) , EmbeddingΣProp λ _ → isPropCovers _ _
 
