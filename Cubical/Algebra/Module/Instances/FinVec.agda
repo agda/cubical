@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Module.Instances.FinVec where
 
 open import Cubical.Foundations.Prelude

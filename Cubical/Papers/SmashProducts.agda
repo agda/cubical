@@ -11,7 +11,6 @@ Axel Ljungström, 2024
 -}
 
 -- The "--safe" flag ensures that there are no postulates or unfinished goals
-{-# OPTIONS --safe #-}
 module Cubical.Papers.SmashProducts where
 -- Section 2
 import Cubical.WildCat.Base                        as WCat1

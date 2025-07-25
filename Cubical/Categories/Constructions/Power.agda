@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.Power where
 
 open import Cubical.Foundations.Prelude

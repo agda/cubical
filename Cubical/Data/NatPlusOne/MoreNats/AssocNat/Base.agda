@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.NatPlusOne.MoreNats.AssocNat.Base where
 
 open import Cubical.Foundations.Prelude

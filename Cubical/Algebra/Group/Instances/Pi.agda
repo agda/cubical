@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Instances.Pi where
 
 open import Cubical.Foundations.Prelude

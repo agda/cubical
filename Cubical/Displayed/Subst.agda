@@ -6,7 +6,6 @@
   equial to b'.
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Displayed.Subst where
 
 open import Cubical.Foundations.Prelude

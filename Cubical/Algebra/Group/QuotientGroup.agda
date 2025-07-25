@@ -3,7 +3,6 @@
 This file contains quotient groups
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.QuotientGroup where
 
 open import Cubical.Foundations.Prelude

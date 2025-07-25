@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 Builds bismulation for the cumulative hierarchy and shows that it
 is equivalent to equality though it lives in a lower universe.

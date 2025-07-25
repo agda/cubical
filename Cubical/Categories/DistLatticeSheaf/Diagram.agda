@@ -4,7 +4,6 @@ The sheaf property of a presheaf on a distributive lattice or a basis thereof
 can be expressed as preservation of limits over diagrams defined in this file.
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.DistLatticeSheaf.Diagram where
 

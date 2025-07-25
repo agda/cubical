@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   This is just for convience and can be used to quickly set up notation for
   a commutative algebra.

@@ -5,7 +5,6 @@ This file contains:
 - Definition of set coequalizers as performed in https://1lab.dev/Data.Set.Coequaliser.html
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.SetCoequalizer.Base where
 
 open import Cubical.Core.Primitives

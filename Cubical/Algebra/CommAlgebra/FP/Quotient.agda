@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 {- Quotient of fp R-algebra by an fg ideal is fp -}
 module Cubical.Algebra.CommAlgebra.FP.Quotient where
 

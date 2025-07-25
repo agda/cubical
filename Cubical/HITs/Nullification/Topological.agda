@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   A topological modality is by definition the nullification of a family of
   propositions. They are always lex modalities. We show that together

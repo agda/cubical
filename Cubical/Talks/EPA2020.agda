@@ -14,7 +14,6 @@ Link to video: https://vimeo.com/459020971
 
 -- To make Agda cubical add the --cubical option.
 -- This is implicitly added for files in the cubical library via the cubical.agda-lib file.
-{-# OPTIONS --safe #-}
 module Cubical.Talks.EPA2020 where
 
 -- The "Foundations" package contain a lot of important results (in

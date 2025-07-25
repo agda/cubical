@@ -13,7 +13,7 @@ Also the HoTT-Agda formalization by Favonia:
 Using cubes explicitly as much as possible.
 
 -}
-{-# OPTIONS  --safe #-}
+{-# OPTIONS  #-}
 module Cubical.Homotopy.BlakersMassey where
 
 open import Cubical.Foundations.Prelude

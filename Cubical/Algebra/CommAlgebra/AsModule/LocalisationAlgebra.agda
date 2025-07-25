@@ -8,7 +8,6 @@ turned out that its computational behavior wasn't as nice as expected, and it
 made Agda struggle a lot.
 -}
 
-{-# OPTIONS --safe #-}
 
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels

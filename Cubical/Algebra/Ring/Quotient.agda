@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Ring.Quotient where
 
 open import Cubical.Foundations.Prelude

@@ -8,7 +8,6 @@ A draft note on this can be found online at
 https://kangrongji.github.io/files/extend-operations.pdf
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.HLevels.Extend where
 
 open import Cubical.Foundations.Prelude

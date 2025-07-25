@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 -- This file could be proven using the file Sn
 -- However the proofs are easier than in Sn
