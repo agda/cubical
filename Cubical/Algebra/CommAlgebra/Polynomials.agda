@@ -4,12 +4,12 @@ module Cubical.Algebra.CommAlgebra.Polynomials where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function using (_$_; _∘_)
 open import Cubical.Foundations.Structure using (withOpaqueStr)
-open import Cubical.Foundations.Isomorphism using (isoFunInjective)
+open import Cubical.Foundations.Isomorphism --using (isoFunInjective)
 
 open import Cubical.Data.Nat
 open import Cubical.Data.FinData
 
-open import Cubical.Algebra.CommRing.Base
+open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommRing.Polynomials.Typevariate as Poly hiding (var)
 import Cubical.Algebra.CommRing.Polynomials.Typevariate.UniversalProperty
@@ -49,13 +49,27 @@ module _ {R : CommRing ℓ} {I : Type ℓ'} where
     cong fst $
     Poly.inducedHomUnique _ _ φ (CommAlgebraHom→CommRingHom f) (cong fst (CommAlgebraHom→Triangle f)) p
 
-{-
 evaluateAt : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
-             (f : CommAlgebraHom (R [ I ]) A)
-             → (I → fst A)
-evaluateAt A f x = f $a (Construction.var x)
+             (f : CommAlgebraHom (R [ I ]ₐ) A)
+             → (I → ⟨ A ⟩ₐ)
+evaluateAt A f = ⟨ f ⟩ₐ→ ∘ var
 
+{- A corollary, which is useful for constructing isomorphisms to
+   algebras with the same universal property -}
+isIdByUMP : {R : CommRing ℓ} {I : Type ℓ'}
+          → (f : CommAlgebraHom (R [ I ]ₐ) (R [ I ]ₐ))
+          → ((i : I) → ⟨ f ⟩ₐ→ (var i) ≡ var i)
+          → (x : ⟨ R [ I ]ₐ ⟩ₐ) → ⟨ f ⟩ₐ→ x ≡ x
+isIdByUMP {R = R} {I = I} f p x = cong (λ h → fst h x) useLemmaForRings
+  where useLemmaForRings : CommAlgebraHom→CommRingHom f
+                         ≡ idCommRingHom (CommAlgebra→CommRing (R [ I ]ₐ))
+        useLemmaForRings =
+          Poly.idByIdOnVars
+            (CommAlgebraHom→CommRingHom f)
+            (cong fst $ IsCommAlgebraHom.commutes (f .snd))
+            (funExt p)
 
+{-
 homMapIso : {R : CommRing ℓ} {I : Type ℓ''} (A : CommAlgebra R ℓ')
              → Iso (CommAlgebraHom (R [ I ]) A) (I → (fst A))
 Iso.fun (homMapIso A) = evaluateAt A
@@ -64,6 +78,9 @@ Iso.rightInv (homMapIso A) = λ ϕ → Theory.mapRetrievable A ϕ
 Iso.leftInv (homMapIso {R = R} {I = I} A) =
   λ f → Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ I ]} {N = A} f)
                (Theory.homRetrievable A f)
+-}
+
+{-
 
 inducedHomUnique :
   {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'') (φ : I → fst A )

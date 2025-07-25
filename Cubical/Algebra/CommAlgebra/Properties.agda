@@ -14,6 +14,8 @@ open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Univalence
 open import Cubical.Algebra.CommAlgebra.Notation
 
+open import Cubical.Algebra.Algebra
+
 private
   variable
     ℓ ℓ' ℓ'' ℓ''' : Level
@@ -83,3 +85,22 @@ module _
                                   (B .snd .fst r) · f 1r   ≡⟨ cong ((B .snd .fst r) ·_) p1 ⟩
                                   (B .snd .fst r) · 1r     ≡⟨ ·IdR _ ⟩
                                   B .snd .fst r ∎
+
+module _
+  {R : CommRing ℓ}
+  where
+
+
+  CommAlgebra→Algebra : (A : CommAlgebra R ℓ') → Algebra (CommRing→Ring R) ℓ'
+  CommAlgebra→Algebra (A , (φ , φIsHom)) =
+   commAlgebraFromCommRing
+     A
+     (λ r a → (φ r) · a)
+     (λ r s x → cong (_· x) (pres· r s) ∙ sym (·Assoc _ _ _))
+     (λ r x y → ·DistR+ _ _ _)
+     (λ r s x → cong (_· x) (pres+ r s) ∙ ·DistL+ _ _ _)
+     (λ x → cong (_· x) pres1 ∙ ·IdL x)
+     λ r x y → sym (·Assoc _ _ _)
+   where
+   open CommRingStr (snd A)
+   open IsCommRingHom φIsHom

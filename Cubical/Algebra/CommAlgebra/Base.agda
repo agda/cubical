@@ -227,7 +227,7 @@ module _ {R : CommRing ℓ} where
   CommAlgebraEquivFromCommRingEquiv f p .snd = record { isCommRingHom = f .snd ; commutes = p }
 
 
-{- Convenient forgetful functions -}
+{- Convenient forgetful functions, CommAlgebra→Algebra is in CommAlgebra.Properties -}
 module _ {R : CommRing ℓ} where
   CommAlgebra→Ring : (A : CommAlgebra R ℓ') → Ring ℓ'
   CommAlgebra→Ring A = CommRing→Ring (fst A)

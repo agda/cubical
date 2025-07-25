@@ -13,9 +13,10 @@ open import Cubical.Data.Unit
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Algebra
-open import Cubical.Algebra.CommAlgebra.AsModule
-open import Cubical.Algebra.CommAlgebra.AsModule.FreeCommAlgebra
+open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebra.Polynomials
             renaming (inducedHomUnique to inducedHomUniqueHIT;
+                      inducedHom to inducedHomHIT;
                       isIdByUMP to isIdByUMP-HIT)
 open import Cubical.Algebra.Polynomials.UnivariateList.UniversalProperty
             renaming (generator to generatorList;
@@ -27,12 +28,11 @@ private variable
   ℓ : Level
 
 module _ {R : CommRing ℓ} where
-  open Theory renaming (inducedHom to inducedHomHIT)
   open CommRingStr ⦃...⦄
   private
     instance
       _ = snd R
-    X-HIT = Construction.var {R = R} {I = Unit} tt
+    X-HIT = var {R = R} {I = Unit} tt
     X-List = generatorList R
 
   {-
@@ -42,11 +42,11 @@ module _ {R : CommRing ℓ} where
   private
     open AlgebraHoms
     open Iso
-    to : CommAlgebraHom (R [ Unit ]) (ListPolyCommAlgebra R)
+    to : CommAlgebraHom (R [ Unit ]ₐ) (ListPolyCommAlgebra R)
     to = inducedHomHIT (ListPolyCommAlgebra R) (λ _ → X-List)
 
-    from : CommAlgebraHom (ListPolyCommAlgebra R) (R [ Unit ])
-    from = inducedHomList R (CommAlgebra→Algebra (R [ Unit ])) X-HIT
+    from : CommAlgebraHom (ListPolyCommAlgebra R) (R [ Unit ]ₐ)
+    from = inducedHomList R (CommAlgebra→Algebra (R [ Unit ]ₐ)) X-HIT
 
     toPresX : fst to X-HIT ≡ X-List
     toPresX = refl
