@@ -4,11 +4,12 @@ module Cubical.Data.Int.Order where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
-
+open import Cubical.Foundations.Equiv
 open import Cubical.Data.Empty as ⊥ using (⊥)
 open import Cubical.Data.Int.Base as ℤ
 open import Cubical.Data.Int.Properties as ℤ
 open import Cubical.Data.Nat as ℕ
+import Cubical.Data.Nat.Order as ℕ
 open import Cubical.Data.NatPlusOne.Base as ℕ₊₁
 open import Cubical.Data.Sigma
 
@@ -498,3 +499,59 @@ negsuc zero ≟ negsuc zero = eq refl
 negsuc zero ≟ negsuc (suc n) = gt (negsuc-≤-negsuc zero-≤pos)
 negsuc (suc m) ≟ negsuc zero = lt (negsuc-≤-negsuc zero-≤pos)
 negsuc (suc m) ≟ negsuc (suc n) = Trichotomy-pred (negsuc m ≟ negsuc n)
+
+0<_ : ℤ → Type
+0< pos zero = ⊥
+0< pos (suc n) = Unit
+0< negsuc n = ⊥
+
+isProp0< : ∀ n → isProp (0< n)
+isProp0< (pos (suc _)) _ _ = refl
+
+·0< : ∀ m n → 0< m → 0< n → 0< (m ℤ.· n)
+·0< (pos (suc m)) (pos (suc n)) _ _ =
+ subst (0<_) (pos+ (suc n) (m ℕ.· (suc n)) ∙ cong (pos (suc n) ℤ.+_) (pos·pos m (suc n))) _
+
+0<·ℕ₊₁ : ∀ m n → 0< (m ℤ.· pos (ℕ₊₁→ℕ n)) → 0< m
+0<·ℕ₊₁ (pos (suc m)) n x = _
+0<·ℕ₊₁ (negsuc n₁) (1+ n) x =
+  ⊥.rec (subst 0<_ (negsuc·pos n₁ (suc n)
+   ∙ congS -_ (cong (pos (suc n) ℤ.+_)
+     (sym (pos·pos n₁ (suc n))) ∙
+        sym (pos+ (suc n) (n₁ ℕ.· suc n)))) x)
+
++0< : ∀ m n → 0< m → 0< n → 0< (m ℤ.+ n)
++0< (pos (suc m)) (pos (suc n)) _ _ =
+ subst (0<_) (cong sucℤ (pos+ (suc m) n)) _
+
+0<→ℕ₊₁ : ∀ n → 0< n → Σ ℕ₊₁ λ m → n ≡ pos (ℕ₊₁→ℕ m)
+0<→ℕ₊₁ (pos (suc n)) x = (1+ n) , refl
+
+min-0< : ∀ m n → 0< m → 0< n → 0< (ℤ.min m n)
+min-0< (pos (suc zero)) (pos (suc n)) x x₁ = tt
+min-0< (pos (suc (suc n₁))) (pos (suc zero)) x x₁ = tt
+min-0< (pos (suc (suc n₁))) (pos (suc (suc n))) x x₁ =
+  +0< (sucℤ (ℤ.min (pos n₁) (pos n))) 1 (min-0< (pos (suc n₁)) (pos (suc n)) _ _) _
+
+ℕ≤→pos-≤-pos : ∀ m n → m ℕ.≤ n → pos m ≤ pos n
+ℕ≤→pos-≤-pos m n (k , p) = k , sym (pos+ m k) ∙∙ cong pos (ℕ.+-comm m k) ∙∙ cong pos p
+
+ℕ≥→negsuc-≤-negsuc : ∀ m n → m ℕ.≤ n → negsuc n ≤ negsuc m
+ℕ≥→negsuc-≤-negsuc m n = negsuc-≤-negsuc ∘ ℕ≤→pos-≤-pos m n
+
+pos-≤-pos→ℕ≤ : ∀ m n → pos m ≤ pos n → m ℕ.≤ n
+pos-≤-pos→ℕ≤ m n (k , p) = k , injPos ((pos+ k m ∙ ℤ.+Comm (pos k) (pos m)) ∙ p)
+
+pos-≤-pos≃ℕ≤ : ∀ m n → (pos m ≤ pos n) ≃ (m ℕ.≤ n)
+pos-≤-pos≃ℕ≤ m n = propBiimpl→Equiv isProp≤ ℕ.isProp≤
+                (pos-≤-pos→ℕ≤ _ _) (ℕ≤→pos-≤-pos _ _)
+
+pos-<-pos≃ℕ< : ∀ m n → (pos m < pos n) ≃ (m ℕ.< n)
+pos-<-pos≃ℕ< m n = propBiimpl→Equiv (isProp< {pos m} {pos n}) ℕ.isProp≤
+                (pos-≤-pos→ℕ≤ _ _) (ℕ≤→pos-≤-pos (suc m) n)
+
+
+0≤x² : ∀ n → 0 ≤ n ℤ.· n
+0≤x² (pos n) = subst (0 ≤_) (pos·pos n n) zero-≤pos
+0≤x² (negsuc n) = subst (0 ≤_) (pos·pos (suc n) (suc n)
+  ∙ sym (negsuc·negsuc n n)) zero-≤pos

@@ -1,5 +1,6 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --v=tc.conv:20 #-}
 module Cubical.Data.Int.Properties where
+
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -11,7 +12,7 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat
+open import Cubical.Data.Nat as ℕ
   hiding   (+-assoc ; +-comm ; min ; max ; minComm ; maxComm)
   renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ;
             ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
@@ -1504,3 +1505,42 @@ sumFinℤ0 n = sumFinGen0 _+_ 0 (λ _ → refl) n (λ _ → 0) λ _ → refl
 sumFinℤHom : {n : ℕ} (f g : Fin n → ℤ)
   → sumFinℤ {n = n} (λ x → f x + g x) ≡ sumFinℤ {n = n} f + sumFinℤ {n = n} g
 sumFinℤHom {n = n} = sumFinGenHom _+_ 0 (λ _ → refl) +Comm +Assoc n
+
+abs-max : ∀ n → pos (abs n) ≡ max n (- n)
+abs-max (pos zero) = refl
+abs-max (pos (suc n)) = refl
+abs-max (negsuc n) = refl
+
+min-pos-pos : ∀ m n → min (pos m) (pos n) ≡ pos (ℕ.min m n)
+min-pos-pos zero n = refl
+min-pos-pos (suc m) zero = refl
+min-pos-pos (suc m) (suc n) = cong sucℤ (min-pos-pos m n)
+
+max-pos-pos : ∀ m n → max (pos m) (pos n) ≡ pos (ℕ.max m n)
+max-pos-pos zero n = refl
+max-pos-pos (suc m) zero = refl
+max-pos-pos (suc m) (suc n) = cong sucℤ (max-pos-pos m n)
+
+
+sign : ℤ → ℤ
+sign (pos zero) = 0
+sign (pos (suc n)) = 1
+sign (negsuc n) = -1
+
+sign·abs : ∀ m → sign m · pos (abs m) ≡ m
+sign·abs (pos zero) = refl
+sign·abs (pos (suc n)) = refl
+sign·abs (negsuc n) = refl
+
+-- abs[sign[m]·pos[n]]≡n : ∀ m n → abs (sign m · pos n) ≡ n
+-- abs[sign[m]·pos[n]]≡n m n = {!!}
+
+
+-- ·'≡· : ∀ n m → n · m ≡ n ·' m
+-- ·'≡· (pos n) (pos n₁) = sym (pos·pos n n₁)
+-- ·'≡· (pos zero) (negsuc n₁) = refl
+-- ·'≡· (pos (suc n)) (negsuc n₁) = {!!}
+-- ·'≡· (negsuc n) (pos zero) = ·AnnihilR (negsuc n)
+-- ·'≡· (negsuc n) (pos (suc n₁)) = negsuc·pos n (suc n₁) ∙
+--   {!!}
+-- ·'≡· (negsuc n) (negsuc n₁) = negsuc·negsuc n n₁ ∙ sym (pos·pos (suc n) (suc n₁))
