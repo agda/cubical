@@ -195,7 +195,7 @@ prod→⋀^ zero A x = x
 prod→⋀^ (suc n) A x =
   inr ((prod→⋀^ n (predFinFamily∙ A) (fst x)) , (snd x))
 
-⋀→Homogeneous≡ : {A B : Pointed ℓ} {D : Type ℓ'}
+⋀→Homogeneous≡ : ∀ {ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {D : Type ℓ''}
   → {f g : A ⋀ B → D}
   → (isHomogeneous (D , f (inl tt)))
   → ((x : _) (y : _) → f (inr (x , y)) ≡ g (inr (x , y)))
@@ -210,6 +210,21 @@ prod→⋀^ (suc n) A x =
 
   f^≡g^ : f^ ≡ g^
   f^≡g^ = ⋀→∙Homogeneous≡ hom p
+
+⋀→HomogeneousPathP : ∀ {ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {D D' : Type ℓ''} (P : D ≡ D')
+  → {f : A ⋀ B → D}
+  → {g : A ⋀ B → D'}
+  → (isHomogeneous (D , f (inl tt)))
+  → ((x : _) (y : _)
+    → PathP (λ i → P i)
+            (f (inr (x , y))) (g (inr (x , y))))
+  → (x : _) → PathP (λ i → P i) (f x) (g x)
+⋀→HomogeneousPathP {A = A} {B} {D} P {f = f} {g} hom p x =
+  toPathP (funExt⁻ (⋀→Homogeneous≡ {f = transport P ∘ f} {g}
+                   (subst isHomogeneous
+                     (ΣPathP (P , toPathP refl))
+                     hom)
+                   λ x y → fromPathP (p x y)) x)
 
 ⋀^→Homogeneous≡ : (n : ℕ) (A : Fin (suc n) → Pointed ℓ) {B : Type ℓ'}
   → {f g : ⋀^ n A .fst → B}
@@ -1053,6 +1068,29 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} where
  Iso.rightInv SmashJoinIso = Join→SuspSmash→Join
  Iso.leftInv SmashJoinIso = SuspSmash→Join→SuspSmash
 
+-- Pointed versions
+Join→SuspSmash∙ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
+  → join∙ A B →∙ Susp∙ (A ⋀ B)
+Join→SuspSmash∙ A B = Join→SuspSmash , refl
+
+SuspSmash→Join∙ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
+  → Susp∙ (A ⋀ B) →∙ join∙ A B
+SuspSmash→Join∙ A B = SuspSmash→Join , push (pt A) (pt B) ⁻¹
+
+permute⋀JoinIso : ∀ {ℓ ℓ' ℓ''}
+  (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'')
+  → Iso (join (A ⋀ B) (typ C)) (join (typ A) (B ⋀ C))
+permute⋀JoinIso A B C =
+  compIso (invIso (SmashJoinIso {A = A ⋀∙ B} {C}))
+   (compIso (congSuspIso (invIso SmashAssocIso))
+            (SmashJoinIso {A = A} {B ⋀∙ C}))
+
+permute⋀Join≃∙ : ∀ {ℓ ℓ' ℓ''}
+  (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'')
+  → join∙ (A ⋀∙ B) C ≃∙ join∙ A (B ⋀∙ C)
+fst (permute⋀Join≃∙ A B C) = isoToEquiv (permute⋀JoinIso A B C)
+snd (permute⋀Join≃∙ A B C) = sym (push (pt A) (inl tt))
+
 -- Suspension commutes with smash products
 module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} where
 
@@ -1286,3 +1324,14 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} where
     main y north = push (inr y)
     main y south = push (inr y) ∙ λ i → inr (merid (pt A) i , y)
     main y (merid a i) j = filler a y i j i1
+
+-- Join→SuspSmash commutes with suspension
+SuspFun-Join→SuspSmash≡ : ∀ {ℓA ℓA' ℓB ℓB'}
+     {A : Pointed ℓA} {A' : Pointed ℓA'}
+     {B : Pointed ℓB} {B' : Pointed ℓB'}
+     (f : A →∙ A') (g : B →∙ B') (x : _)
+  → Join→SuspSmash {A = A'} {B = B'} (join→ (fst f) (fst g) x)
+   ≡ suspFun (f ⋀→ g) (Join→SuspSmash {A = A} {B} x)
+SuspFun-Join→SuspSmash≡ f g (inl x) = refl
+SuspFun-Join→SuspSmash≡ f g (inr x) = refl
+SuspFun-Join→SuspSmash≡ f g (push a b i) = refl

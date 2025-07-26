@@ -463,6 +463,13 @@ EH-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : ∥ typ ((Ω^ (2 + n)) A) �
 EH-π  n = elim2 (λ x y → isOfHLevelPath 2 isSetSetTrunc _ _)
                              λ p q → cong ∣_∣₂ (EH n p q)
 
+-- composition of maps into loop spaces
+·→Ω : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+  (f g : A →∙ Ω B)
+  → A →∙ Ω B
+fst (·→Ω f g) x = fst f x ∙ fst g x
+snd (·→Ω f g) = cong₂ _∙_ (snd f) (snd g) ∙ sym (rUnit refl)
+
 {-
   If A -> B -> C is a fiber sequence, and Ω B -> Ω C has a section,
   then Ω B is the product Ω A × Ω C.

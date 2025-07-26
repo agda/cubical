@@ -1,8 +1,9 @@
 {-# OPTIONS --safe --lossy-unification #-}
-module Cubical.Homotopy.Whitehead where
+module Cubical.Homotopy.WhiteheadProducts.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Pointed
@@ -18,53 +19,16 @@ open import Cubical.HITs.Sn
 open import Cubical.HITs.Sn.Multiplication
 open import Cubical.HITs.Join
 open import Cubical.HITs.Wedge
-open import Cubical.HITs.SetTruncation
 
 open import Cubical.Homotopy.Group.Base
-open import Cubical.Homotopy.Loopspace
+open import Cubical.Homotopy.Group.Join
+
+open import Cubical.Homotopy.WhiteheadProducts.Base
+open import Cubical.Homotopy.WhiteheadProducts.Generalised.Base
+open import Cubical.Homotopy.WhiteheadProducts.Generalised.Properties
 
 open Iso
 open 3x3-span
-
--- Whitehead product (main definition)
-[_∣_]-pre : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
-       → (S₊∙ (suc n) →∙ X)
-       → (S₊∙ (suc m) →∙ X)
-       → join∙ (S₊∙ n) (S₊∙ m) →∙ X
-fst ([_∣_]-pre {X = X} {n = n} {m = m} f g) (inl x) = pt X
-fst ([_∣_]-pre {X = X} {n = n} {m = m} f g) (inr x) = pt X
-fst ([_∣_]-pre {n = n} {m = m} f g) (push a b i) =
-  (Ω→ g .fst (σS b) ∙ Ω→ f .fst (σS a)) i
-snd ([_∣_]-pre {n = n} {m = m} f g) = refl
-
-[_∣_] : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
-       → (S₊∙ (suc n) →∙ X)
-       → (S₊∙ (suc m) →∙ X)
-       → S₊∙ (suc (n + m)) →∙ X
-[_∣_] {n = n} {m = m} f g =
-  [ f ∣ g ]-pre ∘∙ (sphere→Join n m , IsoSphereJoin⁻Pres∙ n m)
-
--- Whitehead product (as a composition)
-joinTo⋁ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
- → join (typ A) (typ B)
- → (Susp (typ A) , north) ⋁ (Susp (typ B) , north)
-joinTo⋁ (inl x) = inr north
-joinTo⋁ (inr x) = inl north
-joinTo⋁ {A = A} {B = B} (push a b i) =
-     ((λ i → inr (σ B b i))
-  ∙∙ sym (push tt)
-  ∙∙ λ i → inl (σ A a i)) i
-
-[_∣_]comp : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
-       → (S₊∙ (suc n) →∙ X)
-       → (S₊∙ (suc m) →∙ X)
-       → S₊∙ (suc (n + m)) →∙ X
-[_∣_]comp {n = n} {m = m} f g =
-    (((f ∘∙ (inv (IsoSucSphereSusp n) , IsoSucSphereSusp∙ n))
-  ∨→ (g ∘∙ (inv (IsoSucSphereSusp m) , IsoSucSphereSusp∙ m))
-    , cong (fst f) (IsoSucSphereSusp∙ n) ∙ snd f)
-  ∘∙ ((joinTo⋁ {A = S₊∙ n} {B = S₊∙ m} , sym (push tt))))
-  ∘∙ (inv (IsoSphereJoin n m) , IsoSphereJoin⁻Pres∙ n m)
 
 []comp≡[] : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
        → (f : (S₊∙ (suc n) →∙ X))
@@ -80,7 +44,6 @@ joinTo⋁ {A = A} {B = B} (push a b i) =
        (g ∘∙ (inv (IsoSucSphereSusp m) , IsoSucSphereSusp∙ m))
        , cong (fst f) (IsoSucSphereSusp∙ n) ∙ snd f)
 
-    open import Cubical.Foundations.Path
     main : (n m : ℕ) (f : (S₊∙ (suc n) →∙ X)) (g : (S₊∙ (suc m) →∙ X))
       → (∨fun f g ∘∙ (joinTo⋁ {A = S₊∙ n} {B = S₊∙ m} , sym (push tt)))
       ≡ [ f ∣ g ]-pre
@@ -150,11 +113,7 @@ joinTo⋁ {A = A} {B = B} (push a b i) =
                 ∙ (sym (snd f) ∙∙ cong (fst f) (σS a) ∙∙ λ j → snd f (j ∧ i))
                ∙∙ sym (compPath-filler (cong (fst f) (IsoSucSphereSusp∙ n)) (snd f) i))
 
--- Homotopy group version
-[_∣_]π' : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
-       → π' (suc n) X → π' (suc m) X
-       → π' (suc (n + m)) X
-[_∣_]π' = elim2 (λ _ _ → squash₂) λ f g → ∣ [ f ∣ g ] ∣₂
+
 
 -- We prove that the function joinTo⋁ used in the definition of the whitehead
 -- product gives an equivalence between (Susp A × Susp B) and the
@@ -467,104 +426,138 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
        ∙ (λ i j → north , cong-∙ invSusp (merid a) (sym (merid b₀)) i (~ j) )
         ◁ λ i j → north , compPath-filler (sym (merid a)) (merid b₀) (~ i) (~ j)
 
--- Generalised Whitehead products
-module _ {ℓ ℓ' ℓ''} {A : Pointed ℓ}
-         {B : Pointed ℓ'} {C : Pointed ℓ''}
-         (f : Susp∙ (typ A) →∙ C) (g : Susp∙ (typ B) →∙ C) where
 
-  _·w_ : join∙ A B →∙ C
-  fst _·w_ (inl x) = pt C
-  fst _·w_ (inr x) = pt C
-  fst _·w_ (push a b i) = (Ω→ g .fst (σ B b) ∙ Ω→ f .fst (σ A a)) i
-  snd _·w_ = refl
+open import Cubical.Data.Nat.Order
 
-  -- The generalised Whitehead product vanishes under suspension
-  isConst-Susp·w : suspFun∙ (_·w_ .fst) ≡ const∙ _ _
-  isConst-Susp·w = Susp·w∙
-                 ∙ cong suspFun∙ (cong fst isConst-const*)
-                 ∙ ΣPathP ((suspFunConst (pt C)) , refl)
+open import Cubical.Foundations.HLevels
+
+open import Cubical.Homotopy.WhiteheadProducts.Generalised.Properties
+open import Cubical.Homotopy.Group.Join
+open import Cubical.HITs.SetTruncation
+
+-π^ : ∀ {ℓ} {k : ℕ} {A : Pointed ℓ} (n : ℕ) → π' (suc k) A → π' (suc k) A
+-π^ {k = k} n = iter n (-π' k)
+
+[_∣_]π*-comm : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       (f : π' (suc (suc n)) X) (g : π' (suc (suc m)) X)
+       → [ f ∣ g ]π* ≡ fun (π*SwapIso (suc m) (suc n) X) [ g ∣ f ]π*
+[_∣_]π*-comm {n = n} {m = m} = elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+  λ f g → cong ∣_∣₂
+    (WhiteheadProdComm'
+        (S₊∙ (suc n)) (S₊∙ n) (isoToEquiv (IsoSucSphereSusp n) , IsoSucSphereSusp∙' n)
+        (S₊∙ (suc m)) (S₊∙ m) (isoToEquiv (IsoSucSphereSusp m) , IsoSucSphereSusp∙' m) f g
+    ∙ cong (·wh (S₊∙ (suc m)) (S₊∙ (suc n)) g f ∘∙_)
+       (ΣPathP (refl , sym (cong₂ _∙_ refl (∙∙lCancel _) ∙ sym (rUnit _)))))
+
+[_∣_]π'-comm : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       (f : π' (suc (suc n)) X) (g : π' (suc (suc m)) X)
+    → [ f ∣ g ]π'
+      ≡ subst (λ k → π' (suc k) X) (+-comm (suc m) (suc n))
+              (-π^ (n · m) [ g ∣ f ]π')
+[_∣_]π'-comm {X = X} {n} {m} f g = {!!}
+  where
+  open import Cubical.HITs.SetTruncation as ST
+  open import Cubical.Foundations.Transport
+  open import Cubical.HITs.S1 hiding (_·_)
+  
+  com-main : (n m : ℕ) (t : π' (suc (n + m)) X)
+    → (fun (π*SwapIso n m X) (inv (Iso-π*-π' n m) t))
+      ≡ -π*^ (n · m) (inv (Iso-π*-π' m n)
+           (subst (λ k → π' (suc k) X) (+-comm n m) t))
+  com-main n m = ST.elim {!!}
+    λ t → cong ∣_∣₂ (ΣPathP ({!!} , {!!}) ∙ {!!})
+         ∙ sym (-π*^≡ (n · m) _)
     where
-    const* : join∙ A B →∙ C
-    fst const* (inl x) = pt C
-    fst const* (inr x) = pt C
-    fst const* (push a b i) =
-      (Ω→ f .fst (σ A a) ∙ Ω→ g .fst (σ B b)) i
-    snd const* = refl
+    invSphere∙ : (n : ℕ) → invSphere (ptSn (suc n)) ≡ ptSn (suc n)
+    invSphere∙ zero = refl
+    invSphere∙ (suc n) = merid (ptSn (suc n)) ⁻¹
 
-    isConst-const* : const* ≡ const∙ _ _
-    fst (isConst-const* i) (inl x) = Ω→ f .fst (σ A x) i
-    fst (isConst-const* i) (inr x) = Ω→ g .fst (σ B x) (~ i)
-    fst (isConst-const* i) (push a b j) =
-      compPath-filler'' (Ω→ f .fst (σ A a)) (Ω→ g .fst (σ B b)) (~ i) j
-    snd (isConst-const* i) j =
-      (cong (Ω→ f .fst) (rCancel (merid (pt A))) ∙ Ω→ f .snd) j i
+    -- iter-const : ∀ {ℓ} {A : Type ℓ} (n : ℕ) (a : A) → iter n (λ _ → 
+    -- iter-const = ?
 
-    Susp·w : suspFun (fst _·w_) ≡ suspFun (fst const*)
-    Susp·w i north = north
-    Susp·w i south = south
-    Susp·w i (merid (inl x) j) = merid (pt C) j
-    Susp·w i (merid (inr x) j) = merid (pt C) j
-    Susp·w i (merid (push a b k) j) =
-      hcomp (λ r →
-        λ {(i = i0) → fill₁ k (~ r) j
-         ; (i = i1) → fill₂ k (~ r) j
-         ; (j = i0) → north
-         ; (j = i1) → merid (pt C) r
-         ; (k = i0) → compPath-filler (merid (snd C)) (merid (pt C) ⁻¹) (~ r) j
-         ; (k = i1) → compPath-filler (merid (snd C)) (merid (pt C) ⁻¹) (~ r) j})
-       (hcomp (λ r →
-        λ {(i = i0) → doubleCompPath-filler
-                         (sym (rCancel (merid (pt C))))
-                         (λ k → fill₁ k i1)
-                         (rCancel (merid (pt C))) (~ r) k j
-         ; (i = i1) → doubleCompPath-filler
-                         (sym (rCancel (merid (pt C))))
-                         (λ k → fill₂ k i1)
-                         (rCancel (merid (pt C))) (~ r) k j
-         ; (j = i0) → north
-         ; (j = i1) → north
-         ; (k = i0) → rCancel (merid (pt C)) (~ r) j
-         ; (k = i1) → rCancel (merid (pt C)) (~ r) j})
-           (main i k j))
+    -S^∙ : {k : ℕ} (n : ℕ) → -S^ {k = (suc k)} n (ptSn (suc k)) ≡ ptSn (suc k)
+    -S^∙ zero = refl
+    -S^∙ (suc n) = cong invSphere (-S^∙ n) ∙ invSphere∙ _
+
+    open import Cubical.Data.Bool
+    cong-S^ : {k : ℕ} (n : ℕ) (x : S₊ k)
+      → PathP (λ i → -S^∙ {k = k} n i ≡ -S^∙ n i) (cong (-S^ n) (σS x)) (sym^ n (σS x))
+    cong-S^ {k} zero x = refl
+    cong-S^ {zero} (suc n) false = {!iterswap n invLooper!} ◁ {!!} ▷ {!!}
+    cong-S^ {zero} (suc n) true =
+      (λ i _ → -S^∙ {k = zero} (suc n) i) ▷ sym (sym^-refl (suc n))
+
+    cong-S^ {suc k} (suc n) x i j = 
+      hcomp (λ k → λ {(i = i0) → invSphere (iter n invSphere (σS x j))
+                     ; (i = i1) → help k j})
+            (invSphere (cong-S^ n x i j))
       where
-      F : Ω C .fst → (Ω^ 2) (Susp∙ (fst C)) .fst
-      F p = sym (rCancel (merid (pt C)))
-         ∙∙ cong (σ C) p
-         ∙∙ rCancel (merid (pt C))
+      help : Square (cong invSusp (sym^ n (σS x))) (sym^ (suc n) (σS x))
+                    (merid (ptSn _) ⁻¹) (merid (ptSn _) ⁻¹)
+      help = (sym (cong (cong invSusp) (σS-S^ n x))
+             ∙ cong-∙ invSusp (merid (-S^ n x)) (merid (ptSn (suc k)) ⁻¹))
+            ◁ (λ i → compPath-filler (compPath-filler' (merid (ptSn _))
+                        (sym (merid (-S^ n x))) i) (merid (ptSn _)) (~ i))
+                   ▷ sym (symDistr _ _)
+            ▷ (cong sym (σS-S^ n x))
 
-      F-hom : (p q : _) → F (p ∙ q) ≡ F p ∙ F q
-      F-hom p q =
-          cong (sym (rCancel (merid (pt C)))
-               ∙∙_∙∙ rCancel (merid (pt C)))
-               (cong-∙ (σ C) p q)
-        ∙ doubleCompPath≡compPath (sym (rCancel (merid (pt C)))) _ _
-        ∙ cong (sym (rCancel (merid (pt C))) ∙_)
-               (sym (assoc _ _ _))
-        ∙ assoc _ _ _
-        ∙ (λ i → (sym (rCancel (merid (pt C)))
-                ∙ compPath-filler (cong (σ C) p) (rCancel (merid (pt C))) i)
-                ∙ compPath-filler' (sym (rCancel (merid (pt C))))
-                                   (cong (σ C) q ∙ rCancel (merid (pt C))) i)
-        ∙ cong₂ _∙_ (sym (doubleCompPath≡compPath _ _ _))
-                    (sym (doubleCompPath≡compPath _ _ _))
+{-
+Goal: S₊ (suc k)
+———— Boundary (wanted) —————————————————————————————————————
+j = i0 ⊢ hcomp
+         (doubleComp-faces (λ _ → invSphere (-S^ n (ptSn (suc k))))
+          (invSphere∙ (suc k)) i)
+         (invSphere (-S^∙ n i))
+j = i1 ⊢ hcomp
+         (doubleComp-faces (λ _ → invSphere (-S^ n (ptSn (suc k))))
+          (invSphere∙ (suc k)) i)
+         (invSphere (-S^∙ n i))
+i = i0 ⊢ invSphere (iter n invSphere (σS x j))
+i = i1 ⊢ iter n (λ p i₁ → p (~ i₁)) (σS x) (~ j)
+-}
 
-      main : F ((Ω→ g .fst (σ B b) ∙ Ω→ f .fst (σ A a)))
-           ≡ F ((Ω→ f .fst (σ A a) ∙ Ω→ g .fst (σ B b)))
-      main = F-hom (Ω→ g .fst (σ B b)) (Ω→ f .fst (σ A a))
-           ∙ EH 0 _ _
-           ∙ sym (F-hom (Ω→ f .fst (σ A a)) (Ω→ g .fst (σ B b)))
 
-      fill₁ : (k : I) → _
-      fill₁ k = compPath-filler
-                (merid ((Ω→ g .fst (σ B b)
-                       ∙ Ω→ f .fst (σ A a)) k))
-                (merid (pt C) ⁻¹)
+    open import Cubical.Homotopy.Loopspace
+    p : (j : I) → _
+    p j = doubleWhiskFiller refl (λ i → ptSn (suc (+-comm n m i))) (sym (-S^∙ (suc (n · m)))) j -- (λ i → ptSn (suc (+-comm n m i))) ▷ sym (-S^∙ (suc (n · m)))
 
-      fill₂ : (k : I) → _
-      fill₂ k = compPath-filler
-                (merid ((Ω→ f .fst (σ A a)
-                       ∙ Ω→ g .fst (σ B b)) k))
-                (merid (pt C) ⁻¹)
+    help : (x : _) → PathP (λ i → S₊ (suc (+-comm n m i)))
+                            (join→Sphere n m (join-commFun x))
+                            (-S^ (suc (n · m)) ((join→Sphere m n x)))
+    help (inl x) = p i1
+    help (inr x) = p i1
+    help (push a b i) j = help' j i
+      where
+      help' : SquareP (λ i j → S₊ (suc (+-comm n m i)))
+                (sym (σSn (n + m) (b ⌣S a)))
+                (cong (-S^ (suc (n · m))) (σS (a ⌣S b)))
+                (p i1) (p i1)
+      help' = cong sym (cong (σSn (n + m)) (comm⌣S b a))
+            ◁ (cong sym (sym (substCommSlice S₊
+                              (λ x → Ω (S₊∙ (suc x)) .fst)
+                              (λ _ → σS) (+-comm m n)
+                              _))
+             ◁ transport (λ j → PathP (λ i → p j i ≡ p j i)
+                         (sym (subst (λ x → Ω (S₊∙ (suc x)) .fst)
+                                  (isSetℕ _ _ (+-comm m n) (sym (+-comm n m)) (~ j))
+                              (σSn (m + n) (-S^ (m · n) (a ⌣S b)))))
+                         (doubleCompPath-filler (sym (-S^∙ (suc (n · m))))
+                                                (cong (-S^ (suc (n · m))) (σS (a ⌣S b)))
+                                                ((-S^∙ (suc (n · m)))) (~ j)))
+               (toPathP (transport⁻Transport (λ i₁ → p i0 (~ i₁) ≡ p i0 (~ i₁)) _
+                      ∙ transport (PathP≡doubleCompPathʳ _ _ _ _) {!!})))
+  com : (n m : ℕ) (t : π' (suc (n + m)) X)
+    →  (fun (π*SwapIso n m X) (inv (Iso-π*-π' n m) t))
+     ≡ inv (Iso-π*-π' m n) (subst (λ k → π' (suc k) X) (+-comm n m)
+        (-π^ (n · m) t))
+  com n m = ST.elim {!!}
+    λ t → cong ∣_∣₂ (ΣPathP ((funExt (λ x → cong (fst t) {!!})) , {!!})) ∙ {!!}
 
-    Susp·w∙ : suspFun∙ (_·w_ .fst) ≡ suspFun∙ (fst const*)
-    Susp·w∙ = ΣPathP (Susp·w , refl)
+  main : Iso.inv (π*Gr≅π'Gr (suc n) (suc m) X .fst) ([ f ∣ g ]π')
+       ≡ Iso.inv (π*Gr≅π'Gr (suc n) (suc m) X .fst)
+                 (subst (λ k → π' (suc k) X) (+-comm (suc m) (suc n))
+                   (-π^ (n · m) [ g ∣ f ]π' ))
+  main = whπ'≡whπ* f g
+       ∙ [ f ∣ g ]π*-comm
+       ∙ {!!}
+  
