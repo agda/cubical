@@ -21,7 +21,6 @@ open import Cubical.Homotopy.Loopspace
 open Iso
 open 3x3-span
 
-
 -- Generalised Whitehead products
 module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
          (B : Pointed ℓ') {C : Pointed ℓ''}
@@ -43,7 +42,8 @@ module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
       ∙ (Ω→ g .fst (σ B b) ∙ Ω→ f .fst (σ A a))
        ∙ Ω→ g .fst (σ B b) ⁻¹) i
     fst ·whΣ' (merid (gluel a i₁) i) =
-      (cong (λ p → (Ω→ f .fst (σ A a) ⁻¹ ∙ (p ∙ Ω→ f .fst (σ A a)) ∙ p ⁻¹))
+      (cong (λ p → (Ω→ f .fst (σ A a) ⁻¹
+                  ∙ (p ∙ Ω→ f .fst (σ A a)) ∙ p ⁻¹))
             (Iso.inv ΩSuspAdjointIso g .snd)
      ∙ cong₂ _∙_ refl (sym (rUnit _) ∙ sym (lUnit _))
      ∙ lCancel _) i₁ i
@@ -86,8 +86,46 @@ module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
                            (cong₂ _∙_ refl (Iso.inv ΩSuspAdjointIso f .snd)
                           ∙ sym (rUnit _))))
 
---- Other elementary properties and lemmas ---
+  -- Other direction
+  ·whΣ≡·wh : ·wh ≡ ·whΣ ∘∙ Join→SuspSmash∙ A B
+  ·whΣ≡·wh = sym (∘∙-idʳ _)
+           ∙ cong (·wh ∘∙_)
+                  (ΣPathP (funExt (λ x → sym (Iso.rightInv SmashJoinIso x))
+                                , ((λ i j → push (pt A) (pt B) (i ∧ ~ j))
+                                ▷ lUnit _)))
+          ∙∙ sym (∘∙-assoc _ _ _)
+          ∙∙ cong (_∘∙ Join→SuspSmash∙ A B) ·wh≡·whΣ
 
+  --- PathP version
+  open import Cubical.Foundations.Path
+  open import Cubical.Foundations.Equiv
+  open import Cubical.Foundations.Univalence
+  PathP-·wh-·whΣ :
+    PathP (λ i → isoToPath (fromSusp≅fromJoin {A = A} {B = B} {C = C}) i)
+          ·whΣ ·wh
+  PathP-·wh-·whΣ = post∘∙equiv-ua _ _ _ ·wh≡·whΣ
+    where
+    post∘∙equiv-ua : ∀ {ℓ ℓ'} {A B : Pointed ℓ} {C : Pointed ℓ'} (e : A ≃∙ B)
+      (f : A →∙ C) (g : B →∙ C) → (g ∘∙ (fst (fst e) , snd e)) ≡ f
+      → PathP (λ i → isoToPath (post∘∙equiv {C = C} e) i) f g
+    post∘∙equiv-ua {B = B} {C = C} = Equiv∙J
+      (λ A e → (f : A →∙ C) (g : B →∙ C) → (g ∘∙ (fst (fst e) , snd e)) ≡ f
+      → PathP (λ i → isoToPath (post∘∙equiv {C = C} e) i) f g)
+      λ e f g → toPathP (cong (λ P → transport P e)
+                           (cong ua post∘∙equivId
+                         ∙ uaIdEquiv)
+              ∙ transportRefl _
+              ∙ sym g
+              ∙ ∘∙-idˡ f)
+      where
+      post∘∙equivId : ∀ {ℓ ℓ'} {A : Pointed ℓ} {C : Pointed ℓ'}
+        → isoToEquiv (post∘∙equiv {C = C} (idEquiv∙ A)) ≡ idEquiv _
+      post∘∙equivId = Σ≡Prop isPropIsEquiv
+        (funExt λ f → ΣPathP (refl
+          , (cong₂ _∙_ (cong (cong (fst f)) (sym (rUnit refl))) refl
+                      ∙ sym (lUnit (snd f)))))
+
+--- Other elementary properties and lemmas ---
   -- The generalised Whitehead product vanishes under suspension
   isConst-Susp·w : suspFun∙ (·wh .fst) ≡ const∙ _ _
   isConst-Susp·w = Susp·w∙

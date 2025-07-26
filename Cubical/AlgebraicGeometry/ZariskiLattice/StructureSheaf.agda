@@ -137,12 +137,11 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
     open S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f) using (_/1)
     open RadicalIdeal R'
 
-    private
-     instance
+    instance
       _ = snd R[1/ f ]AsCommRing
 
     f∈√⟨g⟩ : f ∈ √ ⟨ g ⟩ₛ
-    f∈√⟨g⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun Df≤Dg .fst zero
+    f∈√⟨g⟩ = √FGIdealCharLImpl _ _ (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun Df≤Dg .fst) zero
 
 
  -- The structure presheaf on BO
@@ -251,11 +250,11 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
 
       -- crucial facts about radical ideals
       h∈√⟨f⟩ : h ∈ √ ⟨ f ⟩[ R' ]
-      h∈√⟨f⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun DHelper .fst zero
+      h∈√⟨f⟩ = √FGIdealCharLImpl _ _ (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun DHelper .fst) zero
 
       f∈√⟨h⟩ : ∀ i → f i ∈ √ ⟨ h ⟩ₛ
-      f∈√⟨h⟩ i = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun
-                   (sym DHelper) .fst i
+      f∈√⟨h⟩ = √FGIdealCharLImpl _ _ (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun
+                   (sym DHelper) .fst)
 
       ff∈√⟨h⟩ : ∀ i j → f i · f j ∈ √ ⟨ h ⟩ₛ
       ff∈√⟨h⟩ i j = √ ⟨ h ⟩ₛ .snd .·Closed (f i) (f∈√⟨h⟩ j)

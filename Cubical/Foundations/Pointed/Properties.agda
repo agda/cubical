@@ -245,6 +245,14 @@ compPathlEquiv∙ : {A : Type ℓ} {a b c : A} {q : b ≡ c} (p : a ≡ b)
 fst (compPathlEquiv∙ p) = compPathlEquiv p
 snd (compPathlEquiv∙ p) = refl
 
+-- Pointed version of Σ-cong-equiv-snd
+Σ-cong-equiv-snd∙ : ∀ {ℓ ℓ'} {A : Type ℓ} {B₁ B₂ : A → Type ℓ'}
+  → {a : A} {b₁ : B₁ a} {b₂ : B₂ a}
+  → (e : ∀ a → B₁ a ≃ B₂ a)
+  → fst (e a) b₁ ≡ b₂
+  → Path (Pointed _) (Σ∙ (A , a) B₁ b₁) (Σ∙ (A , a) B₂ b₂)
+Σ-cong-equiv-snd∙ e p = ua∙ (Σ-cong-equiv-snd e) (ΣPathP (refl , p))
+
 -- a pointed map is constant iff its non-pointed part is constant
 constantPointed≡ : {A B : Pointed ℓ} (f : A →∙ B)
                  → fst f ≡ fst (const∙ A B) → f ≡ const∙ A B

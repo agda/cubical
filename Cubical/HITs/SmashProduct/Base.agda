@@ -67,13 +67,8 @@ commK (gluer b x) = refl
 
 --- Alternative definition
 
-i∧ : {A : Pointed ℓ} {B : Pointed ℓ'} → A ⋁ B → (typ A) × (typ B)
-i∧ {A = A , ptA} {B = B , ptB} (inl x) = x , ptB
-i∧ {A = A , ptA} {B = B , ptB} (inr x) = ptA , x
-i∧ {A = A , ptA} {B = B , ptB} (push tt i) = ptA , ptB
-
 _⋀_ : Pointed ℓ → Pointed ℓ' → Type (ℓ-max ℓ ℓ')
-A ⋀ B = Pushout {A = (A ⋁ B)} (λ _ → tt) i∧
+A ⋀ B = Pushout {A = (A ⋁ B)} (λ _ → tt) ⋁↪
 
 _⋀∙_ : Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
 A ⋀∙ B = (A ⋀ B) , (inl tt)
@@ -215,6 +210,21 @@ prod→⋀^ (suc n) A x =
 
   f^≡g^ : f^ ≡ g^
   f^≡g^ = ⋀→∙Homogeneous≡ hom p
+
+⋀→HomogeneousPathP : ∀ {ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {D D' : Type ℓ''} (P : D ≡ D')
+  → {f : A ⋀ B → D}
+  → {g : A ⋀ B → D'}
+  → (isHomogeneous (D , f (inl tt)))
+  → ((x : _) (y : _)
+    → PathP (λ i → P i)
+            (f (inr (x , y))) (g (inr (x , y))))
+  → (x : _) → PathP (λ i → P i) (f x) (g x)
+⋀→HomogeneousPathP {A = A} {B} {D} P {f = f} {g} hom p x =
+  toPathP (funExt⁻ (⋀→Homogeneous≡ {f = transport P ∘ f} {g}
+                   (subst isHomogeneous
+                     (ΣPathP (P , toPathP refl))
+                     hom)
+                   λ x y → fromPathP (p x y)) x)
 
 ⋀^→Homogeneous≡ : (n : ℕ) (A : Fin (suc n) → Pointed ℓ) {B : Type ℓ'}
   → {f g : ⋀^ n A .fst → B}
@@ -1314,3 +1324,14 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} where
     main y north = push (inr y)
     main y south = push (inr y) ∙ λ i → inr (merid (pt A) i , y)
     main y (merid a i) j = filler a y i j i1
+
+-- Join→SuspSmash commutes with suspension
+SuspFun-Join→SuspSmash≡ : ∀ {ℓA ℓA' ℓB ℓB'}
+     {A : Pointed ℓA} {A' : Pointed ℓA'}
+     {B : Pointed ℓB} {B' : Pointed ℓB'}
+     (f : A →∙ A') (g : B →∙ B') (x : _)
+  → Join→SuspSmash {A = A'} {B = B'} (join→ (fst f) (fst g) x)
+   ≡ suspFun (f ⋀→ g) (Join→SuspSmash {A = A} {B} x)
+SuspFun-Join→SuspSmash≡ f g (inl x) = refl
+SuspFun-Join→SuspSmash≡ f g (inr x) = refl
+SuspFun-Join→SuspSmash≡ f g (push a b i) = refl

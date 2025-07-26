@@ -10,11 +10,17 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Order.Inductive
+open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; _·_ to _·ℤ_)
+open import Cubical.Data.Bool
+open import Cubical.Data.Empty renaming (rec to emptyrec)
 open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
 
+open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Degree renaming (degreeConst to degree-const)
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SphereBouquet
@@ -23,6 +29,7 @@ open import Cubical.HITs.SphereBouquet.Degree
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.AbGroup.Instances.FreeAbGroup
 open import Cubical.Algebra.ChainComplex
 
 
@@ -62,6 +69,9 @@ module _ {ℓ} (C : CWskel ℓ) where
 
     isoCofBouquet : cofibCW n C → SphereBouquet n (Fin An)
     isoCofBouquet = Iso.fun (BouquetIso-gen n An αn (snd C .snd .snd .snd n))
+
+    isoCofBouquetInv : SphereBouquet n (Fin An) → cofibCW n C
+    isoCofBouquetInv = Iso.inv (BouquetIso-gen n An αn (snd C .snd .snd .snd n))
 
     isoCofBouquetInv↑ : SphereBouquet (suc n) (Fin An+1) → cofibCW (suc n) C
     isoCofBouquetInv↑ = Iso.inv (BouquetIso-gen (suc n) An+1 αn+1 (snd C .snd .snd .snd (suc n)))
@@ -179,14 +189,90 @@ module _ {ℓ} (C : CWskel ℓ) where
         ∂≡∂↑ : ∂ n ≡ ∂↑
         ∂≡∂↑ = bouquetDegreeSusp (pre∂ n)
 
+  -- alternative description of the boundary for 1-dimensional cells
+  module ∂₀ where
+    src₀ : Fin (C .snd .fst 1) → Fin (C .snd .fst 0)
+    src₀ x = CW₁-discrete C .fst (C .snd .snd .fst 1 (x , true))
+
+    dest₀ : Fin (C .snd .fst 1) → Fin (C .snd .fst 0)
+    dest₀ x = CW₁-discrete C .fst (C .snd .snd .fst 1 (x , false))
+
+    src : AbGroupHom (ℤ[A 1 ]) (ℤ[A 0 ])
+    src = ℤFinFunct src₀
+
+    dest : AbGroupHom (ℤ[A 1 ]) (ℤ[A 0 ])
+    dest = ℤFinFunct dest₀
+
+    ∂₀ : AbGroupHom (ℤ[A 1 ]) (ℤ[A 0 ])
+    ∂₀ = subtrGroupHom (ℤ[A 1 ]) (ℤ[A 0 ]) dest src
+
+    -- ∂₀-alt : ∂ 0 ≡ ∂₀
+    -- ∂₀-alt = agreeOnℤFinGenerator→≡ λ x → funExt λ a → {!!}
+
+  -- augmentation map, in order to define reduced homology
+  module augmentation where
+    ε : Susp (cofibCW 0 C) → SphereBouquet 1 (Fin 1)
+    ε north = inl tt
+    ε south = inl tt
+    ε (merid (inl tt) i) = inl tt
+    ε (merid (inr x) i) = (push fzero ∙∙ (λ i → inr (fzero , loop i)) ∙∙ (λ i → push fzero (~ i))) i
+    ε (merid (push x i₁) i) with (C .snd .snd .snd .fst x)
+    ε (merid (push x i₁) i) | ()
+
+    εδ : ∀ (x : cofibCW 1 C) → (ε ∘ (suspFun (to_cofibCW 0 C)) ∘ (δ 1 C)) x ≡ inl tt
+    εδ (inl tt) = refl
+    εδ (inr x) i = (push fzero ∙∙ (λ i → inr (fzero , loop i)) ∙∙ (λ i → push fzero (~ i))) (~ i)
+    εδ (push a i) j = (push fzero ∙∙ (λ i → inr (fzero , loop i)) ∙∙ (λ i → push fzero (~ i))) (i ∧ (~ j))
+
+    preϵ : SphereBouquet 1 (Fin (preboundary.An 0)) → SphereBouquet 1 (Fin 1)
+    preϵ = ε ∘ (suspFun isoCofBouquetInv) ∘ isoSuspBouquetInv
+      where
+        open preboundary 0
+
+    opaque
+      preϵpre∂≡0 : ∀ (x : SphereBouquet 1 (Fin (preboundary.An+1 0))) → (preϵ ∘ preboundary.pre∂ 0) x ≡ inl tt
+      preϵpre∂≡0 x = cong (ε ∘ (suspFun isoCofBouquetInv))
+                          (Iso.leftInv sphereBouquetSuspIso
+                                       (((suspFun isoCofBouquet) ∘ (suspFun (to_cofibCW 0 C)) ∘ (δ 1 C) ∘ isoCofBouquetInv↑) x))
+                   ∙ cong ε (aux (((suspFun (to_cofibCW 0 C)) ∘ (δ 1 C) ∘ isoCofBouquetInv↑) x))
+                   ∙ εδ (isoCofBouquetInv↑ x)
+        where
+          open preboundary 0
+          aux : ∀ (x : Susp (cofibCW 0 C)) → (suspFun (isoCofBouquetInv) ∘ (suspFun isoCofBouquet)) x ≡ x
+          aux north = refl
+          aux south = refl
+          aux (merid a i) j = merid (Iso.leftInv (BouquetIso-gen 0 An αn (snd C .snd .snd .snd 0)) a j) i
+
+    ϵ : AbGroupHom (ℤ[A 0 ]) (ℤ[Fin 1 ])
+    ϵ = bouquetDegree preϵ
+
+    ϵ-alt : ϵ ≡ sumCoefficients _
+    ϵ-alt = GroupHom≡ (funExt λ (x : ℤ[A 0 ] .fst) → funExt λ y → cong sumFinℤ (funExt (lem1 x y)))
+      where
+        An = snd C .fst 0
+
+        lem0 : (y : Fin 1) (a : Fin An) → (degree _ (pickPetal {k = 1} y ∘ preϵ ∘ inr ∘ (a ,_))) ≡ pos 1
+        lem0 (zero , y₁) a = refl
+
+        lem1 : (x : ℤ[A 0 ] .fst) (y : Fin 1) (a : Fin An) → x a ·ℤ (degree _ (pickPetal {k = 1} y ∘ preϵ ∘ inr ∘ (a ,_))) ≡ x a
+        lem1 x y a = cong (x a ·ℤ_) (lem0 y a) ∙ ·IdR (x a)
+
+    opaque
+      ϵ∂≡0 : compGroupHom (∂ 0) ϵ ≡ trivGroupHom
+      ϵ∂≡0 = sym (bouquetDegreeComp (preϵ) (preboundary.pre∂ 0))
+           ∙ cong bouquetDegree (funExt preϵpre∂≡0)
+           ∙ bouquetDegreeConst _ _ _
 
   open ChainComplex
 
-  CW-ChainComplex : ChainComplex ℓ-zero
-  chain CW-ChainComplex n = ℤ[A n ]
-  bdry CW-ChainComplex n = ∂ n
-  bdry²=0 CW-ChainComplex n = ∂∂≡0 n
+  CW-AugChainComplex : ChainComplex ℓ-zero
+  chain CW-AugChainComplex (zero) = ℤ[Fin 1 ]
+  chain CW-AugChainComplex (suc n) = ℤ[A n ]
+  bdry CW-AugChainComplex (zero) = augmentation.ϵ
+  bdry CW-AugChainComplex (suc n) = ∂ n
+  bdry²=0 CW-AugChainComplex (zero) = augmentation.ϵ∂≡0
+  bdry²=0 CW-AugChainComplex (suc n) = ∂∂≡0 n
 
-  -- Cellular homology
-  Hˢᵏᵉˡ : (n : ℕ) → Group₀
-  Hˢᵏᵉˡ n = homology n CW-ChainComplex
+  -- Reduced cellular homology
+  H̃ˢᵏᵉˡ : (n : ℕ) → Group₀
+  H̃ˢᵏᵉˡ n = homology n CW-AugChainComplex

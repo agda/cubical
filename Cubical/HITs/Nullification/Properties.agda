@@ -28,7 +28,7 @@ open isPathSplitEquiv
 
 private
   variable
-    ℓα ℓs ℓ ℓ' : Level
+    ℓα ℓs ℓ ℓ' ℓ'' : Level
     A : Type ℓα
     S : A → Type ℓs
     X : Type ℓ
@@ -175,7 +175,7 @@ isNullIsEquiv nullX nullY f =
 
 isNullEquiv :
   ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs}
-  {X Y : Type ℓ} → isNull S X → isNull S Y → isNull S (X ≃ Y)
+  {X : Type ℓ} {Y : Type ℓ'} → isNull S X → isNull S Y → isNull S (X ≃ Y)
 isNullEquiv nullX nullY = isNullΣ (isNullΠ (λ _ → nullY)) (isNullIsEquiv nullX nullY)
 
 isNullIsOfHLevel : (n : HLevel) → isNull S X → isNull S (isOfHLevel n X)
@@ -250,3 +250,29 @@ secCong (SeparatedAndInjective→Null X sep inj α) x y =
   fst s ∘ funExt⁻ , λ p i j α → snd s (funExt⁻ p) i α j
   where
     s = sec (sep x y α)
+
+generatorsConnected : {A : Type ℓα} (S : A → Type ℓ) →
+  (a : A) → isContr (Null S (S a))
+generatorsConnected S a = (hub a ∣_∣) ,
+  elim (λ _ → isNull≡ (isNull-Null S)) (spoke a ∣_∣)
+
+nullMap : {A : Type ℓα} (S : A → Type ℓ) →
+  {X : Type ℓ'} {Y : Type ℓ''} → (X → Y) → Null S X → Null S Y
+nullMap S f ∣ x ∣ = ∣ f x ∣
+nullMap S f (hub α g) = hub α (λ z → nullMap S f (g z))
+nullMap S f (spoke α g s i) = spoke α (λ z → nullMap S f (g z)) s i
+nullMap S f (≡hub p i) = ≡hub (λ z j → nullMap S f (p z j)) i
+nullMap S f (≡spoke p s i i₁) = ≡spoke (λ z j → nullMap S f (p z j)) s i i₁
+
+nullPreservesIso : {A : Type ℓα} (S : A → Type ℓ) → {X : Type ℓ'} →
+  {Y : Type ℓ''} → Iso X Y → Iso (Null S X) (Null S Y)
+Iso.fun (nullPreservesIso S e) = nullMap S (Iso.fun e)
+Iso.inv (nullPreservesIso S e) = nullMap S (Iso.inv e)
+Iso.leftInv (nullPreservesIso S e) =
+  elim (λ _ → isNull≡ (isNull-Null S)) (λ x → cong ∣_∣ (Iso.leftInv e x))
+Iso.rightInv (nullPreservesIso S e) =
+  elim (λ _ → isNull≡ (isNull-Null S)) (λ y → cong ∣_∣ (Iso.rightInv e y))
+
+nullPreservesEquiv : {A : Type ℓα} (S : A → Type ℓ) → {X : Type ℓ'} →
+  {Y : Type ℓ''} → X ≃ Y → Null S X ≃ Null S Y
+nullPreservesEquiv S {X = X} {Y = Y} e = isoToEquiv (nullPreservesIso S (equivToIso e))

@@ -399,7 +399,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
                          (NatTransCone _ _ _ F (idTrans _) x)
                    ⋆⟨ C ⟩ limOfArrows (FLimCone (α ∘ˡ i) _) (GLimCone (α ∘ˡ i) _)
                                       (↓nt (α ∘ˡ i) x)
-         goal x = sym (limArrowUnique _ _ _ _ (isConeMorComp x))
+         goal x = sym (limArrowUnique {C = C} _ _ _ _ (isConeMorComp x))
                 ∙ limArrowCompLimOfArrows _ _ _ _ _
 
      nIso (η winv) (F , isSheafF) = isIsoΣPropCat _ _ _

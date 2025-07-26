@@ -30,6 +30,7 @@ open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Group.Join
 open import Cubical.Homotopy.Connected
+open import Cubical.Homotopy.WhiteheadProducts.Generalised.Base
 
 open Iso
 
@@ -42,7 +43,6 @@ open Iso
   joinPinch∙ (S₊∙ n) (S₊∙ m) X
     (λ a b → (Ω→ g .fst (σS b) ∙ Ω→ f .fst (σS a)))
 
-open import Cubical.Homotopy.WhiteheadProducts.Generalised.Base
 [_∣_] : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
        → (S₊∙ (suc n) →∙ X)
        → (S₊∙ (suc m) →∙ X)

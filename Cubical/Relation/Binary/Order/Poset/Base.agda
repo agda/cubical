@@ -59,8 +59,8 @@ record PosetStr (ℓ' : Level) (A : Type ℓ) : Type (ℓ-max ℓ (ℓ-suc ℓ')
 Poset : ∀ ℓ ℓ' → Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ'))
 Poset ℓ ℓ' = TypeWithStr ℓ (PosetStr ℓ')
 
-poset : (A : Type ℓ) (_≤_ : A → A → Type ℓ') (h : IsPoset _≤_) → Poset ℓ ℓ'
-poset A _≤_ h = A , posetstr _≤_ h
+poset : (A : Type ℓ) → (_≤_ : Rel A A ℓ') → IsPoset _≤_ → Poset ℓ ℓ'
+poset A _≤_ pos = A , (posetstr _≤_ pos)
 
 record IsPosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
   (M : PosetStr ℓ₀' A) (e : A ≃ B) (N : PosetStr ℓ₁' B)
@@ -76,6 +76,12 @@ record IsPosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
   field
     pres≤ : (x y : A) → x M.≤ y ≃ equivFun e x N.≤ equivFun e y
 
+  -- This also holds in the other direction, which helps a lot in proofs
+  pres≤⁻ : (x y : B) → x N.≤ y ≃ invEq e x M.≤ invEq e y
+  pres≤⁻ x y = invEquiv (compEquiv (pres≤ (invEq e x) (invEq e y))
+                                    (subst2Equiv N._≤_ (secEq e x) (secEq e y)))
+
+unquoteDecl IsPosetEquivIsoΣ = declareRecordIsoΣ IsPosetEquivIsoΣ (quote IsPosetEquiv)
 
 PosetEquiv : (M : Poset ℓ₀ ℓ₀') (M : Poset ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
 PosetEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsPosetEquiv (M .snd) e (N .snd)
@@ -88,6 +94,16 @@ isPropIsPoset _≤_ = isOfHLevelRetractFromIso 1 IsPosetIsoΣ
                          (isPropΠ (λ _ → isPropValued≤ _ _))
                            (isPropΠ5 λ _ _ _ _ _ → isPropValued≤ _ _)
                              (isPropΠ4 λ _ _ _ _ → isSetA _ _))
+
+isPropIsPosetEquiv : {A : Type ℓ₀} {B : Type ℓ₁}
+                     (M : PosetStr ℓ₀' A)
+                     (e : A ≃ B)
+                     (N : PosetStr ℓ₁' B)
+                   → isProp (IsPosetEquiv M e N)
+isPropIsPosetEquiv M e N = isOfHLevelRetractFromIso 1 IsPosetEquivIsoΣ
+  (isPropΠ2 λ _ _ → isOfHLevel≃ 1
+                                (IsPoset.is-prop-valued (PosetStr.isPoset M) _ _)
+                                (IsPoset.is-prop-valued (PosetStr.isPoset N) _ _))
 
 𝒮ᴰ-Poset : DUARel (𝒮-Univ ℓ) (PosetStr ℓ') (ℓ-max ℓ ℓ')
 𝒮ᴰ-Poset =

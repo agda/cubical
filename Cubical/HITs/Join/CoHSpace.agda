@@ -250,26 +250,26 @@ fromSusp≅fromJoinPres0* A B = ΣPathP (refl , (sym (rUnit refl)))
 module _ {ℓ ℓ' ℓ'' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''} where
   private
     P = isoToPath (fromSusp≅fromJoin {A = A} {B = B} {C = C})
-    ·Susp-+*-PathP : PathP (λ i → P i → P i → P i) (·Susp (A ⋀∙ B)) _+*_
-    ·Susp-+*-PathP  =
-      toPathP (funExt λ f → funExt λ g
-      → transportRefl _
-        ∙ (cong₂ _∘∙_ (cong₂ (·Susp (A ⋀∙ B))
-                             (cong₂ _∘∙_ (transportRefl f) refl)
-                             (cong₂ _∘∙_ (transportRefl g) refl)) refl)
-        ∙ fromSusp≅fromJoinPres+* (inv fromSusp≅fromJoin f) (inv fromSusp≅fromJoin g)
-        ∙ cong₂ _+*_ (rightInv fromSusp≅fromJoin f) (rightInv fromSusp≅fromJoin g))
+  ·Susp-+*-PathP : PathP (λ i → P i → P i → P i) (·Susp (A ⋀∙ B)) _+*_
+  ·Susp-+*-PathP  =
+    toPathP (funExt λ f → funExt λ g
+    → transportRefl _
+      ∙ (cong₂ _∘∙_ (cong₂ (·Susp (A ⋀∙ B))
+                           (cong₂ _∘∙_ (transportRefl f) refl)
+                           (cong₂ _∘∙_ (transportRefl g) refl)) refl)
+      ∙ fromSusp≅fromJoinPres+* (inv fromSusp≅fromJoin f) (inv fromSusp≅fromJoin g)
+      ∙ cong₂ _+*_ (rightInv fromSusp≅fromJoin f) (rightInv fromSusp≅fromJoin g))
 
-    ·Susp--*-PathP : PathP (λ i → P i → P i) (-Susp (A ⋀∙ B)) -*
-    ·Susp--*-PathP =
-      toPathP (funExt λ x → transportRefl _
-        ∙ cong₂ _∘∙_ (cong (-Susp (A ⋀∙ B)) (cong₂ _∘∙_ (transportRefl _) refl)) refl
-        ∙ fromSusp≅fromJoinPres-* (inv fromSusp≅fromJoin x)
-        ∙ cong -* (rightInv fromSusp≅fromJoin x))
+  ·Susp--*-PathP : PathP (λ i → P i → P i) (-Susp (A ⋀∙ B)) -*
+  ·Susp--*-PathP =
+    toPathP (funExt λ x → transportRefl _
+      ∙ cong₂ _∘∙_ (cong (-Susp (A ⋀∙ B)) (cong₂ _∘∙_ (transportRefl _) refl)) refl
+      ∙ fromSusp≅fromJoinPres-* (inv fromSusp≅fromJoin x)
+      ∙ cong -* (rightInv fromSusp≅fromJoin x))
 
-    ·Susp-0*-PathP : PathP (λ i → P i) (const∙ _ _) (const∙ _ _)
-    ·Susp-0*-PathP = symP (toPathP (cong₂ _∘∙_ (transportRefl _) refl
-                          ∙ ΣPathP (refl , (sym (rUnit _)))))
+  ·Susp-0*-PathP : PathP (λ i → P i) (const∙ _ _) (const∙ _ _)
+  ·Susp-0*-PathP = symP (toPathP (cong₂ _∘∙_ (transportRefl _) refl
+                        ∙ ΣPathP (refl , (sym (rUnit _)))))
 
   -- The laws
   +*HSpace : Σ[ r ∈ ((f : join∙ A B →∙ C) → (f +* 0*) ≡ f) ]

@@ -110,7 +110,7 @@ module AlgebraEquivs where
     (invAlgebraEquiv {A = A} {B = B} f').snd = hom
       where
         open AlgebraStr {{...}}
-        private instance
+        instance
           _ = snd A
           _ = snd B
 
