@@ -10,6 +10,7 @@ open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.FreeAbGroup
 
@@ -30,3 +31,12 @@ record FinitePresentation (A : AbGroup ℓ) : Type ℓ where
 
 isFinitelyPresented : AbGroup ℓ → Type ℓ
 isFinitelyPresented G = ∥ FinitePresentation G ∥₁
+
+open FinitePresentation
+GrIsoPresFinitePresentation : ∀ {ℓ ℓ'} {A : AbGroup ℓ} {B : AbGroup ℓ'}
+  → AbGroupIso A B → FinitePresentation A → FinitePresentation B
+nGens (GrIsoPresFinitePresentation abG fpA) = nGens fpA
+nRels (GrIsoPresFinitePresentation abG fpA) = nRels fpA
+rels (GrIsoPresFinitePresentation abG fpA) = rels fpA
+fpiso (GrIsoPresFinitePresentation abG fpA) =
+  compGroupIso (invGroupIso abG) (fpiso fpA)

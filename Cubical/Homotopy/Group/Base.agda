@@ -642,6 +642,40 @@ snd (π'Gr≅πGr n A) =
   makeIsGroupHom (sElim2 (λ _ _ → isSetPathImplicit)
     λ p q i → ∣ IsoSphereMapΩ-pres∙Π n p q i ∣₂)
 
+-- Proof that π'Gr preserves universe lifts
+π'GrLiftIso : ∀ {ℓ} (ℓ' : Level) {A : Pointed ℓ} (n : ℕ)
+  → GroupIso (π'Gr n (Lift∙ {j = ℓ'} A)) (π'Gr n A)
+fun (fst (π'GrLiftIso ℓ' n)) =
+  sMap λ f → (λ x → lower (fst f x))
+            , (cong lower (snd f))
+inv (fst (π'GrLiftIso ℓ' n)) =
+  sMap λ f → (λ x → lift (fst f x))
+            , (cong lift (snd f))
+rightInv (fst (π'GrLiftIso ℓ' n)) =
+  sElim (λ _ → isSetPathImplicit) λ f → refl
+leftInv (fst (π'GrLiftIso ℓ' n)) =
+  sElim (λ _ → isSetPathImplicit) λ f → refl
+snd (π'GrLiftIso ℓ' zero) =
+  makeIsGroupHom (sElim2 (λ _ _ → isSetPathImplicit)
+    λ f g → cong ∣_∣₂ (ΣPathP ((funExt
+     λ { base → refl
+       ; (loop i) j → (cong-∙ lower (Ω→ f .fst loop) (Ω→ g .fst loop)
+        ∙ cong₂ _∙_
+          (cong-∙∙ lower (sym (snd f)) (cong (fst f) loop) (snd f))
+          (cong-∙∙ lower (sym (snd g)) (cong (fst g) loop) (snd g))) j i})
+       , refl)))
+snd (π'GrLiftIso ℓ' {A = A} (suc n)) =
+  makeIsGroupHom (sElim2 (λ _ _ → isSetPathImplicit)
+    λ f g → cong ∣_∣₂ (ΣPathP ((funExt (
+      λ { north → refl
+        ; south → refl
+        ; (merid a i) j
+       → (cong-∙ lower (Ω→ f .fst (σS a)) (Ω→ g .fst (σS a))
+        ∙ cong₂ _∙_
+          (cong-∙∙ lower (sym (snd f)) (cong (fst f) (σS a)) (snd f))
+          (cong-∙∙ lower (sym (snd g)) (cong (fst g) (σS a)) (snd g))) j i}))
+      , refl)))
+
 {- Proof of πₙ(ΩA) = πₙ₊₁(A) -}
 Iso-πΩ-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
         → Iso (π n (Ω A)) (π (suc n) A)
@@ -1017,7 +1051,7 @@ GroupHomπ≅π'PathP-hom {A = A} {B = B} n f =
 
 -- post composition with an equivalence induces an
 -- isomorphism of homotopy groups
-π'eqFun : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
+π'eqFun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
       → A ≃∙ B
       → (π' (suc n) A) → π' (suc n) B
 π'eqFun n p = π'∘∙fun n (≃∙map p)
@@ -1035,39 +1069,70 @@ invEquiv∙idEquiv∙≡idEquiv : ∀ {ℓ} {A : Pointed ℓ}
 invEquiv∙idEquiv∙≡idEquiv = ΣPathP ((Σ≡Prop (λ _ → isPropIsEquiv _) refl) , (sym (lUnit refl)))
 
 π'eqFunIsEquiv :
-  ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
+  ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
       → (e : A ≃∙ B)
       → isEquiv (π'eqFun n e)
-π'eqFunIsEquiv {B = B} n =
-  Equiv∙J (λ A e → isEquiv (π'eqFun n e))
-    (subst isEquiv (sym (π'eqFun-idEquiv n))
+π'eqFunIsEquiv {ℓ = ℓ} {ℓ'} {A} {B} n e =
+  subst isEquiv
+    (funExt (sElim (λ _ → isSetPathImplicit)
+             (λ f → cong ∣_∣₂
+             (ΣPathP (refl
+               , (cong-∙ lower (cong (lift ∘ (fst (fst e))) (snd f)) _))))))
+    (πA≃πB .snd)
+  where
+  e' : Lift∙ {j = ℓ'} A ≃∙ Lift∙ {j = ℓ} B
+  fst e' =
+    compEquiv (invEquiv LiftEquiv) (compEquiv (fst e) LiftEquiv)
+  snd e' = cong lift (snd e)
+
+  main : ∀ {ℓ} {A B : Pointed ℓ} (n : ℕ)
+      → (e : A ≃∙ B)
+      → isEquiv (π'eqFun n e)
+  main {B = B} n =
+    Equiv∙J (λ A e → isEquiv (π'eqFun n e))
+     (subst isEquiv (sym (π'eqFun-idEquiv n))
       (idIsEquiv (π' (suc n) B)))
 
-π'eqFunIsHom : ∀ {ℓ} {A B : Pointed ℓ}(n : ℕ)
+  πA≃πB : π' (suc n) A ≃ π' (suc n) B
+  πA≃πB =
+    compEquiv (invEquiv (isoToEquiv (fst (π'GrLiftIso _ n))))
+     (compEquiv (_ , main n e')
+       (isoToEquiv (fst (π'GrLiftIso _ n))))
+
+π'eqFunIsHom : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
       → (e : A ≃∙ B)
       → IsGroupHom (π'Gr n A .snd) (π'eqFun n e)
                     (π'Gr n B .snd)
-π'eqFunIsHom {B = B} n =
-  Equiv∙J (λ A e → IsGroupHom (π'Gr n A .snd) (π'eqFun n e) (π'Gr n B .snd))
+π'eqFunIsHom {ℓ = ℓ} {ℓ'} {A} {B} n e =
+  subst (λ ϕ → IsGroupHom (π'Gr n A .snd)
+                         ϕ (π'Gr n B .snd))
+        (funExt (sElim (λ _ → isSetPathImplicit)
+          (λ f → cong ∣_∣₂ (ΣPathP
+            (refl
+           , cong-∙ lower (cong (lift ∘ (fst (fst e))) (snd f)) _)))))
+        (compGroupHom
+          (GroupIso→GroupHom (invGroupIso (π'GrLiftIso _ n)))
+         (compGroupHom (_ , main n e')
+          (GroupIso→GroupHom (π'GrLiftIso _ n))) .snd)
+  where
+  e' : Lift∙ {j = ℓ'} A ≃∙ Lift∙ {j = ℓ} B
+  fst e' =
+    compEquiv (invEquiv LiftEquiv) (compEquiv (fst e) LiftEquiv)
+  snd e' = cong lift (snd e)
+
+  main : ∀ {ℓ} {A B : Pointed ℓ} (n : ℕ)
+      → (e : A ≃∙ B)
+      → IsGroupHom (π'Gr n A .snd) (π'eqFun n e)
+                    (π'Gr n B .snd)
+  main {B = B} n =
+    Equiv∙J (λ A e → IsGroupHom (π'Gr n A .snd) (π'eqFun n e) (π'Gr n B .snd))
     (subst (λ x → IsGroupHom (π'Gr n B .snd) x (π'Gr n B .snd))
       (sym (π'eqFun-idEquiv n))
       (makeIsGroupHom λ _ _ → refl))
 
-π'GrIso : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
-      → A ≃∙ B
-      → GroupIso (π'Gr n A) (π'Gr n B)
-fun (fst (π'GrIso n e)) = π'eqFun n e
-inv (fst (π'GrIso n e)) = π'eqFun n (invEquiv∙ e)
-rightInv (fst (π'GrIso {B = B} n e)) =
-  Equiv∙J (λ A e → (f : _) → π'eqFun n e (π'eqFun n (invEquiv∙ e) f) ≡ f)
-    (λ f → (λ i → π'eqFun-idEquiv n i (π'eqFun n (invEquiv∙idEquiv∙≡idEquiv i) f))
-    ∙ funExt⁻ (π'eqFun-idEquiv n) f)
-    e
-leftInv (fst (π'GrIso n e)) =
-  Equiv∙J (λ A e → (f : _) → π'eqFun n (invEquiv∙ e)  (π'eqFun n e f) ≡ f)
-    (λ f → (λ i → π'eqFun n (invEquiv∙idEquiv∙≡idEquiv i) (π'eqFun-idEquiv n i f))
-          ∙ funExt⁻ (π'eqFun-idEquiv n) f)
-    e
+π'GrIso : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
+  (e : A ≃∙ B) → GroupIso (π'Gr n A) (π'Gr n B)
+fst (π'GrIso n e) = setTruncIso (pre∘∙equiv e)
 snd (π'GrIso n e) = π'eqFunIsHom n e
 
 π'Iso : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
