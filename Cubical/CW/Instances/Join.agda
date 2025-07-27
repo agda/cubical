@@ -14,11 +14,11 @@ open import Cubical.CW.Instances.Sigma
 open import Cubical.HITs.Join
 
 -- joins as finite CW complexes
-isFinCWJoinPushout : (A B : finCW ℓ-zero)
+isFinCWJoinPushout : {ℓ : Level} (A B : finCW ℓ)
   → isFinCW (joinPushout (fst A) (fst B))
 isFinCWJoinPushout A B = isFinCWPushout (_ , (isFinCW× A B)) A B fst snd
 
-isFinCWJoin : (A B : finCW ℓ-zero) → isFinCW (join (fst A) (fst B))
+isFinCWJoin : {ℓ : Level} (A B : finCW ℓ) → isFinCW (join (fst A) (fst B))
 isFinCWJoin A B =
   subst isFinCW (joinPushout≡join (fst A) (fst B)) (isFinCWJoinPushout A B)
 

@@ -1184,3 +1184,20 @@ module PushoutPasteLeft {ℓ₀ ℓ₂ ℓ₄ ℓP ℓA ℓB : Level}
   isPushoutTotSquare→isPushoutRightSquare e = rotatePushoutSquare (_ , help) .snd
     where
     help = M.isPushoutTotSquare→isPushoutBottomSquare (rotatePushoutSquare (_ , e) .snd)
+
+LiftPushoutIso : (ℓP : Level) {f : A → B} {g : A → C}
+  → Iso (Pushout (liftFun {ℓ'' = ℓP} {ℓ''' = ℓP} f)
+                  (liftFun {ℓ'' = ℓP} {ℓ''' = ℓP} g))
+         (Lift {j = ℓP} (Pushout f g))
+fun (LiftPushoutIso ℓP) (inl (lift x)) = lift (inl x)
+fun (LiftPushoutIso ℓP) (inr (lift x)) = lift (inr x)
+fun (LiftPushoutIso ℓP) (push (lift a) i) = lift (push a i)
+inv (LiftPushoutIso ℓP) (lift (inl x)) = inl (lift x)
+inv (LiftPushoutIso ℓP) (lift (inr x)) = inr (lift x)
+inv (LiftPushoutIso ℓP) (lift (push a i)) = push (lift a) i
+rightInv (LiftPushoutIso ℓP) (lift (inl x)) = refl
+rightInv (LiftPushoutIso ℓP) (lift (inr x)) = refl
+rightInv (LiftPushoutIso ℓP) (lift (push a i)) = refl
+leftInv (LiftPushoutIso ℓP) (inl (lift x)) = refl
+leftInv (LiftPushoutIso ℓP) (inr (lift x)) = refl
+leftInv (LiftPushoutIso ℓP) (push (lift a) i) = refl

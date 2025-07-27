@@ -21,7 +21,7 @@ open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.NatMinusOne
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Bool
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Fin.Inductive
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sequence
@@ -751,58 +751,81 @@ isPushoutᶜʷ {ℓ = ℓ} = uncurry λ B
        (strictCwMap≡ f') (strictCwMap≡ g')
        (CWPushout.hasCWskelPushout _ B C D f' g')
 
-
 -- Consequence: elimination principle for predicates stable under
 -- pushouts (suggested by Reid Barton)
-module _ {ℓ' : Level} (P : Type → Type ℓ') (P1 : P Unit) (P0 : P ⊥)
-         (Ppush : (A B C : Type) (f : A → B) (g : A → C)
+module _ {ℓ ℓ' : Level} (P : Type ℓ → Type ℓ') (P1 : P Unit*) (P0 : P ⊥*)
+         (Ppush : (A B C : Type ℓ) (f : A → B) (g : A → C)
                 → P A → P B → P C → P (Pushout f g)) where
   private
-   PFin1 : P (Fin 1)
-   PFin1 = subst P (isoToPath Iso-Unit-Fin1) P1
+   PFin1 : P (Lift (Fin 1))
+   PFin1 = subst P (cong Lift (isoToPath Iso-Unit-Fin1)) P1
 
-   P⊎ : {B C : Type} → P B → P C → P (B ⊎ C)
+   P⊎ : {B C : Type ℓ} → P B → P C → P (B ⊎ C)
    P⊎ {B = B} {C} pB pC =
-     subst P (isoToPath PushoutEmptyDomainIso)
-             (Ppush ⊥ B C (λ ()) (λ ()) P0 pB pC)
+     subst P (isoToPath
+       (compIso (pushoutIso _ _ _ _
+         (invEquiv LiftEquiv) (idEquiv _) (idEquiv _) refl refl)
+         PushoutEmptyDomainIso))
+             (Ppush ⊥* B C (λ ()) (λ ()) P0 pB pC)
 
-   PFin : (n : ℕ) → P (Fin n)
+   PFin : (n : ℕ) → P (Lift (Fin n))
    PFin zero =
-     subst P (ua (propBiimpl→Equiv isProp⊥ (λ x → ⊥.rec (¬Fin0 x)) (λ()) ¬Fin0))
-             P0
-   PFin (suc n) = subst P (sym (isoToPath Iso-Fin-Unit⊎Fin)) (P⊎ P1 (PFin n))
+     subst P
+       (cong Lift
+         (ua (propBiimpl→Equiv isProp⊥
+              (λ x → ⊥.rec (¬Fin0 x)) (λ()) ¬Fin0)))
+       P0
+   PFin (suc n) =
+     subst P (cong Lift (sym (isoToPath Iso-Fin-Unit⊎Fin)))
+       (subst P (isoToPath (Lift⊎Iso ℓ))
+         (P⊎ P1 (PFin n)))
 
-   PS : (n : ℕ) → P (S⁻ n)
+   PS : (n : ℕ) → P (Lift (S⁻ n))
    PS zero = P0
-   PS (suc zero) = subst P (isoToPath (invIso Iso-Bool-Fin2)) (PFin 2)
+   PS (suc zero) = subst P (cong Lift (isoToPath (invIso Iso-Bool-Fin2))) (PFin 2)
    PS (suc (suc n)) =
      subst P
-       (isoToPath (compIso PushoutSuspIsoSusp (invIso (IsoSucSphereSusp n))))
-       (Ppush (S₊ n) Unit Unit _ _ (PS (suc n)) P1 P1)
+       (cong Lift (isoToPath (compIso PushoutSuspIsoSusp (invIso (IsoSucSphereSusp n)))))
+       (subst P (isoToPath (LiftPushoutIso ℓ))
+         (Ppush (Lift (S₊ n)) Unit* Unit* (λ _ → tt*) (λ _ → tt*)
+           (PS (suc n)) P1 P1))
 
-
-   PFin×S : (n m : ℕ) → P (Fin n × S⁻ m)
-   PFin×S zero m = subst P (ua (uninhabEquiv (λ()) (λ x → ¬Fin0 (fst x)))) P0
-   PFin×S (suc n) m =
-     subst P (isoToPath (compIso (compIso (⊎Iso (invIso rUnit×Iso) Σ-swap-Iso)
+   PFin×S : (n m : ℕ) → P (Lift (Fin n × S⁻ m))
+   PFin×S zero m =
+     subst P (ua (compEquiv (uninhabEquiv (λ()) λ()) LiftEquiv)) P0
+   PFin×S (suc n) m = subst P (isoToPath is) (P⊎ (PS m) (PFin×S n m))
+     where
+     is : Iso (Lift (S⁻ m) ⊎ Lift (Fin n × S⁻ m))
+               (Lift (Fin (suc n) × S⁻ m))
+     is =
+       compIso (Lift⊎Iso ℓ)
+        (compIso (invIso LiftIso)
+          (compIso
+            (compIso (compIso (⊎Iso (invIso rUnit×Iso) Σ-swap-Iso)
                         (compIso (invIso ×DistR⊎Iso) Σ-swap-Iso))
-                        (Σ-cong-iso-fst (invIso Iso-Fin-Unit⊎Fin))))
-             (P⊎ (PS m) (PFin×S n m))
+                        (Σ-cong-iso-fst (invIso Iso-Fin-Unit⊎Fin)))
+             LiftIso))
 
-   PCWskel : (B : CWskel ℓ-zero) → (n : ℕ) → P (fst B n)
+   PCWskel : (B : CWskel ℓ) → (n : ℕ) → P (fst B n)
    PCWskel B zero = subst P (ua (uninhabEquiv (λ()) (CW₀-empty B))) P0
    PCWskel B (suc n) =
-     subst P (ua (invEquiv (B .snd .snd .snd .snd n)))
-             (Ppush _ _ _ _ _
-               (PFin×S (CWskel-fields.card B n) n)
-                 (PCWskel B n) (PFin (CWskel-fields.card B n)))
+     subst P
+       (ua (compEquiv
+            (pushoutEquiv _ _ _ _
+              (invEquiv LiftEquiv) (idEquiv _) (invEquiv LiftEquiv)
+              refl refl)
+            (invEquiv (B .snd .snd .snd .snd n))))
+       (Ppush _ _ _
+        (λ { (lift r) → CWskel-fields.α B n r}) (liftFun fst)
+        (PFin×S (CWskel-fields.card B n) n)
+          (PCWskel B n) (PFin (CWskel-fields.card B n)))
 
-  elimPropFinCWFun : (B : Type) → hasFinCWskel B → P B
+  elimPropFinCWFun : (B : Type ℓ) → hasFinCWskel B → P B
   elimPropFinCWFun B fCWB =
     subst P (ua (compEquiv (isoToEquiv (realiseFin _ (fCWB .snd .fst)))
             (invEquiv (fCWB .snd .snd))))
             (PCWskel (finCWskel→CWskel _ (fCWB .snd .fst)) (fCWB .fst))
 
   -- main result
-  elimPropFinCW : (B : finCW ℓ-zero) → isProp (P (fst B)) → P (fst B)
+  elimPropFinCW : (B : finCW ℓ) → isProp (P (fst B)) → P (fst B)
   elimPropFinCW (B , Bstr) isp = PT.rec isp (elimPropFinCWFun B) Bstr

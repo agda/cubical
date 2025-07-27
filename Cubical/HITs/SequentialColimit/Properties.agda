@@ -800,3 +800,14 @@ module _ {ℓ ℓ' ℓ'' : Level} {A : Sequence ℓ} {B : Sequence ℓ'} {C : Se
      ; (k = i0) → PushoutSequenceFam→PushoutColimCommFill n x i (~ r) i1
      ; (k = i1) → push (incl {n = suc n} (map A x)) i})
      (PushoutSequenceFam→PushoutColimCommFill n x i i1 (~ k))
+
+SeqColimLift : (S : Sequence ℓ')
+  → Iso (SeqColim (LiftSequence ℓ S)) (SeqColim S)
+Iso.fun (SeqColimLift S) (incl (lift x)) = incl x
+Iso.fun (SeqColimLift S) (push (lift x) i) = push x i
+Iso.inv (SeqColimLift S) (incl x) = incl (lift x)
+Iso.inv (SeqColimLift S) (push x i) = push (lift x) i
+Iso.rightInv (SeqColimLift S) (incl x) = refl
+Iso.rightInv (SeqColimLift S) (push x i) = refl
+Iso.leftInv (SeqColimLift S) (incl x) = refl
+Iso.leftInv (SeqColimLift S) (push x i) = refl
