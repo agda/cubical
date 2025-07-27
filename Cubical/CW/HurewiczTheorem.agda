@@ -30,6 +30,7 @@ open import Cubical.CW.Homology.Base
 open import Cubical.CW.Homology.Groups.Sn
 open import Cubical.CW.Homology.Groups.CofibFinSphereBouquetMap
 open import Cubical.CW.Homology.Groups.Subcomplex
+open import Cubical.CW.Instances.Lift
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
@@ -1248,8 +1249,17 @@ HurewiczTheorem n =
      Xᶜʷ = X , cw
      Xᶜʷ' = X , Xˢᵏᵉˡ' , (invEquiv (snd cw'))
 
+     liftLem : (A : CW ℓ-zero) (a : fst A) (e : isConnected 2 (Lift (fst A)))
+       → Path (Σ[ A ∈ CW ℓ-zero ] (Σ[ a ∈ fst A ] isConnected 2 (fst A)))
+              (A , a , subst (isConnected 2) (ua (invEquiv LiftEquiv)) e)
+              ((CWLift ℓ-zero A) , (lift a , e))
+     liftLem A a e =
+       ΣPathP ((Σ≡Prop (λ _ → squash₁) (ua LiftEquiv))
+              , (ΣPathPProp (λ _ → isPropIsContr)
+                 λ i → ua-gluePt LiftEquiv i a))
+
      main : isEquiv (HurewiczHomAb (X , ∣ cw ∣₁) x
-                      (isConnectedSubtr' n 2 isc) n .fst)
+                    (isConnectedSubtr' n 2 isc) n .fst)
      main =
        isEqTransport (CWexplicit→CW Xᶜʷ') (CWexplicit→CW Xᶜʷ)
            (Σ≡Prop (λ _ → squash₁) refl)
@@ -1262,11 +1272,23 @@ HurewiczTheorem n =
                (λ linl → isEqTransport _ (_ , str) (sym e)
                            (subst (isConnected 2) (cong fst e) con')
                            con'
-                           (inl tt)
+                           (lift (inl tt))
                            l
                            (toPathP (sym linl))
-                           (HurewiczMapCofibEquiv α
-                            (subst (isConnected 2) (λ i → fst (e i)) con')))
+                           (transport (λ i → isEquiv
+                             (HurewiczHomAb
+                              (liftLem (SphereBouquet/ᶜʷ (fst α)) (inl tt)
+                                (subst (isConnected 2)
+                                  (λ i → fst (e i)) con') i .fst)
+                              (liftLem (SphereBouquet/ᶜʷ (fst α)) (inl tt)
+                                (subst (isConnected 2)
+                                  (λ i → fst (e i)) con') i .snd .fst)
+                              (liftLem (SphereBouquet/ᶜʷ (fst α)) (inl tt)
+                                (subst (isConnected 2)
+                                  (λ i → fst (e i)) con') i .snd .snd)
+                              n .fst))
+                             (HurewiczMapCofibEquiv α _)))
                             (isConnectedPath 1 con' l
-                              (transport (sym (cong fst e)) (inl tt)) .fst)})
+                              (transport (sym (cong fst e)) (lift (inl tt)))
+                                .fst)})
              (connectedCW≃CofibFinSphereBouquetMap n X cw' str)) x)
