@@ -38,8 +38,10 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.List
+open import Cubical.Data.Sum
 
 open import Cubical.HITs.Pushout.Base
+open import Cubical.HITs.Pushout.Flattening
 open import Cubical.HITs.Susp.Base
 
 private
@@ -625,6 +627,34 @@ module _ {ℓA₁ ℓB₁ ℓC₁ ℓA₂ ℓB₂ ℓC₂}
   pushoutEquiv : Pushout f₁ g₁ ≃ Pushout f₂ g₂
   pushoutEquiv = isoToEquiv pushoutIso
 
+-- Pushouts commute with Σ
+module _ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+  (f : A → B) (g : A → C) (X : Pushout f g → Type ℓ''') where
+  open FlatteningLemma f g (X ∘ inl) (X ∘ inr) (λ a → substEquiv X (push a))
+
+  PushoutΣL : Σ[ a ∈ A ] X (inl (f a)) → Σ[ b ∈ B ] X (inl b)
+  PushoutΣL (a , x) = f a , x
+
+  PushoutΣR : Σ[ a ∈ A ] X (inl (f a)) → Σ[ c ∈ C ] X (inr c)
+  PushoutΣR (a , x) = g a , subst X (push a) x
+
+  PushoutΣ : Type _
+  PushoutΣ = Pushout PushoutΣL PushoutΣR
+
+  repairLeft : (a : Pushout f g) → X a ≃ E a
+  repairLeft (inl x) = idEquiv _
+  repairLeft (inr x) = idEquiv _
+  repairLeft (push a i) = help i
+    where
+    help : PathP (λ i → X (push a i) ≃ E (push a i)) (idEquiv _) (idEquiv _)
+    help = ΣPathPProp (λ _ → isPropIsEquiv _)
+                      (toPathP (funExt λ x →
+                        transportRefl _ ∙ substSubst⁻ X (push a) x))
+
+  ΣPushout≃PushoutΣ : Σ (Pushout f g) X ≃ PushoutΣ
+  ΣPushout≃PushoutΣ =
+    compEquiv (Σ-cong-equiv-snd repairLeft) flatten
+
 module _ {C : Type ℓ} {B : Type ℓ'} where
   PushoutAlongEquiv→ : {A : Type ℓ}
     (e : A ≃ C) (f : A → B) → Pushout (fst e) f → B
@@ -694,6 +724,17 @@ rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C {f = f} {g = g}) (push a i) j 
                      (push a) (λ _ → inl (f a)) (⊥.rec (¬C (g a)))}
          (¬A a) j i
 leftInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) x = refl
+
+PushoutEmptyDomainIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+  → Iso (Pushout {A = ⊥} {B = A} {C = B} (λ()) (λ())) (A ⊎ B)
+Iso.fun PushoutEmptyDomainIso (inl x) = inl x
+Iso.fun PushoutEmptyDomainIso (inr x) = inr x
+Iso.inv PushoutEmptyDomainIso (inl x) = inl x
+Iso.inv PushoutEmptyDomainIso (inr x) = inr x
+Iso.rightInv PushoutEmptyDomainIso (inl x) = refl
+Iso.rightInv PushoutEmptyDomainIso (inr x) = refl
+Iso.leftInv PushoutEmptyDomainIso (inl x) = refl
+Iso.leftInv PushoutEmptyDomainIso (inr x) = refl
 
 PushoutCompEquivIso : ∀ {ℓA ℓA' ℓB ℓB' ℓC}
   {A : Type ℓA} {A' : Type ℓA'} {B : Type ℓB} {B' : Type ℓB'}
@@ -1143,3 +1184,20 @@ module PushoutPasteLeft {ℓ₀ ℓ₂ ℓ₄ ℓP ℓA ℓB : Level}
   isPushoutTotSquare→isPushoutRightSquare e = rotatePushoutSquare (_ , help) .snd
     where
     help = M.isPushoutTotSquare→isPushoutBottomSquare (rotatePushoutSquare (_ , e) .snd)
+
+LiftPushoutIso : (ℓP : Level) {f : A → B} {g : A → C}
+  → Iso (Pushout (liftFun {ℓ'' = ℓP} {ℓ''' = ℓP} f)
+                  (liftFun {ℓ'' = ℓP} {ℓ''' = ℓP} g))
+         (Lift {j = ℓP} (Pushout f g))
+fun (LiftPushoutIso ℓP) (inl (lift x)) = lift (inl x)
+fun (LiftPushoutIso ℓP) (inr (lift x)) = lift (inr x)
+fun (LiftPushoutIso ℓP) (push (lift a) i) = lift (push a i)
+inv (LiftPushoutIso ℓP) (lift (inl x)) = inl (lift x)
+inv (LiftPushoutIso ℓP) (lift (inr x)) = inr (lift x)
+inv (LiftPushoutIso ℓP) (lift (push a i)) = push (lift a) i
+rightInv (LiftPushoutIso ℓP) (lift (inl x)) = refl
+rightInv (LiftPushoutIso ℓP) (lift (inr x)) = refl
+rightInv (LiftPushoutIso ℓP) (lift (push a i)) = refl
+leftInv (LiftPushoutIso ℓP) (inl (lift x)) = refl
+leftInv (LiftPushoutIso ℓP) (inr (lift x)) = refl
+leftInv (LiftPushoutIso ℓP) (push (lift a) i) = refl
