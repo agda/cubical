@@ -202,8 +202,7 @@ EquivContr {ℓ = ℓ} A =
       f i = λ { (i = i0) → A , idEquiv A ; (i = i1) → w }
 
 contrSinglEquiv : {A B : Type ℓ} (e : A ≃ B) → (B , idEquiv B) ≡ (A , e)
-contrSinglEquiv {A = A} {B = B} e =
-  isContr→isProp (EquivContr B) (B , idEquiv B) (A , e)
+contrSinglEquiv {A = A} {B = B} e = EquivContr B .snd (A , e)
 
 -- Equivalence induction
 EquivJ : (P : (A : Type ℓ) → (e : A ≃ B) → Type ℓ')
