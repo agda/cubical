@@ -1,20 +1,20 @@
 <!DOCTYPE HTML>
-<html><head><meta charset="utf-8"><title>Cubical.Codata.Everything</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Pragma">--guardedness</a> <a id="34" class="Symbol">#-}</a>
-<a id="38" class="Keyword">module</a> <a id="45" href="Cubical.Codata.Everything.html" class="Module">Cubical.Codata.Everything</a> <a id="71" class="Keyword">where</a>
+<html><head><meta charset="utf-8"><title>Cubical.Codata.Everything</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--guardedness</a> <a id="27" class="Symbol">#-}</a>
+<a id="31" class="Keyword">module</a> <a id="38" href="Cubical.Codata.Everything.html" class="Module">Cubical.Codata.Everything</a> <a id="64" class="Keyword">where</a>
 
-<a id="78" class="Keyword">import</a> <a id="85" href="Cubical.Codata.Conat.html" class="Module">Cubical.Codata.Conat</a>
-<a id="106" class="Keyword">import</a> <a id="113" href="Cubical.Codata.Conat.Bounded.html" class="Module">Cubical.Codata.Conat.Bounded</a>
-<a id="142" class="Keyword">import</a> <a id="149" href="Cubical.Codata.M.Coalg.html" class="Module">Cubical.Codata.M.Coalg</a>
-<a id="172" class="Keyword">import</a> <a id="179" href="Cubical.Codata.M.Coalg.Base.html" class="Module">Cubical.Codata.M.Coalg.Base</a>
-<a id="207" class="Keyword">import</a> <a id="214" href="Cubical.Codata.M.Container.html" class="Module">Cubical.Codata.M.Container</a>
-<a id="241" class="Keyword">import</a> <a id="248" href="Cubical.Codata.Containers.Coalgebras.html" class="Module">Cubical.Codata.Containers.Coalgebras</a>
-<a id="285" class="Keyword">import</a> <a id="292" href="Cubical.Codata.Containers.CoinductiveContainers.html" class="Module">Cubical.Codata.Containers.CoinductiveContainers</a>
-<a id="340" class="Keyword">import</a> <a id="347" href="Cubical.Codata.M.MRecord.html" class="Module">Cubical.Codata.M.MRecord</a>
-<a id="372" class="Keyword">import</a> <a id="379" href="Cubical.Codata.M.M.html" class="Module">Cubical.Codata.M.M</a>
-<a id="398" class="Keyword">import</a> <a id="405" href="Cubical.Codata.M.M.Base.html" class="Module">Cubical.Codata.M.M.Base</a>
-<a id="429" class="Keyword">import</a> <a id="436" href="Cubical.Codata.M.M.Properties.html" class="Module">Cubical.Codata.M.M.Properties</a>
-<a id="466" class="Keyword">import</a> <a id="473" href="Cubical.Codata.M.helper.html" class="Module">Cubical.Codata.M.helper</a>
-<a id="497" class="Keyword">import</a> <a id="504" href="Cubical.Codata.M.itree.html" class="Module">Cubical.Codata.M.itree</a>
-<a id="527" class="Keyword">import</a> <a id="534" href="Cubical.Codata.M.stream.html" class="Module">Cubical.Codata.M.stream</a>
-<a id="558" class="Keyword">import</a> <a id="565" href="Cubical.Codata.Stream.html" class="Module">Cubical.Codata.Stream</a>
+<a id="71" class="Keyword">import</a> <a id="78" href="Cubical.Codata.Conat.html" class="Module">Cubical.Codata.Conat</a>
+<a id="99" class="Keyword">import</a> <a id="106" href="Cubical.Codata.Conat.Bounded.html" class="Module">Cubical.Codata.Conat.Bounded</a>
+<a id="135" class="Keyword">import</a> <a id="142" href="Cubical.Codata.M.Coalg.html" class="Module">Cubical.Codata.M.Coalg</a>
+<a id="165" class="Keyword">import</a> <a id="172" href="Cubical.Codata.M.Coalg.Base.html" class="Module">Cubical.Codata.M.Coalg.Base</a>
+<a id="200" class="Keyword">import</a> <a id="207" href="Cubical.Codata.M.Container.html" class="Module">Cubical.Codata.M.Container</a>
+<a id="234" class="Keyword">import</a> <a id="241" href="Cubical.Codata.Containers.Coalgebras.html" class="Module">Cubical.Codata.Containers.Coalgebras</a>
+<a id="278" class="Keyword">import</a> <a id="285" href="Cubical.Codata.Containers.CoinductiveContainers.html" class="Module">Cubical.Codata.Containers.CoinductiveContainers</a>
+<a id="333" class="Keyword">import</a> <a id="340" href="Cubical.Codata.M.MRecord.html" class="Module">Cubical.Codata.M.MRecord</a>
+<a id="365" class="Keyword">import</a> <a id="372" href="Cubical.Codata.M.M.html" class="Module">Cubical.Codata.M.M</a>
+<a id="391" class="Keyword">import</a> <a id="398" href="Cubical.Codata.M.M.Base.html" class="Module">Cubical.Codata.M.M.Base</a>
+<a id="422" class="Keyword">import</a> <a id="429" href="Cubical.Codata.M.M.Properties.html" class="Module">Cubical.Codata.M.M.Properties</a>
+<a id="459" class="Keyword">import</a> <a id="466" href="Cubical.Codata.M.helper.html" class="Module">Cubical.Codata.M.helper</a>
+<a id="490" class="Keyword">import</a> <a id="497" href="Cubical.Codata.M.itree.html" class="Module">Cubical.Codata.M.itree</a>
+<a id="520" class="Keyword">import</a> <a id="527" href="Cubical.Codata.M.stream.html" class="Module">Cubical.Codata.M.stream</a>
+<a id="551" class="Keyword">import</a> <a id="558" href="Cubical.Codata.Stream.html" class="Module">Cubical.Codata.Stream</a>
 </pre></body></html>

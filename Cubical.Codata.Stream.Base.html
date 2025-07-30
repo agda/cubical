@@ -1,13 +1,13 @@
 <!DOCTYPE HTML>
-<html><head><meta charset="utf-8"><title>Cubical.Codata.Stream.Base</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Pragma">--guardedness</a> <a id="34" class="Symbol">#-}</a>
-<a id="38" class="Keyword">module</a> <a id="45" href="Cubical.Codata.Stream.Base.html" class="Module">Cubical.Codata.Stream.Base</a> <a id="72" class="Keyword">where</a>
+<html><head><meta charset="utf-8"><title>Cubical.Codata.Stream.Base</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--guardedness</a> <a id="27" class="Symbol">#-}</a>
+<a id="31" class="Keyword">module</a> <a id="38" href="Cubical.Codata.Stream.Base.html" class="Module">Cubical.Codata.Stream.Base</a> <a id="65" class="Keyword">where</a>
 
-<a id="79" class="Keyword">open</a> <a id="84" class="Keyword">import</a> <a id="91" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+<a id="72" class="Keyword">open</a> <a id="77" class="Keyword">import</a> <a id="84" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
 
-<a id="120" class="Keyword">record</a> <a id="Stream"></a><a id="127" href="Cubical.Codata.Stream.Base.html#127" class="Record">Stream</a> <a id="134" class="Symbol">(</a><a id="135" href="Cubical.Codata.Stream.Base.html#135" class="Bound">A</a> <a id="137" class="Symbol">:</a> <a id="139" href="Agda.Primitive.html#388" class="Primitive">Type₀</a><a id="144" class="Symbol">)</a> <a id="146" class="Symbol">:</a> <a id="148" href="Agda.Primitive.html#388" class="Primitive">Type₀</a> <a id="154" class="Keyword">where</a>
-  <a id="162" class="Keyword">coinductive</a>
-  <a id="176" class="Keyword">constructor</a> <a id="_,_"></a><a id="188" href="Cubical.Codata.Stream.Base.html#188" class="CoinductiveConstructor Operator">_,_</a>
-  <a id="194" class="Keyword">field</a>
-    <a id="Stream.head"></a><a id="204" href="Cubical.Codata.Stream.Base.html#204" class="Field">head</a> <a id="209" class="Symbol">:</a> <a id="211" href="Cubical.Codata.Stream.Base.html#135" class="Bound">A</a>
-    <a id="Stream.tail"></a><a id="217" href="Cubical.Codata.Stream.Base.html#217" class="Field">tail</a> <a id="222" class="Symbol">:</a> <a id="224" href="Cubical.Codata.Stream.Base.html#127" class="Record">Stream</a> <a id="231" href="Cubical.Codata.Stream.Base.html#135" class="Bound">A</a>
+<a id="113" class="Keyword">record</a> <a id="Stream"></a><a id="120" href="Cubical.Codata.Stream.Base.html#120" class="Record">Stream</a> <a id="127" class="Symbol">(</a><a id="128" href="Cubical.Codata.Stream.Base.html#128" class="Bound">A</a> <a id="130" class="Symbol">:</a> <a id="132" href="Agda.Primitive.html#388" class="Primitive">Type₀</a><a id="137" class="Symbol">)</a> <a id="139" class="Symbol">:</a> <a id="141" href="Agda.Primitive.html#388" class="Primitive">Type₀</a> <a id="147" class="Keyword">where</a>
+  <a id="155" class="Keyword">coinductive</a>
+  <a id="169" class="Keyword">constructor</a> <a id="_,_"></a><a id="181" href="Cubical.Codata.Stream.Base.html#181" class="CoinductiveConstructor Operator">_,_</a>
+  <a id="187" class="Keyword">field</a>
+    <a id="Stream.head"></a><a id="197" href="Cubical.Codata.Stream.Base.html#197" class="Field">head</a> <a id="202" class="Symbol">:</a> <a id="204" href="Cubical.Codata.Stream.Base.html#128" class="Bound">A</a>
+    <a id="Stream.tail"></a><a id="210" href="Cubical.Codata.Stream.Base.html#210" class="Field">tail</a> <a id="215" class="Symbol">:</a> <a id="217" href="Cubical.Codata.Stream.Base.html#120" class="Record">Stream</a> <a id="224" href="Cubical.Codata.Stream.Base.html#128" class="Bound">A</a>
 </pre></body></html>

@@ -5,20 +5,20 @@
    and negative integer literals for any type (e.g. Int, ℕ₋₁, ℕ₋₂, ℕ₊₁).
 
 -}</a>
-<a id="163" class="Symbol">{-#</a> <a id="167" class="Keyword">OPTIONS</a> <a id="175" class="Pragma">--no-exact-split</a> <a id="192" class="Pragma">--safe</a> <a id="199" class="Symbol">#-}</a>
-<a id="203" class="Keyword">module</a> <a id="210" href="Cubical.Data.Nat.Literals.html" class="Module">Cubical.Data.Nat.Literals</a> <a id="236" class="Keyword">where</a>
+<a id="163" class="Symbol">{-#</a> <a id="167" class="Keyword">OPTIONS</a> <a id="175" class="Pragma">--no-exact-split</a> <a id="192" class="Symbol">#-}</a>
+<a id="196" class="Keyword">module</a> <a id="203" href="Cubical.Data.Nat.Literals.html" class="Module">Cubical.Data.Nat.Literals</a> <a id="229" class="Keyword">where</a>
 
-<a id="243" class="Keyword">open</a> <a id="248" class="Keyword">import</a> <a id="255" href="Agda.Builtin.FromNat.html" class="Module">Agda.Builtin.FromNat</a> <a id="276" class="Keyword">public</a>
-  <a id="285" class="Keyword">renaming</a> <a id="294" class="Symbol">(</a><a id="295" href="Agda.Builtin.FromNat.html#196" class="Record">Number</a> <a id="302" class="Symbol">to</a> <a id="305" class="Record">HasFromNat</a><a id="315" class="Symbol">)</a>
-<a id="317" class="Keyword">open</a> <a id="322" class="Keyword">import</a> <a id="329" href="Agda.Builtin.FromNeg.html" class="Module">Agda.Builtin.FromNeg</a> <a id="350" class="Keyword">public</a>
-  <a id="359" class="Keyword">renaming</a> <a id="368" class="Symbol">(</a><a id="369" href="Agda.Builtin.FromNeg.html#196" class="Record">Negative</a> <a id="378" class="Symbol">to</a> <a id="381" class="Record">HasFromNeg</a><a id="391" class="Symbol">)</a>
-<a id="393" class="Keyword">open</a> <a id="398" class="Keyword">import</a> <a id="405" href="Cubical.Data.Unit.Base.html" class="Module">Cubical.Data.Unit.Base</a> <a id="428" class="Keyword">public</a>
+<a id="236" class="Keyword">open</a> <a id="241" class="Keyword">import</a> <a id="248" href="Agda.Builtin.FromNat.html" class="Module">Agda.Builtin.FromNat</a> <a id="269" class="Keyword">public</a>
+  <a id="278" class="Keyword">renaming</a> <a id="287" class="Symbol">(</a><a id="288" href="Agda.Builtin.FromNat.html#196" class="Record">Number</a> <a id="295" class="Symbol">to</a> <a id="298" class="Record">HasFromNat</a><a id="308" class="Symbol">)</a>
+<a id="310" class="Keyword">open</a> <a id="315" class="Keyword">import</a> <a id="322" href="Agda.Builtin.FromNeg.html" class="Module">Agda.Builtin.FromNeg</a> <a id="343" class="Keyword">public</a>
+  <a id="352" class="Keyword">renaming</a> <a id="361" class="Symbol">(</a><a id="362" href="Agda.Builtin.FromNeg.html#196" class="Record">Negative</a> <a id="371" class="Symbol">to</a> <a id="374" class="Record">HasFromNeg</a><a id="384" class="Symbol">)</a>
+<a id="386" class="Keyword">open</a> <a id="391" class="Keyword">import</a> <a id="398" href="Cubical.Data.Unit.Base.html" class="Module">Cubical.Data.Unit.Base</a> <a id="421" class="Keyword">public</a>
 
-<a id="436" class="Comment">-- Natural number literals for ℕ</a>
+<a id="429" class="Comment">-- Natural number literals for ℕ</a>
 
-<a id="470" class="Keyword">open</a> <a id="475" class="Keyword">import</a> <a id="482" href="Agda.Builtin.Nat.html" class="Module">Agda.Builtin.Nat</a> <a id="499" class="Keyword">renaming</a> <a id="508" class="Symbol">(</a><a id="509" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a> <a id="513" class="Symbol">to</a> <a id="516" class="Datatype">ℕ</a><a id="517" class="Symbol">)</a>
+<a id="463" class="Keyword">open</a> <a id="468" class="Keyword">import</a> <a id="475" href="Agda.Builtin.Nat.html" class="Module">Agda.Builtin.Nat</a> <a id="492" class="Keyword">renaming</a> <a id="501" class="Symbol">(</a><a id="502" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a> <a id="506" class="Symbol">to</a> <a id="509" class="Datatype">ℕ</a><a id="510" class="Symbol">)</a>
 
-<a id="520" class="Keyword">instance</a>
-  <a id="fromNatℕ"></a><a id="531" href="Cubical.Data.Nat.Literals.html#531" class="Function">fromNatℕ</a> <a id="540" class="Symbol">:</a> <a id="542" href="Cubical.Data.Nat.Literals.html#305" class="Record">HasFromNat</a> <a id="553" href="Cubical.Data.Nat.Literals.html#516" class="Datatype">ℕ</a>
-  <a id="557" href="Cubical.Data.Nat.Literals.html#531" class="Function">fromNatℕ</a> <a id="566" class="Symbol">=</a> <a id="568" class="Keyword">record</a> <a id="575" class="Symbol">{</a> <a id="577" href="Agda.Builtin.FromNat.html#252" class="Field">Constraint</a> <a id="588" class="Symbol">=</a> <a id="590" class="Symbol">λ</a> <a id="592" href="Cubical.Data.Nat.Literals.html#592" class="Bound">_</a> <a id="594" class="Symbol">→</a> <a id="596" href="Cubical.Data.Unit.Base.html#172" class="Record">Unit</a> <a id="601" class="Symbol">;</a> <a id="603" href="Agda.Builtin.FromNat.html#281" class="Field">fromNat</a> <a id="611" class="Symbol">=</a> <a id="613" class="Symbol">λ</a> <a id="615" href="Cubical.Data.Nat.Literals.html#615" class="Bound">n</a> <a id="617" class="Symbol">→</a> <a id="619" href="Cubical.Data.Nat.Literals.html#615" class="Bound">n</a> <a id="621" class="Symbol">}</a>
+<a id="513" class="Keyword">instance</a>
+  <a id="fromNatℕ"></a><a id="524" href="Cubical.Data.Nat.Literals.html#524" class="Function">fromNatℕ</a> <a id="533" class="Symbol">:</a> <a id="535" href="Cubical.Data.Nat.Literals.html#298" class="Record">HasFromNat</a> <a id="546" href="Cubical.Data.Nat.Literals.html#509" class="Datatype">ℕ</a>
+  <a id="550" href="Cubical.Data.Nat.Literals.html#524" class="Function">fromNatℕ</a> <a id="559" class="Symbol">=</a> <a id="561" class="Keyword">record</a> <a id="568" class="Symbol">{</a> <a id="570" href="Agda.Builtin.FromNat.html#252" class="Field">Constraint</a> <a id="581" class="Symbol">=</a> <a id="583" class="Symbol">λ</a> <a id="585" href="Cubical.Data.Nat.Literals.html#585" class="Bound">_</a> <a id="587" class="Symbol">→</a> <a id="589" href="Cubical.Data.Unit.Base.html#149" class="Record">Unit</a> <a id="594" class="Symbol">;</a> <a id="596" href="Agda.Builtin.FromNat.html#281" class="Field">fromNat</a> <a id="604" class="Symbol">=</a> <a id="606" class="Symbol">λ</a> <a id="608" href="Cubical.Data.Nat.Literals.html#608" class="Bound">n</a> <a id="610" class="Symbol">→</a> <a id="612" href="Cubical.Data.Nat.Literals.html#608" class="Bound">n</a> <a id="614" class="Symbol">}</a>
 </pre></body></html>
