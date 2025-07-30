@@ -25,7 +25,7 @@ fix-whitespace:
 check-whitespace:
 	$(FIX_WHITESPACE) --check
 
-# typechecking and generating listings for all files imported in README
+# typechecking and generating listings for all files
 
 .PHONY : check
 check:
@@ -37,7 +37,9 @@ timings: clean
 
 .PHONY : listings
 listings: $(wildcard Cubical/**/*.agda)
-	$(AGDA) --build-library -i. -isrc --html -v0
+	rm -f Cubical/Everything.agda
+	./generate-everything.sh > Cubical/Everything.agda
+	$(AGDA) Cubical/Everything.agda -i. -isrc --html -v0
 
 .PHONY : clean
 clean:
