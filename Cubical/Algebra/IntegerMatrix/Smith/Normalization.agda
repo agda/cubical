@@ -3,7 +3,6 @@
 The Existence of Smith Normal Form for Integer Matrices (KANG Rongji, Jan. 2022)
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.IntegerMatrix.Smith.Normalization where
 
 open import Cubical.Foundations.Prelude

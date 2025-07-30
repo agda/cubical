@@ -3,7 +3,6 @@
 Weak Equivalence between Categories
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Equivalence.WeakEquivalence where
 

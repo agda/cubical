@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Instances.Functors.Currying where
 

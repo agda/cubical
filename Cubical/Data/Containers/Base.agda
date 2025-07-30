@@ -10,7 +10,6 @@
 
 -}
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.Containers.Base where
 

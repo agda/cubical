@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 {-
 This file contains:
 1. An iso πₙ'(Sⁿ) ≅ ℤ, where πₙ'(Sⁿ) = ∥ Sⁿ →∙ Sⁿ ∥₀

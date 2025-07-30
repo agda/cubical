@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.SmashProduct.SymmetricMonoidal where
 
 open import Cubical.Foundations.Prelude

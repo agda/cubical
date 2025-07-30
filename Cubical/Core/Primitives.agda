@@ -3,7 +3,6 @@ This file document and export the main primitives of Cubical Agda. It
 also defines some basic derived operations (composition and filling).
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Core.Primitives where
 
 open import Agda.Builtin.Cubical.Path public

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Rationals.MoreRationals.QuoQ.Properties where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 This file models "ZF - powerset" in cubical agda, via a cumulative hierarchy, in the sense given
 in the HoTT book §10.5 "The cumulative hierarchy".

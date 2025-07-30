@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Truncation.FromNegTwo.Base where
 
 open import Cubical.Foundations.Prelude

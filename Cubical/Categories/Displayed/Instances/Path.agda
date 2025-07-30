@@ -7,7 +7,6 @@
   functors
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Instances.Path where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Polynomials.Multivariate.Base where
 
 open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly public

@@ -10,7 +10,6 @@ This file contains:
   and this procedure gives an equivalence.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Cubes.Subtypes where
 
 open import Cubical.Foundations.Prelude hiding (Cube)

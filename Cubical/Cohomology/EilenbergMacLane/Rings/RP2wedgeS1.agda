@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 module Cubical.Cohomology.EilenbergMacLane.Rings.RP2wedgeS1 where
 

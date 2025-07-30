@@ -11,7 +11,7 @@ For the moment, this requires the development version of Agda.
 
 -}
 
-{-# OPTIONS --exact-split --safe #-}
+{-# OPTIONS --exact-split #-}
 
 module Cubical.Experiments.HoTT-UF where
 

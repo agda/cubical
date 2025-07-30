@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Functions.Embedding where
 
 open import Cubical.Foundations.Prelude

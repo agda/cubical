@@ -3,7 +3,6 @@
 Mapping cones or the homotopy cofiber/cokernel
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.MappingCones.Base where
 
