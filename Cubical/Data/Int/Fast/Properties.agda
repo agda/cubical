@@ -11,72 +11,50 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.NatPlusOne.Base as ℕ₊₁
-open import Cubical.Data.Nat as ℕ
-  hiding   (+-assoc ; +-comm ; min ; max ; minComm ; maxComm ; minIdem ; maxIdem ;
-            minSucL ; minSucR ; maxSucL ; maxSucR)
-  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ;
-            ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
+open import Cubical.Data.Nat as ℕ hiding (
+    +-assoc ; +-comm ; min ; max ; minComm ; maxComm ; minIdem ; maxIdem
+  ; minSucL ; minSucR ; maxSucL ; maxSucR)
+  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_)
 open import Cubical.Data.Sum
 open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
 
-
 open import Cubical.Data.Int.Base as ℤ
   hiding (_+_ ; _·_ ; _-_ ; _ℕ-_ ; sumFinℤ ; sumFinℤId)
+open import Cubical.Data.Int.Properties as P public using (
+    injPos ; injNegsuc ; posNotnegsuc ; negsucNotpos ; injNeg ; discreteℤ ; isSetℤ
+  ; -pos ; -neg ; sucℤnegsucneg ; -sucℤ ; -predℤ ; -Involutive ; isEquiv-
+  ; predℤ+negsuc ; sucℤ+negsuc ; predℤ-pos ; ind-assoc ; ind-comm
+  ; sucPathℤ ; addEq ; predPathℤ ; subEq ; _+'_ ; isEquivAddℤ'
+  ; abs→⊎ ; ⊎→abs ; abs≡0 ; ¬x≡0→¬abs≡0 ; abs- ; 0≢1-ℤ)
 
 open import Cubical.Data.Int.Fast.Base
 
-open import Cubical.Data.Int.Properties as P public
- hiding (·lCancel ; ·rCancel; +Assoc ;+Comm;-DistL·;-DistR·;minusPlus;plusMinus
-   ;·Assoc;·Comm;·DistL+;·DistR+;·IdL;·IdR;·DistPosRMin;·DistPosRMax;·DistPosLMin;·DistPosLMax;abs·
-   ; inj-z+ ;
-   min ; minComm ; minIdem ; max ; maxComm ; maxIdem ;
-   sucPred ; predSuc ;
-   sucDistMin ; predDistMin ; minSucL ; minSucR ; minPredL ; minPredR ;
-   sucDistMax ; predDistMax ; maxSucL ; maxSucR ; maxPredL ; maxPredR ;
-   predℤ+pos ;
-   predℤ+ ; +predℤ ; sucℤ+ ; +sucℤ ; pos0+ ; negsuc0+ ;
-   +'≡+ ; isEquivAddℤ ;
-   -Cancel ; -Cancel' ; -≡0 ;
-   pos+ ; negsuc+ ; neg+ ;
-   ℕ-AntiComm ; pos- ; -AntiComm ; -Dist+ ; inj-+z ; n+z≡z→n≡0 ;
-   pos·pos ; pos·negsuc ; negsuc·pos ; negsuc·negsuc ; ·AnnihilR ; ·AnnihilL ;
-   -DistLR· ; ℤ·negsuc ; ·suc→0 ; sucℤ· ; ·sucℤ ; predℤ· ; ·predℤ ; minus≡0-
-   ; absPos·Pos ;
-   isIntegralℤPosPos ; isIntegralℤ ; -Cancel'' ;
-   sumFinℤ0 ; sumFinℤHom ;
-   sign·abs ;
-   sucℤ+pos)
-
--- open import Cubical.Data.Int.Order as P public
---  hiding (<-+-≤; <-+o; <-o+; <-o+-cancel; <-pos+-trans; <Monotone+; ≤-+o; ≤-+o-cancel; ≤-o+; ≤-o+-cancel; ≤-pos+-trans; ≤Monotone+; ≤SumRightPos; 0<o→≤-·o-cancel; 0≤o→≤-·o; {- 0≤x²; -} ·suc≤0; ≤-o·-cancel; ≤-·o; ≤-·o-cancel; 0<o→<-·o; 0<o→<-·o-cancel; <-o·-cancel; <-·o; <-·o-cancel; ·suc<0) -- ; ·0<; 0<·ℕ₊₁; +0<; 0<→ℕ₊₁)
-
-ℕ-lem : ∀ n m → (pos n +negsuc m) ≡ (n ℕ- suc m)
-ℕ-lem zero zero = refl
-ℕ-lem (suc zero) zero = refl
-ℕ-lem (suc (suc n)) zero = refl
-ℕ-lem zero (suc m) = cong predℤ (P.+Comm 0 (negsuc m))
-ℕ-lem (suc n) (suc m) =
-  predℤ+negsuc m (pos (suc n)) ∙ ℕ-lem n m
+private
+  ℕ-lem : ∀ n m → (pos n +negsuc m) ≡ (n ℕ- suc m)
+  ℕ-lem zero          zero    = refl
+  ℕ-lem (suc zero)    zero    = refl
+  ℕ-lem (suc (suc n)) zero    = refl
+  ℕ-lem zero          (suc m) = cong predℤ (P.+Comm 0 (negsuc m))
+  ℕ-lem (suc n)       (suc m) = predℤ+negsuc m (pos (suc n)) ∙ ℕ-lem n m
 
 +≡+f : ∀ n m → n ℤ.+ m ≡ n + m
-+≡+f (pos n) (pos n₁) = sym (P.pos+ n n₁)
-+≡+f (pos n) (negsuc n₁) = ℕ-lem n n₁
-+≡+f (negsuc n) (pos n₁) = P.+Comm (negsuc n) (pos n₁) ∙ ℕ-lem n₁ n
++≡+f (pos n)    (pos n₁)    = sym (P.pos+ n n₁)
++≡+f (pos n)    (negsuc n₁) = ℕ-lem n n₁
++≡+f (negsuc n) (pos n₁)    = P.+Comm (negsuc n) (pos n₁) ∙ ℕ-lem n₁ n
 +≡+f (negsuc n) (negsuc n₁) = sym (P.neg+ (suc n) (suc n₁))
-  ∙ cong negsuc (ℕ.+-suc _ _)
+                            ∙ cong negsuc (ℕ.+-suc _ _)
 
 ·≡·f : ∀ n m → n ℤ.· m ≡ n · m
-·≡·f (pos n) (pos n₁) = sym (P.pos·pos n n₁)
-·≡·f (pos zero) (negsuc n₁) = refl
-·≡·f (pos (suc n)) (negsuc n₁) =
-   P.pos·negsuc (suc n) n₁ ∙
-     cong -_ (sym (P.pos·pos (suc n) (suc n₁)))
-·≡·f (negsuc n) (pos zero) = P.·AnnihilR (negsuc n)
-·≡·f (negsuc n) (pos (suc n₁)) =
-    P.negsuc·pos n (suc n₁) ∙
-      cong -_ (sym (P.pos·pos (suc n) (suc n₁)))
-·≡·f (negsuc n) (negsuc n₁) = P.negsuc·negsuc n n₁ ∙ sym (P.pos·pos (suc n) (suc n₁))
+·≡·f (pos n)       (pos n₁)       = sym (P.pos·pos n n₁)
+·≡·f (pos zero)    (negsuc n₁)    = refl
+·≡·f (pos (suc n)) (negsuc n₁)    = P.pos·negsuc (suc n) n₁
+                                  ∙ cong -_ (sym (P.pos·pos (suc n) (suc n₁)))
+·≡·f (negsuc n)    (pos zero)     = P.·AnnihilR (negsuc n)
+·≡·f (negsuc n)    (pos (suc n₁)) = P.negsuc·pos n (suc n₁)
+                                  ∙ cong -_ (sym (P.pos·pos (suc n) (suc n₁)))
+·≡·f (negsuc n)    (negsuc n₁)    = P.negsuc·negsuc n n₁
+                                  ∙ sym (P.pos·pos (suc n) (suc n₁))
 
 subst-f : (A : (ℤ → ℤ → ℤ) → (ℤ → ℤ → ℤ) → Type) → A ℤ._+_ ℤ._·_ → A _+_ _·_
 subst-f A = subst2 A (λ i x y → +≡+f x y i) (λ i x y → ·≡·f x y i)
@@ -86,7 +64,7 @@ subst-f A = subst2 A (λ i x y → +≡+f x y i) (λ i x y → ·≡·f x y i)
   (λ _+_ _·_ → pos x · P.min y z ≡ P.min (pos x · y) (pos x · z)) (P.·DistPosRMin x y z)
 
 sucℤ[negsuc]-pos : ∀ k → sucℤ (negsuc k) ≡ - pos k
-sucℤ[negsuc]-pos zero = refl
+sucℤ[negsuc]-pos zero    = refl
 sucℤ[negsuc]-pos (suc k) = refl
 
 +IdL : ∀ z → 0 + z ≡ z
@@ -96,28 +74,6 @@ sucℤ[negsuc]-pos (suc k) = refl
 +IdR : ∀ z → z + 0 ≡ z
 +IdR (pos n)    = cong pos (+-zero n)
 +IdR (negsuc n) = refl
-
-abs· : (m n : ℤ) → abs (m · n) ≡ abs m ·ℕ abs n
-abs· (pos m) (pos n) = refl
-abs· (pos zero) (negsuc n) = refl
-abs· (pos (suc m)) (negsuc n) = refl
-abs· (negsuc m) (pos zero) = 0≡m·0 m
-abs· (negsuc m) (pos (suc n)) = refl
-abs· (negsuc m) (negsuc n) = refl
-
--1·x≡-x : ∀ x → -1 · x ≡ - x
--1·x≡-x (pos zero) = refl
--1·x≡-x (pos (suc n)) = cong negsuc (+-zero n)
--1·x≡-x (negsuc n) = cong (pos ∘ suc) (+-zero n)
-
-
-_≤'_ : ℤ → ℤ → Type₀
-m ≤' n = Σ[ k ∈ ℕ ] m + pos k ≡ n
-
-_<'_ : ℤ → ℤ → Type₀
-m <' n = sucℤ m ≤' n
-
--- functions/properies added :
 
 min : ℤ → ℤ → ℤ
 min (pos m)    (pos n)    = pos (ℕ.min m n)
@@ -130,22 +86,6 @@ minComm (pos m)    (pos n)    = cong pos (ℕ.minComm m n)
 minComm (pos m)    (negsuc n) = refl
 minComm (negsuc m) (pos n)    = refl
 minComm (negsuc m) (negsuc n) = cong negsuc (ℕ.maxComm m n)
-
--- To move into Nat.Properties:
--- test for faster min
-open import Agda.Builtin.Bool as B using ()
-open import Agda.Builtin.Nat using () renaming ( _<_ to _<ᵇ_ )
-
-ℕmin' : ℕ → ℕ → ℕ
-ℕmin' m n with (m <ᵇ n)
-...          | B.false = n
-...          | B.true  = m
--- -----
-
--- _ : ℕ.min 9008019290921 1000000000 ≡ 1000000000
--- _ = refl
-
-
 
 minIdem : ∀ n → min n n ≡ n
 minIdem (pos n)    = cong pos (ℕ.minIdem n)
@@ -257,26 +197,11 @@ maxPredR m = maxComm m (predℤ m) ∙ maxPredL m
 
 predℤ+pos : ∀ n m → predℤ (m +pos n) ≡ (predℤ m) +pos n
 predℤ+pos zero m = refl
-predℤ+pos (suc n) m =     _ ≡⟨ predSuc _ ⟩
-  m +pos n                    ≡[ i ]⟨ sucPred m (~ i) +pos n ⟩
-  (sucℤ (predℤ m)) +pos n ≡⟨ sym (P.sucℤ+pos n (predℤ m))⟩
+predℤ+pos (suc n) m =
+  predℤ (sucℤ (m +pos n))   ≡⟨ predSuc _ ⟩
+  m +pos n                  ≡[ i ]⟨ sucPred m (~ i) +pos n ⟩
+  (sucℤ (predℤ m)) +pos n   ≡⟨ sym (P.sucℤ+pos n (predℤ m))⟩
   (predℤ m) +pos (suc n)    ∎
-
-
-{- not needed (for now)
-
-ℕ-f0-pos : ∀ n → n ℕ-f 0 ≡ pos n
-ℕ-f0-pos zero    = refl
-ℕ-f0-pos (suc n) = refl
-
-∸≡suc→∸swap≡0 : ∀ m n k → m ∸ n ≡ suc k → n ∸ m ≡ 0
-∸≡suc→∸swap≡0 zero zero k p       = refl
-∸≡suc→∸swap≡0 zero (suc n) k p    = ⊥.rec (ℕ.znots p)
-∸≡suc→∸swap≡0 (suc m) zero k p    = refl
-∸≡suc→∸swap≡0 (suc m) (suc n) k p = ∸≡suc→∸swap≡0 m n k p
-
--}
-
 
 -- maybe we can find a better name (?)
 predℕ-≡ℕ-suc : ∀ m n → predℤ (m ℕ- n) ≡ m ℕ- (suc n)
@@ -288,8 +213,8 @@ predℕ-≡ℕ-suc (suc m)       (suc n) = predℕ-≡ℕ-suc m n
 
 predℤ+ : ∀ m n → predℤ (m + n) ≡ (predℤ m) + n
 predℤ+ (pos zero)    (pos zero)          = refl
-predℤ+ (pos zero)    (pos (suc zero))    = refl -- sym(ℕ-f0-pos n)
-predℤ+ (pos zero)    (pos (suc (suc n))) = refl -- ↙
+predℤ+ (pos zero)    (pos (suc zero))    = refl
+predℤ+ (pos zero)    (pos (suc (suc n))) = refl
 predℤ+ (pos (suc m)) (pos n)             = refl
 predℤ+ (pos zero)    (negsuc n)          = refl
 predℤ+ (pos (suc m)) (negsuc n)          = predℕ-≡ℕ-suc m n
@@ -574,6 +499,11 @@ negsuc·ℤ n (negsuc m) = refl
 ·AnnihilL (pos n)    = refl
 ·AnnihilL (negsuc n) = refl
 
+-1·x≡-x : ∀ x → -1 · x ≡ - x
+-1·x≡-x (pos zero)    = refl
+-1·x≡-x (pos (suc n)) = cong negsuc (+-zero n)
+-1·x≡-x (negsuc n)    = cong (pos ∘ suc) (+-zero n)
+
 private
   distrHelper : (x y z w : ℤ) → (x + y) + (z + w) ≡ ((x + z) + (y + w))
   distrHelper x y z w =
@@ -581,7 +511,7 @@ private
    ∙∙ cong (_+ w) (sym (+Assoc x y z) ∙∙ cong (x +_) (+Comm y z) ∙∙ +Assoc x z y)
    ∙∙ sym (+Assoc (x + z) y w)
 
--- maybe find a better name ?
+-- maybe we can find a better name (?)
 +ℕ- : ∀ m n l → (m +ℕ n) ℕ- (m +ℕ l) ≡ n ℕ- l
 +ℕ- zero    n l = refl
 +ℕ- (suc m) n l = +ℕ- m n l
@@ -746,6 +676,21 @@ minus≡0- (negsuc n)    = refl
 absPos·Pos : (m n : ℕ) → abs (pos m · pos n) ≡ abs (pos m) ·ℕ abs (pos n)
 absPos·Pos m n = refl
 
+abs· : (m n : ℤ) → abs (m · n) ≡ abs m ·ℕ abs n
+abs· (pos m)       (pos n)       = refl
+abs· (pos zero)    (negsuc n)    = refl
+abs· (pos (suc m)) (negsuc n)    = refl
+abs· (negsuc m)    (pos zero)    = 0≡m·0 m
+abs· (negsuc m)    (pos (suc n)) = refl
+abs· (negsuc m)    (negsuc n)    = refl
+
+sign·abs : ∀ m → sign m · pos (abs m) ≡ m
+sign·abs (pos zero)    = refl
+sign·abs (pos (suc n)) = cong (pos ∘ suc) (ℕ.+-zero n)
+sign·abs (negsuc n)    = cong negsuc (ℕ.+-zero n)
+
+-- ℤ is integral domain
+
 isIntegralℤPosPos : (c m : ℕ) → pos c · pos m ≡ 0 → ¬ c ≡ 0 → m ≡ 0
 isIntegralℤPosPos zero    m p c≠0 =  ⊥.rec (c≠0 refl)
 isIntegralℤPosPos (suc c) m p _   = sym $ ℕ.0≡n·sm→0≡n $ injPos $
@@ -792,8 +737,3 @@ sumFinℤ0 n = sumFinGen0 _+_ 0 +IdR n (λ _ → 0) λ _ → refl
 sumFinℤHom : {n : ℕ} (f g : Fin n → ℤ)
   → sumFinℤ {n = n} (λ x → f x + g x) ≡ sumFinℤ {n = n} f + sumFinℤ {n = n} g
 sumFinℤHom {n = n} = sumFinGenHom _+_ 0 +IdR +Comm +Assoc n
-
-sign·abs : ∀ m → sign m · pos (abs m) ≡ m
-sign·abs (pos zero)    = refl
-sign·abs (pos (suc n)) = cong (pos ∘ suc) (ℕ.+-zero n)
-sign·abs (negsuc n)    = cong negsuc (ℕ.+-zero n)
