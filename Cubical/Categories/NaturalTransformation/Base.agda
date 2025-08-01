@@ -8,7 +8,6 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functor.Properties
-open import Cubical.Categories.Commutativity
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.Isomorphism
 
@@ -117,19 +116,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   -- vertical sequencing
   seqTrans : {F G H : Functor C D} (α : NatTrans F G) (β : NatTrans G H) → NatTrans F H
   seqTrans α β .N-ob x = (α .N-ob x) ⋆ᴰ (β .N-ob x)
-  seqTrans {F} {G} {H} α β .N-hom f =
-    (F .F-hom f) ⋆ᴰ ((α .N-ob _) ⋆ᴰ (β .N-ob _))
-      ≡⟨ sym (D .⋆Assoc _ _ _) ⟩
-    ((F .F-hom f) ⋆ᴰ (α .N-ob _)) ⋆ᴰ (β .N-ob _)
-      ≡[ i ]⟨ (α .N-hom f i) ⋆ᴰ (β .N-ob _) ⟩
-    ((α .N-ob _) ⋆ᴰ (G .F-hom f)) ⋆ᴰ (β .N-ob _)
-      ≡⟨ D .⋆Assoc _ _ _ ⟩
-    (α .N-ob _) ⋆ᴰ ((G .F-hom f) ⋆ᴰ (β .N-ob _))
-      ≡[ i ]⟨ (α .N-ob _) ⋆ᴰ (β .N-hom f i) ⟩
-    (α .N-ob _) ⋆ᴰ ((β .N-ob _) ⋆ᴰ (H .F-hom f))
-      ≡⟨ sym (D .⋆Assoc _ _ _) ⟩
-    ((α .N-ob _) ⋆ᴰ (β .N-ob _)) ⋆ᴰ (H .F-hom f)
-      ∎
+  seqTrans α β .N-hom f =  compSq {C = D} (α .N-hom f) (β .N-hom f) 
 
   compTrans : {F G H : Functor C D} (β : NatTrans G H) (α : NatTrans F G) → NatTrans F H
   compTrans β α = seqTrans α β
