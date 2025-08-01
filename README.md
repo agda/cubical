@@ -1,7 +1,7 @@
 A standard library for Cubical Agda
 ===================================
 
-The source code has a glorious clickable [rendered version](https://agda.github.io/cubical/Cubical.README.html).
+The source code has a glorious clickable [rendered version](https://agda.github.io/cubical/Cubical.Everything.html).
 
 There is also a [discord server](https://discord.gg/yjTKHzepMx), shared with [agda-unimath](https://unimath.github.io/agda-unimath/) and the [1lab](https://1lab.dev/).
 
@@ -18,7 +18,8 @@ Agda versions as written below, correspond to tags.
 
 | cubical library version | Agda versions                  |
 |-------------------------|--------------------------------|
-| current master          | `v2.7.0.1`                     |
+| current master          | `v2.8.0`                       |
+| `v0.9`                  | `v2.8.0`                       |
 | `v0.8`                  | `v2.6.4.1` `v2.7.0.1`          |
 | `v0.7`                  | `v2.6.4` `v2.6.4.1`            |
 | `v0.6`                  | `v2.6.4`                       |

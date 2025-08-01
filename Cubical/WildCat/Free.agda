@@ -3,7 +3,6 @@
   directed graph (I do not know). This is intended to be used in a solver for
   wild categories.
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.WildCat.Free where
 

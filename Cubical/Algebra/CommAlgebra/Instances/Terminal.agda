@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   Define terminal R-algebra as a commutative algebra and prove the universal property.
   The universe level of the terminal R-algebra is fixed to be the universe level of R.

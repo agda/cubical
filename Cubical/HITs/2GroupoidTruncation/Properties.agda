@@ -5,7 +5,6 @@ This file contains:
 - Properties of 2-groupoid truncations
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.2GroupoidTruncation.Properties where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical #-}
 module Cubical.Data.Fin.Arithmetic where
 
 open import Cubical.Foundations.Prelude

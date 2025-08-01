@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Relation.Nullary.HLevels where
 
 open import Cubical.Foundations.Prelude

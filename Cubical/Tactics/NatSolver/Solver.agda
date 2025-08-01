@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Tactics.NatSolver.Solver where
 
 open import Cubical.Foundations.Prelude

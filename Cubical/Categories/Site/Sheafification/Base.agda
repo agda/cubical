@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Site.Sheafification.Base where
 
 -- Construction of the sheafification of a presheaf on a site

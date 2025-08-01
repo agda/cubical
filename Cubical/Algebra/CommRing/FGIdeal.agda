@@ -4,7 +4,6 @@
   Parts of this should be reusable for explicit constructions
   of free modules over a finite set.
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.FGIdeal where
 
 open import Cubical.Foundations.Prelude

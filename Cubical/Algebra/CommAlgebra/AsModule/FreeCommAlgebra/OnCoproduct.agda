@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
  The goal of this module is to show that for two types I,J, there is an
  isomorphism of algebras

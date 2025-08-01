@@ -13,7 +13,6 @@ This file contains:
   (unpacked and avoiding transports)
 -}
 
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.Pushout.Properties where
 

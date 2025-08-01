@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Semiring.BigOps where
 
 open import Cubical.Foundations.Prelude

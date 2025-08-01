@@ -6,7 +6,6 @@
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Data.Equality.Univalence where
 
 open import Cubical.Foundations.Prelude

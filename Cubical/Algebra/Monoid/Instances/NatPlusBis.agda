@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.Monoid.Instances.NatPlusBis where
 
 open import Cubical.Foundations.Prelude

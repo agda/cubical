@@ -13,7 +13,7 @@ gₗ, gᵣ are the two generators of H²(S²×S²) and e is the generator of
 H⁴(S²×S²) -- this of interest since it is used in π₄S³≅ℤ/2.
 -}
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.ZCohomology.Groups.SphereProduct where
 
 open import Cubical.Foundations.Prelude

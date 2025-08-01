@@ -3,7 +3,6 @@
 Base facts about that the ring ℤ is Bézout domain
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Data.Int.Divisibility where
 
 open import Cubical.Foundations.Prelude

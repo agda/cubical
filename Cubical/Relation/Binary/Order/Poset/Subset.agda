@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Order.Poset.Subset where
 
 open import Cubical.Foundations.Equiv

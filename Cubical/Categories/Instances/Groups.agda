@@ -1,5 +1,4 @@
 -- The category Grp of groups
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Instances.Groups where
 
