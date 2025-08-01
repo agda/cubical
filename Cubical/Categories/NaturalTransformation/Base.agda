@@ -116,7 +116,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   -- vertical sequencing
   seqTrans : {F G H : Functor C D} (α : NatTrans F G) (β : NatTrans G H) → NatTrans F H
   seqTrans α β .N-ob x = (α .N-ob x) ⋆ᴰ (β .N-ob x)
-  seqTrans α β .N-hom f =  compSq {C = D} (α .N-hom f) (β .N-hom f) 
+  seqTrans α β .N-hom f =  compSq D (α .N-hom f) (β .N-hom f) 
 
   compTrans : {F G H : Functor C D} (β : NatTrans G H) (α : NatTrans F G) → NatTrans F H
   compTrans β α = seqTrans α β
@@ -141,7 +141,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     -- compose the two commuting squares
     -- 1. α's commuting square
     -- 2. β's commuting square, but extended to G since β is only G' ≡> H
-    = compSq {C = D} (α .N-hom f) βSq
+    = compSq D (α .N-hom f) βSq
     where
       -- functor equality implies equality of actions on objects and morphisms
       Gx≡G'x : G ⟅ x ⟆ ≡ G' ⟅ x ⟆
