@@ -67,21 +67,29 @@ module _ where
 Δ : ∀ (C : Category ℓC ℓC') → Functor C (C ×C C)
 Δ C = Id ,F Id
 
-Sym : {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} → Functor (C ×C D) (D ×C C)
-Sym {C = C}{D = D} = Snd C D ,F Fst C D
-
 -- Some useful functors
 module _ (C : Category ℓC ℓC')
          (D : Category ℓD ℓD') where
   open Functor
 
+  -- Symmetry of cartesian product (swapping components)
+  ×C-sym : Functor (C ×C D) (D ×C C)
+  ×C-sym = Snd C D ,F Fst C D
+  -- TODO: Prove involution
+
   module _ (E : Category ℓE ℓE') where
-    -- Associativity of product
+    -- Associativity of cartesian product
     ×C-assoc : Functor (C ×C (D ×C E)) ((C ×C D) ×C E)
     ×C-assoc .F-ob (c , (d , e)) = ((c , d), e)
     ×C-assoc .F-hom (f , (g , h)) = ((f , g), h)
     ×C-assoc .F-id = refl
     ×C-assoc .F-seq _ _ = refl
+
+    {-
+      TODO:
+        - define inverse to `assoc`, prove isomorphism
+        - prove product is commutative up to isomorphism
+    -}
 
   -- Left/right injections into product
   linj : (d : ob D) → Functor C (C ×C D)
@@ -89,12 +97,6 @@ module _ (C : Category ℓC ℓC')
 
   rinj : (c : ob C) → Functor D (C ×C D)
   rinj c = Constant D C c ,F Id
-
-{-
-  TODO:
-    - define inverse to `assoc`, prove isomorphism
-    - prove product is commutative up to isomorphism
--}
 
 
   -- The isomorphisms in product category
@@ -106,3 +108,7 @@ module _ (C : Category ℓC ℓC')
   CatIso× f g .snd .inv = f .snd .inv , g .snd .inv
   CatIso× f g .snd .sec i = f .snd .sec i , g .snd .sec i
   CatIso× f g .snd .ret i = f .snd .ret i , g .snd .ret i
+
+Sym : {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} → Functor (C ×C D) (D ×C C)
+Sym {C = C}{D = D} = Snd C D ,F Fst C D
+{-# WARNING_ON_USAGE Sym "DEPRECATED: Use `×C-sym` instead of `Sym`" #-}
