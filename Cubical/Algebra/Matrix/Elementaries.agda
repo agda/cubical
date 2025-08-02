@@ -3,7 +3,6 @@
 Technical results about elementary transformations
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Matrix.Elementaries where
 
 open import Cubical.Foundations.Prelude

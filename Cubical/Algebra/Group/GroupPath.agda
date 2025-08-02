@@ -1,5 +1,5 @@
 -- The SIP applied to groups
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.Group.GroupPath where
 
 open import Cubical.Foundations.Prelude

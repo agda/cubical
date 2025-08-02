@@ -17,7 +17,7 @@
 -}
 
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.AlgebraicGeometry.Functorial.ZFunctors.CompactOpen where
 
 open import Cubical.Foundations.Prelude
@@ -74,7 +74,7 @@ module _ {ℓ : Level} where
   open NatIso
   open DistLatticeStr ⦃...⦄
   open CommRingStr ⦃...⦄
-  open IsRingHom
+  open IsCommRingHom
   open IsLatticeHom
   open ZarLat
   open ZarLatUniversalProp

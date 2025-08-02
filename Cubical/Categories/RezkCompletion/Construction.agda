@@ -3,7 +3,7 @@
 The Construction of Rezk Completion
 
 -}
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 module Cubical.Categories.RezkCompletion.Construction where
 

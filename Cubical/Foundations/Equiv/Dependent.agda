@@ -9,7 +9,6 @@ This can be generalize in inumerable ways.
 Maybe one day someone will find a common scheme and then computer could automatically generate them.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.Dependent where
 
 open import Cubical.Foundations.Prelude

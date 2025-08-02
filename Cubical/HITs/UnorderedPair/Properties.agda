@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.UnorderedPair.Properties where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.DirectSum.DirectSumHIT.Base where
 
 open import Cubical.Foundations.Prelude
@@ -90,7 +89,7 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
 
   module DS-Ind-Prop
     (Q            : (x : ⊕HIT Idx P AGP) → Type ℓ'')
-    (ispd         : (x : ⊕HIT Idx P AGP) → isProp (Q x))
+    (isPropQ      : (x : ⊕HIT Idx P AGP) → isProp (Q x))
     -- elements
     (neutral*     : Q neutral)
     (base*        : (r : Idx) → (a : P r) → Q (base r a))
@@ -98,12 +97,12 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
     where
 
     f : (x : ⊕HIT Idx P AGP) → Q x
-    f x = DS-Ind-Set.f Q (λ x → isProp→isSet (ispd x)) neutral* base* _add*_
-          (λ {x} {y} {z} xs ys zs → toPathP (ispd _ (transport (λ i → Q (addAssoc x y z i)) (xs add* (ys add* zs))) ((xs add* ys) add* zs)))
-          (λ {x} xs               → toPathP (ispd _ (transport (λ i → Q (addRid x i))       (xs add* neutral*)) xs))
-          (λ {x} {y} xs ys        → toPathP (ispd _ (transport (λ i → Q (addComm x y i))    (xs add* ys)) (ys add* xs)))
-          (λ r                    → toPathP (ispd _ (transport (λ i → Q (base-neutral r i)) (base* r (AbGroupStr.0g (AGP r)))) neutral*))
-          (λ r a b                → toPathP (ispd _ (transport (λ i → Q (base-add r a b i)) ((base* r a) add* (base* r b))) (base* r (AbGroupStr._+_ (AGP r) a b)  )))
+    f x = DS-Ind-Set.f Q (λ x → isProp→isSet (isPropQ x)) neutral* base* _add*_
+          (λ {x} {y} {z} xs ys zs → toPathP (isPropQ _ (transport (λ i → Q (addAssoc x y z i)) (xs add* (ys add* zs))) ((xs add* ys) add* zs)))
+          (λ {x} xs               → toPathP (isPropQ _ (transport (λ i → Q (addRid x i))       (xs add* neutral*)) xs))
+          (λ {x} {y} xs ys        → toPathP (isPropQ _ (transport (λ i → Q (addComm x y i))    (xs add* ys)) (ys add* xs)))
+          (λ r                    → toPathP (isPropQ _ (transport (λ i → Q (base-neutral r i)) (base* r (AbGroupStr.0g (AGP r)))) neutral*))
+          (λ r a b                → toPathP (isPropQ _ (transport (λ i → Q (base-add r a b i)) ((base* r a) add* (base* r b))) (base* r (AbGroupStr._+_ (AGP r) a b)  )))
           x
 
 

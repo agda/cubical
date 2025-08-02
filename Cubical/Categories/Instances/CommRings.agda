@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Instances.CommRings where
 
 open import Cubical.Foundations.Prelude
@@ -14,6 +14,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.Univalence
 open import Cubical.Algebra.CommRing.FiberedProduct
 open import Cubical.Algebra.CommRing.Instances.Unit
 
@@ -32,8 +33,7 @@ open isUnivalent
 open isIso
 open Functor
 open CommRingStr
-open RingHoms
-open IsRingHom
+open IsCommRingHom
 
 private
   variable
@@ -43,11 +43,11 @@ CommRingsCategory : Category (ℓ-suc ℓ) ℓ
 ob CommRingsCategory                     = CommRing _
 Hom[_,_] CommRingsCategory               = CommRingHom
 id CommRingsCategory {R}                 = idCommRingHom R
-_⋆_ CommRingsCategory {R} {S} {T}        = compCommRingHom R S T
+_⋆_ CommRingsCategory {R} {S} {T}        = compCommRingHom
 ⋆IdL CommRingsCategory {R} {S}           = compIdCommRingHom {R = R} {S}
 ⋆IdR CommRingsCategory {R} {S}           = idCompCommRingHom {R = R} {S}
 ⋆Assoc CommRingsCategory {R} {S} {T} {U} = compAssocCommRingHom {R = R} {S} {T} {U}
-isSetHom CommRingsCategory               = isSetRingHom _ _
+isSetHom CommRingsCategory               = isSetCommRingHom _ _
 
 ForgetfulCommRing→Set : Functor CommRingsCategory (SET ℓ)
 F-ob ForgetfulCommRing→Set R    = R .fst , CommRingStr.is-set (snd R)
@@ -61,7 +61,7 @@ CommRingIsoIsoCatIso : {R S : CommRing ℓ} → Iso (CommRingIso R S) (CatIso Co
 (fun CommRingIsoIsoCatIso e) .fst = (e .fst .fun) , (e .snd)
 (fun (CommRingIsoIsoCatIso {R = R} {S}) e) .snd .inv =
     e .fst .inv
-  , makeIsRingHom (sym (cong (e .fst .inv) (pres1 (e .snd))) ∙ e .fst .leftInv _)
+  , makeIsCommRingHom (sym (cong (e .fst .inv) (pres1 (e .snd))) ∙ e .fst .leftInv _)
                   (λ x y → let rem = e .fst .rightInv _
                                   ∙∙ (λ i → S .snd ._+_ (e .fst .rightInv x (~ i)) (e .fst .rightInv y (~ i)))
                                   ∙∙ sym (pres+ (e .snd) _ _)
@@ -70,18 +70,18 @@ CommRingIsoIsoCatIso : {R S : CommRing ℓ} → Iso (CommRingIso R S) (CatIso Co
                                   ∙∙ (λ i → S .snd ._·_ (e .fst .rightInv x (~ i)) (e .fst .rightInv y (~ i)))
                                   ∙∙ sym (pres· (e .snd) _ _)
                            in injCommRingIso {R = R} {S} e _ _ rem)
-(fun CommRingIsoIsoCatIso e) .snd .sec = RingHom≡ (funExt (e .fst .rightInv))
-(fun CommRingIsoIsoCatIso e) .snd .ret = RingHom≡ (funExt (e .fst .leftInv))
+(fun CommRingIsoIsoCatIso e) .snd .sec = CommRingHom≡ (funExt (e .fst .rightInv))
+(fun CommRingIsoIsoCatIso e) .snd .ret = CommRingHom≡ (funExt (e .fst .leftInv))
 fun (fst (inv CommRingIsoIsoCatIso e)) = e .fst .fst
 inv (fst (inv CommRingIsoIsoCatIso e)) = e .snd .inv .fst
 rightInv (fst (inv CommRingIsoIsoCatIso e)) x i = fst (e .snd .sec i) x
 leftInv  (fst (inv CommRingIsoIsoCatIso e)) x i = fst (e .snd .ret i) x
 snd (inv CommRingIsoIsoCatIso e) = e .fst .snd
-rightInv CommRingIsoIsoCatIso x = CatIso≡ _ _ (RingHom≡ refl)
+rightInv CommRingIsoIsoCatIso x = CatIso≡ _ _ (CommRingHom≡ refl)
 leftInv (CommRingIsoIsoCatIso {R = R} {S}) x =
-  Σ≡Prop (λ x → isPropIsRingHom (CommRingStr→RingStr (R .snd))
+  Σ≡Prop (λ x → isPropIsCommRingHom (R .snd)
                                 (x .fun)
-                                (CommRingStr→RingStr (S .snd)))
+                                (S .snd))
          (Iso≡Set (is-set (snd R)) (is-set (snd S)) _ _ (λ _ → refl) (λ _ → refl))
 
 isUnivalentCommRingsCategory : ∀ {ℓ} → isUnivalent {ℓ = ℓ-suc ℓ} CommRingsCategory
@@ -96,14 +96,14 @@ univ isUnivalentCommRingsCategory R S = subst isEquiv (funExt rem) (≡≃CatIso
 
   rem : ∀ p → ≡≃CatIso .fst p ≡ pathToIso p
   rem p = CatIso≡ _ _
-    (RingHom≡ (funExt λ x → cong (transport (cong fst p)) (sym (transportRefl x))))
+    (CommRingHom≡ (funExt λ x → cong (transport (cong fst p)) (sym (transportRefl x))))
 
 module _ {ℓ : Level} where
   TerminalCommRing : Terminal CommRingsCategory
   fst TerminalCommRing = UnitCommRing {ℓ = ℓ}
   fst (fst (snd TerminalCommRing y)) _ = tt*
-  snd (fst (snd TerminalCommRing y)) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
-  snd (snd TerminalCommRing y) f = RingHom≡ (funExt (λ _ → refl))
+  snd (fst (snd TerminalCommRing y)) = makeIsCommRingHom refl (λ _ _ → refl) (λ _ _ → refl)
+  snd (snd TerminalCommRing y) f = CommRingHom≡ (funExt (λ _ → refl))
 
 
 open Pullback
@@ -171,18 +171,18 @@ module _ {ℓJ ℓJ' : Level} where
   pres· (snd (coneOut (limCone (LimitsCommRingsCategory J D)) v)) = λ _ _ → refl
   pres- (snd (coneOut (limCone (LimitsCommRingsCategory J D)) v)) = λ _ → refl
   coneOutCommutes (limCone (LimitsCommRingsCategory J D)) e =
-    RingHom≡ (coneOutCommutes (limCone (completeSET J (funcComp ForgetfulCommRing→Set D))) e)
+    CommRingHom≡ (coneOutCommutes (limCone (completeSET J (funcComp ForgetfulCommRing→Set D))) e)
   univProp (LimitsCommRingsCategory J D) c cc =
     uniqueExists
       ( (λ x → limArrow (completeSET J (funcComp ForgetfulCommRing→Set D))
                         (fst c , snd c .is-set)
                         (cone (λ v _ → coneOut cc v .fst x)
                               (λ e → funExt (λ _ → funExt⁻ (cong fst (coneOutCommutes cc e)) x))) x)
-      , makeIsRingHom
+      , makeIsCommRingHom
           (cone≡ (λ v → funExt (λ _ → coneOut cc v .snd .pres1)))
           (λ x y → cone≡ (λ v → funExt (λ _ → coneOut cc v .snd .pres+ _ _)))
           (λ x y → cone≡ (λ v → funExt (λ _ → coneOut cc v .snd .pres· _ _))))
-      (λ _ → RingHom≡ refl)
+      (λ _ → CommRingHom≡ refl)
       (isPropIsConeMor cc (limCone (LimitsCommRingsCategory J D)))
-      (λ a' x → Σ≡Prop (λ _ → isPropIsRingHom _ _ _)
+      (λ a' x → Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _)
                        (funExt (λ y → cone≡ λ v → funExt (λ _ → sym (funExt⁻ (cong fst (x v)) y)))))

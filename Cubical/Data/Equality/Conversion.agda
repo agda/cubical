@@ -8,7 +8,6 @@
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Data.Equality.Conversion where
 
 open import Cubical.Foundations.Prelude

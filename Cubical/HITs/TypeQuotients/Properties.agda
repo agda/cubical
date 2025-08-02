@@ -4,7 +4,6 @@ Type quotients:
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.HITs.TypeQuotients.Properties where
 
 open import Cubical.Foundations.Prelude

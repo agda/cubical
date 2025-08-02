@@ -7,7 +7,6 @@ This file contains:
   to calculate the fundamental group of a Bouquet.
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.FreeGroupoid.Base where
 

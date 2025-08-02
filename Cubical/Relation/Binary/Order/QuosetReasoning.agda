@@ -9,8 +9,6 @@
   Use begin≤ to obtain a nonstrict inequality.
 -}
 
-{-# OPTIONS --safe #-}
-
 module Cubical.Relation.Binary.Order.QuosetReasoning where
 
 open import Cubical.Foundations.Prelude

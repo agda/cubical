@@ -6,7 +6,6 @@ This file contains:
   as per the HoTT book, section 10.2
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Data.Cardinal.Base where
 
 open import Cubical.HITs.SetTruncation as ∥₂

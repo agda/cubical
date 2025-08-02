@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 -- This module proves the Five lemma[1] over group homomorphisms.
 --

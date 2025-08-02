@@ -2,7 +2,6 @@
 -- Descending lists
 ------------------------------------------------------------------------
 
-{-# OPTIONS --safe #-}
 
 open import Cubical.Foundations.Prelude
 

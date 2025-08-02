@@ -7,7 +7,6 @@ But it is enough to establish important properties of finitely presented abelian
 Also, it can be computed much more efficiently (than Smith, only).
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.IntegerMatrix.Diagonalization where
 
 open import Cubical.Foundations.Prelude

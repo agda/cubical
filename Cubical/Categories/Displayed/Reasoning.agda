@@ -14,7 +14,6 @@ carry around the base morphisms and paths as *data* rather than just re-inferrin
 them all the time. This has very good performance while letting us freely use
 implicit arguments for e.g. ⋆Assoc.
 -}
-{-# OPTIONS --safe #-}
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function

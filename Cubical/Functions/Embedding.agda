@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Functions.Embedding where
 
 open import Cubical.Foundations.Prelude
@@ -190,6 +189,10 @@ iso→isEmbedding : ∀ {ℓ} {A B : Type ℓ}
   -------------------------------
   → isEmbedding (Iso.fun isom)
 iso→isEmbedding {A = A} {B} isom = (isEquiv→isEmbedding (equivIsEquiv (isoToEquiv isom)))
+
+Iso→Embedding : ∀ {ℓ} {A B : Type ℓ}
+  → Iso A B → A ↪ B
+Iso→Embedding isom = _ , iso→isEmbedding isom
 
 isEmbedding→Injection :
   ∀ {ℓ} {A B C : Type ℓ}

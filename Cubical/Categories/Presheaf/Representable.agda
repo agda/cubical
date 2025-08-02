@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 
     This file defines 3 equivalent formulations of when a presheaf P is

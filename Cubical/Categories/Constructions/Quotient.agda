@@ -1,5 +1,4 @@
 -- Quotient category
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Constructions.Quotient where
 
