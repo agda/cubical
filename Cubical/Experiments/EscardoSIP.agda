@@ -5,7 +5,6 @@ https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#s
 All the needed preliminary results from the lecture notes are stated and proven in this file.
 It would be interesting to compare the proves with the one in Cubical.Foundations.SIP
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Experiments.EscardoSIP where
 
 open import Cubical.Foundations.Prelude

@@ -3,7 +3,6 @@
 ℚ is a Field
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Field.Instances.Rationals where
 
 open import Cubical.Foundations.Prelude

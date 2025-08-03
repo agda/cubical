@@ -4,7 +4,6 @@ Axiom of Finite Choice
 - Yep, it's a theorem actually.
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.FiniteChoice where
 

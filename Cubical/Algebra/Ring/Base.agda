@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Ring.Base where
 
 open import Cubical.Foundations.Prelude
@@ -77,6 +76,9 @@ record RingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
   infixl 6 _+_
 
   open IsRing isRing public
+
+
+unquoteDecl RingStrIsoΣ = declareRecordIsoΣ RingStrIsoΣ (quote RingStr)
 
 Ring : ∀ ℓ → Type (ℓ-suc ℓ)
 Ring ℓ = TypeWithStr ℓ RingStr
@@ -234,6 +236,28 @@ uaRing {A = A} {B = B} = equivFun (RingPath A B)
 isGroupoidRing : isGroupoid (Ring ℓ)
 isGroupoidRing _ _ = isOfHLevelRespectEquiv 2 (RingPath _ _) (isSetRingEquiv _ _)
 
+
+-- Rings have an abelian group and a monoid
+
+module _ (A : Ring ℓ) where
+  open RingStr (A .snd)
+  -- (A , (ringstr 0r 1r _+_ _·_ -_ R))
+  Ring→AbGroup : AbGroup ℓ
+  Ring→AbGroup .fst = ⟨ A ⟩
+  Ring→AbGroup .snd .AbGroupStr.0g = 0r
+  Ring→AbGroup .snd .AbGroupStr._+_ = _+_
+  Ring→AbGroup .snd .AbGroupStr.-_ = -_
+  Ring→AbGroup .snd .AbGroupStr.isAbGroup = IsRing.+IsAbGroup isRing
+
+  Ring→MultMonoid : Monoid ℓ
+  Ring→MultMonoid = monoid ⟨ A ⟩ 1r _·_ (IsRing.·IsMonoid isRing)
+
+Ring→Group : Ring ℓ → Group ℓ
+Ring→Group = AbGroup→Group ∘ Ring→AbGroup
+
+Ring→AddMonoid : Ring ℓ → Monoid ℓ
+Ring→AddMonoid = Group→Monoid ∘ Ring→Group
+
 open RingStr
 open IsRingHom
 
@@ -286,27 +310,6 @@ module _ (R : Ring ℓ) {A : Type ℓ}
   InducedRingPath : R ≡ InducedRing
   InducedRingPath = RingPath _ _ .fst InducedRingEquiv
 
-
-
-
--- Rings have an abelian group and a monoid
-
-module _ ((A , (ringstr 0r 1r _+_ _·_ -_ R)) : Ring ℓ) where
-  Ring→AbGroup : AbGroup ℓ
-  Ring→AbGroup .fst = A
-  Ring→AbGroup .snd .AbGroupStr.0g = 0r
-  Ring→AbGroup .snd .AbGroupStr._+_ = _+_
-  Ring→AbGroup .snd .AbGroupStr.-_ = -_
-  Ring→AbGroup .snd .AbGroupStr.isAbGroup = IsRing.+IsAbGroup R
-
-  Ring→MultMonoid : Monoid ℓ
-  Ring→MultMonoid = monoid A 1r _·_ (IsRing.·IsMonoid R)
-
-Ring→Group : Ring ℓ → Group ℓ
-Ring→Group = AbGroup→Group ∘ Ring→AbGroup
-
-Ring→AddMonoid : Ring ℓ → Monoid ℓ
-Ring→AddMonoid = Group→Monoid ∘ Ring→Group
 
 -- Smart constructor for ring homomorphisms
 -- that infers the other equations from pres1, pres+, and pres·

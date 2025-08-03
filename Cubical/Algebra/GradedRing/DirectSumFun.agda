@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.GradedRing.DirectSumFun where
 
 {-
@@ -39,6 +39,7 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.GradedRing.Base
 open import Cubical.Algebra.GradedRing.DirectSumHIT
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.Univalence
 
 open import Cubical.HITs.PropositionalTruncation as PT
 

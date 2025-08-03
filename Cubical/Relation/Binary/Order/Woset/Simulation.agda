@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   This treatment of well-orderings follows chapter 10.3 of the HoTT book
 -}

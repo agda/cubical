@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.Binary.Small where
 

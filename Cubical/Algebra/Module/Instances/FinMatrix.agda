@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Module.Instances.FinMatrix where
 
 open import Cubical.Foundations.Prelude

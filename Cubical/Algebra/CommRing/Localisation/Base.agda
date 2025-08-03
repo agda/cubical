@@ -2,7 +2,7 @@
 -- at a multiplicatively closed subset and show that it
 -- has a commutative ring structure.
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.Base where
 
 open import Cubical.Foundations.Prelude
@@ -44,6 +44,7 @@ private
 
 -- A multiplicatively closed subset is assumed to contain 1
 record isMultClosedSubset (R' : CommRing ℓ) (S' : ℙ (fst R')) : Type ℓ where
+ no-eta-equality
  constructor
    multclosedsubset
  field

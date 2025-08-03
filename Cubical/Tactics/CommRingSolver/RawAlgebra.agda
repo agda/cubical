@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Tactics.CommRingSolver.RawAlgebra where
 
 open import Cubical.Foundations.Prelude

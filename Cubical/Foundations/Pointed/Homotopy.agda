@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Pointed.Homotopy where
 
 {-

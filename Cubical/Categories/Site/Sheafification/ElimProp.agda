@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Site.Sheafification.ElimProp where
 
 -- An elimination operator from the QIT definition of sheafification

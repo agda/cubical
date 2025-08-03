@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.FinData.Base where
 
 open import Cubical.Foundations.Prelude
@@ -75,6 +74,9 @@ rec a0 aS (suc x) = aS
 
 FinVec : (A : Type ℓ) (n : ℕ) → Type ℓ
 FinVec A n = Fin n → A
+
+emptyFinVec : (A : Type ℓ) → FinVec A 0
+emptyFinVec A ()
 
 replicateFinVec : (n : ℕ) → A → FinVec A n
 replicateFinVec _ a _ = a

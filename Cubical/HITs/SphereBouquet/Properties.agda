@@ -1,4 +1,5 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --cubical #-}
+
 
 module Cubical.HITs.SphereBouquet.Properties where
 

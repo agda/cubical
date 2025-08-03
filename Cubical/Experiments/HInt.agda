@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 
 Definition of the integers as a HIT inspired by slide 10 of (original

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Experiments.CohomologyGroups where
 {-
 open import Cubical.Experiments.ZCohomologyOld.Base

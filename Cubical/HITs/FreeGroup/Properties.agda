@@ -10,7 +10,6 @@ Properties of the FreeGroup:
 - Equivalence of the types (A → Group .fst) (GroupHom (freeGroupGroup A) Group)
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.FreeGroup.Properties where
 

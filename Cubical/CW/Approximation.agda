@@ -1,7 +1,6 @@
-{-# OPTIONS --lossy-unification --safe #-}
-{-
-Cellular approximation theorems for
-cellular maps and homotopies
+{-# OPTIONS --lossy-unification #-}
+{- Cellular approximation theorems for
+-- cellular maps and homotopies
 -}
 
 module Cubical.CW.Approximation where

@@ -1,4 +1,4 @@
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Data.Queue.Base where
 
 open import Cubical.Data.Queue.1List public

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Homotopy.HSpace where
 
 open import Cubical.Foundations.Prelude

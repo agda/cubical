@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.AssocList.Properties where
 
 

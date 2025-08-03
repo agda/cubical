@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.HITs.SequentialColimit.Base where
 
 open import Cubical.Foundations.Prelude
