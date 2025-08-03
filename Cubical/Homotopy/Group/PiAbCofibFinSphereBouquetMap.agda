@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 {-
 This file computes πₙᵃᵇ(cofib α) and α : ⋁Sⁿ →∙ ⋁Sⁿ
 -}
@@ -62,14 +62,14 @@ module _ {m k : ℕ} (f : Fin m → FreeGroup (Fin k)) where
                                (inv' CharacFinBouquetFunIso f) .fst
 
   AbFreeGroup≅ℤ[] : (m : _)
-    → GroupIso (AbelianizationGroup (freeGroupGroup (Fin m)))
-                (AbGroup→Group ℤ[Fin m ])
+    → AbGroupIso (AbelianizationAbGroup (freeGroupGroup (Fin m)))
+                  (ℤ[Fin m ])
   AbFreeGroup≅ℤ[] m = compGroupIso GroupIso-AbelienizeFreeGroup→FreeAbGroup
                                    (invGroupIso (ℤFin≅FreeAbGroup m))
 
   AbFreeGroup→ℤ[] : (m : _) →
-    GroupHom (AbelianizationGroup (freeGroupGroup (Fin m)))
-             (AbGroup→Group ℤ[Fin m ])
+    AbGroupHom (AbelianizationAbGroup (freeGroupGroup (Fin m)))
+               (ℤ[Fin m ])
   AbFreeGroup→ℤ[] m = GroupIso→GroupHom (AbFreeGroup≅ℤ[] m)
 
 
@@ -183,15 +183,16 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
   Bouquet→CofibFinBouquetMap : Bouquet (Fin k) → cofib (fst α)
   Bouquet→CofibFinBouquetMap = inr
 
-  Freeᵃᵇ/ImFinBouquetMap : Group₀
+  Freeᵃᵇ/ImFinBouquetMap : AbGroup ℓ-zero
   Freeᵃᵇ/ImFinBouquetMap =
     AbelianizationAbGroup (freeGroupGroup (Fin k))
-    /Im AbelianizationFun (FG.rec α')
+      /Im AbelianizationFun (FG.rec α')
 
   FinBouquetCode : Bouquet (Fin k) → Type
   FinBouquetCode base = Freeᵃᵇ/ImFinBouquetMap .fst
   FinBouquetCode (loop x i) =
-    ua (isoToEquiv (·GroupAutomorphismR (Freeᵃᵇ/ImFinBouquetMap) [ η (η x) ])) i
+    ua (isoToEquiv (·GroupAutomorphismR (AbGroup→Group (Freeᵃᵇ/ImFinBouquetMap))
+                                        [ η (η x) ])) i
 
   substFinBouquetCode : (p : _) (x : _)
     → subst FinBouquetCode (inv' Iso-ΩFinBouquet-FreeGroup p) [ η x ]
@@ -246,10 +247,10 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
   isSetCofibFinBoquetFunCode : (x : _) → isSet (CofibFinBoquetFunCode x)
   isSetCofibFinBoquetFunCode =
     PO.elimProp _ (λ _ → isPropIsSet)
-      (λ _ → GroupStr.is-set (Freeᵃᵇ/ImFinBouquetMap .snd))
+      (λ _ → AbGroupStr.is-set (Freeᵃᵇ/ImFinBouquetMap .snd))
       (elimPropBouquet
         (λ _ → isPropIsSet)
-        (GroupStr.is-set (Freeᵃᵇ/ImFinBouquetMap .snd)))
+        (AbGroupStr.is-set (Freeᵃᵇ/ImFinBouquetMap .snd)))
 
   FG→π₁cofibFinBouquetMap :
     GroupHom (freeGroupGroup (Fin k))
@@ -377,8 +378,8 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
                        (inv' Iso-ΩFinBouquet-FreeGroup z)))
 
   Hom-Freeᵃᵇ/ImFinBouquetMap-π₁ᵃᵇCofibFinBouquetMap :
-    GroupHom Freeᵃᵇ/ImFinBouquetMap
-             (AbGroup→Group (π₁ᵃᵇAbGroup (cofib (fst α) , inr base)))
+    AbGroupHom Freeᵃᵇ/ImFinBouquetMap
+               (π₁ᵃᵇAbGroup (cofib (fst α) , inr base))
   fst Hom-Freeᵃᵇ/ImFinBouquetMap-π₁ᵃᵇCofibFinBouquetMap =
     SQ.rec squash₂ AbFG→π₁ᵃᵇCofibFinBouquetMap main
     where
@@ -422,7 +423,8 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
                         ∣ paths (p ∙ (λ i → inr (loop x (~ i ∨ j)))) ∣₂)
        ∙ cong ∣_∣₂ (cong paths (sym (rUnit p))))
 
-    help : PathP (λ i → ua (isoToEquiv (·GroupAutomorphismR Freeᵃᵇ/ImFinBouquetMap
+    help : PathP (λ i → ua (isoToEquiv (·GroupAutomorphismR
+                                          (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
                                                              [ η (η x) ])) i
                       → ∥ Pathᵃᵇ (cofib (fst α)) (inr base) (inr (loop x i)) ∥₂)
             (fst Hom-Freeᵃᵇ/ImFinBouquetMap-π₁ᵃᵇCofibFinBouquetMap)
@@ -431,7 +433,8 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
       λ s → cong (transport (λ i → ∥ Pathᵃᵇ (cofib (fst α))
                                              (inr base) (inr (loop x i)) ∥₂))
          ((cong (fst Hom-Freeᵃᵇ/ImFinBouquetMap-π₁ᵃᵇCofibFinBouquetMap)
-           (cong (inv' (·GroupAutomorphismR Freeᵃᵇ/ImFinBouquetMap
+           (cong (inv' (·GroupAutomorphismR
+                         (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
                                                 [ η (η x) ]))
              (transportRefl [ s ]))
           ∙ IsGroupHom.pres· (snd Hom-Freeᵃᵇ/ImFinBouquetMap-π₁ᵃᵇCofibFinBouquetMap)
@@ -465,7 +468,7 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
 
   FinBouquetCode+ : (x : _) → Freeᵃᵇ/ImFinBouquetMap .fst
     → FinBouquetCode x → FinBouquetCode x
-  FinBouquetCode+ base p q = GroupStr._·_ (snd Freeᵃᵇ/ImFinBouquetMap) p q
+  FinBouquetCode+ base p q = AbGroupStr._+_ (snd Freeᵃᵇ/ImFinBouquetMap) p q
   FinBouquetCode+ (loop x i) p = commPathtP i
     where
     typecheck : ∀ {ℓ} (A B : Type ℓ) (p : A ≡ B)
@@ -485,38 +488,41 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
 
     private
       commPathtP : PathP (λ i → ua (isoToEquiv (·GroupAutomorphismR
-                                          Freeᵃᵇ/ImFinBouquetMap [ η (η x) ])) i
+                                          (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
+                                          [ η (η x) ])) i
                         → ua (isoToEquiv (·GroupAutomorphismR
-                                          Freeᵃᵇ/ImFinBouquetMap [ η (η x) ])) i)
-                   (GroupStr._·_ (snd Freeᵃᵇ/ImFinBouquetMap) p)
-                   (GroupStr._·_ (snd Freeᵃᵇ/ImFinBouquetMap) p)
+                                          (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
+                                          [ η (η x) ])) i)
+                   (AbGroupStr._+_ (snd Freeᵃᵇ/ImFinBouquetMap) p)
+                   (AbGroupStr._+_ (snd Freeᵃᵇ/ImFinBouquetMap) p)
       commPathtP =
        typecheck' (isoToEquiv (·GroupAutomorphismR
-                                 Freeᵃᵇ/ImFinBouquetMap [ η (η x) ]))
+                                 (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
+                                 [ η (η x) ]))
         (SQ.elimProp (λ _ → squash/ _ _)
           (Abi.elimProp _ (λ _ → squash/ _ _) λ g
-            → sym (GroupStr.·Assoc (snd Freeᵃᵇ/ImFinBouquetMap) p
-                    (invEq (isoToEquiv (·GroupAutomorphismR Freeᵃᵇ/ImFinBouquetMap
+            → sym (AbGroupStr.+Assoc (snd Freeᵃᵇ/ImFinBouquetMap) p
+                    (invEq (isoToEquiv (·GroupAutomorphismR (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
                                          [ η (η x) ])) [ η g ])
                     [ η (η x) ])
-                ∙ cong (snd Freeᵃᵇ/ImFinBouquetMap GroupStr.· p)
-                   (sym (GroupStr.·Assoc (snd Freeᵃᵇ/ImFinBouquetMap)
+                ∙ cong (snd Freeᵃᵇ/ImFinBouquetMap AbGroupStr.+ p)
+                   (sym (AbGroupStr.+Assoc (snd Freeᵃᵇ/ImFinBouquetMap)
                         [ η g ] [ η (inv (η x)) ]  [ η (η x) ])
-                  ∙ cong (snd Freeᵃᵇ/ImFinBouquetMap GroupStr.· [ η g ])
-                    (GroupStr.·InvL (snd Freeᵃᵇ/ImFinBouquetMap) [ η (η x) ])
-                  ∙ GroupStr.·IdR (snd Freeᵃᵇ/ImFinBouquetMap) [ η g ])))
+                  ∙ cong (snd Freeᵃᵇ/ImFinBouquetMap AbGroupStr.+ [ η g ])
+                    (AbGroupStr.+InvL (snd Freeᵃᵇ/ImFinBouquetMap) [ η (η x) ])
+                  ∙ AbGroupStr.+IdR (snd Freeᵃᵇ/ImFinBouquetMap) [ η g ])))
 
   CofibFinBoquetFunCode+ : (x : _) → Freeᵃᵇ/ImFinBouquetMap .fst
     → CofibFinBoquetFunCode x → CofibFinBoquetFunCode x
   CofibFinBoquetFunCode+ (inl x) p q =
-    GroupStr._·_ (snd Freeᵃᵇ/ImFinBouquetMap) p q
+    AbGroupStr._+_ (snd Freeᵃᵇ/ImFinBouquetMap) p q
   CofibFinBoquetFunCode+ (inr x) = FinBouquetCode+ x
   CofibFinBoquetFunCode+ (push x i) p = help x i
    where
    help : (x : Bouquet (Fin m))
      → PathP (λ i → CofibFinBoquetFunCode (push x i)
                    → CofibFinBoquetFunCode (push x i))
-             (snd Freeᵃᵇ/ImFinBouquetMap GroupStr.· p)
+             (snd Freeᵃᵇ/ImFinBouquetMap AbGroupStr.+ p)
              (FinBouquetCode+ (α .fst x) p)
    help = elimPropBouquet (λ _ → isOfHLevelPathP' 1
                            (isSetΠ (λ _ → isSetCofibFinBoquetFunCode _)) _ _)
@@ -591,14 +597,14 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
       lem x y =
         J> (J> cong (subst CofibFinBoquetFunCode y')
               (substFinBouquetCode x ε
-             ∙ GroupStr.·IdL (snd Freeᵃᵇ/ImFinBouquetMap) [ η x ])
+             ∙ AbGroupStr.+IdL (snd Freeᵃᵇ/ImFinBouquetMap) [ η x ])
          ∙ substFinBouquetCode y x
          ∙ cong [_] (AbelianizationGroupStructure.commAb
                      (freeGroupGroup (Fin k)) (η x) (η y))
          ∙ sym (substFinBouquetCode x y)
          ∙ cong (subst CofibFinBoquetFunCode x')
              (sym (substFinBouquetCode y ε
-                ∙ GroupStr.·IdL (snd Freeᵃᵇ/ImFinBouquetMap) [ η y ])) )
+                ∙ AbGroupStr.+IdL (snd Freeᵃᵇ/ImFinBouquetMap) [ η y ])) )
         where
         x' y' : Path (cofib (fst α)) (inr base) (inr base)
         x' =  (λ i → inr (inv' Iso-ΩFinBouquet-FreeGroup x i))
@@ -627,8 +633,8 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
 
   --- Main results ---
   Freeᵃᵇ/ImFinBouquetMap≅π₁ᵃᵇCofibFinBouquetMap :
-    GroupIso Freeᵃᵇ/ImFinBouquetMap
-             (AbGroup→Group (π₁ᵃᵇAbGroup (cofib (fst α) , inr base)))
+    AbGroupIso Freeᵃᵇ/ImFinBouquetMap
+              (π₁ᵃᵇAbGroup (cofib (fst α) , inr base))
   fun (fst Freeᵃᵇ/ImFinBouquetMap≅π₁ᵃᵇCofibFinBouquetMap) =
     Hom-Freeᵃᵇ/ImFinBouquetMap-π₁ᵃᵇCofibFinBouquetMap .fst
   inv' (fst Freeᵃᵇ/ImFinBouquetMap≅π₁ᵃᵇCofibFinBouquetMap) =
@@ -641,9 +647,8 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
     Hom-Freeᵃᵇ/ImFinBouquetMap-π₁ᵃᵇCofibFinBouquetMap .snd
 
   Freeᵃᵇ/ImFinBouquetMap≅π₁ᵃᵇCofibFinBouquetMap' :
-    GroupIso Freeᵃᵇ/ImFinBouquetMap
-             (AbGroup→Group
-               (AbelianizationAbGroup (πGr 0 (cofib (fst α) , inr base))))
+    AbGroupIso Freeᵃᵇ/ImFinBouquetMap
+               (AbelianizationAbGroup (πGr 0 (cofib (fst α) , inr base)))
   Freeᵃᵇ/ImFinBouquetMap≅π₁ᵃᵇCofibFinBouquetMap' =
     compGroupIso Freeᵃᵇ/ImFinBouquetMap≅π₁ᵃᵇCofibFinBouquetMap
       (invGroupIso (Abelianizeπ₁≅π₁ᵃᵇ (_ , inr base)))
@@ -660,10 +665,9 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
 
   -- π₁ᵃᵇ(cofib α) ≅ Freeᵃᵇ/Im(deg(α))
   Freeᵃᵇ/ImFinBouquetMap≅π'₁ᵃᵇCofibFinSphereBouquetMap :
-    GroupIso Freeᵃᵇ/ImFinBouquetMap
-             (AbGroup→Group
+    AbGroupIso Freeᵃᵇ/ImFinBouquetMap
                (AbelianizationAbGroup
-                 (π'Gr 0 (cofib (fst αSphereBouquet) , inl tt))))
+                 (π'Gr 0 (cofib (fst αSphereBouquet) , inl tt)))
   Freeᵃᵇ/ImFinBouquetMap≅π'₁ᵃᵇCofibFinSphereBouquetMap =
     compGroupIso Freeᵃᵇ/ImFinBouquetMap≅π₁ᵃᵇCofibFinBouquetMap'
       (GroupEquiv→GroupIso (AbelianizationEquiv
@@ -677,36 +681,35 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
 
   -- Freeᵃᵇ/Im(deg(α)) ≅ ℤ[]/Im(deg(α))
   Freeᵃᵇ/ImFinBouquetMap≅ℤ[]/ImBouquetDegree :
-    GroupIso Freeᵃᵇ/ImFinBouquetMap
-             (ℤ[Fin k ] /Im bouquetDegree (fst αSphereBouquet))
+    AbGroupIso Freeᵃᵇ/ImFinBouquetMap
+               (ℤ[Fin k ] /Im bouquetDegree (fst αSphereBouquet))
   Freeᵃᵇ/ImFinBouquetMap≅ℤ[]/ImBouquetDegree =
     Hom/ImIso _ _ (AbFreeGroup≅ℤ[] α' m) (AbFreeGroup≅ℤ[] α' k)
                   (bouquetDegree-AbFreeGroup→ℤ[] α')
 
   -- Locked versions for faster type checking
   Freeᵃᵇ/ImFinBouquetMap≅π'₁ᵃᵇCofibFinSphereBouquetMap-Lock : lockUnit {ℓ-zero}
-    → GroupIso (AbGroup→Group
-                (AbelianizationAbGroup
-                  (π'Gr 0 (cofib (fst αSphereBouquet) , inl tt))))
-               Freeᵃᵇ/ImFinBouquetMap
+    → AbGroupIso (AbelianizationAbGroup
+                   (π'Gr 0 (cofib (fst αSphereBouquet) , inl tt)))
+                  Freeᵃᵇ/ImFinBouquetMap
   Freeᵃᵇ/ImFinBouquetMap≅π'₁ᵃᵇCofibFinSphereBouquetMap-Lock unlock =
     invGroupIso Freeᵃᵇ/ImFinBouquetMap≅π'₁ᵃᵇCofibFinSphereBouquetMap
 
   Freeᵃᵇ/ImFinBouquetMap≅ℤ[]/ImBouquetDegree-Lock : lockUnit {ℓ-zero}
-    → GroupIso Freeᵃᵇ/ImFinBouquetMap
-               (ℤ[Fin k ] /Im (bouquetDegree (fst αSphereBouquet)))
+    → AbGroupIso Freeᵃᵇ/ImFinBouquetMap
+                 (ℤ[Fin k ] /Im (bouquetDegree (fst αSphereBouquet)))
   Freeᵃᵇ/ImFinBouquetMap≅ℤ[]/ImBouquetDegree-Lock unlock =
     Freeᵃᵇ/ImFinBouquetMap≅ℤ[]/ImBouquetDegree
 
   π'BoquetFunCofib≅Freeᵃᵇ/ImFinBouquetMap>1-Lock : lockUnit {ℓ-zero}
-    → GroupIso (AbelianizationGroup (π'Gr 0 (cofib∙ (fst αSphereBouquet))))
-               (ℤ[Fin k ] /Im (bouquetDegree (fst αSphereBouquet)))
+    → AbGroupIso (AbelianizationAbGroup (π'Gr 0 (cofib∙ (fst αSphereBouquet))))
+                  (ℤ[Fin k ] /Im (bouquetDegree (fst αSphereBouquet)))
   π'BoquetFunCofib≅Freeᵃᵇ/ImFinBouquetMap>1-Lock t =
     compGroupIso (Freeᵃᵇ/ImFinBouquetMap≅π'₁ᵃᵇCofibFinSphereBouquetMap-Lock t)
                  (Freeᵃᵇ/ImFinBouquetMap≅ℤ[]/ImBouquetDegree-Lock t)
 
   π'BoquetFunCofib≅Freeᵃᵇ/ImFinBouquetMap>1 :
-    GroupIso (AbelianizationGroup
+    AbGroupIso (AbelianizationAbGroup
               (π'Gr 0 (cofib (fst αSphereBouquet) , inl tt)))
              (ℤ[Fin k ] /Im (bouquetDegree (fst αSphereBouquet)))
   π'BoquetFunCofib≅Freeᵃᵇ/ImFinBouquetMap>1 =
@@ -733,8 +736,8 @@ module _ {n m k : ℕ}
 private
   π'ᵃᵇCofibFinSphereBouquetMap≅ℤ[]/BouquetDegreeMain : {n m k : ℕ}
     (α : SphereBouquet∙ (suc n) (Fin m) →∙ SphereBouquet∙ (suc n) (Fin k))
-    → Σ[ ϕ ∈ GroupIso
-               (AbelianizationGroup (π'Gr n (cofib∙ (fst α))))
+    → Σ[ ϕ ∈ AbGroupIso
+               (AbelianizationAbGroup (π'Gr n (cofib∙ (fst α))))
                (ℤ[Fin k ] /Im (bouquetDegree (fst α))) ]
          ((w : Fin k) → fun (fst ϕ) (πᵃᵇFinSphereBouquetMapGenerator α w)
                       ≡ [ ℤFinGenerator w ])
@@ -746,8 +749,8 @@ private
     where
     Goal : (α : _) (s : (w : _) → _) → Type
     Goal α s =
-      Σ[ ϕ ∈ GroupIso
-               (AbelianizationGroup (π'Gr zero (cofib∙ (fst α))))
+      Σ[ ϕ ∈ AbGroupIso
+               (AbelianizationAbGroup (π'Gr zero (cofib∙ (fst α))))
                (ℤ[Fin k ] /Im (bouquetDegree (fst α))) ]
          ((w : Fin k) → fun (fst ϕ) (s w) ≡ [ ℤFinGenerator w ])
     module _ (α' : Fin m → FreeGroup (Fin k)) where
@@ -842,8 +845,8 @@ private
 
       abstract
         lockIso' : (lock : lockUnit {ℓ-zero})
-          → GroupIso (ℤ[Fin k ] /Im (bouquetDegree (gens→finSphereBouquetMap α')))
-                      (AbelianizationGroup
+          → AbGroupIso (ℤ[Fin k ] /Im (bouquetDegree (gens→finSphereBouquetMap α')))
+                      (AbelianizationAbGroup
                         (π'Gr zero (cofib∙ (gens→finSphereBouquetMap α'))))
         fst (lockIso' l) = lockIso l
         snd (lockIso' l) =
@@ -871,7 +874,7 @@ private
 
     lockIso : (lock : lockUnit {ℓ-zero})
       → GroupIso (π'Gr (suc n) (cofib∙ (fst α)))
-                  (ℤ[Fin k ] /Im (bouquetDegree (fst α)))
+                  (AbGroup→Group (ℤ[Fin k ] /Im (bouquetDegree (fst α))))
     lockIso unlock = π'CofibFinSphereBouquetMap≅ℤ[]/BouquetDegree α
 
     lockInvIso : (lock : lockUnit {ℓ-zero}) → _
@@ -916,7 +919,7 @@ private
 
     Goal : (s : (w : _) → _) → Type
     Goal s =
-      Σ[ ϕ ∈ (GroupIso (AbelianizationGroup (π'Gr (suc n) (cofib∙ (fst α))))
+      Σ[ ϕ ∈ (AbGroupIso (AbelianizationAbGroup (π'Gr (suc n) (cofib∙ (fst α))))
                         (ℤ[Fin k ] /Im (bouquetDegree (fst α)))) ]
          ((w : Fin k) → fun (fst ϕ) (s w) ≡ [ ℤFinGenerator w ])
 
@@ -938,8 +941,8 @@ module _ {n m k : ℕ}
 
   -- πₙᵃᵇ(cofib α) ≅ ℤ[]/Im α
   π'ᵃᵇCofibFinSphereBouquetMap≅ℤ[]/BouquetDegree :
-    GroupIso (AbelianizationGroup (π'Gr n (cofib∙ (fst α))))
-             (ℤ[Fin k ] /Im (bouquetDegree (fst α)))
+    AbGroupIso (AbelianizationAbGroup (π'Gr n (cofib∙ (fst α))))
+               (ℤ[Fin k ] /Im (bouquetDegree (fst α)))
   π'ᵃᵇCofibFinSphereBouquetMap≅ℤ[]/BouquetDegree =
     fst (π'ᵃᵇCofibFinSphereBouquetMap≅ℤ[]/BouquetDegreeMain α)
 

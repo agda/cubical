@@ -1,8 +1,8 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 {-
 This file contains a definition of a notion of (strict)
-subcomplexes of a CW complex. Here, a subomplex of a complex
+subcomplexes of a CW complex. Here, a subcomplex of a complex
 C = colim ( C₀ → C₁ → ...)
 is simply the complex
 C⁽ⁿ⁾ := colim (C₀ → ... → Cₙ = Cₙ = ...)
@@ -10,8 +10,8 @@ C⁽ⁿ⁾ := colim (C₀ → ... → Cₙ = Cₙ = ...)
 This file contains.
 1. Definition of above
 2. A `strictification' of finite CW complexes in terms of above
-3. An elmination principle for finite CW complexes
-4. A proof that C and C⁽ⁿ⁾ has the same homolog in appropriate dimensions.
+3. An elimination principle for finite CW complexes
+4. A proof that C and C⁽ⁿ⁾ has the same homology in appropriate dimensions.
 -}
 
 module Cubical.CW.Homology.Groups.Subcomplex where

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.AbGroup.FinitePresentation where
 
 open import Cubical.Foundations.Prelude
@@ -26,8 +25,7 @@ record FinitePresentation (A : AbGroup ℓ) : Type ℓ where
     nGens : ℕ
     nRels : ℕ
     rels : AbGroupHom ℤ[Fin nRels ] ℤ[Fin nGens ]
-    fpiso : GroupIso (AbGroup→Group A)
-                     (ℤ[Fin nGens ] /Im rels)
+    fpiso : AbGroupIso A (ℤ[Fin nGens ] /Im rels)
 
 isFinitelyPresented : AbGroup ℓ → Type ℓ
 isFinitelyPresented G = ∥ FinitePresentation G ∥₁

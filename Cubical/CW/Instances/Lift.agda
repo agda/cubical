@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 Universe lifts of CW complexes
 -}

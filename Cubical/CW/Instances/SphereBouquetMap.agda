@@ -1,7 +1,6 @@
-{-# OPTIONS --safe #-}
 {-
-File contains : a direct description of cell structure for cofibre
-of a map α : ⋁ₐ Sⁿ → ⋁ₑ Sⁿ (with a and e finite sets)
+File contains : a direct description of cell structure for the
+cofibre of a map α : ⋁ₐ Sⁿ → ⋁ₑ Sⁿ (with a and e finite sets)
 -}
 
 module Cubical.CW.Instances.SphereBouquetMap where

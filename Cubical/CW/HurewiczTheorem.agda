@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 {-
 This file contains
 1. a construction of the Hurewicz map πₙᵃᵇ(X) → H̃ᶜʷₙ(X),

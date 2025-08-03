@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 The unit type as a CW complex
 -}

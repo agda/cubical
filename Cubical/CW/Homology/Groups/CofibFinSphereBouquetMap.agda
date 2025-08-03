@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 {-
 File contains : a proof that Hₙ₊₁(cofib α) ≅ ℤ[e]/Im(deg α) for
 α : ⋁ₐ Sⁿ → ⋁ₑ Sⁿ (with a and e finite sets)

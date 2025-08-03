@@ -1,6 +1,3 @@
-{-# OPTIONS --cubical #-}
-
-
 module Cubical.HITs.SphereBouquet.Properties where
 
 open import Cubical.Foundations.Prelude

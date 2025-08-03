@@ -61,14 +61,15 @@ subtrGroupHom : (A : AbGroup ℓ) (B : AbGroup ℓ') (ϕ ψ : AbGroupHom A B) �
 subtrGroupHom A B ϕ ψ = addGroupHom A B ϕ (negGroupHom A B ψ)
 
 -- Abelian groups quotiented by image of a map
-_/Im_ : {H : Group ℓ} (G : AbGroup ℓ) (ϕ : GroupHom H (AbGroup→Group G)) → Group ℓ
-G /Im ϕ = AbGroup→Group G
-        / (imSubgroup ϕ , isNormalIm ϕ λ _ _ → AbGroupStr.+Comm (snd G) _ _)
-
-_/ᵃᵇIm_ : {H : Group ℓ} (G : AbGroup ℓ) (ϕ : GroupHom H (AbGroup→Group G)) → AbGroup ℓ
-G /ᵃᵇIm ϕ =
-  Group→AbGroup (G /Im ϕ)
+_/Im_ : {H : Group ℓ} (G : AbGroup ℓ) (ϕ : GroupHom H (AbGroup→Group G)) → AbGroup ℓ
+G /Im ϕ =
+  Group→AbGroup (G /' ϕ)
     (elimProp2 (λ _ _ → squash/ _ _) λ a b → cong [_] (AbGroupStr.+Comm (snd G) _ _))
+  where
+  _/'_ : {H : Group ℓ} (G : AbGroup ℓ) (ϕ : GroupHom H (AbGroup→Group G)) → Group ℓ
+  G /' ϕ = AbGroup→Group G
+          / (imSubgroup ϕ , isNormalIm ϕ λ _ _ → AbGroupStr.+Comm (snd G) _ _)
+
 
 -- ℤ-multiplication defines a homomorphism for abelian groups
 private module _ (G : AbGroup ℓ) where
@@ -112,7 +113,7 @@ snd (multₗHom G n) = makeIsGroupHom (ℤ·isHom n G)
 
 -- Abelian groups quotiented by a natural number
 _/^_ : (G : AbGroup ℓ) (n : ℕ) → AbGroup ℓ
-G /^ n = G /ᵃᵇIm multₗHom G (pos n)
+G /^ n = G /Im multₗHom G (pos n)
 
 -- Torsion subgrous
 _[_]ₜ : (G : AbGroup ℓ) (n : ℕ) → AbGroup ℓ

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 CW structure on joins
 -}

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 The empty type as a CW complex
 -}

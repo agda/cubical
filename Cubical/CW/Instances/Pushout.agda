@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.CW.Instances.Pushout where
 
 open import Cubical.Foundations.Prelude

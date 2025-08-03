@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 {-
 This file computes πₙ(cofib α) for n ≥ 2 and α : ⋁Sⁿ →∙ ⋁Sⁿ
 -}

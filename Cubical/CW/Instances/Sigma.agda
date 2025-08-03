@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 CW structure on Σ-types (and binary products)
 -}
@@ -61,4 +60,4 @@ isFinCW× : ∀ {ℓ ℓ'} (A : finCW ℓ) (B : finCW ℓ')
   → isFinCW (fst A × fst B)
 isFinCW× A B = isFinCWΣ A (λ _ → B)
 
--- Todo: excplicit construction of products of arbtirary CW complexes
+-- Todo: explicit construction of products of arbtirary CW complexes

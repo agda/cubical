@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 {-
 This file computes πₙ(⋁ₐSⁿ) for wedge sums over finite sets and n ≥ 2.
 -}

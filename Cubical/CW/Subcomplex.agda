@@ -113,15 +113,6 @@ CW↑Gen C (suc m) (suc n) (eq y) p x =
 CW↑Gen C (suc m) (suc n) (gt y) p x =
   CW↪ C n (CW↑Gen C (suc m) n (n ≟ᵗ suc (suc m)) y x)
 
-{-
-Goal: CW↑Gen C (suc (suc (suc n))) m (eq x₁) e
-      (transp
-       (λ i → G.subComplexFam C (suc m) (suc (suc (suc n))) (q2 i)) i0 x₃)
-      ≡
-      transp (λ i → G.subComplexFam C (suc m) m (q i)) i0
-      (CW↑Gen (subComplex C (suc m)) (suc (suc (suc n))) m (eq x₁) e x₃)
--}
-
 CW↑Gen≡ : ∀ {ℓ} (C : CWskel ℓ) (m n : ℕ)
      (p : Trichotomyᵗ n (suc m)) (q : m <ᵗ n) (x : fst C m)
   → Path (realise C) (incl x) (incl {n = n} (CW↑Gen C m n p q x))
