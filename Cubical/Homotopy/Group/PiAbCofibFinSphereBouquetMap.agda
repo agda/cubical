@@ -469,7 +469,7 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
   FinBouquetCode+ : (x : _) → Freeᵃᵇ/ImFinBouquetMap .fst
     → FinBouquetCode x → FinBouquetCode x
   FinBouquetCode+ base p q = AbGroupStr._+_ (snd Freeᵃᵇ/ImFinBouquetMap) p q
-  FinBouquetCode+ (loop x i) p = commPathtP i
+  FinBouquetCode+ (loop x i) p = commPathP i
     where
     typecheck : ∀ {ℓ} (A B : Type ℓ) (p : A ≡ B)
       (f : A → A) (g : B → B)
@@ -486,31 +486,31 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
         → transportRefl _
          ∙ cong (fst p) (cong f (cong (invEq p) (transportRefl b))) ∙ h b
 
-    private
-      commPathtP : PathP (λ i → ua (isoToEquiv (·GroupAutomorphismR
-                                          (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
-                                          [ η (η x) ])) i
-                        → ua (isoToEquiv (·GroupAutomorphismR
-                                          (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
-                                          [ η (η x) ])) i)
-                   (AbGroupStr._+_ (snd Freeᵃᵇ/ImFinBouquetMap) p)
-                   (AbGroupStr._+_ (snd Freeᵃᵇ/ImFinBouquetMap) p)
-      commPathtP =
-       typecheck' (isoToEquiv (·GroupAutomorphismR
-                                 (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
-                                 [ η (η x) ]))
-        (SQ.elimProp (λ _ → squash/ _ _)
-          (Abi.elimProp _ (λ _ → squash/ _ _) λ g
-            → sym (AbGroupStr.+Assoc (snd Freeᵃᵇ/ImFinBouquetMap) p
-                    (invEq (isoToEquiv (·GroupAutomorphismR (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
-                                         [ η (η x) ])) [ η g ])
-                    [ η (η x) ])
-                ∙ cong (snd Freeᵃᵇ/ImFinBouquetMap AbGroupStr.+ p)
-                   (sym (AbGroupStr.+Assoc (snd Freeᵃᵇ/ImFinBouquetMap)
-                        [ η g ] [ η (inv (η x)) ]  [ η (η x) ])
-                  ∙ cong (snd Freeᵃᵇ/ImFinBouquetMap AbGroupStr.+ [ η g ])
-                    (AbGroupStr.+InvL (snd Freeᵃᵇ/ImFinBouquetMap) [ η (η x) ])
-                  ∙ AbGroupStr.+IdR (snd Freeᵃᵇ/ImFinBouquetMap) [ η g ])))
+
+    commPathP : PathP (λ i → ua (isoToEquiv (·GroupAutomorphismR
+                                        (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
+                                        [ η (η x) ])) i
+                      → ua (isoToEquiv (·GroupAutomorphismR
+                                        (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
+                                        [ η (η x) ])) i)
+                 (AbGroupStr._+_ (snd Freeᵃᵇ/ImFinBouquetMap) p)
+                 (AbGroupStr._+_ (snd Freeᵃᵇ/ImFinBouquetMap) p)
+    commPathP =
+     typecheck' (isoToEquiv (·GroupAutomorphismR
+                               (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
+                               [ η (η x) ]))
+      (SQ.elimProp (λ _ → squash/ _ _)
+        (Abi.elimProp _ (λ _ → squash/ _ _) λ g
+          → sym (AbGroupStr.+Assoc (snd Freeᵃᵇ/ImFinBouquetMap) p
+                  (invEq (isoToEquiv (·GroupAutomorphismR (AbGroup→Group Freeᵃᵇ/ImFinBouquetMap)
+                                       [ η (η x) ])) [ η g ])
+                  [ η (η x) ])
+              ∙ cong (snd Freeᵃᵇ/ImFinBouquetMap AbGroupStr.+ p)
+                 (sym (AbGroupStr.+Assoc (snd Freeᵃᵇ/ImFinBouquetMap)
+                      [ η g ] [ η (inv (η x)) ]  [ η (η x) ])
+                ∙ cong (snd Freeᵃᵇ/ImFinBouquetMap AbGroupStr.+ [ η g ])
+                  (AbGroupStr.+InvL (snd Freeᵃᵇ/ImFinBouquetMap) [ η (η x) ])
+                ∙ AbGroupStr.+IdR (snd Freeᵃᵇ/ImFinBouquetMap) [ η g ])))
 
   CofibFinBoquetFunCode+ : (x : _) → Freeᵃᵇ/ImFinBouquetMap .fst
     → CofibFinBoquetFunCode x → CofibFinBoquetFunCode x
