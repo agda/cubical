@@ -22,6 +22,10 @@ pt = str
 
 Pointed₀ = Pointed ℓ-zero
 
+Lift∙ : ∀ {i j} → (A : Pointed i) → Pointed (ℓ-max i j)
+fst (Lift∙ {j = j} A) = Lift {j = j} (typ A)
+snd (Lift∙ A) = lift (pt A)
+
 {- Pointed functions -}
 _→∙_ : (A : Pointed ℓ) (B : Pointed ℓ') → Type (ℓ-max ℓ ℓ')
 (A , a) →∙ (B , b) = Σ[ f ∈ (A → B) ] f a ≡ b
