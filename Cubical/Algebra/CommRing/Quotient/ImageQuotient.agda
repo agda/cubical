@@ -97,24 +97,28 @@ module _ {ℓ : Level} (R : CommRing ℓ) {X : Type ℓ} (f : X → ⟨ R ⟩) w
     open IsCommRingHom
 
     inducedMapPreservesRing : IsCommRingHom (str _/Im_) inducedMap (str S)
-    inducedMapPreservesRing = record {
-      pres0 = inducedMap 0r
-                ≡⟨ cong inducedMap (pres0 (snd quotientImageHom)) ⟩
-              inducedMap (quotientImageHom $cr 0r)
-                ≡⟨⟩
-              g $cr 0r
-                ≡⟨ pres0 (snd g) ⟩
-              0r ∎ ;
-      pres1 = inducedMap 1r
-                ≡⟨ cong inducedMap (pres1 (snd quotientImageHom)) ⟩
-              inducedMap (quotientImageHom $cr 1r)
-                ≡⟨⟩
-              g $cr 1r
-                ≡⟨ pres1 (snd g) ⟩
-              1r ∎ ;
-      pres+ = SQ.elimProp2 (λ x y → is-set _ _ ) (pres+ (snd g)) ;
-      pres· = SQ.elimProp2 (λ x y → is-set _ _ ) (pres· (snd g)) ;
-      pres- = SQ.elimProp  (λ x   → is-set _ _ ) (pres- (snd g)) }
+    pres0 inducedMapPreservesRing =
+      inducedMap 0r
+      ≡⟨ cong inducedMap (pres0 (snd quotientImageHom)) ⟩
+      inducedMap (quotientImageHom $cr 0r)
+      ≡⟨⟩
+      g $cr 0r
+      ≡⟨ pres0 (snd g) ⟩
+      0r ∎
+    pres1 inducedMapPreservesRing =
+      inducedMap 1r
+        ≡⟨ cong inducedMap (pres1 (snd quotientImageHom)) ⟩
+      inducedMap (quotientImageHom $cr 1r)
+        ≡⟨⟩
+      g $cr 1r
+        ≡⟨ pres1 (snd g) ⟩
+      1r ∎
+    pres+ inducedMapPreservesRing =
+      SQ.elimProp2 (λ x y → is-set _ _ ) (pres+ (snd g))
+    pres· inducedMapPreservesRing =
+      SQ.elimProp2 (λ x y → is-set _ _ ) (pres· (snd g))
+    pres- inducedMapPreservesRing =
+      SQ.elimProp  (λ x   → is-set _ _ ) (pres- (snd g))
 
     inducedHom : CommRingHom _/Im_ S
     inducedHom = inducedMap , inducedMapPreservesRing
