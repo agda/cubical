@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Int.Fast.IsEven where
 
 open import Cubical.Foundations.Prelude
@@ -115,7 +114,7 @@ isOddIsEven→IsOdd x y px py = falseIsEven (x + y) ((k + l) , ( cong₂ _+_ qk 
            1 + 2 · (k + l)     ∎
 
 isEvenIsOdd→IsOdd : (x y : ℤ) → isEven x ≡ true → isEven y ≡ false → isEven (x + y) ≡ false
-isEvenIsOdd→IsOdd x y px py = cong isEven (+Comm x y) ∙ isOddIsEven→IsOdd y x py px 
+isEvenIsOdd→IsOdd x y px py = cong isEven (+Comm x y) ∙ isOddIsEven→IsOdd y x py px
 
 isEvenIsEven→IsEven : (x y : ℤ) → isEven x ≡ true → isEven y ≡ true → isEven (x + y) ≡ true
 isEvenIsEven→IsEven x y px py = trueIsEven (x + y) ((k + l) , cong₂ _+_ qk ql ∙ sym (·DistR+ 2 k l))
