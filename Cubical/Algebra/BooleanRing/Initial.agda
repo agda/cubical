@@ -13,19 +13,20 @@ open import Cubical.Tactics.CommRingSolver
 
 module _ where
   open BooleanStr
+  open IsBooleanRing
 
   BoolBRStr : BooleanStr Bool
-  BoolBRStr .𝟘 = false
-  BoolBRStr .𝟙 = true
-  BoolBRStr ._+_ = _⊕_
-  BoolBRStr ._·_ = _and_
-  BoolBRStr .-_ x = x
-  BoolBRStr .isBooleanRing = record
-    { isCommRing = makeIsCommRing isSetBool ⊕-assoc ⊕-identityʳ
-              (bool-ind refl refl) ⊕-comm and-assoc and-identityʳ
-              (bool-ind (λ _ _ → refl) λ _ _ → refl) and-comm
-    ; ·Idem = bool-ind refl refl
-    }
+  𝟘 BoolBRStr   = false
+  𝟙 BoolBRStr   = true
+  _+_ BoolBRStr = _⊕_
+  _·_ BoolBRStr = _and_
+  - BoolBRStr   = λ x → x
+  isCommRing (isBooleanRing BoolBRStr) = makeIsCommRing
+    isSetBool ⊕-assoc ⊕-identityʳ
+    (bool-ind refl refl) ⊕-comm and-assoc
+    and-identityʳ (bool-ind (λ _ _ → refl)
+    (λ _ _ → refl)) and-comm
+  ·Idem (isBooleanRing BoolBRStr) = bool-ind refl refl
 
 BoolBR : BooleanRing ℓ-zero
 BoolBR = Bool , BoolBRStr
