@@ -11,28 +11,8 @@ open import Cubical.Data.Bool renaming (elim to bool-ind)
 open import Cubical.Algebra.CommRing
 open import Cubical.Tactics.CommRingSolver
 
-module _ where
-  open BooleanStr
-  open IsBooleanRing
-
-  BoolBRStr : BooleanStr Bool
-  𝟘 BoolBRStr   = false
-  𝟙 BoolBRStr   = true
-  _+_ BoolBRStr = _⊕_
-  _·_ BoolBRStr = _and_
-  - BoolBRStr   = λ x → x
-  isCommRing (isBooleanRing BoolBRStr) = makeIsCommRing
-    isSetBool ⊕-assoc ⊕-identityʳ
-    (bool-ind refl refl) ⊕-comm and-assoc
-    and-identityʳ (bool-ind (λ _ _ → refl)
-    (λ _ _ → refl)) and-comm
-  ·Idem (isBooleanRing BoolBRStr) = bool-ind refl refl
-
-BoolBR : BooleanRing ℓ-zero
-BoolBR = Bool , BoolBRStr
-
-BoolCR : CommRing ℓ-zero
-BoolCR = BooleanRing→CommRing BoolBR
+open import Cubical.Algebra.BooleanRing.Instances.Bool
+open import Cubical.Algebra.CommRing.Instances.Bool
 
 module _ {ℓ : Level} (B : BooleanRing ℓ) where
   private
