@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   An apartness relation is a relation that distinguishes
   elements which are different from each other

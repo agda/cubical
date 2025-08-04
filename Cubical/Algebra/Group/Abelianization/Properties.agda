@@ -7,12 +7,13 @@ The definition of the abelianization is not as a set-quotient, since the relatio
 abelianization is cumbersome to work with.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Abelianization.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 
@@ -20,15 +21,17 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-  using (isPropIsGroupHom; compGroupHom; idGroupHom)
-
+  using (isPropIsGroupHom; compGroupHom; idGroupHom
+       ; makeIsGroupHom ; GroupEquiv→GroupHom ; invGroupEquiv)
+open import Cubical.Algebra.Monoid.Base
+open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.AbGroup.Base
 
 open import Cubical.Algebra.Group.Abelianization.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 module _ (G : Group ℓ) where
   open GroupStr {{...}}
@@ -38,7 +41,7 @@ module _ (G : Group ℓ) where
       _ = snd G
 
   -- Some helpful lemmas, similar to those in Cubical/HITs/SetQuotients/Properties.agda
-  elimProp : {B : Abelianization G → Type ℓ}
+  elimProp : {B : Abelianization G → Type ℓ'}
         → (Bprop : (x : Abelianization G) → isProp (B x))
         → (f : (g : fst G) → B (η g))
         → (x : Abelianization G)
@@ -52,7 +55,7 @@ module _ (G : Group ℓ) where
     where
     g = elimProp Bprop f
 
-  elimProp2 : {C : Abelianization G → Abelianization G → Type ℓ}
+  elimProp2 : {C : Abelianization G → Abelianization G → Type ℓ'}
         → (Cprop : (x y : Abelianization G) → isProp (C x y))
         → (f : (a b : fst G) → C (η a) (η b))
         → (x y : Abelianization G)
@@ -60,7 +63,7 @@ module _ (G : Group ℓ) where
   elimProp2 Cprop f = elimProp (λ x → isPropΠ (λ y → Cprop x y))
                                (λ x → elimProp (λ y → Cprop (η x) y) (f x))
 
-  elimProp3 : {D : Abelianization G → Abelianization G → Abelianization G → Type ℓ}
+  elimProp3 : {D : Abelianization G → Abelianization G → Abelianization G → Type ℓ'}
         → (Dprop : (x y z : Abelianization G) → isProp (D x y z))
         → ((a b c : fst G) → D (η a) (η b) (η c))
         → (x y z : Abelianization G)
@@ -68,21 +71,21 @@ module _ (G : Group ℓ) where
   elimProp3 Dprop f = elimProp (λ x → isPropΠ2 (λ y z → Dprop x y z))
                                (λ x → elimProp2 (λ y z → Dprop (η x) y z) (f x))
 
-  elimContr : {B : Abelianization G → Type ℓ}
+  elimContr : {B : Abelianization G → Type ℓ'}
         → (Bcontr : ∀ (a : fst G) → isContr (B (η a)))
         → (x : Abelianization G)
         → B x
   elimContr Bcontr = elimProp (elimProp (λ _ → isPropIsProp) λ _ → isContr→isProp (Bcontr _))
                               λ _ → Bcontr _ .fst
 
-  elimContr2 : {C : Abelianization G → Abelianization G → Type ℓ}
+  elimContr2 : {C : Abelianization G → Abelianization G → Type ℓ'}
         → (Ccontr : ∀ (a b : fst G) → isContr (C (η a) (η b)))
         → (x y : Abelianization G)
         → C x y
   elimContr2 Ccontr = elimContr λ _ → isOfHLevelΠ 0
                      (elimContr λ _ → inhProp→isContr (Ccontr _ _) isPropIsContr)
 
-  rec : {M : Type ℓ}
+  rec : {M : Type ℓ'}
         (Mset : isSet M)
         (f : fst G → M)
         (fcomm : (a b c : fst G) → f (a · (b · c)) ≡ f (a · (c · b)))
@@ -93,7 +96,7 @@ module _ (G : Group ℓ) where
     where
     g = rec Mset f fcomm
 
-  rec2 : {M : Type ℓ}
+  rec2 : {M : Type ℓ'}
         (Mset : isSet M)
         (f : fst G → fst G → M)
         (fcomml : (a b c d : fst G) → f (a · (b · c)) d ≡ f (a · (c · b)) d)
@@ -195,9 +198,24 @@ module AbelianizationGroupStructure (G : Group ℓ) where
                η (y · x)        ≡⟨ refl ⟩
                (η y) ·Ab (η x) ∎)
 
+  open AbGroupStr
+  open IsAbGroup
+  open IsGroup
+  open IsSemigroup
+  open IsMonoid
   -- The proof that the abelianization is in fact an abelian group.
   asAbelianGroup : AbGroup ℓ
-  asAbelianGroup = makeAbGroup 1Ab _·Ab_ invAb isset assocAb ridAb rinvAb commAb
+  fst asAbelianGroup = Abelianization G
+  0g (snd asAbelianGroup) = 1Ab
+  _+_ (snd asAbelianGroup) = _·Ab_
+  - snd asAbelianGroup = invAb
+  is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd asAbelianGroup))))) = isset
+  ·Assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd asAbelianGroup))))) = assocAb
+  ·IdR (isMonoid (isGroup (isAbGroup (snd asAbelianGroup)))) = ridAb
+  ·IdL (isMonoid (isGroup (isAbGroup (snd asAbelianGroup)))) x = commAb 1Ab x ∙ ridAb x
+  ·InvR (isGroup (isAbGroup (snd asAbelianGroup))) = rinvAb
+  ·InvL (isGroup (isAbGroup (snd asAbelianGroup))) x = commAb (invAb x) x ∙ rinvAb x
+  +Comm (isAbGroup (snd asAbelianGroup)) = commAb
 
   -- The proof that η can be seen as a group homomorphism
   ηAsGroupHom : GroupHom G (AbGroup→Group asAbelianGroup)
@@ -212,6 +230,9 @@ module AbelianizationGroupStructure (G : Group ℓ) where
 AbelianizationAbGroup : (G : Group ℓ) → AbGroup ℓ
 AbelianizationAbGroup G = AbelianizationGroupStructure.asAbelianGroup G
 
+AbelianizationGroup : (G : Group ℓ) → Group ℓ
+AbelianizationGroup G = AbGroup→Group (AbelianizationAbGroup G)
+
 AbelianizationHom : (G : Group ℓ) → GroupHom G (AbGroup→Group (AbelianizationAbGroup G))
 AbelianizationHom G = AbelianizationGroupStructure.ηAsGroupHom G
 
@@ -222,80 +243,135 @@ module UniversalProperty (G : Group ℓ) where
   private
     instance
       _ = snd G
-  abstract
-    {- The proof of the universal property of the abelianization.
 
-    G --η--> abelianization
-    \         .
-      \       .
-        f   ∃! inducedHom
-          \   .
-            \ .
-              H
-    commuting diagram
-    -}
-    inducedHom : (H : AbGroup ℓ)
-               → (f : GroupHom G (AbGroup→Group H))
-               → AbGroupHom asAbelianGroup H
-    inducedHom H f = g , gIsHom
-      where open IsGroupHom
-            instance
-              _ : GroupStr (fst H)
-              _ = snd (AbGroup→Group H)
-            f' : fst G → fst H
-            f' = fst f
-            g : Abelianization G → fst H
-            g = (rec G)
-                  is-set
-                  (λ x → (f') x)
-                  (λ a b c → f' (a · b · c)           ≡⟨ (snd f).pres· a (b · c) ⟩
-                             (f' a) · (f' (b · c))    ≡⟨ cong
-                                                           (λ x → (f' a) · x)
-                                                           ((snd f).pres· b c) ⟩
-                             (f' a) · (f' b) · (f' c) ≡⟨ cong
-                                                           (λ x → (f' a) · x)
-                                                           ((snd H).AbGroupStr.+Comm (f' b) (f' c)) ⟩
-                             (f' a) · (f' c) · (f' b) ≡⟨ cong
-                                                           (λ x → (f' a) · x)
-                                                           (sym ((snd f).pres· c b)) ⟩
-                             (f' a) · (f' (c · b))    ≡⟨ sym ((snd f).pres· a (c · b)) ⟩
-                             f' (a · c · b) ∎)
-            gIsHom : IsGroupHom (snd (AbGroup→Group asAbelianGroup)) g (snd (AbGroup→Group H))
-            pres· gIsHom =
-              (elimProp2 G)
-                (λ x y → is-set _ _)
-                ((snd f).pres·)
-            pres1 gIsHom = (snd f).pres1
-            presinv gIsHom =
-              (elimProp G)
-                (λ x → is-set _ _)
-                ((snd f).presinv)
+  {- The proof of the universal property of the abelianization.
 
-    commutativity : (H : AbGroup ℓ)
-                  → (f : GroupHom G (AbGroup→Group H))
-                  → (compGroupHom ηAsGroupHom (inducedHom H f) ≡ f)
-    commutativity H f =
-        Σ≡Prop
-          (λ _ → isPropIsGroupHom _ _)
-          (λ i x → q x i)
-      where q : (x : fst  G)
-              → fst (compGroupHom ηAsGroupHom (inducedHom H f)) x ≡ fst f x
-            q = (λ x → refl)
+  G --η--> abelianization
+  \         .
+    \       .
+      f   ∃! inducedHom
+        \   .
+          \ .
+            H
+  commuting diagram
+  -}
+  inducedHom : (H : AbGroup ℓ)
+             → (f : GroupHom G (AbGroup→Group H))
+             → AbGroupHom asAbelianGroup H
+  inducedHom H f = g , gIsHom
+    where open IsGroupHom
+          instance
+            _ : GroupStr (fst H)
+            _ = snd (AbGroup→Group H)
+          f' : fst G → fst H
+          f' = fst f
+          g : Abelianization G → fst H
+          g = (rec G)
+                is-set
+                (λ x → (f') x)
+                (λ a b c → f' (a · b · c)           ≡⟨ (snd f).pres· a (b · c) ⟩
+                           (f' a) · (f' (b · c))    ≡⟨ cong
+                                                         (λ x → (f' a) · x)
+                                                         ((snd f).pres· b c) ⟩
+                           (f' a) · (f' b) · (f' c) ≡⟨ cong
+                                                         (λ x → (f' a) · x)
+                                                         ((snd H).AbGroupStr.+Comm (f' b) (f' c)) ⟩
+                           (f' a) · (f' c) · (f' b) ≡⟨ cong
+                                                         (λ x → (f' a) · x)
+                                                         (sym ((snd f).pres· c b)) ⟩
+                           (f' a) · (f' (c · b))    ≡⟨ sym ((snd f).pres· a (c · b)) ⟩
+                           f' (a · c · b) ∎)
+          gIsHom : IsGroupHom (snd (AbGroup→Group asAbelianGroup)) g (snd (AbGroup→Group H))
+          pres· gIsHom =
+            (elimProp2 G)
+              (λ x y → is-set _ _)
+              ((snd f).pres·)
+          pres1 gIsHom = (snd f).pres1
+          presinv gIsHom =
+            (elimProp G)
+              (λ x → is-set _ _)
+              ((snd f).presinv)
 
-    uniqueness : (H : AbGroup ℓ)
-               → (f : GroupHom G (AbGroup→Group H))
-               → (g : AbGroupHom asAbelianGroup H)
-               → (p : compGroupHom ηAsGroupHom g ≡ f)
-               → (g ≡ inducedHom H f)
-    uniqueness H f g p =
-        Σ≡Prop
-          (λ _ → isPropIsGroupHom _ _)
-          (λ i x →  q x i)
-      where
-      module H = AbGroupStr (str H)
-      q : (x : Abelianization G) → fst g x ≡ fst (inducedHom H f) x
-      q = (elimProp G)
-            (λ _ → H.is-set _ _)
-            (λ x → fst g (η x) ≡⟨ cong (λ f → f x) (cong fst p) ⟩
-                   (fst f) x   ≡⟨ refl ⟩
-                   fst (inducedHom H f) (η x)∎)
+  commutativity : (H : AbGroup ℓ)
+                → (f : GroupHom G (AbGroup→Group H))
+                → (compGroupHom ηAsGroupHom (inducedHom H f) ≡ f)
+  commutativity H f =
+      Σ≡Prop
+        (λ _ → isPropIsGroupHom _ _)
+        (λ i x → q x i)
+    where q : (x : fst  G)
+            → fst (compGroupHom ηAsGroupHom (inducedHom H f)) x ≡ fst f x
+          q = (λ x → refl)
+
+  uniqueness : (H : AbGroup ℓ)
+             → (f : GroupHom G (AbGroup→Group H))
+             → (g : AbGroupHom asAbelianGroup H)
+             → (p : compGroupHom ηAsGroupHom g ≡ f)
+             → (g ≡ inducedHom H f)
+  uniqueness H f g p =
+      Σ≡Prop
+        (λ _ → isPropIsGroupHom _ _)
+        (λ i x →  q x i)
+    where
+    module H = AbGroupStr (str H)
+    q : (x : Abelianization G) → fst g x ≡ fst (inducedHom H f) x
+    q = (elimProp G)
+          (λ _ → H.is-set _ _)
+          (λ x → fst g (η x) ≡⟨ cong (λ f → f x) (cong fst p) ⟩
+                 (fst f) x   ≡⟨ refl ⟩
+                 fst (inducedHom H f) (η x)∎)
+
+
+module _ {ℓ} {G : Group ℓ} (H : AbGroup ℓ) (ϕ : GroupHom G (AbGroup→Group H)) where
+  fromAbelianization : AbGroupHom (AbelianizationAbGroup G) H
+  fst fromAbelianization = rec G (AbGroupStr.is-set (snd H)) (fst ϕ)
+    λ x y z → IsGroupHom.pres· (snd ϕ) _ _
+            ∙ cong₂ (AbGroupStr._+_ (snd H)) refl
+                (IsGroupHom.pres· (snd ϕ) _ _
+                ∙ AbGroupStr.+Comm (snd H) _ _
+                ∙ sym (IsGroupHom.pres· (snd ϕ) _ _))
+            ∙ sym (IsGroupHom.pres· (snd ϕ) _ _)
+  snd fromAbelianization =
+    makeIsGroupHom (elimProp2 _
+      (λ _ _ → AbGroupStr.is-set (snd H) _ _)
+      λ x y → IsGroupHom.pres· (snd ϕ) x y)
+
+AbelianizationFun : ∀ {ℓ} {G : Group ℓ} {H : Group ℓ}
+  → GroupHom G H → AbGroupHom (AbelianizationAbGroup G) (AbelianizationAbGroup H)
+fst (AbelianizationFun {G = G} {H} ϕ) = rec _ isset (λ x → η (fst ϕ x)) λ a b c
+  → cong η (IsGroupHom.pres· (snd ϕ) a _
+         ∙ cong₂ (GroupStr._·_ (snd H)) refl (IsGroupHom.pres· (snd ϕ) b c))
+  ∙ comm _ _ _
+  ∙ sym (cong η (IsGroupHom.pres· (snd ϕ) a _
+         ∙ cong₂ (GroupStr._·_ (snd H)) refl (IsGroupHom.pres· (snd ϕ) c b)))
+snd (AbelianizationFun {G = G} {H} ϕ) = makeIsGroupHom
+  (elimProp2 _ (λ _ _ → isset _ _)
+    λ a b → cong η (IsGroupHom.pres· (snd ϕ) a b))
+
+AbelianizationEquiv : ∀ {ℓ} {G : Group ℓ} {H : Group ℓ}
+  → GroupEquiv G H
+  → AbGroupEquiv (AbelianizationAbGroup G) (AbelianizationAbGroup H)
+fst (AbelianizationEquiv {G = G} {H} ϕ) = isoToEquiv main
+  where
+  main : Iso _ _
+  Iso.fun main = fst (AbelianizationFun (GroupEquiv→GroupHom ϕ))
+  Iso.inv main = fst (AbelianizationFun (GroupEquiv→GroupHom (invGroupEquiv ϕ)))
+  Iso.rightInv main =
+    elimProp _ (λ _ → isset _ _) λ g → cong η (secEq (fst ϕ) g)
+  Iso.leftInv main =
+    elimProp _ (λ _ → isset _ _) λ g → cong η (retEq (fst ϕ) g)
+snd (AbelianizationEquiv {G = G} {H} ϕ) =
+  snd (AbelianizationFun (fst (fst ϕ) , snd ϕ))
+
+AbelianizationIdempotent : ∀ {ℓ} (G : AbGroup ℓ)
+  → AbGroupIso G (AbelianizationAbGroup (AbGroup→Group G))
+Iso.fun (fst (AbelianizationIdempotent G)) = η
+Iso.inv (fst (AbelianizationIdempotent G)) =
+  rec _ (AbGroupStr.is-set (snd G))
+  (λ x → x)
+  λ a b c → cong (AbGroupStr._+_ (snd G) a) (AbGroupStr.+Comm (snd G) _ _)
+Iso.rightInv (fst (AbelianizationIdempotent G)) =
+  elimProp _ (λ _ → isset _ _) (λ _ → refl)
+Iso.leftInv (fst (AbelianizationIdempotent G)) x = refl
+snd (AbelianizationIdempotent G) =
+  snd (AbelianizationGroupStructure.ηAsGroupHom _)

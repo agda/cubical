@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Reflection.StrictEquiv where
 
 open import Cubical.Foundations.Prelude

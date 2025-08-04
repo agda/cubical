@@ -1,6 +1,5 @@
 -- This is the preferred version of the integers in the library. Other
 -- versions can be found in the MoreInts directory.
-{-# OPTIONS --safe #-}
 module Cubical.Data.Int.Base where
 
 open import Cubical.Foundations.Prelude

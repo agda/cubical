@@ -5,7 +5,6 @@ This file contains:
 - Ordinals as well-ordered sets
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Data.Ordinal.Base where
 
 open import Cubical.Foundations.Prelude

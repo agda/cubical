@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.Modalities.Instances.Open where
 

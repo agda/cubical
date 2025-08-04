@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.BooleanRing.Base where
 
 open import Cubical.Foundations.Prelude hiding (_∧_;_∨_)
@@ -24,7 +23,7 @@ record IsBooleanRing {B : Type ℓ}
 
   open IsCommRing isCommRing public
 
-record BooleanStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
+record BooleanRingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
   field
     𝟘          : A
     𝟙          : A
@@ -40,22 +39,49 @@ record BooleanStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
   open IsBooleanRing isBooleanRing public
 
 BooleanRing : ∀ ℓ → Type (ℓ-suc ℓ)
-BooleanRing ℓ = TypeWithStr ℓ BooleanStr
+BooleanRing ℓ = TypeWithStr ℓ BooleanRingStr
 
-BooleanStr→CommRingStr : { A : Type ℓ } →  BooleanStr A  → CommRingStr A
-BooleanStr→CommRingStr x = record { isCommRing = IsBooleanRing.isCommRing (BooleanStr.isBooleanRing x) }
+module _ {A : Type ℓ} (BRStr : BooleanRingStr A) where
+  open CommRingStr
+  open BooleanRingStr( BRStr)
+  BooleanRingStr→CommRingStr : CommRingStr A
+  0r  BooleanRingStr→CommRingStr = _
+  1r  BooleanRingStr→CommRingStr = _
+  _+_ BooleanRingStr→CommRingStr = _
+  _·_ BooleanRingStr→CommRingStr = _
+  -   BooleanRingStr→CommRingStr = _
+  isCommRing BooleanRingStr→CommRingStr = isCommRing BRStr
 
 BooleanRing→CommRing : BooleanRing ℓ → CommRing ℓ
-BooleanRing→CommRing (carrier , structure ) = carrier , BooleanStr→CommRingStr structure
+BooleanRing→CommRing (carrier , structure ) = carrier , BooleanRingStr→CommRingStr structure
 
-BooleanStr→RingStr : { A : Type ℓ } → BooleanStr A → RingStr A
-BooleanStr→RingStr S = CommRingStr→RingStr (BooleanStr→CommRingStr S)
+BooleanRingStr→RingStr : { A : Type ℓ } → BooleanRingStr A → RingStr A
+BooleanRingStr→RingStr S = CommRingStr→RingStr (BooleanRingStr→CommRingStr S)
 
 BooleanRing→Ring : BooleanRing ℓ → Ring ℓ
-BooleanRing→Ring (carrier , structure ) = carrier , BooleanStr→RingStr structure
+BooleanRing→Ring (carrier , structure ) = carrier , BooleanRingStr→RingStr structure
+
+isIdemRing : {ℓ : Level} → CommRing ℓ → Type ℓ
+isIdemRing R = ∀ (r : ⟨ R ⟩) → (str R) .CommRingStr._·_ r r ≡ r
+
+module _ {ℓ : Level} (R : CommRing ℓ) (idem : isIdemRing R) where
+  open BooleanRingStr
+  open IsBooleanRing
+  idemCommRing→BR : BooleanRing ℓ
+  fst idemCommRing→BR = ⟨ R ⟩
+  𝟘 (snd idemCommRing→BR)   = _
+  𝟙 (snd idemCommRing→BR)   = _
+  _+_ (snd idemCommRing→BR) = _
+  _·_ (snd idemCommRing→BR) = _
+  - snd idemCommRing→BR     = _
+  isCommRing (isBooleanRing (snd idemCommRing→BR)) = (str R) .CommRingStr.isCommRing
+  ·Idem (isBooleanRing (snd idemCommRing→BR))      = idem
+
+BoolHom : {ℓ ℓ' : Level} → (A : BooleanRing ℓ) → (B : BooleanRing ℓ') → Type _
+BoolHom A B = CommRingHom (BooleanRing→CommRing A) (BooleanRing→CommRing B)
 
 module BooleanAlgebraStr (A : BooleanRing ℓ)  where
-  open BooleanStr (A . snd)
+  open BooleanRingStr (A . snd)
   _∨_ : ⟨ A ⟩ → ⟨ A ⟩ → ⟨ A ⟩
   a ∨ b = (a + b) + (a · b)
   _∧_ : ⟨ A ⟩ → ⟨ A ⟩ → ⟨ A ⟩
@@ -258,3 +284,4 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
     ((𝟙 + x)  + (𝟙 + x)) + (y + y)  + 𝟙 + x · y
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     ¬ x ∨ ¬ y ∎
+

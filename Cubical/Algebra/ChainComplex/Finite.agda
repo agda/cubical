@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.ChainComplex.Finite where
 
 {- When dealing with chain maps and chain homotopies constructively,

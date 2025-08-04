@@ -3,7 +3,6 @@
 Matrix with coefficients in integers
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.IntegerMatrix.Base where
 
 open import Cubical.Foundations.Prelude

@@ -1,7 +1,6 @@
 {-
   Definition of a natural transformation displayed over another natural transformation.
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.NaturalTransformation where
 
 open import Cubical.Foundations.Prelude

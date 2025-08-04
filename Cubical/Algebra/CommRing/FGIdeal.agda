@@ -4,7 +4,6 @@
   Parts of this should be reusable for explicit constructions
   of free modules over a finite set.
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.FGIdeal where
 
 open import Cubical.Foundations.Prelude
@@ -130,8 +129,9 @@ module _
   open Sum
   open SumMap (CommRing→Ring A') B'
 
-  ∑A = ∑ (CommRing→Ring A')
-  ∑B = ∑ B'
+  private
+    ∑A = ∑ (CommRing→Ring A')
+    ∑B = ∑ B'
 
   cancelLinearCombination : (n : ℕ) → (a v : FinVec A n) → (fnull : (k : Fin n) → f (v k) ≡ 0B)
                                → f (linearCombination A' a v) ≡ 0B
@@ -144,6 +144,26 @@ module _
                                         ∑B (λ i → f (a i) ·B 0B)
                                              ≡⟨ ∑Mulr0 B' (λ i → f (a i)) ⟩
                                         0B ∎
+
+module _ (A B : CommRing ℓ) (f : CommRingHom A B) where
+  open Sum
+  open SumMap (CommRing→Ring A) (CommRing→Ring B)
+  open IsCommRingHom
+  open CommRingStr ⦃...⦄
+  instance
+    _ = snd A
+    _ = snd B
+
+  private
+    ∑A = ∑ (CommRing→Ring A)
+    ∑B = ∑ (CommRing→Ring B)
+
+  presLinearCombination : (n : ℕ) → (a v : FinVec (fst A) n)
+                          → fst f (linearCombination A a v) ≡ linearCombination B (fst f ∘ a) (fst f ∘ v)
+  presLinearCombination n a v =
+    fst f (∑A (λ i → a i · v i))          ≡⟨ ∑Map (CommRingHom→RingHom f) (λ i → a i · v i) ⟩
+    ∑B (λ i → fst f (a i · v i))          ≡⟨ ∑Ext (CommRing→Ring B) (λ i → pres· (f .snd) (a i) (v i)) ⟩
+    ∑B (λ i → fst f (a i) · fst f (v i))  ∎
 
 
 module _

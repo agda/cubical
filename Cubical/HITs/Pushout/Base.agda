@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Pushout.Base where
 
 open import Cubical.Foundations.Prelude
@@ -6,6 +5,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
@@ -36,6 +36,10 @@ Pushout→ f₁ f₂ g₁ g₂ h₀ h₁ h₂ e₁ e₂ (push a i) =
 -- cofiber (equivalent to Cone in Cubical.HITs.MappingCones.Base)
 cofib : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type _
 cofib f = Pushout (λ _ → tt) f
+
+cofib∙ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Pointed _
+fst (cofib∙ f) = cofib f
+snd (cofib∙ f) = inl tt
 
 cfcod : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → B → cofib f
 cfcod f = inr
@@ -141,3 +145,38 @@ module _ {ℓ₁ ℓ₂ ℓ₃ : Level} {A : Type ℓ₁} {B : Type ℓ₂} {C :
   leftInv IsoPushoutPushoutGen (inl x) = refl
   leftInv IsoPushoutPushoutGen (inr x) = refl
   leftInv IsoPushoutPushoutGen (push a i) j = rUnit (push a) (~ j) i
+
+
+-- Pushout along a composition
+module _ {ℓ ℓ' ℓ'' ℓ'''}
+  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
+  (f1 : A → B) (f2 : B → C) {g : A → D} where
+  PushoutComp→IteratedPushout :
+    Pushout (f2 ∘ f1) g → Pushout {C = Pushout f1 g} f2 inl
+  PushoutComp→IteratedPushout (inl x) = inl x
+  PushoutComp→IteratedPushout (inr x) = inr (inr x)
+  PushoutComp→IteratedPushout (push a i) = (push (f1 a) ∙ λ i → inr (push a i)) i
+
+  IteratedPushout→PushoutComp :
+    Pushout {C = Pushout f1 g} f2 inl → Pushout (f2 ∘ f1) g
+  IteratedPushout→PushoutComp (inl x) = inl x
+  IteratedPushout→PushoutComp (inr (inl x)) = inl (f2 x)
+  IteratedPushout→PushoutComp (inr (inr x)) = inr x
+  IteratedPushout→PushoutComp (inr (push a i)) = push a i
+  IteratedPushout→PushoutComp (push a i) = inl (f2 a)
+
+  Iso-PushoutComp-IteratedPushout :
+    Iso (Pushout (f2 ∘ f1) g) (Pushout {C = Pushout f1 g} f2 inl)
+  Iso.fun Iso-PushoutComp-IteratedPushout = PushoutComp→IteratedPushout
+  Iso.inv Iso-PushoutComp-IteratedPushout = IteratedPushout→PushoutComp
+  Iso.rightInv Iso-PushoutComp-IteratedPushout (inl x) = refl
+  Iso.rightInv Iso-PushoutComp-IteratedPushout (inr (inl x)) = push x
+  Iso.rightInv Iso-PushoutComp-IteratedPushout (inr (inr x)) = refl
+  Iso.rightInv Iso-PushoutComp-IteratedPushout (inr (push a i)) j =
+    compPath-filler' (push (f1 a)) (λ i₁ → inr (push a i₁)) (~ j) i
+  Iso.rightInv Iso-PushoutComp-IteratedPushout (push a i) j = push a (i ∧ j)
+  Iso.leftInv Iso-PushoutComp-IteratedPushout (inl x) = refl
+  Iso.leftInv Iso-PushoutComp-IteratedPushout (inr x) = refl
+  Iso.leftInv Iso-PushoutComp-IteratedPushout (push a i) j =
+    (cong-∙ IteratedPushout→PushoutComp (push (f1 a)) (λ i → inr (push a i))
+    ∙ sym (lUnit _)) j i

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   In this module, the commonly known identity between the sum of the first (n+1) natural
   numbers (also known as the n-th triangular number) and the product ½ · n · (n+1) is

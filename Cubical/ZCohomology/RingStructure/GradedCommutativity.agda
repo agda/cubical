@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.ZCohomology.RingStructure.GradedCommutativity where
 
 open import Cubical.Foundations.HLevels

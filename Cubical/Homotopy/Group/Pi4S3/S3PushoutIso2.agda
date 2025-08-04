@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Homotopy.Group.Pi4S3.S3PushoutIso2 where
 
 open import Cubical.Homotopy.Group.Base

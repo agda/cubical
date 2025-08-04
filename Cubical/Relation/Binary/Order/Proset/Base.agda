@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   Prosets are preordered sets; a set with a reflexive, transitive relation
 -}

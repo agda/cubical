@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Limits.Initial where
 
 open import Cubical.Foundations.Prelude

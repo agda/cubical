@@ -10,7 +10,6 @@
 -- properties by transporting those on finite multisets.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --safe #-}
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism

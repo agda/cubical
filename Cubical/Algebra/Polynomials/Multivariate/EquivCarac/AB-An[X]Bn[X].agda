@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.Polynomials.Multivariate.EquivCarac.AB-An[X]Bn[X] where
 
 open import Cubical.Foundations.Prelude
@@ -14,7 +14,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly
 
 private variable
   ℓ : Level
@@ -23,7 +23,7 @@ private variable
 -----------------------------------------------------------------------------
 -- Lift
 
-open IsRingHom
+open IsCommRingHom
 open CommRingStr
 
 module _
@@ -46,7 +46,7 @@ module _
                                          (+Comm (snd PB))
                                          (λ v → (cong (base v) (pres0 fstr)) ∙ (base-neutral v))
                                          (λ v a b → (base-add v (f a) (f b)) ∙ (cong (base v) (sym (pres+ fstr a b))))
-  snd (makeCommRingHomPoly (f , fstr)) = makeIsRingHom
+  snd (makeCommRingHomPoly (f , fstr)) = makeIsCommRingHom
                                          (cong (base (replicate zero)) (pres1 fstr))
                                          (λ _ _ → refl)
                                          (DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ λ _ → trunc _ _)
@@ -72,15 +72,14 @@ module _
     PB = PolyCommRing B' n
 
   open Iso
-  open RingEquivs
 
   lift-equiv-poly : (e : CommRingEquiv A' B') → CommRingEquiv (PolyCommRing A' n) (PolyCommRing B' n)
   fst (lift-equiv-poly (e , fstr)) = isoToEquiv is
     where
     f = fst e
     g = invEq e
-    gstr : IsRingHom (snd (CommRing→Ring B')) g (snd (CommRing→Ring A'))
-    gstr = isRingHomInv (e , fstr)
+    gstr : IsCommRingHom (B' .snd) g (A' .snd)
+    gstr = isCommRingHomInv (e , fstr)
 
     is : Iso (fst PA) (fst PB)
     fun is = fst (makeCommRingHomPoly A' B' n (f , fstr))

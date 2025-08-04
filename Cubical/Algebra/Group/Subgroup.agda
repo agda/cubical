@@ -7,7 +7,6 @@ The definition is the same as the first definition of subgroups in:
 https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#subgroups-sip
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Subgroup where
 
 open import Cubical.Foundations.Prelude
@@ -185,6 +184,10 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
       ((y H.· x) H.· H.inv x)    ≡⟨ cong (H._· H.inv x) (comm y x) ⟩
       ((x H.· y) H.· H.inv x)    ≡⟨ sym (H.·Assoc x y (H.inv x)) ⟩
       x H.· y H.· H.inv x        ∎ )}
+
+  imNormalSubgroup : ((x y : ⟨ H ⟩) → x H.· y ≡ y H.· x) → NormalSubgroup H
+  fst (imNormalSubgroup _) = imSubgroup
+  snd (imNormalSubgroup comm) = isNormalIm comm
 
   kerSubset : ℙ ⟨ G ⟩
   kerSubset x = isInKer ϕ x , isPropIsInKer ϕ x
