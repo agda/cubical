@@ -7,10 +7,10 @@ open import Cubical.Algebra.BooleanRing.Base
 open import Cubical.Data.Bool renaming (elim to bool-ind)
 open import Cubical.Algebra.CommRing
 
-open BooleanStr
+open BooleanRingStr
 open IsBooleanRing
 
-BoolBRStr : BooleanStr Bool
+BoolBRStr : BooleanRingStr Bool
 𝟘 BoolBRStr   = false
 𝟙 BoolBRStr   = true
 _+_ BoolBRStr = _⊕_

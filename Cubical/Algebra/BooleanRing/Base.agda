@@ -24,7 +24,7 @@ record IsBooleanRing {B : Type ℓ}
 
   open IsCommRing isCommRing public
 
-record BooleanStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
+record BooleanRingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
   field
     𝟘          : A
     𝟙          : A
@@ -40,25 +40,25 @@ record BooleanStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
   open IsBooleanRing isBooleanRing public
 
 BooleanRing : ∀ ℓ → Type (ℓ-suc ℓ)
-BooleanRing ℓ = TypeWithStr ℓ BooleanStr
+BooleanRing ℓ = TypeWithStr ℓ BooleanRingStr
 
-BooleanStr→CommRingStr : { A : Type ℓ } →  BooleanStr A  → CommRingStr A
-BooleanStr→CommRingStr x = record { isCommRing = IsBooleanRing.isCommRing (BooleanStr.isBooleanRing x) }
+BooleanRingStr→CommRingStr : { A : Type ℓ } →  BooleanRingStr A  → CommRingStr A
+BooleanRingStr→CommRingStr x = record { isCommRing = IsBooleanRing.isCommRing (BooleanRingStr.isBooleanRing x) }
 
 BooleanRing→CommRing : BooleanRing ℓ → CommRing ℓ
-BooleanRing→CommRing (carrier , structure ) = carrier , BooleanStr→CommRingStr structure
+BooleanRing→CommRing (carrier , structure ) = carrier , BooleanRingStr→CommRingStr structure
 
-BooleanStr→RingStr : { A : Type ℓ } → BooleanStr A → RingStr A
-BooleanStr→RingStr S = CommRingStr→RingStr (BooleanStr→CommRingStr S)
+BooleanRingStr→RingStr : { A : Type ℓ } → BooleanRingStr A → RingStr A
+BooleanRingStr→RingStr S = CommRingStr→RingStr (BooleanRingStr→CommRingStr S)
 
 BooleanRing→Ring : BooleanRing ℓ → Ring ℓ
-BooleanRing→Ring (carrier , structure ) = carrier , BooleanStr→RingStr structure
+BooleanRing→Ring (carrier , structure ) = carrier , BooleanRingStr→RingStr structure
 
 isIdemRing : {ℓ : Level} → CommRing ℓ → Type ℓ
 isIdemRing R = ∀ (r : ⟨ R ⟩) → (str R) .CommRingStr._·_ r r ≡ r
 
 module _ {ℓ : Level} (R : CommRing ℓ) (idem : isIdemRing R) where
-  open BooleanStr
+  open BooleanRingStr
   open IsBooleanRing
   idemCommRing→BR : BooleanRing ℓ
   fst idemCommRing→BR = ⟨ R ⟩
@@ -74,7 +74,7 @@ BoolHom : {ℓ ℓ' : Level} → (A : BooleanRing ℓ) → (B : BooleanRing ℓ'
 BoolHom A B = CommRingHom (BooleanRing→CommRing A) (BooleanRing→CommRing B)
 
 module BooleanAlgebraStr (A : BooleanRing ℓ)  where
-  open BooleanStr (A . snd)
+  open BooleanRingStr (A . snd)
   _∨_ : ⟨ A ⟩ → ⟨ A ⟩ → ⟨ A ⟩
   a ∨ b = (a + b) + (a · b)
   _∧_ : ⟨ A ⟩ → ⟨ A ⟩ → ⟨ A ⟩
