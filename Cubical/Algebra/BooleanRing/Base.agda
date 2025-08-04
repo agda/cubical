@@ -57,13 +57,18 @@ BooleanRing→Ring (carrier , structure ) = carrier , BooleanStr→RingStr struc
 isIdemRing : {ℓ : Level} → CommRing ℓ → Type ℓ
 isIdemRing R = ∀ (r : ⟨ R ⟩) → (str R) .CommRingStr._·_ r r ≡ r
 
-idemCommRing→BR : {ℓ : Level} (R : CommRing ℓ) → isIdemRing R → BooleanRing ℓ
-idemCommRing→BR R idem = ⟨ R ⟩ ,
-  record
-   { 𝟘 = _ ; 𝟙 = _ ; _+_ = _ ; _·_ = _ ; -_ = _
-   ; isBooleanRing = record
-   { isCommRing = (str R) .CommRingStr.isCommRing
-   ; ·Idem = idem } }
+module _ {ℓ : Level} (R : CommRing ℓ) (idem : isIdemRing R) where
+  open BooleanStr
+  open IsBooleanRing
+  idemCommRing→BR : BooleanRing ℓ
+  fst idemCommRing→BR = ⟨ R ⟩
+  𝟘 (snd idemCommRing→BR)   = _
+  𝟙 (snd idemCommRing→BR)   = _
+  _+_ (snd idemCommRing→BR) = _
+  _·_ (snd idemCommRing→BR) = _
+  - snd idemCommRing→BR     = _
+  isCommRing (isBooleanRing (snd idemCommRing→BR)) = (str R) .CommRingStr.isCommRing
+  ·Idem (isBooleanRing (snd idemCommRing→BR))      = idem
 
 BoolHom : {ℓ ℓ' : Level} → (A : BooleanRing ℓ) → (B : BooleanRing ℓ') → Type _
 BoolHom A B = CommRingHom (BooleanRing→CommRing A) (BooleanRing→CommRing B)
