@@ -42,8 +42,16 @@ record BooleanRingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 BooleanRing : ∀ ℓ → Type (ℓ-suc ℓ)
 BooleanRing ℓ = TypeWithStr ℓ BooleanRingStr
 
-BooleanRingStr→CommRingStr : { A : Type ℓ } →  BooleanRingStr A  → CommRingStr A
-BooleanRingStr→CommRingStr x = record { isCommRing = IsBooleanRing.isCommRing (BooleanRingStr.isBooleanRing x) }
+module _ {A : Type ℓ} (BRStr : BooleanRingStr A) where
+  open CommRingStr
+  open BooleanRingStr( BRStr)
+  BooleanRingStr→CommRingStr : CommRingStr A
+  0r  BooleanRingStr→CommRingStr = _
+  1r  BooleanRingStr→CommRingStr = _
+  _+_ BooleanRingStr→CommRingStr = _
+  _·_ BooleanRingStr→CommRingStr = _
+  -   BooleanRingStr→CommRingStr = _
+  isCommRing BooleanRingStr→CommRingStr = isCommRing BRStr
 
 BooleanRing→CommRing : BooleanRing ℓ → CommRing ℓ
 BooleanRing→CommRing (carrier , structure ) = carrier , BooleanRingStr→CommRingStr structure
@@ -277,3 +285,4 @@ module BooleanAlgebraStr (A : BooleanRing ℓ)  where
     ((𝟙 + x)  + (𝟙 + x)) + (y + y)  + 𝟙 + x · y
       ≡⟨ solve! (BooleanRing→CommRing A) ⟩
     ¬ x ∨ ¬ y ∎
+
