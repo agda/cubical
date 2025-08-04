@@ -1,5 +1,3 @@
-{-# OPTIONS --safe #-}
-
 module Cubical.Data.Int.Fast.Base where
 
 open import Cubical.Foundations.Prelude
@@ -18,7 +16,7 @@ _ℕ-_ : ℕ → ℕ → ℤ
 m ℕ- n = ℕ-hlp (m ℕ.∸ n) (n ℕ.∸ m)
 
 _+_ : ℤ → ℤ → ℤ
-pos n + pos n₁ = pos (n ℕ.+ n₁) 
+pos n + pos n₁ = pos (n ℕ.+ n₁)
 negsuc n + negsuc n₁ = negsuc (suc (n ℕ.+ n₁))
 pos n + negsuc n₁ = n ℕ- (suc n₁)
 negsuc n + pos n₁ = n₁ ℕ- (suc n)
@@ -27,7 +25,7 @@ _-_ : ℤ → ℤ → ℤ
 m - n = m + (- n)
 
 _·_ : ℤ → ℤ → ℤ
-pos n · pos n₁ = pos (n ℕ.· n₁) 
+pos n · pos n₁ = pos (n ℕ.· n₁)
 pos zero · negsuc n₁ = pos zero
 pos (suc n) · negsuc n₁ = negsuc (predℕ (suc n ℕ.· suc n₁))
 negsuc n · pos zero = pos zero
