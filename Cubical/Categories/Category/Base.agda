@@ -12,7 +12,8 @@ private
 
 -- Categories with hom-sets
 record Category ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
-  no-eta-equality -- ; NOTE: need eta equality for `opop`
+  -- TODO: document the impetus for this change
+  no-eta-equality
   field
     ob : Type ℓ
     Hom[_,_] : ob → ob → Type ℓ'
