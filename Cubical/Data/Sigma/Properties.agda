@@ -50,6 +50,9 @@ map-snd f (a , b) = (a , f b)
 map-× : {B : Type ℓ} {B' : Type ℓ'} → (A → A') → (B → B') → A × B → A' × B'
 map-× f g (a , b) = (f a , g b)
 
+map-both : (A → A') → A × A → A' × A'
+map-both f = map-× f f
+
 ≡-× : {A : Type ℓ} {B : Type ℓ'} {x y : A × B} → fst x ≡ fst y → snd x ≡ snd y → x ≡ y
 ≡-× p q i = (p i) , (q i)
 
