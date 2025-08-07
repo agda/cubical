@@ -17,7 +17,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Constructions.BinProduct hiding (Sym)
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.NaturalTransformation.Base
@@ -137,3 +137,15 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
       ≡⟨ D .⋆Assoc _ _ _ ⟩
     (β .N-ob e ∘⟨ D ⟩ G .F-hom g) ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f) ∎
 
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE ℓE'} where
+  open Functor
+  open NatTrans
+  Sym : Functor C (FUNCTOR D E) → Functor D (FUNCTOR C E)
+  Sym F .F-ob d .F-ob c = F ⟅ c ⟆ ⟅ d ⟆
+  Sym F .F-ob d .F-hom f = F ⟪ f ⟫ ⟦ d ⟧
+  Sym F .F-ob d .F-id = cong (λ α → α .N-ob d) (F .F-id)
+  Sym F .F-ob d .F-seq f f' = cong (λ α → α .N-ob d) (F .F-seq f f')
+  Sym F .F-hom g .N-ob c = F ⟅ c ⟆ ⟪ g ⟫
+  Sym F .F-hom g .N-hom f = sym ((F ⟪ f ⟫) .N-hom g)
+  Sym F .F-id = makeNatTransPath (funExt (λ c → (F ⟅ c ⟆) .F-id))
+  Sym F .F-seq g g' = makeNatTransPath (funExt λ c → (F ⟅ c ⟆) .F-seq g g')

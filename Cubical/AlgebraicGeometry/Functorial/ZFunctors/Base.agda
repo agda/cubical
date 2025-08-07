@@ -68,7 +68,7 @@ module _ {ℓ : Level} where
   -- Yoneda in the notation of Demazure & Gabriel,
   -- uses that double op is original category definitionally
   Sp : Functor (CommRingsCategory {ℓ = ℓ} ^op) ℤFUNCTOR
-  Sp = YO {C = (CommRingsCategory {ℓ = ℓ} ^op)}
+  Sp = YO*
 
   isAffine : (X : ℤFunctor) → Type (ℓ-suc ℓ)
   isAffine X = ∃[ A ∈ CommRing ℓ ] NatIso (Sp .F-ob A) X
@@ -76,7 +76,7 @@ module _ {ℓ : Level} where
 
   -- a ℤ-functor that is a sheaf wrt the Zariski coverage is called local
   isLocal : ℤFunctor → Type (ℓ-suc ℓ)
-  isLocal X = isSheaf zariskiCoverage X
+  isLocal X = isSheaf zariskiCoverage (X ∘F fromOpOp)
 
   -- the forgetful functor
   -- aka the affine line
@@ -191,7 +191,7 @@ module AdjBij {ℓ : Level} where
 
     -- the other direction is just precomposition modulo Yoneda
     _♯ : X ⇒ Sp .F-ob A → CommRingHom A (𝓞 .F-ob X)
-    fst (α ♯) a = α ●ᵛ yonedaᴾ 𝔸¹ A .inv a
+    fst (α ♯) a = α ●ᵛ {!yoneda 𝔸¹ A .inv a!} -- α ●ᵛ yonedaᴾ 𝔸¹ A .inv a
 
     pres0 (snd (α ♯)) = makeNatTransPath (funExt₂ λ B x → α .N-ob B x .snd .pres0)
     pres1 (snd (α ♯)) = makeNatTransPath (funExt₂ λ B x → α .N-ob B x .snd .pres1)
@@ -236,10 +236,10 @@ module AdjBij {ℓ : Level} where
     where
     theIso : Iso (A .fst) ((𝓞 ∘F Sp) .F-ob A .fst)
     fun theIso = ε A .fst
-    inv theIso = yonedaᴾ 𝔸¹ A .fun
-    rightInv theIso α = ℤFUNCTOR .⋆IdL _ ∙ yonedaᴾ 𝔸¹ A .leftInv α
-    leftInv theIso a = path -- I get yellow otherwise
-      where
-      path : yonedaᴾ 𝔸¹ A .fun ((idTrans (Sp .F-ob A)) ●ᵛ yonedaᴾ 𝔸¹ A .inv a) ≡ a
-      path = cong (yonedaᴾ 𝔸¹ A .fun) (ℤFUNCTOR .⋆IdL _) ∙ yonedaᴾ 𝔸¹ A .rightInv a
+    inv theIso = {!!} -- yonedaᴾ 𝔸¹ A .fun
+    rightInv theIso α = {!!} -- ℤFUNCTOR .⋆IdL _ ∙ yonedaᴾ 𝔸¹ A .leftInv α
+    leftInv theIso a = {!!} -- path -- I get yellow otherwise
+      -- where
+      -- path : yonedaᴾ 𝔸¹ A .fun ((idTrans (Sp .F-ob A)) ●ᵛ yonedaᴾ 𝔸¹ A .inv a) ≡ a
+      -- path = cong (yonedaᴾ 𝔸¹ A .fun) (ℤFUNCTOR .⋆IdL _) ∙ yonedaᴾ 𝔸¹ A .rightInv a
   snd (𝓞⊣SpCounitEquiv A) = ε A .snd
