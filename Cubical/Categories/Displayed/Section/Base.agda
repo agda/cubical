@@ -319,11 +319,35 @@ module _ {C : Category ℓC ℓC'}
 
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
-         {F : Functor C D}
-         {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'} where
-  _^opS : Section F Dᴰ → Section (F ^opF) (Dᴰ ^opᴰ)
-  (S ^opS) .Section.F-obᴰ d = S .Section.F-obᴰ d
-  (S ^opS) .Section.F-homᴰ = S .Section.F-homᴰ
-  (S ^opS) .Section.F-idᴰ = S .Section.F-idᴰ
-  (S ^opS) .Section.F-seqᴰ f g = S .Section.F-seqᴰ g f
-  
+         {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+          where
+
+  open Section
+  introOpS : ∀ {F : Functor (C ^op) _}
+    → Section F Dᴰ
+    → Section (introOp F) (Dᴰ ^opᴰ)
+  introOpS S .F-obᴰ = S .F-obᴰ
+  introOpS S .F-homᴰ = S .F-homᴰ
+  introOpS S .F-idᴰ = S .F-idᴰ
+  introOpS S .F-seqᴰ f g = S .F-seqᴰ g f
+
+  elimOpS : ∀ {F : Functor C _}
+    → Section F (Dᴰ ^opᴰ)
+    → Section (elimOp F) Dᴰ
+  elimOpS S .F-obᴰ = S .F-obᴰ
+  elimOpS S .F-homᴰ = S .F-homᴰ
+  elimOpS S .F-idᴰ = S .F-idᴰ
+  elimOpS S .F-seqᴰ f g = S .F-seqᴰ g f
+
+module _ {C : Category ℓC ℓC'}
+         {D : Category ℓD ℓD'}
+         {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+          where
+
+  _^opS : ∀ {F : Functor C _} → Section F Dᴰ → Section (F ^opF) (Dᴰ ^opᴰ)
+  S ^opS = elimOpS (compFunctorᴰSection toOpOpᴰ S)
+
+  _^opS⁻ : ∀ {F : Functor (C ^op) _}
+    → Section F (Dᴰ ^opᴰ)
+    → Section (F ^opF⁻) Dᴰ
+  S ^opS⁻ = compFunctorᴰSection fromOpOpᴰ (introOpS S)
