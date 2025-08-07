@@ -138,6 +138,7 @@ isPropIsUnivalent =
   (isPropΠ2 λ _ _ → isPropIsEquiv _ )
 
 -- Opposite category
+-- TODO: move all of this to Constructions.Opposite?
 _^op : Category ℓ ℓ' → Category ℓ ℓ'
 ob (C ^op)           = ob C
 Hom[_,_] (C ^op) x y = C [ y , x ]

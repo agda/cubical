@@ -29,7 +29,8 @@ module _ {C : Category ℓ ℓ'} where
   isSetHomP2r = isOfHLevel→isOfHLevelDep 2 (λ a → isSetHom C {y = a})
 
 
--- opposite of opposite is definitionally equal to itself
+-- opposite of opposite is *not* definitionally equal to itself.
+-- The following does *not* type check because of no-eta-equality.
 -- involutiveOp : ∀ {C : Category ℓ ℓ'} → C ^op ^op ≡ C
 -- involutiveOp = refl
 
