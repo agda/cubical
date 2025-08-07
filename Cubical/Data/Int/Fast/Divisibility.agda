@@ -38,23 +38,6 @@ private
   variable
     m n k : ℤ
 
--- It seems there are bugs when applying ring solver to integers.
--- The following is a work-around.
-private
-  module Helper {ℓ : Level}(𝓡 : CommRing ℓ) where
-    open CommRingStr (𝓡 .snd)
-
-    helper1 : (a b m d r : 𝓡 .fst) → (- a · d + b) · m + a · (d · m + r) ≡ a · r + b · m
-    helper1 _ _ _ _ _ = solve! 𝓡
-
-    helper2 : (d m r : 𝓡 .fst) → (d · m + r) + (- d) · m ≡ r
-    helper2 _ _ _ = solve! 𝓡
-
-    helper3 : (n m d r : 𝓡 .fst) → n ≡ d · m + r → n + (- d) · m ≡ r
-    helper3 n m d r p = (λ t → p t + (- d) · m) ∙ helper2 d m r
-
-open Helper ℤCommRing
-
 
 open CommRingStr      (ℤCommRing .snd)
 
@@ -217,7 +200,8 @@ bézoutReduction : (m d r : ℤ) → Bézout r m → Bézout m (d · m + r)
 bézoutReduction m d r b .coef₁ = - b .coef₁ · d + b .coef₂
 bézoutReduction m d r b .coef₂ = b .coef₁
 bézoutReduction m d r b .gcd   = b .gcd
-bézoutReduction m d r b .identity = helper1 (b .coef₁) (b .coef₂) m d r ∙ b .identity
+bézoutReduction m d r b .identity =
+   solve! ℤCommRing ∙ b .identity
 bézoutReduction m d r b .isCD .fst = b .isCD .snd
 bézoutReduction m d r b .isCD .snd = ∣-+ (∣-right· {n = d} (b .isCD .snd)) (b .isCD .fst)
 
@@ -302,7 +286,8 @@ module _
     { (inl q) → q
     ; (inr q) →
         let ∣+  = ∣-+ p (∣-right {m = m} {k = - qr .div})
-            m∣r = subst (m ∣_) (helper3 _ _ (qr .div) (qr .rem) (qr .quotEq)) ∣+
+            m∣r = subst {x = n + - qr .div · m} {y = qr .rem}
+                (m ∣_) (cong (_+ _) (qr .quotEq) ∙ solve! ℤCommRing) ∣+
             m≤r = m∣n→m≤n (¬x≡0→¬abs≡0 (q .fst)) (∣→∣ℕ m∣r)
         in  Empty.rec (<-asym (q .snd) m≤r) }
 
