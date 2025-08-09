@@ -75,9 +75,9 @@ open 3x3-span
                ∙ cong₂ _∙_ (assoc _ _ _) refl
                ∙ sym (assoc _ _ _)
 
-
       pushcase : (a : S₊ n) (b : S₊ m)
-        → Square (cong (∨fun f g .fst ∘ joinTo⋁ {A = S₊∙ n} {B = S₊∙ m}) (push a b))
+        → Square (cong (∨fun f g .fst
+                       ∘ joinTo⋁ {A = S₊∙ n} {B = S₊∙ m}) (push a b))
                   (cong (fst [ f ∣ g ]-pre) (push a b))
                   rp lp
       pushcase a b =
@@ -112,8 +112,6 @@ open 3x3-span
                ∙∙ ((λ j → snd g (~ j ∧ i)) ∙∙ cong (fst g) (σS b) ∙∙ snd g)
                 ∙ (sym (snd f) ∙∙ cong (fst f) (σS a) ∙∙ λ j → snd f (j ∧ i))
                ∙∙ sym (compPath-filler (cong (fst f) (IsoSucSphereSusp∙ n)) (snd f) i))
-
-
 
 -- We prove that the function joinTo⋁ used in the definition of the whitehead
 -- product gives an equivalence between (Susp A × Susp B) and the
@@ -444,8 +442,10 @@ open import Cubical.HITs.SetTruncation
 [_∣_]π*-comm {n = n} {m = m} = elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
   λ f g → cong ∣_∣₂
     (WhiteheadProdComm'
-        (S₊∙ (suc n)) (S₊∙ n) (isoToEquiv (IsoSucSphereSusp n) , IsoSucSphereSusp∙' n)
-        (S₊∙ (suc m)) (S₊∙ m) (isoToEquiv (IsoSucSphereSusp m) , IsoSucSphereSusp∙' m) f g
+        (S₊∙ (suc n)) (S₊∙ n)
+          (isoToEquiv (IsoSucSphereSusp n) , IsoSucSphereSusp∙' n)
+        (S₊∙ (suc m)) (S₊∙ m)
+          (isoToEquiv (IsoSucSphereSusp m) , IsoSucSphereSusp∙' m) f g
     ∙ cong (·wh (S₊∙ (suc m)) (S₊∙ (suc n)) g f ∘∙_)
        (ΣPathP (refl , sym (cong₂ _∙_ refl (∙∙lCancel _) ∙ sym (rUnit _)))))
 

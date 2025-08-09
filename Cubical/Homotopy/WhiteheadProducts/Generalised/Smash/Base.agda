@@ -7,14 +7,12 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Path
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.Susp renaming (toSusp to σ)
-open import Cubical.HITs.Pushout
 open import Cubical.HITs.Join
 open import Cubical.HITs.Join.CoHSpace
 open import Cubical.HITs.SmashProduct
@@ -25,9 +23,8 @@ open import Cubical.Homotopy.WhiteheadProducts.Generalised.Join.Base
 open Iso
 
 -- Generalised Whitehead products
-module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
-         (B : Pointed ℓ') {C : Pointed ℓ''}
-         (f : Susp∙ (typ A) →∙ C) (g : Susp∙ (typ B) →∙ C) where
+module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ) (B : Pointed ℓ') {C : Pointed ℓ''}
+  (f : Susp∙ (typ A) →∙ C) (g : Susp∙ (typ B) →∙ C) where
 
   -- alternative version using Suspension and smash
   private
@@ -57,7 +54,8 @@ module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
   fst ·whΣ = fst ·whΣ' ∘ suspFun ⋀→Smash
   snd ·whΣ = refl
 
-  -- This version agrees with the join version modulo the equivalence Σ(A ⋀ B) ≃ A * B
+  -- This version agrees with the join version modulo the
+  -- equivalence Σ(A ⋀ B) ≃ A * B
   ·wh≡·whΣ : ·wh A B f g ∘∙ (SuspSmash→Join∙ A B) ≡ ·whΣ
   ·wh≡·whΣ = ΣPathP (funExt lem , (sym (rUnit _)
     ∙ cong sym (cong₂ _∙_
@@ -75,7 +73,8 @@ module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
                   (cong (·wh A B f g .fst ∘ SuspSmash→Join) ∘ merid)
                   (cong (fst ·whΣ') ∘ merid ∘ ⋀→Smash)
       main = ⋀→Homogeneous≡ (isHomogeneousPath _ _)
-        λ x y → cong-∙∙ (·wh A B f g .fst) (push x (pt B) ⁻¹) (push x y) (push (pt A) y ⁻¹)
+        λ x y → cong-∙∙ (·wh A B f g .fst)
+                         (push x (pt B) ⁻¹) (push x y) (push (pt A) y ⁻¹)
               ∙ doubleCompPath≡compPath _ _ _
               ∙ cong₂ _∙_ (cong sym
                            (cong₂ _∙_ (inv ΩSuspAdjointIso g .snd) refl
@@ -90,9 +89,10 @@ module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
   ·whΣ≡·wh =
        sym (∘∙-idʳ _)
      ∙ cong (·wh A B f g ∘∙_)
-            (ΣPathP (funExt (λ x → sym (rightInv (SmashJoinIso {A = A} {B = B}) x))
-                          , ((λ i j → push (pt A) (pt B) (i ∧ ~ j))
-                          ▷ lUnit _)))
+            (ΣPathP (funExt (λ x →
+              sym (rightInv (SmashJoinIso {A = A} {B = B}) x))
+            , ((λ i j → push (pt A) (pt B) (i ∧ ~ j))
+            ▷ lUnit _)))
     ∙∙ sym (∘∙-assoc (·wh A B f g) (SuspSmash→Join∙ A B) (Join→SuspSmash∙ A B))
     ∙∙ cong (_∘∙ Join→SuspSmash∙ A B) ·wh≡·whΣ
 
