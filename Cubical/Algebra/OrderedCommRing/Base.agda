@@ -46,7 +46,11 @@ record IsOrderedCommRing
     ·MonoR<         : ∀ x y z → 0r < z → x < y → (x · z) < (y · z)
     0<1             : 0r < 1r
 
-  open IsPseudolattice isPseudolattice renaming (_∧l_ to _⊓_ ; _∨l_ to _⊔_)
+  open IsCommRing isCommRing public
+  open IsPseudolattice isPseudolattice hiding (is-set) renaming (is-prop-valued to is-prop-valued≤ ; is-trans to is-trans≤
+                                                                ; isPseudolattice to is-pseudolattice
+                                                                ; _∧l_ to _⊓_ ; _∨l_ to _⊔_) public
+  open IsStrictOrder isStrictOrder hiding (is-set) renaming (is-prop-valued to is-prop-valued< ; is-trans to is-trans<) public
 
 record OrderedCommRingStr (ℓ' : Level) (R : Type ℓ) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   constructor orderedcommringstr
@@ -57,7 +61,7 @@ record OrderedCommRingStr (ℓ' : Level) (R : Type ℓ) : Type (ℓ-suc (ℓ-max
     _<_ _≤_ : R → R → Type ℓ'
     isOrderedCommRing : IsOrderedCommRing 0r 1r _+_ _·_ -_ _<_ _≤_
 
-  open IsOrderedCommRing isOrderedCommRing renaming () public
+  open IsOrderedCommRing isOrderedCommRing public
 
   infix  8 -_
   infixl 7 _·_

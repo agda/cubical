@@ -20,6 +20,8 @@ record IsPseudolattice {L : Type ℓ} (_≤_ : L → L → Type ℓ') : Type (�
     isPoset : IsPoset _≤_
     isPseudolattice : pseudolattice (poset L _≤_ isPoset)
 
+  open IsPoset isPoset public
+
   _∧l_ : L → L → L
   a ∧l b = (isPseudolattice .fst a b) .fst
 
@@ -35,6 +37,8 @@ record PseudolatticeStr (ℓ' : Level) (L : Type ℓ) : Type (ℓ-suc (ℓ-max �
   field
     _≤_ : L → L → Type ℓ'
     is-pseudolattice : IsPseudolattice _≤_
+
+  open IsPseudolattice is-pseudolattice public
 
 Pseudolattice : ∀ ℓ ℓ' → Type (ℓ-suc (ℓ-max ℓ ℓ'))
 Pseudolattice ℓ ℓ' = TypeWithStr ℓ (PseudolatticeStr ℓ')
