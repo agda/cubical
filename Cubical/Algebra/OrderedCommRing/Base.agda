@@ -36,6 +36,7 @@ record IsOrderedCommRing
     isCommRing      : IsCommRing 0r 1r _+_ _·_ -_
     isPseudolattice : IsPseudolattice _≤_
     isStrictOrder   : IsStrictOrder _<_
+    <-≤-weaken      : ∀ x y → x < y → x ≤ y
     ≤≃¬>            : ∀ x y → (x ≤ y) ≃ (¬ (y < x))
     +MonoR≤         : ∀ x y z → x ≤ y → (x + z) ≤ (y + z)
     +MonoR<         : ∀ x y z → x < y → (x + z) < (y + z)
@@ -93,6 +94,7 @@ module _ {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R }
   (is-trans : isTrans _<_)
   (is-asym : isAsym _<_)
   (is-weakly-linear : isWeaklyLinear _<_)
+  (<-≤-weaken : ∀ x y → x < y → x ≤ y)
   (≤≃¬> : ∀ x y → (x ≤ y) ≃ (¬ (y < x)))
   (+MonoR≤ : ∀ x y z → x ≤ y → (x + z) ≤ (y + z))
   (+MonoR< : ∀ x y z → x < y → (x + z) < (y + z))
@@ -112,6 +114,7 @@ module _ {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R }
       is-meet-semipseudolattice is-join-semipseudolattice
     IsOrderedCommRing.isStrictOrder OCR =
       isstrictorder is-setR is-prop-valued is-irrefl is-trans is-asym is-weakly-linear
+    IsOrderedCommRing.<-≤-weaken OCR = <-≤-weaken
     IsOrderedCommRing.≤≃¬> OCR = ≤≃¬>
     IsOrderedCommRing.+MonoR≤ OCR = +MonoR≤
     IsOrderedCommRing.+MonoR< OCR = +MonoR<
