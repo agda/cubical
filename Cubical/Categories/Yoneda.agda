@@ -224,9 +224,6 @@ module _ {C : Category ℓ ℓ'} where
   YO .F-id = makeNatTransPath λ i _ → λ f → ⋆IdR f i
   YO .F-seq f g = makeNatTransPath λ i _ → λ h → ⋆Assoc h f g (~ i)
 
-  YO* : Functor (C ^op) (FUNCTOR C (SET ℓ'))
-  YO* = Sym YO
-
   module _ {x} (F : Functor (C ^op) (SET ℓ')) where
     yo-yo-yo : NatTrans (yo x) F → F .F-ob x .fst
     yo-yo-yo α = α .N-ob _ id
