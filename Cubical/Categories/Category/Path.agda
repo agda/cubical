@@ -84,7 +84,7 @@ module _ {C C' : Category ℓ ℓ'} where
    private
      cp = ≡→CategoryPath b
      b' = CategoryPath.mk≡ cp
-   
+
    CategoryPathIsoRightInv : mk≡ (≡→CategoryPath b) ≡ b
    CategoryPathIsoRightInv i j .ob = b j .ob
    CategoryPathIsoRightInv i j .Hom[_,_] = b j .Hom[_,_]
