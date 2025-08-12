@@ -242,7 +242,7 @@ module AdjBij {ℓ : Level} where
     fun theIso = ε A .fst
     inv theIso = yonedaᴾ 𝔸¹ A .fun
     rightInv theIso α = ℤFUNCTOR .⋆IdL _ ∙ yonedaᴾ 𝔸¹ A .leftInv α
-    leftInv theIso a = path
+    leftInv theIso a = path -- I get yellow otherwise
       where
       path : yonedaᴾ 𝔸¹ A .fun ((idTrans (Sp .F-ob A)) ●ᵛ yonedaᴾ 𝔸¹ A .inv a) ≡ a
       path = cong (yonedaᴾ 𝔸¹ A .fun) (ℤFUNCTOR .⋆IdL _) ∙ yonedaᴾ 𝔸¹ A .rightInv a
