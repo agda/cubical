@@ -31,6 +31,7 @@ open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Group.Join
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WhiteheadProducts.Generalised.Base
+open import Cubical.Homotopy.WhiteheadProducts.Generalised.Join.Base renaming (·wh to ·wh')
 
 open Iso
 
@@ -42,6 +43,60 @@ open Iso
 [_∣_]-pre {X = X} {n = n} {m = m} f g =
   joinPinch∙ (S₊∙ n) (S₊∙ m) X
     (λ a b → (Ω→ g .fst (σS b) ∙ Ω→ f .fst (σS a)))
+
+[_∣_]-pre' : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       → (S₊∙ (suc n) →∙ X)
+       → (S₊∙ (suc m) →∙ X)
+       → join∙ (S₊∙ n) (S₊∙ m) →∙ X
+[_∣_]-pre' {X = X} {n = n} {m = m} f g =
+  ·wh' (S₊∙ n) (S₊∙ m) (f ∘∙ (inv (IsoSucSphereSusp n) , IsoSucSphereSusp∙ n))
+                       (g ∘∙ (inv (IsoSucSphereSusp m) , IsoSucSphereSusp∙ m))
+
+[∣]-pre≡[∣]-pre' : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+  (f : S₊∙ (suc n) →∙ X) (g : S₊∙ (suc m) →∙ X)
+  → [ f ∣ g ]-pre ≡ [ f ∣ g ]-pre'
+[∣]-pre≡[∣]-pre' {n = zero} {m = zero} f g =
+  cong (joinPinch∙ (S₊∙ zero) (S₊∙ zero) _)
+   (funExt λ x → funExt λ y → cong₂ _∙_
+    (cong₃ _∙∙_∙∙_ (cong sym (lUnit (g .snd)))
+                   (cong (congS (g .fst))
+                     (sym (cong-∙ (inv (IsoSucSphereSusp zero))
+                            (merid y) (sym (merid true))
+                          ∙ sym (rUnit _))))
+                   (lUnit (g .snd)))
+    (cong₃ _∙∙_∙∙_ (cong sym (lUnit (f .snd)))
+                   (cong (congS (f .fst))
+                     (sym (cong-∙ (inv (IsoSucSphereSusp zero))
+                            (merid x) (sym (merid true))
+                          ∙ sym (rUnit _))))
+                   (lUnit (f .snd))))
+[∣]-pre≡[∣]-pre' {n = zero} {m = suc m} f g =
+  cong (joinPinch∙ (S₊∙ zero) (S₊∙ (suc m)) _)
+  (funExt λ x → funExt λ y → cong₂ _∙_
+    (cong₃ _∙∙_∙∙_ (cong sym (lUnit (g .snd)))
+                   refl
+                   (lUnit (g .snd)))
+    (cong₃ _∙∙_∙∙_ (cong sym (lUnit (f .snd)))
+                   (cong (congS (f .fst))
+                     (sym (cong-∙ (inv (IsoSucSphereSusp zero))
+                            (merid x) (sym (merid true))
+                          ∙ sym (rUnit _))))
+                   (lUnit (f .snd))))
+    
+[∣]-pre≡[∣]-pre' {n = suc n} {m = zero} f g =
+  cong (joinPinch∙ (S₊∙ (suc n)) (S₊∙ zero) _)
+  (funExt λ x → funExt λ y → cong₂ _∙_
+    (cong₃ _∙∙_∙∙_ (cong sym (lUnit (g .snd)))
+                   (cong (congS (g .fst))
+                     (sym (cong-∙ (inv (IsoSucSphereSusp zero))
+                            (merid y) (sym (merid true))
+                          ∙ sym (rUnit _))))
+                   (lUnit (g .snd)))
+    (cong₃ _∙∙_∙∙_ (cong sym (lUnit (f .snd)))
+                   refl
+                   (lUnit (f .snd))))
+[∣]-pre≡[∣]-pre' {n = suc n} {m = suc m} f g =
+  cong₂ (·wh' (S₊∙ (suc n)) (S₊∙ (suc m))) (sym (∘∙-idˡ f)) (sym (∘∙-idˡ g))
 
 [_∣_] : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
        → (S₊∙ (suc n) →∙ X)
