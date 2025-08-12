@@ -149,20 +149,20 @@ introOp F .F-hom = F .F-hom
 introOp F .F-id = F .F-id
 introOp F .F-seq f g = F .F-seq g f
 
-elimOp : Functor C (D ^op) → Functor (C ^op) D
-elimOp F .F-ob = F .F-ob
-elimOp F .F-hom = F .F-hom
-elimOp F .F-id = F .F-id
-elimOp F .F-seq f g = F .F-seq g f
+recOp : Functor C (D ^op) → Functor (C ^op) D
+recOp F .F-ob = F .F-ob
+recOp F .F-hom = F .F-hom
+recOp F .F-id = F .F-id
+recOp F .F-seq f g = F .F-seq g f
 
 toOpOp : Functor C ((C ^op) ^op)
 toOpOp = introOp Id
 
 fromOpOp : Functor ((C ^op) ^op) C
-fromOpOp = elimOp Id
+fromOpOp = recOp Id
 
 _^opF  : Functor C D → Functor (C ^op) (D ^op)
-F ^opF = elimOp (toOpOp ∘F F)
+F ^opF = recOp (toOpOp ∘F F)
 
 _^opF⁻ : Functor (C ^op) (D ^op) → Functor C D
 F ^opF⁻ = fromOpOp ∘F introOp F

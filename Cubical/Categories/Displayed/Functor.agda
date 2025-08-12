@@ -154,24 +154,24 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   introOpᴰ Fᴰ .F-idᴰ = Fᴰ .F-idᴰ
   introOpᴰ Fᴰ .F-seqᴰ fᴰ gᴰ = Fᴰ .F-seqᴰ gᴰ fᴰ
 
-  elimOpᴰ : ∀ {F} → Functorᴰ F Cᴰ (Dᴰ ^opᴰ) → Functorᴰ (elimOp F) (Cᴰ ^opᴰ) Dᴰ
-  elimOpᴰ Fᴰ .F-obᴰ = Fᴰ .F-obᴰ
-  elimOpᴰ Fᴰ .F-homᴰ = Fᴰ .F-homᴰ
-  elimOpᴰ Fᴰ .F-idᴰ = Fᴰ .F-idᴰ
-  elimOpᴰ Fᴰ .F-seqᴰ fᴰ gᴰ = Fᴰ .F-seqᴰ gᴰ fᴰ
+  recOpᴰ : ∀ {F} → Functorᴰ F Cᴰ (Dᴰ ^opᴰ) → Functorᴰ (recOp F) (Cᴰ ^opᴰ) Dᴰ
+  recOpᴰ Fᴰ .F-obᴰ = Fᴰ .F-obᴰ
+  recOpᴰ Fᴰ .F-homᴰ = Fᴰ .F-homᴰ
+  recOpᴰ Fᴰ .F-idᴰ = Fᴰ .F-idᴰ
+  recOpᴰ Fᴰ .F-seqᴰ fᴰ gᴰ = Fᴰ .F-seqᴰ gᴰ fᴰ
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   toOpOpᴰ : Functorᴰ toOpOp Cᴰ ((Cᴰ ^opᴰ) ^opᴰ)
   toOpOpᴰ = introOpᴰ 𝟙ᴰ⟨ _ ⟩
 
   fromOpOpᴰ : Functorᴰ fromOpOp ((Cᴰ ^opᴰ) ^opᴰ) Cᴰ
-  fromOpOpᴰ = elimOpᴰ 𝟙ᴰ⟨ _ ⟩
+  fromOpOpᴰ = recOpᴰ 𝟙ᴰ⟨ _ ⟩
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   where
 
   _^opFᴰ : ∀ {F} → Functorᴰ F Cᴰ Dᴰ
                  → Functorᴰ (F ^opF) (Cᴰ ^opᴰ) (Dᴰ ^opᴰ)
-  Fᴰ ^opFᴰ = elimOpᴰ (toOpOpᴰ ∘Fᴰ Fᴰ)
+  Fᴰ ^opFᴰ = recOpᴰ (toOpOpᴰ ∘Fᴰ Fᴰ)
 
   _^opF⁻ᴰ : ∀ {F} → Functorᴰ F (Cᴰ ^opᴰ) (Dᴰ ^opᴰ)
                  → Functorᴰ (F ^opF⁻) Cᴰ Dᴰ

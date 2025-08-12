@@ -331,13 +331,13 @@ module _ {C : Category ℓC ℓC'}
   introOpS S .F-idᴰ = S .F-idᴰ
   introOpS S .F-seqᴰ f g = S .F-seqᴰ g f
 
-  elimOpS : ∀ {F : Functor C _}
+  recOpS : ∀ {F : Functor C _}
     → Section F (Dᴰ ^opᴰ)
-    → Section (elimOp F) Dᴰ
-  elimOpS S .F-obᴰ = S .F-obᴰ
-  elimOpS S .F-homᴰ = S .F-homᴰ
-  elimOpS S .F-idᴰ = S .F-idᴰ
-  elimOpS S .F-seqᴰ f g = S .F-seqᴰ g f
+    → Section (recOp F) Dᴰ
+  recOpS S .F-obᴰ = S .F-obᴰ
+  recOpS S .F-homᴰ = S .F-homᴰ
+  recOpS S .F-idᴰ = S .F-idᴰ
+  recOpS S .F-seqᴰ f g = S .F-seqᴰ g f
 
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
@@ -345,7 +345,7 @@ module _ {C : Category ℓC ℓC'}
           where
 
   _^opS : ∀ {F : Functor C _} → Section F Dᴰ → Section (F ^opF) (Dᴰ ^opᴰ)
-  S ^opS = elimOpS (compFunctorᴰSection toOpOpᴰ S)
+  S ^opS = recOpS (compFunctorᴰSection toOpOpᴰ S)
 
   _^opS⁻ : ∀ {F : Functor (C ^op) _}
     → Section F (Dᴰ ^opᴰ)
