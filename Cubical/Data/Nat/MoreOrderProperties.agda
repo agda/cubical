@@ -1,5 +1,3 @@
-{-# OPTIONS --cubical #-}
-
 module Cubical.Data.Nat.MoreOrderProperties where
 
 open import Cubical.Foundations.Prelude

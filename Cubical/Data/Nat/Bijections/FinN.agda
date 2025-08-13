@@ -1,4 +1,3 @@
-{-# OPTIONS --cubical #-}
 module Cubical.Data.Nat.Bijections.FinN where
 
 open import Cubical.Foundations.Prelude

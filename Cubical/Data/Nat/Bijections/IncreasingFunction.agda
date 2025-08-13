@@ -1,4 +1,3 @@
-{-# OPTIONS --cubical #-}
 module Cubical.Data.Nat.Bijections.IncreasingFunction where
 
 {- Consider an increasing function f : ℕ → ℕ with f 0 ≡ 0.

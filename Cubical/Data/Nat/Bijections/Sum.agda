@@ -1,4 +1,3 @@
-{-# OPTIONS --cubical #-}
 module Cubical.Data.Nat.Bijections.Sum where
 
 open import Cubical.Foundations.Prelude
