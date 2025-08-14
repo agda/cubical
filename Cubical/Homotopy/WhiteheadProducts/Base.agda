@@ -117,6 +117,12 @@ open Iso
        → π* n m X
 [_∣_]π* = elim2 (λ _ _ → squash₂) λ f g → ∣ [ f ∣ g ]-pre ∣₂
 
+-- -- Smash version
+-- [_∣_]π⋀ : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+--        → π' (suc n) X → π' (suc m) X
+--        → {!π⋀!} -- π* n m X
+-- [_∣_]π⋀ = {!!} -- elim2 (λ _ _ → squash₂) λ f g → ∣ [ f ∣ g ]-pre ∣₂
+
 -- The two versions agree
 whπ*≡whπ' : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
        → (f : π' (suc n) X) (g : π' (suc m) X)

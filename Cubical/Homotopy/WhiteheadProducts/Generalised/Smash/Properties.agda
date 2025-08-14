@@ -280,3 +280,48 @@ module _ {ℓ ℓ' ℓ'' ℓ'''} (A : Pointed ℓ) (B : Pointed ℓ')
                , compPathL→PathP (cong₂ _∙_ refl (sym (rUnit _) ∙ rCancel _)
                ∙ sym (rUnit _)
                ∙ lUnit _) )
+
+
+private
+  JacobiΣRTy : ∀ {ℓ ℓ' ℓ'' ℓ'''}
+    (A : Pointed ℓ)
+    (B : Pointed ℓ')
+    (C : Pointed ℓ'')
+    {D : Pointed ℓ'''} → Type _
+  JacobiΣRTy A B C {D}
+    = (f : Susp∙ (typ A) →∙ D) (g : Susp∙ (typ B) →∙ D) (h : Susp∙ (typ C) →∙ D)
+        → ·whΣ A (_ ⋀∙ _) f (·whΣ B C g h)
+         ≡ ·Susp (A ⋀∙ (B ⋀∙ C))
+                 (·whΣ (_ ⋀∙ _) C (·whΣ A B f g) h
+                   ∘∙ suspFun∙ (Iso.fun SmashAssocIso))
+                 (·whΣ B (_ ⋀∙ _) g (·whΣ A C f h)
+                   ∘∙ suspFun∙ (Iso.inv SmashAssocIso
+                              ∘ (⋀comm→∙ ⋀→ idfun∙ _)
+                               ∘ Iso.fun SmashAssocIso))
+
+JacobiΣR' : ∀ {ℓ ℓ' ℓ'' ℓ'''}
+  (A A' : Pointed ℓ) (e : A ≃∙ Susp∙ (typ A'))
+  (B : Pointed ℓ') (B' : Pointed ℓ') (eB : B ≃∙ Susp∙ (typ B'))
+  (C : Pointed ℓ'') (C' : Pointed ℓ'') (eC : C ≃∙ Susp∙ (typ C'))
+  {D : Pointed ℓ'''}
+  (f : Susp∙ (typ A) →∙ D) (g : Susp∙ (typ B) →∙ D) (h : Susp∙ (typ C) →∙ D)
+  → ·whΣ A (_ ⋀∙ _) f (·whΣ B C g h)
+   ≡ ·Susp (A ⋀∙ (B ⋀∙ C))
+           (·whΣ (_ ⋀∙ _) C (·whΣ A B f g) h
+             ∘∙ suspFun∙ (Iso.fun SmashAssocIso))
+           (·whΣ B (_ ⋀∙ _) g (·whΣ A C f h)
+             ∘∙ suspFun∙ (Iso.inv SmashAssocIso
+                        ∘ (⋀comm→∙ ⋀→ idfun∙ _)
+                         ∘ Iso.fun SmashAssocIso))
+JacobiΣR' {ℓ = ℓ} {ℓ'} {ℓ''} {ℓ'''} A A' =
+  Equiv∙J (λ A eA →
+    (B : Pointed ℓ') (B' : Pointed ℓ') (eB : B ≃∙ Susp∙ (typ B'))
+    (C : Pointed ℓ'') (C' : Pointed ℓ'') (eC : C ≃∙ Susp∙ (typ C'))
+    {D : Pointed ℓ'''} → JacobiΣRTy A B C {D})
+   λ B B' → Equiv∙J (λ B eB →
+    (C : Pointed ℓ'') (C' : Pointed ℓ'') (eC : C ≃∙ Susp∙ (typ C'))
+    {D : Pointed ℓ'''} → JacobiΣRTy (Susp∙ (typ A')) B C {D})
+    λ C C' → Equiv∙J (λ C eC → {D : Pointed ℓ'''}
+           → JacobiΣRTy (Susp∙ (typ A')) (Susp∙ (typ B')) C {D})
+    (JacobiΣR A' B' C')
+  

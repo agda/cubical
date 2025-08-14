@@ -298,8 +298,11 @@ snd (f ⋀∙→refl g) = refl
 ⋀≃ : ∀ {ℓ ℓ'} {A B : Pointed ℓ} {C D : Pointed ℓ'}
   → (f : A ≃∙ B) (g : C ≃∙ D)
   → (A ⋀ C) ≃ (B ⋀ D)
-⋀≃ {ℓ = ℓ} {ℓ'} {B = B} {D = D} f g = _ , ⋀≃-isEq f g
+⋀≃ {ℓ = ℓ} {ℓ'} {A = A} {B = B} {C = C} {D = D} f g = isoToEquiv mainIso
   where
+  back : (B ⋀ D) → (A ⋀ C)
+  back = ≃∙map (invEquiv∙ f) ⋀→ ≃∙map (invEquiv∙ g)
+
   help : (x : _) → (idfun∙ B ⋀→ idfun∙ D) x ≡ x
   help (inl x) = refl
   help (inr x) = refl
@@ -314,13 +317,39 @@ snd (f ⋀∙→refl g) = refl
            (push (push tt i) j)
 
   ⋀≃-isEq : {A : Pointed ℓ} {C : Pointed ℓ'}
-    (f : A ≃∙ B) (g : C ≃∙ D) → isEquiv (≃∙map f ⋀→ ≃∙map g)
+    (f : A ≃∙ B) (g : C ≃∙ D)
+      → retract (≃∙map f ⋀→ ≃∙map g)
+                 (≃∙map (invEquiv∙ f) ⋀→ ≃∙map (invEquiv∙ g))
+       × section (≃∙map f ⋀→ ≃∙map g)
+                 (≃∙map (invEquiv∙ f) ⋀→ ≃∙map (invEquiv∙ g))
   ⋀≃-isEq {C = C} =
     Equiv∙J (λ A f → (g : C ≃∙ D)
-                   → isEquiv (≃∙map f ⋀→ ≃∙map g))
-     (Equiv∙J (λ _ g → isEquiv (idfun∙ _ ⋀→ ≃∙map g))
-       (subst isEquiv (sym (funExt help)) (idIsEquiv _)))
+      → retract (≃∙map f ⋀→ ≃∙map g)
+                 (≃∙map (invEquiv∙ f) ⋀→ ≃∙map (invEquiv∙ g))
+       × section (≃∙map f ⋀→ ≃∙map g)
+                 (≃∙map (invEquiv∙ f) ⋀→ ≃∙map (invEquiv∙ g)))
+     (Equiv∙J (λ C g →
+         retract (idfun∙ B ⋀→ ≃∙map g)
+                 (≃∙map (invEquiv∙ (idEquiv∙ B)) ⋀→ ≃∙map (invEquiv∙ g))
+       × section (idfun∙ B ⋀→ ≃∙map g)
+                 (≃∙map (invEquiv∙ (idEquiv∙ B)) ⋀→ ≃∙map (invEquiv∙ g)))
+       (subst2 (λ f g →
+         retract (idfun∙ B ⋀→ idfun∙ D)
+                 (f ⋀→ g)
+       × section (idfun∙ B ⋀→ idfun∙ D)
+                 (f ⋀→ g))
+          (sym (lem B)) (sym (lem D))
+          (subst (λ f → retract f f × section f f) (sym (funExt help))
+            ((λ _ → refl) , (λ _ → refl)))))
+     where
+     lem : ∀ {ℓ} (B : Pointed ℓ) → ≃∙map (invEquiv∙ (idEquiv∙ B)) ≡ idfun∙ B
+     lem B = ΣPathP (refl , sym (rUnit refl))
 
+  mainIso : Iso (A ⋀ C) (B ⋀ D)
+  mainIso .Iso.fun = ≃∙map f ⋀→ ≃∙map g
+  mainIso .Iso.inv = ≃∙map (invEquiv∙ f) ⋀→ ≃∙map (invEquiv∙ g)
+  mainIso .Iso.rightInv = ⋀≃-isEq f g .snd
+  mainIso .Iso.leftInv = ⋀≃-isEq f g .fst
 
 ⋀→Smash : A ⋀ B → Smash A B
 ⋀→Smash (inl x) = basel
