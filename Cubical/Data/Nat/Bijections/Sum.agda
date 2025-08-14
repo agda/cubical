@@ -71,5 +71,5 @@ private
   partitionDouble≅ℕ : Iso (partition double refl doubleInc) ℕ
   partitionDouble≅ℕ = partition≅ℕ double refl doubleInc
 
-ℕ≅ℕ⊎ℕ : Iso (ℕ ⊎ ℕ) ℕ
-ℕ≅ℕ⊎ℕ = compIso (invIso partitionDouble≅ℕ⊎ℕ) partitionDouble≅ℕ
+ℕ⊎ℕ≅ℕ : Iso (ℕ ⊎ ℕ) ℕ
+ℕ⊎ℕ≅ℕ = compIso (invIso partitionDouble≅ℕ⊎ℕ) partitionDouble≅ℕ
