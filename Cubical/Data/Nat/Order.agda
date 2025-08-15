@@ -96,6 +96,9 @@ suc-< p = pred-≤-pred (≤-suc p)
 ≤-predℕ {zero} = ≤-refl
 ≤-predℕ {suc n} = ≤-suc ≤-refl
 
+≤-reflexive : {m n : ℕ} → m ≡ n → m ≤ n
+≤-reflexive p = 0 , p
+
 ≤-trans : k ≤ m → m ≤ n → k ≤ n
 ≤-trans {k} {m} {n} (i , p) (j , q) = i + j , l2 ∙ (l1 ∙ q)
   where
@@ -199,6 +202,15 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 
 <-+-≤ : m < n → k ≤ l → m + k < n + l
 <-+-≤ p q = <≤-trans (<-+k p) (≤-k+ q)
+
+<-suc : {n : ℕ} → n < suc n
+<-suc = 0 , refl
+
+<SumLeft : {n k : ℕ} → n < n + suc k
+<SumLeft {n} {k} = k , +-suc k n ∙ +-comm (suc k) n
+
+<SumRight : {n k : ℕ} → n < suc k + n
+<SumRight {n} {k} = k , +-suc k n
 
 ¬squeeze< : {n m : ℕ} → ¬ (n < m) × (m < suc n)
 ¬squeeze< {n = n} ((zero , p) , t) = ¬m<m (subst (_< suc n) (sym p) t)
@@ -545,3 +557,36 @@ pattern s<s {m} {n} m<n = s≤s {m} {n} m<n
 ≤-∸-≥ n (suc l)  zero   r = ⊥.rec (¬-<-zero r)
 ≤-∸-≥  zero   (suc l) (suc k) r = ≤-refl
 ≤-∸-≥ (suc n) (suc l) (suc k) r = ≤-∸-≥ n l k (pred-≤-pred r)
+
+-- Some facts about increasing functions
+
+isStrictlyIncreasing : (f : ℕ → ℕ) → Type
+isStrictlyIncreasing f = {m n : ℕ} → (m < n) → f m < f n
+
+isIncreasing : (f : ℕ → ℕ) → Type
+isIncreasing f = {m n : ℕ} → m ≤ n → f m ≤ f n
+
+strictlyIncreasing→Increasing : {f : ℕ → ℕ} → isStrictlyIncreasing f → isIncreasing f
+strictlyIncreasing→Increasing {f} fInc {m} {n} m≤n = case (≤-split m≤n) of
+  λ { (inl m<n) → <-weaken  (fInc m<n)
+    ; (inr m=n) → ≤-reflexive (cong f m=n) }
+
+module _ (f : ℕ → ℕ) (fInc : ((n : ℕ) → f n < f (suc n))) where
+  open <-Reasoning
+  sucIncreasing→StrictlyIncreasing : isStrictlyIncreasing f
+  sucIncreasing→StrictlyIncreasing {m = m} {n = n} (k , m+k+1=n) =
+    sucIncreasing→strictlyIncreasing' m n k m+k+1=n where
+
+      sucIncreasing→strictlyIncreasing' :
+        (m : ℕ) → (n : ℕ) → (k : ℕ) → (k + suc m ≡ n) → f m < f n
+
+      sucIncreasing→strictlyIncreasing' m _ zero m+1=n =
+        subst (λ n' → f m < f n') m+1=n (fInc m)
+
+      sucIncreasing→strictlyIncreasing' m _ (suc k) sk+sm=n =
+        subst (λ n' → f m < f n') sk+sm=n $
+          f m
+            <⟨ sucIncreasing→strictlyIncreasing' m (k + suc m) k refl ⟩
+          f (k + suc m)
+            <≡⟨ fInc (k + suc m) ⟩
+          f (suc k + suc m) ∎
