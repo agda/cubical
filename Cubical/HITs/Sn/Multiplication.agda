@@ -1024,6 +1024,24 @@ diag⌣ {n = suc n} (merid a i) j = help j i
                                      (+-comm (suc m) (suc n) ⁻¹)))
              ∙ subst⁻Subst S₊ (+-comm (suc m) (suc n) ⁻¹) (x ⌣S y))
 
+⌣Sinvₗ^ : {n m : ℕ} (k : ℕ) (x : S₊ (suc n)) (y : S₊ (suc m))
+  → (-S^ k x) ⌣S y ≡ -S^ k (x ⌣S y)
+⌣Sinvₗ^ {n = n} {m} zero x y = refl
+⌣Sinvₗ^ {n = n} {m} (suc zero) x y = ⌣Sinvₗ x y
+⌣Sinvₗ^ {n = n} {m} (suc (suc k)) x y =
+    cong (_⌣S y) (-S^² 1 (-S^ k x))
+  ∙ ⌣Sinvₗ^ k x y
+  ∙ sym (-S^² 1 (-S^ k (x ⌣S y)))
+
+⌣Sinvᵣ^ : {n m : ℕ} (k : ℕ) (x : S₊ (suc n)) (y : S₊ (suc m))
+  → x ⌣S (-S^ k y) ≡ -S^ k (x ⌣S y)
+⌣Sinvᵣ^ {n = n} {m} zero x y = refl
+⌣Sinvᵣ^ {n = n} {m} (suc zero) x y = ⌣Sinvᵣ x y
+⌣Sinvᵣ^ {n = n} {m} (suc (suc k)) x y =
+    cong (x ⌣S_) (-S^² 1 (-S^ k y))
+  ∙ ⌣Sinvᵣ^ k x y
+  ∙ sym (-S^² 1 (-S^ k (x ⌣S y)))
+
 -- Interaction between ⌣S, SuspS¹→S² and SuspS¹→S²
 SuspS¹→S²-S¹×S¹→S² : (a b : S¹)
   → SuspS¹→S² (a ⌣S b) ≡ S¹×S¹→S² a b

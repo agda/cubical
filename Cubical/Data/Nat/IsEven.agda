@@ -71,3 +71,18 @@ evenOrOdd-Odd : (n : ℕ) → (isEven n ≡ false) → Σ[ x ∈ isOddT n ] even
 evenOrOdd-Odd zero p = ⊥.rec (true≢false p)
 evenOrOdd-Odd (suc zero) p = tt , refl
 evenOrOdd-Odd (suc (suc n)) p = evenOrOdd-Odd n p
+
+isEvenT→isEvenTrue : (n : ℕ) → isEvenT n → (isEven n ≡ true)
+isEvenT→isEvenTrue zero x = refl
+isEvenT→isEvenTrue (suc (suc n)) x = isEvenT→isEvenTrue n x
+
+isEvenT→isOddFalse : (n : ℕ) → isEvenT n → (isOdd n ≡ false)
+isEvenT→isOddFalse zero x = refl
+isEvenT→isOddFalse (suc (suc n)) x = isEvenT→isOddFalse n x
+
+isOddT→isEvenFalse : (n : ℕ) → isOddT n → (isEven n ≡ false)
+isOddT→isEvenFalse (suc n) x = isEvenT→isOddFalse n x
+
+isOddT→isOddTrue : (n : ℕ) → isOddT n → (isOdd n ≡ true)
+isOddT→isOddTrue (suc n) x = isEvenT→isEvenTrue n x
+
