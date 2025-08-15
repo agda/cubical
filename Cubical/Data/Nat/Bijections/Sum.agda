@@ -15,7 +15,6 @@ open <-Reasoning
 
 open import Cubical.Tactics.NatSolver
 open import Cubical.Data.Nat.Bijections.IncreasingFunction
-open import Cubical.Data.Nat.MoreOrderProperties
 
 double : ℕ → ℕ
 double n = n + n
@@ -48,8 +47,8 @@ private
       k<0 : k < 0
       k<0 = pred-≤-pred (pred-≤-pred k+2<2)
 
-doubleInc : isIncreasing double
-doubleInc = strengthenIncreasing double doubleGrows
+doubleInc : isStrictlyIncreasing double
+doubleInc = sucIncreasing→StrictlyIncreasing double doubleGrows
 
 private
   partitionDouble≅ℕ⊎ℕ : Iso (partition double refl doubleInc) (ℕ ⊎ ℕ)

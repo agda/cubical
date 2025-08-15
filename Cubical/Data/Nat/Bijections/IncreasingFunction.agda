@@ -15,42 +15,14 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open <-Reasoning
-open import Cubical.Data.Nat.MoreOrderProperties
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
 open import Cubical.Relation.Nullary
 open import Cubical.Data.Empty renaming (rec to ex-falso)
 
-isIncreasing : (f : ℕ → ℕ) → Type
-isIncreasing f = {m n : ℕ} → (m < n) → f m < f n
-
-weakenIncreasing : {f : ℕ → ℕ} → {m n : ℕ} → isIncreasing f → m ≤ n → f m ≤ f n
-weakenIncreasing {f} {m} {n} fInc m≤n = case (≤-split m≤n) of
-  λ { (inl m<n) → <-weaken  (fInc m<n)
-    ; (inr m=n) → =→≤ (cong f m=n) }
-
-strengthenIncreasing : (f : ℕ → ℕ) → ((n : ℕ) → f n < f (suc n)) → isIncreasing f
-strengthenIncreasing f fInc {m = m} {n = n} (k , m+k+1=n) =
-  strengthenIncreasing' f fInc m n k m+k+1=n where
-
-  strengthenIncreasing' : (f : ℕ → ℕ) → ((n : ℕ) → f n < f (suc n)) →
-                          (m : ℕ) → (n : ℕ) → (k : ℕ) → (k + suc m ≡ n) →
-                          f m < f n
-
-  strengthenIncreasing' f fInc m n zero    m+1=n   =
-    subst (λ n' → f m < f n') m+1=n (fInc m)
-
-  strengthenIncreasing' f fInc m n (suc k) sk+sm=n =
-    transport (cong (λ { n' → f m < f n' }) sk+sm=n) (
-      f m
-        <⟨ strengthenIncreasing' f fInc m (k + suc m) k refl  ⟩
-      f (k + suc m)
-        <≡⟨ fInc (k + suc m) ⟩
-      f(suc k + suc m) ∎)
-
 private
-  kIsUnique : (f : ℕ → ℕ ) → isIncreasing f → (n : ℕ) →
+  kIsUnique : (f : ℕ → ℕ ) → isStrictlyIncreasing f → (n : ℕ) →
               (k  : ℕ) →  ((f k  ≤ n) × (n < f (suc k ))) →
               (k' : ℕ) →  ((f k' ≤ n) × (n < f (suc k'))) →
               k ≡ k'
@@ -62,7 +34,7 @@ private
      n
        <≤⟨ n<fsl ⟩
      f (suc l)
-       ≤⟨ weakenIncreasing fInc l<l' ⟩
+       ≤⟨ strictlyIncreasing→Increasing fInc l<l' ⟩
      f l'
        ≤≡⟨ fl'≤n  ⟩
      n ∎
@@ -73,12 +45,12 @@ private
     ... | eq k=k' = k=k'
     ... | gt k'<k = ex-falso (compare k' k n<fsk' fk≤n k'<k)
 
-  approxFunction : (f : ℕ → ℕ) → (f 0 ≡ 0) → isIncreasing f →
+  approxFunction : (f : ℕ → ℕ) → (f 0 ≡ 0) → isStrictlyIncreasing f →
                    (n : ℕ) → Σ[ k ∈ ℕ ]  (f k ≤ n) × (n < f (suc k))
   approxFunction f f0=0 fInc zero = 0 , f0≤0 , 0<f1 where
 
     f0≤0 : f 0 ≤ 0
-    f0≤0 = =→≤ f0=0
+    f0≤0 = ≤-reflexive f0=0
 
     f0<f1 : f 0 < f 1
     f0<f1 = fInc <-suc
@@ -102,7 +74,7 @@ private
 
     newsol : Trichotomy (f (suc k)) (suc n) → Σ[ k' ∈ ℕ ] (f k' ≤ suc n) × (suc n < f (suc k'))
     newsol (lt fsk<sn) = ex-falso (¬squeeze< (n<fsk , fsk<sn))
-    newsol (eq fsk=sn) = suc k , =→≤ fsk=sn , (
+    newsol (eq fsk=sn) = suc k , ≤-reflexive fsk=sn , (
       suc n
         ≡<⟨ sym fsk=sn ⟩
       f (suc k)
@@ -114,7 +86,7 @@ private
                                ≤≡⟨ <-weaken <-suc ⟩
                               suc n ∎) ,            fsk>sn
 
-module _ (f : ℕ → ℕ) (f0=0 : f 0 ≡ 0) (fInc : isIncreasing f) where
+module _ (f : ℕ → ℕ) (f0=0 : f 0 ≡ 0) (fInc : isStrictlyIncreasing f) where
   nearestValues : (n : ℕ) → ∃![ k ∈ ℕ ] (f k ≤ n) × (n < f (suc k))
   nearestValues n = uniqueExists k p goalIsProp (kIsUnique f fInc n k p) where
 
