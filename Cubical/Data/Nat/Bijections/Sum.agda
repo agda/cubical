@@ -22,7 +22,7 @@ double n = n + n
 
 private
   2Sn=2n+2 : {n : ℕ} → double (suc n) ≡ double n + 2
-  2Sn=2n+2 =  solveℕ!
+  2Sn=2n+2 = solveℕ!
 
   doubleGrows : (n : ℕ) → double n < double (suc n)
   doubleGrows n = double n

@@ -28,7 +28,7 @@ isIncreasing f = {m n : ℕ} → (m < n) → f m < f n
 weakenIncreasing : {f : ℕ → ℕ} → {m n : ℕ} → isIncreasing f → m ≤ n → f m ≤ f n
 weakenIncreasing {f} {m} {n} fInc m≤n = case (≤-split m≤n) of
   λ { (inl m<n) → <-weaken  (fInc m<n)
-    ; (inr m=n) → transport (cong (λ { k → f m ≤ f k }) m=n) ≤-refl }
+    ; (inr m=n) → =→≤ (cong f m=n) }
 
 strengthenIncreasing : (f : ℕ → ℕ) → ((n : ℕ) → f n < f (suc n)) → isIncreasing f
 strengthenIncreasing f fInc {m = m} {n = n} (k , m+k+1=n) =
@@ -39,7 +39,7 @@ strengthenIncreasing f fInc {m = m} {n = n} (k , m+k+1=n) =
                           f m < f n
 
   strengthenIncreasing' f fInc m n zero    m+1=n   =
-    transport (cong (λ { n' → f m < f n' }) m+1=n  ) (fInc m)
+    subst (λ n' → f m < f n') m+1=n (fInc m)
 
   strengthenIncreasing' f fInc m n (suc k) sk+sm=n =
     transport (cong (λ { n' → f m < f n' }) sk+sm=n) (
