@@ -11,6 +11,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Function
 
+open import Cubical.Data.Nat
+
 private
   variable
     ℓ ℓ' : Level
@@ -35,6 +37,11 @@ _→∙_∙ : (A : Pointed ℓ) (B : Pointed ℓ') → Pointed (ℓ-max ℓ ℓ'
 idfun∙ : (A : Pointed ℓ) → A →∙ A
 idfun∙ A .fst x = x
 idfun∙ A .snd = refl
+
+iter∙ : {A : Pointed ℓ} (k : ℕ) → A →∙ A → A →∙ A
+iter∙ k f .fst = iter k (fst f)
+iter∙ zero f .snd = refl
+iter∙ (suc k) f .snd = cong (fst f) (iter∙ k f .snd) ∙ snd f
 
 infix 3 _≃∙_
 {-Pointed equivalences -}

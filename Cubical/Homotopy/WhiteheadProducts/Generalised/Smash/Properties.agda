@@ -25,41 +25,40 @@ open import Cubical.Homotopy.WhiteheadProducts.Generalised.Join.Properties
 
 open Iso
 
-module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
+module _ {ℓ ℓ' ℓ''} (A A' : Pointed ℓ) (e : A ≃∙ Susp∙ (typ A'))
   (B : Pointed ℓ') {C : Pointed ℓ''}
-  (f g : Susp∙ (Susp (typ A)) →∙ C)
+  (f g : Susp∙ (typ A) →∙ C)
   (h : Susp∙ (typ B) →∙ C) where
   -- ·whΣ version
-  WhiteheadProdΣBilinₗ : ·whΣ (Susp∙ (typ A)) B (·Susp (Susp∙ (typ A)) f g) h
-                      ≡ ·Susp (Susp∙ (typ A) ⋀∙ B)
-                              (·whΣ (Susp∙ (typ A)) B f h)
-                              (·whΣ (Susp∙ (typ A)) B g h)
+  WhiteheadProdΣBilinₗ : ·whΣ A B (·Susp A f g) h
+                      ≡ ·Susp (A ⋀∙ B)
+                              (·whΣ A B f h)
+                              (·whΣ A B g h)
   WhiteheadProdΣBilinₗ =
     transport (λ j
-      → PathP-·wh-·whΣ (Susp∙ (typ A)) B
-          (·Susp (Susp∙ (typ A)) f g) h (~ j)
-      ≡ ·Susp-+*-PathP {A = Susp∙ (typ A)} {B} {C} (~ j)
-        (PathP-·wh-·whΣ (Susp∙ (typ A)) B f h (~ j))
-        (PathP-·wh-·whΣ  (Susp∙ (typ A)) B g h (~ j)))
-      (WhiteheadProdBilinₗ A B {C} f g h)
+      → PathP-·wh-·whΣ A B
+          (·Susp A f g) h (~ j)
+      ≡ ·Susp-+*-PathP {A = A} {B} {C} (~ j)
+        (PathP-·wh-·whΣ A B f h (~ j))
+        (PathP-·wh-·whΣ  A B g h (~ j)))
+      (WhiteheadProdBilinₗ' A A' e B {C} f g h)
 
 module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
-  (B : Pointed ℓ') {C : Pointed ℓ''}
+  (B B' : Pointed ℓ') (e : B ≃∙ Susp∙ (typ B')) {C : Pointed ℓ''}
   (f : Susp∙ (typ A) →∙ C)
-  (g h : Susp∙ (Susp (typ B)) →∙ C) where
+  (g h : Susp∙ (typ B) →∙ C) where
   -- ·whΣ version
-  WhiteheadProdΣBilinᵣ : ·whΣ A (Susp∙ (typ B)) f (·Susp (Susp∙ (typ B)) g h)
-                       ≡ ·Susp (A ⋀∙ Susp∙ (typ B))
-                               (·whΣ A (Susp∙ (typ B)) f g)
-                               (·whΣ A (Susp∙ (typ B)) f h)
+  WhiteheadProdΣBilinᵣ :
+      ·whΣ A B f (·Susp B g h)
+    ≡ ·Susp (A ⋀∙ B) (·whΣ A B f g) (·whΣ A B f h)
   WhiteheadProdΣBilinᵣ =
     transport (λ j
-      → PathP-·wh-·whΣ A (Susp∙ (typ B)) f
-          (·Susp (Susp∙ (typ B)) g h) (~ j)
-      ≡ ·Susp-+*-PathP {A = A} {Susp∙ (typ B)} {C} (~ j)
-        (PathP-·wh-·whΣ  A (Susp∙ (typ B)) f g (~ j))
-        (PathP-·wh-·whΣ  A (Susp∙ (typ B)) f h (~ j)))
-      (WhiteheadProdBilinᵣ A B f g h)
+      → PathP-·wh-·whΣ A B f
+          (·Susp B g h) (~ j)
+      ≡ ·Susp-+*-PathP {A = A} {B} {C} (~ j)
+        (PathP-·wh-·whΣ A B f g (~ j))
+        (PathP-·wh-·whΣ A B f h (~ j)))
+      (WhiteheadProdBilinᵣ' A B B' e f g h)
 
 WhiteheadProdΣIdL : ∀ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
          (B : Pointed ℓ') {C : Pointed ℓ''}

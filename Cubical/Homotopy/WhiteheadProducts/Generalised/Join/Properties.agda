@@ -200,6 +200,36 @@ module _ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
                  ∙ refl))))
   snd (WhiteheadProdBilinᵣ i) j = Ω→f∙ j i
 
+-- more flexible versions
+WhiteheadProdBilinₗ' : ∀ {ℓ ℓ' ℓ''} (A A' : Pointed ℓ)
+  (e : A ≃∙ Susp∙ (typ A'))
+  (B : Pointed ℓ')  {C : Pointed ℓ''}
+  (f g : Susp∙ (typ A) →∙ C)
+  (h : Susp∙ (typ B) →∙ C)
+  → ·wh A B (·Susp A f g) h
+    ≡ _+*_ {A = A} {B = B} (·wh A B f h) (·wh A B g h)
+WhiteheadProdBilinₗ' {ℓ' = ℓ'} {ℓ''} A A' =
+  Equiv∙J (λ A e → (B : Pointed ℓ')  {C : Pointed ℓ''}
+      (f g : Susp∙ (typ A) →∙ C)
+      (h : Susp∙ (typ B) →∙ C)
+      → ·wh A B (·Susp A f g) h
+        ≡ _+*_ {A = A} {B = B} (·wh A B f h) (·wh A B g h))
+    (WhiteheadProdBilinₗ A')
+
+WhiteheadProdBilinᵣ' : ∀ {ℓ ℓ' ℓ''} (A : Pointed ℓ)
+  (B B' : Pointed ℓ') (e : B ≃∙ Susp∙ (typ B')) {C : Pointed ℓ''}
+  (f : Susp∙ (typ A) →∙ C)
+  (g h : Susp∙ (typ B) →∙ C)
+  → ·wh A B f (·Susp B g h)
+    ≡ _+*_ {A = A} {B = B} (·wh A B f g) (·wh A B f h)
+WhiteheadProdBilinᵣ' {ℓ'' = ℓ''} A B B' =
+  Equiv∙J (λ B e → {C : Pointed ℓ''}
+            (f : Susp∙ (typ A) →∙ C)
+            (g h : Susp∙ (typ B) →∙ C)
+            → ·wh A B f (·Susp B g h)
+            ≡ _+*_ {A = A} {B = B} (·wh A B f g) (·wh A B f h))
+           (WhiteheadProdBilinᵣ A B')
+
   -- -- ·whΣ version
   -- WhiteheadProdΣBilinᵣ : ·whΣ A (Susp∙ (typ B)) f (·Susp (Susp∙ (typ B)) g h)
   --                      ≡ ·Susp (A ⋀∙ Susp∙ (typ B))
