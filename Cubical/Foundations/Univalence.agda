@@ -25,6 +25,7 @@ open import Cubical.Data.Sigma.Base
 
 open import Cubical.Core.Glue public
   using (Glue ; glue ; unglue)
+  renaming (pathToEquiv to lineToEquiv)
 
 open import Cubical.Reflection.StrictEquiv
 
@@ -212,20 +213,37 @@ EquivJ P r e = subst (λ x → P (x .fst) (x .snd)) (contrSinglEquiv e) r
 -- Transport along a path is an equivalence.
 -- The proof is a special case of isEquivTransp where the line of types is
 -- given by p, and the extend φ -- where the transport is constant -- is i0.
-isEquivTransport : (p : A ≡ B) → isEquiv (transport p)
-isEquivTransport p = isEquivTransp T φ where
+-- Warning: this is deprecated
+isEquivTransport' : (p : A ≡ B) → isEquiv (transport p)
+isEquivTransport' p = isEquivTransp T φ where
   T : I → Type _
   T i = p i
 
   φ : I
   φ = i0
 
+-- Note that isEquivTransp does not compute well,
+-- so we prefer this definition using the builtin lineToEquiv.
 pathToEquiv : A ≡ B → A ≃ B
-pathToEquiv p .fst = transport p
-pathToEquiv p .snd = isEquivTransport p
+pathToEquiv p = lineToEquiv λ i → p i
+
+isEquivTransport : (p : A ≡ B) → isEquiv (transport p)
+isEquivTransport p = pathToEquiv p .snd
+
+private module test where
+  _ : (p : A ≡ B) (b : B) → invIsEq (isEquivTransport p) b ≡ transport (sym p) b
+  _ = λ _ _ → refl
+
+  -- isEquivTransport' introduces an extra reflexive transport
+  _ : (p : A ≡ B) (b : B) → invIsEq (isEquivTransport' p) b ≡ transport refl (transport (sym p) b)
+  _ = λ _ _ → refl
+
+pathToEquivOver : {A B : Type ℓ} (p : A ≡ B)
+                → PathP (λ i → p i ≃ B) (pathToEquiv p) (idEquiv B)
+pathToEquivOver p = equivPathP λ i x → transp (λ j → p (i ∨ j)) i x
 
 pathToEquivRefl : {A : Type ℓ} → pathToEquiv refl ≡ idEquiv A
-pathToEquivRefl {A = A} = equivEq (λ i x → transp (λ _ → A) i x)
+pathToEquivRefl = pathToEquivOver refl
 
 -- The computation rule for ua. Because of "ghcomp" it is now very
 -- simple compared to cubicaltt:
@@ -242,7 +260,7 @@ uaη {A = A} {B = B} P i j = Glue B {φ = φ} sides where
   φ = i ∨ j ∨ ~ j
 
   sides : Partial φ (Σ[ T ∈ Type _ ] T ≃ B)
-  sides (i = i1) = P j , transpEquiv (λ k → P k) j
+  sides (i = i1) = P j , pathToEquivOver P j
   sides (j = i0) = A , pathToEquiv P
   sides (j = i1) = B , idEquiv B
 
