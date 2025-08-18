@@ -34,10 +34,10 @@ iter : ∀ {ℓ} {A : Type ℓ} → ℕ → (A → A) → A → A
 iter zero f z    = z
 iter (suc n) f z = f (iter n f z)
 
-iterswap : ∀ {ℓ} {A : Type ℓ} (n : ℕ) (f : A → A) (z : A)
-  → iter n f (f z) ≡ f (iter n f z)
-iterswap zero f z _ = f z
-iterswap (suc n) f z i = f (iterswap n f z i)
+iter+ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ) (f : A → A) (z : A)
+  → iter (n + m) f z ≡ iter n f (iter m f z)
+iter+ zero m f z _ = iter m f z
+iter+ (suc n) m f z i = f (iter+ n m f z i)
 
 elim : ∀ {ℓ} {A : ℕ → Type ℓ}
   → A zero

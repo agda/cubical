@@ -1022,6 +1022,22 @@ wh∘∙eqL {A = A} {B} {C} {B'} =
 
 open import Cubical.Foundations.Equiv.HalfAdjoint
 
+retEqIsoToEquiv∙ : ∀ {ℓ} {A B : Pointed ℓ}
+  (e : A ≃∙ B) (e∙ : invEq (fst e) (pt B) ≡ pt A)
+  (eq : sym (secEq (fst e) (pt B))
+      ∙ cong (fst (fst e)) e∙
+      ≡ sym (snd e))
+    → retEq (fst e) (pt A)
+     ≡ cong (invEq (fst e)) (snd e)
+     ∙ e∙
+retEqIsoToEquiv∙ {A = A} {B} =
+  Equiv∙J (λ A e → (e∙ : invEq (fst e) (pt B) ≡ pt A)
+                    (eq : sym (secEq (fst e) (pt B))
+                        ∙ cong (fst (fst e)) e∙
+                        ≡ sym (snd e))
+    → retEq (fst e) (pt A) ≡ cong (invEq (fst e)) (snd e) ∙ e∙)
+    λ e∙ p → sym p
+
 retEqIsoToEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
   (is : Iso A B) (x : _)
     → retEq (isoToEquiv is) x
@@ -1103,7 +1119,7 @@ IsoSucSphereSusp≃∙CompR (suc n) i .snd j = rUnit (λ _ → north) (~ i) j
   ∙ cong₂ _∘∙_
      (cong (joinPinch∙ (S₊∙ n) (S₊∙ m) X) (funExt (λ a → funExt λ b →
        cong₂ _∙_ (Ω→lemma m b g) (Ω→lemma n a f))))
-     (ΣPathP (refl , {!!} ∙ lUnit _))
+     (ΣPathP (refl , sym (lem' n m) ∙ lUnit _))
   ∙ cong₂ _∘∙_ (·whΣ≡·wh (S₊∙ n) (S₊∙ m)
            (f ∘∙ ≃∙map (IsoSucSphereSuspInv≃∙ n))
            (g ∘∙ ≃∙map (IsoSucSphereSuspInv≃∙ m)))
@@ -1229,621 +1245,637 @@ IsoSucSphereSusp≃∙CompR (suc n) i .snd j = rUnit (λ _ → north) (~ i) j
       ∙ sym (lUnit _))
     ∙ rCancel (push true (ptSn (suc m)))
 
-  pathlem : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : x ≡ z)
-    → p ∙ (sym p ∙∙ q ∙∙ sym q) ≡ refl
-  pathlem p q =
-    cong₂ _∙_ refl (doubleCompPath≡compPath (sym p) q (sym q))
-    ∙ assoc p (sym p) (q ∙ sym q)
-    ∙ cong₂ _∙_ (rCancel p) (rCancel q)
-    ∙ sym (rUnit refl)
+  lem' :  (n m : ℕ) → retEq (isoToEquiv (IsoSphereJoin n m)) (inl (ptSn n))
+                       ≡ IsoSphereJoin⁻Pres∙ n m 
+  lem' n m = retEqIsoToEquiv∙
+    (isoToEquiv (IsoSphereJoin n m) , IsoSphereJoinPres∙ n m)
+    (IsoSphereJoin⁻Pres∙ n m) (oh n m)
+    ∙ sym (lUnit (IsoSphereJoin⁻Pres∙ n m))
+    where
+    dd = join→Sphere≡
 
-  pathlem' : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z)
-    → p ∙ (q ∙∙ sym q ∙∙ sym p) ≡ refl
-  pathlem' p q = {!!}
+    lemma3 : (n m : ℕ)
+      → (λ i → join→Sphere≡ (suc n) m
+                 (push (ptSn (suc n)) (ptSn m) (~ i)) (~ i))
+       ≡ sym (merid (ptSn (suc (n + m))))
+    lemma3 n m = flipSquare
+      ((λ i j → join→Sphere≡ (suc n) m
+                      (push (ptSn (suc n)) (ptSn m) (~ i ∨ j)) (~ i))
+     ▷ (cong σS (IdL⌣S {n = suc n} {m = m} (ptSn (suc n))) ∙ σS∙))
 
-  alem : (m : ℕ) → (rightInv (joinSphereIso' zero (suc m)) north)
-       ≡ sym (merid (ptSn (suc m)))
-  alem m = {!rightInv (joinSphereIso' zero (suc m)) north!}
+    oh : (n m : ℕ)
+      → sym (secEq (isoToEquiv (IsoSphereJoin n m)) (ptSn (suc (n + m))))
+       ∙ cong (join→Sphere n m) (IsoSphereJoin⁻Pres∙ n m)
+       ≡ sym (IsoSphereJoinPres∙ n m)
+    oh zero zero =
+      cong₂ _∙_ (cong sym (sym (lUnit _)
+               ∙ sym (lUnit (refl ∙ refl)) ∙ sym (rUnit refl))) refl
+     ∙ sym (rUnit refl)
+    oh zero (suc n) =
+        cong₂ _∙_ (cong₃ _∙∙_∙∙_
+          (cong sym (cong₂ _∙_ refl (sym (rUnit refl)) ∙ sym (rUnit _)))
+          (λ j i → compPath-filler (merid (ptSn (suc n)))
+                     (sym (merid (ptSn (suc n)))) (i ∧ ~ j) (~ i))
+          refl) refl
+      ∙ cong sym (sym (rUnit _) ∙ rCancel (merid (ptSn (suc n))))
+    oh (suc n) m = cong₂ _∙_ (cong₃ _∙∙_∙∙_
+      (cong sym (cong₂ _∙_ refl (sym (rUnit refl)) ∙ sym (rUnit _))
+              ∙ cong merid (IdL⌣S {n = suc n} {m = m} (ptSn (suc n))))
+                             (lemma3 n m) refl
+                           ∙ cong sym (rCancel (merid (ptSn (suc (n + m))))))
+                           refl
+                           ∙ sym (rUnit refl)
 
-  lem' : (n m : ℕ) → retEq (isoToEquiv (IsoSphereJoin n m)) (inl (ptSn n))
-                    ≡ IsoSphereJoin⁻Pres∙ n m
-  lem' zero zero = retEqIsoToEquiv (IsoSphereJoin zero zero) (inl true)
-    ∙ cong₂ _∙_ (cong₂ _∙_ (cong sym (sym (lUnit _)
-      ∙ cong₂ _∙_ (cong-∙∙ (fun SmashJoinIso) _ _ _ ∙ sym (rUnit _)) refl
-                ∙ refl))
-            (cong-∙ (inv (joinSphereIso' 0 0)) _ _
-            ∙ sym (lUnit _)
-            ∙ cong-∙∙ (inv (joinSphereIso' 0 0)) _ _ _
-            ∙ sym (lUnit _) ∙ sym (rUnit refl)))
-            (sym (lUnit _)
-            ∙ cong₂ _∙_ (cong-∙∙ (inv (invIso SmashJoinIso)) _ _ _
-                       ∙ sym (rUnit refl)) refl
-                       ∙ sym (lUnit _))
-    ∙ cong₂ _∙_ (sym (rUnit _) ∙ refl) refl
-    ∙ cong₂ _∙_ (cong₃ _∙∙_∙∙_ refl (doubleCompPath≡compPath _ _ _) refl
-              ∙ sym (compPath≡compPath' _ _)
-              ∙ assoc _ _ _
-              ∙ cong₂ _∙_ (lCancel _) (lCancel _)
-              ∙ sym (rUnit refl)) refl
-    ∙ sym (lUnit _)
-  lem' zero (suc m) = retEqIsoToEquiv (IsoSphereJoin zero (suc m)) (inl true)
-    ∙ cong₂ _∙_ (cong₃ _∙∙_∙∙_ refl
-      (cong sym (p3 m))
-        (cong-∙ (sphere→Join zero (suc m)) _ _
-        ∙ cong₂ _∙_ (cong (congS (sphere→Join zero (suc m)))
-                       (compPath-filler-diag
-                         (merid (ptSn (suc m)))
-                         (sym (merid (ptSn (suc m)))))) refl)
-        ∙ sym (lUnit _)
-        ∙ cong₂ _∙_ (pathlem' (push true (ptSn (suc m)))
-                      (sym (push false (ptSn (suc m)))))
-            (cong (congS (sphere→Join zero (suc m))) (alem m)
-          ∙ cong sym (pathlem' (push true (ptSn (suc m)))
-                      (sym (push false (ptSn (suc m))))))
-        ∙ sym (rUnit refl))
-        (p3 m)
-    ∙ sym (rUnit refl)
-  lem' (suc n) zero = {!!}
-  lem' (suc n) (suc m) =
-    retEqIsoToEquiv (IsoSphereJoin (suc n) (suc m)) (inl (ptSn (suc n)))
-       ∙ cong₂ _∙_ (cong₂ _∙_ (cong sym (cong₂ _∙_ refl (p1 n (suc m)) ∙ rCancel _))
-                              (cong-∙ (sphere→Join (suc n) (suc m)) _ _
-                     ∙ cong₂ _∙_ refl (cong (congS (sphere→Join (suc n) (suc m))) (p2 n (suc m))))
-                     ∙ sym (lUnit _))
-                     (cong₂ _∙_ refl (p1 n (suc m))
-                     ∙ rCancel _)
-       ∙ sym (rUnit _)
-       ∙ cong₂ _∙_
-         (λ j i → sphere→Join (suc n) (suc m)
-               (compPath-filler
-                 (merid (sphereFun↑ _⌣S_ (ptSn (suc n)) (pt (S₊∙ (suc m)))))
-                 (sym (merid (ptSn (suc (n + suc m))))) (~ i ∧ ~ j) i))
-         refl
-       ∙ cong₂ _∙_ (cong₂ _∙_ refl (cong (congS (inv (joinSphereIso' (suc n) (suc m)))
-                                         ∘ merid)
-                                         (IdL⌣S {n = suc n} {m = suc m} (ptSn (suc n))))) refl
-       ∙ rCancel _
-  {- retEqIsoToEquiv (IsoSphereJoin (suc n) (suc m)) (inl (ptSn (suc n)))
-       ∙ cong₂ _∙_ (cong₂ _∙_ (cong sym (cong₂ _∙_ refl p1 ∙ rCancel _)
-               ∙ refl) (cong-∙ (sphere→Join (suc n) (suc m)) _ _
-                     ∙ cong₂ _∙_ refl (cong (congS (sphere→Join (suc n) (suc m))) p2
-                       ∙ refl) -- cong sym (cong₂ _∙_ refl refl) ∙ {!!})
-                     ∙ refl) ∙ sym (lUnit _)) (cong₂ _∙_ refl p1
-                     ∙ rCancel _)
-       ∙ sym (rUnit _)
-       ∙ cong₂ _∙_
-         (λ j i → sphere→Join (suc n) (suc m)
-               (compPath-filler
-                 (merid (sphereFun↑ _⌣S_ (ptSn (suc n)) (pt (S₊∙ (suc m)))))
-                 (sym (merid (ptSn (suc (n + suc m))))) (~ i ∧ ~ j) i))
-         refl
-       ∙ cong₂ _∙_ (cong₂ _∙_ refl (cong (congS (inv (joinSphereIso' (suc n) (suc m))) ∘ merid) (IdL⌣S {n = suc n} {m = suc m} (ptSn (suc n))))) refl
-       ∙ rCancel _
-       -}
+[]≡·whΣ : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+  (f : S₊∙ (2 + n) →∙ X) (g : S₊∙ (2 + m) →∙ X)
+  →  [ f ∣ g ]
+   ≡ (·whΣ (S₊∙ (suc n)) (S₊∙ (suc m)) f g
+   ∘∙ suspFun∙ (inv (SphereSmashIso (suc n) (suc m))))
+[]≡·whΣ {X = X} {n} {m} f g = []≡·whΣ'  {X = X} f g
+  ∙ cong₂ _∘∙_ (cong₂ (·whΣ (S₊∙ (suc n)) (S₊∙ (suc m)))
+               (∘∙-idˡ f) (∘∙-idˡ g))
+               (∘∙-idˡ (suspFun∙ (inv (SphereSmashIso (suc n) (suc m)))))
 
+tripleSmasherL≃∙ : {n m l : ℕ}
+  → S₊∙ (suc n + (suc m + suc l))
+  ≃∙ S₊∙ (suc n) ⋀∙ (S₊∙ (suc m) ⋀∙ S₊∙ (suc l))
+tripleSmasherL≃∙ {n = n} {m} {l} =
+  compEquiv∙ (isoToEquiv (invIso (SphereSmashIso (suc n) (suc m + suc l)))
+                        , SphereSmashIso⁻∙ (suc n) (suc m + suc l))
+             (⋀≃ (idEquiv∙ (S₊∙ (suc n)))
+             ((isoToEquiv (invIso (SphereSmashIso (suc m) (suc l))))
+                                , (SphereSmashIso⁻∙ (suc m) (suc l)))
+            , refl)
 
--- {-
---     cong₂ _∘∙_ (·whΣ≡·wh _ _ _ _) refl
---   ∙ ∘∙-assoc _ _ _
---   ∙ cong₂ _∘∙_ refl
---     (Iso.inv (congIso (invIso (post∘∙equiv (joinSphereEquiv∙ (suc n) (suc m)))))
---       (-- ∘∙-assoc _ _ _
---        (cong₂ _∘∙_ (cong₂ _∘∙_ refl (ΣPathP
---          (refl , (sym (lem') ∙ lUnit _)))) refl
---        ∙ Iso.leftInv (post∘∙equiv (joinSphereEquiv∙ (suc n) (suc m)))
---           (Join→SuspSmash∙ (S₊∙ (suc n)) (S₊∙ (suc m))))
---      ∙ ΣPathP ((funExt (λ { (inl x) → refl
---                           ; (inr x) → sym (merid (inl tt))
---                           ; (push a b i) j → main a b (~ j) i}))
---                           , rUnit refl)))
---   where
---   main : (a : S₊ (suc n)) (b : S₊ (suc m))
---     → Square (cong (suspFun (inv (SphereSmashIso (suc n) (suc m))))
---                    (σ (S₊∙ (suc n + suc m)) (a ⌣S b)))
---               (merid (inr (a , b)))
---               refl
---               (merid (inl tt))
---   main a b = (cong-∙ (suspFun (inv (SphereSmashIso (suc n) (suc m)))) _ _
---     ∙ cong₂ _∙_ (cong merid (leftInv (SphereSmashIso (suc n) (suc m))
---                                      (inr (a , b))))
---                 (cong (sym ∘ merid) (SphereSmashIso⁻∙ (suc n) (suc m))))
---     ◁ symP (compPath-filler (merid (inr (a , b))) (sym (merid (inl tt))))
+tripleSmasherR≃∙ : {n m l : ℕ}
+  → S₊∙ ((suc n + suc m) + suc l)
+  ≃∙ ((S₊∙ (suc n) ⋀∙ S₊∙ (suc m)) ⋀∙ S₊∙ (suc l))
+tripleSmasherR≃∙ {n = n} {m} {l} =
+  compEquiv∙ (isoToEquiv (invIso (SphereSmashIso (suc n + suc m) (suc l)))
+                        , SphereSmashIso⁻∙ (suc n + suc m) (suc l))
+             (⋀≃ ((isoToEquiv (invIso (SphereSmashIso (suc n) (suc m))))
+                                    , (SphereSmashIso⁻∙ (suc n) (suc m)))
+                 (idEquiv∙ (S₊∙ (suc l)))
+            , refl)
 
---   retEqInvEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (e : A ≃ B) (x : _)
---     → retEq e x ≡ secEq (invEquiv e) x 
---   retEqInvEquiv e x = refl
+tripleSmasherL≃∙Id : (n m l : ℕ) (x : _)
+  → PathP (λ i → Susp (S₊ (assocPath n m l (~ i))))
+           (suspFun (-S^ (suc n · suc m)
+                   ∘ invEq (fst (tripleSmasherL≃∙ {n = n} {m} {l}))) x)
+           (suspFun (invEq (fst (tripleSmasherL≃∙ {n = m} {n} {l}))
+                   ∘ inv SmashAssocIso
+                   ∘ (⋀comm→∙ ⋀→ idfun∙ (S₊∙ (suc l)))
+                   ∘ fun SmashAssocIso) x)
+tripleSmasherL≃∙Id n m l north i = north
+tripleSmasherL≃∙Id n m l south i = south
+tripleSmasherL≃∙Id n m l (merid a i) j = lem a j i
+  where
+  lemma : (x : S₊ (suc n)) (y : S₊ (suc m)) (z : S₊ (suc l))
+    → PathP (λ i → S₊ (assocPath n m l (~ i)))
+             (-S^ (suc n · suc m) (invEq (fst tripleSmasherL≃∙)
+               (inr (x , inr (y , z)))))
+              (invEq (fst tripleSmasherL≃∙)
+               (inv SmashAssocIso
+                ((⋀comm→∙ ⋀→ idfun∙ (S₊∙ (suc l)))
+                 (fun SmashAssocIso (inr (x , inr (y , z)))))))
+  lemma x y z = transport (λ j →
+    PathP (λ i → S₊ (isSetℕ _ _ p (sym (assocPath n m l)) j i))
+          (-S^ (suc n · suc m) (x ⌣S (y ⌣S z)))
+          (y ⌣S (x ⌣S z)))
+        help
+    where
+    p = (cong suc (+-assoc n (suc m) (suc l))
+       ∙ cong (_+ suc l) (sym (+-comm (suc m) (suc n))))
+       ∙ cong suc (sym (+-assoc m (suc n) (suc l)))
 
---   p1 : leftInv (joinSphereIso' (suc n) (suc m)) (inl (ptSn (suc n))) ≡ sym (push (ptSn (suc n)) (ptSn (suc m)))
---   p1 = cong₂ _∙_ (cong (congS (inv (invIso SmashJoinIso))) (sym (rUnit refl))) refl
---      ∙ sym (lUnit _)
+    help : PathP (λ i → S₊ (p i))
+                 (-S^ (suc n · suc m) (x ⌣S (y ⌣S z)))
+                 (y ⌣S (x ⌣S z))
+    help =
+      compPathP' {B = S₊}
+      (compPathP' {B = S₊}
+        (λ i → -S^ (suc n · suc m) (assoc⌣S x y z i))
+        (λ i → -S^ (suc n · suc m)
+           (toPathP {A = λ i → S₊ (+-comm (suc m) (suc n) i)}
+                    (sym (comm⌣S x y)) (~ i) ⌣S z))
+      ▷ (cong (-S^ (suc n · suc m))
+                (⌣Sinvₗ^ (suc m · suc n) (y ⌣S x) z
+               ∙ λ i → -S^ (·-comm (suc m) (suc n) i) ((y ⌣S x) ⌣S z))
+      ∙ -S^² (suc n · suc m) ((y ⌣S x) ⌣S z)))
+      (symP (assoc⌣S y x z))
 
---   p2 : rightInv (joinSphereIso' (suc n) (suc m)) north ≡ sym (merid (ptSn (suc n + suc m)))
---   p2 = cong₂ _∙_ (cong (sym ∘ merid) (IdL⌣S {n = suc n} {m = suc m} (ptSn (suc n))))
---        (sym (rUnit refl))
---        ∙ sym (rUnit _)
+  lem : (a : _)
+    → SquareP (λ i j → Susp (S₊ (assocPath n m l (~ i))))
+               (merid ((-S^ (suc n · suc m) ∘ invEq (fst tripleSmasherL≃∙)) a))
+               (merid (invEq (fst tripleSmasherL≃∙)
+                        (inv SmashAssocIso
+                         ((⋀comm→∙ ⋀→ idfun∙ (S₊∙ (suc l)))
+                          (fun SmashAssocIso a)))))
+               (λ _ → north)
+               (λ _ → south)
+  lem = ⋀→HomogeneousPathP _ (isHomogeneousPath _ _)
+    λ x → ⋀→HomogeneousPathP _ (isHomogeneousPath _ _)
+      λ y z i → merid (lemma x y z i)
 
---   compPath-filler-diag : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z)
---     → Path (Path A _ _) (λ i → compPath-filler p q (~ i) i) p
---   compPath-filler-diag p q j i = compPath-filler p q (~ i ∧ ~ j) i
+·whΣ-assocer : ∀ {ℓ} {X : Pointed ℓ} {n m l : ℕ}
+  (f : S₊∙ (2 + n) →∙ X) (g : S₊∙ (2 + m) →∙ X)
+  (h : S₊∙ (2 + l) →∙ X)
+  → [ f ∣ [ g ∣ h ] ]
+   ≡ (·whΣ (S₊∙ (suc n)) (S₊∙ (suc m) ⋀∙ S₊∙ (suc l)) f
+       (·whΣ (S₊∙ (suc m)) (S₊∙ (suc l)) g h)
+   ∘∙ suspFun∙ (fst (fst tripleSmasherL≃∙)))
+·whΣ-assocer {X = X} {n} {m} {l} f g h =
+    cong₂ [_∣_] refl ([]≡·whΣ {X = X} g h)
+  ∙ []≡·whΣ f _
+  ∙ cong₂ _∘∙_
+      (wh∘∙eq ((isoToEquiv (invIso (SphereSmashIso (suc m) (suc l))))
+                                 , (SphereSmashIso⁻∙ (suc m) (suc l))) f
+             (·whΣ (S₊∙ (suc m)) (S₊∙ (suc l)) g h))
+      refl
+  ∙ ∘∙-assoc _ _ _
+  ∙ cong₂ _∘∙_ refl (sym (suspFun∙Comp _ _))
 
---   lem' : retEq (isoToEquiv (IsoSphereJoin (suc n) (suc m))) (inl (ptSn (suc n))) ≡ refl
---   lem' = retEqIsoToEquiv (IsoSphereJoin (suc n) (suc m)) (inl (ptSn (suc n)))
---        ∙ cong₂ _∙_ (cong₂ _∙_ (cong sym (cong₂ _∙_ refl p1 ∙ rCancel _)
---                ∙ refl) (cong-∙ (sphere→Join (suc n) (suc m)) _ _
---                      ∙ cong₂ _∙_ refl (cong (congS (sphere→Join (suc n) (suc m))) p2
---                        ∙ refl) -- cong sym (cong₂ _∙_ refl refl) ∙ {!!})
---                      ∙ refl) ∙ sym (lUnit _)) (cong₂ _∙_ refl p1
---                      ∙ rCancel _)
---        ∙ sym (rUnit _)
---        ∙ cong₂ _∙_
---          (λ j i → sphere→Join (suc n) (suc m)
---                (compPath-filler
---                  (merid (sphereFun↑ _⌣S_ (ptSn (suc n)) (pt (S₊∙ (suc m)))))
---                  (sym (merid (ptSn (suc (n + suc m))))) (~ i ∧ ~ j) i))
---          refl
---        ∙ cong₂ _∙_ (cong₂ _∙_ refl (cong (congS (inv (joinSphereIso' (suc n) (suc m))) ∘ merid) (IdL⌣S {n = suc n} {m = suc m} (ptSn (suc n))))) refl
---        ∙ rCancel _
--- -}
+·whΣ-assocerR : ∀ {ℓ} {X : Pointed ℓ} {n m l : ℕ}
+  (f : S₊∙ (2 + n) →∙ X) (g : S₊∙ (2 + m) →∙ X)
+  (h : S₊∙ (2 + l) →∙ X)
+  → [ [ f ∣ g ] ∣ h ]
+   ≡ (·whΣ (S₊∙ (suc n) ⋀∙ S₊∙ (suc m)) (S₊∙ (suc l)) 
+       (·whΣ (S₊∙ (suc n)) (S₊∙ (suc m)) f g) h
+   ∘∙ suspFun∙ ((fst (fst tripleSmasherR≃∙))))
+·whΣ-assocerR {X = X} {n} {m} {l} f g h =
+  cong₂ [_∣_]  ([]≡·whΣ {X = X} f g) refl
+  ∙ []≡·whΣ _ _
+  ∙ cong₂ _∘∙_ (wh∘∙eqL (isoToEquiv (invIso (SphereSmashIso (suc n) (suc m)))
+                                 , (SphereSmashIso⁻∙ (suc n) (suc m)))
+               (·whΣ (S₊∙ (suc n)) (S₊∙ (suc m)) f g) h) refl
+  ∙ ∘∙-assoc _ _ _
+  ∙ cong₂ _∘∙_ refl
+    (sym (suspFun∙Comp _ _))
 
--- []≡·whΣ : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
---   (f : S₊∙ (2 + n) →∙ X) (g : S₊∙ (2 + m) →∙ X)
---   →  [ f ∣ g ]
---    ≡ (·whΣ (S₊∙ (suc n)) (S₊∙ (suc m)) f g
---    ∘∙ suspFun∙ (inv (SphereSmashIso (suc n) (suc m))))
--- []≡·whΣ {X = X} {n} {m} f g =
---     cong₂ _∘∙_ (·whΣ≡·wh _ _ _ _) refl
---   ∙ ∘∙-assoc _ _ _
---   ∙ cong₂ _∘∙_ refl
---     (Iso.inv (congIso (invIso (post∘∙equiv (joinSphereEquiv∙ (suc n) (suc m)))))
---       (-- ∘∙-assoc _ _ _
---        (cong₂ _∘∙_ (cong₂ _∘∙_ refl (ΣPathP
---          (refl , (sym (lem') ∙ lUnit _)))) refl
---        ∙ Iso.leftInv (post∘∙equiv (joinSphereEquiv∙ (suc n) (suc m)))
---           (Join→SuspSmash∙ (S₊∙ (suc n)) (S₊∙ (suc m))))
---      ∙ ΣPathP ((funExt (λ { (inl x) → refl
---                           ; (inr x) → sym (merid (inl tt))
---                           ; (push a b i) j → main a b (~ j) i}))
---                           , rUnit refl)))
---   where
---   main : (a : S₊ (suc n)) (b : S₊ (suc m))
---     → Square (cong (suspFun (inv (SphereSmashIso (suc n) (suc m))))
---                    (σ (S₊∙ (suc n + suc m)) (a ⌣S b)))
---               (merid (inr (a , b)))
---               refl
---               (merid (inl tt))
---   main a b = (cong-∙ (suspFun (inv (SphereSmashIso (suc n) (suc m)))) _ _
---     ∙ cong₂ _∙_ (cong merid (leftInv (SphereSmashIso (suc n) (suc m))
---                                      (inr (a , b))))
---                 (cong (sym ∘ merid) (SphereSmashIso⁻∙ (suc n) (suc m))))
---     ◁ symP (compPath-filler (merid (inr (a , b))) (sym (merid (inl tt))))
+subst∙ : ∀ {ℓ ℓA} {X : Type ℓ} (A : X → Pointed ℓA)
+  → {x y : X} (p : x ≡ y) → A x →∙ A y 
+subst∙ A p .fst = subst (fst ∘ A) p
+subst∙ A p .snd i = transp (λ j → fst (A (p (i ∨ j)))) i (pt (A (p i)))
 
---   retEqInvEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (e : A ≃ B) (x : _)
---     → retEq e x ≡ secEq (invEquiv e) x 
---   retEqInvEquiv e x = refl
+subst∙refl : ∀ {ℓ ℓA} {X : Type ℓ} (A : X → Pointed ℓA)
+  → {x : X} → subst∙ A (refl {x = x}) ≡ idfun∙ (A x)
+subst∙refl A {x} = ΣPathP ((funExt transportRefl)
+  , (λ j i → transp (λ t → fst (A x)) (j ∨ i) (pt (A x))))
 
---   p1 : leftInv (joinSphereIso' (suc n) (suc m)) (inl (ptSn (suc n))) ≡ sym (push (ptSn (suc n)) (ptSn (suc m)))
---   p1 = cong₂ _∙_ (cong (congS (inv (invIso SmashJoinIso))) (sym (rUnit refl))) refl
---      ∙ sym (lUnit _)
+subst∙Id : ∀ {ℓ ℓA ℓB} {X : Type ℓ} (A : X → Pointed ℓA) {B : Pointed ℓB}
+  → {x y : X} (p : x ≡ y) (f : A x →∙ B)
+    → f ∘∙ subst∙ A (sym p) ≡ transport (λ i → A (p i) →∙ B) f 
+subst∙Id A {B = B} {x = x} =
+  J (λ y p → (f : A x →∙ B)
+            → f ∘∙ subst∙ A (sym p)
+            ≡ transport (λ i → A (p i) →∙ B) f)
+    λ f → (cong₂ _∘∙_ refl (subst∙refl A) ∙ ∘∙-idˡ _)
+         ∙ sym (transportRefl f)
 
---   p2 : rightInv (joinSphereIso' (suc n) (suc m)) north ≡ sym (merid (ptSn (suc n + suc m)))
---   p2 = cong₂ _∙_ (cong (sym ∘ merid) (IdL⌣S {n = suc n} {m = suc m} (ptSn (suc n))))
---        (sym (rUnit refl))
---        ∙ sym (rUnit _)
+private
+  ∘∙preSubstLem : ∀ {ℓ} {X : Type ℓ} (n m : ℕ)
+    (p : n ≡ m)
+    (f : S₊ (suc m) → X)
+    → suspFun∙ (f ∘ subst S₊ (cong suc p))
+    ≡ (suspFun∙ f ∘∙ subst∙ (S₊∙ ∘ suc) (cong suc p))
+  ∘∙preSubstLem n = J> λ f
+    → (cong suspFun∙ (funExt (λ x → cong f (transportRefl x)))
+    ∙ sym (∘∙-idˡ _))
+    ∙ cong₂ _∘∙_ refl (sym (subst∙refl S₊∙))
 
---   compPath-filler-diag : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z)
---     → Path (Path A _ _) (λ i → compPath-filler p q (~ i) i) p
---   compPath-filler-diag p q j i = compPath-filler p q (~ i ∧ ~ j) i
-
---   lem' : retEq (isoToEquiv (IsoSphereJoin (suc n) (suc m))) (inl (ptSn (suc n))) ≡ refl
---   lem' = retEqIsoToEquiv (IsoSphereJoin (suc n) (suc m)) (inl (ptSn (suc n)))
---        ∙ cong₂ _∙_ (cong₂ _∙_ (cong sym (cong₂ _∙_ refl p1 ∙ rCancel _)
---                ∙ refl) (cong-∙ (sphere→Join (suc n) (suc m)) _ _
---                      ∙ cong₂ _∙_ refl (cong (congS (sphere→Join (suc n) (suc m))) p2
---                        ∙ refl) -- cong sym (cong₂ _∙_ refl refl) ∙ {!!})
---                      ∙ refl) ∙ sym (lUnit _)) (cong₂ _∙_ refl p1
---                      ∙ rCancel _)
---        ∙ sym (rUnit _)
---        ∙ cong₂ _∙_
---          (λ j i → sphere→Join (suc n) (suc m)
---                (compPath-filler
---                  (merid (sphereFun↑ _⌣S_ (ptSn (suc n)) (pt (S₊∙ (suc m)))))
---                  (sym (merid (ptSn (suc (n + suc m))))) (~ i ∧ ~ j) i))
---          refl
---        ∙ cong₂ _∙_ (cong₂ _∙_ refl (cong (congS (inv (joinSphereIso' (suc n) (suc m))) ∘ merid) (IdL⌣S {n = suc n} {m = suc m} (ptSn (suc n))))) refl
---        ∙ rCancel _
-
--- tripleSmasherL≃∙ : {n m l : ℕ}
---   → S₊∙ (suc n + (suc m + suc l))
---   ≃∙ S₊∙ (suc n) ⋀∙ (S₊∙ (suc m) ⋀∙ S₊∙ (suc l))
--- tripleSmasherL≃∙ {n = n} {m} {l} =
---   compEquiv∙ (isoToEquiv (invIso (SphereSmashIso (suc n) (suc m + suc l)))
---                         , SphereSmashIso⁻∙ (suc n) (suc m + suc l))
---              (⋀≃ (idEquiv∙ (S₊∙ (suc n)))
---              ((isoToEquiv (invIso (SphereSmashIso (suc m) (suc l)))) , (SphereSmashIso⁻∙ (suc m) (suc l)))
---             , refl)
-
--- tripleSmasherR≃∙ : {n m l : ℕ}
---   → S₊∙ ((suc n + suc m) + suc l)
---   ≃∙ ((S₊∙ (suc n) ⋀∙ S₊∙ (suc m)) ⋀∙ S₊∙ (suc l))
--- tripleSmasherR≃∙ {n = n} {m} {l} =
---   compEquiv∙ (isoToEquiv (invIso (SphereSmashIso (suc n + suc m) (suc l)))
---                         , SphereSmashIso⁻∙ (suc n + suc m) (suc l))
---              (⋀≃ ((isoToEquiv (invIso (SphereSmashIso (suc n) (suc m)))) , (SphereSmashIso⁻∙ (suc n) (suc m)))
---                  (idEquiv∙ (S₊∙ (suc l)))
---             , refl)
-
--- tripleSmasherL≃∙Id : (n m l : ℕ) (x : _)
---   → PathP (λ i → Susp (S₊ (assocPath n m l (~ i))))
---            (suspFun (-S^ (suc n · suc m)
---                    ∘ invEq (fst (tripleSmasherL≃∙ {n = n} {m} {l}))) x)
---            (suspFun (invEq (fst (tripleSmasherL≃∙ {n = m} {n} {l}))
---                    ∘ inv SmashAssocIso
---                    ∘ (⋀comm→∙ ⋀→ idfun∙ (S₊∙ (suc l)))
---                    ∘ fun SmashAssocIso) x)
--- tripleSmasherL≃∙Id n m l north i = north
--- tripleSmasherL≃∙Id n m l south i = south
--- tripleSmasherL≃∙Id n m l (merid a i) j = lem a j i
---   where
---   lemma : (x : S₊ (suc n)) (y : S₊ (suc m)) (z : S₊ (suc l))
---     → PathP (λ i → S₊ (assocPath n m l (~ i)))
---              (-S^ (suc n · suc m) (invEq (fst tripleSmasherL≃∙)
---                (inr (x , inr (y , z)))))
---               (invEq (fst tripleSmasherL≃∙)
---                (inv SmashAssocIso
---                 ((⋀comm→∙ ⋀→ idfun∙ (S₊∙ (suc l)))
---                  (fun SmashAssocIso (inr (x , inr (y , z)))))))
---   lemma x y z = transport (λ j →
---     PathP (λ i → S₊ (isSetℕ _ _ p (sym (assocPath n m l)) j i))
---           (-S^ (suc n · suc m) (x ⌣S (y ⌣S z)))
---           (y ⌣S (x ⌣S z)))
---         help
---     where
---     p = (cong suc (+-assoc n (suc m) (suc l))
---        ∙ cong (_+ suc l) (sym (+-comm (suc m) (suc n))))
---        ∙ cong suc (sym (+-assoc m (suc n) (suc l)))
-
---     help : PathP (λ i → S₊ (p i))
---                  (-S^ (suc n · suc m) (x ⌣S (y ⌣S z)))
---                  (y ⌣S (x ⌣S z))
---     help =
---       compPathP' {B = S₊}
---       (compPathP' {B = S₊}
---         (λ i → -S^ (suc n · suc m) (assoc⌣S x y z i))
---         (λ i → -S^ (suc n · suc m)
---            (toPathP {A = λ i → S₊ (+-comm (suc m) (suc n) i)}
---                     (sym (comm⌣S x y)) (~ i) ⌣S z))
---       ▷ (cong (-S^ (suc n · suc m))
---                 (⌣Sinvₗ^ (suc m · suc n) (y ⌣S x) z
---                ∙ λ i → -S^ (·-comm (suc m) (suc n) i) ((y ⌣S x) ⌣S z))
---       ∙ -S^² (suc n · suc m) ((y ⌣S x) ⌣S z)))
---       (symP (assoc⌣S y x z))
-
---   lem : (a : _)
---     → SquareP (λ i j → Susp (S₊ (assocPath n m l (~ i))))
---                (merid ((-S^ (suc n · suc m) ∘ invEq (fst tripleSmasherL≃∙)) a))
---                (merid (invEq (fst tripleSmasherL≃∙)
---                         (inv SmashAssocIso
---                          ((⋀comm→∙ ⋀→ idfun∙ (S₊∙ (suc l)))
---                           (fun SmashAssocIso a)))))
---                (λ _ → north)
---                (λ _ → south)
---   lem = ⋀→HomogeneousPathP _ (isHomogeneousPath _ _)
---     λ x → ⋀→HomogeneousPathP _ (isHomogeneousPath _ _)
---       λ y z i → merid (lemma x y z i)
-
--- ·whΣ-assocer : ∀ {ℓ} {X : Pointed ℓ} {n m l : ℕ}
---   (f : S₊∙ (2 + n) →∙ X) (g : S₊∙ (2 + m) →∙ X)
---   (h : S₊∙ (2 + l) →∙ X)
---   → [ f ∣ [ g ∣ h ] ]
---    ≡ (·whΣ (S₊∙ (suc n)) (S₊∙ (suc m) ⋀∙ S₊∙ (suc l)) f
---        (·whΣ (S₊∙ (suc m)) (S₊∙ (suc l)) g h)
---    ∘∙ suspFun∙ (fst (fst tripleSmasherL≃∙)))
--- ·whΣ-assocer {X = X} {n} {m} {l} f g h =
---     cong₂ [_∣_] refl ([]≡·whΣ {X = X} g h)
---   ∙ []≡·whΣ f _
---   ∙ cong₂ _∘∙_
---       (wh∘∙eq ((isoToEquiv (invIso (SphereSmashIso (suc m) (suc l))))
---                                  , (SphereSmashIso⁻∙ (suc m) (suc l))) f
---              (·whΣ (S₊∙ (suc m)) (S₊∙ (suc l)) g h))
---       refl
---   ∙ ∘∙-assoc _ _ _
---   ∙ cong₂ _∘∙_ refl (sym (suspFun∙Comp _ _))
-
--- ·whΣ-assocerR : ∀ {ℓ} {X : Pointed ℓ} {n m l : ℕ}
---   (f : S₊∙ (2 + n) →∙ X) (g : S₊∙ (2 + m) →∙ X)
---   (h : S₊∙ (2 + l) →∙ X)
---   → [ [ f ∣ g ] ∣ h ]
---    ≡ (·whΣ (S₊∙ (suc n) ⋀∙ S₊∙ (suc m)) (S₊∙ (suc l)) 
---        (·whΣ (S₊∙ (suc n)) (S₊∙ (suc m)) f g) h
---    ∘∙ suspFun∙ ((fst (fst tripleSmasherR≃∙))))
--- ·whΣ-assocerR {X = X} {n} {m} {l} f g h =
---   cong₂ [_∣_]  ([]≡·whΣ {X = X} f g) refl
---   ∙ []≡·whΣ _ _
---   ∙ cong₂ _∘∙_ (wh∘∙eqL (isoToEquiv (invIso (SphereSmashIso (suc n) (suc m)))
---                                  , (SphereSmashIso⁻∙ (suc n) (suc m)))
---                (·whΣ (S₊∙ (suc n)) (S₊∙ (suc m)) f g) h) refl
---   ∙ ∘∙-assoc _ _ _
---   ∙ cong₂ _∘∙_ refl
---     (sym (suspFun∙Comp _ _))
-
--- subst∙ : ∀ {ℓ ℓA} {X : Type ℓ} (A : X → Pointed ℓA)
---   → {x y : X} (p : x ≡ y) → A x →∙ A y 
--- subst∙ A p .fst = subst (fst ∘ A) p
--- subst∙ A p .snd i = transp (λ j → fst (A (p (i ∨ j)))) i (pt (A (p i)))
-
--- subst∙refl : ∀ {ℓ ℓA} {X : Type ℓ} (A : X → Pointed ℓA)
---   → {x : X} → subst∙ A (refl {x = x}) ≡ idfun∙ (A x)
--- subst∙refl A {x} = ΣPathP ((funExt transportRefl)
---   , (λ j i → transp (λ t → fst (A x)) (j ∨ i) (pt (A x))))
-
--- subst∙Id : ∀ {ℓ ℓA ℓB} {X : Type ℓ} (A : X → Pointed ℓA) {B : Pointed ℓB}
---   → {x y : X} (p : x ≡ y) (f : A x →∙ B)
---     → f ∘∙ subst∙ A (sym p) ≡ transport (λ i → A (p i) →∙ B) f 
--- subst∙Id A {B = B} {x = x} =
---   J (λ y p → (f : A x →∙ B)
---             → f ∘∙ subst∙ A (sym p)
---             ≡ transport (λ i → A (p i) →∙ B) f)
---     λ f → (cong₂ _∘∙_ refl (subst∙refl A) ∙ ∘∙-idˡ _)
---          ∙ sym (transportRefl f)
-
--- private
---   ∘∙preSubstLem : ∀ {ℓ} {X : Type ℓ} (n m : ℕ)
---     (p : n ≡ m)
---     (f : S₊ (suc m) → X)
---     → suspFun∙ (f ∘ subst S₊ (cong suc p))
---     ≡ (suspFun∙ f ∘∙ subst∙ (S₊∙ ∘ suc) (cong suc p))
---   ∘∙preSubstLem n = J> λ f
---     → (cong suspFun∙ (funExt (λ x → cong f (transportRefl x)))
---     ∙ sym (∘∙-idˡ _))
---     ∙ cong₂ _∘∙_ refl (sym (subst∙refl S₊∙))
-
--- suspFun∙substLem : ∀ {ℓ} {X : Type ℓ} {n m : ℕ}
---   (p : suc n ≡ suc m)
---   (f : S₊ (suc m)  → X)
---   → suspFun∙ (f ∘ subst S₊ p)
---   ≡ suspFun∙ f ∘∙ subst∙ (λ x → S₊∙ (suc x)) p
--- suspFun∙substLem p f =
---   cong (λ p → suspFun∙ (f ∘ subst S₊ p)) (isSetℕ _ _ p (cong suc (cong predℕ p)))
---   ∙ ∘∙preSubstLem _ _ _ f
---   ∙ cong (λ p → suspFun∙ f ∘∙ subst∙ (λ x → S₊∙ (suc x)) p) (isSetℕ _ _ (cong suc (cong predℕ p)) p)
+suspFun∙substLem : ∀ {ℓ} {X : Type ℓ} {n m : ℕ}
+  (p : suc n ≡ suc m)
+  (f : S₊ (suc m)  → X)
+  → suspFun∙ (f ∘ subst S₊ p)
+  ≡ suspFun∙ f ∘∙ subst∙ (λ x → S₊∙ (suc x)) p
+suspFun∙substLem p f =
+  cong (λ p → suspFun∙ (f ∘ subst S₊ p)) (isSetℕ _ _ p (cong suc (cong predℕ p)))
+  ∙ ∘∙preSubstLem _ _ _ f
+  ∙ cong (λ p → suspFun∙ f ∘∙ subst∙ (λ x → S₊∙ (suc x)) p) (isSetℕ _ _ (cong suc (cong predℕ p)) p)
 
 
 
--- [_∣_]π'-distrL : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
---        (f g : π' (suc (suc n)) X) (h : π' (suc m) X)
---        → [ ·π' (suc n) f g ∣ h ]π'
---           ≡ ·π' _ [ f ∣ h ]π' [ g ∣ h ]π'
--- [_∣_]π'-distrL {X = X} {n} {m} =
---   ST.elim3 (λ _ _ _ → isSetPathImplicit)
---     λ f g h → cong ∣_∣₂
---        (cong₂ _∘∙_ {![]≡·whΣ f g!} {!!}
---       ∙ {!WhiteheadProdΣBilinₗ!})
+[∣]π'-distrL : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       (f g : π' (suc (suc n)) X) (h : π' (suc m) X)
+       → [ ·π' (suc n) f g ∣ h ]π'
+          ≡ ·π' _ [ f ∣ h ]π' [ g ∣ h ]π'
+[∣]π'-distrL {X = X} {n} {m} =
+  ST.elim3 (λ _ _ _ → isSetPathImplicit)
+    λ f g h → cong ∣_∣₂
+       (lem n m (·Susp (S₊∙ (suc n)) f g) h
+     ∙ (cong (_∘∙ suspFun∙ (inv (SphereSmashIso (suc n) m)))
+              (WhiteheadProdΣBilinₗ
+                (S₊∙ (suc n)) (S₊∙ n) (IsoSucSphereSusp≃∙ n) (S₊∙ m) f g (h *))
+     ∙ cong (_∘∙ suspFun∙ (inv (SphereSmashIso (suc n) m)))
+         (·Susp≡ (S₊∙ (suc n) ⋀∙ (S₊ m , ptSn m)) (S₊∙ (suc (n + m)))
+            (isoToEquiv (SphereSmashIso (suc n) m) , refl)
+            (·whΣ (S₊∙ (suc n)) (S₊ m , ptSn m) f (h *))
+            (·whΣ (S₊∙ (suc n)) (S₊ m , ptSn m) g (h *)))
+     ∙ ∘∙-assoc _ _ _
+     ∙ cong₂ _∘∙_ refl
+       (sym (suspFun∙Comp (fun (SphereSmashIso (suc n) m))
+                     (inv (SphereSmashIso (suc n) m)))
+     ∙ cong suspFun∙ (funExt (rightInv (SphereSmashIso (suc n) m)))
+     ∙ suspFun∙idfun)
+     ∙ ∘∙-idˡ _)
+     ∙ cong₂ (·Susp (S₊∙ (suc (n + m))))
+             (sym (lem n m f h))
+             (sym (lem n m g h)))
+  where
+  _* : {m : ℕ} (h : S₊∙ (suc m) →∙ X) → _
+  _* {m = m} h = h ∘∙ ≃∙map (IsoSucSphereSuspInv≃∙ m)
 
--- [_∣_]π'-distrR : {!WhiteheadProdBilinₗ'!}
--- [_∣_]π'-distrR = {!!}
+  module _ (n m : ℕ) (f : S₊∙ (suc (suc n)) →∙ X) (h : S₊∙ (suc m) →∙ X) where
+    lem : [ f ∣ h ]
+        ≡ (·whΣ (S₊∙ (suc n)) (S₊∙ m) f (h ∘∙ ≃∙map (IsoSucSphereSuspInv≃∙ m))
+          ∘∙ (suspFun∙ (inv (SphereSmashIso (suc n) m))))
+    lem = []≡·whΣ' f h
+        ∙ cong₂ _∘∙_ (cong₂ (·whΣ (S₊∙ (suc n)) (S₊∙ m)) (∘∙-idˡ f) refl)
+                     (∘∙-idˡ (suspFun∙ (inv (SphereSmashIso (suc n) m))))
 
+[∣]π'-distrR : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       (f : π' (suc n) X) (g h : π' (suc (suc m)) X)
+       → [ f ∣ ·π' (suc m) g h ]π'
+          ≡ ·π' _ [ f ∣ g ]π' [ f ∣ h ]π'
+[∣]π'-distrR {X = X} {n} {m} =
+  ST.elim3 (λ _ _ _ → isSetPathImplicit)
+    λ f g h → cong ∣_∣₂
+      ([]≡·whΣ' f (·Susp (S₊∙ (suc m)) g h)
+      ∙ cong₂ _∘∙_ (cong₂ (·whΣ (S₊∙ n) (S₊∙ (suc m))) refl
+                    (∘∙-idˡ (·Susp (S₊∙ (suc m)) g h))) refl
+      ∙ cong₂ _∘∙_ (WhiteheadProdΣBilinᵣ (S₊∙ n) (S₊∙ (suc m)) (S₊∙ m) (IsoSucSphereSusp≃∙ m)
+                    (f *) g h) refl
+      ∙ main n m f g h
+      ∙ cong₂ ∙Π (cong₂ _∘∙_
+        (cong₂ (·whΣ (S₊∙ n) (S₊∙ (suc m)) ) refl (sym (∘∙-idˡ g))) refl
+        ∙ sym ([]≡·whΣ' f g))
+        (cong₂ _∘∙_ (cong₂ (·whΣ (S₊∙ n) (S₊∙ (suc m)) ) refl (sym (∘∙-idˡ h))) refl
+        ∙ sym ([]≡·whΣ' f h)))
+  where
+  cor : (n m : ℕ) → _ →∙ _
+  cor n m =
+    (suspFun∙ (inv (SphereSmashIso n (suc m))) ∘∙
+     (fun (IsoSucSphereSusp (n + suc m)) ,
+      IsoSucSphereSusp∙' (n + suc m)))
 
--- -- [_∣_]π'Jacobi : ∀ {ℓ} {X : Pointed ℓ} {n m l : ℕ}
--- --   (f : π' (suc (suc n)) X)
--- --   (g : π' (suc (suc m)) X)
--- --   (h : π' (suc (suc l)) X)
--- --   → [ f ∣ [ g ∣ h ]π' ]π'
--- --    ≡ ·π' _ (subst (λ k → π' k X)
--- --                   (cong (2 +_) (sym (+-assoc n (suc m) (suc l))))
--- --                   ([ [ f ∣ g ]π' ∣ h ]π'))
--- --            (subst (λ k → π' k X)
--- --                   (cong suc (assocPath n m l))
--- --                   (-π^ (suc n · suc m) [ g ∣ [ f ∣ h ]π' ]π'))
--- -- [_∣_]π'Jacobi {X = X} {n} {m} {l} =
--- --   ST.elim3 (λ _ _ _ → isSetPathImplicit)
--- --     λ f g h → cong ∣_∣₂
--- --        (·whΣ-assocer f g h
--- --       ∙ cong₂ _∘∙_
--- --         (JacobiΣR' (S₊∙ (suc n)) (S₊∙ n)
--- --           (isoToEquiv (IsoSucSphereSusp n) , IsoSucSphereSusp∙' n)
--- --           (S₊∙ (suc m)) (S₊∙ m)
--- --           (isoToEquiv (IsoSucSphereSusp m) , IsoSucSphereSusp∙' m)
--- --           (S₊∙ (suc l)) (S₊∙ l)
--- --           (isoToEquiv (IsoSucSphereSusp l) , IsoSucSphereSusp∙' l)
--- --           f g h) refl
--- --       ∙ cong₂ _∘∙_ (·Susp≡ _ _ (invEquiv∙ tripleSmasherL≃∙) _ _) refl
--- --       ∙ ∘∙-assoc _ _ _
--- --       ∙ cong₂ _∘∙_ refl
--- --         (sym (suspFun∙Comp _ _)
--- --         ∙ cong suspFun∙ (funExt (retEq (fst tripleSmasherL≃∙))) ∙ suspFun∙idfun)
--- --       ∙ ∘∙-idˡ _
--- --       ∙ cong₂ (·Susp (S₊∙ (suc (n + suc (m + suc l)))))
--- --               (sym (sym (subst∙Id (S₊∙ ∘ (2 +_))
--- --                           (sym (+-assoc n (suc m) (suc l)))
--- --                           [ [ f ∣ g ] ∣ h ])
--- --                  ∙ cong₂ _∘∙_ (·whΣ-assocerR f g h) (λ _ → s1)
--- --                  ∙ ∘∙-assoc _ _ _
--- --                  ∙ cong₂ _∘∙_ refl (ΣPathP ((funExt λ { north → refl
--- --                                                       ; south → refl
--- --                                                       ; (merid a i) j → hoo a j i})
--- --                                                       , sym (rUnit refl)) ∙ suspFun∙Comp _ _)
--- --                  ∙ sym (∘∙-assoc _ _ _)))
--- --               (sym (cong (transport (λ i → S₊∙ (suc (assocPath n m l i)) →∙ X))
--- --                          (iter-Π≡∘-S^ deg _)
--- --                   ∙ (sym (subst∙Id (S₊∙ ∘ suc)
--- --                           (assocPath n m l) _)
--- --                   ∙ cong₂ _∘∙_ (cong₂ _∘∙_ (·whΣ-assocer g f h)
--- --                                           (-S^∙suspFun deg)
--- --                              ∙ ∘∙-assoc _ _ _
--- --                              ∙ cong₂ _∘∙_ refl
--- --                                (sym (suspFun∙Comp (fst (fst tripleSmasherL≃∙))
--- --                                                   (-S^ deg)))) refl)
--- --                   ∙ ∘∙-assoc _ _ _
--- --                   ∙ cong₂ _∘∙_ refl
--- --                     ((cong₂ _∘∙_ refl
--- --                       refl
--- --                     ∙ sym (suspFun∙substLem (sym (assocPath n m l))
--- --                             (fst (fst tripleSmasherL≃∙) ∘ -S^ deg))
--- --                     ∙ final-lemma)
--- --                     ∙ suspFun∙Comp _ _)
--- --                   ∙ sym (∘∙-assoc _ _ _))))
--- --        ∙ refl
--- --        ∙ cong₂ (·π' (suc (n + suc (m + suc l)))) refl
--- --                (cong (subst (λ k → π' k X) (cong suc (assocPath n m l)))
--- --                      (sym (-π^≡iter-Π deg _)))
--- --   where
--- --   deg = suc n · suc m
+  _* : {m : ℕ} (h : S₊∙ (suc m) →∙ X) → _
+  _* {m = m} h = h ∘∙ ≃∙map (IsoSucSphereSuspInv≃∙ m)
 
--- --   meridLem1 : (a : S₊ (suc (n + suc (m + suc l))))
--- --     → merid (fst (fst tripleSmasherL≃∙)
--- --               (-S^ deg (subst S₊ (sym (assocPath n m l)) a)))
--- --      ≡ merid (inv SmashAssocIso
--- --               ((⋀comm→∙ ⋀→ idfun∙ (S₊∙ (suc l)))
--- --                (fun SmashAssocIso (fst (fst tripleSmasherL≃∙) a))))
--- --   meridLem1 a =
--- --       cong merid (cong (fst (fst tripleSmasherL≃∙)
--- --                       ∘ -S^ deg
--- --                       ∘ subst S₊ (sym (assocPath n m l)))
--- --                  (sym (retEq (fst tripleSmasherL≃∙) a)))
--- --     ∙ meridLem2 (fst (fst tripleSmasherL≃∙) a)
--- --     where
--- --     meridLem2 : (a : _)
--- --       → merid (fst (fst tripleSmasherL≃∙)
--- --                 (-S^ deg
--- --                  (subst S₊ (sym (assocPath n m l))
--- --                   (invEq (fst tripleSmasherL≃∙) a))))
--- --        ≡ merid (inv SmashAssocIso
--- --                 ((⋀comm→∙ ⋀→ idfun∙ (S₊∙ (suc l)))
--- --                  (fun SmashAssocIso a))) 
--- --     meridLem2 =
--- --       ⋀→HomogeneousPathP refl (isHomogeneousPath _ _)
--- --        λ x → ⋀→HomogeneousPathP refl (isHomogeneousPath _ _)
--- --          λ y z → cong merid
--- --            (refl
--- --            ∙ cong (fst (fst tripleSmasherL≃∙) ∘ -S^ deg)
--- --                  (meridLem3 x y z)
--- --           ∙ cong (fst (fst tripleSmasherL≃∙))
--- --                  (-S^² deg _)
--- --           ∙ secEq (fst tripleSmasherL≃∙) (inr (y , inr (x , z))))
--- --       where
--- --       p = (cong suc (+-assoc n (suc m) (suc l))
--- --          ∙ cong (_+ suc l) (sym (+-comm (suc m) (suc n))))
--- --          ∙ cong suc (sym (+-assoc m (suc n) (suc l)))
-
--- --       meridLem3 : (x : S₊ (suc n)) (y : S₊ (suc m)) (z : S₊ (suc l))
--- --         → subst S₊ (sym (assocPath n m l))
--- --                     (x ⌣S (y ⌣S z))
--- --          ≡ -S^ deg (y ⌣S (x ⌣S z))
--- --       meridLem3 x y z =
--- --          cong (λ P → subst S₊ P (x ⌣S (y ⌣S z)))
--- --               (isSetℕ _ _ _ _)
--- --        ∙ fromPathP
--- --           (compPathP' {B = S₊}
--- --           (compPathP' {B = S₊}
--- --             (λ i → (assoc⌣S x y z i))
--- --             (λ i → 
--- --                (toPathP {A = λ i → S₊ (+-comm (suc m) (suc n) i)}
--- --                        (sym (comm⌣S x y)) (~ i) ⌣S z))
--- --           ▷ ((⌣Sinvₗ^ (suc m · suc n) (y ⌣S x) z
--- --                   ∙ λ i → -S^ (·-comm (suc m) (suc n) i) ((y ⌣S x) ⌣S z))))
--- --          (λ i → -S^ deg (assoc⌣S y x z (~ i))))
-
--- --   final-lemma : suspFun∙
--- --       ((λ x → fst (fst tripleSmasherL≃∙) (-S^ deg x)) ∘
--- --        subst S₊ (λ i → assocPath n m l (~ i)))
--- --       ≡
--- --       suspFun∙
--- --       ((inv SmashAssocIso ∘
--- --         (⋀comm→∙ ⋀→ idfun∙ (S₊∙ (suc l))) ∘ fun SmashAssocIso)
--- --        ∘ invEq (invEquiv (fst tripleSmasherL≃∙)))
--- --   final-lemma = ΣPathP ((
--- --     funExt (λ { north → refl
--- --               ; south → refl
--- --               ; (merid a i) j → meridLem1 a j i}))
--- --     , refl)
+  main : (n m : ℕ) (f : S₊∙ (suc n) →∙ X) (g h : S₊∙ (suc (suc m)) →∙ X)
+    → (·Susp (S₊∙ n ⋀∙ S₊∙ (suc m))
+              (·whΣ (S₊∙ n) (S₊∙ (suc m)) (f *) g)
+              (·whΣ (S₊∙ n) (S₊∙ (suc m)) (f *) h)
+       ∘∙ cor n m)
+    ≡ ∙Π (·whΣ (S₊∙ n) (S₊∙ (suc m))
+               (f ∘∙ ≃∙map (IsoSucSphereSuspInv≃∙ n)) g
+       ∘∙ cor n m)
+         (·whΣ (S₊∙ n) (S₊∙ (suc m))
+               (f ∘∙ ≃∙map (IsoSucSphereSuspInv≃∙ n)) h
+       ∘∙ cor n m)
+  main zero m f g h =
+      cong₂ _∘∙_ (·Susp≡ (S₊∙ zero ⋀∙ S₊∙ (suc m))
+                 (S₊∙ (suc m))
+                 (isoToEquiv (SphereSmashIso zero (suc m)) , refl)
+                 (·whΣ (S₊∙ zero) (S₊∙ (suc m)) (f *) g)
+                 (·whΣ (S₊∙ zero) (S₊∙ (suc m)) (f *) h))
+                 (∘∙-idˡ (suspFun∙ (λ y → inr (false , y))))
+    ∙ ∘∙-assoc _ _ _
+    ∙ cong₂ _∘∙_ refl
+        (ΣPathP (funExt (secEq (isoToEquiv
+                  (congSuspIso (SphereSmashIso zero (suc m)))))
+                  , sym (rUnit refl)))
+    ∙ ∘∙-idˡ _
+    ∙ cong₂ (·Susp (S₊∙ (suc m)))
+            (cong₂ _∘∙_ refl (sym (∘∙-idˡ _)))
+            (cong₂ _∘∙_ refl (sym (∘∙-idˡ _)))
+  main (suc n) m f g h =
+    cong₂ _∘∙_ (·Susp≡ (S₊∙ (suc n) ⋀∙ S₊∙ (suc m))
+               (S₊∙ (suc (n + suc m)))
+               (isoToEquiv (SphereSmashIso (suc n) (suc m)) , refl)
+               (·whΣ (S₊∙ (suc n)) (S₊∙ (suc m)) (f *) g)
+               (·whΣ (S₊∙ (suc n)) (S₊∙ (suc m)) (f *) h)) refl
+    ∙ ∘∙-assoc _ _ _
+    ∙ cong₂ _∘∙_ refl (ΣPathP
+      ((funExt (secEq (isoToEquiv (congSuspIso (SphereSmashIso (suc n) (suc m))))))
+      , sym (rUnit _)
+      ∙ cong (congS (suspFun (fun (SphereSmashIso (suc n) (suc m)))))
+                    (sym (rUnit refl))))
+    ∙ ∘∙-idˡ _
+    ∙ cong₂ (·Susp (S₊∙ (suc (n + suc m))))
+            (cong₂ _∘∙_ refl (sym (∘∙-idˡ _)))
+            (cong₂ _∘∙_ refl (sym (∘∙-idˡ _)))
 
 
--- --   s1 = subst∙ (S₊∙ ∘ (2 +_)) (+-assoc n (suc m) (suc l))
--- --   s2 = subst∙ (S₊∙ ∘ suc) (sym (assocPath n m l))
+[∣]π'-idL : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+   (g : π' (suc m) X) → [ 1π' (suc n) ∣ g ]π' ≡ 1π' (suc (n + m))
+[∣]π'-idL {n = n} {m} =
+  ST.elim (λ _ → isSetPathImplicit)
+    λ f → cong ∣_∣₂ ([]≡·whΣ' 1Π f
+      ∙ cong₂ _∘∙_ (cong₂ (·whΣ (S₊∙ n) (S₊∙ m))
+                          (ΣPathP (refl , sym (rUnit refl))) refl
+      ∙ WhiteheadProdΣIdL (S₊∙ n) (S₊∙ m)
+         (f ∘∙ ≃∙map (IsoSucSphereSuspInv≃∙ m))) refl
+      ∙ ΣPathP (refl , (sym (rUnit refl))))
 
--- --   hoo : (a : S₊ (suc (n + (suc m + suc l))))
--- --     → cong (suspFun (fst (fst tripleSmasherR≃∙)) ∘ fst s1)
--- --            (merid a)
--- --     ≡ merid (fun SmashAssocIso (invEq (fst (invEquiv∙ tripleSmasherL≃∙)) a))
--- --   hoo a = (λ j i → suspFun (fst (fst tripleSmasherR≃∙))
--- --                      (transp (λ i → S₊ (suc (suc
--- --                        (+-assoc n (suc m) (suc l) (i ∨ j))))) j
--- --                      (merid (transp (λ i → S₊ (suc
--- --                        (+-assoc n (suc m) (suc l) (i ∧ j))))
--- --                                     (~ j) a) i)))
--- --         ∙ cong (merid ∘ fst (fst tripleSmasherR≃∙)
--- --               ∘ subst (S₊ ∘ suc) (+-assoc n (suc m) (suc l)))
--- --              (sym (retEq (fst tripleSmasherL≃∙) a))
--- --         ∙ lem2 (fst (fst tripleSmasherL≃∙) a)
--- --     where
--- --     lem2 : (a : _) → merid (fst (fst tripleSmasherR≃∙)
--- --                              (subst (S₊ ∘ suc) (+-assoc n (suc m) (suc l))
--- --                                (invEq (fst tripleSmasherL≃∙) a)))
--- --                     ≡ merid (fun SmashAssocIso a)
--- --     lem2 = ⋀→HomogeneousPathP refl (isHomogeneousPath _ _)
--- --             λ x → ⋀→HomogeneousPathP refl (isHomogeneousPath _ _)
--- --               λ y z →
--- --        cong merid (cong (fst (fst tripleSmasherR≃∙))
--- --                         (fromPathP (assoc⌣S x y z))
--- --                 ∙ secEq (fst tripleSmasherR≃∙) (inr (inr (x , y) , z)))
+[∣]π'-idR : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+   (f : π' (suc n) X) → [ f ∣ 1π' (suc m) ]π' ≡ 1π' (suc (n + m))
+[∣]π'-idR {n = n} {m} =
+  ST.elim (λ _ → isSetPathImplicit)
+    λ f → cong ∣_∣₂ ([]≡·whΣ' f 1Π
+      ∙ cong₂ _∘∙_ (cong₂ (·whΣ (S₊∙ n) (S₊∙ m)) refl
+                          (ΣPathP (refl , sym (rUnit refl)))
+      ∙ WhiteheadProdΣIdR (S₊∙ n) (S₊∙ m)
+         (f ∘∙ ≃∙map (IsoSucSphereSuspInv≃∙ n))) refl
+      ∙ ΣPathP (refl , (sym (rUnit refl))))
 
--- -- infixl 7 _·₋₁_
--- -- _·₋₁_ : ℕ → ℕ → ℕ
--- -- n ·₋₁ m = suc (suc n · suc m)
+[∣]π'-invDistrL : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       (f : π' (suc (suc n)) X) (g : π' (suc m) X)
+       → [ -π' (suc n) f ∣ g ]π'
+        ≡ -π' (suc (n + m)) [ f ∣ g ]π'
+[∣]π'-invDistrL {n = n} {m} f g =
+    sym (sym (π'-assoc (suc (n + m)) [ -π' (suc n) f ∣ g ]π'
+                                     [ f ∣ g ]π' (-π' (suc (n + m))
+                                     [ f ∣ g ]π'))
+    ∙ cong₂ (·π' (suc (n + m))) refl (π'-rCancel (suc (n + m)) [ f ∣ g ]π')
+    ∙ π'-rUnit _ ([ -π' (suc n) f ∣ g ]π'))
+  ∙ cong (λ x → ·π' (suc (n + m)) x (-π' (suc (n + m)) [ f ∣ g ]π'))
+         (sym ([∣]π'-distrL (-π' (suc n) f) f g))
+  ∙ cong₂ (·π' (suc (n + m)))
+          (cong [_∣ g ]π' (π'-lCancel (suc n) f) ∙ [∣]π'-idL g) refl
+  ∙ π'-lUnit _ (-π' (suc (n + m)) [ f ∣ g ]π')
 
--- -- jacobiPath₁ : (p q r : ℕ) → suc ((suc q + suc r) + suc p)
--- --                            ≡ suc (suc p + (suc q + suc r))
--- -- jacobiPath₁ p q r = cong suc (+-comm (suc q + suc r) (suc p))
+[∣]π'-invDistrR : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       (f : π' (suc n) X) (g : π' (suc (suc m)) X)
+       → [ f ∣ -π' (suc m) g ]π'
+        ≡ -π' (n + suc m) [ f ∣ g ]π'
+[∣]π'-invDistrR {n = n} {m} f g =
+    sym (sym (π'-assoc (n + suc m)
+               [ f ∣ -π' (suc m) g ]π'
+               [ f ∣ g ]π'
+               (-π' (n + suc m) [ f ∣ g ]π'))
+    ∙ cong₂ (·π' (n + suc m)) refl
+            (π'-rCancel (n + suc m) [ f ∣ g ]π')
+    ∙ π'-rUnit _ ([ f ∣ -π' (suc m) g ]π'))
+  ∙ cong (λ x → ·π' (n + suc m) x (-π' (n + suc m) [ f ∣ g ]π'))
+         (sym ([∣]π'-distrR f (-π' (suc m) g) g))
+  ∙ cong₂ (·π' (n + suc m))
+          (cong [ f ∣_]π' (π'-lCancel (suc m) g) ∙ [∣]π'-idR f) refl
+  ∙ π'-lUnit _ (-π' (n + suc m) [ f ∣ g ]π')
 
--- -- jacobiPath₂ : (p q r : ℕ) → suc ((suc r + suc p) + suc q)
--- --                            ≡ suc (suc p + (suc q + suc r))
--- -- jacobiPath₂ p q r = cong suc (
--- --   sym (+-assoc (suc r) (suc p) (suc q))
--- --   ∙ +-comm (suc r) (suc p + suc q)
--- --   ∙ sym (+-assoc (suc p) (suc q) (suc r)))
+[_∣_]π'Jacobi : ∀ {ℓ} {X : Pointed ℓ} {n m l : ℕ}
+  (f : π' (suc (suc n)) X)
+  (g : π' (suc (suc m)) X)
+  (h : π' (suc (suc l)) X)
+  → [ f ∣ [ g ∣ h ]π' ]π'
+   ≡ ·π' _ (subst (λ k → π' k X)
+                  (cong (2 +_) (sym (+-assoc n (suc m) (suc l))))
+                  ([ [ f ∣ g ]π' ∣ h ]π'))
+           (subst (λ k → π' k X)
+                  (cong suc (assocPath n m l))
+                  (-π^ (suc n · suc m) [ g ∣ [ f ∣ h ]π' ]π'))
+[_∣_]π'Jacobi {X = X} {n} {m} {l} =
+  ST.elim3 (λ _ _ _ → isSetPathImplicit)
+    λ f g h → cong ∣_∣₂
+       (·whΣ-assocer f g h
+      ∙ cong₂ _∘∙_
+        (JacobiΣR' (S₊∙ (suc n)) (S₊∙ n)
+          (isoToEquiv (IsoSucSphereSusp n) , IsoSucSphereSusp∙' n)
+          (S₊∙ (suc m)) (S₊∙ m)
+          (isoToEquiv (IsoSucSphereSusp m) , IsoSucSphereSusp∙' m)
+          (S₊∙ (suc l)) (S₊∙ l)
+          (isoToEquiv (IsoSucSphereSusp l) , IsoSucSphereSusp∙' l)
+          f g h) refl
+      ∙ cong₂ _∘∙_ (·Susp≡ _ _ (invEquiv∙ tripleSmasherL≃∙) _ _) refl
+      ∙ ∘∙-assoc _ _ _
+      ∙ cong₂ _∘∙_ refl
+        (sym (suspFun∙Comp _ _)
+        ∙ cong suspFun∙ (funExt (retEq (fst tripleSmasherL≃∙))) ∙ suspFun∙idfun)
+      ∙ ∘∙-idˡ _
+      ∙ cong₂ (·Susp (S₊∙ (suc (n + suc (m + suc l)))))
+              (sym (sym (subst∙Id (S₊∙ ∘ (2 +_))
+                          (sym (+-assoc n (suc m) (suc l)))
+                          [ [ f ∣ g ] ∣ h ])
+                 ∙ cong₂ _∘∙_ (·whΣ-assocerR f g h) (λ _ → s1)
+                 ∙ ∘∙-assoc _ _ _
+                 ∙ cong₂ _∘∙_ refl (ΣPathP ((funExt λ { north → refl
+                                                      ; south → refl
+                                                      ; (merid a i) j → hoo a j i})
+                                                      , sym (rUnit refl)) ∙ suspFun∙Comp _ _)
+                 ∙ sym (∘∙-assoc _ _ _)))
+              (sym (cong (transport (λ i → S₊∙ (suc (assocPath n m l i)) →∙ X))
+                         (iter-Π≡∘-S^ deg _)
+                  ∙ (sym (subst∙Id (S₊∙ ∘ suc)
+                          (assocPath n m l) _)
+                  ∙ cong₂ _∘∙_ (cong₂ _∘∙_ (·whΣ-assocer g f h)
+                                          (-S^∙suspFun deg)
+                             ∙ ∘∙-assoc _ _ _
+                             ∙ cong₂ _∘∙_ refl
+                               (sym (suspFun∙Comp (fst (fst tripleSmasherL≃∙))
+                                                  (-S^ deg)))) refl)
+                  ∙ ∘∙-assoc _ _ _
+                  ∙ cong₂ _∘∙_ refl
+                    ((cong₂ _∘∙_ refl
+                      refl
+                    ∙ sym (suspFun∙substLem (sym (assocPath n m l))
+                            (fst (fst tripleSmasherL≃∙) ∘ -S^ deg))
+                    ∙ final-lemma)
+                    ∙ suspFun∙Comp _ _)
+                  ∙ sym (∘∙-assoc _ _ _))))
+       ∙ refl
+       ∙ cong₂ (·π' (suc (n + suc (m + suc l)))) refl
+               (cong (subst (λ k → π' k X) (cong suc (assocPath n m l)))
+                     (sym (-π^≡iter-Π deg _)))
+  where
+  deg = suc n · suc m
 
--- -- open import Cubical.Algebra.Group.Properties
--- -- open import Cubical.Algebra.AbGroup.Base
--- -- open import Cubical.Algebra.AbGroup.Properties
+  meridLem1 : (a : S₊ (suc (n + suc (m + suc l))))
+    → merid (fst (fst tripleSmasherL≃∙)
+              (-S^ deg (subst S₊ (sym (assocPath n m l)) a)))
+     ≡ merid (inv SmashAssocIso
+              ((⋀comm→∙ ⋀→ idfun∙ (S₊∙ (suc l)))
+               (fun SmashAssocIso (fst (fst tripleSmasherL≃∙) a))))
+  meridLem1 a =
+      cong merid (cong (fst (fst tripleSmasherL≃∙)
+                      ∘ -S^ deg
+                      ∘ subst S₊ (sym (assocPath n m l)))
+                 (sym (retEq (fst tripleSmasherL≃∙) a)))
+    ∙ meridLem2 (fst (fst tripleSmasherL≃∙) a)
+    where
+    meridLem2 : (a : _)
+      → merid (fst (fst tripleSmasherL≃∙)
+                (-S^ deg
+                 (subst S₊ (sym (assocPath n m l))
+                  (invEq (fst tripleSmasherL≃∙) a))))
+       ≡ merid (inv SmashAssocIso
+                ((⋀comm→∙ ⋀→ idfun∙ (S₊∙ (suc l)))
+                 (fun SmashAssocIso a))) 
+    meridLem2 =
+      ⋀→HomogeneousPathP refl (isHomogeneousPath _ _)
+       λ x → ⋀→HomogeneousPathP refl (isHomogeneousPath _ _)
+         λ y z → cong merid
+           (refl
+           ∙ cong (fst (fst tripleSmasherL≃∙) ∘ -S^ deg)
+                 (meridLem3 x y z)
+          ∙ cong (fst (fst tripleSmasherL≃∙))
+                 (-S^² deg _)
+          ∙ secEq (fst tripleSmasherL≃∙) (inr (y , inr (x , z))))
+      where
+      p = (cong suc (+-assoc n (suc m) (suc l))
+         ∙ cong (_+ suc l) (sym (+-comm (suc m) (suc n))))
+         ∙ cong suc (sym (+-assoc m (suc n) (suc l)))
 
--- -- [_∣_]π'Jacobi' : ∀ {ℓ} {X : Pointed ℓ} {p q r : ℕ}
--- --   (f : π' (suc (suc p)) X)
--- --   (g : π' (suc (suc q)) X)
--- --   (h : π' (suc (suc r)) X)
--- --   → ·π' _ (-π^ (p ·₋₁ r) [ f ∣ [ g ∣ h ]π' ]π')
--- --       (·π' _
--- --         (subst (λ n → π' n X) (jacobiPath₁ p q r)
--- --                (-π^ (p ·₋₁ q) [ [ g ∣ h ]π' ∣ f ]π'))
--- --         (subst (λ n → π' n X) (jacobiPath₂ p q r)
--- --                (-π^ (r ·₋₁ q) [ [ h ∣ f ]π' ∣ g ]π')))
--- --    ≡ 1π' _
--- -- [_∣_]π'Jacobi' {X = X} {p} {q} {r} f g h =
--- --     (cong₂ (·π' (suc (p + suc (q + suc r))))
--- --            (cong (-π^ (p ·₋₁ r)) ([_∣_]π'Jacobi f g h)
--- --            ∙ AbGroupTheory.inv^Distr πX {!!} {!!} (p ·₋₁ r)
--- --            ∙ λ _ → ·π' _ (-π^ (p ·₋₁ r)
--- --                           (subst (λ n → π' n X)
--- --                                  (cong (2 +_) (sym (+-assoc p (suc q) (suc r))))
--- --                           [ [ f ∣ g ]π' ∣ h ]π'))
--- --                           {!!})
--- --            refl
--- --     ∙ {!!})
--- --   ∙ {!!}
--- --   where
--- --   πX : AbGroup _
--- --   πX = Group→AbGroup (π'Gr ((suc p) + (suc q + suc r)) X)
--- --                      (π'-comm _)
+      meridLem3 : (x : S₊ (suc n)) (y : S₊ (suc m)) (z : S₊ (suc l))
+        → subst S₊ (sym (assocPath n m l))
+                    (x ⌣S (y ⌣S z))
+         ≡ -S^ deg (y ⌣S (x ⌣S z))
+      meridLem3 x y z =
+         cong (λ P → subst S₊ P (x ⌣S (y ⌣S z)))
+              (isSetℕ _ _ _ _)
+       ∙ fromPathP
+          (compPathP' {B = S₊}
+          (compPathP' {B = S₊}
+            (λ i → (assoc⌣S x y z i))
+            (λ i → 
+               (toPathP {A = λ i → S₊ (+-comm (suc m) (suc n) i)}
+                       (sym (comm⌣S x y)) (~ i) ⌣S z))
+          ▷ ((⌣Sinvₗ^ (suc m · suc n) (y ⌣S x) z
+                  ∙ λ i → -S^ (·-comm (suc m) (suc n) i) ((y ⌣S x) ⌣S z))))
+         (λ i → -S^ deg (assoc⌣S y x z (~ i))))
 
--- --   t1 = -π^ (p ·₋₁ r)
--- --          (subst (λ n → π' n X)
--- --                 (cong (2 +_) (sym (+-assoc p (suc q) (suc r))))
--- --          [ [ f ∣ g ]π' ∣ h ]π')
--- --   t2 = {!!}
+  final-lemma : suspFun∙
+      ((λ x → fst (fst tripleSmasherL≃∙) (-S^ deg x)) ∘
+       subst S₊ (λ i → assocPath n m l (~ i)))
+      ≡
+      suspFun∙
+      ((inv SmashAssocIso ∘
+        (⋀comm→∙ ⋀→ idfun∙ (S₊∙ (suc l))) ∘ fun SmashAssocIso)
+       ∘ invEq (invEquiv (fst tripleSmasherL≃∙)))
+  final-lemma = ΣPathP ((
+    funExt (λ { north → refl
+              ; south → refl
+              ; (merid a i) j → meridLem1 a j i}))
+    , refl)
 
--- --   t3 = subst (λ n → π' n X) (jacobiPath₁ p q r)
--- --              (-π^ (p ·₋₁ q) [ [ g ∣ h ]π' ∣ f ]π')
--- --   t4 = (subst (λ n → π' n X) (jacobiPath₂ p q r)
--- --          (-π^ (r ·₋₁ q) [ [ h ∣ f ]π' ∣ g ]π'))
 
--- --   lem : {!!}
--- --   lem = {!!}
+  s1 = subst∙ (S₊∙ ∘ (2 +_)) (+-assoc n (suc m) (suc l))
+  s2 = subst∙ (S₊∙ ∘ suc) (sym (assocPath n m l))
+
+  hoo : (a : S₊ (suc (n + (suc m + suc l))))
+    → cong (suspFun (fst (fst tripleSmasherR≃∙)) ∘ fst s1)
+           (merid a)
+    ≡ merid (fun SmashAssocIso (invEq (fst (invEquiv∙ tripleSmasherL≃∙)) a))
+  hoo a = (λ j i → suspFun (fst (fst tripleSmasherR≃∙))
+                     (transp (λ i → S₊ (suc (suc
+                       (+-assoc n (suc m) (suc l) (i ∨ j))))) j
+                     (merid (transp (λ i → S₊ (suc
+                       (+-assoc n (suc m) (suc l) (i ∧ j))))
+                                    (~ j) a) i)))
+        ∙ cong (merid ∘ fst (fst tripleSmasherR≃∙)
+              ∘ subst (S₊ ∘ suc) (+-assoc n (suc m) (suc l)))
+             (sym (retEq (fst tripleSmasherL≃∙) a))
+        ∙ lem2 (fst (fst tripleSmasherL≃∙) a)
+    where
+    lem2 : (a : _) → merid (fst (fst tripleSmasherR≃∙)
+                             (subst (S₊ ∘ suc) (+-assoc n (suc m) (suc l))
+                               (invEq (fst tripleSmasherL≃∙) a)))
+                    ≡ merid (fun SmashAssocIso a)
+    lem2 = ⋀→HomogeneousPathP refl (isHomogeneousPath _ _)
+            λ x → ⋀→HomogeneousPathP refl (isHomogeneousPath _ _)
+              λ y z →
+       cong merid (cong (fst (fst tripleSmasherR≃∙))
+                        (fromPathP (assoc⌣S x y z))
+                ∙ secEq (fst tripleSmasherR≃∙) (inr (inr (x , y) , z)))
+
+infixl 7 _·₋₁_
+_·₋₁_ : ℕ → ℕ → ℕ
+n ·₋₁ m = suc (suc n · suc m)
+
+jacobiPath₁ : (p q r : ℕ) → suc ((suc q + suc r) + suc p)
+                           ≡ suc (suc p + (suc q + suc r))
+jacobiPath₁ p q r = cong suc (+-comm (suc q + suc r) (suc p))
+
+jacobiPath₂ : (p q r : ℕ) → suc ((suc r + suc p) + suc q)
+                           ≡ suc (suc p + (suc q + suc r))
+jacobiPath₂ p q r = cong suc (
+  sym (+-assoc (suc r) (suc p) (suc q))
+  ∙ +-comm (suc r) (suc p + suc q)
+  ∙ sym (+-assoc (suc p) (suc q) (suc r)))
+
+open import Cubical.Algebra.Group.Properties
+open import Cubical.Algebra.AbGroup.Base
+open import Cubical.Algebra.AbGroup.Properties
+
+[_∣_]π'Jacobi' : ∀ {ℓ} {X : Pointed ℓ} {p q r : ℕ}
+  (f : π' (suc (suc p)) X)
+  (g : π' (suc (suc q)) X)
+  (h : π' (suc (suc r)) X)
+  → ·π' _ (-π^ (p ·₋₁ r) [ f ∣ [ g ∣ h ]π' ]π')
+      (·π' _
+        (subst (λ n → π' n X) (jacobiPath₁ p q r)
+               (-π^ (p ·₋₁ q) [ [ g ∣ h ]π' ∣ f ]π')) -- WRONG
+        (subst (λ n → π' n X) (jacobiPath₂ p q r)
+               (-π^ (r ·₋₁ q) [ [ h ∣ f ]π' ∣ g ]π')))
+   ≡ 1π' _
+[_∣_]π'Jacobi' {X = X} {p} {q} {r} f g h =
+    (cong₂ (·π' (suc (p + suc (q + suc r))))
+           (cong (-π^ (p ·₋₁ r)) ([_∣_]π'Jacobi f g h)
+           ∙ AbGroupTheory.inv^Distr πX _ _ (p ·₋₁ r)
+           ∙ λ _ → ·π' _ t1 t2)
+           refl
+    ∙ comm-4 t1 t2 t3 t4)
+  ∙ {![_∣_]π'Jacobi !}
+  where
+
+
+  πX : AbGroup _
+  πX = Group→AbGroup (π'Gr ((suc p) + (suc q + suc r)) X)
+                     (π'-comm _)
+
+  open AbGroupTheory πX
+
+  open AbGroupStr (snd πX) renaming (_+_ to _⋄_ ; -_ to -πX)
+
+  t1 = -π^ (p ·₋₁ r)
+         (subst (λ n → π' n X)
+                (cong (2 +_) (sym (+-assoc p (suc q) (suc r))))
+         [ [ f ∣ g ]π' ∣ h ]π')
+
+  t2 = -π^ (p ·₋₁ r)
+         (subst (λ k → π' k X) (cong suc (assocPath p q r))
+          (-π^ (suc p · suc q) [ g ∣ [ f ∣ h ]π' ]π'))
+
+  t3 = subst (λ n → π' n X) (jacobiPath₁ p q r)
+             (-π^ (p ·₋₁ q) [ [ g ∣ h ]π' ∣ f ]π')
+  t4 = (subst (λ n → π' n X) (jacobiPath₂ p q r)
+         (-π^ (r ·₋₁ q) [ [ h ∣ f ]π' ∣ g ]π'))
+
+  t1+t3≡0 : t1 ⋄ t3 ≡ 1π' _
+  t1+t3≡0 =
+      cong (t1 ⋄_)
+       (cong (subst (λ n → π' n X) (jacobiPath₁ p q r))
+        (cong (-π^ (p ·₋₁ q)) (([_∣_]π'-comm [ g ∣ h ]π' f)
+        ∙ (substCommSlice
+            (λ k → π' (suc k) X) (λ k → π' (suc k) X)
+            (λ k → -π^ (suc (suc p · suc (q + suc r))))
+            (+-comm (suc p) (suc (q + suc r)))
+            ([ f ∣ [ g ∣ h ]π' ]π')))
+        ∙ sym (iter+ (p ·₋₁ q) (p ·₋₁ (q + suc r)) (-π' _)
+            (subst (λ k → π' (suc k) X)
+                   (+-comm (suc p) (suc (q + suc r)))
+                   [ f ∣ [ g ∣ h ]π' ]π'))
+        ∙ sym (substCommSlice
+            (λ k → π' (suc k) X) (λ k → π' (suc k) X)
+            (λ k → -π^ (p ·₋₁ q + p ·₋₁ (q + suc r)))
+            (+-comm (suc p) (suc (q + suc r)))
+            ([ f ∣ [ g ∣ h ]π' ]π')))
+       ∙ compSubstℕ {A = λ n → π' n X}
+                      (cong suc (+-comm (suc p) (suc (q + suc r))))
+                      (jacobiPath₁ p q r)
+                      refl
+                      {x = -π^ (p ·₋₁ q + p ·₋₁ (q + suc r)) [ f ∣ [ g ∣ h ]π' ]π'}
+       ∙ transportRefl _)
+    ∙ {!!}
+
+
+  lem : {!!}
+  lem = {!!}
