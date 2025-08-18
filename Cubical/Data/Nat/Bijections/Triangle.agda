@@ -10,7 +10,7 @@ open <-Reasoning
 open import Cubical.Tactics.NatSolver
 open import Cubical.Data.Nat.Bijections.IncreasingFunction
 
-Triangle⊂ℕ = Σ[ k ∈ ℕ ] Σ[ i ∈ ℕ ] (i ≤ k)
+Triangle⊂ℕ×ℕ = Σ[ k ∈ ℕ ] Σ[ i ∈ ℕ ] (i ≤ k)
 
 triangle : ℕ → ℕ
 triangle zero = zero
@@ -29,24 +29,24 @@ private
 
   partitionTriangle = partition triangle refl strictIncTriangle
 
-  Triangle⊂ℕ≅partitionTriangle : Iso Triangle⊂ℕ partitionTriangle
-  Iso.fun Triangle⊂ℕ≅partitionTriangle (k , i , i≤k) = k , i , i+tk<tsk where
+  Triangle⊂ℕ×ℕ≅partitionTriangle : Iso Triangle⊂ℕ×ℕ partitionTriangle
+  Iso.fun Triangle⊂ℕ×ℕ≅partitionTriangle (k , i , i≤k) = k , i , i+tk<tsk where
       i+tk<tsk : i + triangle k < triangle (suc k)
       i+tk<tsk = i + triangle k <≤⟨ suc-≤-suc (≤-+k {k = triangle k} i≤k) ⟩
                  k + triangle k <≡⟨ <-suc ⟩ 1+k+tk=tsk k
 
-  Iso.inv Triangle⊂ℕ≅partitionTriangle (k , i , i+tk<tsk) = k , i , i≤k where
+  Iso.inv Triangle⊂ℕ×ℕ≅partitionTriangle (k , i , i+tk<tsk) = k , i , i≤k where
       i+tk<k+tk+1 : i + triangle k < suc (k + triangle k)
       i+tk<k+tk+1 = i + triangle k <≡⟨ i+tk<tsk ⟩ sym (1+k+tk=tsk k)
       i+tk≤k+tk : i + triangle k ≤ k + triangle k
       i+tk≤k+tk = pred-≤-pred i+tk<k+tk+1
       i≤k : i ≤ k
       i≤k = ≤-+k-cancel i+tk≤k+tk
-  Iso.rightInv Triangle⊂ℕ≅partitionTriangle (k , i , _) = ΣPathP (refl , ΣPathPProp (λ _ → isProp≤) refl)
-  Iso.leftInv Triangle⊂ℕ≅partitionTriangle  (k , i , _) = ΣPathP (refl , ΣPathPProp (λ _ → isProp≤) refl)
+  Iso.rightInv Triangle⊂ℕ×ℕ≅partitionTriangle (k , i , _) = ΣPathP (refl , ΣPathPProp (λ _ → isProp≤) refl)
+  Iso.leftInv Triangle⊂ℕ×ℕ≅partitionTriangle  (k , i , _) = ΣPathP (refl , ΣPathPProp (λ _ → isProp≤) refl)
 
   partitionTriangle≅ℕ : Iso partitionTriangle ℕ
   partitionTriangle≅ℕ = partition≅ℕ triangle refl strictIncTriangle
 
-Triangle⊂ℕ≅ℕ : Iso Triangle⊂ℕ ℕ
-Triangle⊂ℕ≅ℕ = (compIso Triangle⊂ℕ≅partitionTriangle partitionTriangle≅ℕ)
+Triangle⊂ℕ×ℕ≅ℕ : Iso Triangle⊂ℕ×ℕ ℕ
+Triangle⊂ℕ×ℕ≅ℕ = (compIso Triangle⊂ℕ×ℕ≅partitionTriangle partitionTriangle≅ℕ)
