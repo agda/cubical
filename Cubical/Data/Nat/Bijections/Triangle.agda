@@ -22,10 +22,8 @@ strictIncTriangle = sucIncreasing→StrictlyIncreasing triangle triangleN<triang
   triangleN<triangleSN n = n , refl
 
 private
-  1+k+t=k+t+1 : (n : ℕ) → (t : ℕ ) → suc (n + t) ≡ n + suc t
-  1+k+t=k+t+1 n t = solveℕ!
   1+k+tk=tsk : (n : ℕ) → suc (n + triangle n) ≡ triangle (suc n)
-  1+k+tk=tsk n = 1+k+t=k+t+1 n (triangle n)
+  1+k+tk=tsk n = sym (+-suc _ _)
 
   partitionTriangle = partition triangle refl strictIncTriangle
 

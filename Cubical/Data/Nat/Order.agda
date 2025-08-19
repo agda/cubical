@@ -575,14 +575,12 @@ module _ (f : ℕ → ℕ) (fInc : ((n : ℕ) → f n < f (suc n))) where
   open <-Reasoning
   sucIncreasing→StrictlyIncreasing : isStrictlyIncreasing f
   sucIncreasing→StrictlyIncreasing {m = m} {n = n} (k , m+k+1=n) =
-    sucIncreasing→strictlyIncreasing' m n k m+k+1=n where
-
+    sucIncreasing→strictlyIncreasing' m n k m+k+1=n
+      where
       sucIncreasing→strictlyIncreasing' :
         (m : ℕ) → (n : ℕ) → (k : ℕ) → (k + suc m ≡ n) → f m < f n
-
       sucIncreasing→strictlyIncreasing' m _ zero m+1=n =
         subst (λ n' → f m < f n') m+1=n (fInc m)
-
       sucIncreasing→strictlyIncreasing' m _ (suc k) sk+sm=n =
         subst (λ n' → f m < f n') sk+sm=n $
           f m
