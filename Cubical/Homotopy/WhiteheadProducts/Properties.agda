@@ -30,6 +30,236 @@ open import Cubical.Homotopy.WhiteheadProducts.Generalised.Join.Base
 open Iso
 open 3x3-span
 
+
+infixl 7 _·₋₁_
+_·₋₁_ : ℕ → ℕ → ℕ
+n ·₋₁ m = suc (suc n · suc m)
+
+
+
+open import Cubical.Data.Sum as ⊎
+open import Cubical.Data.Nat.IsEven
+open import Cubical.Relation.Nullary
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Bool hiding (_≤_)
+open import Cubical.Data.List
+open import Cubical.Data.Nat.Mod
+
+data arithmExpr : Type where
+  [_]' : (n : ℕ) → arithmExpr
+  _+'_ _·'_ : arithmExpr → arithmExpr → arithmExpr
+
+arithmExpr→ℕ : arithmExpr → ℕ
+arithmExpr→ℕ [ x ]' = x
+arithmExpr→ℕ (x +' x₁) = arithmExpr→ℕ x + arithmExpr→ℕ x₁
+arithmExpr→ℕ (x ·' x₁) = arithmExpr→ℕ x · arithmExpr→ℕ x₁
+
+-- _⊕'_ : Bool → Bool → Bool
+-- x ⊕' y = not (not x ⊕ not y)
+
+arithmExpr→Bool : arithmExpr → Bool
+arithmExpr→Bool [ x ]' = isEven x
+arithmExpr→Bool (x +' x₁) = not (not (arithmExpr→Bool x) ⊕ not (arithmExpr→Bool x₁))
+arithmExpr→Bool (x ·' x₁) = arithmExpr→Bool x or arithmExpr→Bool x₁
+
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.HLevels
+isPropToType : (x : Bool) → isProp (toType x)
+isPropToType false = isProp⊥
+isPropToType true = isPropUnit
+
+isPropPropPath : ∀ {ℓ} {A B : Type ℓ} → isProp A → isProp B → isProp (A ≡ B)
+isPropPropPath = {!!}
+
+toType⊕ : (x y : Bool) → toType (not (not x ⊕ not y)) ≃ (toType x ≡ toType y)
+toType⊕ false false =
+  propBiimpl→Equiv isPropUnit (isPropPropPath (λ()) (λ())) (λ _ → refl) λ _ → tt
+toType⊕ false true =
+ propBiimpl→Equiv isProp⊥ (isPropPropPath (λ()) isPropUnit) (λ())
+   λ p → transport (sym p) tt
+toType⊕ true false =
+  propBiimpl→Equiv isProp⊥ (isPropPropPath isPropUnit (λ())) (λ())
+    λ p → transport p tt
+toType⊕ true true =
+  propBiimpl→Equiv isPropUnit (isPropPropPath isPropUnit isPropUnit)
+    (λ _ → refl) λ _ → tt
+
+-- toTypeOr : (x y : Bool) → toType (
+-- toTypeOr = ?
+
+
+toTypeOrₗ : (x y : Bool) → toType x → toType (x or y)
+toTypeOrₗ true y p = tt
+
+toTypeOrᵣ : (x y : Bool) → toType y → toType (x or y)
+toTypeOrᵣ false y p = p
+toTypeOrᵣ true y p = tt
+
+fromTypeOr : (x y : Bool) → toType (x or y) → toType x ⊎ toType y
+fromTypeOr false true p = inr tt
+fromTypeOr true y p = inl tt
+
+isEvenArithm≡isEvenBool : (x : arithmExpr)
+  → isEvenT (arithmExpr→ℕ x) ≡ toType (arithmExpr→Bool x)
+isEvenArithm≡isEvenBool [ n ]' = refl
+isEvenArithm≡isEvenBool (x +' x₁)
+  with (evenOrOdd (arithmExpr→ℕ x)) | evenOrOdd (arithmExpr→ℕ x₁)
+... | inl p | inl q =
+  ua (isContr→≃Unit (even+even≡even _ _ p q , λ _ → isPropToType _ _ _))
+   ∙ sym (ua (isContr→≃Unit (invEq (toType⊕ _ _)
+         (ua (propBiimpl→Equiv (isPropToType _) (isPropToType _)
+           (λ _ → transport (isEvenArithm≡isEvenBool x₁) q)
+           λ _ →  transport (isEvenArithm≡isEvenBool x) p))
+        , λ _ → isPropToType _ _ _)))
+... | inl p | inr q =
+  ua (uninhabEquiv (λ r → ¬evenAndOdd _ (r , (even+odd≡odd _ _ p q)))
+                   λ r → ¬evenAndOdd _ (
+                     (transport (sym (isEvenArithm≡isEvenBool x₁))
+                       (transport ((fst (toType⊕ _ _) r))
+                         (transport (isEvenArithm≡isEvenBool x) p)))
+                     , q))
+... | inr p | inl q =
+  ua (uninhabEquiv (λ r → ¬evenAndOdd _ (r , (odd+even≡odd _ _ p q)))
+                   λ r → ¬evenAndOdd _
+                     (transport (sym (isEvenArithm≡isEvenBool x))
+                      (transport (sym (fst (toType⊕ _ _) r))
+                        (transport (isEvenArithm≡isEvenBool x₁) q))
+                    , p))
+... | inr p | inr q =
+  ua (isContr→≃Unit (odd+odd≡even _ _ p q , λ _ → isPropToType _ _ _))
+   ∙ sym (ua (isContr→≃Unit (invEq (toType⊕ _ _)
+         (ua (propBiimpl→Equiv (isPropToType _) (isPropToType _)
+           (λ r → ⊥.rec (¬evenAndOdd _
+                           (transport (sym (isEvenArithm≡isEvenBool x)) r , p)))
+           λ x → ⊥.rec (¬evenAndOdd _
+                           (transport (sym (isEvenArithm≡isEvenBool x₁)) x , q))))
+        , λ _ → isPropToType _ _ _)))
+isEvenArithm≡isEvenBool (x ·' x₁)
+  with (evenOrOdd (arithmExpr→ℕ x)) | evenOrOdd (arithmExpr→ℕ x₁)
+... | inl p | t = ua (isContr→≃Unit
+                       (even·x≡even _ _ p , λ _ → isPropToType _ _ _))
+                ∙ sym (ua (isContr→≃Unit
+                      (toTypeOrₗ _ _ (transport (isEvenArithm≡isEvenBool x) p)
+                  , λ _ → isPropToType _ _ _)))
+... | inr p | inl q =
+  ua (isContr→≃Unit (x·even≡even _ _ q , λ _ → isPropToType _ _ _))
+  ∙ sym (ua (isContr→≃Unit (toTypeOrᵣ _ _ (transport (isEvenArithm≡isEvenBool x₁) q)
+                           , λ _ → isPropToType _ _ _)))
+... | inr p | inr q =
+  ua (uninhabEquiv
+   (λ r → ¬evenAndOdd _ (r , (odd·odd≡odd _ _ p q)))
+   λ r → ¬evenAndOdd _
+     (⊎.rec (λ r → even·x≡even _ _
+                    (transport (sym (isEvenArithm≡isEvenBool x)) r))
+            (λ r → x·even≡even _ _
+                    (transport (sym (isEvenArithm≡isEvenBool x₁)) r))
+            (fromTypeOr _ _ r) , odd·odd≡odd _ _ p q) )
+
+⊕comm : (a b : Bool) → a ⊕ b ≡ b ⊕ a
+⊕comm false false = refl
+⊕comm false true = refl
+⊕comm true false = refl
+⊕comm true true = refl
+
+even⊕odd : (r : _) → toType (isEven r ⊕ isOdd r)
+even⊕odd zero = tt
+even⊕odd (suc r) = subst toType (⊕comm _ _) (even⊕odd r)
+
+even≡oddFlip : (n m : ℕ) → isEvenT n ≡ isOddT m → isOddT n ≡ isEvenT m
+even≡oddFlip zero zero p = sym p
+even≡oddFlip zero (suc zero) p = refl
+even≡oddFlip zero (suc (suc m)) p = even≡oddFlip zero m p
+even≡oddFlip (suc zero) zero p = refl
+even≡oddFlip (suc zero) (suc zero) p = sym p
+even≡oddFlip (suc zero) (suc (suc m)) p = even≡oddFlip (suc zero) m p
+even≡oddFlip (suc (suc n)) m p = even≡oddFlip n m p
+
+evenOddLemma1' : (p q r : ℕ)
+  → isEvenT (p ·₋₁ r + r ·₋₁ (p + suc q)) ≡ isOddT (r ·₋₁ q)
+evenOddLemma1' p q r =
+    isEvenArithm≡isEvenBool expr
+  ∙ main (even⊕odd r) (even⊕odd p)
+  ∙ sym (isEvenArithm≡isEvenBool expr2)
+  where
+  expr expr2 : arithmExpr
+  expr = ((([ r ]' +' ([ p ]' ·' [ suc r ]'))
+      +' ([ 2 ]' +' (([ p ]' +' [ suc q ]')
+      +' ([ r ]' ·' ([ suc p ]' +' [ suc q ]'))))))
+  expr2 = ([ suc r ]' ·' [ suc q ]')
+
+  main : toType (isEven r ⊕ isOdd r) → toType (isEven p ⊕ isOdd p)
+       → toType (arithmExpr→Bool expr) ≡ toType (arithmExpr→Bool expr2)
+  main t s with (isEven r) | (isOdd r) | (isEven p) | (isOdd p) | (isOdd q)
+  ... | true | false | false | d | false = refl
+  ... | true | false | true | d | false = refl
+  ... | true | false | false | d | true = refl
+  ... | true | false | true | d | true = refl
+  ... | false | true | false | true | false = refl
+  ... | false | true | false | true | true = refl
+  ... | false | true | true | false | false = refl
+  ... | false | true | true | false | true = refl
+
+-- evenOddLemma1'' : (p q r : ℕ)
+--   → isOddT (p ·₋₁ r + r ·₋₁ (p + suc q)) ≡ isEvenT (r ·₋₁ q)
+-- evenOddLemma1'' p q r =
+--     isEvenArithm≡isEvenBool expr
+--   ∙ main (even⊕odd r) (even⊕odd p)
+--   ∙ sym (isEvenArithm≡isEvenBool expr2)
+--   where
+--   expr expr2 : arithmExpr
+--   expr = [ 1 ]' +' ((([ r ]' +' ([ p ]' ·' [ suc r ]'))
+--       +' ([ 2 ]' +' (([ p ]' +' [ suc q ]')
+--       +' ([ r ]' ·' ([ suc p ]' +' [ suc q ]'))))))
+--   expr2 = [ 1 ]' +' ([ suc r ]' ·' [ suc q ]')
+
+--   main : toType (isEven r ⊕ isOdd r) → toType (isEven p ⊕ isOdd p)
+--        → toType (arithmExpr→Bool expr) ≡ toType (arithmExpr→Bool expr2)
+--   main t s with (isEven r) | (isOdd r) | (isEven p) | (isOdd p) | (isOdd q)
+--   ... | true | false | false | d | false = refl
+--   ... | true | false | true | d | false = refl
+--   ... | true | false | false | d | true = refl
+--   ... | true | false | true | d | true = refl
+--   ... | false | true | false | true | false = refl
+--   ... | false | true | false | true | true = refl
+--   ... | false | true | true | false | false = refl
+--   ... | false | true | true | false | true = refl
+
+-- evenOddLemma1 : (p q r : ℕ)
+--   → (isEvenT (p ·₋₁ r + r ·₋₁ (p + suc q)) → isOddT (r ·₋₁ q))
+-- evenOddLemma1 p q r t with (evenOrOdd p) | evenOrOdd q | evenOrOdd r
+-- ... | evp | inl evq | inl evr =
+--   ⊥.rec (¬evenAndOdd _ (t
+--         , subst isOddT (+-comm (suc (suc (p + suc q + r · suc (p + suc q))))
+--                                (r + p · suc r))
+--           lem))
+--   where
+--   lem : isOddT (p + suc q + r · suc (p + suc q) + (r + p · suc r))
+--   lem = subst isOddT
+--     (+-assoc r (p · suc r) (p + suc q + r · suc (p + suc q))
+--     ∙ +-comm (r + p · suc r) (p + suc q + r · suc (p + suc q)))
+--     (even+odd≡odd r (p · suc r + (p + suc q + r · suc (p + suc q)))
+--       evr
+--       (subst isOddT
+--         (sym (+-assoc (p · suc r) (p + suc q) (r · suc (p + suc q))))
+--         (odd+even≡odd _ (r · suc (p + suc q))
+--           (subst isOddT (sym (+-assoc (p · suc r) p (suc q)))
+--             (even+odd≡odd (p · suc r + p) (suc q)
+--               (subst isEvenT (cong (p +_) (·-comm (suc r) p)
+--                 ∙ sym (+-comm (p · suc r) p))
+--                 (even·x≡even (suc (suc r)) p evr)) evq))
+--           (even·x≡even r (suc p + suc q) evr))))
+-- ... | evp | inr odq | inl evr =
+--   transport (λ i → isEvenT (suc r · suc q))
+--   (x·even≡even (suc r) (suc q) odq)
+-- ... | evp | evq | inr odr = transport (λ i → isEvenT (suc r · suc q))
+--   (even·x≡even (suc r) (suc q) odr)
+
+-- evenOddLemma2 : (p q r : ℕ)
+--   → (isOddT (p ·₋₁ r + r ·₋₁ (p + suc q)) → isEvenT (r ·₋₁ q))
+-- evenOddLemma2 p q r t with (evenOrOdd p) | evenOrOdd q | evenOrOdd r
+-- ... | evp | evq | evr = {!!}
+
+
 []comp≡[] : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
        → (f : (S₊∙ (suc n) →∙ X))
        → (g : (S₊∙ (suc m) →∙ X))
@@ -859,7 +1089,7 @@ open import Cubical.HITs.SmashProduct.SymmetricMonoidal
        (f : π' (suc (suc n)) X) (g : π' (suc (suc m)) X)
     → [ f ∣ g ]π'
       ≡ subst (λ k → π' (suc k) X) (+-comm (suc m) (suc n))
-              (-π^ (suc (suc m · suc n)) [ g ∣ f ]π')
+              (-π^ (m ·₋₁ n) [ g ∣ f ]π')
 [_∣_]π'-comm {X = X} {n} {m} =
   PT.rec (isPropΠ2 (λ _ _ → squash₂ _ _)) (λ main →
   ST.elim2 (λ _ _ → isSetPathImplicit)
@@ -1622,6 +1852,22 @@ suspFun∙substLem p f =
           (cong [ f ∣_]π' (π'-lCancel (suc m) g) ∙ [∣]π'-idR f) refl
   ∙ π'-lUnit _ (-π' (n + suc m) [ f ∣ g ]π')
 
+[∣]π'-inv^DistrL : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ} (k : ℕ)
+       (f : π' (suc (suc n)) X) (g : π' (suc m) X)
+       → [ -π^ k f ∣ g ]π' ≡ -π^ k [ f ∣ g ]π'
+[∣]π'-inv^DistrL {n = n} {m} zero f g = refl
+[∣]π'-inv^DistrL {n = n} {m} (suc k) f g =
+    [∣]π'-invDistrL (-π^ k f) g
+  ∙ cong (-π' _) ([∣]π'-inv^DistrL k f g)
+
+[∣]π'-inv^DistrR : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ} (k : ℕ)
+       (f : π' (suc n) X) (g : π' (suc (suc m)) X)
+       → [ f ∣ -π^ k g ]π' ≡ -π^ k [ f ∣ g ]π'
+[∣]π'-inv^DistrR {n = n} {m} zero f g = refl
+[∣]π'-inv^DistrR {n = n} {m} (suc k) f g =
+    [∣]π'-invDistrR f (-π^ k g)
+  ∙ cong (-π' _) ([∣]π'-inv^DistrR k f g)
+
 [_∣_]π'Jacobi : ∀ {ℓ} {X : Pointed ℓ} {n m l : ℕ}
   (f : π' (suc (suc n)) X)
   (g : π' (suc (suc m)) X)
@@ -1786,53 +2032,80 @@ suspFun∙substLem p f =
                         (fromPathP (assoc⌣S x y z))
                 ∙ secEq (fst tripleSmasherR≃∙) (inr (inr (x , y) , z)))
 
-infixl 7 _·₋₁_
-_·₋₁_ : ℕ → ℕ → ℕ
-n ·₋₁ m = suc (suc n · suc m)
 
-jacobiPath₁ : (p q r : ℕ) → suc ((suc q + suc r) + suc p)
-                           ≡ suc (suc p + (suc q + suc r))
-jacobiPath₁ p q r = cong suc (+-comm (suc q + suc r) (suc p))
+jacobiPath₁ : (p q r : ℕ)
+  → suc (suc (q + suc (r + suc p))) ≡
+      suc (suc (p + suc (q + suc r)))
+jacobiPath₁ p q r =
+  cong suc
+    (+-assoc (suc q) (suc r) (suc p)
+    ∙ sym (+-comm (suc p) (suc q + suc r)))
 
-jacobiPath₂ : (p q r : ℕ) → suc ((suc r + suc p) + suc q)
-                           ≡ suc (suc p + (suc q + suc r))
-jacobiPath₂ p q r = cong suc (
-  sym (+-assoc (suc r) (suc p) (suc q))
-  ∙ +-comm (suc r) (suc p + suc q)
+jacobiPath₂ : (p q r : ℕ)
+  → suc (suc (r + suc (p + suc q)))
+   ≡ suc (suc (p + suc (q + suc r)))
+jacobiPath₂ p q r = cong suc
+  (+-comm (suc r) (suc p + suc q)
   ∙ sym (+-assoc (suc p) (suc q) (suc r)))
 
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.AbGroup.Properties
 
+{-
+(p ·₋₁ r + r ·₋₁ (p + suc q)) [ h ∣ [ f ∣ g ]π' ]π')
+      (-π^ (r ·₋₁ q) 
+-}
+
+open import Cubical.Algebra.Group
+-iter-odd+even : ∀ {ℓ} (G : Group ℓ) (n m : ℕ) (g : fst G)
+  → isEvenT n ≡ isOddT m
+  → GroupStr._·_ (snd G)
+      (iter n (GroupStr.inv (snd G)) g)
+      (iter m (GroupStr.inv (snd G)) g)
+   ≡ GroupStr.1g (snd G)
+-iter-odd+even G n m g p with (evenOrOdd n)
+... | inl q = cong₂ (GroupStr._·_ (snd G))
+                    (iterEvenInv (GroupStr.inv (snd G))
+                      (GroupTheory.invInv G) n q g)
+                    (iterOddInv (GroupStr.inv (snd G))
+                      (GroupTheory.invInv G) m (transport p q) g)
+            ∙ GroupStr.·InvR (snd G) g
+... | inr q = cong₂ (GroupStr._·_ (snd G))
+                    (iterOddInv (GroupStr.inv (snd G))
+                      (GroupTheory.invInv G) n q g)
+                    (iterEvenInv (GroupStr.inv (snd G))
+                      (GroupTheory.invInv G) m
+                        (transport (even≡oddFlip n m p) q) g)
+            ∙ GroupStr.·InvL (snd G) g
+
 [_∣_]π'Jacobi' : ∀ {ℓ} {X : Pointed ℓ} {p q r : ℕ}
   (f : π' (suc (suc p)) X)
   (g : π' (suc (suc q)) X)
   (h : π' (suc (suc r)) X)
   → ·π' _ (-π^ (p ·₋₁ r) [ f ∣ [ g ∣ h ]π' ]π')
-      (·π' _
-        (subst (λ n → π' n X) (jacobiPath₁ p q r)
-               (-π^ (p ·₋₁ q) [ [ g ∣ h ]π' ∣ f ]π')) -- WRONG
-        (subst (λ n → π' n X) (jacobiPath₂ p q r)
-               (-π^ (r ·₋₁ q) [ [ h ∣ f ]π' ∣ g ]π')))
+      (·π' _ (subst (λ n → π' n X) (jacobiPath₁ p q r)
+                  (-π^ (q ·₋₁ p) [ g ∣ [ h ∣ f ]π' ]π'))
+             (subst (λ n → π' n X) (jacobiPath₂ p q r)
+                    (-π^ (r ·₋₁ q) [ h ∣ [ f ∣ g ]π' ]π')))
    ≡ 1π' _
 [_∣_]π'Jacobi' {X = X} {p} {q} {r} f g h =
-    (cong₂ (·π' (suc (p + suc (q + suc r))))
-           (cong (-π^ (p ·₋₁ r)) ([_∣_]π'Jacobi f g h)
-           ∙ AbGroupTheory.inv^Distr πX _ _ (p ·₋₁ r)
-           ∙ λ _ → ·π' _ t1 t2)
-           refl
-    ∙ comm-4 t1 t2 t3 t4)
-  ∙ {![_∣_]π'Jacobi !}
+  cong₂ _⋄_
+        (cong (-π^ (p ·₋₁ r))
+              ([_∣_]π'Jacobi f g h)
+        ∙ AbGroupTheory.inv^Distr πX _ _ (p ·₋₁ r)
+        ∙ λ _ → t1 ⋄ t2)
+        (π'-comm _ t3 t4)
+      ∙ comm-4 t1 t2 t4 t3
+      ∙ cong₂ _⋄_ t1+t4≡0 t2+t3≡0
+      ∙ π'-rUnit _ (1π' (suc (suc (p + suc (q + suc r)))))
   where
-
-
   πX : AbGroup _
   πX = Group→AbGroup (π'Gr ((suc p) + (suc q + suc r)) X)
                      (π'-comm _)
 
   open AbGroupTheory πX
-
+  open GroupTheory (π'Gr ((suc p) + (suc q + suc r)) X)
   open AbGroupStr (snd πX) renaming (_+_ to _⋄_ ; -_ to -πX)
 
   t1 = -π^ (p ·₋₁ r)
@@ -1844,38 +2117,116 @@ open import Cubical.Algebra.AbGroup.Properties
          (subst (λ k → π' k X) (cong suc (assocPath p q r))
           (-π^ (suc p · suc q) [ g ∣ [ f ∣ h ]π' ]π'))
 
-  t3 = subst (λ n → π' n X) (jacobiPath₁ p q r)
-             (-π^ (p ·₋₁ q) [ [ g ∣ h ]π' ∣ f ]π')
+  t3 = (subst (λ n → π' n X) (jacobiPath₁ p q r)
+                  (-π^ (q ·₋₁ p) [ g ∣ [ h ∣ f ]π' ]π'))
+
   t4 = (subst (λ n → π' n X) (jacobiPath₂ p q r)
-         (-π^ (r ·₋₁ q) [ [ h ∣ f ]π' ∣ g ]π'))
+                    (-π^ (r ·₋₁ q) [ h ∣ [ f ∣ g ]π' ]π'))
 
-  t1+t3≡0 : t1 ⋄ t3 ≡ 1π' _
-  t1+t3≡0 =
-      cong (t1 ⋄_)
-       (cong (subst (λ n → π' n X) (jacobiPath₁ p q r))
-        (cong (-π^ (p ·₋₁ q)) (([_∣_]π'-comm [ g ∣ h ]π' f)
-        ∙ (substCommSlice
+  -π^-substComm : {n m : ℕ} (t : ℕ) (x : π' (suc n) X) (p : suc n ≡ suc m)
+    → -π^ t (subst (λ k → π' k X) p x)
+     ≡ subst (λ k → π' k X) p (-π^ t x)
+  -π^-substComm t x p =
+    cong (λ p → -π^ t (subst (λ k → π' k X) p x)) (isSetℕ _ _ p _)
+    ∙ sym (substCommSlice (λ k → π' (suc k) X) (λ k → π' (suc k) X)
+            (λ k → -π^ t) (cong predℕ p) x)
+    ∙ cong (λ p → subst (λ k → π' k X) p (-π^ t x)) (isSetℕ _ _ _ p)
+
+  t2≡ : -π^ (p ·₋₁ r)
+        (subst (λ k → π' k X) (cong suc (assocPath p q r))
+         (-π^ (suc p · suc q) [ g ∣ [ f ∣ h ]π' ]π'))
+      ≡ subst (λ k → π' k X) (jacobiPath₁ p q r)
+           (-π^ (suc p · suc q)
+             [ g ∣ [ h ∣ f ]π' ]π')
+  t2≡ = -π^-substComm (p ·₋₁ r)
+          (-π^ (suc p · suc q) [ g ∣ [ f ∣ h ]π' ]π')
+          (cong suc (assocPath p q r))
+      ∙ cong (subst (λ k → π' (suc k) X) (assocPath p q r))
+             ((sym (iter+ (p ·₋₁ r) (suc p · suc q) (-π' _)
+                   [ g ∣ [ f ∣ h ]π' ]π')
+             ∙ cong (λ t → -π^ t [ g ∣ [ f ∣ h ]π' ]π')
+                    (+-comm (p ·₋₁ r) (suc p · suc q)
+                    ∙ cong ((suc p · suc q) +_)
+                           (cong suc (·-comm (suc p) (suc r))))
+             ∙ iter+ (suc p · suc q) (r ·₋₁ p) (-π' _)
+                   [ g ∣ [ f ∣ h ]π' ]π'
+             ∙ cong (-π^ (suc p · suc q))
+                 ((cong (-π^ (r ·₋₁ p))
+                    ((cong [ g ∣_]π' ([_∣_]π'-comm f h)
+                   ∙ sym (substCommSlice (λ m → π' (suc m) X)
+                                     (λ a → π' (suc (suc q + a)) X)
+                                     (λ _ f → [ g ∣ f ]π')
+                                     (+-comm (suc r) (suc p))
+                                     (-π^ (r ·₋₁ p) [ h ∣ f ]π')))
+                   ∙ cong (subst (λ a → π' (suc (suc q + a)) X)
+                                 (+-comm (suc r) (suc p)))
+                          ([∣]π'-inv^DistrR (r ·₋₁ p) g [ h ∣ f ]π'))
+                 ∙ -π^-substComm (r ·₋₁ p) (-π^ (r ·₋₁ p) [ g ∣ [ h ∣ f ]π' ]π')
+                     (λ i → suc (suc q + +-comm (suc r) (suc p) i))
+                 ∙ cong (subst (λ k → π' k X)
+                               (λ i → suc (suc q + +-comm (suc r) (suc p) i)))
+                        (iter+iter (-π' _) (GroupTheory.invInv (π'Gr _ _))
+                         (r ·₋₁ p) [ g ∣ [ h ∣ f ]π' ]π')))
+             ∙ -π^-substComm (suc p · suc q) ([ g ∣ [ h ∣ f ]π' ]π')
+                             (λ i → suc (suc q + +-comm (suc r) (suc p) i)))
+            ∙ refl)
+      ∙ compSubstℕ {A = λ n → π' n X}
+          (λ i → suc (suc q + +-comm (suc r) (suc p) i))
+          (cong suc (assocPath p q r))
+          (jacobiPath₁ p q r)
+          {(-π^ (suc p · suc q) [ g ∣ [ h ∣ f ]π' ]π')}
+
+  t1≡ : t1 ≡ subst (λ n → π' n X) (jacobiPath₂ p q r)
+                   (-π^ (p ·₋₁ r + r ·₋₁ (p + suc q))
+                   [ h ∣ [ f ∣ g ]π' ]π')
+  t1≡ = cong (-π^ (p ·₋₁ r)
+         ∘ subst (λ n → π' n X)
+                (cong (2 +_) (sym (+-assoc p (suc q) (suc r)))))
+             ([_∣_]π'-comm ([ f ∣ g ]π') h)
+      ∙ cong (-π^ (p ·₋₁ r))
+             (compSubstℕ {A = λ n → π' n X}
+               (cong suc (+-comm (suc r) (suc (p + suc q))))
+               (sym (cong suc (+-assoc (suc p) (suc q) (suc r))))
+               (jacobiPath₂ p q r))
+      ∙ sym (substCommSlice
             (λ k → π' (suc k) X) (λ k → π' (suc k) X)
-            (λ k → -π^ (suc (suc p · suc (q + suc r))))
-            (+-comm (suc p) (suc (q + suc r)))
-            ([ f ∣ [ g ∣ h ]π' ]π')))
-        ∙ sym (iter+ (p ·₋₁ q) (p ·₋₁ (q + suc r)) (-π' _)
-            (subst (λ k → π' (suc k) X)
-                   (+-comm (suc p) (suc (q + suc r)))
-                   [ f ∣ [ g ∣ h ]π' ]π'))
-        ∙ sym (substCommSlice
-            (λ k → π' (suc k) X) (λ k → π' (suc k) X)
-            (λ k → -π^ (p ·₋₁ q + p ·₋₁ (q + suc r)))
-            (+-comm (suc p) (suc (q + suc r)))
-            ([ f ∣ [ g ∣ h ]π' ]π')))
-       ∙ compSubstℕ {A = λ n → π' n X}
-                      (cong suc (+-comm (suc p) (suc (q + suc r))))
-                      (jacobiPath₁ p q r)
-                      refl
-                      {x = -π^ (p ·₋₁ q + p ·₋₁ (q + suc r)) [ f ∣ [ g ∣ h ]π' ]π'}
-       ∙ transportRefl _)
-    ∙ {!!}
+            (λ k → -π^ (p ·₋₁ r))
+            (cong predℕ (jacobiPath₂ p q r))
+            _)
+      ∙ cong (subst (λ n → π' n X) (jacobiPath₂ p q r))
+             (sym (iter+ (p ·₋₁ r) (r ·₋₁ (p + suc q)) (-π' _)
+                     ([ h ∣ [ f ∣ g ]π' ]π'))
+            ∙ refl)
 
+  substHomLem : (n m : ℕ) (p : n ≡ m) {x y : π' (suc n) X}
+    → ·π' _ (subst (λ n → π' (suc n) X) p x) (subst (λ n → π' (suc n) X) p y)
+     ≡ subst (λ n → π' (suc n) X) p (·π' _ x y)
+  substHomLem n = J> λ {x y} →
+      cong₂ (·π' _) (transportRefl x) (transportRefl y)
+    ∙ sym (transportRefl (·π' n x y))
 
-  lem : {!!}
-  lem = {!!}
+  t1+t4≡0 : t1 ⋄ t4 ≡ 1π' _
+  t1+t4≡0 = cong₂ _⋄_ t1≡ refl
+          ∙ substHomLem _ _ (cong predℕ (jacobiPath₂ p q r))
+          ∙ cong (subst (λ n → π' n X) (jacobiPath₂ p q r))
+                 ((λ _ →
+                   ·π' _ (-π^ (p ·₋₁ r + r ·₋₁ (p + suc q))
+                              [ h ∣ [ f ∣ g ]π' ]π')
+                         (-π^ (r ·₋₁ q) [ h ∣ [ f ∣ g ]π' ]π'))
+               ∙ -iter-odd+even (π'Gr (suc (r + suc (p + suc q))) X)
+                   (suc (suc (r + p · suc r + r ·₋₁ (p + suc q))))
+                   (r ·₋₁ q) ([ h ∣ [ f ∣ g ]π' ]π') (evenOddLemma1' p q r))
+          ∙ λ j → transp (λ i → π' (jacobiPath₂ p q r (i ∨ j)) X) j
+                    (1π' (jacobiPath₂ p q r j))
+
+  t2+t3≡0 : t2 ⋄ t3 ≡ 1π' _
+  t2+t3≡0 =
+      cong₂ _⋄_ t2≡ refl
+    ∙ substHomLem _ _ (cong predℕ (jacobiPath₁ p q r))
+    ∙ cong (subst (λ n → π' n X) (jacobiPath₁ p q r))
+           ((λ _ → ·π' _ (-π^ (suc p · suc q) [ g ∣ [ h ∣ f ]π' ]π')
+                          (-π^ (q ·₋₁ p) [ g ∣ [ h ∣ f ]π' ]π'))
+          ∙ -iter-odd+even (π'Gr (suc (q + suc (r + suc p))) X) (suc p · suc q) (q ·₋₁ p)
+                           [ g ∣ [ h ∣ f ]π' ]π' (cong isEvenT (·-comm (suc p) (suc q))))
+    ∙ λ j → transp (λ i → π' (jacobiPath₁ p q r (i ∨ j)) X) j
+                    (1π' (jacobiPath₁ p q r j))

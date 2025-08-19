@@ -61,10 +61,9 @@ isOdd zero = false
 isOdd (suc n) = isEven n
 
 --Typed version
-private
-  toType : Bool → Type
-  toType false = ⊥
-  toType true = Unit
+toType : Bool → Type
+toType false = ⊥
+toType true = Unit
 
 isEvenT : ℕ → Type
 isEvenT n = toType (isEven n)

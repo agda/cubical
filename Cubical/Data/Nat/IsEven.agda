@@ -140,6 +140,9 @@ module _ {ℓ} {A : Type ℓ} (invA : A → A)
   iterOddInv : (k : ℕ) → isOddT k → (a : A) → iter k invA a ≡ invA a
   iterOddInv (suc k) p a = cong invA (iterEvenInv k p a)
 
+  iter+iter : (k : ℕ) (a : A) → iter k invA (iter k invA a) ≡ a
+  iter+iter k a = sym (iter+ k k invA a) ∙ iterEvenInv (k + k) (isEven·2 k) a
+
 -- pointed versions
 module _ {ℓ} {A : Pointed ℓ} (invA : A →∙ A)
          (invol : invA ∘∙ invA ≡ idfun∙ A) where
