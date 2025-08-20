@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Base where
 
 open import Cubical.Foundations.Prelude
@@ -25,12 +26,25 @@ private
 Rel : ∀ {ℓa ℓb} (A : Type ℓa) (B : Type ℓb) (ℓ' : Level) → Type (ℓ-max (ℓ-max ℓa ℓb) (ℓ-suc ℓ'))
 Rel A B ℓ' = A → B → Type ℓ'
 
+idRel : ∀ {ℓ} (A : Type ℓ) → Rel A A ℓ
+idRel A = _≡_
+
+invRel : ∀ {ℓ ℓ'} {A B : Type ℓ} → Rel A B ℓ' → Rel B A ℓ'
+invRel R b a = R a b
+
+compRel : ∀ {ℓ ℓ' ℓ''} {A B C : Type ℓ}
+  → Rel A B ℓ' → Rel B C ℓ'' → Rel A C (ℓ-max ℓ (ℓ-max ℓ' ℓ''))
+compRel R S a c = Σ[ b ∈ _ ] R a b × S b c
+
 PropRel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 PropRel A B ℓ' = Σ[ R ∈ Rel A B ℓ' ] ∀ a b → isProp (R a b)
 
+squashPropRel : ∀ {ℓ ℓ'} {A B : Type ℓ} → Rel A B ℓ' → PropRel A B ℓ'
+squashPropRel R .fst a b = ∥ R a b ∥₁
+squashPropRel R .snd a b = squash₁
+
 idPropRel : ∀ {ℓ} (A : Type ℓ) → PropRel A A ℓ
-idPropRel A .fst a a' = ∥ a ≡ a' ∥₁
-idPropRel A .snd _ _ = squash₁
+idPropRel A = squashPropRel (idRel A)
 
 invPropRel : ∀ {ℓ ℓ'} {A B : Type ℓ}
   → PropRel A B ℓ' → PropRel B A ℓ'
@@ -39,8 +53,7 @@ invPropRel R .snd b a = R .snd a b
 
 compPropRel : ∀ {ℓ ℓ' ℓ''} {A B C : Type ℓ}
   → PropRel A B ℓ' → PropRel B C ℓ'' → PropRel A C (ℓ-max ℓ (ℓ-max ℓ' ℓ''))
-compPropRel R S .fst a c = ∥ Σ[ b ∈ _ ] (R .fst a b × S .fst b c) ∥₁
-compPropRel R S .snd _ _ = squash₁
+compPropRel R S = squashPropRel (compRel (R .fst) (S .fst))
 
 graphRel : ∀ {ℓ} {A B : Type ℓ} → (A → B) → Rel A B ℓ
 graphRel f a b = f a ≡ b
@@ -48,6 +61,17 @@ graphRel f a b = f a ≡ b
 module HeterogenousRelation {ℓ ℓ' : Level} {A B : Type ℓ} (R : Rel A B ℓ') where
   isUniversalRel : Type (ℓ-max ℓ ℓ')
   isUniversalRel = (a : A) (b : B) → R a b
+
+  isFunctionalRel : Type (ℓ-max ℓ ℓ')
+  isFunctionalRel = (a : A) → isContr (Σ B (R a))
+
+  isCofunctionalRel : Type (ℓ-max ℓ ℓ')
+  isCofunctionalRel = (b : B) → isContr (Σ A (invRel R b))
+
+  record isBifunctionalRel : Type (ℓ-max ℓ ℓ') where
+    field
+      rContrSingl : isFunctionalRel
+      lContrSingl : isCofunctionalRel
 
 module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isRefl : Type (ℓ-max ℓ ℓ')
