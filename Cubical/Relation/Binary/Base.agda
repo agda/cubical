@@ -65,13 +65,14 @@ module HeterogenousRelation {ℓ ℓ' : Level} {A B : Type ℓ} (R : Rel A B ℓ
   isFunctionalRel : Type (ℓ-max ℓ ℓ')
   isFunctionalRel = (a : A) → isContr (Σ B (R a))
 
-  isCofunctionalRel : Type (ℓ-max ℓ ℓ')
-  isCofunctionalRel = (b : B) → isContr (Σ A (invRel R b))
+  isPropIsFunctional : isProp isFunctionalRel
+  isPropIsFunctional = isPropΠ λ _ → isPropIsContr
 
-  record isBifunctionalRel : Type (ℓ-max ℓ ℓ') where
-    field
-      rContrSingl : isFunctionalRel
-      lContrSingl : isCofunctionalRel
+open HeterogenousRelation
+
+graphRelIsFunctional : ∀ {ℓ} {A B : Type ℓ} (f : A → B)
+                     → isFunctionalRel (graphRel f)
+graphRelIsFunctional f a = isContrSingl (f a)
 
 module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isRefl : Type (ℓ-max ℓ ℓ')
@@ -165,7 +166,7 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
       symmetric : isSym
       transitive : isTrans
 
-  isUniversalRel→isEquivRel : HeterogenousRelation.isUniversalRel R → isEquivRel
+  isUniversalRel→isEquivRel : isUniversalRel R → isEquivRel
   isUniversalRel→isEquivRel u .isEquivRel.reflexive a = u a a
   isUniversalRel→isEquivRel u .isEquivRel.symmetric a b _ = u b a
   isUniversalRel→isEquivRel u .isEquivRel.transitive a _ c _ _ = u a c
