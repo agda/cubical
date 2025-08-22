@@ -10,6 +10,7 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Sum
+open import Cubical.Data.Nat.Mod
 
 -- negation result
 ¬IsEvenFalse : (n : ℕ) → (isEven n ≡ false) → isOdd n ≡ true
@@ -128,6 +129,31 @@ odd·odd≡odd (suc n) (suc m) p q =
   where
   t : suc (m + (n + n · m)) ≡ suc (m + n · suc m)
   t = cong suc (cong (m +_) (cong (n +_) (·-comm n m) ∙ ·-comm (suc m) n))
+
+-- Relation to mod 2
+isEvenT↔≡0 : (n : ℕ) → isEvenT n ↔ ((n mod 2) ≡ 0)
+isEvenT↔≡0 zero .fst _ = refl
+isEvenT↔≡0 zero .snd _ = tt
+isEvenT↔≡0 (suc zero) .fst ()
+isEvenT↔≡0 (suc zero) .snd = snotz
+isEvenT↔≡0 (suc (suc n)) =
+  comp↔ (isEvenT↔≡0 n)
+    (subst (λ x → (modInd 1 n ≡ 0) ↔ (x ≡ 0))
+      (sym (mod+mod≡mod 2 2 n
+          ∙ cong (_mod 2) main ∙ mod-idempotent n)) id↔)
+  where
+  main : ((2 mod 2) + (n mod 2)) ≡ n mod 2
+  main = cong (_+ (n mod 2)) (zero-charac 2)
+
+isOddT↔≡1 : (n : ℕ) → isOddT n ↔ ((n mod 2) ≡ 1)
+isOddT↔≡1 zero .fst ()
+isOddT↔≡1 zero .snd x = snotz (sym x)
+isOddT↔≡1 (suc zero) .fst _ = refl
+isOddT↔≡1 (suc zero) .snd _ = tt
+isOddT↔≡1 (suc (suc n)) =
+  comp↔ (isOddT↔≡1 n)
+    (subst (λ x → (modInd 1 n ≡ 1) ↔ (x ≡ 1))
+      (sym (mod-idempotent n) ∙ sym (mod+mod≡mod 2 2 n)) id↔)
 
 -- characterisation of even/odd iterations of involutions
 module _ {ℓ} {A : Type ℓ} (invA : A → A)

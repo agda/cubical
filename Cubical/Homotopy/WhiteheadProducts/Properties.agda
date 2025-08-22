@@ -51,8 +51,8 @@ data arithmExpr : Type where
 
 arithmExpr→ℕ : arithmExpr → ℕ
 arithmExpr→ℕ [ x ]' = x
-arithmExpr→ℕ (x +' x₁) = arithmExpr→ℕ x + arithmExpr→ℕ x₁
-arithmExpr→ℕ (x ·' x₁) = arithmExpr→ℕ x · arithmExpr→ℕ x₁
+arithmExpr→ℕ (x +' y) = arithmExpr→ℕ x + arithmExpr→ℕ y
+arithmExpr→ℕ (x ·' y) = arithmExpr→ℕ x · arithmExpr→ℕ y
 
 -- _⊕'_ : Bool → Bool → Bool
 -- x ⊕' y = not (not x ⊕ not y)
@@ -69,7 +69,7 @@ isPropToType false = isProp⊥
 isPropToType true = isPropUnit
 
 isPropPropPath : ∀ {ℓ} {A B : Type ℓ} → isProp A → isProp B → isProp (A ≡ B)
-isPropPropPath = {!!}
+isPropPropPath a b = isOfHLevel⁺≡ₗ 0 a
 
 toType⊕ : (x y : Bool) → toType (not (not x ⊕ not y)) ≃ (toType x ≡ toType y)
 toType⊕ false false =

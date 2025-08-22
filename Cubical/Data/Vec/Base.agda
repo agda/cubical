@@ -36,6 +36,12 @@ map : ∀ {A : Type ℓ} {B : Type ℓ'} {n} → (A → B) → Vec A n → Vec B
 map f []       = []
 map f (x ∷ xs) = f x ∷ map f xs
 
+compMap : {C : Type ℓ''} {n : ℕ}
+  → (f : B → C) (g : A → B) (v : Vec A n)
+  → map (λ x → f (g x)) v ≡ map f (map g v)
+compMap f g [] = refl
+compMap f g (x ∷ v) i = f (g x) ∷ compMap f g v i
+
 replicate : ∀ {n} {A : Type ℓ} → A → Vec A n
 replicate {n = zero}  x = []
 replicate {n = suc n} x = x ∷ replicate x
@@ -64,4 +70,3 @@ concat (xs ∷ xss) = xs ++ concat xss
 lookup : ∀ {n} {A : Type ℓ} → Fin n → Vec A n → A
 lookup zero    (x ∷ xs) = x
 lookup (suc i) (x ∷ xs) = lookup i xs
-

@@ -30,7 +30,6 @@ open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Group.Join
 open import Cubical.Homotopy.Connected
-open import Cubical.Homotopy.WhiteheadProducts.Generalised.Base
 open import Cubical.Homotopy.WhiteheadProducts.Generalised.Join.Base renaming (·wh to ·wh')
 
 open Iso
