@@ -29,48 +29,47 @@ Rel A B ℓ' = A → B → Type ℓ'
 idRel : ∀ {ℓ} (A : Type ℓ) → Rel A A ℓ
 idRel A = _≡_
 
-invRel : ∀ {ℓ ℓ'} {A B : Type ℓ} → Rel A B ℓ' → Rel B A ℓ'
+invRel : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} → Rel A B ℓ'' → Rel B A ℓ''
 invRel R b a = R a b
 
-compRel : ∀ {ℓ ℓ' ℓ''} {A B C : Type ℓ}
-  → Rel A B ℓ' → Rel B C ℓ'' → Rel A C (ℓ-max ℓ (ℓ-max ℓ' ℓ''))
+compRel : ∀ {ℓ ℓ' ℓ'' ℓ''' ℓ''''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+        → Rel A B ℓ''' → Rel B C ℓ'''' → Rel A C (ℓ-max (ℓ-max ℓ' ℓ''') ℓ'''')
 compRel R S a c = Σ[ b ∈ _ ] R a b × S b c
 
-PropRel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+PropRel : ∀ {ℓa ℓb} (A : Type ℓa) (B : Type ℓb) (ℓ' : Level) → Type (ℓ-max (ℓ-max ℓa ℓb) (ℓ-suc ℓ'))
 PropRel A B ℓ' = Σ[ R ∈ Rel A B ℓ' ] ∀ a b → isProp (R a b)
 
-squashPropRel : ∀ {ℓ ℓ'} {A B : Type ℓ} → Rel A B ℓ' → PropRel A B ℓ'
+squashPropRel : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} → Rel A B ℓ'' → PropRel A B ℓ''
 squashPropRel R .fst a b = ∥ R a b ∥₁
 squashPropRel R .snd a b = squash₁
 
 idPropRel : ∀ {ℓ} (A : Type ℓ) → PropRel A A ℓ
 idPropRel A = squashPropRel (idRel A)
 
-invPropRel : ∀ {ℓ ℓ'} {A B : Type ℓ}
-  → PropRel A B ℓ' → PropRel B A ℓ'
+invPropRel : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} → PropRel A B ℓ'' → PropRel B A ℓ''
 invPropRel R .fst b a = R .fst a b
 invPropRel R .snd b a = R .snd a b
 
-compPropRel : ∀ {ℓ ℓ' ℓ''} {A B C : Type ℓ}
-  → PropRel A B ℓ' → PropRel B C ℓ'' → PropRel A C (ℓ-max ℓ (ℓ-max ℓ' ℓ''))
+compPropRel : ∀ {ℓ ℓ' ℓ'' ℓ''' ℓ''''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+            → PropRel A B ℓ''' → PropRel B C ℓ'''' → PropRel A C (ℓ-max (ℓ-max ℓ' ℓ''') ℓ'''')
 compPropRel R S = squashPropRel (compRel (R .fst) (S .fst))
 
-graphRel : ∀ {ℓ} {A B : Type ℓ} → (A → B) → Rel A B ℓ
+graphRel : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → Rel A B ℓ'
 graphRel f a b = f a ≡ b
 
-module HeterogenousRelation {ℓ ℓ' : Level} {A B : Type ℓ} (R : Rel A B ℓ') where
-  isUniversalRel : Type (ℓ-max ℓ ℓ')
+module HeterogenousRelation {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : Type ℓ'} (R : Rel A B ℓ'') where
+  isUniversalRel : Type _
   isUniversalRel = (a : A) (b : B) → R a b
 
-  isFunctionalRel : Type (ℓ-max ℓ ℓ')
-  isFunctionalRel = (a : A) → isContr (Σ B (R a))
+  isFunctionalRel : Type _
+  isFunctionalRel = (a : A) → ∃! B (R a)
 
   isPropIsFunctional : isProp isFunctionalRel
   isPropIsFunctional = isPropΠ λ _ → isPropIsContr
 
 open HeterogenousRelation
 
-graphRelIsFunctional : ∀ {ℓ} {A B : Type ℓ} (f : A → B)
+graphRelIsFunctional : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B)
                      → isFunctionalRel (graphRel f)
 graphRelIsFunctional f a = isContrSingl (f a)
 

@@ -1,3 +1,4 @@
+{-# OPTIONS --hidden-argument-puns #-}
 module Cubical.Relation.Binary.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -16,8 +17,9 @@ open import Cubical.Relation.Nullary
 
 private
   variable
-    ℓ ℓ' : Level
-    A B : Type ℓ
+    ℓ ℓ' ℓ'' : Level
+    A B C : Type ℓ
+    R S : Rel A B ℓ''
 
 record isIdentitySystem {A : Type ℓ} (a : A) (C : A → Type ℓ') (r : C a) : Type (ℓ-max ℓ ℓ') where
   field
@@ -89,11 +91,11 @@ module _ (R : Rel A A ℓ') where
     Aset = reflPropRelImpliesIdentity→isSet Rrefl Rprop R→≡
 
 -- Functional relations are equivalent to functions
-module _ (A B : Type ℓ) where
+module _ (A : Type ℓ) (B : Type ℓ') where
   open HeterogenousRelation
 
-  FunctionalRel : Type (ℓ-suc ℓ)
-  FunctionalRel = Σ[ R ∈ Rel A B ℓ ] isFunctionalRel R
+  FunctionalRel : Type (ℓ-max ℓ (ℓ-suc ℓ'))
+  FunctionalRel = Σ[ R ∈ Rel A B ℓ' ] isFunctionalRel R
 
   open Iso
 
@@ -103,6 +105,9 @@ module _ (A B : Type ℓ) where
   FunctionalRelIsoFunction .rightInv f = refl
   FunctionalRelIsoFunction .leftInv (R , Rfun) = Σ≡Prop isPropIsFunctional $ funExt₂ λ a →
     isoToPath ∘ invIso ∘ isoPath (isContrTotal→isIdentitySystem $ Rfun a)
+
+  Function≃FunctionalRel : (A → B) ≃ FunctionalRel
+  Function≃FunctionalRel = isoToEquiv (invIso FunctionalRelIsoFunction)
 
 -- Pulling back a relation along a function.
 -- This can for example be used when restricting an equivalence relation to a subset:

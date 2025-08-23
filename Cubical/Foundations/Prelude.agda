@@ -483,13 +483,22 @@ is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
 singlP : (A : I → Type ℓ) (a : A i0) → Type _
 singlP A a = Σ[ x ∈ A i1 ] PathP A a x
 
+singlP' : (A : I → Type ℓ) (a : A i1) → Type _
+singlP' A a = Σ[ x ∈ A i0 ] PathP A x a
+
 singl : (a : A) → Type _
 singl {A = A} a = singlP (λ _ → A) a
 
+singl' : (a : A) → Type _
+singl' {A = A} a = singlP' (λ _ → A) a
+
 isContrSingl : (a : A) → isContr (singl a)
-isContrSingl a .fst = (a , refl)
-isContrSingl a .snd p i .fst = p .snd i
-isContrSingl a .snd p i .snd j = p .snd (i ∧ j)
+isContrSingl a .fst = _ , refl
+isContrSingl a .snd (x , p) i = _ , λ j → p (i ∧ j)
+
+isContrSingl' : (a : A) → isContr (singl' a)
+isContrSingl' a .fst = _ , refl
+isContrSingl' a .snd (x , p) i = _ , λ j → p (~ i ∨ j)
 
 isContrSinglP : (A : I → Type ℓ) (a : A i0) → isContr (singlP A a)
 isContrSinglP A a .fst = _ , transport-filler (λ i → A i) a
@@ -497,6 +506,13 @@ isContrSinglP A a .snd (x , p) i = _ , λ k → fill A (λ j → λ where
     (i = i0) → transport-filler (λ i → A i) a j
     (i = i1) → p j
   ) (inS a) k
+
+isContrSinglP' : (A : I → Type ℓ) (a : A i1) → isContr (singlP' A a)
+isContrSinglP' A a .fst = _ , symP (transport-filler (λ i → A (~ i)) a)
+isContrSinglP' A a .snd (x , p) i = _ , λ k → fill (λ i → A (~ i)) (λ j → λ where
+    (i = i0) → transport-filler (λ i → A (~ i)) a j
+    (i = i1) → p (~ j)
+  ) (inS a) (~ k)
 
 -- Higher cube types
 
