@@ -51,7 +51,12 @@ record isIdentitySystem {A : Type ℓ} (a : A) (C : A → Type ℓ') (r : C a) :
   isoPath : ∀ b → Iso (C b) (a ≡ b)
   isoPath b .fun = toPath
   isoPath b .inv p = subst C p r
-  isoPath b .rightInv = J (λ b p → toPath (subst C p r) ≡ p) $ cong toPath (transportRefl r) ∙ toPath-η
+  isoPath b .rightInv p i j = hcomp (λ k → λ where
+      (i = i0) → toPath (transport-filler (cong C p) r k) j
+      (i = i1) → p (j ∧ k)
+      (j = i0) → a
+      (j = i1) → p k
+    ) (toPath-η i j)
   isoPath b .leftInv p = fromPathP (toPathOver p)
 
 open isIdentitySystem

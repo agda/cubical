@@ -156,8 +156,8 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
               })
           (downleft x y i j)
 
-homotopyNatural : {B : Type ℓ'} {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) →
-                  H x ∙ cong g p ≡ cong f p ∙ H y
+homotopyNatural : {B : Type ℓ'} {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y)
+                → H x ∙ cong g p ≡ cong f p ∙ H y
 homotopyNatural {f = f} {g = g} H {x} {y} p i j =
     hcomp (λ k → λ { (i = i0) → compPath-filler (H x) (cong g p) k j
                    ; (i = i1) → compPath-filler' (cong f p) (H y) k j
@@ -173,3 +173,13 @@ homotopySymInv {f = f} H a j i =
                  ; (j = i0) → H (H a (~ i)) i
                  ; (j = i1) → H a (i ∧ ~ k)})
         (H (H a (~ i ∨ j)) i)
+
+homotopyIdComm : {f : A → A} (H : ∀ a → f a ≡ a) (a : A)
+               → H (f a) ≡ cong f (H a)
+homotopyIdComm {f = f} H a i j = hcomp (λ k → λ where
+    (i = i0) → H (H a (~ k)) j
+    (i = i1) → H (H a j) (j ∧ ~ k)
+    (j = i0) → f (H a (~ k ∧ ~ i))
+    (j = i1) → H a (~ k)
+  ) (H (H a (~ i ∨ j)) j)
+ 
