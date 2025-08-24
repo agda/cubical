@@ -8,6 +8,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Transport
 open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Sigma
@@ -90,10 +91,10 @@ module _ (R : Rel A A ℓ') where
     Aset : isSet A
     Aset = reflPropRelImpliesIdentity→isSet Rrefl Rprop R→≡
 
+open HeterogenousRelation
+
 -- Functional relations are equivalent to functions
 module _ (A : Type ℓ) (B : Type ℓ') where
-  open HeterogenousRelation
-
   FunctionalRel : Type (ℓ-max ℓ (ℓ-suc ℓ'))
   FunctionalRel = Σ[ R ∈ Rel A B ℓ' ] isFunctionalRel R
 
@@ -108,6 +109,40 @@ module _ (A : Type ℓ) (B : Type ℓ') where
 
   Function≃FunctionalRel : (A → B) ≃ FunctionalRel
   Function≃FunctionalRel = isoToEquiv (invIso FunctionalRelIsoFunction)
+
+-- Functional relations are closed under composition
+isFunctionalCompRel : {R : Rel A B ℓ} {S : Rel B C ℓ'} → isFunctionalRel R → isFunctionalRel S → isFunctionalRel (compRel R S)
+isFunctionalCompRel {A} {B} {C} {R} {S} Rfun Sfun a = isOfHLevelRetractFromIso 0 isom contr where
+
+  contr : ∃! C (S (Rfun a .fst .fst))
+  contr = Sfun (Rfun a .fst .fst)
+
+  open Iso
+
+  isom : Iso (Σ C (compRel R S a)) (Σ C (S (Rfun a .fst .fst)))
+  isom = Σ-cong-iso-snd λ where
+    -- This is almost Σ-contractFstIso (Rfun a), but I also reassociate the Σ-type
+    c .fun (b , ab , bc) → subst⁻ (invRel S c) (cong fst (Rfun a .snd (b , ab))) bc
+    c .inv ac → Rfun a .fst .fst , Rfun a .fst .snd , ac
+    c .rightInv ac i → transp (λ j → S (isContr→isSet (Rfun a) _ _ (Rfun a .snd (Rfun a .fst)) refl i (~ j) .fst) c) i ac
+    c .leftInv (b , ab , bc) i → _ , Rfun a .snd (b , ab) i .snd , subst⁻-filler (invRel S c) (cong fst (Rfun a .snd (b , ab))) bc (~ i)
+
+-- Cofunctional relations are also closed under composition
+isCofunctionalCompRel : {R : Rel A B ℓ} {S : Rel B C ℓ'} → isCofunctionalRel R → isCofunctionalRel S → isCofunctionalRel (compRel R S)
+isCofunctionalCompRel {A} {B} {C} {R} {S} Rfun Sfun c = isOfHLevelRetractFromIso 0 isom contr where
+
+  contr : ∃! A (invRel R (Sfun c .fst .fst))
+  contr = Rfun (Sfun c .fst .fst)
+
+  open Iso
+
+  isom : Iso (Σ A (invRel (compRel R S) c)) (Σ A (invRel R (Sfun c .fst .fst)))
+  isom = Σ-cong-iso-snd λ where
+    -- This is almost Σ-contractFstIso (Sfun c), but I also reassociate the Σ-type
+    a .fun (b , ab , bc) → subst⁻ (R a) (cong fst (Sfun c .snd (b , bc))) ab
+    a .inv ab → Sfun c .fst .fst , ab , Sfun c .fst .snd
+    a .rightInv ab i → transp (λ j → R a (isContr→isSet (Sfun c) _ _ (Sfun c .snd (Sfun c .fst)) refl i (~ j) .fst)) i ab
+    a .leftInv (b , ab , bc) i → _ , subst⁻-filler (R a) (cong fst (Sfun c .snd (b , bc))) ab (~ i) , Sfun c .snd (b , bc) i .snd
 
 -- Pulling back a relation along a function.
 -- This can for example be used when restricting an equivalence relation to a subset:

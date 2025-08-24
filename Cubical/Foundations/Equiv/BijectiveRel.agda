@@ -18,11 +18,10 @@ open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.StrictEquiv
 open import Cubical.Data.Sigma
 
-private
-  variable
-    ℓ ℓ' ℓ'' : Level
-    A : Type ℓ
-    B : Type ℓ'
+private variable
+  ℓ ℓ' ℓ'' : Level
+  A B C : Type ℓ
+  R S : Rel A B ℓ
 
 open HeterogenousRelation
 
@@ -42,15 +41,16 @@ isPropIsBijectiveRel x y i .lContr a = isPropIsContr (x .lContr a) (y .lContr a)
 BijectiveRel : ∀ (A : Type ℓ) (B : Type ℓ') ℓ'' → Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓ''))
 BijectiveRel A B ℓ'' = Σ[ R ∈ Rel A B ℓ'' ] isBijectiveRel R
 
+BijectiveRelIsoΣ : Iso (BijectiveRel A B ℓ'') (Σ[ R ∈ Rel A B ℓ'' ] isFunctionalRel R × isFunctionalRel (flip R))
+BijectiveRelIsoΣ = Σ-cong-iso-snd λ _ → isBijectiveRelIsoΣ
+
 BijectiveRelPathP : {A : I → Type ℓ} {B : I → Type ℓ'} {R₀ : BijectiveRel (A i0) (B i0) ℓ''} {R₁ : BijectiveRel (A i1) (B i1) ℓ''}
-                  → PathP (λ i → A i → B i → Type ℓ'') (R₀ .fst) (R₁ .fst) → PathP (λ i → BijectiveRel (A i) (B i) ℓ'') R₀ R₁
+                  → PathP (λ i → A i → B i → Type ℓ'') (R₀ .fst) (R₁ .fst)
+                  → PathP (λ i → BijectiveRel (A i) (B i) ℓ'') R₀ R₁
 BijectiveRelPathP = ΣPathPProp λ _ → isPropIsBijectiveRel
 
 BijectiveRelEq : {R₀ R₁ : BijectiveRel A B ℓ''} → R₀ .fst ≡ R₁ .fst → R₀ ≡ R₁
 BijectiveRelEq = Σ≡Prop λ _ → isPropIsBijectiveRel
-
-BijectiveRelIsoΣ : Iso (BijectiveRel A B ℓ'') (Σ[ R ∈ Rel A B ℓ'' ] isFunctionalRel R × isFunctionalRel (flip R))
-BijectiveRelIsoΣ = Σ-cong-iso-snd λ _ → isBijectiveRelIsoΣ
 
 EquivIsoBijectiveRel : (A B : Type ℓ) → Iso (A ≃ B) (BijectiveRel A B ℓ)
 EquivIsoBijectiveRel A B = 
@@ -70,12 +70,19 @@ isBijectiveIdRel .lContr = isContrSingl'
 idBijectiveRel : BijectiveRel A A _
 idBijectiveRel = _ , isBijectiveIdRel
 
-isBijectiveInvRel : {R : Rel A B ℓ'} → isBijectiveRel R → isBijectiveRel (invRel R)
+isBijectiveInvRel : isBijectiveRel R → isBijectiveRel (invRel R)
 isBijectiveInvRel Rbij .rContr = Rbij .lContr
 isBijectiveInvRel Rbij .lContr = Rbij .rContr
 
 invBijectiveRel : BijectiveRel A B ℓ' → BijectiveRel B A ℓ'
 invBijectiveRel (_ , Rbij) = _ , isBijectiveInvRel Rbij
+
+isBijectiveCompRel : isBijectiveRel R → isBijectiveRel S → isBijectiveRel (compRel R S)
+isBijectiveCompRel Rbij Sbij .rContr = isFunctionalCompRel   (Rbij .rContr) (Sbij .rContr)
+isBijectiveCompRel Rbij Sbij .lContr = isCofunctionalCompRel (Rbij .lContr) (Sbij .lContr)
+
+compBijectiveRel : BijectiveRel A B ℓ → BijectiveRel B C ℓ' → BijectiveRel A C _
+compBijectiveRel (_ , Rbij) (_ , Sbij) = _ , isBijectiveCompRel Rbij Sbij
 
 isBijectivePathP : (A : I → Type ℓ) → isBijectiveRel (PathP A)
 isBijectivePathP A .rContr = isContrSinglP A

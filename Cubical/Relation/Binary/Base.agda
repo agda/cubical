@@ -64,6 +64,9 @@ module HeterogenousRelation {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : Type �
   isFunctionalRel : Type _
   isFunctionalRel = (a : A) → ∃! B (R a)
 
+  isCofunctionalRel : Type _
+  isCofunctionalRel = (b : B) → ∃! A (invRel R b)
+
   isPropIsFunctional : isProp isFunctionalRel
   isPropIsFunctional = isPropΠ λ _ → isPropIsContr
 
