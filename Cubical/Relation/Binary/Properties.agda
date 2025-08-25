@@ -62,6 +62,9 @@ record isIdentitySystem {A : Type ℓ} (a : A) (C : A → Type ℓ') (r : C a) :
     ) (toPath-η i j)
   isoPath b .leftInv p = fromPathP (toPathOver p)
 
+  equivPath : ∀ b → C b ≃ (a ≡ b)
+  equivPath b = isoToEquiv (isoPath b)
+
 open isIdentitySystem
 
 isContrTotal→isIdentitySystem : {C : A → Type ℓ} (contr : ∃! A C)

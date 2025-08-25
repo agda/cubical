@@ -11,8 +11,12 @@ module Cubical.Foundations.Equiv.BijectiveRel where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Univalence.Dependent
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Relation.Binary
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.StrictEquiv
@@ -45,20 +49,26 @@ BijectiveRelIsoΣ : Iso (BijectiveRel A B ℓ'') (Σ[ R ∈ Rel A B ℓ'' ] isFu
 BijectiveRelIsoΣ = Σ-cong-iso-snd λ _ → isBijectiveRelIsoΣ
 
 BijectiveRelPathP : {A : I → Type ℓ} {B : I → Type ℓ'} {R₀ : BijectiveRel (A i0) (B i0) ℓ''} {R₁ : BijectiveRel (A i1) (B i1) ℓ''}
-                  → PathP (λ i → A i → B i → Type ℓ'') (R₀ .fst) (R₁ .fst)
+                  → PathP (λ i → Rel (A i) (B i) ℓ'') (R₀ .fst) (R₁ .fst)
                   → PathP (λ i → BijectiveRel (A i) (B i) ℓ'') R₀ R₁
 BijectiveRelPathP = ΣPathPProp λ _ → isPropIsBijectiveRel
 
-BijectiveRelEq : {R₀ R₁ : BijectiveRel A B ℓ''} → R₀ .fst ≡ R₁ .fst → R₀ ≡ R₁
-BijectiveRelEq = Σ≡Prop λ _ → isPropIsBijectiveRel
+BijectiveRelEq : {R₀ R₁ : BijectiveRel A B ℓ''} → (∀ a b → R₀ .fst a b ≃ R₁ .fst a b) → R₀ ≡ R₁
+BijectiveRelEq h = BijectiveRelPathP (funExt₂ λ a b → ua (h a b))
+
+BijectiveRel→Equiv : BijectiveRel A B ℓ → A ≃ B
+BijectiveRel→Equiv R .fst a = R .snd .rContr a .fst .fst
+BijectiveRel→Equiv (R , Rbij) .snd .equiv-proof b = flip (isOfHLevelRetractFromIso 0) (Rbij .lContr b) $
+  Σ-cong-iso-snd $ invIso ∘ flip isIdentitySystem.isoPath b ∘ isContrTotal→isIdentitySystem ∘ Rbij .rContr
 
 EquivIsoBijectiveRel : (A B : Type ℓ) → Iso (A ≃ B) (BijectiveRel A B ℓ)
-EquivIsoBijectiveRel A B = 
-  (A ≃ B)                                                                 Iso⟨ Σ-cong-iso-snd isEquiv-isEquiv'-Iso ⟩
-  (Σ[ f ∈ (A → B) ] (∀ a → isContr (fiber f a)))                          Iso⟨ Σ-cong-iso-fst (invIso (FunctionalRelIsoFunction A B)) ⟩
-  (Σ[ (R , _) ∈ Σ (Rel A B _) isFunctionalRel ] isFunctionalRel (flip R)) Iso⟨ Σ-assoc-Iso ⟩
-  (Σ[ R ∈ Rel A B _ ] isFunctionalRel R × isFunctionalRel (flip R))       Iso⟨ invIso BijectiveRelIsoΣ ⟩
-  BijectiveRel A B _                                                     ∎Iso
+EquivIsoBijectiveRel A B .Iso.fun e .fst = graphRel (e .fst)
+EquivIsoBijectiveRel A B .Iso.fun e .snd .rContr a = isContrSingl (e .fst a)
+EquivIsoBijectiveRel A B .Iso.fun e .snd .lContr = e .snd .equiv-proof
+EquivIsoBijectiveRel A B .Iso.inv = BijectiveRel→Equiv
+EquivIsoBijectiveRel A B .Iso.rightInv (R , Rbij) = sym $ BijectiveRelEq $
+  isIdentitySystem.equivPath ∘ isContrTotal→isIdentitySystem ∘ Rbij .rContr
+EquivIsoBijectiveRel A B .Iso.leftInv e = equivEq refl
 
 Equiv≃BijectiveRel : (A B : Type ℓ) → (A ≃ B) ≃ (BijectiveRel A B ℓ)
 Equiv≃BijectiveRel A B = isoToEquiv (EquivIsoBijectiveRel A B)
@@ -90,3 +100,19 @@ isBijectivePathP A .lContr = isContrSinglP' A
 
 pathToBijectiveRel : A ≡ B → BijectiveRel A B _
 pathToBijectiveRel P = _ , isBijectivePathP λ i → P i
+
+BijectiveRelToPath : BijectiveRel A B ℓ → A ≡ B
+BijectiveRelToPath R = ua (BijectiveRel→Equiv R)
+
+path→BijectiveRel→Equiv : (P : A ≡ B) → BijectiveRel→Equiv (pathToBijectiveRel P) ≡ pathToEquiv P
+path→BijectiveRel→Equiv P = equivEq refl
+
+pathIsoBijectiveRel : Iso (A ≡ B) (BijectiveRel A B _)
+pathIsoBijectiveRel .Iso.fun = pathToBijectiveRel
+pathIsoBijectiveRel .Iso.inv = BijectiveRelToPath
+pathIsoBijectiveRel .Iso.rightInv R = BijectiveRelEq λ a b → compEquiv (ua-ungluePath-Equiv _) $
+  invEquiv $ isIdentitySystem.equivPath (isContrTotal→isIdentitySystem $ R .snd .rContr a) b
+pathIsoBijectiveRel .Iso.leftInv P = cong ua (path→BijectiveRel→Equiv P) ∙ ua-pathToEquiv P
+
+path≡BijectiveRel : (A ≡ B) ≡ BijectiveRel A B _
+path≡BijectiveRel = isoToPath pathIsoBijectiveRel
