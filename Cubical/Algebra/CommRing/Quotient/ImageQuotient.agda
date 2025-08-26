@@ -117,21 +117,23 @@ module _ {ℓ : Level} (R : CommRing ℓ) {X : Type ℓ} (f : X → ⟨ R ⟩) w
       SQ.elimProp2 (λ x y → is-set _ _ ) (pres· (snd g))
     pres- inducedMapPreservesRing =
       SQ.elimProp  (λ x   → is-set _ _ ) (pres- (snd g))
-
-    inducedHom : CommRingHom _/Im_ S
-    inducedHom = inducedMap , inducedMapPreservesRing
+    opaque
+      inducedHom : CommRingHom _/Im_ S
+      inducedHom = inducedMap , inducedMapPreservesRing
 
     inducedMapUnique : (h : ⟨ _/Im_ ⟩ → ⟨ S ⟩) →
                        fst g ≡ h ∘ (fst quotientImageHom)  →
                        inducedMap ≡ h
     inducedMapUnique _ = funExt ∘ SQ.elimProp (λ _ → is-set _ _) ∘ funExt⁻
 
-    inducedHomUnique : (h : CommRingHom (_/Im_) S) →
-                       (p : g ≡ (h ∘cr quotientImageHom)) →
-                       inducedHom ≡ h
-    inducedHomUnique h p = Σ≡Prop
-                           (λ { x → isPropIsCommRingHom (str _/Im_) x (str S) })
-                           (inducedMapUnique (fst h) (cong fst p))
+    opaque
+      unfolding inducedHom
+      inducedHomUnique : (h : CommRingHom (_/Im_) S) →
+                         (p : g ≡ (h ∘cr quotientImageHom)) →
+                         inducedHom ≡ h
+      inducedHomUnique h p = Σ≡Prop
+                             (λ { x → isPropIsCommRingHom (str _/Im_) x (str S) })
+                             (inducedMapUnique (fst h) (cong fst p))
 
 module _ {ℓ : Level}  {R : CommRing ℓ} {X : Type ℓ} {f : X → ⟨ R ⟩}  where
   opaque
@@ -148,6 +150,7 @@ module _ {ℓ : Level}  (R : CommRing ℓ) {X : Type ℓ} {f : X → ⟨ R ⟩}
          {S : CommRing ℓ} {g : CommRingHom R S}
          {gfx=0 : ∀ (x : X) → g $cr (f x) ≡ CommRingStr.0r (snd S)} where
   opaque
+    unfolding inducedHom
     evalInduce : inducedHom R f g gfx=0 ∘cr quotientImageHom R f ≡ g
     evalInduce = CommRingHom≡ refl
 
