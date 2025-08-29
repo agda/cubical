@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Base where
 
 open import Cubical.Foundations.Prelude
@@ -25,29 +26,55 @@ private
 Rel : ∀ {ℓa ℓb} (A : Type ℓa) (B : Type ℓb) (ℓ' : Level) → Type (ℓ-max (ℓ-max ℓa ℓb) (ℓ-suc ℓ'))
 Rel A B ℓ' = A → B → Type ℓ'
 
-PropRel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+idRel : ∀ {ℓ} (A : Type ℓ) → Rel A A ℓ
+idRel A = _≡_
+
+invRel : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} → Rel A B ℓ'' → Rel B A ℓ''
+invRel R b a = R a b
+
+compRel : ∀ {ℓ ℓ' ℓ'' ℓ''' ℓ''''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+        → Rel A B ℓ''' → Rel B C ℓ'''' → Rel A C (ℓ-max (ℓ-max ℓ' ℓ''') ℓ'''')
+compRel R S a c = Σ[ b ∈ _ ] R a b × S b c
+
+PropRel : ∀ {ℓa ℓb} (A : Type ℓa) (B : Type ℓb) (ℓ' : Level) → Type (ℓ-max (ℓ-max ℓa ℓb) (ℓ-suc ℓ'))
 PropRel A B ℓ' = Σ[ R ∈ Rel A B ℓ' ] ∀ a b → isProp (R a b)
 
-idPropRel : ∀ {ℓ} (A : Type ℓ) → PropRel A A ℓ
-idPropRel A .fst a a' = ∥ a ≡ a' ∥₁
-idPropRel A .snd _ _ = squash₁
+squashPropRel : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} → Rel A B ℓ'' → PropRel A B ℓ''
+squashPropRel R .fst a b = ∥ R a b ∥₁
+squashPropRel R .snd a b = squash₁
 
-invPropRel : ∀ {ℓ ℓ'} {A B : Type ℓ}
-  → PropRel A B ℓ' → PropRel B A ℓ'
+idPropRel : ∀ {ℓ} (A : Type ℓ) → PropRel A A ℓ
+idPropRel A = squashPropRel (idRel A)
+
+invPropRel : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} → PropRel A B ℓ'' → PropRel B A ℓ''
 invPropRel R .fst b a = R .fst a b
 invPropRel R .snd b a = R .snd a b
 
-compPropRel : ∀ {ℓ ℓ' ℓ''} {A B C : Type ℓ}
-  → PropRel A B ℓ' → PropRel B C ℓ'' → PropRel A C (ℓ-max ℓ (ℓ-max ℓ' ℓ''))
-compPropRel R S .fst a c = ∥ Σ[ b ∈ _ ] (R .fst a b × S .fst b c) ∥₁
-compPropRel R S .snd _ _ = squash₁
+compPropRel : ∀ {ℓ ℓ' ℓ'' ℓ''' ℓ''''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+            → PropRel A B ℓ''' → PropRel B C ℓ'''' → PropRel A C (ℓ-max (ℓ-max ℓ' ℓ''') ℓ'''')
+compPropRel R S = squashPropRel (compRel (R .fst) (S .fst))
 
-graphRel : ∀ {ℓ} {A B : Type ℓ} → (A → B) → Rel A B ℓ
+graphRel : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → Rel A B ℓ'
 graphRel f a b = f a ≡ b
 
-module HeterogenousRelation {ℓ ℓ' : Level} {A B : Type ℓ} (R : Rel A B ℓ') where
-  isUniversalRel : Type (ℓ-max ℓ ℓ')
+module HeterogenousRelation {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : Type ℓ'} (R : Rel A B ℓ'') where
+  isUniversalRel : Type _
   isUniversalRel = (a : A) (b : B) → R a b
+
+  isFunctionalRel : Type _
+  isFunctionalRel = (a : A) → ∃! B (R a)
+
+  isCofunctionalRel : Type _
+  isCofunctionalRel = (b : B) → ∃! A (invRel R b)
+
+  isPropIsFunctional : isProp isFunctionalRel
+  isPropIsFunctional = isPropΠ λ _ → isPropIsContr
+
+open HeterogenousRelation
+
+graphRelIsFunctional : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B)
+                     → isFunctionalRel (graphRel f)
+graphRelIsFunctional f a = isContrSingl (f a)
 
 module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isRefl : Type (ℓ-max ℓ ℓ')
@@ -141,7 +168,7 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
       symmetric : isSym
       transitive : isTrans
 
-  isUniversalRel→isEquivRel : HeterogenousRelation.isUniversalRel R → isEquivRel
+  isUniversalRel→isEquivRel : isUniversalRel R → isEquivRel
   isUniversalRel→isEquivRel u .isEquivRel.reflexive a = u a a
   isUniversalRel→isEquivRel u .isEquivRel.symmetric a b _ = u b a
   isUniversalRel→isEquivRel u .isEquivRel.transitive a _ c _ _ = u a c
