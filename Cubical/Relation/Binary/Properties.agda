@@ -51,18 +51,18 @@ record isIdentitySystem {A : Type ℓ} (a : A) (C : A → Type ℓ') (r : C a) :
 
   open Iso
 
-  isoPath : ∀ b → Iso (C b) (a ≡ b)
-  isoPath b .fun = toPath
-  isoPath b .inv p = subst C p r
-  isoPath b .rightInv p i j = hcomp (λ k → λ where
+  isoPath : ∀ b → Iso (a ≡ b) (C b)
+  isoPath b .fun p = subst C p r
+  isoPath b .inv = toPath
+  isoPath b .rightInv p = fromPathP (toPathOver p)
+  isoPath b .leftInv p i j = hcomp (λ k → λ where
       (i = i0) → toPath (transport-filler (cong C p) r k) j
       (i = i1) → p (j ∧ k)
       (j = i0) → a
       (j = i1) → p k
     ) (toPath-η i j)
-  isoPath b .leftInv p = fromPathP (toPathOver p)
 
-  equivPath : ∀ b → C b ≃ (a ≡ b)
+  equivPath : ∀ b → (a ≡ b) ≃ C b
   equivPath b = isoToEquiv (isoPath b)
 
 open isIdentitySystem
@@ -108,7 +108,7 @@ module _ (A : Type ℓ) (B : Type ℓ') where
   FunctionalRelIsoFunction .inv f = graphRel f , graphRelIsFunctional f
   FunctionalRelIsoFunction .rightInv f = refl
   FunctionalRelIsoFunction .leftInv (R , Rfun) = Σ≡Prop isPropIsFunctional $ funExt₂ λ a →
-    isoToPath ∘ invIso ∘ isoPath (isContrTotal→isIdentitySystem $ Rfun a)
+    isoToPath ∘ isoPath (isContrTotal→isIdentitySystem $ Rfun a)
 
   Function≃FunctionalRel : (A → B) ≃ FunctionalRel
   Function≃FunctionalRel = isoToEquiv (invIso FunctionalRelIsoFunction)

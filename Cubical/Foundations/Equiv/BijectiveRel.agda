@@ -34,6 +34,38 @@ record isBijectiveRel {A : Type ℓ} {B : Type ℓ'} (R : Rel A B ℓ'') : Type 
     rContr : isFunctionalRel R
     lContr : isFunctionalRel (flip R)
 
+  trr : A → B
+  trr a = rContr a .fst .fst
+
+  trl : B → A
+  trl b = lContr b .fst .fst
+
+  liftr : ∀ a → R a (trr a)
+  liftr a = rContr a .fst .snd
+
+  liftl : ∀ b → R (trl b) b
+  liftl b = lContr b .fst .snd
+
+  rightIsId : ∀ a → isIdentitySystem (trr a) (R a) (liftr a)
+  rightIsId a = isContrTotal→isIdentitySystem (rContr a)
+
+  module _ (a : A) where
+    open isIdentitySystem (rightIsId a) using ()
+      renaming (isoPath to rightIsoPath; equivPath to rightEquivPath) public
+
+  leftIsId : ∀ b → isIdentitySystem (trl b) (flip R b) (liftl b)
+  leftIsId b = isContrTotal→isIdentitySystem (lContr b)
+
+  module _ (b : B) where
+    open isIdentitySystem (leftIsId b) using ()
+      renaming (isoPath to leftIsoPath; equivPath to leftEquivPath) public
+
+  isEquivTrr : isEquiv trr
+  isEquivTrr .equiv-proof b = isOfHLevelRetractFromIso 0 (Σ-cong-iso-snd (λ a → rightIsoPath a b)) (lContr b)
+
+  isEquivTrl : isEquiv trl
+  isEquivTrl .equiv-proof a = isOfHLevelRetractFromIso 0 (Σ-cong-iso-snd (λ b → leftIsoPath b a)) (rContr a)
+
 open isBijectiveRel
 
 unquoteDecl isBijectiveRelIsoΣ = declareRecordIsoΣ isBijectiveRelIsoΣ (quote isBijectiveRel)
@@ -57,17 +89,18 @@ BijectiveRelEq : {R₀ R₁ : BijectiveRel A B ℓ''} → (∀ a b → R₀ .fst
 BijectiveRelEq h = BijectiveRelPathP (funExt₂ λ a b → ua (h a b))
 
 BijectiveRel→Equiv : BijectiveRel A B ℓ → A ≃ B
-BijectiveRel→Equiv R .fst a = R .snd .rContr a .fst .fst
-BijectiveRel→Equiv (R , Rbij) .snd .equiv-proof b = flip (isOfHLevelRetractFromIso 0) (Rbij .lContr b) $
-  Σ-cong-iso-snd $ invIso ∘ flip isIdentitySystem.isoPath b ∘ isContrTotal→isIdentitySystem ∘ Rbij .rContr
+BijectiveRel→Equiv (R , Rbij) .fst = trr Rbij
+BijectiveRel→Equiv (R , Rbij) .snd = isEquivTrr Rbij
+
+Equiv→BijectiveRel : A ≃ B → BijectiveRel A B _
+Equiv→BijectiveRel e .fst = graphRel (e .fst)
+Equiv→BijectiveRel e .snd .rContr a = isContrSingl (e .fst a)
+Equiv→BijectiveRel e .snd .lContr = e .snd .equiv-proof
 
 EquivIsoBijectiveRel : (A B : Type ℓ) → Iso (A ≃ B) (BijectiveRel A B ℓ)
-EquivIsoBijectiveRel A B .Iso.fun e .fst = graphRel (e .fst)
-EquivIsoBijectiveRel A B .Iso.fun e .snd .rContr a = isContrSingl (e .fst a)
-EquivIsoBijectiveRel A B .Iso.fun e .snd .lContr = e .snd .equiv-proof
+EquivIsoBijectiveRel A B .Iso.fun = Equiv→BijectiveRel
 EquivIsoBijectiveRel A B .Iso.inv = BijectiveRel→Equiv
-EquivIsoBijectiveRel A B .Iso.rightInv (R , Rbij) = sym $ BijectiveRelEq $
-  isIdentitySystem.equivPath ∘ isContrTotal→isIdentitySystem ∘ Rbij .rContr
+EquivIsoBijectiveRel A B .Iso.rightInv (R , Rbij) = BijectiveRelEq $ rightEquivPath Rbij
 EquivIsoBijectiveRel A B .Iso.leftInv e = equivEq refl
 
 Equiv≃BijectiveRel : (A B : Type ℓ) → (A ≃ B) ≃ (BijectiveRel A B ℓ)
@@ -110,8 +143,7 @@ path→BijectiveRel→Equiv P = equivEq refl
 pathIsoBijectiveRel : Iso (A ≡ B) (BijectiveRel A B _)
 pathIsoBijectiveRel .Iso.fun = pathToBijectiveRel
 pathIsoBijectiveRel .Iso.inv = BijectiveRelToPath
-pathIsoBijectiveRel .Iso.rightInv R = BijectiveRelEq λ a b → compEquiv (ua-ungluePath-Equiv _) $
-  invEquiv $ isIdentitySystem.equivPath (isContrTotal→isIdentitySystem $ R .snd .rContr a) b
+pathIsoBijectiveRel .Iso.rightInv (R , Rbij) = BijectiveRelEq λ a b → ua-ungluePath-Equiv _ ∙ₑ rightEquivPath Rbij a b
 pathIsoBijectiveRel .Iso.leftInv P = cong ua (path→BijectiveRel→Equiv P) ∙ ua-pathToEquiv P
 
 path≡BijectiveRel : (A ≡ B) ≡ BijectiveRel A B _
