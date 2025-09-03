@@ -10,9 +10,10 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.Nat
 
-variable
-  ℓ : Level
-  A B : Type ℓ
+private
+  variable
+    ℓ : Level
+    A B : Type ℓ
 
 -- copy-paste from agda-stdlib
 lookup : ∀ (xs : List A) → Fin (length xs) → A
