@@ -20,11 +20,11 @@ isToset (snd ℕ≤Toset) = isTosetℕ≤
     open IsToset
     abstract
       isTosetℕ≤ : IsToset _≤ℕ_
-      isTosetℕ≤ .is-set = isSetℕ
+      isTosetℕ≤ .is-set         = isSetℕ
       isTosetℕ≤ .is-prop-valued = λ _ _ → isProp≤
-      isTosetℕ≤ .is-refl = λ _ → ≤-refl
-      isTosetℕ≤ .is-trans = λ _ _ _ → ≤-trans
-      isTosetℕ≤ .is-antisym = λ _ _ → ≤-antisym
+      isTosetℕ≤ .is-refl        = λ _ → ≤-refl
+      isTosetℕ≤ .is-trans       = λ _ _ _ → ≤-trans
+      isTosetℕ≤ .is-antisym     = λ _ _ → ≤-antisym
       isTosetℕ≤ .is-total a b with splitℕ-≤ a b
       ... | inl a≤b = ∣ inl a≤b ∣₁
       ... | inr b<a = ∣ inr (<-weaken b<a) ∣₁

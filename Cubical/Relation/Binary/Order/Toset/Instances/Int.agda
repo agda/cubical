@@ -24,7 +24,7 @@ isToset (snd ℤ≤Toset) = isTosetℤ≤
       isTosetℤ≤ .is-prop-valued = λ _ _ → isProp≤
       isTosetℤ≤ .is-refl        = λ _ → isRefl≤
       isTosetℤ≤ .is-trans       = λ _ _ _ → isTrans≤
-      isTosetℤ≤ .is-antisym     = λ _ _   → isAntisym≤
+      isTosetℤ≤ .is-antisym     = λ _ _ → isAntisym≤
       isTosetℤ≤ .is-total a b with a ≟ b
       ... | lt a<b = ∣ inl (<-weaken a<b) ∣₁
       ... | eq a≡b = ∣ inl (subst (a ≤ℤ_) a≡b isRefl≤) ∣₁
