@@ -22,11 +22,11 @@ isLoset (snd ℤ<Loset) = isLosetℤ<
     open IsLoset
     abstract
       isLosetℤ< : IsLoset _<ℤ_
-      isLosetℤ< .is-set           = isSetℤ
-      isLosetℤ< .is-prop-valued   = λ _ _ → isProp<
-      isLosetℤ< .is-irrefl        = λ _ → isIrrefl<
-      isLosetℤ< .is-trans         = λ _ _ _ → isTrans<
-      isLosetℤ< .is-asym          = λ a b a<b b<a → isIrrefl< (isTrans< a<b b<a)
+      isLosetℤ< .is-set         = isSetℤ
+      isLosetℤ< .is-prop-valued = λ _ _ → isProp<
+      isLosetℤ< .is-irrefl      = λ _ → isIrrefl<
+      isLosetℤ< .is-trans       = λ _ _ _ → isTrans<
+      isLosetℤ< .is-asym        = λ a b a<b b<a → isIrrefl< (isTrans< a<b b<a)
       isLosetℤ< .is-weakly-linear a b c a<b with a ≟ c
       ... | lt a<c = ∣ inl a<c ∣₁
       ... | eq a≡c = ∣ inr (subst (_<ℤ b) a≡c a<b) ∣₁
