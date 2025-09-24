@@ -23,7 +23,7 @@ private
 module PolyModTheory (R' : CommRing ℓ) where
   private
     R = fst R'
-
+  open CommRingStr (snd R')
   open PolyMod R'
   open CommRingTheory R'
   open RingTheory (CommRing→Ring R')
