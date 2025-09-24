@@ -34,6 +34,10 @@ suspFunComp f g i north = north
 suspFunComp f g i south = south
 suspFunComp f g i (merid a i₁) = merid (f (g a)) i₁
 
+suspFun∙Comp : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+  (g : B → C) (f : A → B) → suspFun∙ (g ∘ f) ≡ (suspFun∙ g ∘∙ suspFun∙ f)
+suspFun∙Comp f g = ΣPathP ((suspFunComp f g) , rUnit refl)
+
 suspFunConst : (b : B) → suspFun (λ (_ : A) → b) ≡ λ _ → north
 suspFunConst b i north = north
 suspFunConst b i south = merid b (~ i)
@@ -43,6 +47,10 @@ suspFunIdFun : suspFun (λ (a : A) → a) ≡ λ x → x
 suspFunIdFun i north = north
 suspFunIdFun i south = south
 suspFunIdFun i (merid a j) = merid a j
+
+suspFun∙IdFun : ∀ {ℓ} {A : Type ℓ}
+  → suspFun∙ (idfun A) ≡ idfun∙ _
+suspFun∙IdFun = ΣPathP (suspFunIdFun , refl)
 
 Susp-iso-joinBool : ∀ {ℓ} {A : Type ℓ} → Iso (Susp A) (join A Bool)
 fun Susp-iso-joinBool north = inr true
@@ -129,6 +137,11 @@ leftInv (congSuspIso is) (merid a i) j = merid (leftInv is a j) i
 
 congSuspEquiv : ∀ {ℓ} {A B : Type ℓ} → A ≃ B → Susp A ≃ Susp B
 congSuspEquiv {ℓ} {A} {B} h = isoToEquiv (congSuspIso (equivToIso h))
+
+suspFun∙Cancel : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : Iso A B)
+  → suspFun∙ (fun f) ∘∙ suspFun∙ (inv f)  ≡ id∙ (Susp∙ B)
+suspFun∙Cancel f = ΣPathP ((funExt (rightInv (congSuspIso f)))
+  , sym (rUnit refl))
 
 suspToPropElim : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Susp A → Type ℓ'} (a : A)
                  → ((x : Susp A) → isProp (B x))
@@ -480,6 +493,27 @@ snd (-Susp A f) = refl
                                 (snd f) i1 (~ i))}))
    , ((λ i j → snd g (~ i ∨ j)) ▷ lUnit _))
 
+·Susp-suspFun : ∀ {ℓ ℓ'} (A A' : Pointed ℓ) {X : Pointed ℓ'} (e : A ≃∙ A')
+  → (f g : Susp∙ (typ A) →∙ X)
+  → ·Susp A f g
+   ≡ (·Susp A' (f ∘∙ suspFun∙ (invEq (fst e)))
+               (g ∘∙ suspFun∙ (invEq (fst e)))
+    ∘∙ suspFun∙ (fst (fst e)))
+·Susp-suspFun A A' {X} = Equiv∙J (λ A e → (f g : Susp∙ (typ A) →∙ X) →
+      ·Susp A f g
+   ≡ (·Susp A' (f ∘∙ suspFun∙ (invEq (fst e)))
+               (g ∘∙ suspFun∙ (invEq (fst e)))
+     ∘∙ suspFun∙ (fst (fst e))))
+
+ λ f g → sym (cong₂ {x = ·Susp A' (f ∘∙ suspFun∙ (idfun (fst A')))
+                                   (g ∘∙ suspFun∙ (idfun (fst A')))}
+                    {y = ·Susp A' f g} _∘∙_
+                    (cong₂ (·Susp A') (cong (f ∘∙_) suspFun∙IdFun ∙ ∘∙-idˡ f)
+                                      (cong (g ∘∙_) suspFun∙IdFun ∙ ∘∙-idˡ g))
+                    {u = suspFun∙ (idfun (fst A'))} {v = idfun∙ _}
+                     suspFun∙IdFun
+        ∙ ∘∙-idˡ (·Susp A' f g))
+
 Ω→-Susp : ∀ {ℓ'} (A : Pointed ℓ) {B : Pointed ℓ'}
         (f : Susp∙ (typ A) →∙ B)
         (a : typ A)
@@ -489,6 +523,22 @@ snd (-Susp A f) = refl
   ∙ cong₂ _∙_ refl (cong (Ω→ f .fst) (rCancel (merid (pt A))) ∙ Ω→ f .snd)
   ∙ sym (rUnit _)
 
+Ω∘∙σ-comp : ∀ {ℓA ℓB ℓC} {A : Pointed ℓA} {B : Pointed ℓB} {C : Pointed ℓC}
+  (f : Susp∙ (typ A) →∙ B)
+  (g : C →∙ A)
+  → (Ω→ f  ∘∙ (((toSusp A) , (rCancel _)) ∘∙ g))
+   ≡ (Ω→ (f ∘∙ suspFun∙ (fst g)) ∘∙ (toSusp C , rCancel _))
+Ω∘∙σ-comp {A = A} {B} {C} f g =
+  →∙Homogeneous≡ (isHomogeneousPath _ _)
+    (funExt (λ x →
+        cong (Ω→ f .fst)
+          (sym (cong-∙ (suspFun (fst g)) (merid x) (sym (merid (pt C)))
+                      ∙ cong₂ _∙_ refl (cong (sym ∘ merid) (snd g))))))
+  ∙ cong (_∘∙ (toSusp C , rCancel (merid (pt C))))
+         (cong Ω→ (ΣPathP
+           {x = (fst f ∘ suspFun (fst g)) , snd f}
+           {y = f ∘∙ suspFun∙ (fst g)}
+           (refl , lUnit (snd f))))
 
 ·SuspInvR : ∀ {ℓ'} (A : Pointed ℓ) {B : Pointed ℓ'}
         (f : Susp∙ (typ A) →∙ B)

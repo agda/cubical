@@ -81,7 +81,7 @@ open Iso
                             (merid x) (sym (merid true))
                           ∙ sym (rUnit _))))
                    (lUnit (f .snd))))
-    
+
 [∣]-pre≡[∣]-pre' {n = suc n} {m = zero} f g =
   cong (joinPinch∙ (S₊∙ (suc n)) (S₊∙ zero) _)
   (funExt λ x → funExt λ y → cong₂ _∙_
@@ -115,12 +115,6 @@ open Iso
        → π' (suc n) X → π' (suc m) X
        → π* n m X
 [_∣_]π* = elim2 (λ _ _ → squash₂) λ f g → ∣ [ f ∣ g ]-pre ∣₂
-
--- -- Smash version
--- [_∣_]π⋀ : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
---        → π' (suc n) X → π' (suc m) X
---        → {!π⋀!} -- π* n m X
--- [_∣_]π⋀ = {!!} -- elim2 (λ _ _ → squash₂) λ f g → ∣ [ f ∣ g ]-pre ∣₂
 
 -- The two versions agree
 whπ*≡whπ' : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}

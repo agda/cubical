@@ -130,6 +130,15 @@ odd·odd≡odd (suc n) (suc m) p q =
   t : suc (m + (n + n · m)) ≡ suc (m + n · suc m)
   t = cong suc (cong (m +_) (cong (n +_) (·-comm n m) ∙ ·-comm (suc m) n))
 
+even≡odd→odd≡even : (n m : ℕ) → isEvenT n ≡ isOddT m → isOddT n ≡ isEvenT m
+even≡odd→odd≡even zero zero p = sym p
+even≡odd→odd≡even zero (suc zero) p = refl
+even≡odd→odd≡even zero (suc (suc m)) p = even≡odd→odd≡even zero m p
+even≡odd→odd≡even (suc zero) zero p = refl
+even≡odd→odd≡even (suc zero) (suc zero) p = sym p
+even≡odd→odd≡even (suc zero) (suc (suc m)) p = even≡odd→odd≡even (suc zero) m p
+even≡odd→odd≡even (suc (suc n)) m p = even≡odd→odd≡even n m p
+
 -- Relation to mod 2
 isEvenT↔≡0 : (n : ℕ) → isEvenT n ↔ ((n mod 2) ≡ 0)
 isEvenT↔≡0 zero .fst _ = refl

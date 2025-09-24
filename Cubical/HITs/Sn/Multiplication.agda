@@ -22,9 +22,11 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Pointed.Homogeneous
 
 open import Cubical.Data.Sum
-open import Cubical.Data.Bool hiding (elim)
+open import Cubical.Data.Bool hiding (elim ; _≤_)
 open import Cubical.Data.Nat hiding (elim)
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma
+open import Cubical.Data.Empty as ⊥
 
 open import Cubical.HITs.S1 renaming (_·_ to _*_)
 open import Cubical.HITs.S2
@@ -299,6 +301,17 @@ isEquiv-⋀S (suc n) m =
 SphereSmashIso : (n m : ℕ) → Iso (S₊∙ n ⋀ S₊∙ m) (S₊ (n + m))
 SphereSmashIso n m = equivToIso (⋀S n m , isEquiv-⋀S n m)
 
+SphereSmashIso∙ : (n m : ℕ)
+  → Iso.fun (SphereSmashIso n m) (inl tt) ≡ ptSn (n + m)
+SphereSmashIso∙ zero m = refl
+SphereSmashIso∙ (suc n) m = refl
+
+SphereSmashIso⁻∙ : (n m : ℕ)
+  → Iso.inv (SphereSmashIso n m) (ptSn (n + m)) ≡ inl tt
+SphereSmashIso⁻∙ n m =
+    sym (cong (Iso.inv (SphereSmashIso n m)) (SphereSmashIso∙ n m))
+  ∙ Iso.leftInv (SphereSmashIso n m) (inl tt)
+
 -- Proof that the pinch map Sⁿ * Sᵐ → Sⁿ⁺ᵐ⁺¹ is an equivalence
 join→Sphere : (n m : ℕ)
   → join (S₊ n) (S₊ m) → S₊ (suc (n + m))
@@ -476,11 +489,6 @@ assoc⌣S {n = suc (suc n)} {m = m} {l} (merid a i) y z j =
            (sym (merid (ptSn (suc (n + suc m)))))))
 
 -- Goal: graded commutativity
-
--- To state it: we'll need iterated negations
--S^ : {k : ℕ} (n : ℕ) → S₊ k → S₊ k
--S^ n = iter n invSphere
-
 -- The folowing is an explicit definition of -S^ (n · m) which is
 -- often easier to reason about
 -S^-expl : {k : ℕ} (n m : ℕ)
@@ -500,37 +508,6 @@ assoc⌣S {n = suc (suc n)} {m = m} {l} (merid a i) y z j =
 -S^-expl {k = suc (suc k)} n m (inl x) q (merid a i) = σS a i
 -S^-expl {k = suc (suc k)} n m (inr x) (inl x₁) (merid a i) = σS a i
 -S^-expl {k = suc (suc k)} n m (inr x) (inr x₁) (merid a i) = σS a (~ i)
-
---  invSphere commutes with S^
-invSphere-S^ : {k : ℕ} (n : ℕ) (x : S₊ k)
-  → invSphere (-S^ n x) ≡ -S^ n (invSphere x)
-invSphere-S^ zero x = refl
-invSphere-S^ (suc n) x = cong invSphere (invSphere-S^ n x)
-
--S^² : {k : ℕ} (n : ℕ) (x : S₊ k) → -S^ n (-S^ n x) ≡ x
--S^² zero x = refl
--S^² (suc n) x =
-  cong invSphere (sym (invSphere-S^ n (-S^ n x)))
-  ∙ invSphere² _ (-S^ n (-S^ n x))
-  ∙ -S^² n x
-
--S^Iso : {k : ℕ} (n : ℕ) → Iso (S₊ k) (S₊ k)
-fun (-S^Iso n) = -S^ n
-inv (-S^Iso n) = -S^ n
-rightInv (-S^Iso n) = -S^² n
-leftInv (-S^Iso n) = -S^² n
-
--S^-comp : {k : ℕ} (n m : ℕ) (x : S₊ k)
-  → -S^ n (-S^ m x) ≡ -S^ (n + m) x
--S^-comp zero m x = refl
--S^-comp (suc n) m x = cong invSphere (-S^-comp n m x)
-
--S^·2 : {k : ℕ} (n : ℕ) (x : S₊ k) → -S^ (n + n) x ≡ x
--S^·2 zero x = refl
--S^·2 (suc n) x =
-    cong invSphere (λ i → -S^ (+-comm n (suc n) i) x)
-  ∙ invSphere² _ (-S^ (n + n) x)
-  ∙ -S^·2 n x
 
 -- technical transport lemma
 private
@@ -1055,3 +1032,146 @@ SuspS¹→S²-S¹×S¹→S² (loop i) b j = main b j i
   main b = cong-∙ SuspS¹→S² (merid b) (merid base ⁻¹)
          ∙ sym (rUnit _)
          ∙ lem b
+
+-- Sphere inversion in terms of swapping coordinates in joins of spheres
+join-commFun-sphere→Join : (n m : ℕ) (x : _)
+  → PathP (λ i → S₊ (suc (+-comm n m i)))
+          (join→Sphere n m (join-commFun x))
+          (-S^ (suc (m · n)) (join→Sphere m n x))
+join-commFun-sphere→Join n m (inl x) =
+    (λ i → ptSn (suc (+-comm n m i)))
+  ▷ sym (-S^pt (suc (m · n)))
+join-commFun-sphere→Join n m (inr x) =
+  (λ i → ptSn (suc (+-comm n m i)))
+  ▷ sym (-S^pt (suc (m · n)))
+join-commFun-sphere→Join zero zero (push a b i) j = lem j i
+  where
+  main : (a b : Bool) → sym (σS (b ⌣S a)) ≡ cong (-S^ 1) (σS (a ⌣S b))
+  main false false = refl
+  main false true = refl
+  main true false = refl
+  main true true = refl
+
+  lem : Square (sym (σS (b ⌣S a))) (cong (-S^ 1) (σS (a ⌣S b)))
+               (refl ∙ (refl ∙ refl)) (refl ∙ (refl ∙ refl))
+  lem = flipSquare (sym (rUnit refl ∙ cong₂ _∙_ refl (rUnit refl))
+    ◁ flipSquare (main a b)
+    ▷ (rUnit refl ∙ cong₂ _∙_ refl (rUnit refl)))
+
+join-commFun-sphere→Join zero (suc m) (push a b i) j =
+  comp (λ k → S₊ (suc (+-comm zero (suc m) (j ∧ k))))
+       (λ k →
+      λ{(i = i0) → ((λ i → ptSn (suc (+-comm zero (suc m) (i ∧ k))))
+                   ▷ sym (-S^pt (suc (·-comm zero m k)))) j
+      ; (i = i1) → ((λ i → ptSn (suc (+-comm zero (suc m) (i ∧ k))))
+                   ▷ sym (-S^pt (suc (·-comm zero m k)))) j
+      ; (j = i0) → σSn (suc m) (b ⌣S a) (~ i)
+      ; (j = i1) → -S^ (suc (·-comm zero m k))
+                      (σS (toPathP {A = λ i → S₊ (+-comm zero (suc m) i)}
+                                   (sym (comm⌣S a b)) k) i)})
+   (hcomp (λ k →
+      λ{(i = i0) → lUnit (λ r → -S^pt (suc zero) (~ r ∨ ~ k)) k j
+      ; (i = i1) → lUnit (λ r → -S^pt (suc zero) (~ r ∨ ~ k)) k j
+      ; (j = i0) → σS-S^ 1 (b ⌣S a) k i
+      ; (j = i1) → cong-S^σ m (suc zero) (b ⌣S a) k i})
+       (σ (S₊∙ (suc m)) (-S^ 1 (b ⌣S a)) i))
+  where
+  n = zero
+  lem : -S^ (m · n) (-S^ (n · m) (b ⌣S a)) ≡ b ⌣S a
+  lem = cong (-S^ (m · n)) (cong₂ -S^ (·-comm n m) refl)
+      ∙ -S^-comp (m · n) (m · n) (b ⌣S a)
+      ∙ -S^·2 (m · n) (b ⌣S a)
+join-commFun-sphere→Join (suc n') m (push a b i) j =
+  comp (λ k → S₊ (suc (+-comm n m (j ∧ k))))
+       (λ k →
+      λ{(i = i0) → ((λ i → ptSn (suc (+-comm n m (i ∧ k))))
+                  ▷ sym (-S^pt (suc (m · n)))) j
+      ; (i = i1) → ((λ i → ptSn (suc (+-comm n m (i ∧ k))))
+                  ▷ sym (-S^pt (suc (m · n)))) j
+      ; (j = i0) → σSn (n + m) (b ⌣S a) (~ i)
+      ; (j = i1) → -S^ (suc (m · n))
+                        (σS (toPathP {A = λ i → S₊ (+-comm n m i)}
+                                 (sym (comm⌣S a b)) k) i)})
+   (hcomp (λ k →
+      λ{(i = i0) → lUnit (λ r → -S^pt (suc (m · n)) (~ r ∨ ~ k)) k j
+      ; (i = i1) → lUnit (λ r → -S^pt (suc (m · n)) (~ r ∨ ~ k)) k j
+      ; (j = i0) → σS-S^ 1 (b ⌣S a) k i
+      ; (j = i1) → cong-S^σ (n' + m) (suc (m · n))
+                             (-S^ (n · m) (b ⌣S a)) k i})
+      (σ (S₊∙ (suc (n' + m))) (invSphere (lem (~ j))) i))
+  where
+  n = suc n'
+  lem : -S^ (m · n) (-S^ (n · m) (b ⌣S a)) ≡ b ⌣S a
+  lem = cong (-S^ (m · n)) (cong₂ -S^ (·-comm n m) refl)
+      ∙ -S^-comp (m · n) (m · n) (b ⌣S a)
+      ∙ -S^·2 (m · n) (b ⌣S a)
+
+private
+  -S^σS-lem : (n m : ℕ) (a : S₊ n) (b : S₊ m)
+    → (1 ≤ (n + m))
+    → PathP
+      (λ i₁ → -S^∙ {k = +-comm m n (~ i₁)} (suc (m · n)) .snd i₁
+             ≡ -S^∙ (suc (m · n)) .snd i₁)
+      ((cong (-S^ (suc (m · n)))
+             (σS (subst S₊ (+-comm m n) (-S^ (m · n) (b ⌣S a))))))
+      (σS (-S^ (suc (m · n)) (-S^ (m · n) (b ⌣S a))))
+  -S^σS-lem zero zero a b ineq =
+    ⊥.rec (snotz (+-comm 1 (ineq .fst) ∙ snd ineq))
+  -S^σS-lem zero (suc m) a b ineq i j =
+    cong-S^σ _ (suc (m · zero))
+     (transp (λ j → S₊ (+-comm (suc m) zero (j ∧ ~ i)))
+             i (-S^ (suc m · zero) (b ⌣S a))) (~ i) j
+  -S^σS-lem (suc n) zero a b ineq i j =
+    cong-S^σ _ (suc zero)
+     (transp (λ j → S₊ (+-comm zero (suc n) (j ∧ ~ i)))
+             i (b ⌣S a)) (~ i) j
+  -S^σS-lem (suc n) (suc m) a b ineq i j =
+    cong-S^σ _ (suc (suc m · suc n))
+                   (transp (λ j → S₊ (+-comm (suc m) (suc n) (j ∧ ~ i)))
+                           i (-S^ (suc m · suc n) (b ⌣S a))) (~ i) j
+
+join→Sphere∘join-commFunId : (n m : ℕ) (x : _)
+  → PathP (λ i → S₊ (suc (+-comm m n (~ i))))
+           (-S^ (suc (m · n)) (join→Sphere n m x))
+           (join→Sphere m n (join-commFun x))
+join→Sphere∘join-commFunId n m (inl x) i = -S^∙ (suc (m · n)) .snd i
+join→Sphere∘join-commFunId n m (inr x) i = -S^∙ (suc (m · n)) .snd i
+join→Sphere∘join-commFunId zero zero (push a b i) j =
+  (sym (rUnit refl) ◁  flipSquare (lem a b) ▷ rUnit refl) i j
+  where
+  lem : (a b : Bool) → cong invSphere (σS (a ⌣S b)) ≡ sym (σS (b ⌣S a))
+  lem false false = refl
+  lem false true = refl
+  lem true false = refl
+  lem true true = refl
+join→Sphere∘join-commFunId (suc n') zero (push a b i) j = lem j i
+  where
+  n = suc n'
+  m = zero
+  lem : SquareP (λ i j → S₊ (suc (+-comm m n (~ i))))
+                (cong (-S^ (suc (m · n))) (σS (a ⌣S b)))
+                (sym (σS (b ⌣S a)))
+                (λ i → -S^∙ (suc (m · n)) .snd i)
+                λ i → -S^∙ (suc (m · n)) .snd i
+  lem = cong (congS (-S^ (suc (m · n))) ∘ σS)
+             (comm⌣S a b)
+      ◁ -S^σS-lem n zero a b (n' + zero , +-comm (n' + zero) 1)
+      ▷ (cong σS ((λ i → -S^ (suc (m · n)) (-S^ ((m · n)) (b ⌣S a)))
+               ∙ cong invSphere (-S^-comp (m · n) (m · n) (b ⌣S a)
+                               ∙ -S^·2 (m · n) (b ⌣S a)))
+           ∙ σ-invSphere _ (b ⌣S a))
+join→Sphere∘join-commFunId n (suc m') (push a b i) j = lem j i
+  where
+  m = suc m'
+  lem : SquareP (λ i j → S₊ (suc (+-comm m n (~ i))))
+                (cong (-S^ (suc (m · n))) (σS (a ⌣S b)))
+                (sym (σS (b ⌣S a)))
+                (λ i → -S^∙ (suc (m · n)) .snd i)
+                λ i → -S^∙ (suc (m · n)) .snd i
+  lem = cong (congS (-S^ (suc (m · n))) ∘ σS)
+             (comm⌣S a b)
+      ◁ -S^σS-lem n (suc m') a b (n + m' , +-comm (n + m') 1 ∙ sym (+-suc n m'))
+      ▷ (cong σS ((λ i → -S^ (suc (m · n)) (-S^ ((m · n)) (b ⌣S a)))
+               ∙ cong invSphere (-S^-comp (m · n) (m · n) (b ⌣S a)
+                               ∙ -S^·2 (m · n) (b ⌣S a)))
+           ∙ σ-invSphere _ (b ⌣S a))

@@ -728,3 +728,14 @@ joinPinch∙ : ∀ {ℓ''} (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ
   → ((a : typ A) (b : typ B) → Ω C .fst) → join∙ A B →∙ C
 proj₁ (joinPinch∙ A B C p) = joinPinch C p
 snd (joinPinch∙ A B C p) = refl
+
+joinPinchComp : ∀ {ℓ ℓ' ℓ'' ℓA ℓB} {X : Pointed ℓ}
+  {A : Type ℓA} {B : Type ℓB}
+  {A' : Type ℓ'} {B' : Type ℓ''}
+  (g : A → A') (h : B → B')
+  → (f : A' → B' → Ω X .fst) (x : join A B)
+  → joinPinch X f (join→ g h x)
+   ≡ joinPinch X (λ a b → f (g a) (h b)) x
+joinPinchComp {X = X} g h f (inl x) = refl
+joinPinchComp {X = X} g h f (inr x) = refl
+joinPinchComp {X = X} g h f (push a b i) = refl

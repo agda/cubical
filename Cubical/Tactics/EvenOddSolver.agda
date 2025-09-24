@@ -13,19 +13,15 @@ module Cubical.Tactics.EvenOddSolver where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.FinData hiding (snotz)
-open import Cubical.Data.Maybe
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order using (zero-≤ ; isProp≤)
 open import Cubical.Data.Nat.IsEven
 open import Cubical.Data.Vec.Base
-open import Cubical.Data.Bool hiding (isProp≤)
 open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Sum as ⊎ renaming (map to ⊎map)
 open import Cubical.Data.Nat.Mod
 open import Cubical.Data.Fin as ΣFin hiding (Fin)
 open import Cubical.Data.Sigma
 open import Cubical.Data.List as L hiding (map) renaming (_++_ to _＋_)
-open import Cubical.Data.Unit
 
 open import Cubical.Tactics.NatSolver.NatExpression
 
@@ -35,10 +31,12 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
+-- Inductive type encoding whether a natural is odd or even, or
+-- whether this is unknown
 data even? (n : ℕ) : Type where
   ？ : even? n
-  yup : isEvenT n → even? n
-  nope : isOddT n → even? n
+  yea : isEvenT n → even? n
+  nay : isOddT n → even? n
 
 -- First step: given a vector of naturals equipped with information
 -- about whether or not they are even, return a new vector with each
@@ -47,16 +45,16 @@ evenOddVecLen : {n : ℕ}
   → Vec (Σ[ k ∈ ℕ ] (even? k)) n → ℕ
 evenOddVecLen [] = 0
 evenOddVecLen ((s , ？) ∷ xs) = suc (evenOddVecLen xs)
-evenOddVecLen ((s , yup x) ∷ xs) = evenOddVecLen xs
-evenOddVecLen ((s , nope x) ∷ xs) = evenOddVecLen xs
+evenOddVecLen ((s , yea x) ∷ xs) = evenOddVecLen xs
+evenOddVecLen ((s , nay x) ∷ xs) = evenOddVecLen xs
 
 filterEvenOddVec : {n : ℕ}
   (t : Vec (Σ[ x ∈ ℕ ] (even? x)) n)
   → Vec ℕ (evenOddVecLen t)
 filterEvenOddVec [] = []
 filterEvenOddVec ((x , ？) ∷ t) = x ∷ filterEvenOddVec t
-filterEvenOddVec ((x , yup s) ∷ t) = filterEvenOddVec t
-filterEvenOddVec ((x , nope s) ∷ t) = filterEvenOddVec t
+filterEvenOddVec ((x , yea s) ∷ t) = filterEvenOddVec t
+filterEvenOddVec ((x , nay s) ∷ t) = filterEvenOddVec t
 
 -- Now do the same things for expressions over ℕ
 filterEvenOddExpr : {n : ℕ} (s : Expr n)
@@ -65,10 +63,10 @@ filterEvenOddExpr : {n : ℕ} (s : Expr n)
 filterEvenOddExpr (K k) t = K k
 filterEvenOddExpr (∣ zero) ((_ , ？) ∷ t) = ∣ zero
 filterEvenOddExpr (∣ (suc k)) ((_ , ？) ∷ t) = Expr↑ (filterEvenOddExpr (∣ k) t)
-filterEvenOddExpr (∣ zero) ((_ , yup ev) ∷ t) = K 0
-filterEvenOddExpr (∣ (suc k)) ((_ , yup s) ∷ t) = filterEvenOddExpr (∣ k) t
-filterEvenOddExpr (∣ (suc k)) ((_ , nope s) ∷ t) = filterEvenOddExpr (∣ k) t
-filterEvenOddExpr (∣ zero) ((_ , nope od) ∷ t) = K 1
+filterEvenOddExpr (∣ zero) ((_ , yea ev) ∷ t) = K 0
+filterEvenOddExpr (∣ (suc k)) ((_ , yea s) ∷ t) = filterEvenOddExpr (∣ k) t
+filterEvenOddExpr (∣ (suc k)) ((_ , nay s) ∷ t) = filterEvenOddExpr (∣ k) t
+filterEvenOddExpr (∣ zero) ((_ , nay od) ∷ t) = K 1
 filterEvenOddExpr (s +' s₁) t = filterEvenOddExpr s t +' filterEvenOddExpr s₁ t
 filterEvenOddExpr (s ·' s₁) t = filterEvenOddExpr s t ·' filterEvenOddExpr s₁ t
 
@@ -80,8 +78,8 @@ evalFilterEvenOdd : {n : ℕ} (s : Expr n)
   ≡ (⟦ filterEvenOddExpr s t ⟧ (filterEvenOddVec t)) mod 2
 evalFilterEvenOdd (K x) t = refl
 evalFilterEvenOdd (∣ zero) ((s , ？) ∷ t) = refl
-evalFilterEvenOdd (∣ zero) ((s , yup x) ∷ t) = isEvenT↔≡0 s .fst x
-evalFilterEvenOdd (∣ zero) ((s , nope x) ∷ t) = isOddT↔≡1 s .fst x
+evalFilterEvenOdd (∣ zero) ((s , yea x) ∷ t) = isEvenT↔≡0 s .fst x
+evalFilterEvenOdd (∣ zero) ((s , nay x) ∷ t) = isOddT↔≡1 s .fst x
 evalFilterEvenOdd (∣ (suc k)) ((s , ？) ∷ t) =
   evalFilterEvenOdd (∣ k) t
   ∙ sym (cong (_mod 2) (Expr↑ForgetFirst
@@ -95,8 +93,8 @@ evalFilterEvenOdd (∣ (suc k)) ((s , ？) ∷ t) =
     cong₂ _+_ (Expr↑ForgetFirst x s w) (Expr↑ForgetFirst x₁ s w)
   Expr↑ForgetFirst (x ·' x₁) s w =
     cong₂ _·_ (Expr↑ForgetFirst x s w) (Expr↑ForgetFirst x₁ s w)
-evalFilterEvenOdd (∣ (suc x)) ((s , yup _) ∷ t) = evalFilterEvenOdd (∣ x) t
-evalFilterEvenOdd (∣ (suc x)) ((s , nope _) ∷ t) = evalFilterEvenOdd (∣ x) t
+evalFilterEvenOdd (∣ (suc x)) ((s , yea _) ∷ t) = evalFilterEvenOdd (∣ x) t
+evalFilterEvenOdd (∣ (suc x)) ((s , nay _) ∷ t) = evalFilterEvenOdd (∣ x) t
 evalFilterEvenOdd (s +' s₁) t =
     mod+mod≡mod 2 (⟦ s ⟧ (map fst t)) (⟦ s₁ ⟧ (map fst t))
   ∙ cong₂ (λ x y → (x + y) mod 2)
@@ -242,12 +240,14 @@ solveIsOdd s t {u = u} =
     (solveWithConstraints s 1 t {u})
 
 -- example: the expression r + (3 · p + 2 · q) is odd whenever p and r are
-module _ (p q r : ℕ) (odp : isOddT p) (odr : isOddT r) where
-  exp : Expr 3
-  exp = ∣ two +' ((K 3 ·' ∣ zero) +' (K 2 ·' ∣ one))
+-- (and the status of q is unknown)
+private
+  module _ (p q r : ℕ) (odp : isOddT p) (odr : isOddT r) where
+    exp : Expr 3
+    exp = ∣ two +' ((K 3 ·' ∣ zero) +' (K 2 ·' ∣ one))
 
-  exp≡ : isEvenT (r + (3 · p + 2 · q))
-  exp≡ = solveIsEven exp
-      ((p , nope odp)
-    ∷ (q , ？)
-    ∷ (r , nope odr) ∷ [])
+    exp≡ : isEvenT (r + (3 · p + 2 · q))
+    exp≡ = solveIsEven exp
+        ((p , nay odp)
+      ∷ (q , ？)
+      ∷ (r , nay odr) ∷ [])

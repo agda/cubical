@@ -323,4 +323,3 @@ JacobiΣR' {ℓ = ℓ} {ℓ'} {ℓ''} {ℓ'''} A A' =
     λ C C' → Equiv∙J (λ C eC → {D : Pointed ℓ'''}
            → JacobiΣRTy (Susp∙ (typ A')) (Susp∙ (typ B')) C {D})
     (JacobiΣR A' B' C')
-  

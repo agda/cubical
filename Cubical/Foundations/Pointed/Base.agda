@@ -43,6 +43,11 @@ iter∙ k f .fst = iter k (fst f)
 iter∙ zero f .snd = refl
 iter∙ (suc k) f .snd = cong (fst f) (iter∙ k f .snd) ∙ snd f
 
+subst∙ : ∀ {ℓ ℓA} {X : Type ℓ} (A : X → Pointed ℓA)
+  → {x y : X} (p : x ≡ y) → A x →∙ A y
+subst∙ A p .fst = subst (fst ∘ A) p
+subst∙ A p .snd i = transp (λ j → fst (A (p (i ∨ j)))) i (pt (A (p i)))
+
 infix 3 _≃∙_
 {-Pointed equivalences -}
 _≃∙_ : (A : Pointed ℓ) (B : Pointed ℓ') → Type (ℓ-max ℓ ℓ')
