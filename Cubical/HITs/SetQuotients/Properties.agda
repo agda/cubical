@@ -23,7 +23,6 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
-open RelIso using () --renaming (inv to inv'/R ; fun to fun/R')
 
 open import Cubical.HITs.TypeQuotients as TypeQuot using (_/ₜ_ ; [_] ; eq/)
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
