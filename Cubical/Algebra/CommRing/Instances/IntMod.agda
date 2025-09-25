@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 module Cubical.Algebra.CommRing.Instances.IntMod where
 

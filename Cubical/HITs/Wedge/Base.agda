@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Wedge.Base where
 
 open import Cubical.Foundations.Prelude
@@ -25,6 +24,18 @@ A ⋁∙ᵣ B = (A ⋁ B) , (inr (snd B))
 
 ⋁gen∙ : ∀ {ℓ ℓ'} (A : Type ℓ) (B : A → Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')
 ⋁gen∙ A B = ⋁gen A B , inl tt
+
+-- Projections
+module _ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} where
+  proj⋁ₗ : A ⋁ B → fst A
+  proj⋁ₗ (inl x) = x
+  proj⋁ₗ (inr x) = pt A
+  proj⋁ₗ (push a i) = pt A
+
+  proj⋁ᵣ : A ⋁ B → fst B
+  proj⋁ᵣ (inl x) = pt B
+  proj⋁ᵣ (inr x) = x
+  proj⋁ᵣ (push a i) = pt B
 
 -- Wedge sums of functions
 _∨→_ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}

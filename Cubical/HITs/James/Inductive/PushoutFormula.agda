@@ -8,7 +8,6 @@ This file contains:
   Easy, almost direct consequences of the very definition.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.James.Inductive.PushoutFormula where
 
 open import Cubical.Foundations.Prelude

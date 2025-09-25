@@ -22,7 +22,6 @@ This file proves a variety of basic results about paths:
 - Biimplication
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Prelude where
 
 open import Cubical.Core.Primitives public

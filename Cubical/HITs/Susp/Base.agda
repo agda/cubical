@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Susp.Base where
 
 open import Cubical.Foundations.Prelude
@@ -10,6 +9,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Data.Unit
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty
+open import Cubical.Data.Nat
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2.Base
@@ -49,6 +49,23 @@ suspFun↑ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
 suspFun↑ b f north = b
 suspFun↑ b f south = b
 suspFun↑ b f (merid a i) = f a i
+
+-- Iterated suspensions
+Susp^ : ℕ → Type ℓ → Type ℓ
+Susp^ 0 X = X
+Susp^ (suc n) X = Susp^ n (Susp X)
+
+Susp^' : ℕ → Type ℓ → Type ℓ
+Susp^' zero x = x
+Susp^' (suc n) x = Susp (Susp^' n x)
+
+Susp^'≡Susp^ : (n : ℕ) {A : Type ℓ} → Susp^' n A ≡ Susp^ n A
+Susp^'≡Susp^ zero {A = A} = refl
+Susp^'≡Susp^ (suc n) {A = A} = lem n ∙ Susp^'≡Susp^ n {A = Susp A}
+  where
+  lem : (n : ℕ) → Susp (Susp^' n A) ≡ Susp^' n (Susp A)
+  lem zero = refl
+  lem (suc n) = cong Susp (lem n)
 
 UnitIsoSuspUnit : Iso Unit (Susp Unit)
 fun UnitIsoSuspUnit _ = north

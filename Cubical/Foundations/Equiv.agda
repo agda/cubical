@@ -14,7 +14,6 @@ There are more statements about equivalences in Equiv/Properties.agda:
 - if f is an equivalence then postcomposition with f is an equivalence
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv where
 
 open import Cubical.Foundations.Function

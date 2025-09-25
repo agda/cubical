@@ -5,7 +5,6 @@ This file contains:
 - Definition of set quotients
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.SetQuotients.Base where
 
 open import Cubical.Core.Primitives

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.Fin.Recursive.Base where
 

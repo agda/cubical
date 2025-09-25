@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 {-
 This file contains a definition of the n-level axiom of coice,

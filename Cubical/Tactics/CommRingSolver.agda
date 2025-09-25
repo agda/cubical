@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   See CommRingSolver/Examples.agda for usage.
 

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Cohomology.EilenbergMacLane.Rings.RPinf where
 
 open import Cubical.Foundations.Prelude
@@ -38,7 +38,7 @@ open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.IntMod
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly
 open import Cubical.Algebra.Monoid.Instances.Nat
 
 open Iso

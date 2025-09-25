@@ -1,4 +1,4 @@
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Data.Nat.Base where
 
 open import Agda.Builtin.Nat public

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.HITs.SequentialColimit.Base where
 
 open import Cubical.Foundations.Prelude
@@ -34,3 +34,8 @@ realiseSequenceMap : {C : Sequence ℓ} {D : Sequence ℓ'}
 realiseSequenceMap (sequencemap map comm) (incl x) = incl (map _ x)
 realiseSequenceMap (sequencemap map comm) (push {n = n} x i) =
   (push (map n x) ∙ λ i → incl (comm n x i)) i
+
+LiftSequence : ∀ {ℓA} (ℓ↑ : Level) (S : Sequence ℓA) →
+  Sequence (ℓ-max ℓA ℓ↑)
+obj (LiftSequence ℓ↑ S) n = Lift {j = ℓ↑} (obj S n)
+map (LiftSequence ℓ↑ S) = liftFun (map S)

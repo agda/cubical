@@ -3,7 +3,6 @@
   just a category.
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.DisplayOverTerminal where
 
 open import Cubical.Foundations.Prelude

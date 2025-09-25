@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 module Cubical.HITs.SphereBouquet.Degree where
 
@@ -41,6 +41,8 @@ open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.Properties
+
+open import Cubical.Homotopy.Group.Base
 
 private
   variable
@@ -489,3 +491,51 @@ bouquetDegreeComp∙ {n = zero} {m} {k = k} {l = l} f g =
   ∙ cong fst (cong₂ compGroupHom (sym (bouquetDegreeSusp (fst g)))
                                  (sym (bouquetDegreeSusp (fst f)))))
 bouquetDegreeComp∙ {n = suc n} = bouquetDegreeComp∙Suc
+
+bouquetDegree∙Π : (n m k : ℕ)
+  (f g : SphereBouquet∙ (suc n) (Fin m) →∙ SphereBouquet∙ (suc n) (Fin k))
+  → bouquetDegree (SphereBouquet∙Π f g .fst)
+   ≡ addGroupHom ℤ[Fin m ] ℤ[Fin k ] (bouquetDegree (fst f)) (bouquetDegree (fst g))
+bouquetDegree∙Π n m k f g =
+  agreeOnℤFinGenerator→≡
+    λ s → funExt λ y → (sym (isGeneratorℤFinGenerator' _ s)
+      ∙ cong (degree (suc n)) (funExt (main n s y f g))
+       ∙ degreeHom {n = n}
+         ((λ x₁ → pickPetal y (fst f (inr (s , x₁))))
+                 , cong (pickPetal y) (cong (fst f) (sym (push s)) ∙ snd f))
+         ((λ x₁ → pickPetal y (fst g (inr (s , x₁))))
+                 , cong (pickPetal y) (cong (fst g) (sym (push s)) ∙ snd g))
+      ∙ isGeneratorℤFinGenerator' _ s
+      ∙ cong sumFinℤ (funExt λ x →
+        ·DistR+ (ℤFinGenerator s x)
+                (degree (suc n) (λ x₁ → pickPetal y (fst f (inr (x , x₁)))))
+                (degree (suc n) (λ x₁ → pickPetal y (fst g (inr (x , x₁))))))
+      ∙ sumFinℤHom _ _) --
+  where
+  main : (n : ℕ) (s : Fin m) (y : _)
+    (f g : SphereBouquet∙ (suc n) (Fin m)
+     →∙ SphereBouquet∙ (suc n) (Fin k)) (x : S₊ (suc n))
+     → pickPetal y (SphereBouquet∙Π f g .fst (inr (s , x)))
+    ≡ (∙Π ((λ x₁ → pickPetal y (fst f (inr (s , x₁)))) ,
+           (λ i → pickPetal y (((λ i₁ → fst f (push s (~ i₁))) ∙ snd f) i)))
+          ((λ x₁ → pickPetal y (fst g (inr (s , x₁)))) ,
+           (λ i → pickPetal y (((λ i₁ → fst g (push s (~ i₁))) ∙ snd g) i)))
+           .fst x)
+  main zero s y f g base = refl
+  main zero s y f g (loop i) = refl
+  main (suc n) s y f g north = refl
+  main (suc n) s y f g south = refl
+  main (suc n) s y f g (merid a i) j = lem j i
+    where
+    lem : cong (pickPetal y) (cong (λ x → SphereBouquet∙Π f g .fst (inr (s , x)))
+                                   (merid a))
+        ≡ (sym (cong (pickPetal y) ((λ i₁ → fst f (push s (~ i₁))) ∙ snd f))
+          ∙∙ cong (pickPetal y) (cong (λ x → fst f (inr (s , x))) (σS a))
+          ∙∙ cong (pickPetal y) ((λ i₁ → fst f (push s (~ i₁))) ∙ snd f))
+        ∙ (sym (cong (pickPetal y) ((λ i₁ → fst g (push s (~ i₁))) ∙ snd g))
+          ∙∙ cong (pickPetal y) (cong (λ x → fst g (inr (s , x))) (σS a))
+          ∙∙ cong (pickPetal y) ((λ i₁ → fst g (push s (~ i₁))) ∙ snd g))
+    lem = (cong-∙ (pickPetal y) _ _
+      ∙ cong₂ _∙_
+        (cong-∙∙ (pickPetal y) (sym ((λ i₁ → fst f (push s (~ i₁))) ∙ snd f)) _ _)
+        (cong-∙∙ (pickPetal y) (sym ((λ i₁ → fst g (push s (~ i₁))) ∙ snd g)) _ _))

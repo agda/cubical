@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Functor.Base where
 
 open import Cubical.Foundations.Powerset

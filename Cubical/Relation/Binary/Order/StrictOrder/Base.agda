@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   Strict orders are linear orders that aren't connected,
   or a quasiorder with comparison

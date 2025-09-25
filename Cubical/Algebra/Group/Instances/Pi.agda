@@ -1,11 +1,13 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Instances.Pi where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Morphisms
 
 open IsGroup
 open GroupStr
@@ -30,3 +32,21 @@ module _ {ℓ ℓ' : Level} {X : Type ℓ} (G : X → Group ℓ') where
     funExt λ x → ·InvR (isGroup (snd (G x))) (f x)
   ·InvL (isGroup (snd ΠGroup)) f =
     funExt λ x → ·InvL (isGroup (snd (G x))) (f x)
+
+ΠGroupHom : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {G : A → Group ℓ'} {H : A → Group ℓ''}
+  → ((a : _) → GroupHom (G a) (H a))
+  → GroupHom (ΠGroup G) (ΠGroup H)
+fst (ΠGroupHom fam) f a = fst (fam a) (f a)
+snd (ΠGroupHom fam) =
+  makeIsGroupHom λ f g
+    → funExt λ a → IsGroupHom.pres· (snd (fam a)) _ _
+
+ΠGroupIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {G : A → Group ℓ'} {H : A → Group ℓ''}
+  → ((a : _) → GroupIso (G a) (H a))
+  → GroupIso (ΠGroup G) (ΠGroup H)
+Iso.fun (fst (ΠGroupIso fam)) = fst (ΠGroupHom λ a → GroupIso→GroupHom (fam a))
+Iso.inv (fst (ΠGroupIso fam)) =
+  fst (ΠGroupHom λ a → GroupIso→GroupHom (invGroupIso (fam a)))
+Iso.rightInv (fst (ΠGroupIso fam)) f = funExt λ x → Iso.rightInv (fst (fam x)) _
+Iso.leftInv (fst (ΠGroupIso fam)) f = funExt λ x → Iso.leftInv (fst (fam x)) _
+snd (ΠGroupIso fam) = snd (ΠGroupHom λ a → GroupIso→GroupHom (fam a))

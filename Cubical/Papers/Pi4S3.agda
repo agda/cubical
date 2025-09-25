@@ -11,7 +11,7 @@ Formalizing π₄(S³) ≅ ℤ/2ℤ and Computing a Brunerie Number in Cubical A
 
 -- The "--safe" flag ensures that there are no postulates or
 -- unfinished goals
-{-# OPTIONS --safe --cubical #-}
+{-# OPTIONS --cubical #-}
 
 module Cubical.Papers.Pi4S3 where
 

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.DistLattice.Downset where
 
 open import Cubical.Foundations.Prelude

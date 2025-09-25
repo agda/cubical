@@ -1,7 +1,6 @@
 -- define ⋁ and ⋀ as the bigOps of a DistLattice when interpreted
 -- as a join/meet semilattice
 
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.DistLattice.BigOps where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.ZCohomology.CohomologyRings.Coproduct where
 
 open import Cubical.Foundations.Prelude

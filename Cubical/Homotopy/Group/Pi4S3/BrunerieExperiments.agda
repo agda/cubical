@@ -4,7 +4,6 @@ branch of cubicaltt It also contains a computation of a simplified
 version of the Brunerie number, motivated in
 Cubical.Homotopy.Group.Pi4S3.DirectProof.
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Homotopy.Group.Pi4S3.BrunerieExperiments where
 
 open import Cubical.Foundations.Prelude
