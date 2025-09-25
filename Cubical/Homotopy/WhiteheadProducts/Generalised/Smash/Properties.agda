@@ -1,4 +1,9 @@
 {-# OPTIONS --safe --lossy-unification #-}
+
+{- This file contians proof of bilinearity/commutativity/jacobi and
+some other basic properties of the smash product construction of
+generalised Whitehead products.-}
+
 module Cubical.Homotopy.WhiteheadProducts.Generalised.Smash.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -18,6 +23,7 @@ open import Cubical.HITs.Join
 open import Cubical.HITs.Join.CoHSpace
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.SmashProduct
+open import Cubical.HITs.SmashProduct.SymmetricMonoidal
 
 open import Cubical.Homotopy.WhiteheadProducts.Generalised.Smash.Base
 open import Cubical.Homotopy.WhiteheadProducts.Generalised.Join.Base
@@ -323,3 +329,37 @@ JacobiΣR' {ℓ = ℓ} {ℓ'} {ℓ''} {ℓ'''} A A' =
     λ C C' → Equiv∙J (λ C eC → {D : Pointed ℓ'''}
            → JacobiΣRTy (Susp∙ (typ A')) (Susp∙ (typ B')) C {D})
     (JacobiΣR A' B' C')
+
+-- Other properties
+whΣ-postCompR : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+  → {B' : Pointed ℓ'} → (e : B' ≃∙ B)
+  → (f : Susp∙ (typ A) →∙ C) (g : Susp∙ (typ B) →∙ C)
+  → (·whΣ A B' f (g ∘∙ suspFun∙ (fst (fst e))))
+   ≡ (·whΣ A B f g ∘∙ suspFun∙ (idfun∙ A ⋀→ ≃∙map e))
+whΣ-postCompR {A = A} {B} {C} {B'} =
+  Equiv∙J (λ B' e → (f : Susp∙ (typ A) →∙ C) (g : Susp∙ (typ B) →∙ C)
+  → (·whΣ A B' f (g ∘∙ suspFun∙ (fst (fst e))))
+   ≡ (·whΣ A B f g ∘∙ suspFun∙ (idfun∙ A ⋀→ ≃∙map e)))
+   λ f g → cong (·whΣ A B f)
+             (cong (g ∘∙_) (ΣPathP (suspFunIdFun , refl)) ∙ ∘∙-idˡ g)
+          ∙ (sym (∘∙-idˡ (·whΣ A B f g)))
+          ∙ cong₂ _∘∙_ refl
+              (sym (ΣPathP (suspFunIdFun , refl))
+              ∙ cong suspFun∙ (sym
+                 (cong fst ⋀→∙-idfun)))
+
+whΣ-postCompL : ∀ {ℓ ℓ' ℓ''} {A A' : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+  (e : A' ≃∙ A)
+  (f : Susp∙ (typ A) →∙ C) (g : Susp∙ (typ B) →∙ C)
+  → ·whΣ A' B (f ∘∙ suspFun∙ (fst (fst e))) g
+  ≡ (·whΣ A B f g ∘∙ suspFun∙ (≃∙map e ⋀→ idfun∙ B))
+whΣ-postCompL {A = A} {B} {C} {B'} =
+  Equiv∙J (λ B e → (f : Susp∙ (typ A) →∙ B')
+      (g : Susp∙ (typ C) →∙ B') →
+      ·whΣ B C (f ∘∙ suspFun∙ (fst (fst e))) g ≡
+      (·whΣ A C f g ∘∙ suspFun∙ (≃∙map e ⋀→ idfun∙ C)))
+    λ f g → cong₂ (·whΣ A C) (cong (f ∘∙_) suspFun∙IdFun ∙ ∘∙-idˡ f) refl
+           ∙ sym (∘∙-idˡ _)
+           ∙ cong₂ _∘∙_ refl (sym
+              (cong suspFun∙ (cong fst ⋀→∙-idfun)
+              ∙ suspFun∙IdFun))
