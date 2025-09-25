@@ -11,8 +11,6 @@ open import Cubical.Data.Nat hiding (_·_)
 open import Cubical.Data.Sum
 open import Cubical.Data.Nat.IsEven
 
-
-
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid.Base
 
