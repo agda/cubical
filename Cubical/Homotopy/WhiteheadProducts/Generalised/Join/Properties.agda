@@ -1,6 +1,9 @@
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Homotopy.WhiteheadProducts.Generalised.Join.Properties where
 
+{- This file contians proof of bilinearity/commutativity/jacobi and
+some other basic properties of generalised Whitehead products.-}
+
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Path
