@@ -15,6 +15,7 @@ open import Cubical.Categories.Functor.Properties
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.NaturalTransformation.Base
+open import Cubical.Categories.Thin
 
 private
   variable
@@ -192,3 +193,5 @@ inv congNatIso^opFiso = _
 rightInv congNatIso^opFiso _ = refl
 leftInv congNatIso^opFiso _ = refl
 
+isThin→isPropNatTrans : ∀ {F G : Functor C D} → isThin D → isProp (NatTrans F G)
+isThin→isPropNatTrans thinD μ ν = makeNatTransPath (isPropΠ (λ x → thinD _ _) _ _)
