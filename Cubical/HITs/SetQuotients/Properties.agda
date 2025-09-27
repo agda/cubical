@@ -380,6 +380,10 @@ retract/R→section/R : {A : Type ℓ} {B : Type ℓ'} {R : A → A → Type ℓ
   section/R {iso/r = iso/r} 
 retract/R→section/R {R = R} {equivRel reflexive symmetric transitive} {iso/r = iso/r} b = iso/r .leftInv/R (iso/r .inv/R b)
 
+-- Iso/R is a RelIso
+Iso/R→RelIso : {A : Type ℓ} {A' : Type ℓ'} {R : A → A → Type ℓ}{ER : isEquivRel R} → (iso/r : Iso/R A A' {R} ER) → RelIso {A = A} R {A' = A'} (R* {iso/r = iso/r})
+Iso/R→RelIso (iso/R fun/R₁ inv/R₁ leftInv/R₁) = reliso fun/R₁ inv/R₁ (λ a' → leftInv/R₁ (inv/R₁ a')) leftInv/R₁
+
 -- A 'natural' isomorphism/R when A ≡ B:
 iso/R-A≡B : {A : Type ℓ} {B : Type ℓ} {R : A → A → Type ℓ}{ER : isEquivRel R} → (AB : A ≡ B) → Iso/R A B ER
 iso/R-A≡B {ℓ} {A}{B}{R} ER@{equivRel reflexive symmetric transitive} AB .fun/R = λ z → transport AB z
