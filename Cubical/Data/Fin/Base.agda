@@ -36,7 +36,7 @@ private
 
 fzero : Fin (suc k)
 -- fzero = (0 , suc-≤-suc zero-≤)
-fzero = (0 ,  tt)
+fzero = (zero , tt)
 
 fone : Fin (suc (suc k))
 -- fone = (1 , suc-≤-suc (suc-≤-suc zero-≤))
@@ -52,10 +52,9 @@ fsuc : Fin k → Fin (suc k)
 -- fsuc (k , l) = (suc k , suc-≤-suc l)
 fsuc (k , l) = (suc k , l)
 
-finj : Fin k → Fin (suc k)
+finj : {n : ℕ} → Fin k → Fin (suc k)
 -- finj (k , l) = k , ≤-trans l (1 , refl)
--- finj (k , l) = (k , <ᵗ-trans-suc l) -- Why doesn′t this work??
-finj (k , l) = {!   !}
+finj (k , l) = (k , <ᵗ-trans-suc {n = k} l)
 
 -- predecessors too
 predFin : (m : ℕ) → Fin (suc (suc m)) → Fin (suc m)
@@ -69,34 +68,40 @@ toℕ : Fin k → ℕ
 toℕ = fst
 
 -- ... and injective.
-toℕ-injective : ∀{fj fk : Fin k} → toℕ fj ≡ toℕ fk → fj ≡ fk
+-- toℕ-injective : ∀{fj fk : Fin k} → toℕ fj ≡ toℕ fk → fj ≡ fk
 -- toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → isProp≤)
+-- toℕ-injective {fj = fj} {fk} = {!   !}
 
--- -- Conversion from ℕ with a recursive definition of ≤
+-- Conversion from ℕ with a recursive definition of ≤
 
--- fromℕ≤ : (m n : ℕ) → m ≤′ n → Fin (suc n)
--- fromℕ≤ zero    _       _    = fzero
--- fromℕ≤ (suc m) (suc n) m≤n = fsuc (fromℕ≤ m n m≤n)
+fromℕ≤ : (m n : ℕ) → m ≤′ n → Fin (suc n)
+fromℕ≤ zero    _       _    = fzero
+fromℕ≤ (suc m) (suc n) m≤n = fsuc (fromℕ≤ m n m≤n)
 
--- -- A case analysis helper for induction.
+-- A case analysis helper for induction.
 -- fsplit
 --   : ∀(fj : Fin (suc k))
 --   → (fzero ≡ fj) ⊎ (Σ[ fk ∈ Fin k ] fsuc fk ≡ fj)
 -- fsplit (0 , k<sn) = inl (toℕ-injective refl)
 -- fsplit (suc k , k<sn) = inr ((k , pred-≤-pred k<sn) , toℕ-injective refl)
 
--- inject< : ∀ {m n} (m<n : m < n) → Fin m → Fin n
+inject< : ∀ {m n} (m<n : m < n) → Fin m → Fin n
 -- inject< m<n (k , k<m) = k , <-trans k<m m<n
+inject< {m = m} {n = n} m<n (k , k<m) = k , <ᵗ-trans {n = k} {m = m} {k = n} k<m (<→<ᵗ m<n)
+-- inject< : ∀ {m n} (m<n : m <ᵗ n) → Fin m → Fin n
+-- inject< {m = m} {n = n} m<n (k , k<m) = k , <ᵗ-trans {n = k} {m = m} {k = n} k<m m<n
 
--- injectSuc : {n : ℕ} → Fin n → Fin (suc n)
--- injectSuc {n = n} = inject< (0 , refl)
+injectSuc : {n : ℕ} → Fin n → Fin (suc n)
+injectSuc {n = n} = inject< (0 , refl)
 
--- flast : Fin (suc k)
+flast : {k : ℕ} → Fin (suc k)
 -- flast {k = k} = k , suc-≤-suc ≤-refl
+flast {k = k} = k , <ᵗsucm {k}
 
--- -- Fin 0 is empty
--- ¬Fin0 : ¬ Fin 0
+-- Fin 0 is empty
+¬Fin0 : ¬ Fin 0
 -- ¬Fin0 (k , k<0) = ¬-<-zero k<0
+¬Fin0 (k , k<0) = k<0
 
 -- -- The full inductive family eliminator for finite types.
 -- elim
