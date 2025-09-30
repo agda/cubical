@@ -69,8 +69,8 @@ toℕ = fst
 
 -- ... and injective.
 -- toℕ-injective : ∀{fj fk : Fin k} → toℕ fj ≡ toℕ fk → fj ≡ fk
--- toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → isProp≤)
--- toℕ-injective {fj = fj} {fk} = {!   !}
+-- -- toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → isProp≤)
+-- toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → isProp<ᵗ)
 
 -- Conversion from ℕ with a recursive definition of ≤
 
@@ -83,13 +83,12 @@ fromℕ≤ (suc m) (suc n) m≤n = fsuc (fromℕ≤ m n m≤n)
 --   : ∀(fj : Fin (suc k))
 --   → (fzero ≡ fj) ⊎ (Σ[ fk ∈ Fin k ] fsuc fk ≡ fj)
 -- fsplit (0 , k<sn) = inl (toℕ-injective refl)
--- fsplit (suc k , k<sn) = inr ((k , pred-≤-pred k<sn) , toℕ-injective refl)
+-- -- fsplit (suc k , k<sn) = inr ((k , pred-≤-pred k<sn) , toℕ-injective refl)
+-- fsplit (suc k , k<sn) = inr ((k , k<sn) , toℕ-injective refl)
 
 inject< : ∀ {m n} (m<n : m < n) → Fin m → Fin n
 -- inject< m<n (k , k<m) = k , <-trans k<m m<n
 inject< {m = m} {n = n} m<n (k , k<m) = k , <ᵗ-trans {n = k} {m = m} {k = n} k<m (<→<ᵗ m<n)
--- inject< : ∀ {m n} (m<n : m <ᵗ n) → Fin m → Fin n
--- inject< {m = m} {n = n} m<n (k , k<m) = k , <ᵗ-trans {n = k} {m = m} {k = n} k<m m<n
 
 injectSuc : {n : ℕ} → Fin n → Fin (suc n)
 injectSuc {n = n} = inject< (0 , refl)
@@ -133,38 +132,42 @@ flast {k = k} = k , <ᵗsucm {k}
 --     ... | inl x≡0 = inl (subst P (sym x≡0) Px)
 --     ... | inr (k , x≡sk) = inr (k , subst P (sym x≡sk) Px)
 
--- FinPathℕ : {n : ℕ} (x : Fin n) (y : ℕ) → fst x ≡ y → Σ[ p ∈ _ ] (x ≡ (y , p))
+FinPathℕ : {n : ℕ} (x : Fin n) (y : ℕ) → fst x ≡ y → Σ[ p ∈ _ ] (x ≡ (y , p))
 -- FinPathℕ {n = n} x y p =
 --     ((fst (snd x)) , (cong (λ y → fst (snd x) + y) (cong suc (sym p)) ∙ snd (snd x)))
 --   , (Σ≡Prop (λ _ → isProp≤) p)
+FinPathℕ {n = n} x y p = ({!  !} , {! !})
 
--- FinVec : (A : Type ℓ) (n : ℕ) → Type ℓ
--- FinVec A n = Fin n → A
+FinVec : (A : Type ℓ) (n : ℕ) → Type ℓ
+FinVec A n = Fin n → A
 
--- FinFamily : (n : ℕ) (ℓ : Level) → Type (ℓ-suc ℓ)
--- FinFamily n ℓ = FinVec (Type ℓ) n
+FinFamily : (n : ℕ) (ℓ : Level) → Type (ℓ-suc ℓ)
+FinFamily n ℓ = FinVec (Type ℓ) n
 
--- FinFamily∙ : (n : ℕ) (ℓ : Level) → Type (ℓ-suc ℓ)
--- FinFamily∙ n ℓ = FinVec (Pointed ℓ) n
+FinFamily∙ : (n : ℕ) (ℓ : Level) → Type (ℓ-suc ℓ)
+FinFamily∙ n ℓ = FinVec (Pointed ℓ) n
 
--- predFinFamily : {n : ℕ} → FinFamily (suc n) ℓ → FinFamily n ℓ
+predFinFamily : {n : ℕ} → FinFamily (suc n) ℓ → FinFamily n ℓ
 -- predFinFamily A n = A (finj n)
+predFinFamily A n = {!   !}
 
--- predFinFamily∙ : {n : ℕ} → FinFamily∙ (suc n) ℓ → FinFamily∙ n ℓ
--- fst (predFinFamily∙ A x) = predFinFamily (fst ∘ A) x
+predFinFamily∙ : {n : ℕ} → FinFamily∙ (suc n) ℓ → FinFamily∙ n ℓ
+fst (predFinFamily∙ A x) = predFinFamily (fst ∘ A) x
 -- snd (predFinFamily∙ A x) = snd (A _)
+snd (predFinFamily∙ A x) = {!   !}
 
--- prodFinFamily : (n : ℕ) → FinFamily (suc n) ℓ → Type ℓ
--- prodFinFamily zero A = A fzero
--- prodFinFamily (suc n) A = prodFinFamily n (predFinFamily A) × A flast
+prodFinFamily : (n : ℕ) → FinFamily (suc n) ℓ → Type ℓ
+prodFinFamily zero A = A fzero
+prodFinFamily (suc n) A = prodFinFamily n (predFinFamily A) × A flast
 
--- prodFinFamily∙ : (n : ℕ) → FinFamily∙ (suc n) ℓ → Pointed ℓ
--- fst (prodFinFamily∙ n A) = prodFinFamily n (fst ∘ A)
--- snd (prodFinFamily∙ zero A) = snd (A fzero)
--- snd (prodFinFamily∙ (suc n) A) =
---   snd (prodFinFamily∙ n (predFinFamily∙ A)) , snd (A flast)
+prodFinFamily∙ : (n : ℕ) → FinFamily∙ (suc n) ℓ → Pointed ℓ
+fst (prodFinFamily∙ n A) = prodFinFamily n (fst ∘ A)
+snd (prodFinFamily∙ zero A) = snd (A fzero)
+snd (prodFinFamily∙ (suc n) A) =
+  snd (prodFinFamily∙ n (predFinFamily∙ A)) , snd (A flast)
 
--- -- summation
--- sumFinGen : ∀ {ℓ} {A : Type ℓ} {n : ℕ} (_+_ : A → A → A) (0A : A) (f : Fin n → A) → A
--- sumFinGen {n = zero} _+_ 0A f = 0A
+-- summation
+sumFinGen : ∀ {ℓ} {A : Type ℓ} {n : ℕ} (_+_ : A → A → A) (0A : A) (f : Fin n → A) → A
+sumFinGen {n = zero} _+_ 0A f = 0A
 -- sumFinGen {n = suc n} _+_ 0A f = f flast + sumFinGen _+_ 0A (f ∘ injectSuc)
+sumFinGen {n = suc n} _+_ 0A f = {!   !}
