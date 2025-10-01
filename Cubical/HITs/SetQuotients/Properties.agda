@@ -653,5 +653,3 @@ quotientEqualityLemma4 {ℓ} {A}{B}{R}{R'}{ER} iso/r R'→R R→R' =
       step1 : (A / R) ≡ (B / R* {iso/r = iso/r})
       step1 = quotientEqualityLemma {ℓ}{A}{B}{R}{ER}{iso/r}
 
-
-
