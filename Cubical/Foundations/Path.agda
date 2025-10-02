@@ -151,6 +151,17 @@ isProp→isContrPathP : {A : I → Type ℓ} → (∀ i → isProp (A i))
                     → isContr (PathP A x y)
 isProp→isContrPathP h x y = isProp→PathP h x y , isProp→isPropPathP h x y _
 
+-- A useful lemma for proving that a path is trivial
+triangle→≡refl : {x : A} {p : x ≡ x}
+                → Square refl p p p
+                → p ≡ refl
+triangle→≡refl {x = x} {p} sq i j = hcomp (λ k → λ where
+    (i = i0) → p j
+    (i = i1) → p k
+    (j = i0) → p (~ i ∨ k)
+    (j = i1) → p (~ i ∨ k)
+  ) (sq (~ i) j)
+
 -- Flipping a square along its diagonal
 
 flipSquare : {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
