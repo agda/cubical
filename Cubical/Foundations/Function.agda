@@ -182,4 +182,3 @@ homotopyIdComm {f = f} H a i j = hcomp (λ k → λ where
     (j = i0) → f (H a (~ k ∧ ~ i))
     (j = i1) → H a (~ k)
   ) (H (H a (~ i ∨ j)) j)
- 
