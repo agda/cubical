@@ -213,14 +213,23 @@ isOfHLevelMin→isOfHLevel {n = suc n} {m = zero} h = (isContr→isOfHLevel (suc
 isOfHLevelMin→isOfHLevel {A = A} {n = suc n} {m = suc m} h =
     subst (λ x → isOfHLevel x A) (helper n m)
           (isOfHLevelPlus (suc n ∸ (suc (min n m))) h)
-  , subst (λ x → isOfHLevel x A) ((λ i → m ∸ (minComm n m i) + suc (minComm n m i)) ∙ helper m n)
+  , subst (λ x → isOfHLevel x A) ((λ i → m ∸ (minComm n m i) + (minComm (suc n) (suc m) i)) ∙ helper m n)
           (isOfHLevelPlus (suc m ∸ (suc (min n m))) h)
   where
-  helper : (n m : ℕ) → n ∸ min n m + suc (min n m) ≡ suc n
+  helper : (n m : ℕ) → n ∸ min n m + min (suc n) (suc m) ≡ suc n
   helper zero zero = refl
   helper zero (suc m) = refl
   helper (suc n) zero = cong suc (+-comm n 1)
-  helper (suc n) (suc m) = +-suc _ _ ∙ cong suc (helper n m)
+  helper (suc n) (suc m) =
+    suc n ∸ min (suc n) (suc m) + min (suc (suc n)) (suc (suc m)) ≡⟨ step0 ⟩
+    suc n ∸ suc (min n m) + suc (min (suc n) (suc m))             ≡⟨⟩
+    n ∸ min n m + suc (min (suc n) (suc m))                       ≡⟨ step1 ⟩
+    suc (n ∸ min n m + min (suc n) (suc m))                       ≡⟨ step2 ⟩
+    suc (suc n)                                                   ∎
+    where
+      step0 = cong₂ (λ p → suc n ∸ p +_) (minSuc {n}) minSuc
+      step1 = +-suc _ _
+      step2 = cong suc (helper n m)
 
 ΣTruncElim : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {n m : ℕ}
              {B : (x : ∥ A ∥ n) → Type ℓ'}
@@ -228,9 +237,9 @@ isOfHLevelMin→isOfHLevel {A = A} {n = suc n} {m = suc m} h =
              → ((x : (Σ[ a ∈ (∥ A ∥ n) ] (∥ B a ∥ m))) → isOfHLevel (min n m) (C x))
              → ((a : A) (b : B (∣ a ∣ₕ)) → C (∣ a ∣ₕ , ∣ b ∣ₕ))
              → (x : (Σ[ a ∈ (∥ A ∥ n) ] (∥ B a ∥ m))) → C x
-ΣTruncElim hB g (a , b) =
+ΣTruncElim {n = n} hB g (a , b) =
   elim (λ x → isOfHLevelΠ _ λ b → isOfHLevelMin→isOfHLevel (hB (x , b)) .fst )
-       (λ a → elim (λ _ → isOfHLevelMin→isOfHLevel (hB (∣ a ∣ₕ , _)) .snd) λ b → g a b)
+       (λ a → elim (λ _ → isOfHLevelMin→isOfHLevel {n = n} (hB (∣ a ∣ₕ , _)) .snd) λ b → g a b)
        a b
 
 truncIdempotentIso : (n : ℕ) → isOfHLevel n A → Iso (∥ A ∥ n) A

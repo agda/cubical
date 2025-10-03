@@ -10,6 +10,8 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎
 
+open import Cubical.Data.Bool.Base hiding (_≟_)
+
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
 
@@ -258,22 +260,59 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 left-≤-max : m ≤ max m n
 left-≤-max {zero} {n} = zero-≤
 left-≤-max {suc m} {zero} = ≤-refl
-left-≤-max {suc m} {suc n} = suc-≤-suc left-≤-max
+left-≤-max {suc m} {suc n} = subst (_ ≤_) (sym maxSuc) $ suc-≤-suc $ left-≤-max {m} {n}
 
 right-≤-max : n ≤ max m n
 right-≤-max {zero} {m} = zero-≤
 right-≤-max {suc n} {zero} = ≤-refl
-right-≤-max {suc n} {suc m} = suc-≤-suc right-≤-max
+right-≤-max {suc n} {suc m} = subst (_ ≤_) (sym maxSuc) $ suc-≤-suc $ right-≤-max {n} {m}
 
 min-≤-left : min m n ≤ m
 min-≤-left {zero} {n} = ≤-refl
 min-≤-left {suc m} {zero} = zero-≤
-min-≤-left {suc m} {suc n} = suc-≤-suc min-≤-left
+min-≤-left {suc m} {suc n} = subst (_≤ _) (sym minSuc) $ suc-≤-suc $ min-≤-left {m} {n}
 
 min-≤-right : min m n ≤ n
 min-≤-right {zero} {n} = zero-≤
 min-≤-right {suc m} {zero} = ≤-refl
-min-≤-right {suc m} {suc n} = suc-≤-suc min-≤-right
+min-≤-right {suc m} {suc n} = subst (_≤ _) (sym minSuc) $ suc-≤-suc $ min-≤-right {m} {n}
+
+-- Boolean order relations and their conversions to/from ≤ and <
+
+_≤ᵇ_ : ℕ → ℕ → Bool
+m ≤ᵇ n = m <ᵇ suc n
+
+_≥ᵇ_ : ℕ → ℕ → Bool
+m ≥ᵇ n = n ≤ᵇ m
+
+_>ᵇ_ : ℕ → ℕ → Bool
+m >ᵇ n = n <ᵇ m
+
+private
+  ≤ᵇ-∸-+-cancel : ∀ m n → Bool→Type (m ≤ᵇ n) → (n ∸ m) + m ≡ n
+  ≤ᵇ-∸-+-cancel zero    zero    t = refl
+  ≤ᵇ-∸-+-cancel zero    (suc n) t = +-zero (suc n)
+  ≤ᵇ-∸-+-cancel (suc m) (suc n) t = +-suc (n ∸ m) m ∙ cong suc (≤ᵇ-∸-+-cancel m n t)
+
+<ᵇ→< : Bool→Type (m <ᵇ n) → m < n
+<ᵇ→< {m} {suc n} t .fst = n ∸ m
+<ᵇ→< {m} {suc n} t .snd =
+  n ∸ m + suc m   ≡⟨ +-suc (n ∸ m) m ⟩
+  suc (n ∸ m + m) ≡⟨ cong suc (≤ᵇ-∸-+-cancel m n t) ⟩
+  suc n           ∎
+
+<→<ᵇ : m < n → Bool→Type (m <ᵇ n)
+<→<ᵇ {m}     {zero}  m<0   = ¬-<-zero m<0
+<→<ᵇ {zero}  {suc n} 0<sn  = tt
+<→<ᵇ {suc m} {suc n} sm<sn = <→<ᵇ (pred-≤-pred sm<sn)
+
+≤ᵇ→≤ : Bool→Type (m ≤ᵇ n) → m ≤ n
+≤ᵇ→≤ {zero}  {n}     t = zero-≤
+≤ᵇ→≤ {suc m} {suc n} t = <ᵇ→< t
+
+≤→≤ᵇ : m ≤ n → Bool→Type (m ≤ᵇ n)
+≤→≤ᵇ {zero}  {n} 0≤n  = tt
+≤→≤ᵇ {suc m} {n} sm≤n = <→<ᵇ sm≤n
 
 ≤Dec : ∀ m n → Dec (m ≤ n)
 ≤Dec zero n = yes (n , +-zero _)
@@ -296,11 +335,30 @@ Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)
 Trichotomy-suc (eq m=n) = eq (cong suc m=n)
 Trichotomy-suc (gt n<m) = gt (suc-≤-suc n<m)
 
+private
+  ∸→>ᵇ : ∀ m n → caseNat ⊥.⊥ Unit (m ∸ n) → Bool→Type (m >ᵇ n)
+  ∸→>ᵇ (suc m) zero    t = tt
+  ∸→>ᵇ (suc m) (suc n) t = ∸→>ᵇ m n t
+
 _≟_ : ∀ m n → Trichotomy m n
 zero ≟ zero = eq refl
 zero ≟ suc n = lt (n , +-comm n 1)
 suc m ≟ zero = gt (m , +-comm m 1)
-suc m ≟ suc n = Trichotomy-suc (m ≟ n)
+suc m ≟ suc n with m ∸ n UsingEq | n ∸ m UsingEq
+... | zero  , p | zero  , q = eq (∸≡0→≡ p q)
+... | zero  , p | suc _ , q = lt (<ᵇ→< $ ∸→>ᵇ n m $ subst (caseNat ⊥.⊥ Unit) (sym q) tt)
+... | suc _ , p | zero  , q = gt (<ᵇ→< $ ∸→>ᵇ m n $ subst (caseNat ⊥.⊥ Unit) (sym p) tt)
+... | suc _ , p | suc _ , q = ⊥.rec $ ¬m<m {m} $ <-trans
+  (<ᵇ→< $ ∸→>ᵇ n m $ subst (caseNat ⊥.⊥ Unit) (sym q) tt)
+  (<ᵇ→< $ ∸→>ᵇ m n $ subst (caseNat ⊥.⊥ Unit) (sym p) tt)
+
+--  Alternative version of ≟, defined without builtin primitives
+
+_≟'_ : ∀ m n → Trichotomy m n
+zero ≟' zero = eq refl
+zero ≟' suc n = lt (n , +-comm n 1)
+suc m ≟' zero = gt (m , +-comm m 1)
+suc m ≟' suc n = Trichotomy-suc (m ≟' n)
 
 Dichotomyℕ : ∀ (n m : ℕ) → (n ≤ m) ⊎ (n > m)
 Dichotomyℕ n m with (n ≟ m)
@@ -331,7 +389,10 @@ splitℕ-< m n with m ≟ n
 <-split : m < suc n → (m < n) ⊎ (m ≡ n)
 <-split {n = zero} = inr ∘ snd ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
 <-split {zero} {suc n} = λ _ → inl (suc-≤-suc zero-≤)
-<-split {suc m} {suc n} = ⊎.map suc-≤-suc (cong suc) ∘ <-split ∘ pred-≤-pred
+<-split {suc m} {suc n} sm<ssn with m ≟ n
+... | lt m<n = inl (suc-≤-suc m<n)
+... | eq m≡n = inr (cong suc m≡n)
+... | gt n<m = ⊥.rec $ ¬m<m {suc (suc n)} $ ≤-trans (suc-≤-suc (suc-≤-suc n<m)) sm<ssn
 
 ≤-split : m ≤ n → (m < n) ⊎ (m ≡ n)
 ≤-split p = <-split (suc-≤-suc p)
