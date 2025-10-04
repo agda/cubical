@@ -19,6 +19,7 @@ module Cubical.Foundations.Equiv where
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Foundations.Equiv.Base public
 open import Cubical.Data.Sigma.Base
@@ -323,3 +324,29 @@ isEquiv≃isEquiv' f = isoToEquiv (isEquiv-isEquiv'-Iso f)
 
 -- The fact that funExt is an equivalence can be found in Cubical.Functions.FunExtEquiv
 
+-- characterisation of retract proof produced by isoToEquiv
+retEqIsoToEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+  (is : Iso A B) (x : _)
+    → retEq (isoToEquiv is) x
+     ≡ ((sym (leftInv is (inv is (fun is x)))
+     ∙ cong (inv is) ((rightInv is (fun is x)))))
+     ∙ leftInv is x
+retEqIsoToEquiv is x i j =
+  hcomp (λ k → λ {(i = i1)
+                 → compPath-filler (sym (leftInv is (inv is (fun is x)))
+                                   ∙ cong (inv is) ((rightInv is (fun is x))))
+                                    (leftInv is x) k j
+                  ; (j = i0) → (cong (inv is) (sym (rightInv is (fun is x)))
+                              ∙ leftInv is (inv is (fun is x))) (i ∨ k)
+                  ; (j = i1) → lUnit (leftInv is x) (~ i) k})
+    (lemma j i)
+  where
+  p = sym (symDistr (sym (leftInv is (inv is (fun is x))))
+                        (cong (inv is) (rightInv is (fun is x))))
+
+  lemma : Square (cong (inv is) (sym (rightInv is (fun is x)))
+                ∙ leftInv is (inv is (fun is x)))
+          refl refl
+          (sym (leftInv is (inv is (fun is x)))
+         ∙ cong (inv is) ((rightInv is (fun is x))))
+  lemma = p ◁ λ i j → p i1 (~ i ∧ j)

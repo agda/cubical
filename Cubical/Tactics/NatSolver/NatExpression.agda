@@ -17,6 +17,12 @@ data Expr (n : ℕ) : Type ℓ-zero where
   _+'_ : Expr n → Expr n → Expr n
   _·'_ : Expr n → Expr n → Expr n
 
+Expr↑ : ∀ {n} → Expr n → Expr (suc n)
+Expr↑ (K x) = K x
+Expr↑ (∣ x) = ∣ (suc x)
+Expr↑ (e +' e₁) = Expr↑ e +' Expr↑ e₁
+Expr↑ (e ·' e₁) = Expr↑ e ·' Expr↑ e₁
+
 module Eval where
   open import Cubical.Data.Vec
 

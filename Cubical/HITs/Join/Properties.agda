@@ -455,6 +455,10 @@ join-commFun (inl x) = inr x
 join-commFun (inr x) = inl x
 join-commFun (push a b i) = push b a (~ i)
 
+join-commFun∙ : ∀ {ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} → join∙ A B →∙ join∙ B A
+proj₁ join-commFun∙ = join-commFun
+snd (join-commFun∙ {A = A} {B = B}) = push (pt B) (pt A) ⁻¹
+
 join-commFun² : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'} (x : join A B)
                 → join-commFun (join-commFun x) ≡ x
 join-commFun² (inl x) = refl
@@ -711,3 +715,26 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
   inv GaneaIso = join→GaneaFib
   rightInv GaneaIso = join→GaneaFib→join
   leftInv GaneaIso = GaneaFib→join→GaneaFib
+
+-- Pinch map
+joinPinch : ∀ {ℓ''} {A : Type ℓ} {B : Type ℓ'} (C : Pointed ℓ'')
+  → ((a : A) (b : B) → Ω C .fst) → join A B → fst C
+joinPinch C p (inl x) = pt C
+joinPinch C p (inr x) = pt C
+joinPinch C p (push a b i) = p a b i
+
+joinPinch∙ : ∀ {ℓ''} (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'')
+  → ((a : typ A) (b : typ B) → Ω C .fst) → join∙ A B →∙ C
+proj₁ (joinPinch∙ A B C p) = joinPinch C p
+snd (joinPinch∙ A B C p) = refl
+
+joinPinchComp : ∀ {ℓ ℓ' ℓ'' ℓA ℓB} {X : Pointed ℓ}
+  {A : Type ℓA} {B : Type ℓB}
+  {A' : Type ℓ'} {B' : Type ℓ''}
+  (g : A → A') (h : B → B')
+  → (f : A' → B' → Ω X .fst) (x : join A B)
+  → joinPinch X f (join→ g h x)
+   ≡ joinPinch X (λ a b → f (g a) (h b)) x
+joinPinchComp {X = X} g h f (inl x) = refl
+joinPinchComp {X = X} g h f (inr x) = refl
+joinPinchComp {X = X} g h f (push a b i) = refl

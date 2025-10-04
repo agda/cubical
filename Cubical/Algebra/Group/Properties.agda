@@ -7,6 +7,9 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws hiding (assoc)
 open import Cubical.Data.Sigma
+open import Cubical.Data.Nat hiding (_·_)
+open import Cubical.Data.Sum
+open import Cubical.Data.Nat.IsEven
 
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid.Base
@@ -88,6 +91,27 @@ module GroupTheory (G : Group ℓ) where
           a · b · (inv b) · (inv a) ≡⟨ congR _·_ (·Assoc _ _ _ ∙ congL _·_ (·InvR b)) ⟩
           a · (1g · inv a)          ≡⟨ congR _·_ (·IdL (inv a)) ∙ ·InvR a ⟩
           1g ∎
+
+    -iter-odd+even : (n m : ℕ) (g : fst G)
+      → isEvenT n ≡ isOddT m
+      → GroupStr._·_ (snd G)
+          (iter n (GroupStr.inv (snd G)) g)
+          (iter m (GroupStr.inv (snd G)) g)
+       ≡ GroupStr.1g (snd G)
+    -iter-odd+even n m g p with (evenOrOdd n)
+    ... | inl q = cong₂ (GroupStr._·_ (snd G))
+                        (iterEvenInv (GroupStr.inv (snd G))
+                          invInv n q g)
+                        (iterOddInv (GroupStr.inv (snd G))
+                          invInv m (transport p q) g)
+                ∙ GroupStr.·InvR (snd G) g
+    ... | inr q = cong₂ (GroupStr._·_ (snd G))
+                        (iterOddInv (GroupStr.inv (snd G))
+                          invInv n q g)
+                        (iterEvenInv (GroupStr.inv (snd G))
+                          invInv m
+                            (transport (even≡odd→odd≡even n m p) q) g)
+                ∙ GroupStr.·InvL (snd G) g
 
 congIdLeft≡congIdRight : (_·G_ : G → G → G) (-G_ : G → G)
             (0G : G)

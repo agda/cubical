@@ -34,6 +34,11 @@ iter : ∀ {ℓ} {A : Type ℓ} → ℕ → (A → A) → A → A
 iter zero f z    = z
 iter (suc n) f z = f (iter n f z)
 
+iter+ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ) (f : A → A) (z : A)
+  → iter (n + m) f z ≡ iter n f (iter m f z)
+iter+ zero m f z _ = iter m f z
+iter+ (suc n) m f z i = f (iter+ n m f z i)
+
 elim : ∀ {ℓ} {A : ℕ → Type ℓ}
   → A zero
   → ((n : ℕ) → A n → A (suc n))
@@ -56,16 +61,18 @@ isOdd zero = false
 isOdd (suc n) = isEven n
 
 --Typed version
-private
-  toType : Bool → Type
-  toType false = ⊥
-  toType true = Unit
+toType : Bool → Type
+toType false = ⊥
+toType true = Unit
 
 isEvenT : ℕ → Type
 isEvenT n = toType (isEven n)
 
 isOddT : ℕ → Type
 isOddT n = isEvenT (suc n)
+
+evenOrOddT : (n : ℕ) → Type
+evenOrOddT n = isEvenT n ⊎ isOddT n
 
 isZero : ℕ → Bool
 isZero zero = true

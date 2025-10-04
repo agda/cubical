@@ -37,6 +37,17 @@ module AbGroupTheory (A : AbGroup ℓ) where
   implicitInverse : ∀ {a b} → a + b ≡ 0g → b ≡ - a
   implicitInverse b+a≡0 = invUniqueR b+a≡0
 
+  invDistrAb : ∀ a b → - (a + b) ≡ ((- a) + (- b))
+  invDistrAb a b = invDistr a b ∙ +Comm (- b) (- a)
+
+  inv^Distr : ∀ a b → (n : ℕ) → iter n -_ (a + b) ≡ (iter n -_ a + iter n -_ b)
+  inv^Distr a b zero = refl
+  inv^Distr a b (suc zero) = invDistrAb a b
+  inv^Distr a b (suc (suc n)) =
+    invInv (iter n -_ (a + b))
+    ∙ inv^Distr a b n
+    ∙ cong₂ _+_ (sym (invInv (iter n -_ a))) (sym (invInv (iter n -_ b)))
+
 addGroupHom : (A : AbGroup ℓ) (B : AbGroup ℓ') (ϕ ψ : AbGroupHom A B) → AbGroupHom A B
 fst (addGroupHom A B ϕ ψ) x = AbGroupStr._+_ (snd B) (ϕ .fst x) (ψ .fst x)
 snd (addGroupHom A B ϕ ψ) = makeIsGroupHom

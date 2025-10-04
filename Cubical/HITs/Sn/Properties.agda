@@ -22,6 +22,7 @@ open import Cubical.HITs.PropositionalTruncation as PT hiding (rec ; elim)
 open import Cubical.HITs.SmashProduct.Base
 open import Cubical.HITs.Pushout.Base
 open import Cubical.Homotopy.Connected
+open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Join renaming (joinS¹S¹→S³ to joinS¹S¹→S3)
 open import Cubical.Data.Bool hiding (elim)
 
@@ -42,6 +43,7 @@ open Iso
 σS∙ {n = zero} = refl
 σS∙ {n = suc n} = rCancel (merid (ptSn (suc n)))
 
+-- Iso between Sⁿ⁺¹ and Susp Sⁿ (and some properties/related constructions)
 IsoSucSphereSusp : (n : ℕ) → Iso (S₊ (suc n)) (Susp (S₊ n))
 IsoSucSphereSusp zero = S¹IsoSuspBool
 IsoSucSphereSusp (suc n) = idIso
@@ -62,6 +64,28 @@ IsoSucSphereSusp∙' : (n : ℕ)
   → Iso.fun (IsoSucSphereSusp n) (ptSn (suc n)) ≡ north
 IsoSucSphereSusp∙' zero = refl
 IsoSucSphereSusp∙' (suc n) = refl
+
+IsoSucSphereSusp≃∙ : (n : ℕ) → S₊∙ (suc n) ≃∙ (Susp∙ (S₊ n))
+IsoSucSphereSusp≃∙ n .fst = isoToEquiv (IsoSucSphereSusp n)
+IsoSucSphereSusp≃∙ n .snd = IsoSucSphereSusp∙' n
+
+IsoSucSphereSuspInv≃∙ : (n : ℕ) → Susp∙ (S₊ n) ≃∙ S₊∙ (suc n)
+IsoSucSphereSuspInv≃∙ n .fst = isoToEquiv (invIso (IsoSucSphereSusp n))
+IsoSucSphereSuspInv≃∙ n .snd = IsoSucSphereSusp∙ n
+
+IsoSucSphereSusp≃∙CompL : (n : ℕ)
+  → (≃∙map (IsoSucSphereSusp≃∙ n)
+   ∘∙ ≃∙map (IsoSucSphereSuspInv≃∙ n)) ≡ idfun∙ _
+IsoSucSphereSusp≃∙CompL n i .fst x = rightInv (IsoSucSphereSusp n) x i
+IsoSucSphereSusp≃∙CompL zero i .snd j = rUnit (λ _ → north) (~ i) j
+IsoSucSphereSusp≃∙CompL (suc n) i .snd j = rUnit (λ _ → north) (~ i) j
+
+IsoSucSphereSusp≃∙CompR : (n : ℕ)
+  → (≃∙map (IsoSucSphereSuspInv≃∙ n))
+   ∘∙ ≃∙map (IsoSucSphereSusp≃∙ n) ≡ idfun∙ _
+IsoSucSphereSusp≃∙CompR n i .fst x = leftInv (IsoSucSphereSusp n) x i
+IsoSucSphereSusp≃∙CompR zero i .snd j = rUnit (λ _ → base) (~ i) j
+IsoSucSphereSusp≃∙CompR (suc n) i .snd j = rUnit (λ _ → north) (~ i) j
 
 suspFunS∙ : {n : ℕ} → (S₊ n → S₊ n) → S₊∙ (suc n) →∙ S₊∙ (suc n)
 suspFunS∙ {n = zero} f =
@@ -511,6 +535,15 @@ invSphere² (suc zero) base = refl
 invSphere² (suc zero) (loop i) = refl
 invSphere² (suc (suc n)) = invSusp²
 
+-- pointed version of inversion
+invSpherePt : {k : ℕ} → invSphere (ptSn (suc k)) ≡ ptSn (suc k)
+invSpherePt {k = zero} = refl
+invSpherePt {k = suc k} = sym (merid (ptSn (suc k)))
+
+invSphere∙ : {k : ℕ} → S₊∙ (suc k) →∙ S₊∙ (suc k)
+invSphere∙ {k = k} .fst = invSphere
+invSphere∙ {k = k} .snd = invSpherePt
+
 -- Interaction between σ and invSphere
 σ-invSphere : (n : ℕ) (x : S₊ (suc n))
                  → σSn (suc n) (invSphere x)
@@ -530,3 +563,189 @@ invSphere² (suc (suc n)) = invSusp²
                     ∙∙ (λ i → (σSn 1 (loop i)))
                     ∙∙ (rCancel (merid base))) j i)
 σ-invSphere (suc n) x = toSusp-invSusp (S₊∙ (suc n)) x
+
+-- cong version
+cong-invsphere-σS : {k : ℕ} (x : S₊ (suc k))
+  → Square (cong invSphere (σS x)) (σS (invSphere x))
+            invSpherePt invSpherePt
+cong-invsphere-σS {k = k} x =
+  (cong-∙ invSusp (merid x) (sym (merid (ptSn (suc k))))
+  ∙ refl)
+  ◁ ((λ i → (λ j → merid (ptSn (suc k)) (~ i ∨ j))
+          ∙∙ sym (merid x)
+          ∙∙ (λ j → merid (ptSn (suc k)) (~ i ∧ j)))
+  ▷ (sym (compPath≡compPath'
+           (merid (ptSn (suc k))) (sym (merid x)))
+  ∙ sym (symDistr (merid x) (sym (merid (ptSn (suc k)))))
+  ∙ sym (σ-invSphere _ x)))
+
+-- constrution of and lemmas about iterated version of invSphere
+-S^ : {k : ℕ} (n : ℕ) → S₊ k → S₊ k
+-S^ n = iter n invSphere
+
+-S^pt : {k : ℕ} (n : ℕ) → -S^ {k = suc k} n (ptSn (suc k)) ≡ ptSn (suc k)
+-S^pt {k = k} n = iter∙ n (invSphere , invSpherePt) .snd
+
+-S^∙ : {k : ℕ} (n : ℕ) → S₊∙ (suc k) →∙ S₊∙ (suc k)
+-S^∙ n .fst = -S^ n
+-S^∙ n .snd = -S^pt n
+
+invSphere-S^ : {k : ℕ} (n : ℕ) (x : S₊ k)
+  → invSphere (-S^ n x) ≡ -S^ n (invSphere x)
+invSphere-S^ zero x = refl
+invSphere-S^ (suc n) x = cong invSphere (invSphere-S^ n x)
+
+-S^² : {k : ℕ} (n : ℕ) (x : S₊ k) → -S^ n (-S^ n x) ≡ x
+-S^² zero x = refl
+-S^² (suc n) x =
+  cong invSphere (sym (invSphere-S^ n (-S^ n x)))
+  ∙ invSphere² _ (-S^ n (-S^ n x))
+  ∙ -S^² n x
+
+-S^Iso : {k : ℕ} (n : ℕ) → Iso (S₊ k) (S₊ k)
+fun (-S^Iso n) = -S^ n
+inv (-S^Iso n) = -S^ n
+rightInv (-S^Iso n) = -S^² n
+leftInv (-S^Iso n) = -S^² n
+
+-S^-comp : {k : ℕ} (n m : ℕ) (x : S₊ k)
+  → -S^ n (-S^ m x) ≡ -S^ (n + m) x
+-S^-comp zero m x = refl
+-S^-comp (suc n) m x = cong invSphere (-S^-comp n m x)
+
+-S^·2 : {k : ℕ} (n : ℕ) (x : S₊ k) → -S^ (n + n) x ≡ x
+-S^·2 zero x = refl
+-S^·2 (suc n) x =
+    cong invSphere (λ i → -S^ (+-comm n (suc n) i) x)
+  ∙ invSphere² _ (-S^ (n + n) x)
+  ∙ -S^·2 n x
+
+invSphere∙² : {k : ℕ} → invSphere∙ {k = k} ∘∙ invSphere∙ {k = k}
+                        ≡ idfun∙ (S₊∙ (suc k))
+invSphere∙² {k = k} i .fst x = invSphere² _ x i
+invSphere∙² {k = zero} i .snd j = rUnit (λ _ → ptSn 1) (~ i) j
+invSphere∙² {k = suc k} i .snd j = rCancel (merid (ptSn (suc k))) i j
+
+-S^∙+1 : {k : ℕ} (n : ℕ)
+  → (-S^∙ {k = k} 1 ∘∙ -S^∙ {k = k} (suc n)) ≡ -S^∙ {k = k} n
+-S^∙+1 {k = k} n i .fst x = invSphere² _ (-S^ n x) i
+-S^∙+1 {k = k} n i .snd j =
+  hcomp (λ r →
+      λ{(i = i1) → invSphere² (suc k) (-S^pt n j) r
+      ; (j = i0) → invSphere² (suc k) (-S^ n (S₊∙ (suc k) .snd)) (i ∧ r)
+      ; (j = i1) → lem k i r })
+     (-S^ 1 (compPath-filler (λ r → invSphere (-S^pt n r)) invSpherePt (~ i) j))
+  where
+  lem : (k : ℕ)
+    → Square (refl ∙ invSpherePt)
+             (invSphere² (suc k) (ptSn (suc k)))
+             (cong invSphere (sym (invSpherePt {k = k}))) refl
+  lem zero = sym (lUnit refl)
+  lem (suc k) = sym (lUnit _) ◁ λ i j → merid (ptSn (suc k)) (~ i ∧ ~ j)
+
+private
+  -S^∙suspFun₁ : {k : ℕ} → -S^∙ {k = suc k} 1 ≡ suspFun∙ (-S^ {k = suc k} 1)
+  -S^∙suspFun₁ {k = k} =
+    ΣPathP ((funExt λ { north → sym (merid (ptSn (suc k)))
+                      ; south → merid (ptSn (suc k))
+                      ; (merid a i) k → lem a k i})
+                      , (sym (lUnit _)
+                      ◁ λ i j → merid (ptSn (suc k)) (~ j ∧ ~ i)))
+    where
+    lem : (a : S₊ (suc k))
+      → Square (sym (merid a)) (merid (invSphere a))
+                (sym (merid (ptSn (suc k)))) (merid (ptSn (suc k)))
+    lem a =
+       (λ i → compPath-filler
+                 (sym (compPath-filler (merid a)
+                        (sym (merid (ptSn (suc k)))) i))
+                 (merid (ptSn (suc k))) i)
+      ▷ (refl
+      ∙ cong (_∙ merid (ptSn (suc k))) (sym (σ-invSphere _ a))
+      ∙ sym (assoc _ _ _)
+      ∙ cong₂ _∙_ refl (lCancel _)
+      ∙ sym (rUnit _))
+
+-S^∙suspFun : {k : ℕ} (n : ℕ)
+  → -S^∙ {k = suc k} n ≡ suspFun∙ (-S^ {k = suc k} n)
+-S^∙suspFun zero = ΣPathP (sym suspFunIdFun , refl)
+-S^∙suspFun (suc n) =
+    ΣPathP (refl , cong₂ _∙_ refl (lUnit _))
+  ∙ cong₂ _∘∙_ -S^∙suspFun₁ (-S^∙suspFun n)
+  ∙ sym (suspFun∙Comp (-S^ 1) (-S^ n))
+
+cong-S^σ : (n k : ℕ) (a : S₊ (suc n))
+  → Square (σSn (suc n) (-S^ k a))
+            (cong (-S^ k) (σS a))
+            (sym (-S^pt k)) (sym (-S^pt k))
+cong-S^σ n zero a = refl
+cong-S^σ n (suc k) a i j =
+  hcomp (λ r → λ{(i = i0) → cong-invsphere-σS (-S^ k a) r j
+                ; (i = i1) → -S^ (suc k) (σS a j)
+                ; (j = i0) → compPath-filler (cong invSphere (-S^pt k))
+                                              invSpherePt r (~ i)
+                ; (j = i1) → compPath-filler (cong invSphere (-S^pt k))
+                                              invSpherePt r (~ i)})
+        (invSphere (cong-S^σ n k a i j))
+
+-- even and odd powers of -S^
+-S^-even : {k : ℕ} (n : ℕ) → isEvenT n → (x : S₊ (suc k)) → -S^ n x ≡ x
+-S^-even zero p x = refl
+-S^-even (suc (suc n)) p x =
+  cong (invSphere ∘ invSphere) (-S^-even n p x)
+  ∙ invSphere² _ x
+
+-S^∙-even : {k : ℕ} (n : ℕ) → isEvenT n → -S^∙ {k = k} n ≡ idfun∙ (S₊∙ (suc k))
+-S^∙-even {k = k} n p  = ΣPathP ((funExt (-S^-even n p)) , lem k n p)
+  where
+  lem : (k n : ℕ) (p : _)
+    → PathP (λ i → -S^-even n p (ptSn (suc k)) i ≡ ptSn (suc k))
+             (-S^pt n) (λ _ → ptSn (suc k))
+  lem k zero p = refl
+  lem zero (suc (suc n)) p =
+    (sym (rUnit _) ∙ sym (rUnit _))
+    ◁ (flipSquare (sym (rUnit _)
+    ◁  λ i j → invLooper (invLooper (lem zero n p j i))))
+  lem (suc k) (suc (suc n)) p =
+    (cong₂ _∙_ (cong-∙ invSphere (cong invSphere (-S^pt n)) invSpherePt) refl
+    ∙ sym (assoc _ _ _)
+    ∙ cong₂ _∙_ refl (rCancel _)
+    ∙ sym (rUnit _))
+    ◁ flipSquare (sym (rUnit _)
+    ◁ λ i j → invSphere (invSphere (lem (suc k) n p j i)))
+
+-S^∙-odd : {k : ℕ} (n : ℕ) → isOddT n
+  → -S^∙ {k = k} n ≡ (invSphere , invSpherePt)
+-S^∙-odd {k = k} (suc n) o =
+  cong ((invSphere , invSpherePt) ∘∙_) (-S^∙-even {k = k} n o) ∙ ∘∙-idˡ _
+
+-S^-odd : {k : ℕ} (n : ℕ) → isOddT n → (x : S₊ (suc k)) → -S^ n x ≡ invSphere x
+-S^-odd (suc zero) p x = refl
+-S^-odd (suc (suc (suc n))) p x =
+  cong (invSphere ∘ invSphere) (-S^-odd (suc n) p x)
+  ∙ invSphere² _ (invSphere x)
+
+-- Commutativity of ·→Ω with Sⁿ domain.
+EH-ΠΩ : ∀ {ℓ} {A : Pointed ℓ} {n : ℕ} (f g : S₊∙ (suc n) →∙ Ω A)
+     → ·→Ω f g ≡ ·→Ω g f
+EH-ΠΩ {A = A} {n = n} =
+  subst (λ T → (f g : T →∙ Ω A) → ·→Ω f g ≡ ·→Ω g f)
+        (ua∙ (isoToEquiv (invIso (IsoSucSphereSusp n))) (IsoSucSphereSusp∙ n))
+        (Susp·→Ωcomm (S₊∙ n))
+
+-- Interaction between Ω→ and σS
+Ω→comp-σS : ∀ {ℓ} {X : Pointed ℓ} (n : ℕ) (f : S₊∙ (suc n) →∙ X) (a : S₊ n)
+  → Ω→ f .fst (σS a)
+   ≡ Ω→ (f ∘∙ ≃∙map (IsoSucSphereSuspInv≃∙ n)) .fst (toSusp (S₊∙ n) a)
+Ω→comp-σS zero f true =
+  cong₃ _∙∙_∙∙_ (cong sym (lUnit (snd f)))
+    (sym (cong (congS (fst f ∘ fst (fst (IsoSucSphereSuspInv≃∙ zero))))
+               (rCancel (merid true))))
+    (lUnit (snd f))
+Ω→comp-σS zero f false =
+  cong₃ _∙∙_∙∙_ (cong sym (lUnit (snd f)))
+    (cong (congS (fst f))
+      (rUnit _
+      ∙ sym (cong-∙ SuspBool→S¹ (merid false) (sym (merid true)))))
+    (lUnit (snd f))
+Ω→comp-σS (suc n) f a = cong (λ f → Ω→ f .fst (σS a)) (sym (∘∙-idˡ f))

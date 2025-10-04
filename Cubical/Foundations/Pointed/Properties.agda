@@ -262,3 +262,20 @@ constantPointed≡ {A = A} {B = B , b} f Hf i =
          ; (i = i1) → snd f k
          ; (j = i1) → snd f k })
     (Hf ((~ i) ∧ (~ j)) (pt A))
+
+
+-- Properties of subst∙
+subst∙refl : ∀ {ℓ ℓA} {X : Type ℓ} (A : X → Pointed ℓA)
+  → {x : X} → subst∙ A (refl {x = x}) ≡ idfun∙ (A x)
+subst∙refl A {x} = ΣPathP ((funExt transportRefl)
+  , (λ j i → transp (λ t → fst (A x)) (j ∨ i) (pt (A x))))
+
+subst∙Id : ∀ {ℓ ℓA ℓB} {X : Type ℓ} (A : X → Pointed ℓA) {B : Pointed ℓB}
+  → {x y : X} (p : x ≡ y) (f : A x →∙ B)
+    → f ∘∙ subst∙ A (sym p) ≡ transport (λ i → A (p i) →∙ B) f
+subst∙Id A {B = B} {x = x} =
+  J (λ y p → (f : A x →∙ B)
+            → f ∘∙ subst∙ A (sym p)
+            ≡ transport (λ i → A (p i) →∙ B) f)
+    λ f → (cong₂ _∘∙_ refl (subst∙refl A) ∙ ∘∙-idˡ _)
+         ∙ sym (transportRefl f)

@@ -14,7 +14,8 @@ open import Cubical.Homotopy.HopfInvariant.Base
 open import Cubical.Homotopy.Group.Pi3S2
 open import Cubical.Homotopy.Group.PinSn
 open import Cubical.Homotopy.BlakersMassey
-open import Cubical.Homotopy.Whitehead
+open import Cubical.Homotopy.WhiteheadProducts.Base
+open import Cubical.Homotopy.WhiteheadProducts.Properties
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Group.LES
 open import Cubical.Homotopy.Group.Pi4S3.S3PushoutIso2
