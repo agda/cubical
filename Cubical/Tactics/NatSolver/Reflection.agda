@@ -129,6 +129,7 @@ private
     do
       goal ← inferType hole >>= normalise
 
+      wait-for-type goal
       just (lhs , rhs) ← get-boundary goal
         where
           nothing
