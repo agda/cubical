@@ -26,7 +26,7 @@ open import Cubical.Relation.Nullary
 -- ℕ.
 -- Fin : ℕ → Type₀
 -- Fin n = Σ[ k ∈ ℕ ] k < n
-Fin : (n : ℕ) → Type₀
+Fin : ℕ → Type₀
 Fin n = Σ[ m ∈ ℕ ] (m <ᵗ n)
 
 private
@@ -67,13 +67,14 @@ predFin m (suc n , w) = (n , w)
 toℕ : Fin k → ℕ
 toℕ = fst
 
--- ... and injective.
+-- -- ... and injective.
 -- toℕ-injective : ∀{fj fk : Fin k} → toℕ fj ≡ toℕ fk → fj ≡ fk
--- -- toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → isProp≤)
+-- -- -- toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → isProp≤)
 -- toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → isProp<ᵗ)
+toℕ-injective : ∀ {n} {fj fk : Fin n} → fst fj ≡ fst fk → fj ≡ fk
+toℕ-injective {n = n} {fj} {fk} = Σ≡Prop λ x → isProp<ᵗ {n = x} {n}
 
 -- Conversion from ℕ with a recursive definition of ≤
-
 fromℕ≤ : (m n : ℕ) → m ≤′ n → Fin (suc n)
 fromℕ≤ zero    _       _    = fzero
 fromℕ≤ (suc m) (suc n) m≤n = fsuc (fromℕ≤ m n m≤n)
@@ -100,7 +101,8 @@ flast {k = k} = k , <ᵗsucm {k}
 -- Fin 0 is empty
 ¬Fin0 : ¬ Fin 0
 -- ¬Fin0 (k , k<0) = ¬-<-zero k<0
-¬Fin0 (k , k<0) = k<0
+-- ¬Fin0 (k , k<0) = k<0
+¬Fin0 ()
 
 -- -- The full inductive family eliminator for finite types.
 -- elim
@@ -135,8 +137,8 @@ flast {k = k} = k , <ᵗsucm {k}
 FinPathℕ : {n : ℕ} (x : Fin n) (y : ℕ) → fst x ≡ y → Σ[ p ∈ _ ] (x ≡ (y , p))
 -- FinPathℕ {n = n} x y p =
 --     ((fst (snd x)) , (cong (λ y → fst (snd x) + y) (cong suc (sym p)) ∙ snd (snd x)))
---   , (Σ≡Prop (λ _ → isProp≤) p)
-FinPathℕ {n = n} x y p = ({!  !} , {! !})
+  -- , (Σ≡Prop (λ _ → isProp≤) p)
+FinPathℕ {n = n} x y p = {!   !}
 
 FinVec : (A : Type ℓ) (n : ℕ) → Type ℓ
 FinVec A n = Fin n → A
@@ -170,4 +172,4 @@ snd (prodFinFamily∙ (suc n) A) =
 sumFinGen : ∀ {ℓ} {A : Type ℓ} {n : ℕ} (_+_ : A → A → A) (0A : A) (f : Fin n → A) → A
 sumFinGen {n = zero} _+_ 0A f = 0A
 -- sumFinGen {n = suc n} _+_ 0A f = f flast + sumFinGen _+_ 0A (f ∘ injectSuc)
-sumFinGen {n = suc n} _+_ 0A f = {!   !}
+sumFinGen {n = suc n} _+_ 0A f = f flast + (sumFinGen {n = n}) _+_ 0A ((f ∘ injectSuc))
