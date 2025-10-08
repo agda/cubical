@@ -124,30 +124,31 @@ stepGCD w =
 
 -- putting it all together using an auxiliary variable to pass the termination checking
 
-euclid-helper< : (m n f : ℕ) → (n < m) → (m ≤ f) → GCD m n
-euclid-helper< m       n       zero    n<m m≤0 .fst = 0
-euclid-helper< m       n       zero    n<m m≤0 .snd .fst .fst = ∣-refl $ sym $ ≤0→≡0 m≤0
-euclid-helper< m       n       zero    n<m m≤0 .snd .fst .snd = ∣-refl $ sym $ ≤0→≡0 $
-                                                             <-weaken $ <≤-trans n<m m≤0
-euclid-helper< m       n       zero    n<m m≤0 .snd .snd d' _ = ∣-zeroʳ d'
-euclid-helper< zero    zero    (suc _) _   _   .fst = 0
-euclid-helper< zero    zero    (suc _) _   _   .snd .fst .fst = ∣-refl refl
-euclid-helper< zero    zero    (suc _) _   _   .snd .fst .snd = ∣-refl refl
-euclid-helper< zero    zero    (suc _) _   _   .snd .snd d' _ = ∣-zeroʳ d'
-euclid-helper< zero    (suc n) (suc _) _   _   .fst = suc n
-euclid-helper< zero    (suc n) (suc _) _   _   .snd .fst .fst = ∣-zeroʳ (suc n)
-euclid-helper< zero    (suc n) (suc _) _   _   .snd .fst .snd = ∣-refl refl
-euclid-helper< zero    (suc n) (suc _) _   _   .snd .snd d' (_ , d'∣1+n) = d'∣1+n
-euclid-helper< (suc m) zero    (suc _) _   _   .fst = suc m
-euclid-helper< (suc m) zero    (suc _) _   _   .snd .fst .fst = ∣-refl refl
-euclid-helper< (suc m) zero    (suc _) _   _   .snd .fst .snd = ∣-zeroʳ (suc m)
-euclid-helper< (suc m) zero    (suc _) _   _   .snd .snd d' (d'∣1+m , _) = d'∣1+m
-euclid-helper< m@(suc _) n@(suc n-1) (suc f) n<m m≤1+f =
-  let
-    n≤f = predℕ-≤-predℕ $ <≤-trans n<m m≤1+f
-    r   = euclid-helper< n (m % n) f (%< n-1 m) n≤f
-  in
-    r .fst , stepGCD (r .snd)
+private
+  euclid-helper< : (m n f : ℕ) → (n < m) → (m ≤ f) → GCD m n
+  euclid-helper< m       n       zero    n<m m≤0 .fst = 0
+  euclid-helper< m       n       zero    n<m m≤0 .snd .fst .fst = ∣-refl $ sym $ ≤0→≡0 m≤0
+  euclid-helper< m       n       zero    n<m m≤0 .snd .fst .snd = ∣-refl $ sym $ ≤0→≡0 $
+                                                              <-weaken $ <≤-trans n<m m≤0
+  euclid-helper< m       n       zero    n<m m≤0 .snd .snd d' _ = ∣-zeroʳ d'
+  euclid-helper< zero    zero    (suc _) _   _   .fst = 0
+  euclid-helper< zero    zero    (suc _) _   _   .snd .fst .fst = ∣-refl refl
+  euclid-helper< zero    zero    (suc _) _   _   .snd .fst .snd = ∣-refl refl
+  euclid-helper< zero    zero    (suc _) _   _   .snd .snd d' _ = ∣-zeroʳ d'
+  euclid-helper< zero    (suc n) (suc _) _   _   .fst = suc n
+  euclid-helper< zero    (suc n) (suc _) _   _   .snd .fst .fst = ∣-zeroʳ (suc n)
+  euclid-helper< zero    (suc n) (suc _) _   _   .snd .fst .snd = ∣-refl refl
+  euclid-helper< zero    (suc n) (suc _) _   _   .snd .snd d' (_ , d'∣1+n) = d'∣1+n
+  euclid-helper< (suc m) zero    (suc _) _   _   .fst = suc m
+  euclid-helper< (suc m) zero    (suc _) _   _   .snd .fst .fst = ∣-refl refl
+  euclid-helper< (suc m) zero    (suc _) _   _   .snd .fst .snd = ∣-zeroʳ (suc m)
+  euclid-helper< (suc m) zero    (suc _) _   _   .snd .snd d' (d'∣1+m , _) = d'∣1+m
+  euclid-helper< m@(suc _) n@(suc n-1) (suc f) n<m m≤1+f =
+    let
+      n≤f = predℕ-≤-predℕ $ <≤-trans n<m m≤1+f
+      r   = euclid-helper< n (m % n) f (%< n-1 m) n≤f
+    in
+      r .fst , stepGCD (r .snd)
 
 euclid : ∀ m n → GCD m n
 euclid m zero        = m , (∣-refl refl , ∣-zeroʳ m) , λ d' (d'∣m , _) → d'∣m
