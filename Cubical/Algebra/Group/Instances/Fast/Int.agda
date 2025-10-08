@@ -4,11 +4,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
-open import Cubical.Data.Int.Base
-  hiding (_+_ ; _-_ ; _·_ ; sumFinℤ)
-  renaming (-_ to -ℤ_)
-
-open import Cubical.Data.Int.Fast.Base renaming (_+_ to _+ℤ_ ; _-_ to _-ℤ_ ; _·_ to _·ℤ_)
+open import Cubical.Data.Int.Fast.Base renaming (_+_ to _+ℤ_ ; _-_ to _-ℤ_ ; _·_ to _·ℤ_ ; -_ to -ℤ_)
 
 open import Cubical.Data.Int.Fast.Properties
 open import Cubical.Data.Nat using (ℕ ; zero ; suc)

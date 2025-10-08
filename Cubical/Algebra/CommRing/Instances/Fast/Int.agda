@@ -3,8 +3,7 @@ module Cubical.Algebra.CommRing.Instances.Fast.Int where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Data.Int.Base using (ℤ ; pos) renaming (-_ to -ℤ_)
-open import Cubical.Data.Int.Fast.Base renaming (_+_ to _+ℤ_; _·_ to _·ℤ_)
+open import Cubical.Data.Int.Fast.Base renaming (_+_ to _+ℤ_; _·_ to _·ℤ_ ; -_ to -ℤ_)
 
 open import Cubical.Data.Int.Fast.Properties as Int
 
@@ -21,6 +20,6 @@ isCommRing (snd ℤCommRing) = isCommRingℤ
   where
   abstract
     isCommRingℤ : IsCommRing (pos 0) (pos 1) _+ℤ_ _·ℤ_ -ℤ_
-    isCommRingℤ = makeIsCommRing isSetℤ Int.+Assoc (+IdR)
+    isCommRingℤ = makeIsCommRing isSetℤ Int.+Assoc +IdR
                                  -Cancel Int.+Comm Int.·Assoc
                                  Int.·IdR ·DistR+ Int.·Comm

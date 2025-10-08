@@ -11,7 +11,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.NatPlusOne.Base as ℕ₊₁
 open import Cubical.Data.Nat as ℕ hiding (
-    +-assoc ; +-comm ; min ; max ; minComm ; maxComm ; minIdem ; maxIdem
+    +-assoc ; +-comm ; min ; max ; minComm ; maxComm -- ; minIdem ; maxIdem
   ; minSucL ; minSucR ; maxSucL ; maxSucR)
   renaming (_·_ to _·ℕ_; _+_ to _+ℕ_)
 open import Cubical.Data.Sum
@@ -86,9 +86,9 @@ minComm (pos m)    (negsuc n) = refl
 minComm (negsuc m) (pos n)    = refl
 minComm (negsuc m) (negsuc n) = cong negsuc (ℕ.maxComm m n)
 
-minIdem : ∀ n → min n n ≡ n
-minIdem (pos n)    = cong pos (ℕ.minIdem n)
-minIdem (negsuc n) = cong negsuc (ℕ.maxIdem n)
+-- minIdem : ∀ n → min n n ≡ n
+-- minIdem (pos n)    = cong pos (ℕ.minIdem n)
+-- minIdem (negsuc n) = cong negsuc (ℕ.maxIdem n)
 
 max : ℤ → ℤ → ℤ
 max (pos m)    (pos n)    = pos (ℕ.max m n )
@@ -102,9 +102,9 @@ maxComm (pos m)    (negsuc n) = refl
 maxComm (negsuc m) (pos n)    = refl
 maxComm (negsuc m) (negsuc n) = cong negsuc (ℕ.minComm m n)
 
-maxIdem : ∀ n → max n n ≡ n
-maxIdem (pos n)    = cong pos (ℕ.maxIdem n)
-maxIdem (negsuc n) = cong negsuc (ℕ.minIdem n)
+-- maxIdem : ∀ n → max n n ≡ n
+-- maxIdem (pos n)    = cong pos (ℕ.maxIdem n)
+-- maxIdem (negsuc n) = cong negsuc (ℕ.minIdem n)
 
 sucPred : ∀ n → sucℤ (predℤ n) ≡ n
 sucPred (pos zero)    = refl

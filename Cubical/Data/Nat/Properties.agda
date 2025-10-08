@@ -29,9 +29,9 @@ minComm zero (suc m) = refl
 minComm (suc n) zero = refl
 minComm (suc n) (suc m) = cong suc (minComm n m)
 
-minIdem : ∀ n → min n n ≡ n
-minIdem zero    = refl
-minIdem (suc n) = cong suc (minIdem n)
+-- minIdem : ∀ n → min n n ≡ n
+-- minIdem zero    = refl
+-- minIdem (suc n) = cong suc (minIdem n)
 
 minSucL : ∀ n → min (suc n) n ≡ n
 minSucL zero    = refl
@@ -52,9 +52,9 @@ maxComm zero (suc m) = refl
 maxComm (suc n) zero = refl
 maxComm (suc n) (suc m) = cong suc (maxComm n m)
 
-maxIdem : ∀ n → max n n ≡ n
-maxIdem zero    = refl
-maxIdem (suc n) = cong suc (maxIdem n)
+-- maxIdem : ∀ n → max n n ≡ n
+-- maxIdem zero    = refl
+-- maxIdem (suc n) = cong suc (maxIdem n)
 
 maxSucL : ∀ n → max (suc n) n ≡ suc n
 maxSucL zero    = refl

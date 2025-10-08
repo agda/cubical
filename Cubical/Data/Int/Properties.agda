@@ -11,7 +11,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
-  hiding   (+-assoc ; +-comm ; min ; max ; minComm ; maxComm ; minIdem ; maxIdem ;
+  hiding   (+-assoc ; +-comm ; min ; max ; minComm ; maxComm ;
             minSucL ; minSucR ; maxSucL ; maxSucR )
   renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ;
             ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
