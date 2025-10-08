@@ -499,6 +499,7 @@ isContrSinglP A a .snd (x , p) i =
   _ , λ j → fill A (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
 
 -- Helpers for carrying equalities into with-abstractions
+-- see `discreteℕ` in Data.Nat.Properties for an example of usage
 
 infixl 0 _UsingEq
 infixl 0 _i0:>_UsingEqP
