@@ -341,10 +341,7 @@ private
   ∸→>ᵇ (suc m) (suc n) t = ∸→>ᵇ m n t
 
 _≟_ : ∀ m n → Trichotomy m n
-zero ≟ zero = eq refl
-zero ≟ suc n = lt (n , +-comm n 1)
-suc m ≟ zero = gt (m , +-comm m 1)
-suc m ≟ suc n with m ∸ n UsingEq | n ∸ m UsingEq
+m ≟ n with m ∸ n UsingEq | n ∸ m UsingEq
 ... | zero  , p | zero  , q = eq (∸≡0→≡ p q)
 ... | zero  , p | suc _ , q = lt (<ᵇ→< $ ∸→>ᵇ n m $ subst (caseNat ⊥.⊥ Unit) (sym q) tt)
 ... | suc _ , p | zero  , q = gt (<ᵇ→< $ ∸→>ᵇ m n $ subst (caseNat ⊥.⊥ Unit) (sym p) tt)
