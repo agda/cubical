@@ -23,9 +23,9 @@ private
 min : ℕ → ℕ → ℕ
 min zero m = zero
 min (suc n) zero = zero
-min (suc n) (suc m) with n <ᵇ m UsingEq
-... | false , _ = suc m
-... | true  , _ = suc n
+min (suc n) (suc m) with n <ᵇ m
+... | false = suc m
+... | true  = suc n
 
 minSuc : min (suc n) (suc m) ≡ suc (min n m)
 minSuc {zero} {zero} = refl
@@ -44,9 +44,9 @@ minComm (suc n) (suc m) = minSuc ∙∙ cong suc (minComm n m) ∙∙ sym minSuc
 max : ℕ → ℕ → ℕ
 max zero m = m
 max (suc n) zero = suc n
-max (suc n) (suc m) with n <ᵇ m UsingEq
-... | false , _ = suc n
-... | true  , _ = suc m
+max (suc n) (suc m) with n <ᵇ m
+... | false = suc n
+... | true  = suc m
 
 maxSuc : max (suc n) (suc m) ≡ suc (max n m)
 maxSuc {zero} {zero} = refl
@@ -157,10 +157,7 @@ decodeℕ (suc n) (suc m) = λ r → cong suc (decodeℕ n m r)
 ≡→≡ᵇ {suc m} {suc n} p = ≡→≡ᵇ {m} {n} (cong predℕ p)
 
 discreteℕ : Discrete ℕ
-discreteℕ zero zero = yes refl
-discreteℕ zero (suc n) = no znots
-discreteℕ (suc m) zero = no snotz
-discreteℕ (suc m) (suc n) with m ≡ᵇ n UsingEq
+discreteℕ m n with m ≡ᵇ n UsingEq
 ... | false , p = no  (subst Bool→Type p ∘ ≡→≡ᵇ)
 ... | true  , p = yes (≡ᵇ→≡ (subst Bool→Type (sym p) tt))
 
