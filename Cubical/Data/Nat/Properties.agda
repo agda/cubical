@@ -12,6 +12,8 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum.Base
 
+open import Cubical.Data.Bool.Base
+
 open import Cubical.Relation.Nullary
 
 private
@@ -21,13 +23,23 @@ private
 min : ℕ → ℕ → ℕ
 min zero m = zero
 min (suc n) zero = zero
-min (suc n) (suc m) = suc (min n m)
+min (suc n) (suc m) with n <ᵇ m
+... | false = suc m
+... | true  = suc n
+
+minSuc : min (suc n) (suc m) ≡ suc (min n m)
+minSuc {zero} {zero} = refl
+minSuc {zero} {suc m} = refl
+minSuc {suc n} {zero} = refl
+minSuc {suc n} {suc m} with suc n <ᵇ suc m
+... | false = refl
+... | true  = refl
 
 minComm : (n m : ℕ) → min n m ≡ min m n
 minComm zero zero = refl
 minComm zero (suc m) = refl
 minComm (suc n) zero = refl
-minComm (suc n) (suc m) = cong suc (minComm n m)
+minComm (suc n) (suc m) = minSuc ∙∙ cong suc (minComm n m) ∙∙ sym minSuc
 
 -- minIdem : ∀ n → min n n ≡ n
 -- minIdem zero    = refl
@@ -44,13 +56,23 @@ minSucR (suc n) = cong suc (minSucR n)
 max : ℕ → ℕ → ℕ
 max zero m = m
 max (suc n) zero = suc n
-max (suc n) (suc m) = suc (max n m)
+max (suc n) (suc m) with n <ᵇ m
+... | false = suc n
+... | true  = suc m
+
+maxSuc : max (suc n) (suc m) ≡ suc (max n m)
+maxSuc {zero} {zero} = refl
+maxSuc {zero} {suc m} = refl
+maxSuc {suc n} {zero} = refl
+maxSuc {suc n} {suc m} with suc n <ᵇ suc m
+... | false = refl
+... | true  = refl
 
 maxComm : (n m : ℕ) → max n m ≡ max m n
 maxComm zero zero = refl
 maxComm zero (suc m) = refl
 maxComm (suc n) zero = refl
-maxComm (suc n) (suc m) = cong suc (maxComm n m)
+maxComm (suc n) (suc m) = maxSuc ∙∙ cong suc (maxComm n m) ∙∙ sym maxSuc
 
 -- maxIdem : ∀ n → max n n ≡ n
 -- maxIdem zero    = refl
@@ -146,14 +168,22 @@ decodeℕ (suc n) (suc m) = λ r → cong suc (decodeℕ n m r)
     retr : (n m : ℕ) → (p : n ≡ m) → decodeℕ n m (compute-eqℕ n m p) ≡ p
     retr n m p = J (λ m p → decodeℕ n m (compute-eqℕ n m p) ≡ p) (reflRetr n) p
 
+-- Conversions between boolean equality (≡ᵇ) and path equality (≡)
+
+≡ᵇ→≡ : Bool→Type (m ≡ᵇ n) → m ≡ n
+≡ᵇ→≡ {zero}  {zero}  t = refl
+≡ᵇ→≡ {suc m} {suc n} t = cong suc (≡ᵇ→≡ t)
+
+≡→≡ᵇ : m ≡ n → Bool→Type (m ≡ᵇ n)
+≡→≡ᵇ {zero}  {zero}  _ = tt
+≡→≡ᵇ {zero}  {suc n} p = ⊥.rec (znots p)
+≡→≡ᵇ {suc m} {zero}  p = ⊥.rec (snotz p)
+≡→≡ᵇ {suc m} {suc n} p = ≡→≡ᵇ {m} {n} (cong predℕ p)
 
 discreteℕ : Discrete ℕ
-discreteℕ zero zero = yes refl
-discreteℕ zero (suc n) = no znots
-discreteℕ (suc m) zero = no snotz
-discreteℕ (suc m) (suc n) with discreteℕ m n
-... | yes p = yes (cong suc p)
-... | no p = no (λ x → p (injSuc x))
+discreteℕ m n with m ≡ᵇ n UsingEq
+... | false , p = no  (subst Bool→Type p ∘ ≡→≡ᵇ)
+... | true  , p = yes (≡ᵇ→≡ (subst Bool→Type (sym p) tt))
 
 separatedℕ : Separated ℕ
 separatedℕ = Discrete→Separated discreteℕ
@@ -293,6 +323,12 @@ n∸n (suc n) = n∸n n
 ∸-distribʳ m       zero    k = refl
 ∸-distribʳ zero    (suc n) k = sym (zero∸ (k + n · k))
 ∸-distribʳ (suc m) (suc n) k = ∸-distribʳ m n k ∙ sym (∸-cancelˡ k (m · k) (n · k))
+
+∸≡0→≡ : m ∸ n ≡ 0 → n ∸ m ≡ 0 → m ≡ n
+∸≡0→≡ {zero}  {zero}  _ _ = refl
+∸≡0→≡ {zero}  {suc n} _ q = ⊥.rec (snotz q)
+∸≡0→≡ {suc m} {zero}  p _ = ⊥.rec (snotz p)
+∸≡0→≡ {suc m} {suc n} p q = cong suc (∸≡0→≡ {m} {n} p q)
 
 infix 6 _!
 infix 7 _choose_
