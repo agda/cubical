@@ -504,6 +504,8 @@ isContrSinglP A a .snd (x , p) i =
 infixl 0 _UsingEq
 infixl 0 _i0:>_UsingEqP
 
+-- Similar to `inspect`, but more convenient when `a` is not a function
+-- application, or when the applied function is not relevant
 _UsingEq : (a : A) → singl a
 a UsingEq = isContrSingl a .fst
 
