@@ -498,6 +498,20 @@ isContrSinglP A a .fst = _ , transport-filler (λ i → A i) a
 isContrSinglP A a .snd (x , p) i =
   _ , λ j → fill A (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
 
+-- Helpers for carrying equalities into with-abstractions
+-- see `discreteℕ` in Data.Nat.Properties for an example of usage
+
+infixl 0 _UsingEq
+infixl 0 _i0:>_UsingEqP
+
+-- Similar to `inspect`, but more convenient when `a` is not a function
+-- application, or when the applied function is not relevant
+_UsingEq : (a : A) → singl a
+a UsingEq = isContrSingl a .fst
+
+_i0:>_UsingEqP : (A : I → Type ℓ) (a : A i0) → singlP A a
+A i0:> a UsingEqP = isContrSinglP A a .fst
+
 -- Higher cube types
 
 SquareP :
