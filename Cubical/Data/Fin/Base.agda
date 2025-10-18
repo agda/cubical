@@ -49,9 +49,10 @@ fsuc : Fin k → Fin (suc k)
 -- fsuc (k , l) = (suc k , suc-≤-suc l)
 fsuc (k , l) = (suc k , l)
 
-finj : {n : ℕ} → Fin k → Fin (suc k)
+-- finj : {n : ℕ} → Fin k → Fin (suc k)
+finj : {k : ℕ} → Fin k → Fin (suc k)
 -- finj (k , l) = k , ≤-trans l (1 , refl)
-finj (k , l) = (k , <ᵗ-trans-suc {n = k} l)
+finj (m , l) = (m , <ᵗ-trans-suc {n = m} l)
 
 -- predecessors too
 predFin : (m : ℕ) → Fin (suc (suc m)) → Fin (suc m)
@@ -61,15 +62,15 @@ predFin m (zero , w) = fzero
 predFin m (suc n , w) = (n , w)
 
 -- Conversion back to ℕ is trivial...
-toℕ : Fin k → ℕ
+-- toℕ : Fin k → ℕ
+toℕ : {k : ℕ} → Fin k → ℕ
 toℕ = fst
 
 -- -- ... and injective.
 -- toℕ-injective : ∀{fj fk : Fin k} → toℕ fj ≡ toℕ fk → fj ≡ fk
 -- toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → isProp≤)
--- toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → isProp<ᵗ)
-toℕ-injective : ∀ {k} {fj fk : Fin k} → fst fj ≡ fst fk → fj ≡ fk -- Bara på skoj
-toℕ-injective {k = k} {fj} {fk} = Σ≡Prop λ x → isProp<ᵗ {n = x} {k}
+toℕ-injective : {k : ℕ} {fj fk : Fin k} → toℕ {k} fj ≡ toℕ {k} fk → fj ≡ fk
+toℕ-injective {k} {fj = fj} {fk} = Σ≡Prop (λ x → isProp<ᵗ {x} {k})
 
 -- Conversion from ℕ with a recursive definition of ≤
 fromℕ≤ : (m n : ℕ) → m ≤′ n → Fin (suc n)
@@ -82,8 +83,8 @@ fsplit
   → (fzero ≡ fj) ⊎ (Σ[ fk ∈ Fin k ] fsuc fk ≡ fj)
 -- fsplit (0 , k<sn) = inl (toℕ-injective refl)
 -- fsplit (suc k , k<sn) = inr ((k , pred-≤-pred k<sn) , toℕ-injective refl)
-fsplit (0 , k<sn) = {! !}
-fsplit (suc k , k<sn) = {!   !} -- inr ((k , k<sn) , toℕ-injective refl)
+fsplit {n} (0 , k<sn) = inl (toℕ-injective {k = suc n} {fj = fzero} {fk = (0 , k<sn)} refl)
+fsplit {n} (suc k , k<sn) = inr ((k , k<sn) , toℕ-injective {k  = suc n} {fj = fsuc (k , k<sn)} {fk = (suc k , k<sn)} refl)
 
 inject< : ∀ {m n} (m<n : m < n) → Fin m → Fin n
 -- inject< m<n (k , k<m) = k , <-trans k<m m<n
@@ -114,6 +115,17 @@ flast {k = k} = (k , <ᵗsucm {k})
 --   { (inl p) → subst P p fz
 --   ; (inr (fk , p)) → subst P p (fs (elim P fz fs fk))
 --   }
+elim
+  : ∀(P : ∀(k : ℕ) → Fin k → Type ℓ)
+  → (∀{k} → P (suc k) fzero)
+  → (∀{k} {fn : Fin k} → P k fn → P (suc k) (fsuc fn))
+  → {k : ℕ} → (fn : Fin k) → P k fn
+elim P fz fs {zero} fn = ⊥.rec (¬Fin0 fn)
+elim P fz fs {suc k} fj 
+  = case fsplit fj return (λ _ → P (suc k) fj) of λ
+  { (inl p)        → subst (λ z → P (suc k) z) p (fz {k})
+  ; (inr (fk , p)) → subst (λ z → P (suc k) z) p (fs (elim P fz fs fk))
+  }
 
 any? : ∀ {n} {P : Fin n → Type ℓ} → (∀ i → Dec (P i)) → Dec (Σ (Fin n) P)
 any? {n = zero}  {P = _} P? = no (λ (x , _) → ¬Fin0 x)
@@ -135,9 +147,10 @@ any? {n = suc n} {P = P} P? =
 
 FinPathℕ : {n : ℕ} (x : Fin n) (y : ℕ) → fst x ≡ y → Σ[ p ∈ _ ] (x ≡ (y , p))
 -- FinPathℕ {n = n} x y p =
---     ((fst (snd x)) , (cong (λ y → fst (snd x) + y) (cong suc (sym p)) ∙ snd (snd x)))
---   , (Σ≡Prop (λ _ → isProp≤) p)
-FinPathℕ {n = n} x y p = {!   !}
+  --   ((fst (snd x)) , (cong (λ y → fst (snd x) + y) (cong suc (sym p)) ∙ snd (snd x)))
+  -- , (Σ≡Prop (λ _ → isProp≤) p)
+FinPathℕ {n = n} x y p .fst = subst (λ z → z <ᵗ n) p (x .snd)
+FinPathℕ {n = n} x y p .snd = Σ≡Prop (λ z → isProp<ᵗ {z} {n}) p
 
 FinVec : (A : Type ℓ) (n : ℕ) → Type ℓ
 FinVec A n = Fin n → A
@@ -149,13 +162,11 @@ FinFamily∙ : (n : ℕ) (ℓ : Level) → Type (ℓ-suc ℓ)
 FinFamily∙ n ℓ = FinVec (Pointed ℓ) n
 
 predFinFamily : {n : ℕ} → FinFamily (suc n) ℓ → FinFamily n ℓ
--- predFinFamily A n = A (finj n)
-predFinFamily A n = {!   !}
+predFinFamily A n = A (finj n)
 
 predFinFamily∙ : {n : ℕ} → FinFamily∙ (suc n) ℓ → FinFamily∙ n ℓ
 fst (predFinFamily∙ A x) = predFinFamily (fst ∘ A) x
--- snd (predFinFamily∙ A x) = snd (A _)
-snd (predFinFamily∙ A x) = {! !}
+snd (predFinFamily∙ A x) = snd (A _)
 
 prodFinFamily : (n : ℕ) → FinFamily (suc n) ℓ → Type ℓ
 prodFinFamily zero A = A fzero
