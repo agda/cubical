@@ -1,6 +1,9 @@
 module Cubical.Relation.Binary.Order.Pseudolattice.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
 
 open import Cubical.Relation.Binary.Base
@@ -57,3 +60,33 @@ makeIsPseudolattice {_≤_ = _≤_} is-setL is-prop-valued is-refl is-trans is-a
     PS : IsPseudolattice _≤_
     PS .IsPseudolattice.isPoset = isposet is-setL is-prop-valued is-refl is-trans is-antisym
     PS .IsPseudolattice.isPseudolattice = is-meet-semipseudolattice , is-join-semipseudolattice
+
+module _
+  (P : Poset ℓ ℓ') (_∧_ _∨_ : ⟨ P ⟩ → ⟨ P ⟩ → ⟨ P ⟩) where
+  open PosetStr (str P) renaming (_≤_ to infix 8 _≤_)
+  module _
+    (π₁ : ∀ {a b x} → x ≤ a ∧ b → x ≤ a)
+    (π₂ : ∀ {a b x} → x ≤ a ∧ b → x ≤ b)
+    (ϕ  : ∀ {a b x} → x ≤ a → x ≤ b → x ≤ a ∧ b)
+    (ι₁ : ∀ {a b x} → a ∨ b ≤ x → a ≤ x)
+    (ι₂ : ∀ {a b x} → a ∨ b ≤ x → b ≤ x)
+    (ψ  : ∀ {a b x} → a ≤ x → b ≤ x → a ∨ b ≤ x) where
+
+    makePseudolatticeFromPoset : Pseudolattice ℓ ℓ'
+    makePseudolatticeFromPoset .fst = ⟨ P ⟩
+    makePseudolatticeFromPoset .snd .PseudolatticeStr._≤_ = (str P) .PosetStr._≤_
+    makePseudolatticeFromPoset .snd .PseudolatticeStr.is-pseudolattice = isPL where
+      isPL : IsPseudolattice _≤_
+      isPL .IsPseudolattice.isPoset = isPoset
+      isPL .IsPseudolattice.isPseudolattice .fst a b .fst = a ∧ b
+      isPL .IsPseudolattice.isPseudolattice .fst a b .snd x = propBiimpl→Equiv
+        (is-prop-valued _ _)
+        (isProp× (is-prop-valued _ _) (is-prop-valued _ _))
+        (λ x≤a∧b → π₁ x≤a∧b , π₂ x≤a∧b)
+        (uncurry ϕ)
+      isPL .IsPseudolattice.isPseudolattice .snd a b .fst = a ∨ b
+      isPL .IsPseudolattice.isPseudolattice .snd a b .snd x = propBiimpl→Equiv
+        (is-prop-valued _ _)
+        (isProp× (is-prop-valued _ _) (is-prop-valued _ _))
+        (λ a∨b≤x → ι₁ a∨b≤x , ι₂ a∨b≤x)
+        (uncurry ψ)
