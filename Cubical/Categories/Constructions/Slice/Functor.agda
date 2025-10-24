@@ -26,7 +26,6 @@ private
   variable
     ℓ ℓ' : Level
     C D : Category ℓ ℓ'
-    c d : C .ob
 
 infix 39 _F/_
 infix 40 ∑_
@@ -79,7 +78,7 @@ module _ (Pbs : Pullbacks C) where
  open _⊣₂_
 
 
- module _ (𝑓 : C [ c , d ]) where
+ module _ {c d}(𝑓 : C [ c , d ]) where
 
   open BaseChange 𝑓 hiding (_＊)
 

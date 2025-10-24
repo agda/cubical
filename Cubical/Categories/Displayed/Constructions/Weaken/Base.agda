@@ -10,6 +10,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Constructions.BinProduct
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
@@ -41,6 +42,9 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
   weakenΠ .F-hom = snd
   weakenΠ .F-id = refl
   weakenΠ .F-seq _ _ = refl
+
+  ∫weaken→×C : Functor (∫C weaken) (C ×C D)
+  ∫weaken→×C = TC.Fst ,F weakenΠ
 
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
@@ -95,3 +99,4 @@ module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} where
   weakenF G .F-homᴰ = G .F-hom
   weakenF G .F-idᴰ = G .F-id
   weakenF G .F-seqᴰ = G .F-seq
+
