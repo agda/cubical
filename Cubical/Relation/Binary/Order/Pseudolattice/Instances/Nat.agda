@@ -29,9 +29,9 @@ private
 
 ℕ≤Pseudolattice : Pseudolattice ℓ-zero ℓ-zero
 ℕ≤Pseudolattice = makePseudolatticeFromPoset ℕ≤Poset min max
-  (λ       x≤min → ≤-trans x≤min min-≤-left)
-  (λ {a b} x≤min → ≤-trans x≤min (min-≤-right {a} {b}))
+  min-≤-left
+  (λ {a b} → min-≤-right {a} {b})
   minGLB
-  (λ       max≤x → ≤-trans left-≤-max max≤x)
-  (λ {a b} max≤x → ≤-trans (right-≤-max {b} {a}) max≤x)
+  left-≤-max
+  (λ {a b} → right-≤-max {b} {a})
   maxLUB

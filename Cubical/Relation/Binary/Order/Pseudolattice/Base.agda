@@ -65,11 +65,11 @@ module _
   (P : Poset ℓ ℓ') (_∧_ _∨_ : ⟨ P ⟩ → ⟨ P ⟩ → ⟨ P ⟩) where
   open PosetStr (str P) renaming (_≤_ to infix 8 _≤_)
   module _
-    (π₁ : ∀ {a b x} → x ≤ a ∧ b → x ≤ a)
-    (π₂ : ∀ {a b x} → x ≤ a ∧ b → x ≤ b)
+    (π₁ : ∀ {a b}   → a ∧ b ≤ a)
+    (π₂ : ∀ {a b}   → a ∧ b ≤ b)
     (ϕ  : ∀ {a b x} → x ≤ a → x ≤ b → x ≤ a ∧ b)
-    (ι₁ : ∀ {a b x} → a ∨ b ≤ x → a ≤ x)
-    (ι₂ : ∀ {a b x} → a ∨ b ≤ x → b ≤ x)
+    (ι₁ : ∀ {a b}   → a ≤ a ∨ b)
+    (ι₂ : ∀ {a b}   → b ≤ a ∨ b)
     (ψ  : ∀ {a b x} → a ≤ x → b ≤ x → a ∨ b ≤ x) where
 
     makePseudolatticeFromPoset : Pseudolattice ℓ ℓ'
@@ -82,11 +82,11 @@ module _
       isPL .IsPseudolattice.isPseudolattice .fst a b .snd x = propBiimpl→Equiv
         (is-prop-valued _ _)
         (isProp× (is-prop-valued _ _) (is-prop-valued _ _))
-        (λ x≤a∧b → π₁ x≤a∧b , π₂ x≤a∧b)
+        (λ x≤a∧b → is-trans _ _ _ x≤a∧b π₁ , is-trans _ _ _ x≤a∧b π₂)
         (uncurry ϕ)
       isPL .IsPseudolattice.isPseudolattice .snd a b .fst = a ∨ b
       isPL .IsPseudolattice.isPseudolattice .snd a b .snd x = propBiimpl→Equiv
         (is-prop-valued _ _)
         (isProp× (is-prop-valued _ _) (is-prop-valued _ _))
-        (λ a∨b≤x → ι₁ a∨b≤x , ι₂ a∨b≤x)
+        (λ a∨b≤x → is-trans _ _ _ ι₁ a∨b≤x , is-trans _ _ _ ι₂ a∨b≤x)
         (uncurry ψ)
