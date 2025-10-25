@@ -8,8 +8,6 @@ open import Cubical.Data.Int.Order renaming (_≤_ to _≤ℤ_)
 open import Cubical.Relation.Binary.Order.Poset.Instances.Int
 open import Cubical.Relation.Binary.Order.Pseudolattice
 
-open PseudolatticeStr
-
 ℤ≤Pseudolattice : Pseudolattice ℓ-zero ℓ-zero
 ℤ≤Pseudolattice = makePseudolatticeFromPoset ℤ≤Poset min max
   min≤
