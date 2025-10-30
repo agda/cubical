@@ -17,7 +17,10 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Nat.Divisibility
   using    (m∣n→m≤n)
   renaming (_∣_ to _∣ℕ_ ; isProp∣ to isProp∣ℕ ; stDivIneq to stDivIneqℕ)
-open import Cubical.Data.Nat.Mod
+open import Cubical.Data.Nat.Mod renaming (
+  quotient'_/_ to quotient_/_ ; remainder'_/_ to remainder_/_ ;
+  ≡remainder'+quotient' to ≡remainder+quotient ; mod'< to mod<
+  ) hiding (quotient_/_ ; remainder_/_ ; ≡remainder+quotient ; mod<)
 open import Cubical.Data.Int.Base as ℤ
   hiding   (_+_ ; _·_ ; _-_ ; -_)
 open import Cubical.Data.Int.Fast.Properties as ℤ
