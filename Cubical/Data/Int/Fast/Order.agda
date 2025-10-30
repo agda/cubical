@@ -5,6 +5,9 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Empty as ⊥ using (⊥)
+
+open import Cubical.Data.Bool.Base
+
 open import Cubical.Data.Int.Fast.Base as ℤ
 open import Cubical.Data.Int.Fast.Properties as ℤ
 open import Cubical.Data.Nat as ℕ hiding (minAssoc ; _<ᵇ_)
@@ -24,8 +27,6 @@ pos m    ≤' pos n    = m ℕ.≤ n
 pos m    ≤' negsuc n = ⊥
 negsuc m ≤' pos n    = Unit
 negsuc m ≤' negsuc n = n ℕ.≤ m
-
-open import Cubical.Data.Bool.Base
 
 _<ᵇ_ : ℤ → ℤ → Bool
 pos m    <ᵇ pos n    = m ℕ.<ᵇ n
@@ -137,47 +138,48 @@ pos-≤-pos {k} {l} (i , p) .snd =
 ≤SumLeftPos : n ≤ n ℤ.+ pos k
 ≤SumLeftPos {n} {k} = k , refl
 
-{-
 pred-≤-pred : sucℤ m ≤ sucℤ n → m ≤ n
-pred-≤-pred {m} {n} (k , p) = k , cong (_+pos k) (sym (predSuc m))
-                                 ∙ sym (predℤ+pos k (sucℤ m))
-                                 ∙ cong predℤ p
-                                 ∙ predSuc n
+pred-≤-pred {m} {n} (k , p) .fst = k
+pred-≤-pred {m} {n} (k , p) .snd =
+  m ℤ.+ pos k              ≡⟨ sym $ cong (ℤ._+ pos k) (predSuc m) ⟩
+  predℤ (sucℤ m) ℤ.+ pos k ≡⟨ sym $ predℤ+ (sucℤ m) (pos k) ⟩
+  predℤ (sucℤ m ℤ.+ pos k) ≡⟨ cong predℤ p ⟩
+  predℤ (sucℤ n)           ≡⟨ predSuc n ⟩
+  n                        ∎
 
 isRefl≤ : m ≤ m
-isRefl≤ = 0 , refl
+isRefl≤ = 0 , +IdR _
 
 ≤-suc : m ≤ n → m ≤ sucℤ n
-≤-suc (k , p) = suc k , cong sucℤ p
+≤-suc {m} {n} (k , p) = suc k , sym (+sucℤ m (pos k)) ∙ cong sucℤ p
 
 suc-< : sucℤ m < n → m < n
-suc-< p = pred-≤-pred (≤-suc p)
+suc-< {m} {n} p = pred-≤-pred {sucℤ m} (≤-suc {sucℤ (sucℤ m)} p)
 
 ≤-sucℤ : n ≤ sucℤ n
-≤-sucℤ = ≤-suc isRefl≤
+≤-sucℤ {n} = ≤-suc {n} isRefl≤
 
 ≤-predℤ : predℤ n ≤ n
-≤-predℤ {n} = 1 , sucPred n
+≤-predℤ {n} = 1 , sym (predℤ+ n 1) ∙ cong predℤ (+Comm n 1 ∙ sym (sucℤ≡1+ _)) ∙ predSuc n
 
 isTrans≤ : m ≤ n → n ≤ o → m ≤ o
-isTrans≤ {m} {n} {o} (i , p) (j , q) = (i ℕ.+ j)
-  , ((m ℤ.+ pos (i ℕ.+ j)) ≡⟨ cong (m ℤ.+_) (pos+ i j) ⟩
-     m ℤ.+ (pos i +pos j)   ≡⟨ +Assoc m (pos i) (pos j) ⟩
-     ((m +pos i) +pos j)    ≡⟨ cong (_+pos j) p ⟩
-     (n +pos j)             ≡⟨ q ⟩
-     o                      ∎)
+isTrans≤ {m} {n} {o} (i , p) (j , q) .fst = i ℕ.+ j
+isTrans≤ {m} {n} {o} (i , p) (j , q) .snd =
+  m ℤ.+ (pos i ℤ.+ pos j) ≡⟨ +Assoc m (pos i) (pos j) ⟩
+  (m ℤ.+ pos i) ℤ.+ pos j ≡⟨ cong (ℤ._+ pos j) p ⟩
+  n ℤ.+ pos j             ≡⟨ q ⟩
+  o                       ∎
 
 isAntisym≤ : m ≤ n → n ≤ m → m ≡ n
-isAntisym≤ {m} {n} (i , p) (j , q)
-  = cong (m +pos_) (injPos lemma₂) ∙ p
+isAntisym≤ {m} {n} (i , p) (j , q) =
+  sym (+IdR _) ∙ cong ((m ℤ.+_) ∘ pos) (injPos lemma₂) ∙ p
   where lemma₀ : pos (j ℕ.+ i) ℤ.+ m ≡ m
-        lemma₀ = pos (j ℕ.+ i) ℤ.+ m     ≡⟨ cong (ℤ._+ m) (pos+ j i) ⟩
-                 (pos j +pos i) ℤ.+ m    ≡⟨ sym (+Assoc (pos j) (pos i) m) ⟩
+        lemma₀ = pos (j ℕ.+ i) ℤ.+ m    ≡⟨ sym (+Assoc (pos j) (pos i) m) ⟩
                  pos j ℤ.+ (pos i ℤ.+ m) ≡⟨ cong (pos j ℤ.+_) (+Comm (pos i) m) ⟩
                  pos j ℤ.+ (m ℤ.+ pos i) ≡⟨ cong (pos j ℤ.+_) p ⟩
-                 pos j ℤ.+ n              ≡⟨ +Comm (pos j) n ⟩
-                 (n +pos j)               ≡⟨ q ⟩
-                 m                        ∎
+                 pos j ℤ.+ n             ≡⟨ +Comm (pos j) n ⟩
+                 n ℤ.+ pos j             ≡⟨ q ⟩
+                 m                       ∎
         lemma₁ : pos (j ℕ.+ i) ≡ 0
         lemma₁ = n+z≡z→n≡0 (pos (j ℕ.+ i)) m lemma₀
 
@@ -185,35 +187,38 @@ isAntisym≤ {m} {n} (i , p) (j , q)
         lemma₂ = cong pos (sym (snd (m+n≡0→m≡0×n≡0 (injPos lemma₁))))
 
 ≤Monotone+ : m ≤ n → o ≤ s → m ℤ.+ o ≤ n ℤ.+ s
-≤Monotone+ {o = o} p q = isTrans≤ (≤-+o {o = o} p) (≤-o+ q)
+≤Monotone+ {m} {n} {o} p q = isTrans≤ {m ℤ.+ o} (≤-+o {m} {o = o} p) (≤-o+ {o = n} q)
 
 ≤-o+-cancel : o ℤ.+ m ≤ o ℤ.+ n → m ≤ n
 ≤-o+-cancel {o} {m} (i , p) = i , inj-z+ {z = o} (+Assoc o m (pos i) ∙ p)
 
 ≤-+o-cancel : m ℤ.+ o ≤ n ℤ.+ o → m ≤ n
-≤-+o-cancel {m} {o} {n} (i , p) = i , (inj-+z {z = o}
-  ((m +pos i) ℤ.+ o    ≡⟨ sym (+Assoc m (pos i) o) ⟩
-   m ℤ.+ (pos i ℤ.+ o) ≡⟨ cong (m ℤ.+_) (+Comm (pos i) o) ⟩
-   m ℤ.+ (o +pos i)    ≡⟨ +Assoc m o (pos i) ⟩
-   ((m ℤ.+ o) +pos i)  ≡⟨ p ⟩
-   n ℤ.+ o             ∎))
+≤-+o-cancel {m} {o} {n} (i , p) .fst = i
+≤-+o-cancel {m} {o} {n} (i , p) .snd = inj-+z {z = o} $
+  (m ℤ.+  pos i) ℤ.+ o  ≡⟨ sym (+Assoc m (pos i) o) ⟩
+   m ℤ.+ (pos i  ℤ.+ o) ≡⟨ cong (m ℤ.+_) (+Comm (pos i) o) ⟩
+   m ℤ.+ (o  ℤ.+ pos i) ≡⟨ +Assoc m o (pos i) ⟩
+  (m ℤ.+  o) ℤ.+ pos i  ≡⟨ p ⟩
+  n ℤ.+ o               ∎
 
 ≤-+pos-trans : m ℤ.+ pos k ≤ n → m ≤ n
-≤-+pos-trans {m} {k} {n} p = isTrans≤ ≤SumRightPos (subst (_≤ n) (+Comm m (pos k)) p)
+≤-+pos-trans {m} {k} {n} p = isTrans≤ {m} (≤SumRightPos {m}) (subst (_≤ n) (+Comm m _) p)
 
 ≤-pos+-trans : pos k ℤ.+ m ≤ n → m ≤ n
-≤-pos+-trans {k} {m} {n} p = isTrans≤ ≤SumRightPos p
+≤-pos+-trans {k} {m} p = isTrans≤ {m} (≤SumRightPos {m}) p
 
 ≤-·o : m ≤ n → m ℤ.· (pos k) ≤ n ℤ.· (pos k)
-≤-·o {m} {n} {k} (i , p) = i ℕ.· k ,
-  (((m ℤ.· pos k) +pos (i ℕ.· k))  ≡⟨ cong (m ℤ.· pos k ℤ.+_) (pos·pos i k) ⟩
-   m ℤ.· pos k ℤ.+ pos i ℤ.· pos k ≡⟨ sym (·DistL+ m (pos i) (pos k)) ⟩
-   (m +pos i) ℤ.· pos k             ≡⟨ cong (ℤ._· pos k) p ⟩
-   n ℤ.· pos k                      ∎)
+≤-·o {m} {n} {k} (i , p) .fst = i ℕ.· k
+≤-·o {m} {n} {k} (i , p) .snd =
+  m ℤ.· pos k ℤ.+ pos i ℤ.· pos k ≡⟨ sym (·DistL+ m (pos i) (pos k)) ⟩
+  (m ℤ.+ pos i) ℤ.· pos k         ≡⟨ cong (ℤ._· pos k) p ⟩
+  n ℤ.· pos k                     ∎
 
 0≤o→≤-·o : 0 ≤ o → m ≤ n → m ℤ.· o ≤ n ℤ.· o
-0≤o→≤-·o {pos o} 0≤o m≤n = ≤-·o {k = o} m≤n
-0≤o→≤-·o {negsuc o} 0≤o _ = ⊥.rec (¬pos≤negsuc 0≤o)
+0≤o→≤-·o {pos o}    {m} 0≤o m≤n = ≤-·o {m} {k = o} m≤n
+0≤o→≤-·o {negsuc o} {m} 0≤o _   = ⊥.rec (¬pos≤negsuc 0≤o)
+
+{-
 
 <-·o : m < n → m ℤ.· (pos (suc k)) < n ℤ.· (pos (suc k))
 <-·o {m} {n} {k} (i , p) = (i ℕ.· suc k ℕ.+ k) ,
