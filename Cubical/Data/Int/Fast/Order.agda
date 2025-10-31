@@ -218,63 +218,59 @@ isAntisym≤ {m} {n} (i , p) (j , q) =
 0≤o→≤-·o {pos o}    {m} 0≤o m≤n = ≤-·o {m} {k = o} m≤n
 0≤o→≤-·o {negsuc o} {m} 0≤o _   = ⊥.rec (¬pos≤negsuc 0≤o)
 
-{-
-
 <-·o : m < n → m ℤ.· (pos (suc k)) < n ℤ.· (pos (suc k))
-<-·o {m} {n} {k} (i , p) = (i ℕ.· suc k ℕ.+ k) ,
-    ((sucℤ (m ℤ.· pos (suc k)) +pos (i ℕ.· suc k ℕ.+ k))        ≡⟨ cong (sucℤ (m ℤ.· pos (suc k)) ℤ.+_)
-                                                                       (pos+ (i ℕ.· suc k) k) ⟩
-      sucℤ (m ℤ.· pos (suc k)) ℤ.+ (pos (i ℕ.· suc k) +pos k)   ≡⟨ cong (sucℤ (m ℤ.· pos (suc k)) ℤ.+_)
-                                                                       (+Comm (pos (i ℕ.· suc k)) (pos k)) ⟩
-      sucℤ (m ℤ.· pos (suc k)) ℤ.+ (pos k +pos (i ℕ.· suc k))   ≡⟨ +Assoc (sucℤ (m ℤ.· pos (suc k))) (pos k) (pos (i ℕ.· suc k)) ⟩
-    ((sucℤ (m ℤ.· pos (suc k)) +pos k) +pos (i ℕ.· suc k))      ≡⟨ cong (_+pos (i ℕ.· suc k))
-                                                                       (sym (sucℤ+pos k (m ℤ.· pos (suc k)))) ⟩
-     (sucℤ ((m ℤ.· pos (suc k)) +pos k) +pos (i ℕ.· suc k))     ≡⟨ cong (_+pos (i ℕ.· suc k)) (+sucℤ (m ℤ.· pos (suc k)) (pos k)) ⟩
-   (((m ℤ.· pos (suc k)) ℤ.+ (pos (suc k))) +pos (i ℕ.· suc k)) ≡⟨ cong (_+pos (i ℕ.· suc k))
-                                                                       (+Comm (m ℤ.· pos (suc k)) (pos (suc k))) ⟩
-     ((pos (suc k) ℤ.+ m ℤ.· pos (suc k)) +pos (i ℕ.· suc k))    ≡⟨ cong (_+pos (i ℕ.· suc k)) (sym (sucℤ· m (pos (suc k)))) ⟩
-    (((sucℤ m) ℤ.· pos (suc k)) +pos (i ℕ.· suc k))              ≡⟨ cong ((sucℤ m) ℤ.· pos (suc k) ℤ.+_)
-                                                                       (pos·pos i (suc k)) ⟩
-     ((sucℤ m) ℤ.· pos (suc k)) ℤ.+ pos i ℤ.· pos (suc k)        ≡⟨ sym (·DistL+ ((sucℤ m)) (pos i) (pos (suc k))) ⟩
-     ((sucℤ m) +pos i) ℤ.· pos (suc k)                            ≡⟨ cong (ℤ._· pos (suc k)) p ⟩
-      n ℤ.· pos (suc k)                                              ∎)
-
+<-·o {m} {n} {k} (i , p) .fst = i ℕ.· suc k ℕ.+ k
+<-·o {m} {n} {k} (i , p) .snd =
+  sucℤ (m ℤ.· pos (suc k)) ℤ.+
+    (pos i ℤ.· pos (suc k) ℤ.+ pos k)       ≡⟨ cong (sucℤ (m ℤ.· pos (suc k)) ℤ.+_)
+                                               (+Comm (pos _) (pos k)) ⟩
+  sucℤ (m ℤ.· pos (suc k)) ℤ.+
+    (pos k ℤ.+ pos i ℤ.· pos (suc k))       ≡⟨ +Assoc (sucℤ (m ℤ.· pos _)) _ _ ⟩
+  (sucℤ (m ℤ.· pos (suc k)) ℤ.+ pos k) ℤ.+
+    pos i ℤ.· pos (suc k)                   ≡⟨ sym $ cong (ℤ._+ pos _)
+                                                     (sucℤ+ (m ℤ.· pos _) _) ⟩
+  sucℤ (m ℤ.· pos (suc k) ℤ.+ pos k) ℤ.+
+    pos i ℤ.· pos (suc k)                   ≡⟨ cong (ℤ._+ pos _) (+sucℤ (m ℤ.· pos _) _) ⟩
+  (m ℤ.· pos (suc k) ℤ.+ pos (suc k)) ℤ.+
+    pos i ℤ.· pos (suc k)                   ≡⟨ cong (ℤ._+ pos _)
+                                                (+Comm (m ℤ.· pos (suc k)) _) ⟩
+  (pos (suc k) ℤ.+ m ℤ.· pos (suc k)) ℤ.+
+    pos i ℤ.· pos (suc k)                   ≡⟨ sym $ cong (ℤ._+ pos _) (sucℤ· m _) ⟩
+  (sucℤ m ℤ.· pos (suc k)) ℤ.+
+    pos i ℤ.· pos (suc k)                   ≡⟨ sym $ ·DistL+ (sucℤ m) (pos i) _ ⟩
+  ((sucℤ m) ℤ.+ pos i) ℤ.· pos (suc k)      ≡⟨ cong (ℤ._· pos _) p ⟩
+  n ℤ.· pos (suc k)                                              ∎
 
 <-o+-cancel : o ℤ.+ m < o ℤ.+ n → m < n
-<-o+-cancel {o} {m} {n} = ≤-o+-cancel ∘ subst (_≤ o ℤ.+ n) (+sucℤ o m)
+<-o+-cancel {o} {m} {n} = ≤-o+-cancel {o} ∘ subst (_≤ o ℤ.+ n) (+sucℤ o m)
 
 <-weaken : m < n → m ≤ n
-<-weaken {m} (i , p) = (suc i) , sucℤ+ m (pos i) ∙ p
+<-weaken {m} (i , p) = (suc i) , sym (+sucℤ m (pos i)) ∙ sucℤ+ m (pos i) ∙ p
 
 isIrrefl< : ¬ m < m
-isIrrefl< {pos zero} (i , p) = snotz (injPos (pos+ (suc zero) i ∙ p))
-isIrrefl< {pos (suc n)} (i , p) = isIrrefl< {m = pos n} (i ,
-  (sym (pos+ (suc n) i)
-   ∙ cong pos(+-comm (suc n) i
-   ∙ +-suc i n
-   ∙ cong suc (+-comm i n)
-   ∙ injSuc (injPos (pos+ (suc (suc n)) i ∙ p)))))
-isIrrefl< {negsuc zero} (i , p)
-  = posNotnegsuc (zero ℕ.+ i) zero (+Comm (pos i) (pos zero) ∙ p)
-isIrrefl< {negsuc (suc n)} (i , p) = isIrrefl< {m = negsuc n} (i ,
-  ((sucℤ (negsuc n) +pos i) ≡⟨ sym (sucℤ+ (negsuc n) (pos i)) ⟩
-   sucℤ (negsuc n +pos i)   ≡⟨ cong sucℤ p ⟩
-   negsuc n                 ∎))
+isIrrefl< {pos zero}       (i , p) = snotz (injPos p)
+isIrrefl< {pos (suc n)}    (i , p) = isIrrefl< {pos n} (i , cong predℤ p)
+isIrrefl< {negsuc zero}    (i , p) = posNotnegsuc i 0 p
+isIrrefl< {negsuc (suc n)} (i , p) = isIrrefl< {negsuc n} (i ,
+                                     sym (sucℤ+ (negsuc n) _) ∙ cong sucℤ p)
 
 0<o→<-·o : 0 < o → m < n → m ℤ.· o < n ℤ.· o
-0<o→<-·o {pos zero} 0<o _ = ⊥.rec (isIrrefl< 0<o)
-0<o→<-·o {pos (suc o)} 0<o m<n = <-·o {k = o} m<n
-0<o→<-·o {negsuc o} 0<o _ = ⊥.rec (¬pos≤negsuc (<-weaken 0<o))
+0<o→<-·o {pos zero}        0<o _   = ⊥.rec (isIrrefl< 0<o)
+0<o→<-·o {pos (suc o)} {m} _   m<n = <-·o {m} {k = o} m<n
+0<o→<-·o {negsuc o}        0<o _   = ⊥.rec (¬pos≤negsuc (<-weaken {0} {negsuc o} 0<o))
 
 pos≤0→≡0 : pos k ≤ 0 → pos k ≡ 0
 pos≤0→≡0 {zero} _ = refl
 pos≤0→≡0 {suc k} p = ⊥.rec (¬-pos<-zero {k = k} p)
 
 predℤ-≤-predℤ : m ≤ n → predℤ m ≤ predℤ n
-predℤ-≤-predℤ {m} {n} (i , p) = i ,
-  ((predℤ m +pos i) ≡⟨ sym (predℤ+ m (pos i)) ⟩
-   predℤ (m +pos i) ≡⟨ cong predℤ p ⟩
-   predℤ n          ∎)
+predℤ-≤-predℤ {m} {n} (i , p) .fst = i
+predℤ-≤-predℤ {m} {n} (i , p) .snd =
+  predℤ m ℤ.+ pos i   ≡⟨ sym (predℤ+ m _) ⟩
+  predℤ (m ℤ.+ pos i) ≡⟨ cong predℤ p ⟩
+  predℤ n             ∎
+
+{-
 
 ¬m+posk<m : ¬ m ℤ.+ pos k < m
 ¬m+posk<m {m} {k} = ¬-pos<-zero ∘ <-o+-cancel {o = m} {m = pos k} {n = 0}
