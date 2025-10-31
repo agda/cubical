@@ -277,6 +277,28 @@ min-≤-right {zero} {n} = zero-≤
 min-≤-right {suc m} {zero} = ≤-refl
 min-≤-right {suc m} {suc n} = subst (_≤ _) (sym minSuc) $ suc-≤-suc $ min-≤-right {m} {n}
 
+-- `maxLUB` & `minGLB` from PR #1268
+maxLUB : ∀ {x} → m ≤ x → n ≤ x → max m n ≤ x
+maxLUB {zero}  {n}     _    n≤x  = n≤x
+maxLUB {suc m} {zero}  sm≤x _    = sm≤x
+maxLUB {suc m} {suc n} sm≤x sn≤x with m <ᵇ n
+... | false = sm≤x
+... | true  = sn≤x
+
+minGLB : ∀ {x} → x ≤ m → x ≤ n → x ≤ min m n
+minGLB {zero}  {n}     x≤0 _     = x≤0
+minGLB {suc m} {zero}  _   x≤0   = x≤0
+minGLB {suc m} {suc n} x≤sm x≤sn with m <ᵇ n
+... | false = x≤sn
+... | true  = x≤sm
+
+-- TO DO : generalize `≤→max` and `≤→min` to pseudolattices
+≤→max : m ≤ n → max m n ≡ n
+≤→max {m} {n} m≤n = ≤-antisym (maxLUB m≤n ≤-refl) $ right-≤-max {n} {m}
+
+≤→min : m ≤ n → min m n ≡ m
+≤→min {m} {n} m≤n = ≤-antisym min-≤-left (minGLB ≤-refl m≤n)
+
 -- Boolean order relations and their conversions to/from ≤ and <
 
 _≤ᵇ_ : ℕ → ℕ → Bool

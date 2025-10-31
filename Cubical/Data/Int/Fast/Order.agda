@@ -71,6 +71,12 @@ isProp< {m} = isProp≤ {sucℤ m}
 zero-≤pos : 0 ≤ pos l
 zero-≤pos {l} = l , (sym (pos0+ (pos l)))
 
+ℕ≤→≤ : ∀ {m n} → m ℕ.≤ n → pos m ≤ pos n
+ℕ≤→≤ {m} (i , p) = i , cong pos (+-comm m i ∙ p)
+
+≤→ℕ≤ : ∀ {m n} → pos m ≤ pos n → m ℕ.≤ n
+≤→ℕ≤ {m} (i , p) = i , injPos (+Comm (pos i) (pos m) ∙ p)
+
 negsuc≤-zero : negsuc k ≤ 0
 negsuc≤-zero {k} = suc k , nℕ-n≡0 k
 
@@ -87,6 +93,10 @@ negsuc<-zero {k} .snd =
 
 ¬pos≤negsuc : ¬ (pos k) ≤ negsuc l
 ¬pos≤negsuc {k} {l} (i , p) = posNotnegsuc (k ℕ.+ i) l (pos+ k i ∙ p)
+
+negsuc≤pos : negsuc k ≤ pos l
+negsuc≤pos {k} {l} .fst = l ℕ.+ suc k
+negsuc≤pos {k} {l} .snd = plusMinus (pos (suc k)) (pos l)
 
 negsuc<pos : negsuc k < pos l
 negsuc<pos {zero} {zero}   = 0 , refl
@@ -325,7 +335,7 @@ isAsym< {m} m<n = isIrrefl< ∘ <≤-trans {m} m<n
 
 ≤-·o-cancel : m ℤ.· (pos (suc k)) ≤ n ℤ.· (pos (suc k)) → m ≤ n
 ≤-·o-cancel {m} {k} {n} mk≤nk = subst2 _≤_ (minusPlus n m) (+IdL n) $
-  ≤-+o {m - n} {0} {o = n} $ ·suc≤0 {m - n} {k = k} $ subst2 (_≤_)
+  ≤-+o {m - n} $ ·suc≤0 {m - n} $ subst2 (_≤_)
     (sym (·DistL+ m (- n) (pos (suc k))))
     (cong (n ℤ.· pos _ ℤ.+_) (sym (-DistL· n (pos _))) ∙ -Cancel (n ℤ.· pos _))
     (≤-+o {m ℤ.· pos (suc k)} {n ℤ.· pos (suc k)} {(- n) ℤ.· pos (suc k)} mk≤nk)
@@ -335,104 +345,68 @@ isAsym< {m} m<n = isIrrefl< ∘ <≤-trans {m} m<n
 0<o→≤-·o-cancel {pos (suc o)} {m} _   mo≤no = ≤-·o-cancel {m} {o} mo≤no
 0<o→≤-·o-cancel {negsuc o}        0<o _     = ⊥.rec (¬pos≤negsuc 0<o)
 
-{-
-
 ≤-o·-cancel : (pos (suc k)) ℤ.· m ≤ (pos (suc k)) ℤ.· n → m ≤ n
-≤-o·-cancel {k} {m} {n} = ≤-·o-cancel ∘ (subst2 _≤_ (·Comm (pos (suc k)) m) (·Comm (pos (suc k)) n))
+≤-o·-cancel {k} {m} {n} = ≤-·o-cancel {m} {k} {n} ∘ (subst2 _≤_ (·Comm _ m) (·Comm _ n))
 
 <-·o-cancel : m ℤ.· (pos (suc k)) < n ℤ.· (pos (suc k)) → m < n
-<-·o-cancel {m} {k} {n} mk<nk =
-  subst2 _<_
-         (minusPlus n m)
-         (+Comm 0 n)
-         (<-+o {o = n}
-               (·suc<0 (subst2 _<_
-                               (cong (m ℤ.· pos (suc k) ℤ.+_) (-DistL· n (pos (suc k))) ∙
-                                 sym (·DistL+ m (- n) (pos (suc k))))
-                               (-Cancel (n ℤ.· pos (suc k)))
-                               (<-+o {o = - (n ℤ.· pos (suc k))} mk<nk))))
+<-·o-cancel {m} {k} {n} mk<nk = subst2 _<_ (minusPlus n m) (+IdL n) $
+  <-+o {m - n} $ ·suc<0 {m - n} $ subst2 _<_
+    (sym (·DistL+ m (- n) (pos (suc k))))
+    (cong (n ℤ.· pos _ ℤ.+_) (sym (-DistL· n (pos _))) ∙ -Cancel (n ℤ.· pos _))
+    (<-+o {m ℤ.· pos (suc k)} {n ℤ.· pos (suc k)} {(- n) ℤ.· pos (suc k)} mk<nk)
 
 0<o→<-·o-cancel : 0 < o → m ℤ.· o < n ℤ.· o → m < n
-0<o→<-·o-cancel {pos zero} 0<o _ = ⊥.rec (isIrrefl< 0<o)
-0<o→<-·o-cancel {pos (suc o)} 0<o mo<no = <-·o-cancel {k = o} mo<no
-0<o→<-·o-cancel {negsuc o} 0<o _ = ⊥.rec (¬pos≤negsuc 0<o)
+0<o→<-·o-cancel {pos zero}        0<o _     = ⊥.rec (isIrrefl< 0<o)
+0<o→<-·o-cancel {pos (suc o)} {m} _   mo<no = <-·o-cancel {m} {o} mo<no
+0<o→<-·o-cancel {negsuc o}        0<o _     = ⊥.rec (¬pos≤negsuc 0<o)
 
 <-o·-cancel : (pos (suc k)) ℤ.· m < (pos (suc k)) ℤ.· n → m < n
-<-o·-cancel {k} {m} {n} = <-·o-cancel ∘ (subst2 _<_ (·Comm (pos (suc k)) m) (·Comm (pos (suc k)) n))
+<-o·-cancel {k} {m} {n} = <-·o-cancel {m} ∘ (subst2 _<_ (·Comm (pos (suc k)) m) (·Comm (pos (suc k)) n))
 
 -Dist≤ : m ≤ n → (- n) ≤ (- m)
--Dist≤ {pos zero} {pos zero} _ = isRefl≤
--Dist≤ {pos zero} {pos (suc n)} _ = <-weaken negsuc<-zero
--Dist≤ {pos (suc m)} {pos zero} = ⊥.rec ∘ snotz ∘ injPos ∘ pos≤0→≡0
--Dist≤ {pos (suc m)} {pos (suc n)} = suc-≤-suc ∘ negsuc-≤-negsuc
--Dist≤ {pos m} {negsuc n} = ⊥.rec ∘ ¬pos≤negsuc
--Dist≤ {negsuc zero} {pos zero} = suc-≤-suc
--Dist≤ {negsuc zero} {pos (suc n)} = suc-≤-suc ∘ -Dist≤ ∘ suc-≤-suc
--Dist≤ {negsuc (suc m)} {pos zero} _ = zero-≤pos
--Dist≤ {negsuc (suc m)} {pos (suc n)} _ = negsuc<pos
--Dist≤ {negsuc m} {negsuc n} = suc-≤-suc ∘ pos-≤-pos
+-Dist≤ {pos zero}       {pos zero}    = λ _ → isRefl≤
+-Dist≤ {pos zero}       {pos (suc n)} = λ _ → negsuc≤-zero
+-Dist≤ {pos (suc m)}    {pos zero}    = ⊥.rec ∘ snotz ∘ injPos ∘ pos≤0→≡0
+-Dist≤ {pos (suc m)}    {pos (suc n)} = negsuc-≤-negsuc ∘ pred-≤-pred {pos m} {pos n}
+-Dist≤ {pos m}          {negsuc n}    = ⊥.rec ∘ ¬pos≤negsuc
+-Dist≤ {negsuc zero}    {pos zero}    = λ _ → zero-≤pos
+-Dist≤ {negsuc zero}    {pos (suc n)} = λ _ → negsuc≤pos
+-Dist≤ {negsuc (suc m)} {pos zero}    = λ _ → zero-≤pos
+-Dist≤ {negsuc (suc m)} {pos (suc n)} = λ _ → negsuc≤pos
+-Dist≤ {negsuc m}       {negsuc n}    = suc-≤-suc {pos n} {pos m} ∘ pos-≤-pos
 
 -Dist< : m < n → (- n) < (- m)
 -Dist< {m} {n} = subst (- n <_) (cong sucℤ (-sucℤ m) ∙ sucPred (- m))
-               ∘ suc-≤-suc
-               ∘ -Dist≤
+               ∘ suc-≤-suc { - n} { - sucℤ m}
+               ∘ -Dist≤ {sucℤ m} {n}
 
 ≤max : m ≤ ℤ.max m n
-≤max {pos zero} {pos m} = zero-≤pos
-≤max {pos (suc m)} {pos zero} = isRefl≤
-≤max {pos (suc m)} {pos (suc n)} = suc-≤-suc (≤max {m = pos m} {n = pos n})
-≤max {pos zero} {negsuc n} = isRefl≤
-≤max {pos (suc m)} {negsuc n} = isRefl≤
-≤max {negsuc m} {pos zero} = negsuc<-zero
-≤max {negsuc m} {pos (suc n)} = isTrans≤ negsuc<-zero zero-≤pos
-≤max {negsuc zero} {negsuc n} = isRefl≤
-≤max {negsuc (suc m)} {negsuc zero} = negsuc-≤-negsuc zero-≤pos
-≤max {negsuc (suc m)} {negsuc (suc n)} = pred-≤-pred (subst (negsuc m ≤_)
-                                        (sym (sucPred (ℤ.max (negsuc m) (negsuc n))))
-                                        (≤max {m = negsuc m} {n = negsuc n}))
+≤max {pos m}    {pos n}     = ℕ≤→≤ ℕ.left-≤-max
+≤max {pos m}    {negsuc n}  = isRefl≤
+≤max {negsuc m} {pos n}     = negsuc≤pos
+≤max {negsuc m} {negsuc n}  = -Dist≤ $ suc-≤-suc {pos (ℕ.min m n)} (ℕ≤→≤ ℕ.min-≤-left)
 
 ≤→max : m ≤ n → ℤ.max m n ≡ n
-≤→max {pos zero} {pos n} m≤n = refl
-≤→max {pos (suc m)} {pos zero} m≤n = ⊥.rec (snotz (injPos (pos≤0→≡0 m≤n)))
-≤→max {pos (suc m)} {pos (suc n)} m≤n
-  = cong sucℤ (≤→max {m = pos m} {n = pos n} (pred-≤-pred m≤n))
-≤→max {pos m} {negsuc n} m≤n = ⊥.rec (¬pos≤negsuc m≤n)
-≤→max {negsuc m} {pos n} m≤n = refl
-≤→max {negsuc zero} {negsuc zero} m≤n = refl
-≤→max {negsuc zero} {negsuc (suc n)} m≤n
-  = ⊥.rec (snotz (injPos (pos≤0→≡0 (pos-≤-pos m≤n))))
-≤→max {negsuc (suc m)} {negsuc zero} m≤n = refl
-≤→max {negsuc (suc m)} {negsuc (suc n)} m≤n
-  = cong predℤ (≤→max {m = negsuc m} {n = negsuc n} (suc-≤-suc m≤n))
+≤→max {pos m}    {pos n}    = cong pos ∘ ℕ.≤→max ∘ ≤→ℕ≤
+≤→max {pos m}    {negsuc n} = ⊥.rec ∘ ¬pos≤negsuc
+≤→max {negsuc m} {pos n}    = λ _ → refl
+≤→max {negsuc m} {negsuc n} = cong negsuc ∘ (ℕ.minComm m n ∙_) ∘ ℕ.≤→min ∘ ≤→ℕ≤ ∘
+                              pred-≤-pred {pos n} ∘ -Dist≤ {negsuc m}
 
 min≤ : ℤ.min m n ≤ m
-min≤ {pos zero} {pos n} = isRefl≤
-min≤ {pos (suc m)} {pos zero} = zero-≤pos
-min≤ {pos (suc m)} {pos (suc n)} = suc-≤-suc (min≤ {m = pos m} {n = pos n})
-min≤ {pos zero} {negsuc n} = negsuc<-zero
-min≤ {pos (suc m)} {negsuc n} = isTrans≤ negsuc<-zero zero-≤pos
-min≤ {negsuc zero} {pos n} = isRefl≤
-min≤ {negsuc (suc m)} {pos n} = isRefl≤
-min≤ {negsuc zero} {negsuc zero} = isRefl≤
-min≤ {negsuc zero} {negsuc (suc n)} = negsuc-≤-negsuc zero-≤pos
-min≤ {negsuc (suc m)} {negsuc zero} = isRefl≤
-min≤ {negsuc (suc m)} {negsuc (suc n)} = pred-≤-pred (subst (_≤ negsuc m)
-                                        (sym (sucPred (ℤ.min (negsuc m) (negsuc n))))
-                                        (min≤ {m = negsuc m} {n = negsuc n}))
+min≤ {pos m}    {pos n}    = ℕ≤→≤ ℕ.min-≤-left
+min≤ {pos m}    {negsuc n} = negsuc≤pos
+min≤ {negsuc m} {pos n}    = isRefl≤
+min≤ {negsuc m} {negsuc n} = -Dist≤ $ suc-≤-suc {pos m} (ℕ≤→≤ ℕ.left-≤-max)
 
 ≤→min : m ≤ n → ℤ.min m n ≡ m
-≤→min {pos zero} {pos n} _ = refl
-≤→min {pos (suc m)} {pos zero} m≤n = ⊥.rec (snotz (injPos (pos≤0→≡0 m≤n)))
-≤→min {pos (suc m)} {pos (suc n)} m≤n
-  = cong sucℤ (≤→min {m = pos m} {n = pos n} (pred-≤-pred m≤n))
-≤→min {pos m} {negsuc n} m≤n = ⊥.rec (¬pos≤negsuc m≤n)
-≤→min {negsuc m} {pos n} _ = refl
-≤→min {negsuc zero} {negsuc zero} _ = refl
-≤→min {negsuc zero} {negsuc (suc n)} m≤n
-  = ⊥.rec (snotz (injPos (pos≤0→≡0 (pos-≤-pos m≤n))))
-≤→min {negsuc (suc m)} {negsuc zero} _ = refl
-≤→min {negsuc (suc m)} {negsuc (suc n)} m≤n
-  = cong predℤ (≤→min {m = negsuc m} {n = negsuc n} (suc-≤-suc m≤n))
+≤→min {pos m}    {pos n}    = cong pos ∘ ℕ.≤→min ∘ ≤→ℕ≤
+≤→min {pos m}    {negsuc n} = ⊥.rec ∘ ¬pos≤negsuc
+≤→min {negsuc m} {pos n}    = λ _ → refl
+≤→min {negsuc m} {negsuc n} = cong negsuc ∘ (ℕ.maxComm m n ∙_) ∘ ℕ.≤→max ∘ ≤→ℕ≤ ∘
+                              pred-≤-pred {pos n} ∘ -Dist≤ {negsuc m}
+
+{-
 
 ≤MonotoneMin : m ≤ n → o ≤ s → ℤ.min m o ≤ ℤ.min n s
 ≤MonotoneMin {m} {n} {o} {s} m≤n o≤s
