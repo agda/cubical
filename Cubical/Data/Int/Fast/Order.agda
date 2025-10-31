@@ -270,31 +270,32 @@ predℤ-≤-predℤ {m} {n} (i , p) .snd =
   predℤ (m ℤ.+ pos i) ≡⟨ cong predℤ p ⟩
   predℤ n             ∎
 
-{-
-
 ¬m+posk<m : ¬ m ℤ.+ pos k < m
 ¬m+posk<m {m} {k} = ¬-pos<-zero ∘ <-o+-cancel {o = m} {m = pos k} {n = 0}
+                  ∘ subst (m ℤ.+ pos k <_) (+pos0 m)
 
 ≤<-trans : o ≤ m → m < n → o < n
-≤<-trans p = isTrans≤ (suc-≤-suc p)
+≤<-trans {o} p = isTrans≤ {sucℤ o} (suc-≤-suc {o} p)
 
 <≤-trans : o < m → m ≤ n → o < n
-<≤-trans = isTrans≤
+<≤-trans {o} = isTrans≤ {sucℤ o}
 
 isTrans< : o < m → m < n → o < n
-isTrans< p = ≤<-trans (<-weaken p)
+isTrans< {o} p = ≤<-trans {o} (<-weaken {o} p)
 
 isAsym< : m < n → ¬ n ≤ m
-isAsym< m<n = isIrrefl< ∘ <≤-trans m<n
+isAsym< {m} m<n = isIrrefl< ∘ <≤-trans {m} m<n
 
 <-+o : m < n → m ℤ.+ o < n ℤ.+ o
-<-+o {m} {n} {o} = subst (_≤ n ℤ.+ o) (sym (sucℤ+ m o)) ∘ ≤-+o {o = o}
+<-+o {m} {n} {o} = subst (_≤ n ℤ.+ o) (sym (sucℤ+ m o)) ∘ ≤-+o {sucℤ m} {o = o}
 
 <-o+ : m < n → o ℤ.+ m < o ℤ.+ n
 <-o+ {m} {n} {o} = subst (_≤ o ℤ.+ n) (sym (+sucℤ o m)) ∘ ≤-o+ {o = o}
 
 <-+pos-trans : m ℤ.+ pos k < n → m < n
-<-+pos-trans {k = k} = ≤<-trans (k , refl)
+<-+pos-trans {m} {k} = ≤<-trans {m} (k , refl)
+
+{-
 
 <-pos+-trans : pos k ℤ.+ m < n → m < n
 <-pos+-trans {k} {m} = ≤<-trans (k , (+Comm m (pos k)))
