@@ -6,7 +6,7 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Data.Empty as ⊥ using (⊥)
 
-open import Cubical.Data.Bool.Base
+open import Cubical.Data.Bool.Base hiding (_≟_)
 
 open import Cubical.Data.Int.Fast.Base as ℤ
 open import Cubical.Data.Int.Fast.Properties as ℤ
@@ -406,8 +406,6 @@ min≤ {negsuc m} {negsuc n} = -Dist≤ $ suc-≤-suc {pos m} (ℕ≤→≤ ℕ.
 ≤→min {negsuc m} {negsuc n} = cong negsuc ∘ (ℕ.maxComm m n ∙_) ∘ ℕ.≤→max ∘ ≤→ℕ≤ ∘
                               pred-≤-pred {pos n} ∘ -Dist≤ {negsuc m}
 
-{-
-
 ≤MonotoneMin : m ≤ n → o ≤ s → ℤ.min m o ≤ ℤ.min n s
 ≤MonotoneMin {m} {n} {o} {s} m≤n o≤s
   = subst (_≤ ℤ.min n s)
@@ -432,19 +430,14 @@ min≤ {negsuc m} {negsuc n} = -Dist≤ $ suc-≤-suc {pos m} (ℕ≤→≤ ℕ.
           (≤max {m = ℤ.max m o} {n = ℤ.max n s})
 
 ≤Dec : ∀ m n → Dec (m ≤ n)
-≤Dec (pos zero) (pos n) = yes zero-≤pos
-≤Dec (pos (suc m)) (pos zero) = no ¬-pos<-zero
-≤Dec (pos (suc m)) (pos (suc n)) with ≤Dec (pos m) (pos n)
-... | yes m≤n = yes (suc-≤-suc m≤n)
-... | no m≰n = no λ m+1≤n+1 → m≰n (pred-≤-pred m+1≤n+1)
-≤Dec (pos m) (negsuc n) = no λ m≤n → ¬-pos<-zero (≤<-trans m≤n negsuc<-zero)
-≤Dec (negsuc m) (pos n) = yes (isTrans≤ negsuc<-zero zero-≤pos)
-≤Dec (negsuc zero) (negsuc zero) = yes isRefl≤
-≤Dec (negsuc zero) (negsuc (suc n)) = no λ nsz≤nssn → ¬-pos<-zero (pos-≤-pos nsz≤nssn)
-≤Dec (negsuc (suc m)) (negsuc zero) = yes (pred-≤-pred negsuc<-zero)
-≤Dec (negsuc (suc m)) (negsuc (suc n)) with ≤Dec (negsuc m) (negsuc n)
-... | yes m≤n = yes (pred-≤-pred m≤n)
-... | no m≰n = no λ m+1≤n+1 → m≰n (suc-≤-suc m+1≤n+1)
+≤Dec (pos m)    (pos n)    with ℕ.≤Dec m n
+... | yes p = yes (ℕ≤→≤ p)
+... | no ¬p = no (¬p ∘ ≤→ℕ≤)
+≤Dec (pos m)    (negsuc n) = no ¬pos≤negsuc
+≤Dec (negsuc m) (pos n)    = yes negsuc≤pos
+≤Dec (negsuc m) (negsuc n) with ℕ.≤Dec n m
+... | yes p = yes (-Dist≤ (suc-≤-suc {pos n} (ℕ≤→≤ p)))
+... | no ¬p = no (¬p ∘ ≤→ℕ≤ ∘ pred-≤-pred {pos n} ∘ -Dist≤ {negsuc m})
 
 ≤Stable : ∀ m n → Stable (m ≤ n)
 ≤Stable m n = Dec→Stable (≤Dec m n)
@@ -456,26 +449,59 @@ min≤ {negsuc m} {negsuc n} = -Dist≤ $ suc-≤-suc {pos m} (ℕ≤→≤ ℕ.
 <Stable m n = Dec→Stable (<Dec m n)
 
 Trichotomy-suc : Trichotomy m n → Trichotomy (sucℤ m) (sucℤ n)
-Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)
-Trichotomy-suc (eq m≡n) = eq (cong sucℤ m≡n)
-Trichotomy-suc (gt n<m) = gt (suc-≤-suc n<m)
+Trichotomy-suc {m}     (lt m<n) = lt (suc-≤-suc {sucℤ m} m<n)
+Trichotomy-suc         (eq m≡n) = eq (cong sucℤ m≡n)
+Trichotomy-suc {n = n} (gt n<m) = gt (suc-≤-suc {sucℤ n} n<m)
 
 Trichotomy-pred : Trichotomy (sucℤ m) (sucℤ n) → Trichotomy m n
-Trichotomy-pred (lt m<n) = lt (pred-≤-pred m<n)
+Trichotomy-pred {m}     (lt m<n) = lt (pred-≤-pred {sucℤ m} m<n)
 Trichotomy-pred {m} {n} (eq m≡n) = eq (sym (predSuc m)
                                       ∙ cong predℤ m≡n
                                       ∙ predSuc n)
-Trichotomy-pred (gt n<m) = gt (pred-≤-pred n<m)
+Trichotomy-pred {n = n} (gt n<m) = gt (pred-≤-pred {sucℤ n} n<m)
 
 _≟_ : ∀ m n → Trichotomy m n
-pos zero ≟ pos zero = eq refl
-pos zero ≟ pos (suc n) = lt (suc-≤-suc zero-≤pos)
-pos (suc m) ≟ pos zero = gt (suc-≤-suc zero-≤pos)
-pos (suc m) ≟ pos (suc n) = Trichotomy-suc (pos m ≟ pos n)
-pos m ≟ negsuc n = gt (<≤-trans negsuc<-zero zero-≤pos)
-negsuc m ≟ pos n = lt (<≤-trans negsuc<-zero zero-≤pos)
-negsuc zero ≟ negsuc zero = eq refl
-negsuc zero ≟ negsuc (suc n) = gt (negsuc-≤-negsuc zero-≤pos)
-negsuc (suc m) ≟ negsuc zero = lt (negsuc-≤-negsuc zero-≤pos)
-negsuc (suc m) ≟ negsuc (suc n) = Trichotomy-pred (negsuc m ≟ negsuc n)
--}
+pos m    ≟ pos n    with m ℕ.≟ n
+... | ℕ.lt m<n = lt (ℕ≤→≤ m<n)
+... | ℕ.eq m≡n = eq (cong pos m≡n)
+... | ℕ.gt m>n = gt (ℕ≤→≤ m>n)
+pos m    ≟ negsuc n = gt (negsuc<pos {n})
+negsuc m ≟ pos n    = lt (negsuc<pos {m})
+negsuc m ≟ negsuc n with n ℕ.≟ m
+... | ℕ.lt n<m = lt (-Dist< (suc-≤-suc {pos (suc n)} (ℕ≤→≤ n<m)))
+... | ℕ.eq n≡m = eq (cong negsuc (sym n≡m))
+... | ℕ.gt n>m = gt (-Dist< (suc-≤-suc {pos (suc m)} (ℕ≤→≤ n>m)))
+
+-- alternative proof
+_≟'_ : ∀ m n → Trichotomy m n
+pos zero ≟' pos zero = eq refl
+pos zero ≟' pos (suc n) = lt (suc-≤-suc {0} {pos n} zero-≤pos)
+pos (suc m) ≟' pos zero = gt (suc-≤-suc {0} {pos m} zero-≤pos)
+pos (suc m) ≟' pos (suc n) = Trichotomy-suc (pos m ≟' pos n)
+pos m ≟' negsuc n = gt (negsuc<pos {n})
+negsuc m ≟' pos n = lt (negsuc<pos {m})
+negsuc zero ≟' negsuc zero = eq refl
+negsuc zero ≟' negsuc (suc n) = gt (negsuc-≤-negsuc zero-≤pos)
+negsuc (suc m) ≟' negsuc zero = lt (negsuc-≤-negsuc zero-≤pos)
+negsuc (suc m) ≟' negsuc (suc n) = Trichotomy-pred (negsuc m ≟' negsuc n)
+
+-- test
+private
+  data Compare : Type where
+    LT : Compare
+    EQ : Compare
+    GT : Compare
+
+  _≟C_ : ℤ → ℤ → Compare
+  _≟C_ m n with m ≟ n
+  ... | lt x = LT
+  ... | eq x = EQ
+  ... | gt x = GT
+
+  _≟'C_ : ℤ → ℤ → Compare
+  _≟'C_ m n with m ≟' n
+  ... | lt x = LT
+  ... | eq x = EQ
+  ... | gt x = GT
+
+  -- try to normalize (C-c C-n) m ≟C n and m ≟'C n for big m and n
