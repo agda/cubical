@@ -71,6 +71,9 @@ isProp< {m} = isProp≤ {sucℤ m}
 zero-≤pos : 0 ≤ pos l
 zero-≤pos {l} = l , (sym (pos0+ (pos l)))
 
+negsuc≤-zero : negsuc k ≤ 0
+negsuc≤-zero {k} = suc k , nℕ-n≡0 k
+
 ¬-pos<-zero : ¬ (pos k) < 0
 ¬-pos<-zero {k} (i , p) = snotz (injPos (pos+ (suc k) i ∙ p))
 
@@ -295,53 +298,44 @@ isAsym< {m} m<n = isIrrefl< ∘ <≤-trans {m} m<n
 <-+pos-trans : m ℤ.+ pos k < n → m < n
 <-+pos-trans {m} {k} = ≤<-trans {m} (k , refl)
 
-{-
-
 <-pos+-trans : pos k ℤ.+ m < n → m < n
-<-pos+-trans {k} {m} = ≤<-trans (k , (+Comm m (pos k)))
+<-pos+-trans {k} {m} = ≤<-trans {m} (k , (+Comm m (pos k)))
 
 <Monotone+ : m < n → o < s → m ℤ.+ o < n ℤ.+ s
-<Monotone+ {o = o} m<n o<s = isTrans< (<-+o {o = o} m<n) (<-o+ o<s)
+<Monotone+ {m} {n} {o} m<n o<s = isTrans< {m ℤ.+ o} (<-+o {m} m<n) (<-o+ {o} {o = n} o<s)
 
 <-+-≤ : m < n → o ≤ s → m ℤ.+ o < n ℤ.+ s
-<-+-≤ {o = o} m<n o≤s = <≤-trans (<-+o {o = o} m<n) (≤-o+ o≤s)
+<-+-≤ {m} {n} {o} m<n o≤s = <≤-trans {m ℤ.+ o} (<-+o {m} m<n) (≤-o+ {o = n} o≤s)
 
 -pos≤ : m - (pos k) ≤ m
 -pos≤ {m} {k} = k , minusPlus (pos k) m
 
 ·suc≤0 : m ℤ.· (pos (suc k)) ≤ 0 → m ≤ 0
-·suc≤0 {pos n} {k} (i , p) = 0 ,
-  cong pos (sym (0≡n·sm→0≡n
-           (sym (m+n≡0→m≡0×n≡0
-                (injPos (pos+ (n ℕ.· suc k) i ∙
-                         cong (_+pos i) (pos·pos n (suc k)) ∙
-                         p)) .fst))))
-·suc≤0 {negsuc _} _ = negsuc<-zero
+·suc≤0 {pos n} {k} (i , p) .fst = n ℕ.· k ℕ.+ i
+·suc≤0 {pos n} {k} (i , p) .snd =
+  pos (n ℕ.+ (n ℕ.· k ℕ.+ i))  ≡⟨ +Assoc (pos n) (pos n ℤ.· pos k) (pos i) ⟩
+  pos (n ℕ.+ n ℕ.· k ℕ.+ i)    ≡⟨ sym $ cong (pos ∘ (ℕ._+ i)) (·-suc n k) ⟩
+  pos (n ℕ.· suc k ℕ.+ i)      ≡⟨ p ⟩
+  0                             ∎
+·suc≤0 {negsuc n} {k} _ = negsuc≤-zero
 
 ·suc<0 : m ℤ.· (pos (suc k)) < 0 → m < 0
-·suc<0 {pos n} {k} (i , p) =
-  ⊥.rec (snotz (injPos
-               (pos+ (suc (n ℕ.· suc k)) i ∙
-                cong (λ x → sucℤ x +pos i) (pos·pos n (suc k)) ∙
-                p)))
-·suc<0 {negsuc _} _ = negsuc<-zero
+·suc<0 {pos n}    = ⊥.rec ∘ ¬-pos<-zero
+·suc<0 {negsuc n} = λ _ → negsuc<-zero {n}
 
 ≤-·o-cancel : m ℤ.· (pos (suc k)) ≤ n ℤ.· (pos (suc k)) → m ≤ n
-≤-·o-cancel {m} {k} {n} mk≤nk =
-  subst2 _≤_
-         (minusPlus n m)
-         (+Comm 0 n)
-         (≤-+o {o = n}
-               (·suc≤0 (subst2 _≤_
-                               (cong (m ℤ.· pos (suc k) ℤ.+_) (-DistL· n (pos (suc k))) ∙
-                                 sym (·DistL+ m (- n) (pos (suc k))))
-                               (-Cancel (n ℤ.· pos (suc k)))
-                               (≤-+o {o = - (n ℤ.· pos (suc k))} mk≤nk))))
+≤-·o-cancel {m} {k} {n} mk≤nk = subst2 _≤_ (minusPlus n m) (+IdL n) $
+  ≤-+o {m - n} {0} {o = n} $ ·suc≤0 {m - n} {k = k} $ subst2 (_≤_)
+    (sym (·DistL+ m (- n) (pos (suc k))))
+    (cong (n ℤ.· pos _ ℤ.+_) (sym (-DistL· n (pos _))) ∙ -Cancel (n ℤ.· pos _))
+    (≤-+o {m ℤ.· pos (suc k)} {n ℤ.· pos (suc k)} {(- n) ℤ.· pos (suc k)} mk≤nk)
 
 0<o→≤-·o-cancel : 0 < o → m ℤ.· o ≤ n ℤ.· o → m ≤ n
-0<o→≤-·o-cancel {pos zero} 0<o _ = ⊥.rec (isIrrefl< 0<o)
-0<o→≤-·o-cancel {pos (suc o)} 0<o mo≤no = ≤-·o-cancel {k = o} mo≤no
-0<o→≤-·o-cancel {negsuc o} 0<o _ = ⊥.rec (¬pos≤negsuc 0<o)
+0<o→≤-·o-cancel {pos zero}        0<o _     = ⊥.rec (isIrrefl< 0<o)
+0<o→≤-·o-cancel {pos (suc o)} {m} _   mo≤no = ≤-·o-cancel {m} {o} mo≤no
+0<o→≤-·o-cancel {negsuc o}        0<o _     = ⊥.rec (¬pos≤negsuc 0<o)
+
+{-
 
 ≤-o·-cancel : (pos (suc k)) ℤ.· m ≤ (pos (suc k)) ℤ.· n → m ≤ n
 ≤-o·-cancel {k} {m} {n} = ≤-·o-cancel ∘ (subst2 _≤_ (·Comm (pos (suc k)) m) (·Comm (pos (suc k)) n))
