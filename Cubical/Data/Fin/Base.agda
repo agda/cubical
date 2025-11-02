@@ -106,8 +106,7 @@ flast {k = k} = (k , <ᵗsucm {k})
 -- Fin 0 is empty
 ¬Fin0 : ¬ Fin 0
 -- ¬Fin0 (k , k<0) = ¬-<-zero k<0
-¬Fin0 (k , k<0) = k<0
--- ¬Fin0 ()
+¬Fin0 (x , ())
 
 -- The full inductive family eliminator for finite types.
 -- elim
