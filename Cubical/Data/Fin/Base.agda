@@ -69,7 +69,10 @@ toℕ = fst
 -- -- ... and injective.
 -- toℕ-injective : ∀{fj fk : Fin k} → toℕ fj ≡ toℕ fk → fj ≡ fk
 -- toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → isProp≤)
-toℕ-injective : {k : ℕ} {fj fk : Fin k} → toℕ {k} fj ≡ toℕ {k} fk → fj ≡ fk
+toℕ-injective 
+  : {k : ℕ} {fj fk : Fin k} 
+  → toℕ {k} fj ≡ toℕ {k} fk 
+  → fj ≡ fk
 toℕ-injective {k} {fj = fj} {fk} = Σ≡Prop (λ x → isProp<ᵗ {x} {k})
 
 -- Conversion from ℕ with a recursive definition of ≤
@@ -83,12 +86,15 @@ fsplit
   → (fzero ≡ fj) ⊎ (Σ[ fk ∈ Fin k ] fsuc fk ≡ fj)
 -- fsplit (0 , k<sn) = inl (toℕ-injective refl)
 -- fsplit (suc k , k<sn) = inr ((k , pred-≤-pred k<sn) , toℕ-injective refl)
-fsplit {n} (0 , k<sn) = inl (toℕ-injective {k = suc n} {fj = fzero} {fk = (0 , k<sn)} refl)
-fsplit {n} (suc k , k<sn) = inr ((k , k<sn) , toℕ-injective {k  = suc n} {fj = fsuc (k , k<sn)} {fk = (suc k , k<sn)} refl)
+fsplit {n} (0 , k<sn) 
+  = inl (toℕ-injective {k = suc n} {fj = fzero} {fk = (0 , k<sn)} refl)
+fsplit {n} (suc k , k<sn) 
+  = inr ((k , k<sn) 
+  , toℕ-injective {k  = suc n} {fj = fsuc (k , k<sn)} {fk = (suc k , k<sn)} refl)
 
 inject< : ∀ {m n} (m<n : m < n) → Fin m → Fin n
 -- inject< m<n (k , k<m) = k , <-trans k<m m<n
-inject< {m = m} {n = n} m<n (k , k<m) = k , <ᵗ-trans {n = k} {m = m} {k = n} k<m (<→<ᵗ m<n)
+inject< {m} {n} m<n (k , k<m) = k , <ᵗ-trans {k} {m} {n} k<m (<→<ᵗ m<n)
 
 injectSuc : {n : ℕ} → Fin n → Fin (suc n)
 injectSuc {n = n} = inject< (0 , refl)
