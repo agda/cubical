@@ -12,6 +12,7 @@ open import Cubical.Data.Int.Fast.Base as ℤ
 open import Cubical.Data.Int.Fast.Properties as ℤ
 open import Cubical.Data.Nat as ℕ hiding (minAssoc ; _<ᵇ_)
 import Cubical.Data.Nat.Order as ℕ
+open import Cubical.Data.Nat.Order.Recursive using () renaming (_≤_ to _≤ᵗ_)
 open import Cubical.Data.NatPlusOne.Base as ℕ₊₁
 open import Cubical.Data.Sigma
 
@@ -23,16 +24,25 @@ _≤_ : ℤ → ℤ → Type₀
 m ≤ n = Σ[ k ∈ ℕ ] m ℤ.+ pos k ≡ n
 
 _≤'_ : ℤ → ℤ → Type₀
-pos m    ≤' pos n    = m ℕ.≤ n
+pos m    ≤' pos n    = m ≤ᵗ n -- m ℕ.≤ n
 pos m    ≤' negsuc n = ⊥
 negsuc m ≤' pos n    = Unit
-negsuc m ≤' negsuc n = n ℕ.≤ m
+negsuc m ≤' negsuc n = n ≤ᵗ m -- n ℕ.≤ m
 
 _<ᵇ_ : ℤ → ℤ → Bool
 pos m    <ᵇ pos n    = m ℕ.<ᵇ n
 pos m    <ᵇ negsuc n = false
 negsuc m <ᵇ pos n    = true
 negsuc m <ᵇ negsuc n = n ℕ.<ᵇ m
+
+_≤ᵇ_ : ℤ → ℤ → Bool
+pos m    ≤ᵇ pos n    = m ℕ.≤ᵇ n
+pos m    ≤ᵇ negsuc n = false
+negsuc m ≤ᵇ pos n    = true
+negsuc m ≤ᵇ negsuc n = n ℕ.≤ᵇ m
+
+_≤''_ : ℤ → ℤ → Type₀
+m ≤'' n = Bool→Type (m ≤ᵇ n)
 
 
 _<_ : ℤ → ℤ → Type₀
@@ -487,18 +497,19 @@ negsuc (suc m) ≟' negsuc (suc n) = Trichotomy-pred (negsuc m ≟' negsuc n)
 
 -- test
 private
-  data Compare : Type where
-    LT : Compare
-    EQ : Compare
-    GT : Compare
+  -- move it to StrictOrder
+  data Ordering : Type where
+    LT : Ordering
+    EQ : Ordering
+    GT : Ordering
 
-  _≟C_ : ℤ → ℤ → Compare
+  _≟C_ : ℤ → ℤ → Ordering
   _≟C_ m n with m ≟ n
   ... | lt x = LT
   ... | eq x = EQ
   ... | gt x = GT
 
-  _≟'C_ : ℤ → ℤ → Compare
+  _≟'C_ : ℤ → ℤ → Ordering
   _≟'C_ m n with m ≟' n
   ... | lt x = LT
   ... | eq x = EQ
