@@ -277,7 +277,6 @@ min-≤-right {zero} {n} = zero-≤
 min-≤-right {suc m} {zero} = ≤-refl
 min-≤-right {suc m} {suc n} = subst (_≤ _) (sym minSuc) $ suc-≤-suc $ min-≤-right {m} {n}
 
--- `maxLUB` & `minGLB` from PR #1268
 maxLUB : ∀ {x} → m ≤ x → n ≤ x → max m n ≤ x
 maxLUB {zero}  {n}     _    n≤x  = n≤x
 maxLUB {suc m} {zero}  sm≤x _    = sm≤x
@@ -292,7 +291,6 @@ minGLB {suc m} {suc n} x≤sm x≤sn with m <ᵇ n
 ... | false = x≤sn
 ... | true  = x≤sm
 
--- TO DO : generalize `≤→max` and `≤→min` to pseudolattices
 ≤→max : m ≤ n → max m n ≡ n
 ≤→max {m} {n} m≤n = ≤-antisym (maxLUB m≤n ≤-refl) $ right-≤-max {n} {m}
 
@@ -442,14 +440,6 @@ splitℕ-< m n with m ≟ n
 
 <-asym' : ¬ m < n → n ≤ m
 <-asym' = <-asym'-case (_≟_ _ _)
-
-min-≤-left' : min m n ≤ m
-min-≤-left' {zero} {n} = ≤-refl
-min-≤-left' {suc m} {zero} = zero-≤
-min-≤-left' {suc m} {suc n} with m <ᵇ n UsingEq
-... | false , p = suc-≤-suc $ <-asym' $ subst Bool→Type p ∘ <→<ᵇ
-... | true  , _ = ≤-refl
-
 
 private
   acc-suc : Acc _<_ n → Acc _<_ (suc n)

@@ -16,21 +16,21 @@ _ℕ-_ : ℕ → ℕ → ℤ
 m ℕ- n = ℕ-hlp (m ℕ.∸ n) (n ℕ.∸ m)
 
 _+_ : ℤ → ℤ → ℤ
-pos n + pos n₁ = pos (n ℕ.+ n₁)
-negsuc n + negsuc n₁ = negsuc (suc (n ℕ.+ n₁))
-pos n + negsuc n₁ = n ℕ- (suc n₁)
-negsuc n + pos n₁ = n₁ ℕ- (suc n)
+pos m    + pos n    = pos (m ℕ.+ n)
+negsuc m + negsuc n = negsuc (suc (m ℕ.+ n))
+pos m    + negsuc n = m ℕ- (suc n)
+negsuc m + pos n    = n ℕ- (suc m)
 
 _-_ : ℤ → ℤ → ℤ
 m - n = m + (- n)
 
 _·_ : ℤ → ℤ → ℤ
-pos n · pos n₁ = pos (n ℕ.· n₁)
-pos zero · negsuc n₁ = pos zero
-pos (suc n) · negsuc n₁ = negsuc (predℕ (suc n ℕ.· suc n₁))
-negsuc n · pos zero = pos zero
-negsuc n · pos (suc n₁) = negsuc (predℕ (suc n ℕ.· suc n₁))
-negsuc n · negsuc n₁ = pos (suc n ℕ.· suc n₁)
+pos m       · pos n       = pos (m ℕ.· n)
+pos zero    · negsuc n    = pos zero
+pos (suc m) · negsuc n    = negsuc (predℕ (suc m ℕ.· suc n))
+negsuc m    · pos zero    = pos zero
+negsuc m    · pos (suc n) = negsuc (predℕ (suc m ℕ.· suc n))
+negsuc m    · negsuc n    = pos (suc m ℕ.· suc n)
 
 sumFinℤ : {n : ℕ} (f : Fin n → ℤ) → ℤ
 sumFinℤ {n = n} f = sumFinGen {n = n} _+_ 0 f

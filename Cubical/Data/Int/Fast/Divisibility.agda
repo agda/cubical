@@ -34,7 +34,7 @@ open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Fast.Int
+open import Cubical.Algebra.CommRing.Instances.Int.Fast
 open import Cubical.Tactics.CommRingSolver
 
 private

@@ -41,12 +41,6 @@ minComm zero (suc m) = refl
 minComm (suc n) zero = refl
 minComm (suc n) (suc m) = minSuc ∙∙ cong suc (minComm n m) ∙∙ sym minSuc
 
--- TO DO :
---  remove
---  `minIdem`, `minSucL`, `minSucR` , `minAssoc`
---  `maxSucL`, `maxSucR`
---  and deduce them from the Pseudolattice structure on `ℕ`
-
 minIdem : ∀ n → min n n ≡ n
 minIdem zero    = refl
 minIdem (suc n) with n <ᵇ n

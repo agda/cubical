@@ -25,7 +25,7 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Bool
-open import Cubical.Algebra.Group.Instances.Fast.Int
+open import Cubical.Algebra.Group.Instances.Int.Fast
 
 open GroupStr (snd BoolGroup) using ()
   renaming ( _·_ to _+Bool_ )

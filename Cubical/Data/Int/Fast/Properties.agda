@@ -23,11 +23,10 @@ open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Int.Base as ℤ
   hiding (_+_ ; _·_ ; _-_ ; _ℕ-_ ; sumFinℤ ; sumFinℤId)
 open import Cubical.Data.Int.Properties as P public using (
-  sucPred ; predSuc
-  ;  injPos ; injNegsuc ; posNotnegsuc ; negsucNotpos ; injNeg ; discreteℤ ; isSetℤ
-  ; -pos ; -neg ; sucℤnegsucneg ; -sucℤ ; -predℤ ; -Involutive ; isEquiv-
-  ; predℤ+negsuc ; sucℤ+negsuc ; predℤ-pos ; ind-assoc ; ind-comm
-  ; sucPathℤ ; addEq ; predPathℤ ; subEq ; _+'_ ; isEquivAddℤ'
+    sucPred ; predSuc ; injPos ; injNegsuc ; posNotnegsuc ; negsucNotpos ; injNeg
+  ; discreteℤ ; isSetℤ ; -pos ; -neg ; sucℤnegsucneg ; -sucℤ ; -predℤ
+  ; -Involutive ; isEquiv- ; predℤ+negsuc ; sucℤ+negsuc ; predℤ-pos
+  ; ind-assoc ; ind-comm ; sucPathℤ ; addEq ; predPathℤ ; subEq ; _+'_ ; isEquivAddℤ'
   ; abs→⊎ ; ⊎→abs ; abs≡0 ; ¬x≡0→¬abs≡0 ; abs- ; 0≢1-ℤ ; clamp)
 
 open import Cubical.Data.Int.Fast.Base
@@ -58,7 +57,7 @@ private
 ·≡·f (pos zero)    (negsuc m)    = refl
 ·≡·f (pos (suc n)) (negsuc m)    = P.pos·negsuc (suc n) m
                                   ∙ cong -_ (sym (P.pos·pos (suc n) (suc m)))
-·≡·f (negsuc n)    (pos zero)     = P.·AnnihilR (negsuc n)
+·≡·f (negsuc n)    (pos zero)    = P.·AnnihilR (negsuc n)
 ·≡·f (negsuc n)    (pos (suc m)) = P.negsuc·pos n (suc m)
                                   ∙ cong -_ (sym (P.pos·pos (suc n) (suc m)))
 ·≡·f (negsuc n)    (negsuc m)    = P.negsuc·negsuc n m
@@ -67,11 +66,10 @@ private
 subst-f : (A : (ℤ → ℤ → ℤ) → (ℤ → ℤ → ℤ) → Type) → A ℤ._+_ ℤ._·_ → A _+_ _·_
 subst-f A = subst2 A (λ i x y → +≡+f x y i) (λ i x y → ·≡·f x y i)
 
--- `subst-f` can be used to transport lemmas from the standard to the fast operations:
-
--- ·DistPosRMin : (x : ℕ) (y z : ℤ) → pos x · P.min y z ≡ P.min (pos x · y) (pos x · z)
--- ·DistPosRMin x y z = subst-f
---   (λ _+_ _·_ → pos x · P.min y z ≡ P.min (pos x · y) (pos x · z)) (P.·DistPosRMin x y z)
+-- `subst-f` can be used to transport proofs from the standard to the fast operations:
+private
+  ·Assoc' : (x y z : ℤ) → x · (y · z) ≡ x · y · z
+  ·Assoc' x y z = subst-f (λ _+_ _·_ → (x · (y · z)) ≡ ((x · y) · z)) (P.·Assoc x y z)
 
 sucℤ[negsuc]-pos : ∀ k → sucℤ (negsuc k) ≡ - pos k
 sucℤ[negsuc]-pos zero    = refl
@@ -257,7 +255,6 @@ predℤ+pos (suc n) m =
   (sucℤ (predℤ m)) +pos n   ≡⟨ sym (P.sucℤ+pos n (predℤ m))⟩
   (predℤ m) +pos (suc n)    ∎
 
--- maybe we can find a better name (?)
 predℕ-≡ℕ-suc : ∀ m n → predℤ (m ℕ- n) ≡ m ℕ- (suc n)
 predℕ-≡ℕ-suc zero          zero    = refl
 predℕ-≡ℕ-suc zero          (suc n) = refl
@@ -829,10 +826,9 @@ private
    ∙∙ cong (_+ w) (sym (+Assoc x y z) ∙∙ cong (x +_) (+Comm y z) ∙∙ +Assoc x z y)
    ∙∙ sym (+Assoc (x + z) y w)
 
--- maybe we can find a better name (?)
-+ℕ- : ∀ m n l → (m +ℕ n) ℕ- (m +ℕ l) ≡ n ℕ- l
-+ℕ- zero    n l = refl
-+ℕ- (suc m) n l = +ℕ- m n l
+ℕ-Cancel+ : ∀ m n l → (m +ℕ n) ℕ- (m +ℕ l) ≡ n ℕ- l
+ℕ-Cancel+ zero    n l = refl
+ℕ-Cancel+ (suc m) n l = ℕ-Cancel+ m n l
 
 Pos·DistRℕ- : ∀ x y z → pos x · y ℕ- z ≡ (x ·ℕ y ) ℕ- (x ·ℕ z)
 Pos·DistRℕ- zero y z = ·AnnihilL (y ℕ- z)
@@ -844,7 +840,7 @@ Pos·DistRℕ- (suc x) zero    (suc z) = cong (_ℕ- (suc x ·ℕ suc z)) (ℕ.0
 Pos·DistRℕ- (suc x) (suc y) zero    = cong ((suc x ·ℕ suc y) ℕ-_) (ℕ.0≡m·0 x)
 Pos·DistRℕ- (suc x) (suc y) (suc z) =
   pos (suc x) · (y ℕ- z)                         ≡⟨ Pos·DistRℕ- (suc x) y z ⟩
-  (suc x ·ℕ y) ℕ- (suc x ·ℕ z)                   ≡⟨ sym $ +ℕ- (suc x) (suc x ·ℕ y) (suc x ·ℕ z) ⟩
+  (suc x ·ℕ y) ℕ- (suc x ·ℕ z)                   ≡⟨ sym $ ℕ-Cancel+ (suc x) (suc x ·ℕ y) (suc x ·ℕ z) ⟩
   (suc x +ℕ suc x ·ℕ y) ℕ- (suc x +ℕ suc x ·ℕ z) ≡⟨ sym $ cong₂ _ℕ-_ (ℕ.·-suc (suc x) y) (ℕ.·-suc (suc x) z) ⟩
   (suc x ·ℕ suc y) ℕ- (suc x ·ℕ suc z)           ∎
 

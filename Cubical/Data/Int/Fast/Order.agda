@@ -12,22 +12,48 @@ open import Cubical.Data.Int.Fast.Base as ℤ
 open import Cubical.Data.Int.Fast.Properties as ℤ
 open import Cubical.Data.Nat as ℕ hiding (minAssoc ; _<ᵇ_)
 import Cubical.Data.Nat.Order as ℕ
-open import Cubical.Data.Nat.Order.Recursive using () renaming (_≤_ to _≤ᵗ_)
+open import Cubical.Data.Nat.Order.Recursive as ℕrec using ()
 open import Cubical.Data.NatPlusOne.Base as ℕ₊₁
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Nullary
+open import Cubical.Relation.Binary
 
 infix 4 _≤_ _<_ _≥_ _>_
 
 _≤_ : ℤ → ℤ → Type₀
 m ≤ n = Σ[ k ∈ ℕ ] m ℤ.+ pos k ≡ n
 
-_≤'_ : ℤ → ℤ → Type₀
-pos m    ≤' pos n    = m ≤ᵗ n -- m ℕ.≤ n
-pos m    ≤' negsuc n = ⊥
-negsuc m ≤' pos n    = Unit
-negsuc m ≤' negsuc n = n ≤ᵗ m -- n ℕ.≤ m
+_<_ : ℤ → ℤ → Type₀
+m < n = sucℤ m ≤ n
+
+_≥_ : ℤ → ℤ → Type₀
+m ≥ n = n ≤ m
+
+_>_ : ℤ → ℤ → Type₀
+m > n = n < m
+
+-- Recursive order
+
+_≤ᵗ_ : ℤ → ℤ → Type₀
+pos m    ≤ᵗ pos n    = m ℕrec.≤ n
+pos m    ≤ᵗ negsuc n = ⊥
+negsuc m ≤ᵗ pos n    = Unit
+negsuc m ≤ᵗ negsuc n = n ℕrec.≤ m
+
+_<ᵗ_ : ℤ → ℤ → Type₀
+pos m    <ᵗ pos n    = m ℕrec.< n
+pos m    <ᵗ negsuc n = ⊥
+negsuc m <ᵗ pos n    = Unit
+negsuc m <ᵗ negsuc n = n ℕrec.< m
+
+_≥ᵗ_ : ℤ → ℤ → Type₀
+m ≥ᵗ n = n ≤ᵗ m
+
+_>ᵗ_ : ℤ → ℤ → Type₀
+m >ᵗ n = n <ᵗ m
+
+-- Boolen order
 
 _<ᵇ_ : ℤ → ℤ → Bool
 pos m    <ᵇ pos n    = m ℕ.<ᵇ n
@@ -41,23 +67,25 @@ pos m    ≤ᵇ negsuc n = false
 negsuc m ≤ᵇ pos n    = true
 negsuc m ≤ᵇ negsuc n = n ℕ.≤ᵇ m
 
-_≤''_ : ℤ → ℤ → Type₀
-m ≤'' n = Bool→Type (m ≤ᵇ n)
+_>ᵇ_ : ℤ → ℤ → Bool
+m >ᵇ n = n <ᵇ m
+
+_≥ᵇ_ : ℤ → ℤ → Bool
+m ≥ᵇ n = n ≤ᵇ m
+
+-- The recursive and boolean order normalize in the same way:
+≤ᵗ≡≤ᵇ : ∀ x y → x ≤ᵗ y ≡ Bool→Type (x ≤ᵇ y)
+≤ᵗ≡≤ᵇ (pos zero)       (pos n)          = refl
+≤ᵗ≡≤ᵇ (pos (suc m))    (pos zero)       = refl
+≤ᵗ≡≤ᵇ (pos (suc m))    (pos (suc n))    = ≤ᵗ≡≤ᵇ (pos m) (pos n)
+≤ᵗ≡≤ᵇ (pos m)          (negsuc n)       = refl
+≤ᵗ≡≤ᵇ (negsuc m)       (pos n)          = refl
+≤ᵗ≡≤ᵇ (negsuc m)       (negsuc zero)    = refl
+≤ᵗ≡≤ᵇ (negsuc zero)    (negsuc (suc n)) = refl
+≤ᵗ≡≤ᵇ (negsuc (suc m)) (negsuc (suc n)) = ≤ᵗ≡≤ᵇ (negsuc m) (negsuc n)
 
 
-_<_ : ℤ → ℤ → Type₀
-m < n = sucℤ m ≤ n
-
-_≥_ : ℤ → ℤ → Type₀
-m ≥ n = n ≤ m
-
-_>_ : ℤ → ℤ → Type₀
-m > n = n < m
-
-data Trichotomy (m n : ℤ) : Type₀ where
-  lt : m < n → Trichotomy m n
-  eq : m ≡ n → Trichotomy m n
-  gt : n < m → Trichotomy m n
+open BinaryRelation _<_
 
 private
   variable
@@ -80,12 +108,6 @@ isProp< {m} = isProp≤ {sucℤ m}
 
 zero-≤pos : 0 ≤ pos l
 zero-≤pos {l} = l , (sym (pos0+ (pos l)))
-
-ℕ≤→≤ : ∀ {m n} → m ℕ.≤ n → pos m ≤ pos n
-ℕ≤→≤ {m} (i , p) = i , cong pos (+-comm m i ∙ p)
-
-≤→ℕ≤ : ∀ {m n} → pos m ≤ pos n → m ℕ.≤ n
-≤→ℕ≤ {m} (i , p) = i , injPos (+Comm (pos i) (pos m) ∙ p)
 
 negsuc≤-zero : negsuc k ≤ 0
 negsuc≤-zero {k} = suc k , nℕ-n≡0 k
@@ -142,6 +164,38 @@ pos-≤-pos {k} {l} (i , p) .snd =
   - sucℤ (negsuc k)                     ≡⟨ cong -_ (sucℤ[negsuc]-pos k) ⟩
   - (- pos k)                           ≡⟨ -Involutive _ ⟩
   pos k                                 ∎
+
+-- Conversions between natural, integer and boolean orders
+
+ℕ≤→≤ : ∀ {m n} → m ℕ.≤ n → pos m ≤ pos n
+ℕ≤→≤ {m} (i , p) = i , cong pos (+-comm m i ∙ p)
+
+≤→ℕ≤ : ∀ {m n} → pos m ≤ pos n → m ℕ.≤ n
+≤→ℕ≤ {m} (i , p) = i , injPos (+Comm (pos i) (pos m) ∙ p)
+
+<ᵇ→< : Bool→Type (m <ᵇ n) → m < n
+<ᵇ→< {pos m}          {pos n}          t = ℕ≤→≤ (ℕ.<ᵇ→< t)
+<ᵇ→< {negsuc m}       {pos n}          t = negsuc<pos {m} {n}
+<ᵇ→< {negsuc (suc m)} {negsuc zero}    t = negsuc-≤-negsuc zero-≤pos
+<ᵇ→< {negsuc (suc m)} {negsuc (suc n)} t = negsuc-≤-negsuc (ℕ≤→≤ (ℕ.<ᵇ→< t))
+
+<→<ᵇ : m < n → Bool→Type (m <ᵇ n)
+<→<ᵇ {pos m}          {pos n}    = ℕ.≤→≤ᵇ ∘ ≤→ℕ≤
+<→<ᵇ {pos m}          {negsuc n} = ¬pos≤negsuc
+<→<ᵇ {negsuc m}       {pos n}    = λ _ → tt
+<→<ᵇ {negsuc zero}    {negsuc n} = ¬pos≤negsuc
+<→<ᵇ {negsuc (suc m)} {negsuc n} = ℕ.≤→≤ᵇ ∘ ≤→ℕ≤ ∘ pos-≤-pos
+
+≤ᵇ→≤ : Bool→Type (m ≤ᵇ n) → m ≤ n
+≤ᵇ→≤ {pos m}    {pos n}    t = ℕ≤→≤ (ℕ.≤ᵇ→≤ t)
+≤ᵇ→≤ {negsuc m} {pos n}    t = negsuc≤pos
+≤ᵇ→≤ {negsuc m} {negsuc n} t = negsuc-≤-negsuc (ℕ≤→≤ (ℕ.≤ᵇ→≤ t))
+
+≤→≤ᵇ : m ≤ n → Bool→Type (m ≤ᵇ n)
+≤→≤ᵇ {pos m}    {pos n}    = ℕ.≤→≤ᵇ ∘ ≤→ℕ≤
+≤→≤ᵇ {pos m}    {negsuc n} = ¬pos≤negsuc
+≤→≤ᵇ {negsuc m} {pos n}    = λ _ → tt
+≤→≤ᵇ {negsuc m} {negsuc n} = ℕ.≤→≤ᵇ ∘ ≤→ℕ≤ ∘ pos-≤-pos
 
 ≤-+o : m ≤ n → m ℤ.+ o ≤ n ℤ.+ o
 ≤-+o {m} {n} {o} (i , p) .fst = i
@@ -495,24 +549,19 @@ negsuc zero ≟' negsuc (suc n) = gt (negsuc-≤-negsuc zero-≤pos)
 negsuc (suc m) ≟' negsuc zero = lt (negsuc-≤-negsuc zero-≤pos)
 negsuc (suc m) ≟' negsuc (suc n) = Trichotomy-pred (negsuc m ≟' negsuc n)
 
--- test
+-- Raw comparisons, without the proof terms
+compare : ℤ → ℤ → Ordering
+compare = isTrichotomous→Ordering _≟_
+
+compare' : ℤ → ℤ → Ordering
+compare' = isTrichotomous→Ordering _≟'_
+
 private
-  -- move it to StrictOrder
-  data Ordering : Type where
-    LT : Ordering
-    EQ : Ordering
-    GT : Ordering
 
-  _≟C_ : ℤ → ℤ → Ordering
-  _≟C_ m n with m ≟ n
-  ... | lt x = LT
-  ... | eq x = EQ
-  ... | gt x = GT
+  test₀ : compare -4294967296 -4295967296 ≡ GT
+  test₀ = refl
 
-  _≟'C_ : ℤ → ℤ → Ordering
-  _≟'C_ m n with m ≟' n
-  ... | lt x = LT
-  ... | eq x = EQ
-  ... | gt x = GT
+  -- This would take much longer to typecheck:
 
-  -- try to normalize (C-c C-n) m ≟C n and m ≟'C n for big m and n
+  -- test₁ : compare' -4294967296 -4295967296 ≡ GT
+  -- test₁ = refl

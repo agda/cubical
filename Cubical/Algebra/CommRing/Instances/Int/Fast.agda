@@ -1,11 +1,9 @@
-module Cubical.Algebra.CommRing.Instances.Fast.Int where
+module Cubical.Algebra.CommRing.Instances.Int.Fast where
 
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Data.Int.Fast.Base renaming (_+_ to _+ℤ_; _·_ to _·ℤ_ ; -_ to -ℤ_)
-
-open import Cubical.Data.Int.Fast.Properties as Int
+open import Cubical.Data.Int.Fast as Int renaming (_+_ to _+ℤ_; _·_ to _·ℤ_ ; -_ to -ℤ_)
 
 open CommRingStr using (0r ; 1r ; _+_ ; _·_ ; -_ ; isCommRing)
 
