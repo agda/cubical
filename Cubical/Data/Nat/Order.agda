@@ -443,6 +443,14 @@ splitℕ-< m n with m ≟ n
 <-asym' : ¬ m < n → n ≤ m
 <-asym' = <-asym'-case (_≟_ _ _)
 
+min-≤-left' : min m n ≤ m
+min-≤-left' {zero} {n} = ≤-refl
+min-≤-left' {suc m} {zero} = zero-≤
+min-≤-left' {suc m} {suc n} with m <ᵇ n UsingEq
+... | false , p = suc-≤-suc $ <-asym' $ subst Bool→Type p ∘ <→<ᵇ
+... | true  , _ = ≤-refl
+
+
 private
   acc-suc : Acc _<_ n → Acc _<_ (suc n)
   acc-suc a

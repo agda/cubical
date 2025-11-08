@@ -49,7 +49,9 @@ minComm (suc n) (suc m) = minSuc ∙∙ cong suc (minComm n m) ∙∙ sym minSuc
 
 minIdem : ∀ n → min n n ≡ n
 minIdem zero    = refl
-minIdem (suc n) = minSuc ∙ cong suc (minIdem n)
+minIdem (suc n) with n <ᵇ n
+... | false = refl
+... | true  = refl
 
 minSucL : ∀ n → min (suc n) n ≡ n
 minSucL zero    = refl
