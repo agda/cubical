@@ -167,6 +167,8 @@ snd (prodFinFamily∙ (suc n) A) =
   snd (prodFinFamily∙ n (predFinFamily∙ A)) , snd (A flast)
 
 -- summation
-sumFinGen : ∀ {ℓ} {A : Type ℓ} {n : ℕ} (_+_ : A → A → A) (0A : A) (f : Fin n → A) → A
+sumFinGen : ∀ {ℓ} {A : Type ℓ} {n : ℕ} 
+  (_+_ : A → A → A) (0A : A) (f : Fin n → A) → A
 sumFinGen {n = zero} _+_ 0A f = 0A
-sumFinGen {n = suc n} _+_ 0A f = f flast + (sumFinGen {n = n}) _+_ 0A ((f ∘ injectSuc))
+sumFinGen {n = suc n} _+_ 0A f = 
+  f flast + (sumFinGen {n = n}) _+_ 0A ((f ∘ injectSuc))
