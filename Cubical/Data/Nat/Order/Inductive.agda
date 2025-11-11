@@ -79,6 +79,9 @@ isProp<ᵗ {n = suc n} {suc m} = isProp<ᵗ {n = n} {m = m}
   snotz (sym (+-suc (fst x) (suc n)) ∙ snd x)
 <→<ᵗ {n = suc n} {m = suc m} p = <→<ᵗ {n = n} {m = m} (pred-≤-pred p)
 
+<ᵗ-asym : ∀ {m n} → m <ᵗ n → n ≤ m → ⊥
+<ᵗ-asym p = <-asym (<ᵗ→< p)
+
 module _ {n m : ℕ} where
   isPropTrichotomyᵗ : isProp (Trichotomyᵗ n m)
   isPropTrichotomyᵗ (lt x) (lt y) i = lt (isProp<ᵗ {n = n} {m} x y i)
