@@ -38,6 +38,8 @@ record PseudolatticeStr (ℓ' : Level) (L : Type ℓ) : Type (ℓ-suc (ℓ-max �
     _≤_ : L → L → Type ℓ'
     is-pseudolattice : IsPseudolattice _≤_
 
+  infix 5 _≤_
+
   open IsPseudolattice is-pseudolattice public
 
 Pseudolattice : ∀ ℓ ℓ' → Type (ℓ-suc (ℓ-max ℓ ℓ'))
