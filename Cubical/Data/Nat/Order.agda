@@ -291,6 +291,12 @@ minGLB {suc m} {suc n} x≤sm x≤sn with m <ᵇ n
 ... | false = x≤sn
 ... | true  = x≤sm
 
+≤→max : m ≤ n → max m n ≡ n
+≤→max {m} {n} m≤n = ≤-antisym (maxLUB m≤n ≤-refl) $ right-≤-max {n} {m}
+
+≤→min : m ≤ n → min m n ≡ m
+≤→min {m} {n} m≤n = ≤-antisym min-≤-left (minGLB ≤-refl m≤n)
+
 -- Boolean order relations and their conversions to/from ≤ and <
 
 _≤ᵇ_ : ℕ → ℕ → Bool
