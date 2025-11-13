@@ -49,7 +49,7 @@ module MeetProperties (L≤ : Pseudolattice ℓ ℓ') where
   ∧≤R = equivFun isMeet∧ (is-refl _) .snd
 
   ∧GLB : ∀ {a b x} → x ≤ a → x ≤ b → x ≤ a ∧l b
-  ∧GLB {a} {b} {x} = curry (invEq isMeet∧)
+  ∧GLB = curry (invEq isMeet∧)
 
   isMeet→≡∧ : ∀ m
               → (∀ {x} → x ≤ m → x ≤ a)
@@ -76,7 +76,13 @@ module MeetProperties (L≤ : Pseudolattice ℓ ℓ') where
   ≤≃∧ = order≃meet isPoset _ _ _ λ _ → isMeet∧
 
   ≤→∧ : a ≤ b → a ≡ a ∧l b
-  ≤→∧ {a} {b} = equivFun ≤≃∧
+  ≤→∧ = equivFun ≤≃∧
+
+  ≤→∧≡Left : a ≤ b → a ∧l b ≡ a
+  ≤→∧≡Left = sym ∘ ≤→∧
+
+  ≥→∧≡Right : b ≤ a → a ∧l b ≡ b
+  ≥→∧≡Right = sym ∘ (_∙ ∧Comm) ∘ ≤→∧
 
   Pseudolattice→Semigroup∧ : Semigroup ℓ
   Pseudolattice→Semigroup∧ .fst = L
@@ -88,6 +94,7 @@ open MeetProperties public
 
 module _ (L≤ : Pseudolattice ℓ ℓ') where
   open MeetProperties (DualPseudolattice L≤) public renaming (
-      isMeet∧ to isJoin∨ ; ∧≤L to L≤∨ ; ∧≤R to R≤∨ ; ∧GLB to ∨LUB
-    ; isMeet→≡∧ to isJoin→≡∨ ; ∧Comm to ∨Comm ; ∧Idem to ∨Idem ; ∧Assoc to ∨Assoc
-    ; ≤≃∧ to ≤≃∨ ; ≤→∧ to ≤→∨ ; Pseudolattice→Semigroup∧ to Pseudolattice→Semigroup∨)
+      isMeet∧ to isJoin∨ ; ∧≤L to L≤∨ ; ∧≤R to R≤∨ ; isMeet→≡∧ to isJoin→≡∨
+    ; ∧Comm to ∨Comm ; ∧Idem to ∨Idem ; ∧Assoc to ∨Assoc
+    ; ≤≃∧ to ≤≃∨ ; ≤→∧ to ≤→∨ ; ≤→∧≡Left to ≥→∨≡Left ; ≥→∧≡Right to ≤→∨≡Right
+    ; ∧GLB to ∨LUB ; Pseudolattice→Semigroup∧ to Pseudolattice→Semigroup∨)
