@@ -3,7 +3,7 @@ module Cubical.Data.Nat.Base where
 
 open import Agda.Builtin.Nat public
   using (zero; suc; _+_)
-  renaming (Nat to ℕ; _-_ to _∸_; _*_ to _·_)
+  renaming (Nat to ℕ; _-_ to _∸_; _*_ to _·_ ; _<_ to _<ᵇ_ ; _==_ to _≡ᵇ_)
 
 open import Cubical.Data.Nat.Literals public
 open import Cubical.Data.Bool.Base
