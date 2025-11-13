@@ -45,11 +45,6 @@ compPropRel R S .snd _ _ = squash₁
 graphRel : ∀ {ℓ} {A B : Type ℓ} → (A → B) → Rel A B ℓ
 graphRel f a b = f a ≡ b
 
-data Ordering : Type where
-  LT : Ordering
-  EQ : Ordering
-  GT : Ordering
-
 module HeterogenousRelation {ℓ ℓ' : Level} {A B : Type ℓ} (R : Rel A B ℓ') where
   isUniversalRel : Type (ℓ-max ℓ ℓ')
   isUniversalRel = (a : A) (b : B) → R a b
@@ -78,20 +73,6 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
 
   isTrans' : Type (ℓ-max ℓ ℓ')
   isTrans' = {a b c : A} → R a b → R b c → R a c
-
-  data Trichotomy (a b : A) : Type (ℓ-max ℓ ℓ') where
-    lt : R a b → Trichotomy a b
-    eq : a ≡ b → Trichotomy a b
-    gt : R b a → Trichotomy a b
-
-  isTrichotomous : Type (ℓ-max ℓ ℓ')
-  isTrichotomous = ∀ m n → Trichotomy m n
-
-  isTrichotomous→Ordering : isTrichotomous → A → A → Ordering
-  isTrichotomous→Ordering _≟_ a b with a ≟ b
-  ... | lt _ = LT
-  ... | eq _ = EQ
-  ... | gt _ = GT
 
   -- Sum types don't play nicely with props, so we truncate
   isCotrans : Type (ℓ-max ℓ ℓ')

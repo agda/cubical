@@ -23,9 +23,9 @@ private
 min : ℕ → ℕ → ℕ
 min zero m = zero
 min (suc n) zero = zero
-min (suc n) (suc m) with n <ᵇ m UsingEq
-... | false , _ = suc m
-... | true  , _ = suc n
+min (suc n) (suc m) with n <ᵇ m
+... | false = suc m
+... | true  = suc n
 
 minSuc : min (suc n) (suc m) ≡ suc (min n m)
 minSuc {zero} {zero} = refl
@@ -41,40 +41,12 @@ minComm zero (suc m) = refl
 minComm (suc n) zero = refl
 minComm (suc n) (suc m) = minSuc ∙∙ cong suc (minComm n m) ∙∙ sym minSuc
 
-minIdem : ∀ n → min n n ≡ n
-minIdem zero    = refl
-minIdem (suc n) with n <ᵇ n
-... | false = refl
-... | true  = refl
-
-minSucL : ∀ n → min (suc n) n ≡ n
-minSucL zero    = refl
-minSucL (suc n) = minSuc ∙ cong suc (minSucL n)
-
-minSucR : ∀ n → min n (suc n) ≡ n
-minSucR zero    = refl
-minSucR (suc n) = minSuc ∙ cong suc (minSucR n)
-
-minAssoc : ∀ m n o → min m (min n o) ≡ min (min m n) o
-minAssoc zero n o = refl
-minAssoc (suc m) zero o = refl
-minAssoc (suc m) (suc n) zero with m <ᵇ n
-... | false = refl
-... | true = refl
-minAssoc (suc m) (suc n) (suc o) =
-  min (suc m) (min (suc n) (suc o)) ≡⟨ cong (min (suc m)) $ minSuc {n} {o} ⟩
-  min (suc m) (suc (min n o))       ≡⟨ minSuc ⟩
-  suc (min m (min n o))             ≡⟨ cong suc $ minAssoc m n o ⟩
-  suc (min (min m n) o)             ≡⟨ sym $ minSuc ⟩
-  min (suc (min m n)) (suc o)       ≡⟨ sym $ cong (flip min (suc o)) $ minSuc {m} {n} ⟩
-  min (min (suc m) (suc n)) (suc o) ∎
-
 max : ℕ → ℕ → ℕ
 max zero m = m
 max (suc n) zero = suc n
-max (suc n) (suc m) with n <ᵇ m UsingEq
-... | false , _ = suc n
-... | true  , _ = suc m
+max (suc n) (suc m) with n <ᵇ m
+... | false = suc n
+... | true  = suc m
 
 maxSuc : max (suc n) (suc m) ≡ suc (max n m)
 maxSuc {zero} {zero} = refl
@@ -89,14 +61,6 @@ maxComm zero zero = refl
 maxComm zero (suc m) = refl
 maxComm (suc n) zero = refl
 maxComm (suc n) (suc m) = maxSuc ∙∙ cong suc (maxComm n m) ∙∙ sym maxSuc
-
-maxSucL : ∀ n → max (suc n) n ≡ suc n
-maxSucL zero    = refl
-maxSucL (suc n) = maxSuc ∙ cong suc (maxSucL n)
-
-maxSucR : ∀ n → max n (suc n) ≡ suc n
-maxSucR zero    = refl
-maxSucR (suc n) = maxSuc ∙ cong suc (maxSucR n)
 
 znots : ¬ (0 ≡ suc n)
 znots eq = subst (caseNat ℕ ⊥) eq 0

@@ -7,7 +7,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Empty as ⊥ using (⊥)
 open import Cubical.Data.Int.Base as ℤ
 open import Cubical.Data.Int.Properties as ℤ
-open import Cubical.Data.Nat as ℕ hiding (minAssoc)
+open import Cubical.Data.Nat as ℕ
 open import Cubical.Data.NatPlusOne.Base as ℕ₊₁
 open import Cubical.Data.Sigma
 
