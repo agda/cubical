@@ -94,8 +94,7 @@ record IsPseudolatticeEquiv {A : Type ℓ₀} {B : Type ℓ₁}
     pres≤ : (x y : A) → x M.≤ y ≃ equivFun e x N.≤ equivFun e y
 
 
-PseudolatticeEquiv : ∀ {ℓ₀ ℓ₀' ℓ₁ ℓ₁'}
-                     → (M : Pseudolattice ℓ₀ ℓ₀') (N : Pseudolattice ℓ₁ ℓ₁')
+PseudolatticeEquiv : (M : Pseudolattice ℓ₀ ℓ₀') (N : Pseudolattice ℓ₁ ℓ₁')
                      → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
 PseudolatticeEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsPseudolatticeEquiv (M .snd) e (N .snd)
 
