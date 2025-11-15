@@ -394,5 +394,5 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
 
 -- Isomorphism between presheaves of different levels
 PshIso : (C : Category ℓ ℓ') (P : Presheaf C ℓS) (Q : Presheaf C ℓS') → Type _
-PshIso {ℓS = ℓS}{ℓS' = ℓS'} C P Q =
-  NatIso (LiftF {ℓ = ℓS}{ℓ' = ℓS'} ∘F P) (LiftF {ℓ = ℓS'}{ℓ' = ℓS} ∘F Q)
+PshIso {ℓS = ℓS} {ℓS' = ℓS'} C P Q =
+  NatIso (LiftF ℓS' ∘F P) (LiftF ℓS ∘F Q)

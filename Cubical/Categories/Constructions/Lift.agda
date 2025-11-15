@@ -15,7 +15,7 @@ open Category
 module _ (C : Category ℓ ℓ') (ℓ'' : Level) where
   LiftHoms : Category ℓ (ℓ-max ℓ' ℓ'')
   LiftHoms .ob = C .ob
-  LiftHoms .Hom[_,_] A B = Lift {j = ℓ''} (C [ A , B ])
+  LiftHoms .Hom[_,_] A B = Lift ℓ'' (C [ A , B ])
   LiftHoms .id = lift (C .id)
   LiftHoms ._⋆_ f g = lift (f .lower ⋆⟨ C ⟩ g .lower)
   LiftHoms .⋆IdL f = cong lift (C .⋆IdL (f .lower))
