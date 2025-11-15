@@ -8,7 +8,7 @@
 
 -}
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.AlgebraicGeometry.ZariskiLattice.StructureSheafPullback where
 
 

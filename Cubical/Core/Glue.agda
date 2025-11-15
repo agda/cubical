@@ -7,7 +7,6 @@ This file contains:
 - Glue types
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Core.Glue where
 
 open import Cubical.Core.Primitives

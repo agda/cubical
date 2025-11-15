@@ -10,7 +10,6 @@ This construction can be viewed as repeated application of `ΣPath≃PathΣ` and
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Category.Path where
 
 open import Cubical.Foundations.Prelude
@@ -80,40 +79,42 @@ module _ {C C' : Category ℓ ℓ'} where
   id≡ c = cong id pa
   ⋆≡ c = cong _⋆_ pa
 
+
+ module _ (b : C ≡ C') where
+   private
+     cp = ≡→CategoryPath b
+     b' = CategoryPath.mk≡ cp
+
+   CategoryPathIsoRightInv : mk≡ (≡→CategoryPath b) ≡ b
+   CategoryPathIsoRightInv i j .ob = b j .ob
+   CategoryPathIsoRightInv i j .Hom[_,_] = b j .Hom[_,_]
+   CategoryPathIsoRightInv i j .id = b j .id
+   CategoryPathIsoRightInv i j ._⋆_ = b j ._⋆_
+   CategoryPathIsoRightInv i j .⋆IdL = isProp→SquareP (λ i j →
+      isPropImplicitΠ2 λ x y → isPropΠ λ f →
+        (isSetHom≡ cp j {x} {y})
+         (b j ._⋆_ (b j .id) f) f)
+      refl refl (λ j → b' j .⋆IdL) (λ j → b j .⋆IdL) i j
+   CategoryPathIsoRightInv i j .⋆IdR = isProp→SquareP (λ i j →
+      isPropImplicitΠ2 λ x y → isPropΠ λ f →
+        (isSetHom≡ cp j {x} {y})
+         (b j ._⋆_ f (b j .id)) f)
+      refl refl (λ j → b' j .⋆IdR) (λ j → b j .⋆IdR) i j
+   CategoryPathIsoRightInv i j .⋆Assoc = isProp→SquareP (λ i j →
+      isPropImplicitΠ4 λ x y z w → isPropΠ3 λ f g h →
+        (isSetHom≡ cp j {x} {w})
+         (b j ._⋆_ (b j ._⋆_ {x} {y} {z} f g) h)
+         (b j ._⋆_ f (b j ._⋆_ g h)))
+      refl refl (λ j → b' j .⋆Assoc) (λ j → b j .⋆Assoc) i j
+   CategoryPathIsoRightInv i j .isSetHom = isProp→SquareP (λ i j →
+      isPropImplicitΠ2 λ x y → isPropIsSet {A = b j .Hom[_,_] x y})
+      refl refl (λ j → b' j .isSetHom) (λ j → b j .isSetHom) i j
+
  CategoryPathIso : Iso (CategoryPath C C') (C ≡ C')
  Iso.fun CategoryPathIso = CategoryPath.mk≡
  Iso.inv CategoryPathIso = ≡→CategoryPath
- Iso.rightInv CategoryPathIso b i j = c
-  where
-  cp = ≡→CategoryPath b
-  b' = CategoryPath.mk≡ cp
-  module _ (j : I) where
-    module c' = Category (b j)
+ Iso.rightInv CategoryPathIso = CategoryPathIsoRightInv
 
-  c : Category ℓ ℓ'
-  ob c = c'.ob j
-  Hom[_,_] c = c'.Hom[_,_] j
-  id c = c'.id j
-  _⋆_ c = c'._⋆_ j
-  ⋆IdL c = isProp→SquareP (λ i j →
-      isPropImplicitΠ2 λ x y → isPropΠ λ f →
-        (isSetHom≡ cp j {x} {y})
-         (c'._⋆_ j (c'.id j) f) f)
-      refl refl (λ j → b' j .⋆IdL) (λ j → c'.⋆IdL j) i j
-  ⋆IdR c = isProp→SquareP (λ i j →
-      isPropImplicitΠ2 λ x y → isPropΠ λ f →
-        (isSetHom≡ cp j {x} {y})
-         (c'._⋆_ j f (c'.id j)) f)
-      refl refl (λ j → b' j .⋆IdR) (λ j → c'.⋆IdR j) i j
-  ⋆Assoc c = isProp→SquareP (λ i j →
-      isPropImplicitΠ4 λ x y z w → isPropΠ3 λ f g h →
-        (isSetHom≡ cp j {x} {w})
-         (c'._⋆_ j (c'._⋆_ j {x} {y} {z} f g) h)
-         (c'._⋆_ j f (c'._⋆_ j g h)))
-      refl refl (λ j → b' j .⋆Assoc) (λ j → c'.⋆Assoc j) i j
-  isSetHom c = isProp→SquareP (λ i j →
-      isPropImplicitΠ2 λ x y → isPropIsSet {A = c'.Hom[_,_] j x y})
-      refl refl (λ j → b' j .isSetHom) (λ j → c'.isSetHom j) i j
  ob≡ (Iso.leftInv CategoryPathIso a i) = ob≡ a
  Hom≡ (Iso.leftInv CategoryPathIso a i) = Hom≡ a
  id≡ (Iso.leftInv CategoryPathIso a i) = id≡ a

@@ -9,7 +9,6 @@ A couple of general facts about equivalences:
 - isHAEquiv is a proposition [isPropIsHAEquiv]
 (these are not in 'Equiv.agda' because they need Univalence.agda (which imports Equiv.agda))
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.Properties where
 
 open import Cubical.Foundations.Prelude

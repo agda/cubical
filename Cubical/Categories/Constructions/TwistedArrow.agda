@@ -1,5 +1,4 @@
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Constructions.TwistedArrow where
 
@@ -23,7 +22,7 @@ TwistedEnds : (C : Category ℓ ℓ') → Functor (TwistedArrowCategory C) (C ^o
 TwistedEnds C = ForgetElements (HomFunctor C)
 
 TwistedDom : (C : Category ℓ ℓ') → Functor ((TwistedArrowCategory C) ^op) C
-TwistedDom C = ((Fst (C ^op) C) ^opF) ∘F (ForgetElements (HomFunctor C) ^opF)
+TwistedDom C = recOp (Fst _ _ ∘F ForgetElements (HomFunctor C))
 
 TwistedCod : (C : Category ℓ ℓ') → Functor (TwistedArrowCategory C) C
 TwistedCod C = (Snd (C ^op) C) ∘F ForgetElements (HomFunctor C)

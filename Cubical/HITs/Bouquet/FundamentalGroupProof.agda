@@ -11,7 +11,6 @@ This file contains:
 - Proof that π₁Bouquet ≡ FreeGroup A
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.Bouquet.FundamentalGroupProof where
 
@@ -22,15 +21,26 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to pathAssoc)
-open import Cubical.HITs.SetTruncation hiding (rec2)
+open import Cubical.Foundations.HLevels
+open import Cubical.Functions.Morphism
+
+open import Cubical.Data.Nat hiding (_·_ ; elim)
+open import Cubical.Data.Fin.Inductive
+
+open import Cubical.HITs.Bouquet.Discrete
+open import Cubical.HITs.FreeGroup as FG hiding (winding ; elimProp)
+open import Cubical.HITs.FreeGroupoid.Base as FGrp
+open import Cubical.HITs.SetTruncation as ST hiding (rec2)
 open import Cubical.HITs.PropositionalTruncation hiding (map ; elim) renaming (rec to propRec)
+open import Cubical.HITs.Bouquet.Base
+open import Cubical.HITs.Bouquet.Properties
+open import Cubical.HITs.FreeGroupoid
+open import Cubical.HITs.SphereBouquet.Base
+
 open import Cubical.Algebra.Group
+
 open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.Loopspace
-
-open import Cubical.HITs.Bouquet.Base
-open import Cubical.HITs.FreeGroup.Base
-open import Cubical.HITs.FreeGroupoid
 
 private
   variable
@@ -294,3 +304,70 @@ TruncatedFamilies≡ x = ua (TruncatedFamiliesEquiv x)
   ∥ FreeGroupoid A ∥₂
   ≡⟨ sym freeGroupTruncIdempotent ⟩
   FreeGroup A ∎
+
+-- ΩBouquet(A) ≅ FinGroup A for A = Fin k
+-- Todo: generalise to other discrete sets
+Iso-ΩFinBouquet-FreeGroup : {n : ℕ}
+  → Iso (fst (Ω (Bouquet∙ (Fin n)))) (FreeGroup (Fin n))
+Iso-ΩFinBouquet-FreeGroup {n = n} =
+  compIso
+    (compIso (invIso (setTruncIdempotentIso (isOfHLevelPath' 2
+      (isGroupoidBouquet (DiscreteFin {n} )) _ _)))
+             (equivToIso (TruncatedFamiliesEquiv base)))
+    (equivToIso (invEquiv freeGroupTruncIdempotent≃))
+
+invIso-ΩFinBouquet-FreeGroupPresStr : {n : ℕ} (x y : FreeGroup (Fin n))
+  → Iso.inv (Iso-ΩFinBouquet-FreeGroup {n}) (FG._·_ x y)
+   ≡ Iso.inv (Iso-ΩFinBouquet-FreeGroup {n}) x
+   ∙ Iso.inv (Iso-ΩFinBouquet-FreeGroup {n}) y
+invIso-ΩFinBouquet-FreeGroupPresStr {n = n} x y =
+  cong (F ∘ G) (lem1 x y) ∙ lem2 (H x) (H y)
+  where
+  F = Iso.fun (setTruncIdempotentIso
+                (isOfHLevelPath' 2 (isGroupoidBouquet DiscreteFin) _ _))
+  G = invEq (TruncatedFamiliesEquiv base)
+  H = fst freeGroupTruncIdempotent≃
+
+  lem2 : (x y : _) → F (G (ST.rec2 squash₂ (λ x y → ∣ x FGrp.· y ∣₂) x y))
+                    ≡ F (G x) ∙ F (G y)
+  lem2 =
+    ST.elim2 (λ _ _ → isOfHLevelPath 2
+             (isOfHLevelPath' 2 (isGroupoidBouquet (DiscreteFin {n})) _ _) _ _)
+             λ _ _ → refl
+
+  lem1 : (x t : _) → H (x FG.· t)
+                  ≡ ST.rec2 squash₂ (λ x y → ∣ x FGrp.· y ∣₂) (H x) (H t)
+  lem1 x t =
+    cong H (cong₂ FG._·_ (sym (retEq freeGroupTruncIdempotent≃ x))
+                         (sym (retEq freeGroupTruncIdempotent≃ t)))
+         ∙ cong H (sym (lem3 (H x) (H t)))
+         ∙ secEq (freeGroupTruncIdempotent≃ {A = Fin n}) _
+    where
+    lem3 : (x y : _)
+      → invEq freeGroupTruncIdempotent≃
+                 (ST.rec2 squash₂ (λ x y → ∣ x FGrp.· y ∣₂) x y)
+      ≡ invEq freeGroupTruncIdempotent≃ x FG.· invEq freeGroupTruncIdempotent≃ y
+    lem3 = ST.elim2 (λ _ _ → isOfHLevelPath 2 trunc _ _) λ _ _ → refl
+
+invIso-ΩFinBouquet-FreeGroupPresInv : {n : ℕ} (x : FreeGroup (Fin n))
+  → Iso.inv (Iso-ΩFinBouquet-FreeGroup {n = n}) (FG.inv x)
+   ≡ sym (Iso.inv (Iso-ΩFinBouquet-FreeGroup {n = n}) x)
+invIso-ΩFinBouquet-FreeGroupPresInv {n = n} =
+  morphLemmas.distrMinus FG._·_ _∙_
+    (Iso.inv (Iso-ΩFinBouquet-FreeGroup {n = n}))
+    invIso-ΩFinBouquet-FreeGroupPresStr ε refl inv sym
+    (sym ∘ lUnit) (sym ∘ rUnit) FG.invl rCancel pathAssoc refl
+
+CharacFinBouquetFunIso : {m k : ℕ}
+  → Iso (Bouquet∙ (Fin m) →∙ Bouquet∙ (Fin k))
+         (Fin m → FreeGroup (Fin k))
+CharacFinBouquetFunIso {m = m} {k} =
+  compIso (CharacBouquet∙Iso (Bouquet∙ (Fin k)))
+          (codomainIso (Iso-ΩFinBouquet-FreeGroup {n = k}))
+
+Iso-Bouquet→∙-SphereBouquet₁→∙ : {m k : ℕ}
+ → Iso (Bouquet∙ (Fin m) →∙ Bouquet∙ (Fin k))
+         (SphereBouquet∙ (suc zero) (Fin m) →∙ SphereBouquet∙ (suc zero) (Fin k))
+Iso-Bouquet→∙-SphereBouquet₁→∙ =
+ compIso (pre∘∙equiv (invEquiv∙ Bouquet≃∙SphereBouquet))
+         (post∘∙equiv (invEquiv∙ Bouquet≃∙SphereBouquet))

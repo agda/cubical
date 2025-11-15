@@ -4,7 +4,6 @@ A parameterized family of structures S can be combined into a single structure:
 X ↦ (a : A) → S a X
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Structures.Relational.Parameterized where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Cardinal where
 
 open import Cubical.Data.Cardinal.Base public

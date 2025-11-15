@@ -8,7 +8,6 @@ Properties of FreeGroupoid:
 - FreeGroup A ≡ ∥ FreeGroupoid A ∥₂
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.FreeGroupoid.Properties where
 

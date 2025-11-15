@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.SymmetricGroup where
 
 open import Cubical.Foundations.Prelude

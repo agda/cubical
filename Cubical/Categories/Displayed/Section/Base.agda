@@ -69,7 +69,6 @@
    style is to offer both introS for Section and introF for Functorᴰ.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Section.Base where
 
 open import Cubical.Foundations.Prelude
@@ -317,3 +316,38 @@ module _ {C : Category ℓC ℓC'}
   compFunctorᴰGlobalSection : Functorᴰ F Cᴰ Dᴰ → GlobalSection Cᴰ → Section F Dᴰ
   compFunctorᴰGlobalSection Fᴰ Gᴰ = reindS' (Eq.refl , Eq.refl)
     (compFunctorᴰSection Fᴰ Gᴰ)
+
+module _ {C : Category ℓC ℓC'}
+         {D : Category ℓD ℓD'}
+         {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+          where
+
+  open Section
+  introOpS : ∀ {F : Functor (C ^op) _}
+    → Section F Dᴰ
+    → Section (introOp F) (Dᴰ ^opᴰ)
+  introOpS S .F-obᴰ = S .F-obᴰ
+  introOpS S .F-homᴰ = S .F-homᴰ
+  introOpS S .F-idᴰ = S .F-idᴰ
+  introOpS S .F-seqᴰ f g = S .F-seqᴰ g f
+
+  recOpS : ∀ {F : Functor C _}
+    → Section F (Dᴰ ^opᴰ)
+    → Section (recOp F) Dᴰ
+  recOpS S .F-obᴰ = S .F-obᴰ
+  recOpS S .F-homᴰ = S .F-homᴰ
+  recOpS S .F-idᴰ = S .F-idᴰ
+  recOpS S .F-seqᴰ f g = S .F-seqᴰ g f
+
+module _ {C : Category ℓC ℓC'}
+         {D : Category ℓD ℓD'}
+         {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+          where
+
+  _^opS : ∀ {F : Functor C _} → Section F Dᴰ → Section (F ^opF) (Dᴰ ^opᴰ)
+  S ^opS = recOpS (compFunctorᴰSection toOpOpᴰ S)
+
+  _^opS⁻ : ∀ {F : Functor (C ^op) _}
+    → Section F (Dᴰ ^opᴰ)
+    → Section (F ^opF⁻) Dᴰ
+  S ^opS⁻ = compFunctorᴰSection fromOpOpᴰ (introOpS S)

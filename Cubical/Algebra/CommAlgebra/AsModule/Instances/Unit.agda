@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.AsModule.Instances.Unit where
 
 open import Cubical.Foundations.Prelude

@@ -6,7 +6,7 @@
 -- This fact has an important application in algebraic geometry where it's
 -- used to define the structure sheaf of a commutative ring.
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.InvertingElements where
 
 open import Cubical.Foundations.Prelude

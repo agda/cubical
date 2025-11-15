@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Site.Sheafification.UniversalProperty where
 
 -- We prove the universal property of the sheafification,
@@ -174,7 +173,7 @@ module UniversalProperty
     sheafificationIsUniversal :
       isUniversal
         (SheafCategory J ℓP ^op)
-        ((C^ [ P ,-]) ∘F FullInclusion C^ (isSheaf J))
+        ((C^ [ P ,-]) ∘F FullInclusion C^ (isSheaf J) ∘F fromOpOp)
         (sheafification , isSheafSheafification)
         η
     sheafificationIsUniversal (G , isSheafG) = record

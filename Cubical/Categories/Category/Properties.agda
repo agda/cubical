@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Category.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -30,9 +29,10 @@ module _ {C : Category ℓ ℓ'} where
   isSetHomP2r = isOfHLevel→isOfHLevelDep 2 (λ a → isSetHom C {y = a})
 
 
--- opposite of opposite is definitionally equal to itself
-involutiveOp : ∀ {C : Category ℓ ℓ'} → C ^op ^op ≡ C
-involutiveOp = refl
+-- opposite of opposite is *not* definitionally equal to itself.
+-- The following does *not* type check because of no-eta-equality.
+-- involutiveOp : ∀ {C : Category ℓ ℓ'} → C ^op ^op ≡ C
+-- involutiveOp = refl
 
 module _ {C : Category ℓ ℓ'} where
   -- Other useful operations on categories

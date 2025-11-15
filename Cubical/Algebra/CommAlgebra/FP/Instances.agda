@@ -7,7 +7,7 @@
   * R/⟨x₁,...,xₙ⟩    = R[⊥]/⟨x₁,...,xₙ⟩
   * R/⟨x⟩            (as special case of the above)
 -}
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.CommAlgebra.FP.Instances where
 
 open import Cubical.Foundations.Prelude

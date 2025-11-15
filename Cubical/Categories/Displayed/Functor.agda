@@ -2,7 +2,6 @@
   Definition of a functor displayed over another functor.
   Some definitions were guided by those at https://1lab.dev
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Functor where
 
 open import Cubical.Foundations.Prelude
@@ -144,13 +143,36 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
 
 -- Displayed opposite functor
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
-  {F : Functor C D} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   where
   open Functorᴰ
-  _^opFᴰ : Functorᴰ (F ^opF) (Cᴰ ^opᴰ) (Dᴰ ^opᴰ)
-  _^opFᴰ .F-obᴰ = Fᴰ .F-obᴰ
-  _^opFᴰ .F-homᴰ = Fᴰ .F-homᴰ
-  _^opFᴰ .F-idᴰ = Fᴰ .F-idᴰ
-  _^opFᴰ .F-seqᴰ fᴰ gᴰ = Fᴰ .F-seqᴰ gᴰ fᴰ
 
+  -- TODO: move to Displayed.Constructions.Opposite
+  introOpᴰ : ∀ {F} → Functorᴰ F (Cᴰ ^opᴰ) Dᴰ → Functorᴰ (introOp F) Cᴰ (Dᴰ ^opᴰ)
+  introOpᴰ Fᴰ .F-obᴰ = Fᴰ .F-obᴰ
+  introOpᴰ Fᴰ .F-homᴰ = Fᴰ .F-homᴰ
+  introOpᴰ Fᴰ .F-idᴰ = Fᴰ .F-idᴰ
+  introOpᴰ Fᴰ .F-seqᴰ fᴰ gᴰ = Fᴰ .F-seqᴰ gᴰ fᴰ
+
+  recOpᴰ : ∀ {F} → Functorᴰ F Cᴰ (Dᴰ ^opᴰ) → Functorᴰ (recOp F) (Cᴰ ^opᴰ) Dᴰ
+  recOpᴰ Fᴰ .F-obᴰ = Fᴰ .F-obᴰ
+  recOpᴰ Fᴰ .F-homᴰ = Fᴰ .F-homᴰ
+  recOpᴰ Fᴰ .F-idᴰ = Fᴰ .F-idᴰ
+  recOpᴰ Fᴰ .F-seqᴰ fᴰ gᴰ = Fᴰ .F-seqᴰ gᴰ fᴰ
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
+  toOpOpᴰ : Functorᴰ toOpOp Cᴰ ((Cᴰ ^opᴰ) ^opᴰ)
+  toOpOpᴰ = introOpᴰ 𝟙ᴰ⟨ _ ⟩
+
+  fromOpOpᴰ : Functorᴰ fromOpOp ((Cᴰ ^opᴰ) ^opᴰ) Cᴰ
+  fromOpOpᴰ = recOpᴰ 𝟙ᴰ⟨ _ ⟩
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  where
+
+  _^opFᴰ : ∀ {F} → Functorᴰ F Cᴰ Dᴰ
+                 → Functorᴰ (F ^opF) (Cᴰ ^opᴰ) (Dᴰ ^opᴰ)
+  Fᴰ ^opFᴰ = recOpᴰ (toOpOpᴰ ∘Fᴰ Fᴰ)
+
+  _^opF⁻ᴰ : ∀ {F} → Functorᴰ F (Cᴰ ^opᴰ) (Dᴰ ^opᴰ)
+                 → Functorᴰ (F ^opF⁻) Cᴰ Dᴰ
+  Fᴰ ^opF⁻ᴰ = fromOpOpᴰ ∘Fᴰ introOpᴰ Fᴰ

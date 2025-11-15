@@ -6,7 +6,6 @@
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Semilattice.Instances.NatMax where
 
 open import Cubical.Foundations.Prelude
@@ -36,8 +35,14 @@ isSemilattice maxSemilatticeStr = makeIsSemilattice isSetℕ maxAssoc maxRId max
   maxAssoc : (x y z : ℕ) → max x (max y z) ≡ max (max x y) z
   maxAssoc zero y z = refl
   maxAssoc (suc x) zero z = refl
-  maxAssoc (suc x) (suc y) zero = refl
-  maxAssoc (suc x) (suc y) (suc z) = cong suc (maxAssoc x y z)
+  maxAssoc (suc x) (suc y) zero = maxSuc ∙ cong (λ p → max p _) (sym (maxSuc {x} {y}))
+  maxAssoc (suc x) (suc y) (suc z) =
+    max (suc x) (max (suc y) (suc z)) ≡⟨ cong (max _) (maxSuc {y} {z}) ⟩
+    max (suc x) (suc (max y z))       ≡⟨ maxSuc ⟩
+    suc (max x (max y z))             ≡⟨ cong suc (maxAssoc x y z) ⟩
+    suc (max (max x y) z)             ≡⟨ sym maxSuc ⟩
+    max (suc (max x y)) (suc z)       ≡⟨ cong (λ p → max p _) (sym (maxSuc {x} {y})) ⟩
+    max (max (suc x) (suc y)) (suc z) ∎
 
   maxRId : (x : ℕ) → max x 0 ≡ x
   maxRId zero = refl
@@ -45,8 +50,7 @@ isSemilattice maxSemilatticeStr = makeIsSemilattice isSetℕ maxAssoc maxRId max
 
   maxIdem : (x : ℕ) → max x x ≡ x
   maxIdem zero = refl
-  maxIdem (suc x) = cong suc (maxIdem x)
-
+  maxIdem (suc x) = maxSuc ∙ cong suc (maxIdem x)
 
 
 --characterisation of inequality
@@ -55,13 +59,13 @@ open JoinSemilattice (ℕ , maxSemilatticeStr) renaming (_≤_ to _≤max_)
 ≤max→≤ℕ : ∀ x y → x ≤max y → x ≤ℕ y
 ≤max→≤ℕ zero y _ = zero-≤
 ≤max→≤ℕ (suc x) zero p = ⊥.rec (snotz p)
-≤max→≤ℕ (suc x) (suc y) p = let (k , q) = ≤max→≤ℕ x y (cong predℕ p) in
+≤max→≤ℕ (suc x) (suc y) p = let (k , q) = ≤max→≤ℕ x y (cong predℕ (sym maxSuc ∙ p)) in
                             k , +-suc k x ∙ cong suc q
 
 ≤ℕ→≤max :  ∀ x y → x ≤ℕ y → x ≤max y
 ≤ℕ→≤max zero y _ = refl
 ≤ℕ→≤max (suc x) zero p = ⊥.rec (¬-<-zero p)
-≤ℕ→≤max (suc x) (suc y) (k , p) = cong suc (≤ℕ→≤max x y (k , q))
+≤ℕ→≤max (suc x) (suc y) (k , p) = maxSuc ∙ cong suc (≤ℕ→≤max x y (k , q))
   where
   q : k +ℕ x ≡ y
   q = cong predℕ (sym (+-suc k x) ∙ p)

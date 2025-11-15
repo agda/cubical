@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Nat.Order.Inductive where
 
 open import Cubical.Foundations.Prelude
@@ -79,3 +78,34 @@ isProp<ᵗ {n = suc n} {suc m} = isProp<ᵗ {n = n} {m = m}
 <→<ᵗ {n = suc n} {m = zero} x =
   snotz (sym (+-suc (fst x) (suc n)) ∙ snd x)
 <→<ᵗ {n = suc n} {m = suc m} p = <→<ᵗ {n = n} {m = m} (pred-≤-pred p)
+
+module _ {n m : ℕ} where
+  isPropTrichotomyᵗ : isProp (Trichotomyᵗ n m)
+  isPropTrichotomyᵗ (lt x) (lt y) i = lt (isProp<ᵗ {n = n} {m} x y i)
+  isPropTrichotomyᵗ (lt x) (eq y) = ⊥.rec (¬m<ᵗm {m} (subst (_<ᵗ m) y x))
+  isPropTrichotomyᵗ (lt x) (gt y) = ⊥.rec (¬m<ᵗm {m} (<ᵗ-trans {m} {n} {m} y x))
+  isPropTrichotomyᵗ (eq x) (lt y) =
+    ⊥.rec (¬m<ᵗm {m} (subst (_<ᵗ m) x y))
+  isPropTrichotomyᵗ (eq x) (eq y) i = eq (isSetℕ n m x y i)
+  isPropTrichotomyᵗ (eq x) (gt y) = ⊥.rec (¬m<ᵗm {n} (subst (_<ᵗ n) (sym x) y))
+  isPropTrichotomyᵗ (gt x) (lt y) = ⊥.rec (¬m<ᵗm {n} (<ᵗ-trans {n} {m} {n} y x))
+  isPropTrichotomyᵗ (gt x) (eq y) = ⊥.rec (¬m<ᵗm {n} (subst (_<ᵗ n) (sym y) x))
+  isPropTrichotomyᵗ (gt x) (gt y) i = gt (isProp<ᵗ {n = m} {n} x y i)
+
+module falseDichotomies where
+  lt-eq : {n m : ℕ} → ¬ m <ᵗ n × (m ≡ suc n)
+  lt-eq {n = n} (p , q) = ¬-suc-n<ᵗn {n = n} (subst (_<ᵗ n) q p)
+
+  lt-gt : {n m : ℕ}  → ¬ m <ᵗ n × (suc n <ᵗ m)
+  lt-gt {n = n} {m} (p , q) =
+    ¬-suc-n<ᵗn {n = n} (<ᵗ-trans {n = suc n} {m} {n} q p)
+
+  eq-eq : {n m : ℕ} → ¬ (m ≡ n) × (m ≡ suc n)
+  eq-eq {n = n} (p , q) =
+    ¬m<ᵗm {n} (subst (_<ᵗ suc n) (sym p ∙ q) (<ᵗsucm {n}))
+
+  eq-gt : {n m : ℕ} → ¬ (m ≡ n) × (suc n <ᵗ m)
+  eq-gt (p , q) = lt-eq (q , cong suc (sym p))
+
+  gt-lt : {n m : ℕ} → ¬ (n <ᵗ m) × (m <ᵗ suc n)
+  gt-lt {n = n} {m = m} = ¬squeeze {n = n} {m = m}

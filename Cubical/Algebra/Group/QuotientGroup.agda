@@ -3,7 +3,6 @@
 This file contains quotient groups
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.QuotientGroup where
 
 open import Cubical.Foundations.Prelude
@@ -12,9 +11,11 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.GroupoidLaws hiding (assoc)
+open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma
 open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/s_)
 open import Cubical.HITs.SetQuotients.Properties
+open import Cubical.HITs.PropositionalTruncation as PT hiding (rec; elim)
 open import Cubical.Relation.Binary.Base
 
 open import Cubical.Algebra.Group.Base
@@ -95,8 +96,16 @@ module _ (G' : Group ℓ) (H' : Subgroup G') (Hnormal : isNormal H') where
   ·/H-invr = elimProp (λ x → squash/ _ _) λ x → cong [_] (·InvR x)
 
   asGroup : Group ℓ
-  asGroup = makeGroup-right 1/H _·/H_ inv/H squash/ ·/H-assoc ·/H-rid ·/H-invr
-
+  fst asGroup = G/H
+  GroupStr.1g (snd asGroup) = [ 1g ]
+  GroupStr._·_ (snd asGroup) = _·/H_
+  GroupStr.inv (snd asGroup) = inv/H
+  GroupStr.isGroup (snd asGroup) = isGrp
+   where
+   opaque
+     isGrp : IsGroup [ 1g ] _·/H_ inv/H
+     isGrp = GroupStr.isGroup (makeGroup-right 1/H _·/H_ inv/H squash/
+                                 ·/H-assoc ·/H-rid ·/H-invr .snd)
 
 _/_ : (G : Group ℓ) → (H : NormalSubgroup G) → Group ℓ
 G / H = asGroup G (H .fst) (H .snd)
@@ -135,3 +144,68 @@ module _ {G' : Group ℓ} (H' : NormalSubgroup G')
   Iso.leftInv (fst trivialRelIso) _ = refl
   snd trivialRelIso =
     makeIsGroupHom λ _ _ → refl
+
+Hom/ : ∀ {ℓ ℓ'} {G : Group ℓ} {H : Group ℓ'}
+  {G' : NormalSubgroup G} {H' : NormalSubgroup H}
+  → (ϕ : GroupHom G H)
+  → (ϕ' : (a b : _) (r : (G ~ G' .fst) (G' .snd) a b)
+        → (H ~ H' .fst) (H' .snd) (fst ϕ a) (fst ϕ b))
+  → GroupHom (G / G') (H / H')
+fst (Hom/ ϕ ϕ') =
+  elim (λ _ → squash/) (λ x → [ fst ϕ x ]) λ a b r → eq/ _ _ (ϕ' a b r)
+snd (Hom/ ϕ ϕ') =
+  makeIsGroupHom (elimProp2 (λ _ _ → squash/ _ _)
+    λ a b → cong [_] (IsGroupHom.pres· (snd ϕ) a b))
+
+Hom/Iso : ∀ {ℓ ℓ'} {G : Group ℓ} {H : Group ℓ'}
+  {G' : NormalSubgroup G} {H' : NormalSubgroup H}
+  → (ϕ : GroupIso G H)
+  → (ϕ' : (a b : _) (r : (G ~ G' .fst) (G' .snd) a b)
+        → (H ~ H' .fst) (H' .snd) (Iso.fun (fst ϕ) a) (Iso.fun (fst ϕ) b))
+     (ψ' : (a b : _) (r : (H ~ H' .fst) (H' .snd) a b)
+        → (G ~ G' .fst) (G' .snd) (Iso.inv (fst ϕ) a) (Iso.inv (fst ϕ) b))
+  → GroupIso (G / G') (H / H')
+Iso.fun (fst (Hom/Iso {G' = G'} {H' = H'} ϕ ϕ' ψ')) =
+  fst (Hom/ {G' = G'} {H' = H'} (GroupIso→GroupHom ϕ) ϕ')
+Iso.inv (fst (Hom/Iso {G' = G'} {H' = H'} ϕ ϕ' ψ')) =
+  fst (Hom/ {G' = H'} {H' = G'} (GroupIso→GroupHom (invGroupIso ϕ)) ψ')
+Iso.rightInv (fst (Hom/Iso ϕ ϕ' ψ')) =
+  elimProp (λ _ → squash/ _ _) λ a → cong [_] (Iso.rightInv (fst ϕ) a)
+Iso.leftInv (fst (Hom/Iso ϕ ϕ' ψ')) =
+  elimProp (λ _ → squash/ _ _) λ a → cong [_] (Iso.leftInv (fst ϕ) a)
+snd (Hom/Iso {G' = G'} {H' = H'} ϕ ϕ' ψ') =
+  makeIsGroupHom λ x y
+    → IsGroupHom.pres· (snd (Hom/ {G' = G'} {H' = H'}
+        (GroupIso→GroupHom ϕ) ϕ')) x y
+
+Hom/ImIso : ∀ {ℓ ℓ'} {G H : Group ℓ'} (ϕ : GroupHom G H)
+                     {G' H' : Group ℓ} (ψ : GroupHom G' H')
+                     {ϕ' : isNormal (imSubgroup ϕ)} {ψ' : isNormal (imSubgroup ψ)}
+   (eG : GroupIso G G') (eH : GroupIso H H')
+   (e~ : (g : fst G)
+     → fst ψ (Iso.fun (fst eG) g) ≡
+        Iso.fun (fst eH) (ϕ .fst g))
+  → GroupIso (H / (imSubgroup ϕ , ϕ')) (H' / (imSubgroup ψ , ψ'))
+Hom/ImIso {G = G} {H} ϕ {G'} {H'} ψ {ϕ'} {ψ'} eG eH e∼ =
+    (fst main)
+  , makeIsGroupHom λ x y → IsGroupHom.pres· (snd main) x y
+   where
+   -- Faster type checking this way...
+   main = Hom/Iso {G = H} {H = H'}
+     {G' = (imSubgroup ϕ , ϕ')} {H' = (imSubgroup ψ , ψ')} eH
+     (λ a b → PT.map (uncurry λ x p
+     → (Iso.fun (fst eG) x) , e∼ x
+     ∙ cong (Iso.fun (fst eH)) p
+     ∙ IsGroupHom.pres· (snd eH) _ _
+     ∙ cong₂ (GroupStr._·_ (snd H'))
+       refl (IsGroupHom.presinv (snd eH) _)))
+     λ a b → PT.map (uncurry λ x p
+    → (Iso.inv (fst eG) x)
+      , (sym ((cong₂ (GroupStr._·_ (snd H))
+        refl (sym (IsGroupHom.presinv (snd (invGroupIso eH)) b))
+        ∙ sym (IsGroupHom.pres· (snd (invGroupIso eH))
+                                a (GroupStr.inv (H' .snd) b))
+        ∙ cong (Iso.inv (fst eH)) (sym p)
+        ∙ cong (Iso.inv (fst eH) ∘ fst ψ) (sym (Iso.rightInv (fst eG) x)))
+       ∙ cong (Iso.inv (fst eH)) (e∼ (Iso.inv (fst eG) x))
+       ∙ Iso.leftInv (fst eH) _)))

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 
     This file defines 3 equivalent formulations of when a presheaf P is
@@ -75,7 +74,7 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   isUniversal : (vertex : C .ob) (element : (P ⟅ vertex ⟆) .fst)
               → Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
   isUniversal vertex element =
-    ∀ A → isEquiv λ (f : C [ A , vertex ]) → element ∘ᴾ⟨ C , P ⟩ f
+    ∀ A → isEquiv λ (f : C [ A , vertex ]) → element ∘ᴾ⟨ P ⟩ f
 
   isPropIsUniversal : ∀ vertex element → isProp (isUniversal vertex element)
   isPropIsUniversal vertex element = isPropΠ (λ _ → isPropIsEquiv _)

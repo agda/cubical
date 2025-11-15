@@ -43,7 +43,7 @@ more work than just proving η₃ : ↦ -2 by hand. But at least, we can do
 it!
 
 -}
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Homotopy.Group.Pi4S3.DirectProof where
 
 open import Cubical.Foundations.Prelude

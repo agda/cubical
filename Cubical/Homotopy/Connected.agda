@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Homotopy.Connected where
 
 open import Cubical.Foundations.Prelude
@@ -942,3 +941,14 @@ module _ {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : A → Type ℓ'} {C : A �
   FunConnected→TotalFunConnected n con r =
     isConnectedRetractFromIso n
      (Iso-fibTotalFun-fibFun r) (con (fst r) (snd r))
+
+
+isConnectedCofib : ∀ {ℓ} {A B : Type ℓ} (n : ℕ) {f : A → B}
+  → isConnectedFun (suc n) f → isConnected (suc (suc n)) (cofib f)
+isConnectedCofib n {f = f} cf =
+  isConnectedPoint2 (suc n) (inl tt) (inlConnected (suc n) (λ _ → tt) f cf)
+
+connectedFunPresConnected : ∀ {ℓ} {A B : Type ℓ} (n : ℕ) {f : A → B}
+  → isConnected n B → isConnectedFun n f → isConnected n A
+connectedFunPresConnected n {f = f} conB conf =
+  isOfHLevelRetractFromIso 0 (connectedTruncIso n f conf) conB

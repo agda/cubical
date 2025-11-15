@@ -4,7 +4,6 @@ Uniqueness of identity proofs and axiom K
 
 -}
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Axiom.UniquenessOfIdentity where
 

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   TODO: upgrade to the default definition of CommAlgebra
 -}

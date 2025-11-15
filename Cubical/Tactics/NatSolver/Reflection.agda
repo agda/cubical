@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   This is inspired by/copied from:
   https://github.com/agda/agda-stdlib/blob/master/src/Tactic/MonoidSolver.agda
@@ -130,6 +129,7 @@ private
     do
       goal ← inferType hole >>= normalise
 
+      wait-for-type goal
       just (lhs , rhs) ← get-boundary goal
         where
           nothing

@@ -6,7 +6,7 @@ product. The proof follows Proposition 5.4.4. in Brunerie (2016)
 closely, but, for simplicity, considers only the case n = 2.
 -}
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Homotopy.HopfInvariant.Brunerie where
 
 open import Cubical.Homotopy.HopfInvariant.Base
@@ -64,7 +64,7 @@ open PlusBis
 
 -- Some abstract versions of imported lemmas/definitions from
 -- ZCohomology.Groups.SphereProduct for faster type checking.
-abstract
+opaque
   H²-genₗabs : coHom 2 (S₊ 2 × S₊ 2)
   H²-genₗabs = H²-S²×S²-genₗ
 

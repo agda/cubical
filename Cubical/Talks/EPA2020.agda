@@ -14,7 +14,6 @@ Link to video: https://vimeo.com/459020971
 
 -- To make Agda cubical add the --cubical option.
 -- This is implicitly added for files in the cubical library via the cubical.agda-lib file.
-{-# OPTIONS --safe #-}
 module Cubical.Talks.EPA2020 where
 
 -- The "Foundations" package contain a lot of important results (in
@@ -282,8 +281,7 @@ open import Cubical.HITs.Pushout
 open import Cubical.Homotopy.Hopf
 open S¹Hopf
 
--- There is also some integer cohomology:
-open import Cubical.ZCohomology.Everything
+-- There is also some integer cohomology in Cubical.ZCohomology.
 -- To compute cohomology groups of various spaces we need a bunch of
 -- interesting theorems: Freudenthal suspension theorem,
 -- Mayer-Vietoris sequence...

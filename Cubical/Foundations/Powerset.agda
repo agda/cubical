@@ -6,7 +6,6 @@ Escardó's lecture notes:
 https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#propositionalextensionality
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Powerset where
 
 open import Cubical.Foundations.Prelude

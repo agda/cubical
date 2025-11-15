@@ -5,7 +5,7 @@ where β is a natural number (aka "the Brunerie number",
 defined below).
 
 -}
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Homotopy.Group.Pi4S3.BrunerieNumber where
 
 open import Cubical.Homotopy.Loopspace
@@ -289,7 +289,7 @@ isSurjective-π₃S³→π₃TotalPushoutPath× =
         (((isConnectedΩ^→ 3 3 (S³→TotalPushoutPath× , refl)
           isConnected-toPullback) p) .fst)
 
-  transportLem : PathP (λ i → GroupHomπ≅π'PathP (S₊∙ 3) TotalPushoutPath×∙ 2 i)
+  transportLem : PathP (λ i → GroupHomπ≅π'PathP (S₊∙ 3) TotalPushoutPath×∙ 2 2 i)
                        π₃S³→π₃TotalPushoutPath× π₃S³→π₃P
   transportLem =
     toPathP (Σ≡Prop (λ _ → isPropIsGroupHom _ _)
