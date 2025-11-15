@@ -81,9 +81,9 @@ iso→fun-Injection-Iso-x isom {x} {y} =
                (λ x₁ → x₁ (lift tt))
                (λ x → refl)
                (λ x → refl) ⟩
-    (∀ (t : Lift Unit) -> (((fun isom) ∘ tempx) t ≡ ((fun isom) ∘ tempy) t))
+    (∀ (t : Unit*) -> (((fun isom) ∘ tempx) t ≡ ((fun isom) ∘ tempy) t))
       Iso⟨ iso→Pi-fun-Injection isom ⟩
-    (∀ (t : Lift Unit) -> tempx t ≡ tempy t)
+    (∀ (t : Unit*) -> tempx t ≡ tempy t)
       Iso⟨ iso (λ x₁ → x₁ (lift tt))
                (λ x₁ t → x₁)
                (λ x → refl)
