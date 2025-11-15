@@ -48,20 +48,20 @@ _[_,-] : (C : Category ℓ ℓ') → (c : C .ob)→ Functor C (SET ℓ')
 (C [ c ,-]) .F-seq _ _ = funExt λ _ → sym (C .⋆Assoc _ _ _)
 
 -- Lift functor
-LiftF : Functor (SET ℓ) (SET (ℓ-max ℓ ℓ'))
-LiftF {ℓ}{ℓ'} .F-ob A = (Lift {ℓ}{ℓ'} (A .fst)) , isOfHLevelLift 2 (A .snd)
-LiftF .F-hom f x = lift (f (x .lower))
-LiftF .F-id = refl
-LiftF .F-seq f g = funExt λ x → refl
+LiftF : ∀ ℓ' → Functor (SET ℓ) (SET (ℓ-max ℓ ℓ'))
+LiftF ℓ' .F-ob A = (Lift ℓ' (A .fst)) , isOfHLevelLift 2 (A .snd)
+LiftF ℓ' .F-hom f x = lift (f (x .lower))
+LiftF ℓ' .F-id = refl
+LiftF ℓ' .F-seq f g = funExt λ x → refl
 
 module _ {ℓ ℓ' : Level} where
-  isFullyFaithfulLiftF : isFullyFaithful (LiftF {ℓ} {ℓ'})
+  isFullyFaithfulLiftF : isFullyFaithful (LiftF {ℓ} ℓ')
   isFullyFaithfulLiftF X Y = isoToIsEquiv LiftFIso
     where
     open Iso
     LiftFIso : Iso (X .fst → Y .fst)
-                   (Lift {ℓ}{ℓ'} (X .fst) → Lift {ℓ}{ℓ'} (Y .fst))
-    fun LiftFIso = LiftF .F-hom {X} {Y}
+                   (Lift ℓ' (X .fst) → Lift ℓ' (Y .fst))
+    fun LiftFIso = LiftF ℓ' .F-hom {X} {Y}
     inv LiftFIso = λ f x → f (lift x) .lower
     rightInv LiftFIso = λ _ → funExt λ _ → refl
     leftInv LiftFIso = λ _ → funExt λ _ → refl
@@ -189,7 +189,7 @@ module _ {ℓ} where
 -- LiftF : SET ℓ → SET (ℓ-suc ℓ) preserves "small" limits
 -- i.e. limits over diagram shapes J : Category ℓ ℓ
 module _ {ℓ : Level} where
-  preservesLimitsLiftF : preservesLimits {ℓJ = ℓ} {ℓJ' = ℓ} (LiftF {ℓ} {ℓ-suc ℓ})
+  preservesLimitsLiftF : preservesLimits {ℓJ = ℓ} {ℓJ' = ℓ} (LiftF {ℓ} (ℓ-suc ℓ))
   preservesLimitsLiftF = preservesLimitsChar _
                            completeSET
                            completeSETSuc
@@ -209,7 +209,7 @@ module _ {ℓ : Level} where
         (λ x hx → funExt (λ d → cone≡ λ u → funExt (λ _ → sym (funExt⁻ (hx u) d))))
 
     lowerCone : ∀ J D
-             → Cone (LiftF ∘F D) (Unit* , isOfHLevelLift 2 isSetUnit)
+             → Cone (LiftF _ ∘F D) (Unit* , isOfHLevelLift 2 isSetUnit)
              → Cone D (Unit* , isOfHLevelLift 2 isSetUnit)
     coneOut (lowerCone J D cc) v tt* = cc .coneOut v tt* .lower
     coneOutCommutes (lowerCone J D cc) e =
@@ -217,14 +217,14 @@ module _ {ℓ : Level} where
 
     liftCone : ∀ J D
              → Cone D (Unit* , isOfHLevelLift 2 isSetUnit)
-             → Cone (LiftF ∘F D) (Unit* , isOfHLevelLift 2 isSetUnit)
+             → Cone (LiftF _ ∘F D) (Unit* , isOfHLevelLift 2 isSetUnit)
     coneOut (liftCone J D cc) v tt* = lift (cc .coneOut v tt*)
     coneOutCommutes (liftCone J D cc) e =
       funExt λ { tt* → cong lift (funExt⁻ (cc .coneOutCommutes e) tt*) }
 
     limSetIso : ∀ J D → CatIso (SET (ℓ-suc ℓ))
-                                (completeSETSuc J (LiftF ∘F D) .lim)
-                                (LiftF  .F-ob (completeSET J D .lim))
+                                (completeSETSuc J (LiftF _ ∘F D) .lim)
+                                (LiftF _ .F-ob (completeSET J D .lim))
     fst (limSetIso J D) cc = lift (lowerCone J D cc)
     cInv (snd (limSetIso J D)) cc = liftCone J D (cc .lower)
     sec (snd (limSetIso J D)) = funExt (λ _ → liftExt (cone≡ λ _ → refl))
