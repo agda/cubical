@@ -36,7 +36,7 @@ open import Cubical.Axiom.Choice
 
 record coHomTheory {ℓ ℓ' : Level} (H : (n : ℤ) → Pointed ℓ → AbGroup ℓ') : Type (ℓ-suc (ℓ-max ℓ ℓ'))
   where
-  
+
   field
     Hmap : (n : ℤ) → {A B : Pointed ℓ} (f : A →∙ B) → AbGroupHom (H n B) (H n A)
     HMapComp : (n : ℤ) → {A B C : Pointed ℓ} (g : B →∙ C) (f : A →∙ B)
@@ -54,7 +54,7 @@ record coHomTheory {ℓ ℓ' : Level} (H : (n : ℤ) → Pointed ℓ → AbGroup
 
 record coHomTheoryGen {ℓ ℓ' : Level} (H : (n : ℤ) → Pointed ℓ → AbGroup ℓ') : Type (ℓ-suc (ℓ-max ℓ ℓ'))
   where
-  
+
   field
     Hmap : (n : ℤ) → {A B : Pointed ℓ} (f : A →∙ B) → AbGroupHom (H n B) (H n A)
     HMapComp : (n : ℤ) → {A B C : Pointed ℓ} (g : B →∙ C) (f : A →∙ B)
