@@ -190,31 +190,31 @@ module _
       (Y : SeqColim X → TypeOfHLevel ℓ' d) where
 
       module _
-        (sec : (x : X .obj n) → Y (incl (X .map x)) .fst) where
+        (sec' : (x : X .obj n) → Y (incl (X .map x)) .fst) where
 
         lift-iso = elim.isIsoPrecompose _ d (Y ∘ incl) conn
 
         liftSec' : (x : X .obj (1 + n)) → Y (incl x) .fst
-        liftSec' = lift-iso .inv sec
+        liftSec' = lift-iso .inv sec'
 
-        liftSecPath' : (x : X .obj n) → sec x ≡ liftSec' (X .map x)
-        liftSecPath' x i = lift-iso .sec sec (~ i) x
+        liftSecPath' : (x : X .obj n) → sec' x ≡ liftSec' (X .map x)
+        liftSecPath' x i = lift-iso .sec sec' (~ i) x
 
       module _
-        (sec : (x : X .obj n) → Y (incl x) .fst) where
+        (sec' : (x : X .obj n) → Y (incl x) .fst) where
 
         liftSec : (x : X .obj (1 + n)) → Y (incl x) .fst
-        liftSec = liftSec' (transpSec n (λ x → Y x .fst) sec)
+        liftSec = liftSec' (transpSec n (λ x → Y x .fst) sec')
 
         liftSecPath :
           (x : X .obj n)
-          → PathP (λ i → Y (push x i) .fst) (sec x) (liftSec (X .map x))
+          → PathP (λ i → Y (push x i) .fst) (sec' x) (liftSec (X .map x))
         liftSecPath x i =
           hcomp (λ j → λ
-            { (i = i0) → sec x
+            { (i = i0) → sec' x
             ; (i = i1) → liftSecPath'
-                (transpSec n (λ x → Y x .fst) sec) x j })
-            (transport-filler (λ i → Y (push x i) .fst) (sec x) i)
+                (transpSec n (λ x → Y x .fst) sec') x j })
+            (transport-filler (λ i → Y (push x i) .fst) (sec' x) i)
 
   module _
     (d : ℕ)(n : ℕ)

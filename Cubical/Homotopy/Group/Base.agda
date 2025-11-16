@@ -324,13 +324,13 @@ isEquiv-Ω→SphereMap zero {A = A} =
                           , λ i j → snd f (~ i ∨ j)))
             λ _ → refl))
 isEquiv-Ω→SphereMap (suc zero) {A = A} =
-  isoToIsEquiv (iso _ invFun sec λ p → sym (rUnit p))
+  isoToIsEquiv (iso _ invFun sec' λ p → sym (rUnit p))
   where
   invFun : S₊∙ 1 →∙ A → typ (Ω A)
   invFun (f , p) = sym p ∙∙ cong f loop ∙∙ p
 
-  sec : section (Ω→SphereMap 1) invFun
-  sec (f , p) =
+  sec' : section (Ω→SphereMap 1) invFun
+  sec' (f , p) =
     ΣPathP ((funExt (λ { base → sym p
                        ; (loop i) j → doubleCompPath-filler
                                         (sym p) (cong f loop) p (~ j) i}))

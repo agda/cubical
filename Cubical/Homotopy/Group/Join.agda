@@ -221,13 +221,13 @@ private
       λ g → cong ∣_∣₂
         (cong (fun (Iso-JoinMap-SphereMap n m)) (sym (·Π≡+* f g))
         ∙ ∘∙-assoc _ _ _
-        ∙ cong (∙Π f g ∘∙_) ret
+        ∙ cong (∙Π f g ∘∙_) ret'
         ∙ ∘∙-idˡ (∙Π f g)
         ∙ cong₂ ∙Π
-              ((sym (∘∙-idˡ f) ∙ cong (f ∘∙_) (sym ret)) ∙ sym (∘∙-assoc _ _ _))
-              (sym (∘∙-idˡ g) ∙ cong (g ∘∙_) (sym ret) ∙ sym (∘∙-assoc _ _ _))))
+              ((sym (∘∙-idˡ f) ∙ cong (f ∘∙_) (sym ret')) ∙ sym (∘∙-assoc _ _ _))
+              (sym (∘∙-idˡ g) ∙ cong (g ∘∙_) (sym ret') ∙ sym (∘∙-assoc _ _ _))))
   where
-  ret = ≃∙→ret/sec∙ {B = _ , ptSn (suc (n + m))}
+  ret' = ≃∙→ret/sec∙ {B = _ , ptSn (suc (n + m))}
           (joinSphereEquiv∙ n m) .snd
 
 -π*≡-π' : ∀ {ℓ} {A : Pointed ℓ} {n m : ℕ}
@@ -241,11 +241,11 @@ private
       (cong (_∘∙ (≃∙map (invEquiv∙ (joinSphereEquiv∙ n m))))
             (sym (-Π≡-* f))
     ∙ ∘∙-assoc _ _ _
-    ∙ cong (-Π f ∘∙_) ret
+    ∙ cong (-Π f ∘∙_) ret'
     ∙ ∘∙-idˡ (-Π f)
-    ∙ cong -Π (sym (∘∙-assoc _ _ _ ∙ cong (f ∘∙_) ret ∙ ∘∙-idˡ f))))
+    ∙ cong -Π (sym (∘∙-assoc _ _ _ ∙ cong (f ∘∙_) ret' ∙ ∘∙-idˡ f))))
   where
-  ret = ≃∙→ret/sec∙ {B = _ , ptSn (suc (n + m))}
+  ret' = ≃∙→ret/sec∙ {B = _ , ptSn (suc (n + m))}
           (joinSphereEquiv∙ n m) .snd
 
 -- Homotopy groups in terms of joins
