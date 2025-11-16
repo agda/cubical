@@ -269,8 +269,8 @@ isGroup (snd (π*Gr n m A)) =
     → funExt λ g → transportRefl _
     ∙ π*≡π' _ _
     ∙ cong₂ (·π' (n + m))
-            (Iso.rightInv (Iso-π*-π' n m) _ ∙ transportRefl f)
-            (Iso.rightInv (Iso-π*-π' n m) _ ∙ transportRefl g))
+            (Iso.sec (Iso-π*-π' n m) _ ∙ transportRefl f)
+            (Iso.sec (Iso-π*-π' n m) _ ∙ transportRefl g))
 
   p3 : PathP (λ i → isoToPath (Iso-π*-π' {A = A} n m) i
                    → isoToPath (Iso-π*-π' {A = A} n m) i)
@@ -278,7 +278,7 @@ isGroup (snd (π*Gr n m A)) =
   p3 = toPathP (funExt λ f → transportRefl _
     ∙ -π*≡-π' _
     ∙ cong (-π' (n + m))
-           (Iso.rightInv (Iso-π*-π' n m) _ ∙ transportRefl f))
+           (Iso.sec (Iso-π*-π' n m) _ ∙ transportRefl f))
 
 -- Homotopy groups in terms of joins agrees with usual definition
 π*Gr≅π'Gr : ∀ {ℓ} (n m : ℕ) (A : Pointed ℓ)

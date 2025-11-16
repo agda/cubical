@@ -306,7 +306,7 @@ private
     _+'_
       ≡⟨ sym (cong (_∘_ (_∘_ Int→ℤ)) (funExt₂ ℤ→IntIsHom+)) ⟩
     (λ n → (λ m → (Int→ℤ (ℤ→Int (n + m)))))
-      ≡⟨ funExt₂ (λ n m → (Iso.rightInv isoIntℤ (n + m))) ⟩
+      ≡⟨ funExt₂ (λ n m → (Iso.sec isoIntℤ (n + m))) ⟩
     _+_ ∎
 
   op≡Intℤ : (Int.ℤ → Int.ℤ → Int.ℤ) ≡ (ℤ → ℤ → ℤ)
@@ -338,7 +338,7 @@ private
     -'_
       ≡⟨ sym (cong (_∘_ Int→ℤ) (funExt ℤ→IntIsHom-)) ⟩
     (λ n → (Int→ℤ (ℤ→Int (- n))))
-      ≡⟨ funExt (λ n → (Iso.rightInv isoIntℤ (- n))) ⟩
+      ≡⟨ funExt (λ n → (Iso.sec isoIntℤ (- n))) ⟩
     -_ ∎
 
   endo≡Intℤ : (Int.ℤ → Int.ℤ) ≡ (ℤ → ℤ)
@@ -396,7 +396,7 @@ private
     _·'_
       ≡⟨ sym (cong (_∘_ (_∘_ Int→ℤ)) (funExt₂ ℤ→IntIsHom·)) ⟩
     (λ n → (λ m → (Int→ℤ (ℤ→Int (n · m)))))
-      ≡⟨ funExt₂ (λ n m → (Iso.rightInv isoIntℤ (n · m))) ⟩
+      ≡⟨ funExt₂ (λ n m → (Iso.sec isoIntℤ (n · m))) ⟩
     _·_ ∎
 
   ·Int≡·' : (λ i → op≡Intℤ i) [ Int._·_ ≡ _·'_ ]

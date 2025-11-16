@@ -260,10 +260,10 @@ Iso.fun finSucMaybeIso zero = nothing
 Iso.fun finSucMaybeIso (suc i) = just i
 Iso.inv finSucMaybeIso nothing = zero
 Iso.inv finSucMaybeIso (just i) = suc i
-Iso.rightInv finSucMaybeIso nothing = refl
-Iso.rightInv finSucMaybeIso (just i) = refl
-Iso.leftInv finSucMaybeIso zero = refl
-Iso.leftInv finSucMaybeIso (suc i) = refl
+Iso.sec finSucMaybeIso nothing = refl
+Iso.sec finSucMaybeIso (just i) = refl
+Iso.ret finSucMaybeIso zero = refl
+Iso.ret finSucMaybeIso (suc i) = refl
 
 finSuc≡Maybe : Fin (ℕ.suc n) ≡ Maybe (Fin n)
 finSuc≡Maybe = isoToPath finSucMaybeIso
@@ -327,10 +327,10 @@ module FinProdChar where
  fun (sucProdToSumIso n m) (suc i , j) = inr (i , j)
  inv (sucProdToSumIso n m) (inl j) = zero , j
  inv (sucProdToSumIso n m) (inr (i , j)) = suc i , j
- rightInv (sucProdToSumIso n m) (inl j) = refl
- rightInv (sucProdToSumIso n m) (inr (i , j)) = refl
- leftInv (sucProdToSumIso n m) (zero , j) = refl
- leftInv (sucProdToSumIso n m) (suc i , j) = refl
+ sec (sucProdToSumIso n m) (inl j) = refl
+ sec (sucProdToSumIso n m) (inr (i , j)) = refl
+ ret (sucProdToSumIso n m) (zero , j) = refl
+ ret (sucProdToSumIso n m) (suc i , j) = refl
 
  Equiv : (n m : ℕ) → (Fin n × Fin m) ≃ Fin (n · m)
  Equiv ℕzero m = uninhabEquiv (λ x → ¬Fin0 (fst x)) ¬Fin0

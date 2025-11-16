@@ -43,8 +43,8 @@ isNullΠ {X = X} {S = S} {Y = Y} nY α = fromIsEquiv _ (snd e)
     flipIso : Iso ((x : X) → S α → Y x) (S α → (x : X) → Y x)
     Iso.fun flipIso f = flip f
     Iso.inv flipIso f = flip f
-    Iso.rightInv flipIso f = refl
-    Iso.leftInv flipIso f = refl
+    Iso.sec flipIso f = refl
+    Iso.ret flipIso f = refl
 
     e : ((x : X) → Y x) ≃ (S α → ((x : X) → Y x))
     e =
@@ -267,10 +267,10 @@ nullPreservesIso : {A : Type ℓα} (S : A → Type ℓ) → {X : Type ℓ'} →
   {Y : Type ℓ''} → Iso X Y → Iso (Null S X) (Null S Y)
 Iso.fun (nullPreservesIso S e) = nullMap S (Iso.fun e)
 Iso.inv (nullPreservesIso S e) = nullMap S (Iso.inv e)
-Iso.leftInv (nullPreservesIso S e) =
-  elim (λ _ → isNull≡ (isNull-Null S)) (λ x → cong ∣_∣ (Iso.leftInv e x))
-Iso.rightInv (nullPreservesIso S e) =
-  elim (λ _ → isNull≡ (isNull-Null S)) (λ y → cong ∣_∣ (Iso.rightInv e y))
+Iso.ret (nullPreservesIso S e) =
+  elim (λ _ → isNull≡ (isNull-Null S)) (λ x → cong ∣_∣ (Iso.ret e x))
+Iso.sec (nullPreservesIso S e) =
+  elim (λ _ → isNull≡ (isNull-Null S)) (λ y → cong ∣_∣ (Iso.sec e y))
 
 nullPreservesEquiv : {A : Type ℓα} (S : A → Type ℓ) → {X : Type ℓ'} →
   {Y : Type ℓ''} → X ≃ Y → Null S X ≃ Null S Y

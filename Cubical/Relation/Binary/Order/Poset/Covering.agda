@@ -57,14 +57,14 @@ module Cover (P' : Poset ℓ ℓ') where
       isom .inv i with cov' i
       ... | inl z≡x = false
       ... | inr z≡y = true
-      isom .rightInv i with cov' i
+      isom .sec i with cov' i
       ... | inl z≡x = Interval≡ P' x y _ _ (sym z≡x)
       ... | inr z≡y = Interval≡ P' x y _ _ (sym z≡y)
-      isom .leftInv b with cov' (2→Interval P' x y x≤y b)
-      isom .leftInv false | inl _ = refl
-      isom .leftInv false | inr x≡y = ⊥.rec (x≠y x≡y)
-      isom .leftInv true  | inl y≡x = ⊥.rec (x≠y (sym y≡x))
-      isom .leftInv true  | inr _ = refl
+      isom .ret b with cov' (2→Interval P' x y x≤y b)
+      isom .ret false | inl _ = refl
+      isom .ret false | inr x≡y = ⊥.rec (x≠y x≡y)
+      isom .ret true  | inl y≡x = ⊥.rec (x≠y (sym y≡x))
+      isom .ret true  | inr _ = refl
 
   -- Subset of faces and cofaces
   -- terminology from "Combinatorics of higher-categorical diagrams" by Amar Hadzihasanovic

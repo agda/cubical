@@ -89,14 +89,14 @@ open Iso
 equivIso : ∀ s t → Iso (s ≡ t) (El s ≃ El t)
 equivIso s t .fun = nu s t
 equivIso s t .inv = un s t
-equivIso s t .rightInv = nu-un s t
-equivIso s t .leftInv = un-nu s t
+equivIso s t .sec = nu-un s t
+equivIso s t .ret = un-nu s t
 
 pathIso : ∀ s t → Iso (s ≡ t) (El s ≡ El t)
 pathIso s t .fun = cong El
 pathIso s t .inv = un s t ∘ pathToEquiv
-pathIso s t .rightInv = cong-un-te s t
-pathIso s t .leftInv = un-nu s t
+pathIso s t .sec = cong-un-te s t
+pathIso s t .ret = un-nu s t
 
 minivalence : ∀{s t} → (s ≡ t) ≃ (El s ≃ El t)
 minivalence {s} {t} = isoToEquiv (equivIso s t)

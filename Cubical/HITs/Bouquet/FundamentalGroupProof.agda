@@ -285,8 +285,8 @@ encodeDecodeT x g = elim sethood induction g where
 TruncatedFamiliesIso : (x : Bouquet A) → Iso ∥ base ≡ x ∥₂ ∥ code x ∥₂
 Iso.fun (TruncatedFamiliesIso x)      = encodeT x
 Iso.inv (TruncatedFamiliesIso x)      = decodeT x
-Iso.rightInv (TruncatedFamiliesIso x) = encodeDecodeT x
-Iso.leftInv (TruncatedFamiliesIso x)  = decodeEncodeT x
+Iso.sec (TruncatedFamiliesIso x) = encodeDecodeT x
+Iso.ret (TruncatedFamiliesIso x)  = decodeEncodeT x
 
 TruncatedFamiliesEquiv : (x : Bouquet A) → ∥ base ≡ x ∥₂ ≃ ∥ code x ∥₂
 TruncatedFamiliesEquiv x = isoToEquiv (TruncatedFamiliesIso x)

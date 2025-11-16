@@ -195,7 +195,7 @@ Iso-πS-ℤPres1 (suc n) =
                   (merid (transportRefl (transportRefl x i) i))
                   (sym (merid north)) i z
            ∣)))) i)
-    ∙ Iso.leftInv (Iso-Kn-ΩKn+1 (suc (suc n))) ∣ x ∣)
+    ∙ Iso.ret (Iso-Kn-ΩKn+1 (suc (suc n))) ∣ x ∣)
 
 -- The first step of the Gysin sequence is to formulate
 -- an equivalence g : Kᵢ ≃ (Sⁿ →∙ Kᵢ₊ₙ)
@@ -290,12 +290,12 @@ module g-base where
   Iso.fun (suspKn-Iso n m) f = (suspKn-Iso-fun n m f)
                              , (suspKn-Iso-fun∙ n m f)
   Iso.inv (suspKn-Iso n m) = suspKn-Iso-inv n m
-  Iso.rightInv (suspKn-Iso zero m) (f , p) =
+  Iso.sec (suspKn-Iso zero m) (f , p) =
     →∙Homogeneous≡ (isHomogeneousKn _)
       (funExt λ { false → cong (ΩKn+1→Kn m) (sym (rUnit _))
-                         ∙ Iso.leftInv (Iso-Kn-ΩKn+1 _) (f false)
+                         ∙ Iso.ret (Iso-Kn-ΩKn+1 _) (f false)
                 ; true → sym p})
-  Iso.rightInv (suspKn-Iso (suc n) m) (f , p) =
+  Iso.sec (suspKn-Iso (suc n) m) (f , p) =
     →∙Homogeneous≡ (isHomogeneousKn _)
       (funExt λ x →
          (λ i → ΩKn+1→Kn m
@@ -307,17 +307,17 @@ module g-base where
           (cong (Kn→ΩKn+1 m (f x) ∙_)
             (cong sym (cong (Kn→ΩKn+1 m) p ∙ Kn→ΩKn+10ₖ m))
              ∙ sym (rUnit _))
-      ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 _)  (f x))
-  Iso.leftInv (suspKn-Iso zero m) (f , p) = →∙Homogeneous≡ (isHomogeneousKn _)
+      ∙∙ Iso.ret (Iso-Kn-ΩKn+1 _)  (f x))
+  Iso.ret (suspKn-Iso zero m) (f , p) = →∙Homogeneous≡ (isHomogeneousKn _)
     (funExt λ { base → sym p
               ; (loop i) j → lem j i})
     where
     lem : PathP (λ i → p (~ i) ≡ p (~ i))
                (Kn→ΩKn+1 m (ΩKn+1→Kn m (sym p ∙∙ cong f loop ∙∙ p)))
                (cong f loop)
-    lem = Iso.rightInv (Iso-Kn-ΩKn+1 _) _
+    lem = Iso.sec (Iso-Kn-ΩKn+1 _) _
       ◁ λ i → doubleCompPath-filler (sym p) (cong f loop) p (~ i)
-  Iso.leftInv (suspKn-Iso (suc n) m) (f , p) =
+  Iso.ret (suspKn-Iso (suc n) m) (f , p) =
     →∙Homogeneous≡ (isHomogeneousKn _)
      (funExt λ { north → sym p
                ; south → sym p ∙ cong f (merid (ptSn _))
@@ -329,7 +329,7 @@ module g-base where
                  (ΩKn+1→Kn m
                    (sym p ∙∙ cong f (merid a ∙ sym (merid (ptSn _))) ∙∙ p)))
                (cong f (merid a))
-    lem a = Iso.rightInv (Iso-Kn-ΩKn+1 _) _
+    lem a = Iso.sec (Iso-Kn-ΩKn+1 _) _
         ◁ λ i j → hcomp (λ k →
              λ { (i = i1) → (f (merid a j))
                ; (j = i0) → p (k ∧ ~ i)
@@ -548,7 +548,7 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
                                      (Iso.inv Q-is (transportRefl y i))) i)
                   ∙ cong (x ⌣ₖ_)
                          (funExt⁻ c-pt (Iso.inv Q-is y)
-                            ∙ cong (genFunSpace n .fst) (Iso.rightInv Q-is y))))
+                            ∙ cong (genFunSpace n .fst) (Iso.sec Q-is y))))
 
   g-base : (i : ℕ) → isEquiv (g (pt B) i)
   g-base i = transport (λ j → isEquiv (gPathP' i (~ j))) (g-base.isEquiv-g n i)
@@ -571,7 +571,7 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
           (J (λ b _ → isSet (Q b →∙ coHomK-ptd n))
             (subst isSet (cong (_→∙ coHomK-ptd n)
               (ua∙ (isoToEquiv (invIso Q-is))
-                   (cong (Iso.inv Q-is) (sym Q-is-ptd) ∙ Iso.leftInv Q-is _)))
+                   (cong (Iso.inv Q-is) (sym Q-is-ptd) ∙ Iso.ret Q-is _)))
               (isOfHLevelRetractFromIso 2 (fst (πS≅ℤ n)) isSetℤ)))
           (conB (pt B) b)
 
@@ -681,20 +681,20 @@ module preThom {ℓ ℓ'} (B : Pointed ℓ) (P : typ B → Type ℓ') where
   IsoFE : Iso F̃ Ẽ
   Iso.fun IsoFE = funFE
   Iso.inv IsoFE = invFE
-  Iso.rightInv IsoFE (inl x) = refl
-  Iso.rightInv IsoFE (inr x) = refl
-  Iso.rightInv IsoFE (push (x , a) i₁) k = lem k i₁
+  Iso.sec IsoFE (inl x) = refl
+  Iso.sec IsoFE (inr x) = refl
+  Iso.sec IsoFE (push (x , a) i₁) k = lem k i₁
     where
     lem : cong funFE (((push x) ∙ λ i → inr (x , merid a i)))
         ≡ push (x , a)
     lem = congFunct funFE (push x) (λ i → inr (x , merid a i))
      ∙ sym (lUnit (push (x , a)))
-  Iso.leftInv IsoFE (inl x) = refl
-  Iso.leftInv IsoFE (inr (x , north)) = push x
-  Iso.leftInv IsoFE (inr (x , south)) = refl
-  Iso.leftInv IsoFE (inr (x , merid a i)) j =
+  Iso.ret IsoFE (inl x) = refl
+  Iso.ret IsoFE (inr (x , north)) = push x
+  Iso.ret IsoFE (inr (x , south)) = refl
+  Iso.ret IsoFE (inr (x , merid a i)) j =
     compPath-filler' (push x) (λ i₁ → inr (x , merid a i₁)) (~ j) i
-  Iso.leftInv IsoFE (push a i₁) k =  push a (i₁ ∧ k)
+  Iso.ret IsoFE (push a i₁) k =  push a (i₁ ∧ k)
 
 
   F̃→Q : ∀ {ℓ} {A : Pointed ℓ} → (F̃ , inl tt) →∙ A → (b : typ B) → Q b →∙ A
@@ -744,10 +744,10 @@ module preThom {ℓ ℓ'} (B : Pointed ℓ) (P : typ B → Type ℓ') where
           ((b : typ B) → Q b →∙ A)
   Iso.fun (IsoF̃Q {A = A , a}) = F̃→Q
   Iso.inv (IsoF̃Q {A = A , a}) = Q→F̃
-  Iso.rightInv (IsoF̃Q {A = A , a}) f =
+  Iso.sec (IsoF̃Q {A = A , a}) f =
     funExt λ b → ΣPathP (funExt (Q→F̃→Q f b)
                , sym (rUnit (snd (f b))))
-  Iso.leftInv (IsoF̃Q {A = A , a}) (f , p) =
+  Iso.ret (IsoF̃Q {A = A , a}) (f , p) =
     ΣPathP ((funExt (F̃→Q→F̃ f p))
          , λ i j → p (~ i ∨ j))
 
@@ -763,12 +763,12 @@ module preThom {ℓ ℓ'} (B : Pointed ℓ) (P : typ B → Type ℓ') where
                 , (snd G)
     Iso.inv IsoFE-extend G = (λ x → G .fst (Iso.fun IsoFE x))
                 , (snd G)
-    Iso.rightInv IsoFE-extend G =
+    Iso.sec IsoFE-extend G =
       →∙Homogeneous≡ (isHomogeneousKn _)
-        (funExt λ x → cong (G .fst) (Iso.rightInv IsoFE x))
-    Iso.leftInv IsoFE-extend G =
+        (funExt λ x → cong (G .fst) (Iso.sec IsoFE x))
+    Iso.ret IsoFE-extend G =
       →∙Homogeneous≡ (isHomogeneousKn _)
-        (funExt λ x → cong (G .fst) (Iso.leftInv IsoFE x))
+        (funExt λ x → cong (G .fst) (Iso.ret IsoFE x))
 
   ι-hom : (k : ℕ) → (f g : ((b : typ B) → Q b →∙ coHomK-ptd k))
                    → Iso.fun (ι k) (λ b → f b ++ g b)
@@ -939,7 +939,7 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
                         ∙ (sym (assoc _ _ _)
                         ∙∙ cong (Kn→ΩKn+1 i (f (a , b)) ∙_) (rCancel _)
                         ∙∙ sym (rUnit _)))
-                        ∙ Iso.leftInv (Iso-Kn-ΩKn+1 _) (f (a , b))})) ∣₁)
+                        ∙ Iso.ret (Iso-Kn-ΩKn+1 _) (f (a , b))})) ∣₁)
         (Iso.fun PathIdTrunc₀Iso ker)
 
   Im-Susp⊂Ker-j : (i : ℕ) (x : _)
@@ -977,7 +977,7 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
                                           ∙∙ funExt⁻ p (fst a))))
                    (cong (fst f) (push a))
           h3 f p a =
-            Iso.rightInv (Iso-Kn-ΩKn+1 i) _
+            Iso.sec (Iso-Kn-ΩKn+1 i) _
               ◁ λ i j →
                  doubleCompPath-filler (sym (snd f)) (cong (fst f) (push a))
                  (funExt⁻ p (fst a)) (~ i) j

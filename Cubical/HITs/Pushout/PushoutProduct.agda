@@ -77,7 +77,7 @@ module _
       map-iso = elim.isIsoPrecompose f _ (λ a → fam a , is-m-trunc-fam a) connf
 
       k = map-iso .inv sec-fam
-      ϕ = map-iso .rightInv sec-fam
+      ϕ = map-iso .sec sec-fam
 
     ext : (x : A × B) → P x .fst
     ext (a , b) = k a .fst b

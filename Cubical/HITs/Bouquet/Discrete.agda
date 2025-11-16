@@ -102,8 +102,8 @@ module _ {A : Type ℓ} (_≟_ : Discrete A) where
                    (Σ _ IsNormalised)
   Iso.fun codeDecode p = subst CodeBouquet p ([] , lower)
   Iso.inv codeDecode = co← base
-  Iso.rightInv codeDecode = Σ≡Prop isPropIsNormalised ∘ uncurry coRet
-  Iso.leftInv codeDecode = coSec base
+  Iso.sec codeDecode = Σ≡Prop isPropIsNormalised ∘ uncurry coRet
+  Iso.ret codeDecode = coSec base
 
   isSetΩBouquet : isSet (Path (Bouquet A) base base)
   isSetΩBouquet = isOfHLevelRetractFromIso 2 codeDecode

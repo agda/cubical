@@ -32,8 +32,8 @@ UPair→SetCoeq→SetCoeq = SQ.elimProp (λ _ → squash _ _) λ _ → refl
 SetCoeqIsoUPair : Iso (SetCoequalizerPair A) (UnorderedPair A)
 fun SetCoeqIsoUPair = SetCoeq→UPair
 inv SetCoeqIsoUPair = UPair→SetCoeq
-rightInv SetCoeqIsoUPair = SetCoeq→UPair→SetCoeq
-leftInv SetCoeqIsoUPair = UPair→SetCoeq→SetCoeq
+sec SetCoeqIsoUPair = SetCoeq→UPair→SetCoeq
+ret SetCoeqIsoUPair = UPair→SetCoeq→SetCoeq
 
 SetCoeq≡UPair : SetCoequalizerPair A ≡ UnorderedPair A
 SetCoeq≡UPair = isoToPath SetCoeqIsoUPair

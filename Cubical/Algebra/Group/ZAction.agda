@@ -204,7 +204,7 @@ Iso-pres-gen₁ : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') (g : fst G)
   → gen₁-by H (fun (fst e) g)
 Iso-pres-gen₁ G H g genG is h =
     (fst (genG (inv (fst is) h)))
-  , (sym (rightInv (fst is) h)
+  , (sym (sec (fst is) h)
     ∙∙ cong (fun (fst is)) (snd (genG (inv (fst is) h)))
     ∙∙ (homPresℤ· (_ , snd is) g (fst (genG (inv (fst is) h)))))
 
@@ -213,7 +213,7 @@ Iso-pres-gen₂ : (G : Group ℓ) (H : Group ℓ') (g₁ g₂ : fst G)
   → gen₂-by H (fun (fst e) g₁) (fun (fst e) g₂)
 fst (Iso-pres-gen₂ G H g₁ g₂ genG is h) = genG (inv (fst is) h) .fst
 snd (Iso-pres-gen₂ G H g₁ g₂ genG is h) =
-     sym (rightInv (fst is) h)
+     sym (sec (fst is) h)
   ∙∙ cong (fun (fst is)) (snd (genG (inv (fst is) h)))
   ∙∙ (pres· (snd is) _ _
   ∙ cong₂ (_·_ (snd H))

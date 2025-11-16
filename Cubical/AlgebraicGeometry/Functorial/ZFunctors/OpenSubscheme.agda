@@ -184,7 +184,7 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
       ⋁Df≡W : ⋁ (CompOpenDistLattice ⟅ Sp ⟅ R ⟆ ⟆) (D R ∘ f) ≡ W
       ⋁Df≡W = sym (pres⋁ (_ , isHomYoneda) (ZL.D R ∘ f))
             ∙ cong (yonedaᴾ ZarLatFun R .inv) ⋁Df≡w
-            ∙ yonedaᴾ ZarLatFun R .leftInv W
+            ∙ yonedaᴾ ZarLatFun R .ret W
 
     makeAffineCoverCompOpenOfAffine : AffineCover ⟦ W ⟧ᶜᵒ
     makeAffineCoverCompOpenOfAffine = toAffineCover f ⋁Df≡W

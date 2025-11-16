@@ -48,11 +48,11 @@ private
   Iso.fun partitionDoubleℕ≅ℕ⊎ℕ (n , suc (suc k) , p) = ex-falso (¬2n+2+k<2n n k p)
   Iso.inv partitionDoubleℕ≅ℕ⊎ℕ (inl n) = n , zero , doubleGrows n
   Iso.inv partitionDoubleℕ≅ℕ⊎ℕ (inr n) = n , 1 , <-suc
-  Iso.rightInv partitionDoubleℕ≅ℕ⊎ℕ (inl n) = refl
-  Iso.rightInv partitionDoubleℕ≅ℕ⊎ℕ (inr n) = refl
-  Iso.leftInv partitionDoubleℕ≅ℕ⊎ℕ (k , zero        , p) = ΣPathP (refl , ΣPathPProp (λ a → isProp≤) refl)
-  Iso.leftInv partitionDoubleℕ≅ℕ⊎ℕ (k , suc zero    , p) = ΣPathP (refl , ΣPathPProp (λ a → isProp≤) refl)
-  Iso.leftInv partitionDoubleℕ≅ℕ⊎ℕ (k , suc (suc i) , p) = ex-falso $ ¬2n+2+k<2n k i p
+  Iso.sec partitionDoubleℕ≅ℕ⊎ℕ (inl n) = refl
+  Iso.sec partitionDoubleℕ≅ℕ⊎ℕ (inr n) = refl
+  Iso.ret partitionDoubleℕ≅ℕ⊎ℕ (k , zero        , p) = ΣPathP (refl , ΣPathPProp (λ a → isProp≤) refl)
+  Iso.ret partitionDoubleℕ≅ℕ⊎ℕ (k , suc zero    , p) = ΣPathP (refl , ΣPathPProp (λ a → isProp≤) refl)
+  Iso.ret partitionDoubleℕ≅ℕ⊎ℕ (k , suc (suc i) , p) = ex-falso $ ¬2n+2+k<2n k i p
 
   partitionDoubleℕ≅ℕ : Iso (partition doubleℕ refl doubleInc) ℕ
   partitionDoubleℕ≅ℕ = partition≅ℕ doubleℕ refl doubleInc

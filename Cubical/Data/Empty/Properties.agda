@@ -32,5 +32,5 @@ uninhabEquiv ¬a ¬b = isoToEquiv isom
   isom : Iso _ _
   isom .fun a = rec (¬a a)
   isom .inv b = rec (¬b b)
-  isom .rightInv b = rec (¬b b)
-  isom .leftInv a = rec (¬a a)
+  isom .sec b = rec (¬b b)
+  isom .ret a = rec (¬a a)

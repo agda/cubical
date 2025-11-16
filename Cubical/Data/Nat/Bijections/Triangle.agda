@@ -40,8 +40,8 @@ private
       i+tk≤k+tk = pred-≤-pred i+tk<k+tk+1
       i≤k : i ≤ k
       i≤k = ≤-+k-cancel i+tk≤k+tk
-  Iso.rightInv Triangle⊂ℕ×ℕ≅partitionTriangle (k , i , _) = ΣPathP (refl , ΣPathPProp (λ _ → isProp≤) refl)
-  Iso.leftInv Triangle⊂ℕ×ℕ≅partitionTriangle  (k , i , _) = ΣPathP (refl , ΣPathPProp (λ _ → isProp≤) refl)
+  Iso.sec Triangle⊂ℕ×ℕ≅partitionTriangle (k , i , _) = ΣPathP (refl , ΣPathPProp (λ _ → isProp≤) refl)
+  Iso.ret Triangle⊂ℕ×ℕ≅partitionTriangle  (k , i , _) = ΣPathP (refl , ΣPathPProp (λ _ → isProp≤) refl)
 
   partitionTriangle≅ℕ : Iso partitionTriangle ℕ
   partitionTriangle≅ℕ = partition≅ℕ triangle refl strictIncTriangle

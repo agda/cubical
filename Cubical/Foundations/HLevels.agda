@@ -256,7 +256,7 @@ isOfHLevelRetract (suc (suc (suc (suc (suc n))))) f g h ofLevel x y p q P Q R S 
                              (cong (cong (cong f)) R) (cong (cong (cong f)) S))
 
 isOfHLevelRetractFromIso : {A : Type ℓ} {B : Type ℓ'} (n : HLevel) → Iso A B → isOfHLevel n B → isOfHLevel n A
-isOfHLevelRetractFromIso n e hlev = isOfHLevelRetract n (Iso.fun e) (Iso.inv e) (Iso.leftInv e) hlev
+isOfHLevelRetractFromIso n e hlev = isOfHLevelRetract n (Iso.fun e) (Iso.inv e) (Iso.ret e) hlev
 
 isOfHLevelRespectEquiv : {A : Type ℓ} {B : Type ℓ'} → (n : HLevel) → A ≃ B → isOfHLevel n A → isOfHLevel n B
 isOfHLevelRespectEquiv n eq = isOfHLevelRetract n (invEq eq) (eq .fst) (secEq eq)
@@ -755,19 +755,19 @@ module _ (isSet-A : isSet A) (isSet-A' : isSet A') where
      s-p : ∀ b → _
      s-p b =
        isSet→SquareP (λ i j → isProp→isSet (isSet-A' _ _))
-         refl refl (λ i₁ → (Iso.rightInv (p₀ i₁) b)) (λ i₁ → (Iso.rightInv (p₁ i₁) b))
+         refl refl (λ i₁ → (Iso.sec (p₀ i₁) b)) (λ i₁ → (Iso.sec (p₁ i₁) b))
 
      r-p : ∀ a → _
      r-p a =
        isSet→SquareP (λ i j → isProp→isSet (isSet-A _ _))
-         refl refl (λ i₁ → (Iso.leftInv (p₀ i₁) a)) (λ i₁ → (Iso.leftInv (p₁ i₁) a))
+         refl refl (λ i₁ → (Iso.ret (p₀ i₁) a)) (λ i₁ → (Iso.ret (p₁ i₁) a))
 
 
      h : p₀ ≡ p₁
      Iso.fun (h i i₁) = fst (f-p i₁ i)
      Iso.inv (h i i₁) = snd (f-p i₁ i)
-     Iso.rightInv (h i i₁) b = s-p b i₁ i
-     Iso.leftInv  (h i i₁) a = r-p a i₁ i
+     Iso.sec (h i i₁) b = s-p b i₁ i
+     Iso.ret  (h i i₁) a = r-p a i₁ i
 
 
   SetsIso≡-ext : ∀ {a b : Iso A A'}
@@ -776,16 +776,16 @@ module _ (isSet-A : isSet A) (isSet-A' : isSet A') where
             → a ≡ b
   Iso.fun (SetsIso≡-ext {a} {b} fun≡ inv≡ i) x = fun≡ x i
   Iso.inv (SetsIso≡-ext {a} {b} fun≡ inv≡ i) x = inv≡ x i
-  Iso.rightInv (SetsIso≡-ext {a} {b} fun≡ inv≡ i) b₁ =
+  Iso.sec (SetsIso≡-ext {a} {b} fun≡ inv≡ i) b₁ =
      isSet→SquareP (λ _ _ → isSet-A')
-       (Iso.rightInv a b₁)
-       (Iso.rightInv b b₁)
+       (Iso.sec a b₁)
+       (Iso.sec b b₁)
        (λ i → fun≡ (inv≡ b₁ i) i)
        refl i
-  Iso.leftInv (SetsIso≡-ext {a} {b} fun≡ inv≡ i) a₁ =
+  Iso.ret (SetsIso≡-ext {a} {b} fun≡ inv≡ i) a₁ =
      isSet→SquareP (λ _ _ → isSet-A)
-       (Iso.leftInv a a₁)
-       (Iso.leftInv b a₁)
+       (Iso.ret a a₁)
+       (Iso.ret b a₁)
        (λ i → inv≡ (fun≡ a₁ i) i )
        refl i
 
@@ -804,8 +804,8 @@ module _ (isSet-A : isSet A) (isSet-A' : isSet A') where
       ww : Iso _ _
       fun ww = isoToEquiv
       inv ww = equivToIso
-      rightInv ww b = equivEq refl
-      leftInv ww a = SetsIso≡ refl refl
+      sec ww b = equivEq refl
+      ret ww a = SetsIso≡ refl refl
 
 
   isSet→isEquiv-isoToPath : isEquiv isoToEquiv
@@ -821,8 +821,8 @@ isSet→Iso-Iso-≡ isSet-A isSet-A' = ww
     ww : Iso _ _
     fun ww = isoToPath
     inv ww = pathToIso
-    rightInv ww b = isInjectiveTransport (funExt λ _ → transportRefl _)
-    leftInv ww a = SetsIso≡-ext isSet-A isSet-A' (λ _ → transportRefl (fun a _)) λ _ → cong (inv a) (transportRefl _)
+    sec ww b = isInjectiveTransport (funExt λ _ → transportRefl _)
+    ret ww a = SetsIso≡-ext isSet-A isSet-A' (λ _ → transportRefl (fun a _)) λ _ → cong (inv a) (transportRefl _)
 
 hSet-Iso-Iso-≡ : (A : hSet ℓ) → (A' : hSet ℓ) → Iso (Iso (fst A) (fst A')) (A ≡ A')
 hSet-Iso-Iso-≡ A A' = compIso (isSet→Iso-Iso-≡ (snd A) (snd A')) (equivToIso (_ , isEquiv-Σ≡Prop λ _ → isPropIsSet))
@@ -857,8 +857,8 @@ module _ (B : (i j k : I) → Type ℓ)
 Π-contractDomIso : (c : isContr A) → Iso ((x : A) → B x) (B (c .fst))
 Π-contractDomIso {B = B} c .fun f = f (c .fst)
 Π-contractDomIso {B = B} c .inv b x = subst B (c .snd x) b
-Π-contractDomIso {B = B} c .rightInv b i = transp (λ j → B (isProp→isSet (isContr→isProp c) _ _ (c .snd (c .fst)) refl i j)) i b
-Π-contractDomIso {B = B} c .leftInv f = funExt λ x → fromPathP (cong f (c .snd x))
+Π-contractDomIso {B = B} c .sec b i = transp (λ j → B (isProp→isSet (isContr→isProp c) _ _ (c .snd (c .fst)) refl i j)) i b
+Π-contractDomIso {B = B} c .ret f = funExt λ x → fromPathP (cong f (c .snd x))
 
 Π-contractDom : (c : isContr A) → ((x : A) → B x) ≃ B (c .fst)
 Π-contractDom c = isoToEquiv (Π-contractDomIso c)

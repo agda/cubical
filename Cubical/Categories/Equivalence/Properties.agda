@@ -139,27 +139,27 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
       p : _
       p i =
         comp
-        (λ j → D [ iso-ob .rightInv x (~ j) , iso-ob .rightInv x (~ j) ])
+        (λ j → D [ iso-ob .sec x (~ j) , iso-ob .sec x (~ j) ])
         (λ j → λ
-          { (i = i0) → iso-hom .rightInv _ (D .id {x = x}) (~ j)
-          ; (i = i1) → D .id {x = iso-ob .rightInv x (~ j)} })
+          { (i = i0) → iso-hom .sec _ (D .id {x = x}) (~ j)
+          ; (i = i1) → D .id {x = iso-ob .sec x (~ j)} })
         (D .id {x = x})
     w-inv .F-seq {x = x} {z = z} f g = isFullyFaithful→Faithful {F = F} fullfaith _ _ _ _ (p ∙ sym (F .F-seq _ _))
       where
       p : _
       p i =
         comp
-        (λ j → D [ iso-ob .rightInv x (~ j) , iso-ob .rightInv z (~ j) ])
+        (λ j → D [ iso-ob .sec x (~ j) , iso-ob .sec z (~ j) ])
         (λ j → λ
-          { (i = i0) → iso-hom .rightInv _ (f ⋆⟨ D ⟩ g) (~ j)
-          ; (i = i1) → iso-hom .rightInv _ f (~ j) ⋆⟨ D ⟩ iso-hom .rightInv _ g (~ j) })
+          { (i = i0) → iso-hom .sec _ (f ⋆⟨ D ⟩ g) (~ j)
+          ; (i = i1) → iso-hom .sec _ f (~ j) ⋆⟨ D ⟩ iso-hom .sec _ g (~ j) })
         (f ⋆⟨ D ⟩ g)
 
     w-η-path : 𝟙⟨ C ⟩ ≡ w-inv ∘F F
-    w-η-path = Functor≡ (λ x → sym (retIsEq isequiv x)) (λ {x} {y} f → (λ i → iso-hom .leftInv (x , y) f (~ i)))
+    w-η-path = Functor≡ (λ x → sym (retIsEq isequiv x)) (λ {x} {y} f → (λ i → iso-hom .ret (x , y) f (~ i)))
 
     w-ε-path : F ∘F w-inv ≡ 𝟙⟨ D ⟩
-    w-ε-path = Functor≡ (λ x → secIsEq isequiv x) (λ {x} {y} f i → iso-hom .rightInv (x , y) f i)
+    w-ε-path = Functor≡ (λ x → secIsEq isequiv x) (λ {x} {y} f i → iso-hom .sec (x , y) f i)
 
     w : WeakInverse F
     w .invFunc = w-inv

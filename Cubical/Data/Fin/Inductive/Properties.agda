@@ -134,9 +134,9 @@ sumFinGenId _+_ 0A f g p i = sumFinGen _+_ 0A (p i)
 Iso-Fin-InductiveFin : (m : ℕ) → Iso (FinOld.Fin m) (Fin m)
 Iso.fun (Iso-Fin-InductiveFin m) (x , p) = x , <→<ᵗ p
 Iso.inv (Iso-Fin-InductiveFin m) (x , p) = x , <ᵗ→< p
-Iso.rightInv (Iso-Fin-InductiveFin m) (x , p) =
+Iso.sec (Iso-Fin-InductiveFin m) (x , p) =
   Σ≡Prop (λ w → isProp<ᵗ {n = w} {m}) refl
-Iso.leftInv (Iso-Fin-InductiveFin m) _ = Σ≡Prop (λ _ → OrderOld.isProp≤) refl
+Iso.ret (Iso-Fin-InductiveFin m) _ = Σ≡Prop (λ _ → OrderOld.isProp≤) refl
 
 isSetFin : {n : ℕ} → isSet (Fin n)
 isSetFin {n = n} =
@@ -165,20 +165,20 @@ inhabitedFibres?Fin {A = A} da (suc n) f y with da (f fzero) y
 Iso-Fin1⊎Fin-FinSuc : {n : ℕ} → Iso (Fin 1 ⊎ Fin n) (Fin (suc n))
 Iso.fun (Iso-Fin1⊎Fin-FinSuc {n = n}) = ⊎.rec (λ _ → flast) injectSuc
 Iso.inv (Iso-Fin1⊎Fin-FinSuc {n = n}) = elimFin (inl flast) inr
-Iso.rightInv (Iso-Fin1⊎Fin-FinSuc {n = n}) =
+Iso.sec (Iso-Fin1⊎Fin-FinSuc {n = n}) =
   elimFin (cong (⊎.rec (λ _ → flast) injectSuc)
                  (elimFinβ (inl flast) inr .fst))
               λ x → cong (⊎.rec (λ _ → flast) injectSuc)
                       (elimFinβ (inl flast) inr .snd x)
-Iso.leftInv (Iso-Fin1⊎Fin-FinSuc {n = n}) (inl (zero , p)) =
+Iso.ret (Iso-Fin1⊎Fin-FinSuc {n = n}) (inl (zero , p)) =
   elimFinβ (inl flast) inr .fst
-Iso.leftInv (Iso-Fin1⊎Fin-FinSuc {n = n}) (inr x) = elimFinβ (inl flast) inr .snd x
+Iso.ret (Iso-Fin1⊎Fin-FinSuc {n = n}) (inr x) = elimFinβ (inl flast) inr .snd x
 
 Iso-Fin⊎Fin-Fin+ : {n m : ℕ} → Iso (Fin n ⊎ Fin m) (Fin (n + m))
 Iso.fun (Iso-Fin⊎Fin-Fin+ {n = zero} {m = m}) (inr x) = x
 Iso.inv (Iso-Fin⊎Fin-Fin+ {n = zero} {m = m}) x = inr x
-Iso.rightInv (Iso-Fin⊎Fin-Fin+ {n = zero} {m = m}) x = refl
-Iso.leftInv (Iso-Fin⊎Fin-Fin+ {n = zero} {m = m}) (inr x) = refl
+Iso.sec (Iso-Fin⊎Fin-Fin+ {n = zero} {m = m}) x = refl
+Iso.ret (Iso-Fin⊎Fin-Fin+ {n = zero} {m = m}) (inr x) = refl
 Iso-Fin⊎Fin-Fin+ {n = suc n} {m = m} =
   compIso (⊎Iso (invIso Iso-Fin1⊎Fin-FinSuc) idIso)
     (compIso ⊎-assoc-Iso
@@ -188,19 +188,19 @@ Iso-Fin⊎Fin-Fin+ {n = suc n} {m = m} =
 Iso-Unit-Fin1 : Iso Unit (Fin 1)
 Iso.fun Iso-Unit-Fin1 tt = fzero
 Iso.inv Iso-Unit-Fin1 (x , p) = tt
-Iso.rightInv Iso-Unit-Fin1 (zero , p) = Σ≡Prop (λ _ → isProp<ᵗ) refl
-Iso.leftInv Iso-Unit-Fin1 x = refl
+Iso.sec Iso-Unit-Fin1 (zero , p) = Σ≡Prop (λ _ → isProp<ᵗ) refl
+Iso.ret Iso-Unit-Fin1 x = refl
 
 Iso-Bool-Fin2 : Iso Bool (Fin 2)
 Iso.fun Iso-Bool-Fin2 false = flast
 Iso.fun Iso-Bool-Fin2 true = fzero
 Iso.inv Iso-Bool-Fin2 (zero , p) = true
 Iso.inv Iso-Bool-Fin2 (suc x , p) = false
-Iso.rightInv Iso-Bool-Fin2 (zero , p) = refl
-Iso.rightInv Iso-Bool-Fin2 (suc zero , p) =
+Iso.sec Iso-Bool-Fin2 (zero , p) = refl
+Iso.sec Iso-Bool-Fin2 (suc zero , p) =
   Σ≡Prop (λ _ → isProp<ᵗ) refl
-Iso.leftInv Iso-Bool-Fin2 false = refl
-Iso.leftInv Iso-Bool-Fin2 true = refl
+Iso.ret Iso-Bool-Fin2 false = refl
+Iso.ret Iso-Bool-Fin2 true = refl
 
 Iso-Fin×Fin-Fin· : {n m : ℕ} → Iso (Fin n × Fin m) (Fin (n · m))
 Iso-Fin×Fin-Fin· {n = zero} {m = m} =
@@ -224,10 +224,10 @@ fst (Iso.fun (Iso-FinSuc→-Fin→× n) f) x = f (fsuc x)
 snd (Iso.fun (Iso-FinSuc→-Fin→× n) f) = f fzero
 Iso.inv (Iso-FinSuc→-Fin→× n) (f , s) (zero , w) = s
 Iso.inv (Iso-FinSuc→-Fin→× (suc n)) (f , s) (suc t , w) = f (t , w)
-fst (Iso.rightInv (Iso-FinSuc→-Fin→× (suc n)) (f , s) i) (w , t) = f (w , t)
-snd (Iso.rightInv (Iso-FinSuc→-Fin→× n) (f , s) i) = s
-Iso.leftInv (Iso-FinSuc→-Fin→× n) f i (zero , tt) = f fzero
-Iso.leftInv (Iso-FinSuc→-Fin→× (suc n)) f i (suc s , t) = f (suc s , t)
+fst (Iso.sec (Iso-FinSuc→-Fin→× (suc n)) (f , s) i) (w , t) = f (w , t)
+snd (Iso.sec (Iso-FinSuc→-Fin→× n) (f , s) i) = s
+Iso.ret (Iso-FinSuc→-Fin→× n) f i (zero , tt) = f fzero
+Iso.ret (Iso-FinSuc→-Fin→× (suc n)) f i (suc s , t) = f (suc s , t)
 
 Iso-Fin×Bool-Fin : {n : ℕ} → Iso (Fin n × Bool) (Fin (2 · n))
 Iso-Fin×Bool-Fin =
@@ -245,9 +245,9 @@ module _ {m : ℕ} where
   Iso-Fin-Unit⊎Fin : Iso (Fin (suc m)) (Unit ⊎ Fin m)
   Iso.fun Iso-Fin-Unit⊎Fin = Fin→Unit⊎Fin
   Iso.inv Iso-Fin-Unit⊎Fin = Unit⊎Fin→Fin
-  Iso.rightInv Iso-Fin-Unit⊎Fin (inl x) = elimFinβ (inl tt) inr .fst
-  Iso.rightInv Iso-Fin-Unit⊎Fin (inr x) = elimFinβ (inl tt) inr .snd x
-  Iso.leftInv Iso-Fin-Unit⊎Fin =
+  Iso.sec Iso-Fin-Unit⊎Fin (inl x) = elimFinβ (inl tt) inr .fst
+  Iso.sec Iso-Fin-Unit⊎Fin (inr x) = elimFinβ (inl tt) inr .snd x
+  Iso.ret Iso-Fin-Unit⊎Fin =
     elimFin
       (cong Unit⊎Fin→Fin (elimFinβ (inl tt) inr .fst))
       λ x → (cong Unit⊎Fin→Fin (elimFinβ (inl tt) inr .snd x))
@@ -308,8 +308,8 @@ module _ {n : ℕ} where
   swapFinIso : (x y : Fin n) → Iso (Fin n) (Fin n)
   Iso.fun (swapFinIso x y) = swapFin x y
   Iso.inv (swapFinIso x y) = swapFin x y
-  Iso.rightInv (swapFinIso x y) = swapFin² x y
-  Iso.leftInv (swapFinIso x y) = swapFin² x y
+  Iso.sec (swapFinIso x y) = swapFin² x y
+  Iso.ret (swapFinIso x y) = swapFin² x y
 
 module _ {ℓ : Level} {n : ℕ} {A : Fin n → Type ℓ} (x₀ : Fin n)
   (pt : A x₀) (l : (x : Fin n) → ¬ x ≡ x₀ → A x) where

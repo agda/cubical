@@ -130,7 +130,7 @@ private
                        (fId : f (pt A) ≡ refl)
                      → Kn→ΩKn+1 n (suspFunCharacFun {A = A} n (suspΩFun' n f) a) ≡ f a
     helper zero a f fId =
-        Iso.rightInv (Iso-Kn-ΩKn+1 0) (sym (rCancelₖ 1 (0ₖ 1))
+        Iso.sec (Iso-Kn-ΩKn+1 0) (sym (rCancelₖ 1 (0ₖ 1))
                                     ∙∙ cong (λ x → suspΩFun' 0 f x +ₖ 0ₖ 1) (merid a ∙ (sym (merid (pt A))))
                                     ∙∙ (rCancelₖ 1 (0ₖ 1)))
      ∙∙ sym (rUnit _)
@@ -138,7 +138,7 @@ private
      ∙∙ cong (λ p → f a ∙ sym p) fId
      ∙∙ sym (rUnit (f a))
     helper (suc n) a f fId =
-         Iso.rightInv (Iso-Kn-ΩKn+1 (suc n))
+         Iso.sec (Iso-Kn-ΩKn+1 (suc n))
                            ((sym (rCancelₖ _ (0ₖ (suc (suc n))))
                         ∙∙ cong (λ x → suspΩFun' (suc n) f x +ₖ 0ₖ (suc (suc n))) (merid a ∙ (sym (merid (pt A))))
                         ∙∙ rCancelₖ _ (0ₖ (suc (suc n)))))
@@ -154,7 +154,7 @@ suspFunCharac : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → Iso (coHom (suc (suc n
 fun (suspFunCharac {A = A} n) =
   ST.map λ f → suspFunCharacFun {A = A} (suc n) f
 inv (suspFunCharac {A = A} n) = ST.map (suspΩFun (suc n))
-rightInv (suspFunCharac {A = A} n) =
+sec (suspFunCharac {A = A} n) =
   ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
         λ f → T.rec (isProp→isOfHLevelSuc n (isSetSetTrunc _ _))
                 (λ fId → cong ∣_∣₂
@@ -167,13 +167,13 @@ rightInv (suspFunCharac {A = A} n) =
                                                                      (merid x) (sym (merid (pt A))) i)
                              ∙∙ ΩKn+1→Kn-hom (suc n) (Kn→ΩKn+1 (suc n) (f x))
                                                                   (sym (Kn→ΩKn+1 (suc n) (f (pt A))))
-                             ∙∙ cong₂ _+ₖ_ (Iso.leftInv (Iso-Kn-ΩKn+1 (suc n)) (f x))
+                             ∙∙ cong₂ _+ₖ_ (Iso.ret (Iso-Kn-ΩKn+1 (suc n)) (f x))
                                            (cong (λ x → ΩKn+1→Kn (suc n) (sym (Kn→ΩKn+1 (suc n) x))) fId)
                              ∙∙ cong (λ y → f x +ₖ ΩKn+1→Kn (suc n) (sym y)) (Kn→ΩKn+10ₖ (suc n))
                              ∙∙ cong (f x +ₖ_) (ΩKn+1→Kn-refl (suc n))
                               ∙ rUnitₖ _ (f x))))
                      (fst (isConnectedPathKn n (f (pt A)) (0ₖ _)))
-leftInv (suspFunCharac {A = A} n) =
+ret (suspFunCharac {A = A} n) =
   SuspCohomElim {A = A} _ (λ _ → isSetSetTrunc _ _)
     λ f fId → cong ∣_∣₂ (funExt (linvLem (suc n) f fId))
 
@@ -188,7 +188,7 @@ fun (suspFunCharac0 {A = A}) =
                       ∙∙ (cong (_∙ (rCancelₖ _ (f north))) (sym (rUnit (sym (rCancelₖ _ (f north))))))
                        ∙ (lCancel (rCancelₖ _ (f north)))))
 inv suspFunCharac0 = ST.map λ f → suspΩFun 0 (fst f)
-rightInv (suspFunCharac0 {A = A}) =
+sec (suspFunCharac0 {A = A}) =
   ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
     λ {(f , p)
       → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _)
@@ -197,7 +197,7 @@ rightInv (suspFunCharac0 {A = A}) =
                                                                               (rUnitₖ 1 ∣ intLoop (f x) i ∣ j)))
                                                          (pos 0))))
                                  ∙ windingℤLoop (f x))))}
-leftInv (suspFunCharac0 {A = A}) =
+ret (suspFunCharac0 {A = A}) =
   SuspCohomElim {A = A} _ (λ _ → isSetSetTrunc _ _)
     λ f fId → cong ∣_∣₂ (funExt (linvLem 0 f fId))
 
@@ -323,12 +323,12 @@ private
                                                                            ∙ snd pushmap))))
                                              (Iso.fun PathIdTrunc₀Iso pushId'))))
                           inim'})
-    rightInv (exactnessIso (pos zero) (f , p)) =
+    sec (exactnessIso (pos zero) (f , p)) =
       uncurry (ST.elim (λ _ → isSetΠ λ _ → isOfHLevelPath 2
                                               (isSetΣ isSetSetTrunc
                                                       (λ _ → isProp→isSet isPropPropTrunc)) _ _)
                      λ {(p , q) _ → Σ≡Prop (λ _ → isPropPropTrunc) refl})
-    leftInv (exactnessIso (pos zero) (f , p)) =
+    ret (exactnessIso (pos zero) (f , p)) =
       uncurry (ST.elim (λ _ → isSetΠ λ _ → isOfHLevelPath 2
                                               (isSetΣ isSetSetTrunc
                                                       (λ _ → isProp→isSet (isSetSetTrunc _ _))) _ _)
@@ -365,8 +365,8 @@ private
                                       (λ p → (cong ∣_∣₂ (funExt λ x → cong cg (sym (push x))
                                                                     ∙ p)))
                                       (isConnectedPathKn _ (cg (inl tt)) (0ₖ (suc n)) .fst)
-    rightInv (exactnessIso (pos (suc n)) f) _ = Σ≡Prop (λ _ → isPropPropTrunc) refl
-    leftInv (exactnessIso (pos (suc n)) f) _ = Σ≡Prop (λ _ → isSetSetTrunc _ _) refl
+    sec (exactnessIso (pos (suc n)) f) _ = Σ≡Prop (λ _ → isPropPropTrunc) refl
+    ret (exactnessIso (pos (suc n)) f) _ = Σ≡Prop (λ _ → isSetSetTrunc _ _) refl
     exactnessIso (negsuc n) (f , p) =
       isContr→Iso ((tt* , refl)
                    , λ {(tt* , p) → Σ≡Prop (λ _ → isOfHLevelPath 1 isPropUnit* _ _)

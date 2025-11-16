@@ -176,8 +176,8 @@ H²C*≅ℤ n f g = compGroupIso is (Hⁿ-Sⁿ≅ℤ (suc n))
   is : GroupIso (coHomGr (2 +ℕ n) (C* n f g)) (coHomGr (2 +ℕ n) (S₊ (2 +ℕ n)))
   Iso.fun (fst is) = ∘inr
   Iso.inv (fst is) = invMap
-  Iso.rightInv (fst is) = ∘inrSect
-  Iso.leftInv (fst is) = ∘inrRetr
+  Iso.sec (fst is) = ∘inrSect
+  Iso.ret (fst is) = ∘inrRetr
   snd is = makeIsGroupHom
     (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
            λ f g → refl)
@@ -323,31 +323,31 @@ module _ (n : ℕ) (f g : S₊∙ (3 +ℕ (n +ℕ n)) →∙ S₊∙ (2 +ℕ n))
         → Iso.fun (fst (H²C*≅ℤ n f g)) (α*' n f g) ≡ 1
 α↦1 n f g =
      sym (cong (Iso.fun (fst (Hⁿ-Sⁿ≅ℤ (suc n)))) (Hⁿ-Sⁿ≅ℤ-nice-generator n))
-   ∙ Iso.rightInv (fst (Hⁿ-Sⁿ≅ℤ (suc n))) (pos 1)
+   ∙ Iso.sec (fst (Hⁿ-Sⁿ≅ℤ (suc n))) (pos 1)
 
 α≡ : (n : ℕ) (f g : S₊∙ (3 +ℕ (n +ℕ n)) →∙ S₊∙ (2 +ℕ n))
         → α* n f g ≡ α*' n f g
-α≡ n f g = sym (Iso.leftInv (fst (H²C*≅ℤ n f g)) _)
+α≡ n f g = sym (Iso.ret (fst (H²C*≅ℤ n f g)) _)
              ∙∙ cong (Iso.inv (fst (H²C*≅ℤ n f g))) lem
-             ∙∙ Iso.leftInv (fst (H²C*≅ℤ n f g)) _
+             ∙∙ Iso.ret (fst (H²C*≅ℤ n f g)) _
   where
   lem : Iso.fun (fst (H²C*≅ℤ n f g)) (α* n f g)
        ≡ Iso.fun (fst (H²C*≅ℤ n f g)) (α*' n f g)
-  lem = (Iso.rightInv (fst (H²C*≅ℤ n f g)) (pos 1)) ∙ sym (α↦1 n f g)
+  lem = (Iso.sec (fst (H²C*≅ℤ n f g)) (pos 1)) ∙ sym (α↦1 n f g)
 
 q-α : (n : ℕ) (f g : S₊∙ (3 +ℕ (n +ℕ n)) →∙ S₊∙ (2 +ℕ n))
     → coHomFun _ (q n f g) (α* n f g) ≡ Hopfα n (∙Π f g)
 q-α n f g = (λ i → coHomFun _ (q n f g) (α≡ n f g i))
-          ∙ sym (Iso.leftInv is _)
+          ∙ sym (Iso.ret is _)
           ∙∙ cong (Iso.inv is) lem
-          ∙∙ Iso.leftInv is _
+          ∙∙ Iso.ret is _
   where
   is = fst (Hopfα-Iso n (∙Π f g))
 
   lem : Iso.fun is (coHomFun _ (q n f g) (α*' n f g))
        ≡ Iso.fun is (Hopfα n (∙Π f g))
   lem = sym (cong (Iso.fun (fst (Hⁿ-Sⁿ≅ℤ (suc n)))) (Hⁿ-Sⁿ≅ℤ-nice-generator n))
-      ∙∙ Iso.rightInv (fst (Hⁿ-Sⁿ≅ℤ (suc n))) (pos 1)
+      ∙∙ Iso.sec (fst (Hⁿ-Sⁿ≅ℤ (suc n))) (pos 1)
       ∙∙ sym (Hopfα-Iso-α n (∙Π f g))
 
 βₗ≡ : (n : ℕ) (f g : S₊∙ (3 +ℕ (n +ℕ n)) →∙ S₊∙ (2 +ℕ n))
@@ -486,7 +486,7 @@ q-βₗ n f g = cong (coHomFun _ (q n f g)) (βₗ≡ n f g)
            ∙ transportLem
            ∙ cong (subst (λ m → coHom m (C·Π' n f g))
                   (cong (suc ∘ suc ∘ suc) (sym (+-suc n n))))
-                        (sym (Iso.leftInv (fst (Hopfβ-Iso n (∙Π f g)))
+                        (sym (Iso.ret (fst (Hopfβ-Iso n (∙Π f g)))
                                                (Hopfβ n (∙Π f g)))
                         ∙ cong (Iso.inv ((fst (Hopfβ-Iso n (∙Π f g)))))
                                (Hopfβ↦1 n (∙Π f g)))
@@ -564,7 +564,7 @@ q-βᵣ n f g = cong (coHomFun _ (q n f g)) (βᵣ≡ n f g)
            ∙ transportLem
            ∙ cong (subst (λ m → coHom m (C·Π' n f g))
                   (cong (suc ∘ suc ∘ suc) (sym (+-suc n n))))
-                        (sym (Iso.leftInv (fst (Hopfβ-Iso n (∙Π f g)))
+                        (sym (Iso.ret (fst (Hopfβ-Iso n (∙Π f g)))
                                                (Hopfβ n (∙Π f g)))
                         ∙ cong (Iso.inv ((fst (Hopfβ-Iso n (∙Π f g)))))
                                (Hopfβ↦1 n (∙Π f g)))
@@ -835,7 +835,7 @@ isHom-HopfInvariant n f g =
                  (Iso.inv (fst (Hopfβ-Iso n (∙Π f g))) 1)
                  (X n f g + Y n f g)
     ∙∙ cong ((X n f g + Y n f g) ℤ[ ℤ , ℤGroup .snd ]·_)
-            (Iso.rightInv ((fst (Hopfβ-Iso n (∙Π f g)))) 1)
+            (Iso.sec ((fst (Hopfβ-Iso n (∙Π f g)))) 1)
     ∙∙ rUnitℤ·ℤ (X n f g + Y n f g)
 
   f-id :  HopfInvariant n f ≡ X n f g

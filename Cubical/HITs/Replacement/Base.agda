@@ -100,7 +100,7 @@ module _ {ℓA ℓB ℓ≅B} {A : Type ℓA} {B : Type ℓB} (𝒮-B : UARel B �
     inv r r' Q = quo r r' (B.≡→≅ Q)
 
     unrepInv : ∀ r r' Q → cong unrep (inv r r' Q) ≡ Q
-    unrepInv r r' Q = B.uaIso (unrep r) (unrep r') .Iso.rightInv Q
+    unrepInv r r' Q = B.uaIso (unrep r) (unrep r') .Iso.sec Q
 
   -- Equivalence to the image with level (ℓ-max ℓA ℓB) that always exists
 

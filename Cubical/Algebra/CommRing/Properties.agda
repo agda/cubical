@@ -185,7 +185,7 @@ module _ where
 
   injCommRingIso : {R : CommRing ℓ} {S : CommRing ℓ'} (f : CommRingIso R S)
                  → (x y : R .fst) → f .fst .fun x ≡ f .fst .fun y → x ≡ y
-  injCommRingIso f x y h = sym (f .fst .leftInv x) ∙∙ cong (f .fst .inv) h ∙∙ f .fst .leftInv y
+  injCommRingIso f x y h = sym (f .fst .ret x) ∙∙ cong (f .fst .inv) h ∙∙ f .fst .ret y
 
 module _ where
   open RingEquivs
@@ -342,8 +342,8 @@ module CommRingUAFunctoriality where
                                                 , commringstr (q0 i) (q1 i) (r+ i) (r· i) (s i) (t i)
    inv theIso x = cong ⟨_⟩ x , cong (0r ∘ snd) x , cong (1r ∘ snd) x
                 , cong (_+_ ∘ snd) x , cong (_·_ ∘ snd) x , cong (-_ ∘ snd) x , cong (isCommRing ∘ snd) x
-   rightInv theIso _ = refl
-   leftInv theIso _ = refl
+   sec theIso _ = refl
+   ret theIso _ = refl
 
  caracCommRing≡ : {A B : CommRing ℓ} (p q : A ≡ B) → cong ⟨_⟩ p ≡ cong ⟨_⟩ q → p ≡ q
  caracCommRing≡ {A = A} {B = B} p q P =

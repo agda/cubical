@@ -191,12 +191,12 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
     → pushoutIso₀-inv (pushoutIso₀-fun x) ≡ x
   pushoutIso₀-leftInv (inl x) =
     (λ i → pushoutIso₀-helper
-             (Iso.leftInv (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero})
+             (Iso.ret (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero})
                (inl (CW₁-discrete C .fst x)) i))
     ∙ λ i → inl (retEq (CW₁-discrete C) x i)
   pushoutIso₀-leftInv (inr x) =
     (λ i → pushoutIso₀-helper
-             (Iso.leftInv (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero})
+             (Iso.ret (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero})
                (inr (CW₁-discrete D .fst x)) i))
     ∙ λ i → inr (retEq (CW₁-discrete D) x i)
   pushoutIso₀-leftInv (push a i) with (B .snd .snd .snd .fst a)
@@ -219,7 +219,7 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
   pushoutIso₀-rightInv (inr x) =
       pushoutIso₀-helper₁
         (Iso.inv (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero}) x)
-    ∙ λ i → inr (Iso.rightInv (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero}) x i)
+    ∙ λ i → inr (Iso.sec (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero}) x i)
 
   pushoutIso₀ : Iso (pushoutA (suc zero)) (Pushout pushoutMap₀ fst)
   pushoutIso₀ =
@@ -253,19 +253,19 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
   id→modifySₙ→id X n (inr x) = refl
   id→modifySₙ→id X n (push (a , x) i) j =
     hcomp (λ k →
-      λ{ (i = i0) → inl (strictifyFamα X (suc n) (a , leftInv x (j ∨ k)))
+      λ{ (i = i0) → inl (strictifyFamα X (suc n) (a , ret x (j ∨ k)))
        ; (i = i1) → inr a
        ; (j = i0) → modifySₙ→id X n
                       (doubleCompPath-filler
                        (λ i → inl (e (str X) n .fst
-                                    (α (str X) (suc n) (a , leftInv x (~ i)))))
+                                    (α (str X) (suc n) (a , ret x (~ i)))))
                        (push (a , fun x)) refl k i)
        ; (j = i1) → push (a , x) i})
-      (push (a , leftInv x j) i)
+      (push (a , ret x j) i)
     where
       fun = invEq (EquivSphereSusp n)
       inv = (EquivSphereSusp n) .fst
-      leftInv = secEq (EquivSphereSusp n)
+      ret = secEq (EquivSphereSusp n)
 
   modifySₙ→id→modifySₙ : (X : CWskel ℓ) (n : ℕ)
     (x : modifySₙ (str X) (suc (suc n))) → id→modifySₙ X n (modifySₙ→id X n x) ≡ x
@@ -275,22 +275,22 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
     hcomp (λ k →
      λ{ (i = i0) → inl (e (str X) n .fst (α (str X) (suc n)
                         (a , compPath→Square
-                              {p = leftInv (inv x)} {refl}
-                              {λ i → inv (rightInv x i)} {refl}
+                              {p = ret (inv x)} {refl}
+                              {λ i → inv (sec x i)} {refl}
                               (cong (λ X → X ∙ refl)
                                (commPathIsEq (EquivSphereSusp n .snd) x)) k j)))
       ; (i = i1) → inr a
       ; (j = i0) → doubleCompPath-filler
                       (λ i → inl (e (str X) n .fst (α (str X) (suc n)
-                                   (a , leftInv (inv x) (~ i)))))
+                                   (a , ret (inv x) (~ i)))))
                       (push (a , fun (inv x))) refl k i
       ; (j = i1) → push (a , x) i})
-          (push (a , rightInv x j) i)
+          (push (a , sec x j) i)
     where
       fun = invEq (EquivSphereSusp n)
       inv = (EquivSphereSusp n) .fst
-      leftInv = secEq (EquivSphereSusp n)
-      rightInv = retEq (EquivSphereSusp n)
+      ret = secEq (EquivSphereSusp n)
+      sec = retEq (EquivSphereSusp n)
 
   modifiedPushout : (n : ℕ) → Type ℓ
   modifiedPushout n = Pushout {A = B .fst (suc n)} {B = modifySₙ C (suc (suc n))}
@@ -322,8 +322,8 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
   IsoModifiedPushout : (n : ℕ) → Iso (pushoutA (suc (suc n))) (modifiedPushout n)
   Iso.fun (IsoModifiedPushout n) = Pushout→modifiedPushout n
   Iso.inv (IsoModifiedPushout n) = modifiedPushout→Pushout n
-  Iso.rightInv (IsoModifiedPushout n) = modP→Pushout→modP n
-  Iso.leftInv (IsoModifiedPushout n) = Pushout→modP→Pushout n
+  Iso.sec (IsoModifiedPushout n) = modP→Pushout→modP n
+  Iso.ret (IsoModifiedPushout n) = Pushout→modP→Pushout n
 
   pushoutIsoₛ-filler0 : (n : ℕ) (b : A B n) (x : S⁻ n) → I → I → pushoutA (suc n)
   pushoutIsoₛ-filler0 n b x i j =
@@ -544,8 +544,8 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
   pushoutIsoₛ : (n : ℕ) → Iso (modifiedPushout n) (Pushout (pushoutMapₛ n) fst)
   Iso.fun (pushoutIsoₛ n) = pushoutIsoₛ-fun n
   Iso.inv (pushoutIsoₛ n) = pushoutIsoₛ-inv n
-  Iso.rightInv (pushoutIsoₛ n) = pushoutIsoₛ-rightInv n
-  Iso.leftInv (pushoutIsoₛ n) = pushoutIsoₛ-leftInv n
+  Iso.sec (pushoutIsoₛ n) = pushoutIsoₛ-rightInv n
+  Iso.ret (pushoutIsoₛ n) = pushoutIsoₛ-leftInv n
 
   pushoutIsoₜ : (n : ℕ) → Iso (pushoutA (suc n)) (Pushout (pushoutMap n) fst)
   pushoutIsoₜ zero = pushoutIso₀

@@ -117,11 +117,11 @@ H̃ˢᵏᵉˡ→Iso : {C : CWskel ℓ} {D : CWskel ℓ'} (m : ℕ)
   (e : realise C ≃ realise D) → GroupIso (H̃ˢᵏᵉˡ C m) (H̃ˢᵏᵉˡ D m)
 Iso.fun (fst (H̃ˢᵏᵉˡ→Iso m e)) = fst (H̃ˢᵏᵉˡ→ m (fst e))
 Iso.inv (fst (H̃ˢᵏᵉˡ→Iso m e)) = fst (H̃ˢᵏᵉˡ→ m (invEq e))
-Iso.rightInv (fst (H̃ˢᵏᵉˡ→Iso m e)) =
+Iso.sec (fst (H̃ˢᵏᵉˡ→Iso m e)) =
   funExt⁻ (cong fst (sym (H̃ˢᵏᵉˡ→comp m (fst e) (invEq e))
        ∙∙ cong (H̃ˢᵏᵉˡ→ m) (funExt (secEq e))
        ∙∙ H̃ˢᵏᵉˡ→id m))
-Iso.leftInv (fst (H̃ˢᵏᵉˡ→Iso m e)) =
+Iso.ret (fst (H̃ˢᵏᵉˡ→Iso m e)) =
   funExt⁻ (cong fst (sym (H̃ˢᵏᵉˡ→comp m (invEq e) (fst e))
        ∙∙ cong (H̃ˢᵏᵉˡ→ m) (funExt (retEq e))
        ∙∙ H̃ˢᵏᵉˡ→id m))
@@ -233,11 +233,11 @@ H̃ᶜʷ→Iso : {C : CW ℓ} {D : CW ℓ'} (m : ℕ)
   (e : fst C ≃ fst D) → GroupIso (H̃ᶜʷ C m) (H̃ᶜʷ D m)
 Iso.fun (fst (H̃ᶜʷ→Iso m e)) = fst (H̃ᶜʷ→ m (fst e))
 Iso.inv (fst (H̃ᶜʷ→Iso m e)) = fst (H̃ᶜʷ→ m (invEq e))
-Iso.rightInv (fst (H̃ᶜʷ→Iso m e)) =
+Iso.sec (fst (H̃ᶜʷ→Iso m e)) =
   funExt⁻ (cong fst (sym (H̃ᶜʷ→comp m (fst e) (invEq e))
        ∙∙ cong (H̃ᶜʷ→ m) (funExt (secEq e))
        ∙∙ H̃ᶜʷ→id m))
-Iso.leftInv (fst (H̃ᶜʷ→Iso m e)) =
+Iso.ret (fst (H̃ᶜʷ→Iso m e)) =
   funExt⁻ (cong fst (sym (H̃ᶜʷ→comp m (invEq e) (fst e))
        ∙∙ cong (H̃ᶜʷ→ m) (funExt (retEq e))
        ∙∙ H̃ᶜʷ→id m))

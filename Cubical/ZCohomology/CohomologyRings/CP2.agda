@@ -155,13 +155,13 @@ module ComputeCP²Notation
   ϕ₄⁻¹ = inv (fst e₄)
   ϕ₄⁻¹str = snd (invGroupIso e₄)
 
-  ϕ₀-sect = rightInv (fst e₀)
-  ϕ₂-sect = rightInv (fst e₂)
-  ϕ₄-sect = rightInv (fst e₄)
+  ϕ₀-sect = sec (fst e₀)
+  ϕ₂-sect = sec (fst e₂)
+  ϕ₄-sect = sec (fst e₄)
 
-  ϕ₀-retr = leftInv (fst e₀)
-  ϕ₂-retr = leftInv (fst e₂)
-  ϕ₄-retr = leftInv (fst e₄)
+  ϕ₀-retr = ret (fst e₀)
+  ϕ₂-retr = ret (fst e₂)
+  ϕ₄-retr = ret (fst e₄)
 
 
 -- End Notation
@@ -448,8 +448,8 @@ fst CP²-CohomologyRing = isoToEquiv is
   is : Iso ℤ[x]/x³ (H* CP²)
   fun is = ℤ[x]/x³→H*-CP²
   inv is = H*-CP²→ℤ[x]/x³
-  rightInv is = e-sect
-  leftInv is = e-retr
+  sec is = e-sect
+  ret is = e-retr
 snd CP²-CohomologyRing = snd ℤ[X]/X³→H*R-CP²
 
 CohomologyRing-CP² : RingEquiv (H*R CP²) (CommRing→Ring ℤ[X]/X³)

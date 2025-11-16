@@ -74,8 +74,8 @@ invS²∘invS²≡id (surf i i₁) = refl
 invS²Iso : Iso S² S²
 Iso.fun invS²Iso = invS²
 Iso.inv invS²Iso = invS²
-Iso.rightInv invS²Iso = invS²∘invS²≡id
-Iso.leftInv invS²Iso = invS²∘invS²≡id
+Iso.sec invS²Iso = invS²∘invS²≡id
+Iso.ret invS²Iso = invS²∘invS²≡id
 
 S¹×S¹→S²-anticomm : (x y : S¹) → invS² (S¹×S¹→S² x y) ≡ S¹×S¹→S² y x
 S¹×S¹→S²-anticomm base base = refl

@@ -137,7 +137,7 @@ module _ (m : ℕ) (C : CWskel ℓ) (n' : Fin m) where
                 ∘ f
                 ∘ Iso.inv (BouquetIso-gen n (card C n) (α C n) (e C n)))
          fn+1/fn-id
-    ∙ funExt (Iso.rightInv (BouquetIso-gen n (card C n) (α C n) (e C n)))
+    ∙ funExt (Iso.sec (BouquetIso-gen n (card C n) (α C n) (e C n)))
 
   chainFunct-id : chainFunct ≡ idGroupHom
   chainFunct-id = cong bouquetDegree bouquetFunct-id ∙ bouquetDegreeId
@@ -170,7 +170,7 @@ module _ (m : ℕ) (g : finCellMap m D E) (f : finCellMap m C D) (n' : Fin m) wh
   bouquetFunct-comp = funExt λ x
     → cong (Iso.fun (BouquetIso-gen n (card E n) (α E n) (e E n)))
        (cong pf2.fn+1/fn
-         (Iso.leftInv (BouquetIso-gen n (card D n) (α D n) (e D n)) _)
+         (Iso.ret (BouquetIso-gen n (card D n) (α D n) (e D n)) _)
      ∙ funExt⁻ fn+1/fn-comp
          (Iso.inv (BouquetIso-gen n (card C n) (α C n) (e C n)) x))
 
@@ -253,11 +253,11 @@ module functoriality (m : ℕ) (f : finCellMap (suc m) C D) where
         → suspFun (inv (iso2 C (fst n))) (suspFun (fun (iso2 C (fst n))) x) ≡ x
       step3aux north = refl
       step3aux south = refl
-      step3aux (merid a i) j = merid (leftInv (iso2 C (fst n)) a j) i
+      step3aux (merid a i) j = merid (ret (iso2 C (fst n)) a j) i
 
       module _ (x : bouquet C (suc (fst n)) (suc (fst n))) where
         step1 = cong (suspFun (bouquetFunct (injectSuc n)))
-                       (leftInv (iso1 C (fst n))
+                       (ret (iso1 C (fst n))
                          (((suspFun (fun (iso2 C (fst n))))
                          ∘ (suspFun (to_cofibCW (fst n) C))
             ∘ (δ (suc (fst n)) C) ∘ (inv (iso2 C (suc (fst n))))) x))
@@ -292,7 +292,7 @@ module functoriality (m : ℕ) (f : finCellMap (suc m) C D) where
         step7 =  cong ((suspFun (fun (iso2 D (fst n))))
                       ∘ (suspFun (to_cofibCW (fst n) D))
                       ∘ (δ (suc (fst n)) D))
-                   (sym (leftInv (iso2 D (suc (fst n)))
+                   (sym (ret (iso2 D (suc (fst n)))
                      (((fn+1/fn (fsuc n)) ∘ (inv (iso2 C (suc (fst n))))) x)))
 
         main = step1 ∙ step2 ∙ step3 ∙ step4 ∙ step5 ∙ step6 ∙ step7
@@ -341,7 +341,7 @@ module augmentationFunct (m : ℕ) (f : finCellMap (suc m) C D) where
 
   commPreϵ : (x : SphereBouquet 1 (A C 0))
            → ((augmentation.preϵ D) ∘ (bouquetSusp→ (bouquetFunct fzero))) x ≡ augmentation.preϵ C x
-  commPreϵ x = cong ((ε D) ∘ (suspFun (inv (iso2 D)))) (leftInv (iso1 D) (((suspFun (bouquetFunct fzero)) ∘ (inv (iso1 C))) x))
+  commPreϵ x = cong ((ε D) ∘ (suspFun (inv (iso2 D)))) (ret (iso1 D) (((suspFun (bouquetFunct fzero)) ∘ (inv (iso1 C))) x))
              ∙ cong (ε D) (funExt⁻ aux (inv (iso1 C) x))
              ∙ commε (((suspFun (inv (iso2 C))) ∘ (inv (iso1 C))) x)
     where
@@ -360,7 +360,7 @@ module augmentationFunct (m : ℕ) (f : finCellMap (suc m) C D) where
       aux : (suspFun (inv (iso2 D))) ∘ (suspFun (bouquetFunct fzero))
              ≡ (suspFun (fn+1/fn fzero)) ∘ (suspFun (inv (iso2 C)))
       aux = (sym (suspFunComp (inv (iso2 D)) (bouquetFunct fzero)))
-          ∙ cong suspFun (funExt (λ x → leftInv (iso2 D) (((fn+1/fn fzero) ∘ (inv (iso2 C))) x)))
+          ∙ cong suspFun (funExt (λ x → ret (iso2 D) (((fn+1/fn fzero) ∘ (inv (iso2 C))) x)))
           ∙ (suspFunComp (fn+1/fn fzero) (inv (iso2 C)))
 
   commϵFunct : compGroupHom (chainFunct fzero) (augmentation.ϵ D)

@@ -100,8 +100,8 @@ module _ where
            where iso⊥ : ∀ A → Iso (⊥* → A) Unit*
                  Iso.fun (iso⊥ A) _        = tt*
                  Iso.inv (iso⊥ A) _        ()
-                 Iso.rightInv (iso⊥ A) _   = refl
-                 Iso.leftInv  (iso⊥ A) _ i ()
+                 Iso.sec (iso⊥ A) _   = refl
+                 Iso.ret  (iso⊥ A) _ i ()
 
 ^IdR𝟙 : (A : Card {ℓ}) → A ^ 𝟙 {ℓ} ≡ A
 ^IdR𝟙 = ∥₂.elim (λ _ → isProp→isSet (isSetCard _ _))
@@ -110,8 +110,8 @@ module _ where
         where iso⊤ : ∀ A → Iso (Unit* → A) A
               Iso.fun (iso⊤ _) f      = f tt*
               Iso.inv (iso⊤ _) a _    = a
-              Iso.rightInv (iso⊤ _) _ = refl
-              Iso.leftInv  (iso⊤ _) _ = refl
+              Iso.sec (iso⊤ _) _ = refl
+              Iso.ret  (iso⊤ _) _ = refl
 
 ^AnnihilL𝟙 : (A : Card {ℓ}) → 𝟙 {ℓ} ^ A ≡ 𝟙 {ℓ}
 ^AnnihilL𝟙 = ∥₂.elim (λ _ → isProp→isSet (isSetCard _ _))
@@ -120,8 +120,8 @@ module _ where
              where iso⊤ : ∀ A → Iso (A → Unit*) Unit*
                    Iso.fun (iso⊤ _) _      = tt*
                    Iso.inv (iso⊤ _) _ _    = tt*
-                   Iso.rightInv (iso⊤ _) _ = refl
-                   Iso.leftInv  (iso⊤ _) _ = refl
+                   Iso.sec (iso⊤ _) _ = refl
+                   Iso.ret  (iso⊤ _) _ = refl
 
 ^LDist+ : (A : Card {ℓa}) (B : Card {ℓb}) (C : Card {ℓc})
         → A ^ (B + C) ≡ (A ^ B) · (A ^ C)

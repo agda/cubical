@@ -207,18 +207,18 @@ fst (fun (ΩfunExtIso A B) p) x = funExt⁻ (cong fst p) x
 snd (fun (ΩfunExtIso A B) p) i j = snd (p j) i
 fst (inv (ΩfunExtIso A B) (f , p) i) x = f x i
 snd (inv (ΩfunExtIso A B) (f , p) i) j = p j i
-rightInv (ΩfunExtIso A B) _ = refl
-leftInv (ΩfunExtIso A B) _ = refl
+sec (ΩfunExtIso A B) _ = refl
+ret (ΩfunExtIso A B) _ = refl
 
 relax→∙Ω-Iso : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
   → Iso (Σ[ b ∈ fst B ] (fst A → b ≡ pt B))
          (A →∙ (Ω B))
 Iso.fun (relax→∙Ω-Iso {A = A}) (b , p) = (λ a → sym (p (pt A)) ∙ p a) , lCancel (p (snd A))
 Iso.inv (relax→∙Ω-Iso {B = B}) a = (pt B) , (fst a)
-Iso.rightInv (relax→∙Ω-Iso) a =
+Iso.sec (relax→∙Ω-Iso) a =
   →∙Homogeneous≡ (isHomogeneousPath _ _)
     (funExt λ x → cong (_∙ fst a x) (cong sym (snd a)) ∙ sym (lUnit (fst a x)))
-Iso.leftInv (relax→∙Ω-Iso {A = A}) (b , p) =
+Iso.ret (relax→∙Ω-Iso {A = A}) (b , p) =
   ΣPathP (sym (p (pt A))
        , λ i a j → compPath-filler' (sym (p (pt A))) (p a) (~ i) j)
 
@@ -417,8 +417,8 @@ flipΩIsopres· n =
     (inv (flipΩIso (suc n)))
     (flipΩIso⁻pres· n)
     (fun (flipΩIso (suc n)))
-    (Iso.leftInv (flipΩIso (suc n)))
-    (Iso.rightInv (flipΩIso (suc n)))
+    (Iso.ret (flipΩIso (suc n)))
+    (Iso.sec (flipΩIso (suc n)))
 
 flipΩrefl : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
   → fun (flipΩIso {A = A} (suc n)) refl ≡ refl
@@ -432,7 +432,7 @@ isCommA→isCommTrunc : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ A
                     → isOfHLevel (suc n) (typ A)
                     → isComm∙ (∥ typ A ∥ (suc n) , ∣ pt A ∣)
 isCommA→isCommTrunc {A = (A , a)} n comm hlev p q =
-    ((λ i j → (leftInv (truncIdempotentIso (suc n) hlev) ((p ∙ q) j) (~ i)))
+    ((λ i j → (ret (truncIdempotentIso (suc n) hlev) ((p ∙ q) j) (~ i)))
  ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣)
                  (cong (trRec hlev (λ x → x)) (p ∙ q)))
  ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣)
@@ -441,16 +441,16 @@ isCommA→isCommTrunc {A = (A , a)} n comm hlev p q =
                  (comm (cong (trRec hlev (λ x → x)) p) (cong (trRec hlev (λ x → x)) q) i))
  ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣)
                  (congFunct {A = ∥ A ∥ (suc n)} {B = A} (trRec hlev (λ x → x)) q p (~ i)))
- ∙∙ (λ i j → (leftInv (truncIdempotentIso (suc n) hlev) ((q ∙ p) j) i)))
+ ∙∙ (λ i j → (ret (truncIdempotentIso (suc n) hlev) ((q ∙ p) j) i)))
 
 ptdIso→comm : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Type ℓ'} (e : Iso (typ A) B)
   → isComm∙ A → isComm∙ (B , fun e (pt A))
 ptdIso→comm {A = (A , a)} {B = B} e comm p q =
-       sym (rightInv (congIso e) (p ∙ q))
+       sym (sec (congIso e) (p ∙ q))
     ∙∙ (cong (fun (congIso e)) ((invCongFunct e p q)
                             ∙∙ (comm (inv (congIso e) p) (inv (congIso e) q))
                             ∙∙ (sym (invCongFunct e q p))))
-    ∙∙ rightInv (congIso e) (q ∙ p)
+    ∙∙ sec (congIso e) (q ∙ p)
 
 {- Homotopy group version -}
 π-comp : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → ∥ typ ((Ω^ (suc n)) A) ∥₂
