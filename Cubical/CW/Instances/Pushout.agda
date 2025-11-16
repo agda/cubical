@@ -253,19 +253,19 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
   id→modifySₙ→id X n (inr x) = refl
   id→modifySₙ→id X n (push (a , x) i) j =
     hcomp (λ k →
-      λ{ (i = i0) → inl (strictifyFamα X (suc n) (a , ret x (j ∨ k)))
+      λ{ (i = i0) → inl (strictifyFamα X (suc n) (a , leftInv x (j ∨ k)))
        ; (i = i1) → inr a
        ; (j = i0) → modifySₙ→id X n
                       (doubleCompPath-filler
                        (λ i → inl (e (str X) n .fst
-                                    (α (str X) (suc n) (a , ret x (~ i)))))
+                                    (α (str X) (suc n) (a , leftInv x (~ i)))))
                        (push (a , fun x)) refl k i)
        ; (j = i1) → push (a , x) i})
-      (push (a , ret x j) i)
+      (push (a , leftInv x j) i)
     where
       fun = invEq (EquivSphereSusp n)
       inv = (EquivSphereSusp n) .fst
-      ret = secEq (EquivSphereSusp n)
+      leftInv = secEq (EquivSphereSusp n)
 
   modifySₙ→id→modifySₙ : (X : CWskel ℓ) (n : ℕ)
     (x : modifySₙ (str X) (suc (suc n))) → id→modifySₙ X n (modifySₙ→id X n x) ≡ x
@@ -275,22 +275,22 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
     hcomp (λ k →
      λ{ (i = i0) → inl (e (str X) n .fst (α (str X) (suc n)
                         (a , compPath→Square
-                              {p = ret (inv x)} {refl}
-                              {λ i → inv (sec x i)} {refl}
+                              {p = leftInv (inv x)} {refl}
+                              {λ i → inv (rightInv x i)} {refl}
                               (cong (λ X → X ∙ refl)
                                (commPathIsEq (EquivSphereSusp n .snd) x)) k j)))
       ; (i = i1) → inr a
       ; (j = i0) → doubleCompPath-filler
                       (λ i → inl (e (str X) n .fst (α (str X) (suc n)
-                                   (a , ret (inv x) (~ i)))))
+                                   (a , leftInv (inv x) (~ i)))))
                       (push (a , fun (inv x))) refl k i
       ; (j = i1) → push (a , x) i})
-          (push (a , sec x j) i)
+          (push (a , rightInv x j) i)
     where
       fun = invEq (EquivSphereSusp n)
       inv = (EquivSphereSusp n) .fst
-      ret = secEq (EquivSphereSusp n)
-      sec = retEq (EquivSphereSusp n)
+      leftInv = secEq (EquivSphereSusp n)
+      rightInv = retEq (EquivSphereSusp n)
 
   modifiedPushout : (n : ℕ) → Type ℓ
   modifiedPushout n = Pushout {A = B .fst (suc n)} {B = modifySₙ C (suc (suc n))}
