@@ -232,7 +232,7 @@ pullbackBiInvOver {A = A} {B} {P} bi = w
   w .invr b = subst P (sym (bi .invr-rightInv b))
   w .invr-rightInv b p i = subst-filler P (sym (bi .invr-rightInv b)) p (~ i)
   w .invl = u .inv
-  w .invl-leftInv = u .ret
+  w .invl-leftInv = u .leftInv
 
 
 -- Since there is no regularity for transport (also no-eta-equality),
