@@ -53,6 +53,7 @@ module HeapTheory (H : Heap ℓ) where
     [ a , b , b ]                         ≡⟨ idr a b ⟩
     a                                     ∎
 
+  -- Wagner's theory of generalized heaps, theorem 8.2.13
   assocl : ∀ a b c d e → [ a , [ d , c , b ] , e ] ≡ [ [ a , b , c ] , d , e ]
   assocl a b c d e =
     [ a , [ d , c , b ] , e ]                                     ≡⟨ cong [_, [ d , c , b ] , e ] (sym (wriggle a b c d)) ⟩
