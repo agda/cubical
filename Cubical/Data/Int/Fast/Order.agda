@@ -113,8 +113,12 @@ isProp≤ {m} {n} (k , p) (l , q)
 isProp< : isProp (m < n)
 isProp< {m} = isProp≤ {sucℤ m}
 
+-- this proof warrants the particular order of summands in the definition of order
 zero-≤pos : 0 ≤ pos l
-zero-≤pos {l} = l , (sym (pos0+ (pos l)))
+zero-≤pos {l} = l , refl
+
+zero-<possuc : 0 < pos (suc l)
+zero-<possuc {l} = l , refl
 
 negsuc≤-zero : negsuc k ≤ 0
 negsuc≤-zero {k} = suc k , nℕ-n≡0 k
