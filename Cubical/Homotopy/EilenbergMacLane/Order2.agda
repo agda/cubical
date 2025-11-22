@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 {- This file contains properties of K(G,n) for G of order 2
 (in particular of ℤ/2) -}

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.DirectSum.Equiv-DSHIT-DSFun where
 
 open import Cubical.Foundations.Prelude
@@ -387,7 +386,7 @@ module Equiv-Properties
   lemmakk zero a = cong (base 0) (transportRefl a)
   lemmakk (suc k) a with (discreteℕ (suc k) (suc k)) | (discreteℕ k k)
   ... | yes p | yes q = cong₂ _add_
-                             (sym (constSubstCommSlice G (⊕HIT ℕ G Gstr) base (cong suc q) a))
+                             (sym (constSubstCommSlice G (⊕HIT ℕ G Gstr) base p a))
                              (lemmaSkk (suc k) a k ≤-refl)
                         ∙ +⊕HIT-IdR _
   ... | yes p | no ¬q = ⊥.rec (¬q refl)

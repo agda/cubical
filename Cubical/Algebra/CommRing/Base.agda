@@ -1,8 +1,8 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function using (_$_)
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
@@ -91,10 +91,21 @@ makeCommRing 0r 1r _+_ _·_ -_ is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·D
   _ , commringstr _ _ _ _ _ (makeIsCommRing is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·DistR+ ·Comm)
 
 CommRingStr→RingStr : {A : Type ℓ} → CommRingStr A → RingStr A
-CommRingStr→RingStr (commringstr _ _ _ _ _ H) = ringstr _ _ _ _ _ (IsCommRing.isRing H)
+CommRingStr→RingStr cringStr =
+  record
+    { 0r = _ ; 1r = _ ; _+_ = _ ; _·_ = _ ; -_ = _ ;
+      isRing = IsCommRing.isRing (CommRingStr.isCommRing cringStr) }
 
 CommRing→Ring : CommRing ℓ → Ring ℓ
-CommRing→Ring (_ , commringstr _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsCommRing.isRing H)
+fst (CommRing→Ring CRing) = fst CRing
+snd (CommRing→Ring CRing) = record
+                             { 0r =  _
+                             ; 1r =  _
+                             ; _+_ = _
+                             ; _·_ = _
+                             ; -_ =  _
+                             ; isRing = IsCommRing.isRing (CommRingStr.isCommRing (snd CRing))
+                             }
 
 CommRing→AbGroup : CommRing ℓ → AbGroup ℓ
 CommRing→AbGroup R = Ring→AbGroup (CommRing→Ring R)
@@ -109,12 +120,29 @@ CommRingStr.- snd (Ring→CommRing R p) = RingStr.-_ (snd R)
 IsCommRing.isRing (CommRingStr.isCommRing (snd (Ring→CommRing R p))) = RingStr.isRing (snd R)
 IsCommRing.·Comm (CommRingStr.isCommRing (snd (Ring→CommRing R p))) = p
 
+record IsCommRingHom {A : Type ℓ} {B : Type ℓ'} (R : CommRingStr A) (f : A → B) (S : CommRingStr B)
+  : Type (ℓ-max ℓ ℓ')
+  where
+  no-eta-equality
+  private
+    module R = CommRingStr R
+    module S = CommRingStr S
+
+  field
+    pres0 : f R.0r ≡ S.0r
+    pres1 : f R.1r ≡ S.1r
+    pres+ : (x y : A) → f (x R.+ y) ≡ f x S.+ f y
+    pres· : (x y : A) → f (x R.· y) ≡ f x S.· f y
+    pres- : (x : A) → f (R.- x) ≡ S.- (f x)
+
+unquoteDecl IsCommRingHomIsoΣ = declareRecordIsoΣ IsCommRingHomIsoΣ (quote IsCommRingHom)
+
 CommRingHom : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
-CommRingHom R S = RingHom (CommRing→Ring R) (CommRing→Ring S)
+CommRingHom R S = Σ[ f ∈ (⟨ R ⟩ → ⟨ S ⟩) ] IsCommRingHom (R .snd) f (S .snd)
 
 IsCommRingEquiv : {A : Type ℓ} {B : Type ℓ'}
   (R : CommRingStr A) (e : A ≃ B) (S : CommRingStr B) → Type (ℓ-max ℓ ℓ')
-IsCommRingEquiv R e S = IsRingHom (CommRingStr→RingStr R) (e .fst) (CommRingStr→RingStr S)
+IsCommRingEquiv R e S = IsCommRingHom R (e .fst) S
 
 CommRingEquiv : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
 CommRingEquiv R S = Σ[ e ∈ (R .fst ≃ S .fst) ] IsCommRingEquiv (R .snd) e (S .snd)
@@ -131,103 +159,95 @@ isPropIsCommRing 0r 1r _+_ _·_ -_ =
   where
   open IsRing
 
-𝒮ᴰ-CommRing : DUARel (𝒮-Univ ℓ) CommRingStr ℓ
-𝒮ᴰ-CommRing =
-  𝒮ᴰ-Record (𝒮-Univ _) IsCommRingEquiv
-    (fields:
-      data[ 0r ∣ null ∣ pres0 ]
-      data[ 1r ∣ null ∣ pres1 ]
-      data[ _+_ ∣ bin ∣ pres+ ]
-      data[ _·_ ∣ bin ∣ pres· ]
-      data[ -_ ∣ autoDUARel _ _ ∣ pres- ]
-      prop[ isCommRing ∣ (λ _ _ → isPropIsCommRing _ _ _ _ _) ])
- where
-  open CommRingStr
-  open IsRingHom
-
-  -- faster with some sharing
-  null = autoDUARel (𝒮-Univ _) (λ A → A)
-  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
-
-CommRingPath : (R S : CommRing ℓ) → CommRingEquiv R S ≃ (R ≡ S)
-CommRingPath = ∫ 𝒮ᴰ-CommRing .UARel.ua
-
-uaCommRing : {A B : CommRing ℓ} → CommRingEquiv A B → A ≡ B
-uaCommRing {A = A} {B = B} = equivFun (CommRingPath A B)
-
-CommRingIso : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
-CommRingIso R S = Σ[ e ∈ Iso (R .fst) (S .fst) ]
-                     IsRingHom (CommRingStr→RingStr (R .snd)) (e .fun) (CommRingStr→RingStr (S .snd))
-
-CommRingEquivIsoCommRingIso : (R : CommRing ℓ) (S : CommRing ℓ') → Iso (CommRingEquiv R S) (CommRingIso R S)
-fst (fun (CommRingEquivIsoCommRingIso R S) e) = equivToIso (e .fst)
-snd (fun (CommRingEquivIsoCommRingIso R S) e) = e .snd
-fst (inv (CommRingEquivIsoCommRingIso R S) e) = isoToEquiv (e .fst)
-snd (inv (CommRingEquivIsoCommRingIso R S) e) = e .snd
-rightInv (CommRingEquivIsoCommRingIso R S) (e , he) =
-  Σ≡Prop (λ e → isPropIsRingHom (snd (CommRing→Ring R)) (e .fun) (snd (CommRing→Ring S)))
-         rem
+isPropIsCommRingHom : {A : Type ℓ} {B : Type ℓ'} (R : CommRingStr A) (f : A → B) (S : CommRingStr B)
+  → isProp (IsCommRingHom R f S)
+isPropIsCommRingHom R f S = isOfHLevelRetractFromIso 1 IsCommRingHomIsoΣ
+                        (isProp×4 (is-set _ _)
+                                  (is-set _ _)
+                                  (isPropΠ2 λ _ _ → is-set _ _)
+                                  (isPropΠ2 λ _ _ → is-set _ _)
+                                  (isPropΠ λ _ → is-set _ _))
   where
-  rem : equivToIso (isoToEquiv e) ≡ e
-  fun (rem i) x = fun e x
-  inv (rem i) x = inv e x
-  rightInv (rem i) b j = CommRingStr.is-set (snd S) (fun e (inv e b)) b (rightInv e b) (rightInv e b) i j
-  leftInv (rem i) a j = CommRingStr.is-set (snd R) (inv e (fun e a)) a (retEq (isoToEquiv e) a) (leftInv e a) i j
-leftInv (CommRingEquivIsoCommRingIso R S) e =
-  Σ≡Prop (λ e → isPropIsRingHom (snd (CommRing→Ring R)) (e .fst) (snd (CommRing→Ring S)))
-         (equivEq refl)
+  open CommRingStr S using (is-set)
 
-isGroupoidCommRing : isGroupoid (CommRing ℓ)
-isGroupoidCommRing _ _ = isOfHLevelRespectEquiv 2 (CommRingPath _ _) (isSetRingEquiv _ _)
-
-open CommRingStr
-open IsRingHom
-
--- TODO: Induced structure results are temporarily inconvenient while we transition between algebra
--- representations
-module _ (R : CommRing ℓ) {A : Type ℓ}
-  (0a 1a : A)
-  (add mul : A → A → A)
-  (inv : A → A)
-  (e : ⟨ R ⟩ ≃ A)
-  (p0 : e .fst (R .snd .0r) ≡ 0a)
-  (p1 : e .fst (R .snd .1r) ≡ 1a)
-  (p+ : ∀ x y → e .fst (R .snd ._+_ x y) ≡ add (e .fst x) (e .fst y))
-  (p· : ∀ x y → e .fst (R .snd ._·_ x y) ≡ mul (e .fst x) (e .fst y))
-  (pinv : ∀ x → e .fst (R .snd .-_ x) ≡ inv (e .fst x))
+isSetCommRingHom : (R : CommRing ℓ) (S : CommRing ℓ') → isSet (CommRingHom R S)
+isSetCommRingHom R S = isSetΣSndProp (isSetΠ λ _ → is-set) (λ f → isPropIsCommRingHom (snd R) f (snd S))
   where
+  open CommRingStr (str S) using (is-set)
+
+isSetCommRingEquiv : (A : CommRing ℓ) (B : CommRing ℓ') → isSet (CommRingEquiv A B)
+isSetCommRingEquiv A B = isSetΣSndProp (isOfHLevel≃ 2 A.is-set B.is-set)
+                                   (λ e → isPropIsCommRingHom (snd A) (fst e) (snd B))
+  where
+  module A = CommRingStr (str A)
+  module B = CommRingStr (str B)
+
+RingHom→CommRingHom : {R : CommRing ℓ} {S : CommRing ℓ'}
+                     → RingHom (CommRing→Ring R) (CommRing→Ring S)
+                     → CommRingHom R S
+RingHom→CommRingHom f .fst = f .fst
+RingHom→CommRingHom {R = R} {S = S} f .snd = copy
+  where open IsCommRingHom
+        copy : IsCommRingHom (R .snd) (f .fst) (S .snd)
+        copy .pres0 = f .snd .IsRingHom.pres0
+        copy .pres1 = f .snd .IsRingHom.pres1
+        copy .pres+ = f .snd .IsRingHom.pres+
+        copy .pres· = f .snd .IsRingHom.pres·
+        copy .pres- = f .snd .IsRingHom.pres-
+
+IsRingHom→IsCommRingHom : (R : CommRing ℓ) (S : CommRing ℓ')
+                     → (f : ⟨ R ⟩ → ⟨ S ⟩)
+                     → IsRingHom ((CommRing→Ring R) .snd) f ((CommRing→Ring S) .snd)
+                     → IsCommRingHom (R .snd) f (S .snd)
+IsRingHom→IsCommRingHom R S f p = RingHom→CommRingHom (f , p) .snd
+
+CommRingHom→RingHom : {R : CommRing ℓ} {S : CommRing ℓ'}
+                     → CommRingHom R S
+                     → RingHom (CommRing→Ring R) (CommRing→Ring S)
+CommRingHom→RingHom f .fst = f .fst
+CommRingHom→RingHom {R = R} {S = S} f .snd = copy
+  where open IsRingHom
+        copy : IsRingHom ((CommRing→Ring R) .snd) (f .fst) ((CommRing→Ring S) .snd)
+        copy .pres0 = f .snd .IsCommRingHom.pres0
+        copy .pres1 = f .snd .IsCommRingHom.pres1
+        copy .pres+ = f .snd .IsCommRingHom.pres+
+        copy .pres· = f .snd .IsCommRingHom.pres·
+        copy .pres- = f .snd .IsCommRingHom.pres-
+
+IsCommRingHom→IsRingHom : (R : CommRing ℓ) (S : CommRing ℓ')
+                     → (f : ⟨ R ⟩ → ⟨ S ⟩)
+                     → IsCommRingHom (R .snd) f (S .snd)
+                     → IsRingHom ((CommRing→Ring R) .snd) f ((CommRing→Ring S) .snd)
+IsCommRingHom→IsRingHom R S f p = CommRingHom→RingHom (f , p) .snd
+
+CommRingEquiv→RingEquiv : {A : CommRing ℓ} {B : CommRing ℓ'}
+  → CommRingEquiv A B → RingEquiv (CommRing→Ring A) (CommRing→Ring B)
+CommRingEquiv→RingEquiv e .fst = e .fst
+CommRingEquiv→RingEquiv e .snd = IsCommRingHom→IsRingHom _ _ (e .fst .fst) (e .snd)
+
+module _ {R : CommRing ℓ} {S : CommRing ℓ'} {f : ⟨ R ⟩ → ⟨ S ⟩} where
 
   private
     module R = CommRingStr (R .snd)
+    module S = CommRingStr (S .snd)
 
-    BaseΣ : Type (ℓ-suc ℓ)
-    BaseΣ = Σ[ B ∈ Type ℓ ] B × B × (B → B → B) × (B → B → B) × (B → B)
+  module _
+    (p1 : f R.1r ≡ S.1r)
+    (p+ : (x y : ⟨ R ⟩) → f (x R.+ y) ≡ f x S.+ f y)
+    (p· : (x y : ⟨ R ⟩) → f (x R.· y) ≡ f x S.· f y)
+    where
 
-    FamilyΣ : BaseΣ → Type ℓ
-    FamilyΣ (B , u0 , u1 , a , m , i) = IsCommRing u0 u1 a m i
+    makeIsCommRingHom : IsCommRingHom (R .snd) f (S .snd)
+    makeIsCommRingHom = IsRingHom→IsCommRingHom _ _ _ (makeIsRingHom p1 p+ p·)
 
-    inducedΣ : FamilyΣ (A , 0a , 1a , add , mul , inv)
-    inducedΣ =
-      subst FamilyΣ
-        (UARel.≅→≡ (autoUARel BaseΣ) (e , p0 , p1 , p+ , p· , pinv))
-        R.isCommRing
+_$cr_ : {R : CommRing ℓ} {S : CommRing ℓ'} → (φ : CommRingHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
+φ $cr x = φ .fst x
 
-  InducedCommRing : CommRing ℓ
-  InducedCommRing .fst = A
-  0r (InducedCommRing .snd) = 0a
-  1r (InducedCommRing .snd) = 1a
-  _+_ (InducedCommRing .snd) = add
-  _·_ (InducedCommRing .snd) = mul
-  - InducedCommRing .snd = inv
-  isCommRing (InducedCommRing .snd) = inducedΣ
+opaque
+  CommRingHom≡ : {R : CommRing ℓ} {S : CommRing ℓ'} {φ ψ : CommRingHom R S} → fst φ ≡ fst ψ → φ ≡ ψ
+  CommRingHom≡ = Σ≡Prop λ f → isPropIsCommRingHom _ f _
 
-  InducedCommRingEquiv : CommRingEquiv R InducedCommRing
-  fst InducedCommRingEquiv = e
-  pres0 (snd InducedCommRingEquiv) = p0
-  pres1 (snd InducedCommRingEquiv) = p1
-  pres+ (snd InducedCommRingEquiv) = p+
-  pres· (snd InducedCommRingEquiv) = p·
-  pres- (snd InducedCommRingEquiv) = pinv
-
-  InducedCommRingPath : R ≡ InducedCommRing
-  InducedCommRingPath = CommRingPath _ _ .fst InducedCommRingEquiv
+  CommRingHomPathP : (R : CommRing ℓ) (S T : CommRing ℓ') (p : S ≡ T) (φ : CommRingHom R S) (ψ : CommRingHom R T)
+               → PathP (λ i → R .fst → p i .fst) (φ .fst) (ψ .fst)
+               → PathP (λ i → CommRingHom R (p i)) φ ψ
+  CommRingHomPathP R S T p φ ψ q = ΣPathP (q , isProp→PathP (λ _ → isPropIsCommRingHom _ _ _) _ _)

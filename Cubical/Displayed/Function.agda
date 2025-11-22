@@ -3,7 +3,7 @@
   Functions building UARels and DUARels on function types
 
 -}
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Displayed.Function where
 
 open import Cubical.Foundations.Prelude

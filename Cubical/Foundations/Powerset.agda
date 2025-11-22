@@ -6,7 +6,6 @@ Escardó's lecture notes:
 https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#propositionalextensionality
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Powerset where
 
 open import Cubical.Foundations.Prelude
@@ -57,6 +56,12 @@ subst-∈ A = subst (_∈ A)
 ⊆-extensionality : (A B : ℙ X) → (A ⊆ B) × (B ⊆ A) → A ≡ B
 ⊆-extensionality A B (φ , ψ) =
   funExt (λ x → TypeOfHLevel≡ 1 (hPropExt (A x .snd) (B x .snd) (φ x) (ψ x)))
+
+⊆-trans : (A B C : ℙ X) → A ⊆ B → B ⊆ C → A ⊆ C
+⊆-trans A B C φ ψ x = ψ x ∘ φ x
+
+⊆-antisym : (A B : ℙ X) → A ⊆ B → B ⊆ A → A ≡ B
+⊆-antisym A B φ ψ = ⊆-extensionality A B (φ , ψ)
 
 ⊆-extensionalityEquiv : (A B : ℙ X) → (A ⊆ B) × (B ⊆ A) ≃ (A ≡ B)
 ⊆-extensionalityEquiv A B = isoToEquiv (iso (⊆-extensionality A B)

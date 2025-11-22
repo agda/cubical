@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 {-
 This file contains:
 1. The long exact sequence of loop spaces Ωⁿ (fib f) → Ωⁿ A → Ωⁿ B
@@ -644,14 +644,14 @@ private
 of homotopy groups defined using (Sⁿ →∙ A) -}
 
 π∘∙A→B-PathP : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
-  → PathP (λ i → GroupHomπ≅π'PathP A B n i)
+  → PathP (λ i → GroupHomπ≅π'PathP A B n n i)
            (πLES.A→B f n)
            (π'∘∙Hom n f)
 π∘∙A→B-PathP n f =
   toPathP (Σ≡Prop (λ _ → isPropIsGroupHom _ _) (π'∘∙Hom'≡π'∘∙fun n f))
 
 π∘∙fib→A-PathP : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
-  → PathP (λ i → GroupHomπ≅π'PathP (ΩLES.fibf f) A n i)
+  → PathP (λ i → GroupHomπ≅π'PathP (ΩLES.fibf f) A n n i)
            (πLES.fib→A f n)
            (π'∘∙Hom n (fst , refl))
 π∘∙fib→A-PathP {A = A} {B = B} n f =
@@ -666,3 +666,73 @@ of homotopy groups defined using (Sⁿ →∙ A) -}
   where
   lem : πLES.fib→A f n .fst ≡ sMap (Ω^→ (suc n) (fst , refl) .fst)
   lem = cong sMap (cong fst (Ω^fibf→A≡ (suc n) f))
+
+
+
+module π'LES {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
+  module M = πLES f
+  fib : Pointed _
+  fib = (fiber (fst f) (pt B)) , (pt A , snd f)
+
+  fib→A : (n : ℕ) → GroupHom (π'Gr n fib) (π'Gr n A)
+  fib→A n = π'∘∙Hom n (fst , refl)
+
+  A→B : (n : ℕ) → GroupHom (π'Gr n A) (π'Gr n B)
+  A→B n = π'∘∙Hom n f
+
+  -- todo: improve
+  B→fib : (n : ℕ) → GroupHom (π'Gr (suc n) B) (π'Gr n fib)
+  B→fib n = transport (GroupHomπ≅π'PathP B fib (suc n) n) (M.B→fib n)
+
+  private
+    P : (n : ℕ) → PathP (λ i → GroupHomπ≅π'PathP B fib (suc n) n i)
+                          (M.B→fib n) (B→fib n)
+    P n = toPathP refl
+
+  Ker-A→B⊂Im-fib→A : (n : ℕ) (x : π' (suc n) A)
+    → isInKer (A→B n) x
+    → isInIm (fib→A n) x
+  Ker-A→B⊂Im-fib→A n =
+    transport (λ i → (x : _) → isInKer (π∘∙A→B-PathP n f i) x
+                              → isInIm (π∘∙fib→A-PathP n f i) x)
+              (M.Ker-A→B⊂Im-fib→A n)
+
+  Im-fib→A⊂Ker-A→B : (n : ℕ) (x : π' (suc n) A)
+    → isInIm (fib→A n) x
+    → isInKer (A→B n) x
+  Im-fib→A⊂Ker-A→B n =
+    transport (λ i → (x : _) → isInIm (π∘∙fib→A-PathP n f i) x
+                              → isInKer (π∘∙A→B-PathP n f i) x)
+              (M.Im-fib→A⊂Ker-A→B n)
+
+  Ker-fib→A⊂Im-B→fib : (n : ℕ) (x : π' (suc n) fib)
+    → isInKer (fib→A n) x
+    → isInIm (B→fib n) x
+  Ker-fib→A⊂Im-B→fib n =
+    transport (λ i → (x : _) → isInKer (π∘∙fib→A-PathP n f i) x
+                              → isInIm (P n i) x)
+              (M.Ker-fib→A⊂Im-B→fib n)
+
+  Im-B→fib⊂Ker-fib→A : (n : ℕ) (x : π' (suc n) fib)
+    → isInIm (B→fib n) x
+    → isInKer (fib→A n) x
+  Im-B→fib⊂Ker-fib→A n =
+    transport (λ i → (x : _) → isInIm (P n i) x
+                              → isInKer (π∘∙fib→A-PathP n f i) x)
+              (M.Im-B→fib⊂Ker-fib→A n)
+
+  Im-A→B⊂Ker-B→fib : (n : ℕ) (x : π' (suc (suc n)) B)
+    → isInIm (A→B (suc n)) x
+    → isInKer (B→fib n) x
+  Im-A→B⊂Ker-B→fib n =
+    transport (λ i → (x : _) → isInIm (π∘∙A→B-PathP (suc n) f i) x
+                              → isInKer (P n i) x)
+              (M.Im-A→B⊂Ker-B→fib n)
+
+  Ker-B→fib⊂Im-A→B : (n : ℕ) (x : π' (suc (suc n)) B)
+    → isInKer (B→fib n) x
+    → isInIm (A→B (suc n)) x
+  Ker-B→fib⊂Im-A→B n =
+    transport (λ i → (x : _) → isInKer (P n i) x
+                              → isInIm (π∘∙A→B-PathP (suc n) f i) x)
+              (M.Ker-B→fib⊂Im-A→B n)

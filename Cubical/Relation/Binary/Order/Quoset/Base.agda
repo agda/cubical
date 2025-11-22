@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   Quosets, or quasiordered sets, are posets where the relation is strict,
   i.e. irreflexive rather than reflexive

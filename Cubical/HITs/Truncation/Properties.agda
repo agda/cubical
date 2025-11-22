@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.Truncation.Properties where
 
@@ -6,6 +5,7 @@ open import Cubical.Data.NatMinusOne
 open import Cubical.HITs.Truncation.Base
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
@@ -214,14 +214,23 @@ isOfHLevelMin→isOfHLevel {n = suc n} {m = zero} h = (isContr→isOfHLevel (suc
 isOfHLevelMin→isOfHLevel {A = A} {n = suc n} {m = suc m} h =
     subst (λ x → isOfHLevel x A) (helper n m)
           (isOfHLevelPlus (suc n ∸ (suc (min n m))) h)
-  , subst (λ x → isOfHLevel x A) ((λ i → m ∸ (minComm n m i) + suc (minComm n m i)) ∙ helper m n)
+  , subst (λ x → isOfHLevel x A) ((λ i → m ∸ (minComm n m i) + (minComm (suc n) (suc m) i)) ∙ helper m n)
           (isOfHLevelPlus (suc m ∸ (suc (min n m))) h)
   where
-  helper : (n m : ℕ) → n ∸ min n m + suc (min n m) ≡ suc n
+  helper : (n m : ℕ) → n ∸ min n m + min (suc n) (suc m) ≡ suc n
   helper zero zero = refl
   helper zero (suc m) = refl
   helper (suc n) zero = cong suc (+-comm n 1)
-  helper (suc n) (suc m) = +-suc _ _ ∙ cong suc (helper n m)
+  helper (suc n) (suc m) =
+    suc n ∸ min (suc n) (suc m) + min (suc (suc n)) (suc (suc m)) ≡⟨ step0 ⟩
+    suc n ∸ suc (min n m) + suc (min (suc n) (suc m))             ≡⟨⟩
+    n ∸ min n m + suc (min (suc n) (suc m))                       ≡⟨ step1 ⟩
+    suc (n ∸ min n m + min (suc n) (suc m))                       ≡⟨ step2 ⟩
+    suc (suc n)                                                   ∎
+    where
+      step0 = cong₂ (λ p → suc n ∸ p +_) (minSuc {n}) minSuc
+      step1 = +-suc _ _
+      step2 = cong suc (helper n m)
 
 ΣTruncElim : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {n m : ℕ}
              {B : (x : ∥ A ∥ n) → Type ℓ'}
@@ -229,9 +238,9 @@ isOfHLevelMin→isOfHLevel {A = A} {n = suc n} {m = suc m} h =
              → ((x : (Σ[ a ∈ (∥ A ∥ n) ] (∥ B a ∥ m))) → isOfHLevel (min n m) (C x))
              → ((a : A) (b : B (∣ a ∣ₕ)) → C (∣ a ∣ₕ , ∣ b ∣ₕ))
              → (x : (Σ[ a ∈ (∥ A ∥ n) ] (∥ B a ∥ m))) → C x
-ΣTruncElim hB g (a , b) =
+ΣTruncElim {n = n} hB g (a , b) =
   elim (λ x → isOfHLevelΠ _ λ b → isOfHLevelMin→isOfHLevel (hB (x , b)) .fst )
-       (λ a → elim (λ _ → isOfHLevelMin→isOfHLevel (hB (∣ a ∣ₕ , _)) .snd) λ b → g a b)
+       (λ a → elim (λ _ → isOfHLevelMin→isOfHLevel {n = n} (hB (∣ a ∣ₕ , _)) .snd) λ b → g a b)
        a b
 
 truncIdempotentIso : (n : ℕ) → isOfHLevel n A → Iso (∥ A ∥ n) A
@@ -583,3 +592,29 @@ transportTrunc : {n : HLevel}{p : A ≡ B}
                → transport (λ i → hLevelTrunc n (p i)) ∣ a ∣ₕ ≡ ∣ transport (λ i → p i) a ∣ₕ
 transportTrunc {n = zero} a = refl
 transportTrunc {n = suc n} a = refl
+
+{- pointed version of truncation -}
+
+trunc-respects-≃ : {X Y : Type ℓ} (n : ℕ) → (H : X ≃ Y) → ∥ X ∥ n ≃ ∥ Y ∥ n
+trunc-respects-≃ n H = isoToEquiv (iso f g fg gf) where
+  f = map (H .fst)
+  g = map (invEq H)
+
+  fg : section f g
+  fg x = elim (λ x → isOfHLevelTruncPath {x = f (g x)} {y = x})
+    (λ y →
+      cong f (recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ invEq H) y)
+      ∙ recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ H .fst) (invEq H y)
+      ∙ cong ∣_∣ₕ (secEq H y)) x
+
+  gf : retract f g
+  gf x = elim (λ x → isOfHLevelTruncPath {x = g (f x)} {y = x})
+    (λ x → cong g (recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ H .fst) x)
+    ∙ recUniq (isOfHLevelTrunc n) (∣_∣ₕ ∘ invEq H) (H .fst x)
+    ∙ cong ∣_∣ₕ (retEq H x)) x
+
+hLevelTrunc∙-≃ : {X Y : Pointed ℓ} (n : ℕ) → (H : X ≃∙ Y) → hLevelTrunc∙ n X ≃∙ hLevelTrunc∙ n Y
+hLevelTrunc∙-≃ {X = X} {Y} n H = (trunc-respects-≃ n (H .fst)) , prf X Y n H where
+  prf : (X Y : Pointed ℓ) (n : ℕ) → (H : X ≃∙ Y) → fst (trunc-respects-≃ n (H .fst)) (pt (hLevelTrunc∙ n X)) ≡ pt (hLevelTrunc∙ n Y)
+  prf X Y zero H = refl
+  prf X Y (suc n) H = cong ∣_∣ₕ (H .snd)

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 module Cubical.Data.Fin.Inductive.Properties where
 
@@ -216,6 +216,18 @@ Iso-Fin×Fin-Fin· {n = suc n} {m = m} =
               Σ-swap-Iso))))
       (⊎Iso idIso Iso-Fin×Fin-Fin·))
     (Iso-Fin⊎Fin-Fin+ {n = m} {n · m})
+
+Iso-FinSuc→-Fin→× : ∀ {ℓ} (n : ℕ) {A : Fin (suc n) → Type ℓ}
+  → Iso ((x : Fin (suc n)) → A x)
+         (((x : _) → A (fsuc x)) × A fzero)
+fst (Iso.fun (Iso-FinSuc→-Fin→× n) f) x = f (fsuc x)
+snd (Iso.fun (Iso-FinSuc→-Fin→× n) f) = f fzero
+Iso.inv (Iso-FinSuc→-Fin→× n) (f , s) (zero , w) = s
+Iso.inv (Iso-FinSuc→-Fin→× (suc n)) (f , s) (suc t , w) = f (t , w)
+fst (Iso.rightInv (Iso-FinSuc→-Fin→× (suc n)) (f , s) i) (w , t) = f (w , t)
+snd (Iso.rightInv (Iso-FinSuc→-Fin→× n) (f , s) i) = s
+Iso.leftInv (Iso-FinSuc→-Fin→× n) f i (zero , tt) = f fzero
+Iso.leftInv (Iso-FinSuc→-Fin→× (suc n)) f i (suc s , t) = f (suc s , t)
 
 Iso-Fin×Bool-Fin : {n : ℕ} → Iso (Fin n × Bool) (Fin (2 · n))
 Iso-Fin×Bool-Fin =

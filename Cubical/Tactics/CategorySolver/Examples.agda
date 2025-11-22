@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 {-
    The Category Solver solveCat! solves equations in a category that

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.WildCat.Functor where
 
 open import Cubical.Foundations.Prelude
@@ -54,6 +53,10 @@ open WildFunctor
 open WildNatTrans
 open WildNatIso
 open wildIsIso
+
+idWildNatTrans : {C : WildCat ℓC ℓC'} {D : WildCat ℓD ℓD'} {F : WildFunctor C D} → WildNatTrans _ _ F F
+idWildNatTrans {D = D} .N-ob x = D .id
+idWildNatTrans {D = D} .N-hom f = D .⋆IdR _ ∙ sym (D .⋆IdL _)
 
 module _
   {C : WildCat ℓC ℓC'} {D : WildCat ℓD ℓD'}

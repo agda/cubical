@@ -1,7 +1,7 @@
 -- Left ℤ-multiplication on groups and some of its properties
 
 -- TODO: lots of the content here should be moved elsewhere
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.Group.ZAction where
 
 open import Cubical.Foundations.Prelude
@@ -642,7 +642,7 @@ GroupEquivℤ/abs-gen G H L =
       λ f g ex → GroupIso→GroupEquiv (GroupIsoℤ/abs f L g ex))
 
 -- for type checking reasons, let's also do it with an abstract type
-abstract
+opaque
   abstractℤGroup/_ : ℕ → Group₀
   abstractℤGroup/_ n = ℤGroup/ n
 
@@ -662,7 +662,7 @@ GroupEquiv-abstractℤ/abs-gen : (G H L : Group₀)
   → GroupEquiv (abstractℤGroup/_ n) L
 GroupEquiv-abstractℤ/abs-gen G H L e r f g ex n p = main
   where
-  abstract
+  opaque
     main : GroupEquiv (abstractℤGroup/_ n) L
     main =
       transport (λ i

@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --lossy-unification #-}
-
 module Cubical.Categories.Functor.ComposeProperty where
 
 open import Cubical.Foundations.Prelude
@@ -98,6 +96,7 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
       → F .F-hom (f ⋆⟨ D ⟩ g ⋆⟨ D ⟩ h) ≡ F .F-hom f ⋆⟨ E ⟩ F .F-hom g ⋆⟨ E ⟩ F .F-hom h
     F-seq3 F = F .F-seq _ _ ∙ cong (λ x → x ⋆⟨ E ⟩ _) (F .F-seq _ _)
 
+    module E = Category E
     ext : NatTrans A B
     ext .N-ob d = isContrMor d .fst .fst
     ext .N-hom {x = d} {y = d'} f = Prop.rec2 (E .isSetHom _ _)
@@ -106,11 +105,10 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
             (λ i → A .F-hom f ⋆⟨ E ⟩ mor-eq d' c' h' i)
           ∙ cong (λ x → A .F-hom f ⋆⟨ E ⟩ x) (E .⋆Assoc _ _ _)
           ∙ sym (E .⋆Assoc _ _ _) ∙ sym (E .⋆Assoc _ _ _)
-          ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (E .⋆IdL _))
-          ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (F-Iso {F = A} h .snd .sec))
+          ∙ E.⟨ E.⟨ sym (E.⋆IdL _) ∙ E.⟨ sym (F-Iso {F = A} h .snd .sec) ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
           ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (E .⋆Assoc _ _ _)
           ∙ cong (λ x → _ ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (E .⋆Assoc _ _ _))
-          ∙ cong (λ x → _ ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (F-seq3 A))
+          ∙ E.⟨ E.⟨ E.⟨ refl ⟩⋆⟨ E.⟨ sym (A .F-seq _ _) ⟩⋆⟨ refl ⟩ ∙ sym (A .F-seq _ _) ⟩ ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
           ∙ cong (λ x → A .F-hom (invIso h .fst) ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (cong (A .F-hom) p))
           ∙ cong (λ x → x ⋆⟨ E ⟩ _) (E .⋆Assoc _ _ _)
           ∙ cong (λ x → _ ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _) (α .N-hom k)
@@ -139,7 +137,6 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   isEssSurj+Full→isFullyFaithfulPrecomp surj full =
     isFull+Faithful→isFullyFaithful {F = precomposeF E F}
       (isEssSurj+Full→isFullPrecomp surj full) (isEssSurj→isFaithfulPrecomp surj)
-
 
 module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}

@@ -7,7 +7,7 @@
   example usage.
 
 -}
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Reflection.RecordEquiv where
 
 open import Cubical.Foundations.Prelude

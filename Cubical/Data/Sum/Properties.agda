@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Sum.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -357,3 +356,15 @@ Iso⊎→Iso {A = A} {C = C} {B = B} {D = D} f e p = Iso'
   Iso.inv Iso' = e⁻-pres-inr
   Iso.rightInv Iso' x = lem2 x (_ , refl) (_ , refl)
   Iso.leftInv Iso' x = lem1 x (_ , refl) (_ , refl)
+
+Lift⊎Iso : ∀ (ℓ : Level)
+  → Iso (Lift {j = ℓ} A ⊎ Lift {j = ℓ} B)
+         (Lift {j = ℓ} (A ⊎ B))
+fun (Lift⊎Iso ℓD) (inl x) = liftFun inl x
+fun (Lift⊎Iso ℓD) (inr x) = liftFun inr x
+inv (Lift⊎Iso ℓD) (lift (inl x)) = inl (lift x)
+inv (Lift⊎Iso ℓD) (lift (inr x)) = inr (lift x)
+rightInv (Lift⊎Iso ℓD) (lift (inl x)) = refl
+rightInv (Lift⊎Iso ℓD) (lift (inr x)) = refl
+leftInv (Lift⊎Iso ℓD) (inl x) = refl
+leftInv (Lift⊎Iso ℓD) (inr x) = refl

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Limits where
 
 open import Cubical.Categories.Limits.Limits public

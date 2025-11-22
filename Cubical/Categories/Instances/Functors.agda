@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 {-
    Category whose objects are functors and morphisms are natural transformations.
@@ -137,4 +136,3 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     β .N-ob e ∘⟨ D ⟩ (G .F-hom g ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f))
       ≡⟨ D .⋆Assoc _ _ _ ⟩
     (β .N-ob e ∘⟨ D ⟩ G .F-hom g) ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f) ∎
-

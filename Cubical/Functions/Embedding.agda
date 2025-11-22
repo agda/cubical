@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Functions.Embedding where
 
 open import Cubical.Foundations.Prelude
@@ -44,7 +43,7 @@ private
 -- is not well-behaved with higher h-levels, while embeddings
 -- are.
 isEmbedding : (A → B) → Type _
-isEmbedding f = ∀ w x → isEquiv {A = w ≡ x} (cong f)
+isEmbedding f = ∀ w x → isEquiv (cong f :> (w ≡ x → f w ≡ f x))
 
 isPropIsEmbedding : isProp (isEmbedding f)
 isPropIsEmbedding {f = f} = isPropΠ2 λ _ _ → isPropIsEquiv (cong f)
@@ -54,8 +53,7 @@ isEmbedding→Inj
   : {f : A → B}
   → isEmbedding f
   → ∀ w x → f w ≡ f x → w ≡ x
-isEmbedding→Inj {f = f} embb w x p
-  = equiv-proof (embb w x) p .fst .fst
+isEmbedding→Inj embb w x p = invIsEq (embb w x) p
 
 -- The converse implication holds if B is an h-set, see injEmbedding below.
 
@@ -191,6 +189,10 @@ iso→isEmbedding : ∀ {ℓ} {A B : Type ℓ}
   -------------------------------
   → isEmbedding (Iso.fun isom)
 iso→isEmbedding {A = A} {B} isom = (isEquiv→isEmbedding (equivIsEquiv (isoToEquiv isom)))
+
+Iso→Embedding : ∀ {ℓ} {A B : Type ℓ}
+  → Iso A B → A ↪ B
+Iso→Embedding isom = _ , iso→isEmbedding isom
 
 isEmbedding→Injection :
   ∀ {ℓ} {A B C : Type ℓ}

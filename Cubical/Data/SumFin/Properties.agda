@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.SumFin.Properties where
 
@@ -12,9 +11,10 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.Bool hiding (_≤_)
-open import Cubical.Data.Nat
-open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat as Nat
+open import Cubical.Data.Nat.Order as Ord
 import Cubical.Data.Fin as Fin
+import Cubical.Data.FinData as FinData
 import Cubical.Data.Fin.LehmerCode as LehmerCode
 open import Cubical.Data.SumFin.Base as SumFin
 open import Cubical.Data.Sum as ⊎
@@ -27,7 +27,7 @@ open import Cubical.Relation.Nullary
 private
   variable
     ℓ : Level
-    k : ℕ
+    n m k : ℕ
 
 SumFin→Fin : Fin k → Fin.Fin k
 SumFin→Fin = SumFin.elim (λ {k} _ → Fin.Fin k) Fin.fzero Fin.fsuc
@@ -270,3 +270,48 @@ SumFin≃≃ _ =
   ⋆ LehmerCode.lehmerEquiv
   ⋆ LehmerCode.lehmerFinEquiv
   ⋆ invEquiv (SumFin≃Fin _)
+
+-- Relate SumFin and FinData
+
+FinData→SumFin : FinData.Fin n → SumFin.Fin n
+FinData→SumFin = FinData.elim (λ {n} _ → SumFin.Fin n) fzero fsuc
+
+SumFin→FinData : SumFin.Fin n → FinData.Fin n
+SumFin→FinData = SumFin.elim (λ {n} _ → FinData.Fin n) FinData.zero FinData.suc
+
+FinDataSumFinIso : Iso (FinData.Fin n) (SumFin.Fin n)
+FinDataSumFinIso = iso FinData→SumFin SumFin→FinData
+  (SumFin.elim (λ fn → FinData→SumFin (SumFin→FinData fn) ≡ fn) refl (cong fsuc))
+  (FinData.elim (λ fn → SumFin→FinData (FinData→SumFin fn) ≡ fn) refl (cong FinData.suc))
+
+FinData≃SumFin : FinData.Fin n ≃ SumFin.Fin n
+FinData≃SumFin = isoToEquiv FinDataSumFinIso
+
+≡→FinData≃SumFin : m ≡ n → FinData.Fin m ≃ SumFin.Fin n
+≡→FinData≃SumFin {m} = J (λ n p → FinData.Fin m ≃ SumFin.Fin n) FinData≃SumFin
+
+FinData≡SumFin : FinData.Fin n ≡ SumFin.Fin n
+FinData≡SumFin = ua FinData≃SumFin
+
+DecΣ :
+  (n : ℕ) →
+  (P : Fin n → Type ℓ) →
+  ((k : Fin n) → Dec (P k)) →
+  Dec (Σ (Fin n) P)
+DecΣ = Nat.elim
+  (λ _ _ → no fst)
+  (λ n ih P decP →
+    decRec
+    (yes ∘ (_ ,_))
+    (λ ¬Pzero →
+      mapDec
+      (λ (k , Pk) → (fsuc k , Pk))
+      (λ ¬Psuc →
+        λ { (fzero , Pzero) → ¬Pzero Pzero
+          ; (fsuc k , Pk) → ¬Psuc (k , Pk)
+          })
+      (ih (P ∘ fsuc) (decP ∘ fsuc))
+    )
+    (decP fzero)
+  )
+

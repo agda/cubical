@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Sn.Properties where
 
 open import Cubical.Foundations.Pointed
@@ -46,6 +45,13 @@ open Iso
 IsoSucSphereSusp : (n : ℕ) → Iso (S₊ (suc n)) (Susp (S₊ n))
 IsoSucSphereSusp zero = S¹IsoSuspBool
 IsoSucSphereSusp (suc n) = idIso
+
+IsoSphereSusp : (n : ℕ) → Iso (S₊ n) (Susp (S⁻ n))
+IsoSphereSusp zero = BoolIsoSusp⊥
+IsoSphereSusp (suc n) = IsoSucSphereSusp n
+
+EquivSphereSusp : (n : ℕ) → Susp (S⁻ n) ≃ S₊ n
+EquivSphereSusp n = isoToEquiv (invIso (IsoSphereSusp n))
 
 IsoSucSphereSusp∙ : (n : ℕ)
   → Iso.inv (IsoSucSphereSusp n) north ≡ ptSn (suc n)
@@ -328,14 +334,15 @@ sphereConnected : (n : HLevel) → isConnected (suc n) (S₊ n)
 sphereConnected n = ∣ ptSn n ∣ , elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
                                      (λ a → sym (spoke ∣_∣ (ptSn n)) ∙ spoke ∣_∣ a)
 
-sphereToTrunc : (n : ℕ) {A : S₊ n → Type ℓ}
-  → ((x : S₊ n) → hLevelTrunc (suc n) (A x))
+sphereToTrunc : (n : ℕ) {A : S⁻ n → Type ℓ}
+  → ((x : S⁻ n) → hLevelTrunc n (A x))
   → ∥ ((x : _) → A x) ∥₁
-sphereToTrunc zero {A = A} indr =
+sphereToTrunc zero _ = ∣ (λ{()}) ∣₁
+sphereToTrunc (suc zero) {A = A} indr =
   rec squash₁ (λ p → rec squash₁
     (λ q → ∣ (λ { false → q ; true → p}) ∣₁)
          (indr false)) (indr true)
-sphereToTrunc (suc zero) {A = A} indr =
+sphereToTrunc (suc (suc zero)) {A = A} indr =
   lem (indr base) (cong indr loop)
   where
   lem : (x : hLevelTrunc 2 (A base))
@@ -346,8 +353,8 @@ sphereToTrunc (suc zero) {A = A} indr =
       ; (loop i) → toPathP {A = λ i → A (loop i)} q i}) ∣₁)
         (PathIdTruncIso 1 .Iso.fun
           (fromPathP p))
-sphereToTrunc (suc (suc n)) {A = A} indr =
-  lem (sphereToTrunc (suc n)) (indr north) (indr south)
+sphereToTrunc (suc (suc (suc n))) {A = A} indr =
+  lem (sphereToTrunc (suc (suc n))) (indr north) (indr south)
     λ a → cong indr (merid a)
   where
   lem : ({A : S₊ (suc n) → Type _} →

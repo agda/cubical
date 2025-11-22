@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Ideal.Sum where
 
 open import Cubical.Foundations.Prelude
@@ -155,6 +154,9 @@ module IdealSum (R' : CommRing ℓ) where
  ·iComm⊆ : ∀ (I J : CommIdeal) → (I ·i J) ⊆ (J ·i I)
  ·iComm⊆ I J x = map λ (n , (α , β) , ∀αi∈I , ∀βi∈J , x≡∑αβ)
                       → (n , (β , α) , ∀βi∈J , ∀αi∈I , x≡∑αβ ∙ ∑Ext (λ i → ·Comm (α i) (β i)))
+
+ ·iRincl : ∀ (I J : CommIdeal) → (I ·i J) ⊆ J
+ ·iRincl I J x x∈IJ = ·iLincl J I x (·iComm⊆ I J x x∈IJ)
 
  ·iComm : ∀ (I J : CommIdeal) → I ·i J ≡ J ·i I
  ·iComm I J = CommIdeal≡Char (·iComm⊆ I J) (·iComm⊆ J I)

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Presheaf.Morphism where
 
 open import Cubical.Foundations.Prelude
@@ -57,17 +56,17 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
     pushElt (A , η) = (F ⟅ A ⟆) , (h .N-ob A (lift η) .lower)
 
     pushEltNat : ∀ {B : C .ob} (η : Elementᴾ {C = C} P) (f : C [ B , η .fst ])
-                  → (pushElt η .snd ∘ᴾ⟨ D , Q ⟩ F .F-hom f)
-                    ≡ pushElt (B , η .snd ∘ᴾ⟨ C , P ⟩ f) .snd
+                  → (pushElt η .snd ∘ᴾ⟨ Q ⟩ F .F-hom f)
+                    ≡ pushElt (B , η .snd ∘ᴾ⟨ P ⟩ f) .snd
     pushEltNat η f i = h .N-hom f (~ i) (lift (η .snd)) .lower
 
     pushEltF : Functor (∫ᴾ_ {C = C} P) (∫ᴾ_ {C = D} Q)
     pushEltF .F-ob = pushElt
     pushEltF .F-hom {x}{y} (f , commutes) .fst = F .F-hom f
     pushEltF .F-hom {x}{y} (f , commutes) .snd =
-      pushElt _ .snd ∘ᴾ⟨ D , Q ⟩ F .F-hom f
+      pushElt _ .snd ∘ᴾ⟨ Q ⟩ F .F-hom f
         ≡⟨ pushEltNat y f ⟩
-      pushElt (_ , y .snd ∘ᴾ⟨ C , P ⟩ f) .snd
+      pushElt (_ , y .snd ∘ᴾ⟨ P ⟩ f) .snd
         ≡⟨ cong (λ a → pushElt a .snd) (ΣPathP (refl , commutes)) ⟩
       pushElt x .snd ∎
     pushEltF .F-id = Σ≡Prop (λ x → (Q ⟅ _ ⟆) .snd _ _) (F .F-id)

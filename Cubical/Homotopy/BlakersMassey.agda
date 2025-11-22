@@ -13,13 +13,14 @@ Also the HoTT-Agda formalization by Favonia:
 Using cubes explicitly as much as possible.
 
 -}
-{-# OPTIONS  --safe #-}
+{-# OPTIONS  #-}
 module Cubical.Homotopy.BlakersMassey where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Pointed
 
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
@@ -35,6 +36,7 @@ open import Cubical.Data.Unit
 
 open import Cubical.HITs.Truncation renaming (hLevelTrunc to Trunc)
 open import Cubical.HITs.Pushout hiding (PushoutGenFib)
+open import Cubical.HITs.Wedge
 
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
@@ -807,3 +809,68 @@ module BlakersMassey□ {ℓ ℓ' ℓ'' : Level}
           (isEquiv→isConnected _ (isoToIsEquiv TotalPathGen×Iso) (n + m))
           isConnectedTotalFun)
         (isEquiv→isConnected _ (isoToIsEquiv (invIso Totalfib×Iso)) (n + m)))
+
+-- Consequence of Blakers-Massey: connectedness of ⋁↪ (wedge inclusion)
+isConnected⋁↪ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} {n m : ℕ}
+  → isConnected (suc (suc n)) (fst A)
+  → isConnected (suc (suc m)) (fst B)
+  → isConnectedFun (suc m + suc n) (⋁↪ {A = A} {B})
+isConnected⋁↪ {A = A} {B} {n} {m} cA cB =
+  subst (isConnectedFun (suc m + suc n)) (sym main)
+    (isConnectedComp _  _ _
+      (isEquiv→isConnected _ (isoToIsEquiv lem) _)
+      isConnected-toPullback)
+  where
+  isConnectedFoldL : (cB : isConnected (suc (suc m)) (fst B))
+    → isConnectedFun (suc (suc m)) proj⋁ₗ
+  isConnectedFoldL cB = subst (isConnectedFun (suc (suc m)))
+      (funExt (λ { (inl x) → refl
+                 ; (inr x) → refl
+                 ; (push a i) → refl}))
+      conf
+    where
+    f' : A ⋁ B → fst A
+    f' = Iso.fun cofibInr-⋁ ∘ inr
+
+    conf : isConnectedFun (suc (suc m)) f'
+    conf = isConnectedComp (Iso.fun cofibInr-⋁) inr
+             (suc (suc m))
+               (isEquiv→isConnected _ (isoToIsEquiv cofibInr-⋁) (suc (suc m)))
+               (inrConnected (suc (suc m)) _ _
+                 (isConnected→isConnectedFun (suc (suc m)) cB))
+
+  isConnectedFoldR : (cA : isConnected (suc (suc n)) (fst A))
+    → isConnectedFun (suc (suc n)) proj⋁ᵣ
+  isConnectedFoldR cA =
+    subst (isConnectedFun (suc (suc n)))
+      (funExt (λ { (inl x) → refl ; (inr x) → refl ; (push a i) → refl}))
+      conf
+    where
+    f' : A ⋁ B → fst B
+    f' = (Iso.fun cofibInr-⋁ ∘ inr) ∘ fst (symPushout _ _)
+
+    conf : isConnectedFun (suc (suc n)) f'
+    conf =
+      isConnectedComp (Iso.fun cofibInr-⋁ ∘ inr) (fst (symPushout _ _))
+        (suc (suc n))
+        (isConnectedComp _ inr (suc (suc n))
+          (isEquiv→isConnected _ (isoToIsEquiv cofibInr-⋁) (suc (suc n)))
+          (inrConnected (suc (suc n)) _ _
+            (isConnected→isConnectedFun (suc (suc n)) cA)))
+             (isEquiv→isConnected _ (snd (symPushout _ _)) (suc (suc n)))
+
+  open BlakersMassey□ {A = A ⋁ B} {B = fst A} {C = fst B}
+    proj⋁ₗ proj⋁ᵣ (suc m) (suc n)
+      (isConnectedFoldL cB) (isConnectedFoldR cA)
+
+  lem : Iso (Σ (fst A × fst B) PushoutPath×) (fst A × fst B)
+  lem = compIso
+         (Σ-cong-iso-snd (λ _ →
+           equivToIso (isContr→≃Unit
+             (isOfHLevelPath 0 (isContrPushout-proj⋁ A B) _ _))))
+           rUnit×Iso
+
+  main : ⋁↪ ≡ Iso.fun lem ∘ toPullback
+  main = funExt λ { (inl x) → refl
+                  ; (inr x) → refl
+                  ; (push a i) → refl}

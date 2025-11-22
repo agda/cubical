@@ -19,7 +19,7 @@
 
 -}
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.AlgebraicGeometry.Functorial.ZFunctors.Base where
 
 open import Cubical.Foundations.Prelude
@@ -43,6 +43,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Site.Sheaf
 open import Cubical.Categories.Site.Instances.ZariskiCommRing
@@ -58,18 +59,21 @@ module _ {ℓ : Level} where
   open Functor
   open NatTrans
   open CommRingStr ⦃...⦄
-  open IsRingHom
+  open IsCommRingHom
 
+  Aff : Category (ℓ-suc ℓ) ℓ
+  Aff = CommRingsCategory {ℓ = ℓ} ^op
 
   -- using the naming conventions of Demazure & Gabriel
-  ℤFunctor = Functor (CommRingsCategory {ℓ = ℓ}) (SET ℓ)
-  ℤFUNCTOR = FUNCTOR (CommRingsCategory {ℓ = ℓ}) (SET ℓ)
+  ℤFunctor = Presheaf Aff ℓ
+  ℤFUNCTOR = PresheafCategory Aff ℓ
 
   -- Yoneda in the notation of Demazure & Gabriel,
   -- uses that double op is original category definitionally
-  Sp : Functor (CommRingsCategory {ℓ = ℓ} ^op) ℤFUNCTOR
-  Sp = YO {C = (CommRingsCategory {ℓ = ℓ} ^op)}
+  Sp : Functor Aff ℤFUNCTOR
+  Sp = YO
 
+  -- TODO: should probably just be hasUniversalElement
   isAffine : (X : ℤFunctor) → Type (ℓ-suc ℓ)
   isAffine X = ∃[ A ∈ CommRing ℓ ] NatIso (Sp .F-ob A) X
   -- TODO: 𝔸¹ ≅ Sp ℤ[x] and 𝔾ₘ ≅ Sp ℤ[x,x⁻¹] ≅ D(x) ↪ 𝔸¹ as first examples of affine schemes
@@ -82,7 +86,7 @@ module _ {ℓ : Level} where
   -- aka the affine line
   -- (aka the representable of ℤ[x])
   𝔸¹ : ℤFunctor
-  𝔸¹ = ForgetfulCommRing→Set
+  𝔸¹ = ForgetfulCommRing→Set ∘F fromOpOp
 
   -- the global sections functor
   𝓞 : Functor ℤFUNCTOR (CommRingsCategory {ℓ = ℓ-suc ℓ} ^op)
@@ -159,8 +163,8 @@ module _ {ℓ : Level} where
   pres- (snd (F-hom 𝓞 α)) _ = makeNatTransPath (funExt₂ λ _ _ → refl)
 
   -- functoriality of 𝓞
-  F-id 𝓞 = RingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
-  F-seq 𝓞 _ _ = RingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
+  F-id 𝓞 = CommRingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
+  F-seq 𝓞 _ _ = CommRingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
 
 
 
@@ -174,7 +178,7 @@ module AdjBij {ℓ : Level} where
   open Functor
   open NatTrans
   open Iso
-  open IsRingHom
+  open IsCommRingHom
 
   private module _ {A : CommRing ℓ} {X : ℤFunctor {ℓ}} where
     _♭ : CommRingHom A (𝓞 .F-ob X) → X ⇒ Sp .F-ob A
@@ -186,7 +190,7 @@ module AdjBij {ℓ : Level} where
     pres· (snd (N-ob (φ ♭) B x)) _ _ = cong (λ y → y .N-ob B x) (φ .snd .pres· _ _)
     pres- (snd (N-ob (φ ♭) B x)) _ = cong (λ y → y .N-ob B x) (φ .snd .pres- _)
 
-    N-hom (φ ♭) ψ = funExt (λ x → RingHom≡ (funExt λ a → funExt⁻ (φ .fst a .N-hom ψ) x))
+    N-hom (φ ♭) ψ = funExt (λ x → CommRingHom≡ (funExt λ a → funExt⁻ (φ .fst a .N-hom ψ) x))
 
 
     -- the other direction is just precomposition modulo Yoneda
@@ -202,10 +206,10 @@ module AdjBij {ℓ : Level} where
 
     -- the two maps are inverse to each other
     ♭♯Id : ∀ (α  : X ⇒ Sp .F-ob A) → ((α ♯) ♭) ≡ α
-    ♭♯Id _ = makeNatTransPath (funExt₂ λ _ _ → RingHom≡ (funExt (λ _ → refl)))
+    ♭♯Id _ = makeNatTransPath (funExt₂ λ _ _ → CommRingHom≡ (funExt (λ _ → refl)))
 
     ♯♭Id : ∀ (φ : CommRingHom A (𝓞 .F-ob X)) → ((φ ♭) ♯) ≡ φ
-    ♯♭Id _ = RingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
+    ♯♭Id _ = CommRingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
 
 
   -- we get a relative adjunction 𝓞 ⊣ᵢ Sp
@@ -219,12 +223,12 @@ module AdjBij {ℓ : Level} where
 
   𝓞⊣SpNatℤFunctor : {A : CommRing ℓ} {X Y : ℤFunctor {ℓ}} (α : X ⇒ Sp .F-ob A) (β : Y ⇒ X)
                   → (β ●ᵛ α) ♯ ≡ (𝓞 .F-hom β) ∘cr (α ♯)
-  𝓞⊣SpNatℤFunctor _ _ = RingHom≡ (funExt (λ _ → makeNatTransPath (funExt₂ (λ _ _ → refl))))
+  𝓞⊣SpNatℤFunctor _ _ = CommRingHom≡ (funExt (λ _ → makeNatTransPath (funExt₂ (λ _ _ → refl))))
 
   𝓞⊣SpNatCommRing : {X : ℤFunctor {ℓ}} {A B : CommRing ℓ}
                     (φ : CommRingHom A (𝓞 .F-ob X)) (ψ : CommRingHom B A)
                   → (φ ∘cr ψ) ♭ ≡ (φ ♭) ●ᵛ Sp .F-hom ψ
-  𝓞⊣SpNatCommRing _ _ = makeNatTransPath (funExt₂ λ _ _ → RingHom≡ (funExt (λ _ → refl)))
+  𝓞⊣SpNatCommRing _ _ = makeNatTransPath (funExt₂ λ _ _ → CommRingHom≡ (funExt (λ _ → refl)))
 
   -- the counit is an equivalence
   private

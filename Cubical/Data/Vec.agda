@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Vec where
 
 open import Cubical.Data.Vec.Base public

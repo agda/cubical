@@ -6,7 +6,6 @@ This file contains:
   - Characterisation of colimits over finite sequences
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.SequentialColimit.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -25,6 +24,7 @@ open import Cubical.Data.Fin.Inductive
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.SequentialColimit.Base
+open import Cubical.HITs.Pushout
 open import Cubical.Homotopy.Connected
 
 private
@@ -613,3 +613,200 @@ SeqColimIso S n =
   compIso (Iso-SeqColim→SeqColimShift S n)
     (sequenceEquiv→ColimIso
       (SequenceIso→SequenceEquiv (ShiftSequenceIso n)))
+
+module _ {ℓ ℓ' ℓ'' : Level} {A : Sequence ℓ} {B : Sequence ℓ'} {C : Sequence ℓ''}
+  (F : SequenceMap A B) (G : SequenceMap A C) where
+
+  PushoutSequenceFam : ℕ → Type _
+  PushoutSequenceFam n = Pushout (SequenceMap.map F n) (SequenceMap.map G n)
+
+  PushoutSequenceMap : (n : ℕ) → PushoutSequenceFam n → PushoutSequenceFam (suc n)
+  PushoutSequenceMap n (inl x) = inl (map B x)
+  PushoutSequenceMap n (inr x) = inr (map C x)
+  PushoutSequenceMap n (push a i) =
+    ((λ i → inl (SequenceMap.comm F n a i))
+    ∙∙ push (map A a)
+    ∙∙ (λ i → inr (SequenceMap.comm G n a (~ i)))) i
+
+  PushoutSequence : Sequence _
+  obj PushoutSequence = PushoutSequenceFam
+  map PushoutSequence = PushoutSequenceMap _
+
+  PushoutColim : Type _
+  PushoutColim = Pushout (realiseSequenceMap F) (realiseSequenceMap G)
+
+  PushoutSequenceFam→PushoutColim : (n : ℕ) → PushoutSequenceFam n → PushoutColim
+  PushoutSequenceFam→PushoutColim n (inl x) = inl (incl {n = n} x)
+  PushoutSequenceFam→PushoutColim n (inr x) = inr (incl {n = n} x)
+  PushoutSequenceFam→PushoutColim n (push a i) = push (incl {n = n} a) i
+
+  PushoutSequenceFam→PushoutColimCommFill : (n : ℕ) (a : _) (i j k : I) → PushoutColim
+  PushoutSequenceFam→PushoutColimCommFill n a i j k =
+    hfill (λ k →
+    λ { (i = i0) → inl (compPath-filler'
+                           (push {n = n} (SequenceMap.map F n a))
+                           (λ i₁ → incl {n = suc n} (SequenceMap.comm F n a i₁))
+                           (~ j) (~ k))
+      ; (i = i1) → inr (compPath-filler'
+                           (push {n = n} (SequenceMap.map G n a))
+                           (λ i₁ → incl {n = suc n} (SequenceMap.comm G n a i₁))
+                           (~ j) (~ k))
+      ; (j = i0) → push (push {n = n} a (~ k)) i
+      ; (j = i1) → PushoutSequenceFam→PushoutColim (suc n)
+                      (doubleCompPath-filler
+                       (λ i → inl (SequenceMap.comm F n a i))
+                       (push (map A a))
+                       (λ i → inr (SequenceMap.comm G n a (~ i))) k i)})
+      (inS (push (incl {n = suc n} (map A a)) i)) k
+
+  PushoutSequenceFam→PushoutColimComm : (n : ℕ) (x : PushoutSequenceFam n)
+    → PushoutSequenceFam→PushoutColim n x
+    ≡ PushoutSequenceFam→PushoutColim (suc n)
+         (PushoutSequenceMap n x)
+  PushoutSequenceFam→PushoutColimComm n (inl x) i = inl (push {n = n} x i)
+  PushoutSequenceFam→PushoutColimComm n (inr x) i = inr (push {n = n} x i)
+  PushoutSequenceFam→PushoutColimComm n (push a i) j =
+    PushoutSequenceFam→PushoutColimCommFill  n a i j i1
+
+  ColimPushout→PushoutColim : SeqColim PushoutSequence → PushoutColim
+  ColimPushout→PushoutColim (incl {n = n} x) =
+    PushoutSequenceFam→PushoutColim n x
+  ColimPushout→PushoutColim (push {n = n} x i) =
+    PushoutSequenceFam→PushoutColimComm n x i
+
+  PushoutColim→ColimPushoutL : SeqColim B → SeqColim PushoutSequence
+  PushoutColim→ColimPushoutL (incl {n = n} x) = incl {n = n} (inl x)
+  PushoutColim→ColimPushoutL (push {n = n} x i) = push {n = n} (inl x) i
+
+  PushoutColim→ColimPushoutR : SeqColim C → SeqColim PushoutSequence
+  PushoutColim→ColimPushoutR (incl {n = n} x) = incl {n = n} (inr x)
+  PushoutColim→ColimPushoutR (push {n = n} x i) = push {n = n} (inr x) i
+
+  PushoutColim→ColimPushoutLRFill : (n : ℕ) (x : _) (i j k : I)
+    → SeqColim PushoutSequence
+  PushoutColim→ColimPushoutLRFill n x i j k =
+    hfill (λ k →
+    λ {(i = i0) → push {n = n} (push x j) (~ k)
+     ; (i = i1) → p i0 j
+     ; (j = i0) → PushoutColim→ColimPushoutL
+                    (compPath-filler'
+                      (push {n = n} (SequenceMap.map F n x))
+                      (λ i → incl {n = suc n} (SequenceMap.comm F n x i)) k i)
+     ; (j = i1) → PushoutColim→ColimPushoutR
+                    (compPath-filler'
+                      (push {n = n} (SequenceMap.map G n x))
+                      (λ i → incl {n = suc n} (SequenceMap.comm G n x i)) k i)})
+          (inS (p (~ i) j)) k
+    where
+    p : (i j : I) → SeqColim PushoutSequence
+    p i j = incl {n = suc n} (doubleCompPath-filler
+                      (λ i₁ → inl (SequenceMap.comm F n x i₁))
+                      (push (map A x))
+                      (λ i₁ → inr (SequenceMap.comm G n x (~ i₁))) i j)
+
+  PushoutColim→ColimPushoutLR : (a : SeqColim A)
+    → PushoutColim→ColimPushoutL (realiseSequenceMap F a)
+     ≡ PushoutColim→ColimPushoutR (realiseSequenceMap G a)
+  PushoutColim→ColimPushoutLR (incl {n = n} x) i = incl {n = n} (push x i)
+  PushoutColim→ColimPushoutLR (push {n = n} x i) j =
+    PushoutColim→ColimPushoutLRFill n x i j i1
+
+  PushoutColim→ColimPushout : PushoutColim → SeqColim PushoutSequence
+  PushoutColim→ColimPushout (inl x) = PushoutColim→ColimPushoutL x
+  PushoutColim→ColimPushout (inr x) = PushoutColim→ColimPushoutR x
+  PushoutColim→ColimPushout (push a i) = PushoutColim→ColimPushoutLR a i
+
+  PushoutColim→ColimPushout→PushoutColim-Incl : (n : ℕ) (x : PushoutSequenceFam n)
+    → PushoutColim→ColimPushout (ColimPushout→PushoutColim (incl {n = n} x))
+     ≡ incl {n = n} x
+  PushoutColim→ColimPushout→PushoutColim-Incl n (inl x) = refl
+  PushoutColim→ColimPushout→PushoutColim-Incl n (inr x) = refl
+  PushoutColim→ColimPushout→PushoutColim-Incl n (push a i) = refl
+
+  PushoutColim→ColimPushout→PushoutColim-Push : (n : ℕ) (x : PushoutSequenceFam n)
+    → Square {A = SeqColim PushoutSequence}
+              (cong PushoutColim→ColimPushout
+                (PushoutSequenceFam→PushoutColimComm n x))
+              (push {n = n} x)
+              (PushoutColim→ColimPushout→PushoutColim-Incl n x)
+              (PushoutColim→ColimPushout→PushoutColim-Incl (suc n)
+                (PushoutSequenceMap n x))
+  PushoutColim→ColimPushout→PushoutColim-Push n (inl x) = refl
+  PushoutColim→ColimPushout→PushoutColim-Push n (inr x) = refl
+  PushoutColim→ColimPushout→PushoutColim-Push n (push a i) j k =
+    hcomp (λ r →
+      λ {(i = i0) → PushoutColim→ColimPushoutL
+                       (compPath-filler'
+                         (push {n = n} (SequenceMap.map F n a))
+                         (λ i → incl {n = suc n} (SequenceMap.comm F n a i))
+                         (~ k) (~ r))
+       ; (i = i1) →  PushoutColim→ColimPushoutR
+                       (compPath-filler'
+                         (push {n = n} (SequenceMap.map G n a))
+                         (λ i → incl {n = suc n} (SequenceMap.comm G n a i))
+                         (~ k) (~ r))
+       ; (j = i0) → PushoutColim→ColimPushout
+                      (PushoutSequenceFam→PushoutColimCommFill n a i k r)
+       ; (j = i1) → PushoutColim→ColimPushoutLRFill n a (~ r) i (~ k)
+       ; (k = i0) → PushoutColim→ColimPushoutLRFill n a (~ r) i i1
+       ; (k = i1) → PushoutColim→ColimPushout→PushoutColim-Incl (suc n)
+                     ((doubleCompPath-filler
+                        (λ i₁ → inl (SequenceMap.comm F n a i₁)) (push (map A a))
+                        (λ i₁ → inr (SequenceMap.comm G n a (~ i₁))) r i)) j})
+      (incl {n = suc n} (push (map A a) i))
+
+  PushoutColim→ColimPushout→PushoutColim : (x : SeqColim PushoutSequence)
+    → PushoutColim→ColimPushout (ColimPushout→PushoutColim x) ≡ x
+  PushoutColim→ColimPushout→PushoutColim (incl x) =
+    PushoutColim→ColimPushout→PushoutColim-Incl _ x
+  PushoutColim→ColimPushout→PushoutColim (push x i) j =
+    PushoutColim→ColimPushout→PushoutColim-Push _ x j i
+
+  ColimPushout→PushoutColim→ColimPushout-inl : (x : _)
+     → ColimPushout→PushoutColim (PushoutColim→ColimPushoutL x) ≡ inl x
+  ColimPushout→PushoutColim→ColimPushout-inl (incl x) = refl
+  ColimPushout→PushoutColim→ColimPushout-inl (push x i) = refl
+
+  ColimPushout→PushoutColim→ColimPushout-inr : (x : _)
+     → ColimPushout→PushoutColim (PushoutColim→ColimPushoutR x) ≡ inr x
+  ColimPushout→PushoutColim→ColimPushout-inr (incl x) = refl
+  ColimPushout→PushoutColim→ColimPushout-inr (push x i) = refl
+
+  Iso-PushoutColim-ColimPushout : Iso PushoutColim (SeqColim PushoutSequence)
+  Iso.fun Iso-PushoutColim-ColimPushout = PushoutColim→ColimPushout
+  Iso.inv Iso-PushoutColim-ColimPushout = ColimPushout→PushoutColim
+  Iso.rightInv Iso-PushoutColim-ColimPushout x =
+    PushoutColim→ColimPushout→PushoutColim x
+  Iso.leftInv Iso-PushoutColim-ColimPushout (inl x) =
+    ColimPushout→PushoutColim→ColimPushout-inl x
+  Iso.leftInv Iso-PushoutColim-ColimPushout (inr x) =
+    ColimPushout→PushoutColim→ColimPushout-inr x
+  Iso.leftInv Iso-PushoutColim-ColimPushout (push (incl {n = n} x) i) j =
+    push (incl {n = n} x) i
+  Iso.leftInv Iso-PushoutColim-ColimPushout (push (push {n = n} x k) i) j =
+    hcomp (λ r →
+    λ {(i = i0) → ColimPushout→PushoutColim→ColimPushout-inl
+                   (compPath-filler'
+                    (push {n = n} (SequenceMap.map F n x))
+                    (λ i → incl {n = suc n} (SequenceMap.comm F n x i)) r k) j
+     ; (i = i1) → ColimPushout→PushoutColim→ColimPushout-inr
+                   (compPath-filler'
+                    (push {n = n} (SequenceMap.map G n x))
+                    (λ i → incl {n = suc n} (SequenceMap.comm G n x i)) r k) j
+     ; (j = i0) → ColimPushout→PushoutColim
+                    (PushoutColim→ColimPushoutLRFill n x k i r)
+     ; (j = i1) → PushoutSequenceFam→PushoutColimCommFill n x i (~ r) (~ k)
+     ; (k = i0) → PushoutSequenceFam→PushoutColimCommFill n x i (~ r) i1
+     ; (k = i1) → push (incl {n = suc n} (map A x)) i})
+     (PushoutSequenceFam→PushoutColimCommFill n x i i1 (~ k))
+
+SeqColimLift : (S : Sequence ℓ')
+  → Iso (SeqColim (LiftSequence ℓ S)) (SeqColim S)
+Iso.fun (SeqColimLift S) (incl (lift x)) = incl x
+Iso.fun (SeqColimLift S) (push (lift x) i) = push x i
+Iso.inv (SeqColimLift S) (incl x) = incl (lift x)
+Iso.inv (SeqColimLift S) (push x i) = push (lift x) i
+Iso.rightInv (SeqColimLift S) (incl x) = refl
+Iso.rightInv (SeqColimLift S) (push x i) = refl
+Iso.leftInv (SeqColimLift S) (incl x) = refl
+Iso.leftInv (SeqColimLift S) (push x i) = refl

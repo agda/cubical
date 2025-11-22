@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 -- This file contains definition of CW complexes and skeleta.
 
@@ -71,6 +71,9 @@ yieldsFinCWskel n X =
 finCWskel : (ℓ : Level) → (n : ℕ) → Type (ℓ-suc ℓ)
 finCWskel ℓ n = Σ[ C ∈ (ℕ → Type ℓ) ] (yieldsFinCWskel n C)
 
+isFinCWskel : ∀ {ℓ} (C : CWskel ℓ) → Type ℓ
+isFinCWskel C = Σ[ m ∈ ℕ ] ((k : ℕ) → isEquiv (CW↪ C (k +ℕ m)))
+
 finCWskel→CWskel : (n : ℕ) → finCWskel ℓ n → CWskel ℓ
 finCWskel→CWskel n C = fst C , fst (snd C)
 
@@ -86,35 +89,66 @@ realise : CWskel ℓ → Type ℓ
 realise C = SeqColim (realiseSeq C)
 
 -- Finally: definition of CW complexes
+hasCWskel : (X : Type ℓ) → Type (ℓ-suc ℓ)
+hasCWskel {ℓ = ℓ} X = Σ[ X' ∈ CWskel ℓ ] X ≃ realise X'
+
 isCW : (X : Type ℓ) → Type (ℓ-suc ℓ)
-isCW {ℓ = ℓ} X = Σ[ X' ∈ CWskel ℓ ] X ≃ realise X'
+isCW X = ∥ hasCWskel X ∥₁
 
 CW : (ℓ : Level) → Type (ℓ-suc ℓ)
-CW ℓ = Σ[ A ∈ Type ℓ ] ∥ isCW A ∥₁
+CW ℓ = Σ[ A ∈ Type ℓ ] (isCW A)
 
 CWexplicit : (ℓ : Level) → Type (ℓ-suc ℓ)
-CWexplicit ℓ = Σ[ A ∈ Type ℓ ] (isCW A)
+CWexplicit ℓ = Σ[ A ∈ Type ℓ ] (hasCWskel A)
+
+CWexplicit→CWskel : ∀ {ℓ} → CWexplicit ℓ → CWskel ℓ
+CWexplicit→CWskel C = fst (snd C)
+
+CWexplicit→CW : ∀ {ℓ} → CWexplicit ℓ → CW ℓ
+CWexplicit→CW C = fst C , ∣ snd C ∣₁
 
 -- Finite CW complexes
-isFinCW : (X : Type ℓ) → Type (ℓ-suc ℓ)
-isFinCW {ℓ = ℓ} X =
+isFinIsCW : {X : Type ℓ} → hasCWskel X → Type ℓ
+isFinIsCW X = Σ[ n ∈ ℕ ] (((k : ℕ) → isEquiv (CW↪ (X .fst) (k +ℕ n))))
+
+hasFinCWskel : (X : Type ℓ) → Type (ℓ-suc ℓ)
+hasFinCWskel {ℓ = ℓ} X =
   Σ[ m ∈ ℕ ] (Σ[ X' ∈ finCWskel ℓ m ] X ≃ realise (finCWskel→CWskel m X'))
 
+isFinCW : (X : Type ℓ) → Type (ℓ-suc ℓ)
+isFinCW {ℓ = ℓ} X = ∥ hasFinCWskel X ∥₁
+
 finCW : (ℓ : Level) → Type (ℓ-suc ℓ)
-finCW ℓ = Σ[ A ∈ Type ℓ ] ∥ isFinCW A ∥₁
+finCW ℓ = Σ[ A ∈ Type ℓ ] (isFinCW A)
 
 finCW∙ : (ℓ : Level) → Type (ℓ-suc ℓ)
-finCW∙ ℓ = Σ[ A ∈ Pointed ℓ ] ∥ isFinCW (fst A) ∥₁
+finCW∙ ℓ = Σ[ A ∈ Pointed ℓ ] (isFinCW (fst A))
 
 finCWexplicit : (ℓ : Level) → Type (ℓ-suc ℓ)
-finCWexplicit ℓ = Σ[ A ∈ Type ℓ ] (isFinCW A)
+finCWexplicit ℓ = Σ[ A ∈ Type ℓ ] (hasFinCWskel A)
 
-isFinCW→isCW : (X : Type ℓ) → isFinCW X → isCW X
-isFinCW→isCW X (n , X' , str) = (finCWskel→CWskel n X') , str
+hasFinCWskel→hasCWskel : (X : Type ℓ) → hasFinCWskel X → hasCWskel X
+hasFinCWskel→hasCWskel X (n , X' , str) = (finCWskel→CWskel n X') , str
 
 finCW→CW : finCW ℓ → CW ℓ
-finCW→CW (X , p) = X , PT.map (isFinCW→isCW X) p
+finCW→CW (X , p) = X , PT.map (hasFinCWskel→hasCWskel X) p
 
+-- Pointed complexes (with basepoint in X₀)
+CWskel∙ : ∀ {ℓ} (X : CWskel ℓ) → fst X 1 → (n : ℕ) → fst X (suc n)
+CWskel∙ X x zero = x
+CWskel∙ X x (suc n) = CW↪ X (suc n) (CWskel∙ X x n)
+
+CWskel∞∙ : ∀ {ℓ} (X : CWskel ℓ) → fst X 1 → (n : ℕ) → realise X
+CWskel∞∙ X x₀ n = incl (CWskel∙ X x₀ n)
+
+CWskel∞∙Id : ∀ {ℓ} (X : CWskel ℓ) (x₀ : fst X 1) (n : ℕ) → CWskel∞∙ X x₀ n ≡ incl x₀
+CWskel∞∙Id X x₀ zero = refl
+CWskel∞∙Id X x₀ (suc n) = sym (push (CWskel∙ X x₀ n)) ∙ CWskel∞∙Id X x₀ n
+
+incl∙ : ∀ {ℓ} (X : CWskel ℓ) (x₀ : fst X 1) {n : ℕ}
+  → (fst X (suc n) , CWskel∙ X x₀ n) →∙ (realise X , incl x₀)
+fst (incl∙ X x₀ {n = n}) = incl
+snd (incl∙ X x₀ {n = n}) = CWskel∞∙Id X x₀ n
 
 -- morphisms
 _→ᶜʷ_ : CW ℓ → CW ℓ' → Type (ℓ-max ℓ ℓ')

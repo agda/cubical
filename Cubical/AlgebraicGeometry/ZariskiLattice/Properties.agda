@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.AlgebraicGeometry.ZariskiLattice.Properties where
 
 
@@ -65,7 +65,7 @@ module _ (R : CommRing ℓ) where
     D1≤Df = subst (_≤ D f) Df≡D1 (is-refl _)
 
     1∈√⟨f⟩ : 1r ∈ √ ⟨ replicateFinVec 1 f ⟩
-    1∈√⟨f⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun D1≤Df .fst zero
+    1∈√⟨f⟩ = √FGIdealCharLImpl _ _ (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun D1≤Df .fst) zero
 
 
   module _ {n : ℕ} (f₁,⋯,fₙ : FinVec (fst R) n) where
@@ -80,9 +80,8 @@ module _ (R : CommRing ℓ) where
       D1≤D[f₁,⋯,fₙ] = subst (_≤ D[f₁,⋯,fₙ]) D[f₁,⋯,fₙ]≡D1 (is-refl _)
 
       1∈√⟨f₁,⋯,fₙ⟩ : 1r ∈ √ ⟨ f₁,⋯,fₙ ⟩
-      1∈√⟨f₁,⋯,fₙ⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun
-                       D1≤D[f₁,⋯,fₙ] .fst zero
-
+      1∈√⟨f₁,⋯,fₙ⟩ = √FGIdealCharLImpl _ _
+        (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun D1≤D[f₁,⋯,fₙ] .fst) zero
 
 
 module LocDownSetIso (R : CommRing ℓ) (f : R .fst) where

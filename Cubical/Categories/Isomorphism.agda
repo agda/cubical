@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Isomorphism where
 
 open import Cubical.Foundations.Prelude
@@ -205,6 +204,11 @@ module _ {C : Category ℓC ℓC'} where
   op-Iso f .snd .sec = f .snd .sec
   op-Iso f .snd .ret = f .snd .ret
 
+  op-Iso⁻ : {x y : C .ob} → CatIso (C ^op) x y → CatIso C x y
+  op-Iso⁻ f .fst = f .snd .inv
+  op-Iso⁻ f .snd .inv = f .fst
+  op-Iso⁻ f .snd .sec = f .snd .sec
+  op-Iso⁻ f .snd .ret = f .snd .ret
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{F : Functor C D} where
 

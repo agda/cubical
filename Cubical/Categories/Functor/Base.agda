@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Functor.Base where
 
 open import Cubical.Foundations.Powerset
@@ -143,25 +142,37 @@ funcCompOb≡ : ∀ (G : Functor D E) (F : Functor C D) (c : ob C)
             → funcComp G F .F-ob c ≡ G .F-ob (F .F-ob c)
 funcCompOb≡ G F c = refl
 
+-- TODO: move all of this to Constructions.Opposite?
+introOp : Functor (C ^op) D → Functor C (D ^op)
+introOp F .F-ob = F .F-ob
+introOp F .F-hom = F .F-hom
+introOp F .F-id = F .F-id
+introOp F .F-seq f g = F .F-seq g f
+
+recOp : Functor C (D ^op) → Functor (C ^op) D
+recOp F .F-ob = F .F-ob
+recOp F .F-hom = F .F-hom
+recOp F .F-id = F .F-id
+recOp F .F-seq f g = F .F-seq g f
+
+toOpOp : Functor C ((C ^op) ^op)
+toOpOp = introOp Id
+
+fromOpOp : Functor ((C ^op) ^op) C
+fromOpOp = recOp Id
 
 _^opF  : Functor C D → Functor (C ^op) (D ^op)
-(F ^opF) .F-ob      = F .F-ob
-(F ^opF) .F-hom     = F .F-hom
-(F ^opF) .F-id      = F .F-id
-(F ^opF) .F-seq f g = F .F-seq g f
+F ^opF = recOp (toOpOp ∘F F)
+
+_^opF⁻ : Functor (C ^op) (D ^op) → Functor C D
+F ^opF⁻ = fromOpOp ∘F introOp F
 
 open Iso
 Iso^opF : Iso (Functor C D) (Functor (C ^op) (D ^op))
-fun Iso^opF = _^opF
-inv Iso^opF = _^opF
-F-ob (rightInv Iso^opF b i) = F-ob b
-F-hom (rightInv Iso^opF b i) = F-hom b
-F-id (rightInv Iso^opF b i) = F-id b
-F-seq (rightInv Iso^opF b i) = F-seq b
-F-ob (leftInv Iso^opF a i) = F-ob a
-F-hom (leftInv Iso^opF a i) = F-hom a
-F-id (leftInv Iso^opF a i) = F-id a
-F-seq (leftInv Iso^opF a i) = F-seq a
+Iso^opF .fun = _^opF
+Iso^opF .inv = _^opF⁻
+Iso^opF .rightInv F = Functor≡ (λ _ → refl) (λ _ → refl)
+Iso^opF .leftInv F = Functor≡ (λ _ → refl) (λ _ → refl)
 
 ^opFEquiv : Functor C D ≃ Functor (C ^op) (D ^op)
 ^opFEquiv = isoToEquiv Iso^opF

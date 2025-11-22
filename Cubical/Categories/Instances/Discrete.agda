@@ -1,6 +1,5 @@
 -- Discrete category over a type A
 -- A must be an h-groupoid for the homs to be sets
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Instances.Discrete where
 

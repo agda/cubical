@@ -1,9 +1,9 @@
-{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Order.Poset.Subset where
 
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Transport
 
@@ -11,6 +11,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎
 
 open import Cubical.Functions.Embedding
+open import Cubical.Functions.Fibration
 open import Cubical.Functions.Preimage
 
 open import Cubical.HITs.PropositionalTruncation as ∥₁
@@ -137,37 +138,82 @@ module _
     isUpsetPrincipalUpset : ∀ x → isUpset (principalUpset x)
     isUpsetPrincipalUpset x (y , x≤y) z y≤z = (z , (trans x y z x≤y y≤z)) , refl
 
-    principalDownsetMembership : ∀ x y
-                               → x ≤ y
+    principalDownsetMembership : ∀ x y → x ≤ y
                                ≃ x ∈ₑ principalDownset y
-    principalDownsetMembership x y
-      = propBiimpl→Equiv (prop x y)
-                         (isProp∈ₑ x (principalDownset y))
-                         (λ x≤y → (x , x≤y) , refl)
-                          λ { ((a , a≤y) , fib) → subst (_≤ y) fib a≤y}
+    principalDownsetMembership x y = invEquiv (fiberEquiv _ _)
 
-    principalUpsetMembership : ∀ x y
-                             → x ≤ y
+    principalUpsetMembership : ∀ x y → x ≤ y
                              ≃ y ∈ₑ principalUpset x
-    principalUpsetMembership x y
-      = propBiimpl→Equiv (prop x y)
-                         (isProp∈ₑ y (principalUpset x))
-                         (λ x≤y → (y , x≤y) , refl)
-                          λ { ((a , x≤a) , fib) → subst (x ≤_) fib x≤a }
+    principalUpsetMembership x y = invEquiv (fiberEquiv _ _)
 
-    principalUpsetInclusion : ∀ x y
-                            → x ≤ y
+    principalUpsetInclusion : ∀ x y → x ≤ y
                             → principalUpset y ⊆ₑ principalUpset x
     principalUpsetInclusion x y x≤y z z∈y↑
       = equivFun (principalUpsetMembership x z)
                  (trans x y z x≤y (invEq (principalUpsetMembership y z) z∈y↑))
 
-    principalDownsetInclusion : ∀ x y
-                              → x ≤ y
+    principalDownsetInclusion : ∀ x y → x ≤ y
                               → principalDownset x ⊆ₑ principalDownset y
     principalDownsetInclusion x y x≤y z z∈x↓
       = equivFun (principalDownsetMembership z y)
                  (trans z x y (invEq (principalDownsetMembership z x) z∈x↓) x≤y)
+
+    module _ (S : Embedding ⟨ P ⟩ ℓ'') where
+      private f = str S .fst
+
+      -- Not to be confused with the notion of a 'closure operator' (a monad on a poset) in Poset.Mappings
+      -- Though they are related, as the downward/upward closure is a closure operator on the poset of embeddings
+      -- (not proved here)
+      DownwardClosure : Embedding ⟨ P ⟩ (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+      DownwardClosure = (Σ[ x ∈ ⟨ P ⟩ ] ∃[ y ∈ ⟨ S ⟩ ] x ≤ f y) , EmbeddingΣProp λ _ → squash₁
+
+      UpwardClosure : Embedding ⟨ P ⟩ (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+      UpwardClosure = (Σ[ x ∈ ⟨ P ⟩ ] ∃[ y ∈ ⟨ S ⟩ ] f y ≤ x) , EmbeddingΣProp λ _ → squash₁
+
+      DownwardClosureMembership : ∀ x → (∃[ y ∈ ⟨ S ⟩ ] x ≤ f y)
+                                ≃ x ∈ₑ DownwardClosure
+      DownwardClosureMembership x = invEquiv (fiberEquiv _ _)
+
+      UpwardClosureMembership : ∀ x → (∃[ y ∈ ⟨ S ⟩ ] f y ≤ x)
+                              ≃ x ∈ₑ UpwardClosure
+      UpwardClosureMembership x = invEquiv (fiberEquiv _ _)
+
+      isDownsetDownwardClosure : isDownset DownwardClosure
+      isDownsetDownwardClosure (x , p) y y≤x = equivFun (DownwardClosureMembership y) $ ∥₁.map (map-snd (trans _ _ _ y≤x)) p
+
+      isUpsetUpwardClosure : isUpset UpwardClosure
+      isUpsetUpwardClosure (x , p) y x≤y = equivFun (UpwardClosureMembership y) $ ∥₁.map (map-snd (flip (trans _ _ _) x≤y)) p
+
+      is⊆DownwardClosure : S ⊆ₑ DownwardClosure
+      is⊆DownwardClosure x (y , fy≡x) = equivFun (DownwardClosureMembership x) $ ∣ y , subst (_≤ f y) fy≡x (rfl _) ∣₁
+
+      is⊆UpwardClosure : S ⊆ₑ UpwardClosure
+      is⊆UpwardClosure x (y , fy≡x) = equivFun (UpwardClosureMembership x) $ ∣ y , subst (f y ≤_) fy≡x (rfl _) ∣₁
+
+      -- universal property
+      module _ (S' : Embedding ⟨ P ⟩ ℓ''') (S⊆S' : S ⊆ₑ S') where
+        DownwardClosureUniversal : isDownset S' → DownwardClosure ⊆ₑ S'
+        DownwardClosureUniversal SDown x x∈D = ∃-rec (isProp∈ₑ _ S') (λ y x≤y →
+            let fib = S⊆S' (f y) (y , refl) in
+            SDown (fib .fst) x (subst (x ≤_) (sym (fib .snd)) x≤y)
+          ) (invEq (DownwardClosureMembership x) x∈D)
+
+        UpwardClosureUniversal : isUpset S' → UpwardClosure ⊆ₑ S'
+        UpwardClosureUniversal SUp x x∈U = ∃-rec (isProp∈ₑ _ S') (λ y y≤x →
+            let fib = S⊆S' (f y) (y , refl) in
+            SUp (fib .fst) x (subst (_≤ x) (sym (fib .snd)) y≤x)
+          ) (invEq (UpwardClosureMembership x) x∈U)
+
+    module _ (A : Embedding ⟨ P ⟩ ℓ₀) (B : Embedding ⟨ P ⟩ ℓ₁) (A⊆B : A ⊆ₑ B) where
+      DownwardClosureInclusion : DownwardClosure A ⊆ₑ DownwardClosure B
+      DownwardClosureInclusion = DownwardClosureUniversal A (DownwardClosure B) (
+          isTrans⊆ₑ A B (DownwardClosure B) A⊆B (is⊆DownwardClosure B)
+        ) (isDownsetDownwardClosure B)
+
+      UpwardClosureInclusion : UpwardClosure A ⊆ₑ UpwardClosure B
+      UpwardClosureInclusion = UpwardClosureUniversal A (UpwardClosure B) (
+          isTrans⊆ₑ A B (UpwardClosure B) A⊆B (is⊆UpwardClosure B)
+        ) (isUpsetUpwardClosure B)
 
     module _
       (S : Embedding ⟨ P ⟩ (ℓ-max ℓ ℓ'))

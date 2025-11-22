@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Algebra.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -10,8 +9,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.SIP
+open import Cubical.Foundations.SIP using (⟨_⟩)
 
 open import Cubical.Data.Sigma
 
@@ -185,57 +183,15 @@ module AlgebraEquivs where
           (λ g → isPropIsAlgebraHom _ (B .snd) g (C .snd))
           (isoOnTypes .leftInv (g .fst))
 
--- the Algebra version of uaCompEquiv
-module AlgebraUAFunctoriality where
- open AlgebraStr
- open AlgebraEquivs
-
- Algebra≡ : (A B : Algebra R ℓ') → (
-   Σ[ p ∈ ⟨ A ⟩ ≡ ⟨ B ⟩ ]
-   Σ[ q0 ∈ PathP (λ i → p i) (0a (snd A)) (0a (snd B)) ]
-   Σ[ q1 ∈ PathP (λ i → p i) (1a (snd A)) (1a (snd B)) ]
-   Σ[ r+ ∈ PathP (λ i → p i → p i → p i) (_+_ (snd A)) (_+_ (snd B)) ]
-   Σ[ r· ∈ PathP (λ i → p i → p i → p i) (_·_ (snd A)) (_·_ (snd B)) ]
-   Σ[ s- ∈ PathP (λ i → p i → p i) (-_ (snd A)) (-_ (snd B)) ]
-   Σ[ s⋆ ∈ PathP (λ i → ⟨ R ⟩ → p i → p i) (_⋆_ (snd A)) (_⋆_ (snd B)) ]
-   PathP (λ i → IsAlgebra R (q0 i) (q1 i) (r+ i) (r· i) (s- i) (s⋆ i)) (isAlgebra (snd A))
-                                                                     (isAlgebra (snd B)))
-   ≃ (A ≡ B)
- Algebra≡ A B = isoToEquiv theIso
-   where
-   open Iso
-   theIso : Iso _ _
-   fun theIso (p , q0 , q1 , r+ , r· , s- , s⋆ , t) i = p i
-                 , algebrastr (q0 i) (q1 i) (r+ i) (r· i) (s- i) (s⋆ i) (t i)
-   inv theIso x = cong ⟨_⟩ x , cong (0a ∘ snd) x , cong (1a ∘ snd) x
-                , cong (_+_ ∘ snd) x , cong (_·_ ∘ snd) x , cong (-_ ∘ snd) x , cong (_⋆_ ∘ snd) x
-                , cong (isAlgebra ∘ snd) x
-   rightInv theIso _ = refl
-   leftInv theIso _ = refl
-
- caracAlgebra≡ : (p q : A ≡ B) → cong ⟨_⟩ p ≡ cong ⟨_⟩ q → p ≡ q
- caracAlgebra≡ {A = A} {B = B} p q P =
-   sym (transportTransport⁻ (ua (Algebra≡ A B)) p)
-                                    ∙∙ cong (transport (ua (Algebra≡ A B))) helper
-                                    ∙∙ transportTransport⁻ (ua (Algebra≡ A B)) q
-     where
-     helper : transport (sym (ua (Algebra≡ A B))) p ≡ transport (sym (ua (Algebra≡ A B))) q
-     helper = Σ≡Prop
-                (λ _ → isPropΣ
-                          (isOfHLevelPathP' 1 (is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ λ _ → is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set (snd B)) _ _)
-                          λ _ → isOfHLevelPathP 1 (isPropIsAlgebra _ _ _ _ _ _ _) _ _)
-               (transportRefl (cong ⟨_⟩ p) ∙ P ∙ sym (transportRefl (cong ⟨_⟩ q)))
-
- uaCompAlgebraEquiv : (f : AlgebraEquiv A B) (g : AlgebraEquiv B C)
-                  → uaAlgebra (compAlgebraEquiv f g) ≡ uaAlgebra f ∙ uaAlgebra g
- uaCompAlgebraEquiv f g = caracAlgebra≡ _ _ (
-   cong ⟨_⟩ (uaAlgebra (compAlgebraEquiv f g))
-     ≡⟨ uaCompEquiv _ _ ⟩
-   cong ⟨_⟩ (uaAlgebra f) ∙ cong ⟨_⟩ (uaAlgebra g)
-     ≡⟨ sym (cong-∙ ⟨_⟩ (uaAlgebra f) (uaAlgebra g)) ⟩
-   cong ⟨_⟩ (uaAlgebra f ∙ uaAlgebra g) ∎)
+isSetAlgebraStr : (A : Type ℓ') → isSet (AlgebraStr R A)
+isSetAlgebraStr A =
+  let open AlgebraStr
+  in isOfHLevelSucIfInhabited→isOfHLevelSuc 1 λ str →
+  isOfHLevelRetractFromIso 2 AlgebraStrIsoΣ $
+  isSetΣ (str .is-set) λ _ →
+  isSetΣ (str .is-set) λ _ →
+  isSetΣ (isSet→ (isSet→ (str .is-set))) λ _ →
+  isSetΣ (isSet→ (isSet→ (str .is-set))) λ _ →
+  isSetΣ (isSet→ (str .is-set)) (λ _ →
+  isSetΣSndProp (isSet→ (isSet→ (str .is-set))) λ _ →
+  isPropIsAlgebra _ _ _ _ _ _ _)

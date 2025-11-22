@@ -7,7 +7,6 @@ This file contains:
 - Conversion functions between different notions of group morphisms
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.MorphismProperties where
 
 open import Cubical.Foundations.Prelude

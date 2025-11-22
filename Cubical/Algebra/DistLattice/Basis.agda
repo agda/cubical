@@ -1,7 +1,6 @@
 {-
  Definition of a basis of a distributive lattice as a generating sub-meet-semilattice
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.DistLattice.Basis where
 
 open import Cubical.Foundations.Prelude

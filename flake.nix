@@ -8,20 +8,20 @@
     flake = false;
   };
   inputs.agda = {
-    url = "github:agda/agda/v2.6.4.1";
+    url = "github:agda/agda";
     inputs = {
       nixpkgs.follows = "nixpkgs";
-      flake-utils.follows = "flake-utils";
     };
   };
 
   outputs = { self, flake-compat, flake-utils, nixpkgs, agda }:
     let
       inherit (nixpkgs.lib) cleanSourceWith hasSuffix;
+
       overlay = final: prev: {
         cubical = final.agdaPackages.mkDerivation rec {
           pname = "cubical";
-          version = "0.7";
+          version = "0.9";
 
           src = cleanSourceWith {
             filter = name: type:
@@ -47,7 +47,8 @@
         };
         agdaWithCubical = final.agdaPackages.agda.withPackages [final.cubical];
       };
-      overlays = [ agda.overlay overlay ];
+
+      overlays = [ agda.overlays.default overlay ];
     in
     { overlays.default = overlay; } //
     flake-utils.lib.eachDefaultSystem (system:

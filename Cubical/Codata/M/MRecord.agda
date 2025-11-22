@@ -2,7 +2,7 @@
 
 -}
 
-{-# OPTIONS --safe --guardedness #-}
+{-# OPTIONS --guardedness #-}
 
 module Cubical.Codata.M.MRecord where
 

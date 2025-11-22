@@ -6,7 +6,6 @@ Note that this uses the HoTT book's indexing, so it will be off
  from `∥_∥_` in HITs.Truncation.Base by -2
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Truncation.Base where
 
 open import Cubical.Data.NatMinusOne

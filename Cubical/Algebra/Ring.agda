@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Ring where
 
 open import Cubical.Algebra.Ring.Base public
