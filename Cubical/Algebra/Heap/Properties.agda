@@ -92,14 +92,14 @@ StructureGroup H = toldYaSo inhab module StructureGroup where
 
   φ : ∀ e e' → GroupHom (fromPoint e) (fromPoint e')
   φ e e' .fst x = [ e' , e , x ]
-  φ e e' .snd = makeIsGroupHom λ x y → 
+  φ e e' .snd = makeIsGroupHom λ x y →
     [ e' , e , [ x , e , y ] ]               ≡⟨ assoc e' e x e y ⟩
     [ [ e' , e , x ] , e , y ]               ≡⟨ cong [ [ e' , e , x ] ,_, y ] (sym (idr e e')) ⟩
     [ [ e' , e , x ] , [ e , e' , e' ] , y ] ≡⟨ assocr [ e' , e , x ] e' e' e y ⟩
     [ [ e' , e , x ] , e' , [ e' , e , y ] ] ∎
 
   φ-coh : ∀ e e' e'' x → φ e' e'' .fst (φ e e' .fst x) ≡ φ e e'' .fst x
-  φ-coh e e' e'' x = 
+  φ-coh e e' e'' x =
     [ e'' , e' , [ e' , e , x ] ] ≡⟨ sym (assocr e'' e' e' e x) ⟩
     [ e'' , [ e , e' , e' ] , x ] ≡⟨ cong [ e'' ,_, x ] (idr e e') ⟩
     [ e'' , e , x ]               ∎
@@ -141,7 +141,7 @@ PointedHeap≡ eqv p = cong₂ _,_ (uaHeap eqv) (ua-gluePath _ p)
 GroupsArePointedHeaps : Group ℓ ≃ PointedHeap ℓ
 GroupsArePointedHeaps {ℓ} = isoToEquiv asIso module GroupsArePointedHeaps where
   open Iso
-  
+
   asIso : Iso (Group ℓ) (PointedHeap ℓ)
   asIso .fun G = GroupHeap G , G .snd .GroupStr.1g
   asIso .inv (H , e) = StructureGroup.fromPoint H e
