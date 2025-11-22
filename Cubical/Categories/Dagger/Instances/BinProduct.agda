@@ -27,17 +27,17 @@ BinProdDaggerStr dagC dagD .is-dag .†-invol (f , g) = ≡-× (dagC .†-invol 
 BinProdDaggerStr dagC dagD .is-dag .†-id = ≡-× (dagC .†-id) (dagD .†-id)
 BinProdDaggerStr dagC dagD .is-dag .†-seq (f , g) (f' , g') = ≡-× (dagC .†-seq f f') (dagD .†-seq g g')
 
-DagBinProd _×†_ : †Category ℓ ℓ' → †Category ℓ'' ℓ''' → †Category (ℓ-max ℓ ℓ'') (ℓ-max ℓ' ℓ''')
-DagBinProd C D .cat = C .cat ×C D .cat
-DagBinProd C D .dagstr = BinProdDaggerStr (C .dagstr) (D .dagstr)
-_×†_ = DagBinProd
+†BinProd _×†_ : †Category ℓ ℓ' → †Category ℓ'' ℓ''' → †Category (ℓ-max ℓ ℓ'') (ℓ-max ℓ' ℓ''')
+†BinProd C D .cat = C .cat ×C D .cat
+†BinProd C D .dagstr = BinProdDaggerStr (C .dagstr) (D .dagstr)
+_×†_ = †BinProd
 
 module _ (C : †Category ℓ ℓ') (D : †Category ℓ'' ℓ''') where
-  †Fst : DagFunctor (C ×† D) C
+  †Fst : †Functor (C ×† D) C
   †Fst .fst = Fst (C .cat) (D .cat)
   †Fst .snd .F-† (f , g) = refl
 
-  †Snd : DagFunctor (C ×† D) D
+  †Snd : †Functor (C ×† D) D
   †Snd .fst = Snd (C .cat) (D .cat)
   †Snd .snd .F-† (f , g) = refl
 
@@ -45,24 +45,24 @@ module _ where
   private variable
     B C D E : †Category ℓ ℓ'
 
-  _,†F_ : DagFunctor C D → DagFunctor C E → DagFunctor C (D ×† E)
+  _,†F_ : †Functor C D → †Functor C E → †Functor C (D ×† E)
   (F ,†F G) .fst = F .fst ,F G .fst
   (F ,†F G) .snd .F-† f = ≡-× (F .snd .F-† f) (G .snd .F-† f)
 
-  _×†F_ : DagFunctor B D → DagFunctor C E → DagFunctor (B ×† C) (D ×† E)
+  _×†F_ : †Functor B D → †Functor C E → †Functor (B ×† C) (D ×† E)
   _×†F_ {B = B} {C = C} F G = (F ∘†F †Fst B C) ,†F (G ∘†F †Snd B C)
 
-  †Δ : DagFunctor C (C ×† C)
+  †Δ : †Functor C (C ×† C)
   †Δ = †Id ,†F †Id
 
 module _ (C : †Category ℓ ℓ') (D : †Category ℓ'' ℓ''') where
-  †Swap : DagFunctor (C ×† D) (D ×† C)
+  †Swap : †Functor (C ×† D) (D ×† C)
   †Swap = †Snd C D ,†F †Fst C D
 
-  †Linj : ob D → DagFunctor C (C ×† D)
+  †Linj : ob D → †Functor C (C ×† D)
   †Linj d = †Id ,†F †Constant d
 
-  †Rinj : ob C → DagFunctor D (C ×† D)
+  †Rinj : ob C → †Functor D (C ×† D)
   †Rinj c = †Constant c ,†F †Id
 
   open areInv

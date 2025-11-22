@@ -19,47 +19,47 @@ private variable
 open †Category
 
 module _ (C : †Category ℓC ℓC') (D : †Category ℓD ℓD') where
-  record IsDagFunctor (F : Functor (C .cat) (D .cat)) : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
+  record Is†Functor (F : Functor (C .cat) (D .cat)) : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
     no-eta-equality
     field
       F-† : ∀ {x y} (f : C .cat [ x , y ]) → F ⟪ f †[ C ] ⟫ ≡ F ⟪ f ⟫ †[ D ]
 
-  open IsDagFunctor public
+  open Is†Functor public
 
-  isPropIsDagFunctor : ∀ F → isProp (IsDagFunctor F)
-  isPropIsDagFunctor F a b i .F-† f = D .isSetHom _ _ (a .F-† f) (b .F-† f) i
+  isPropIs†Functor : ∀ F → isProp (Is†Functor F)
+  isPropIs†Functor F a b i .F-† f = D .isSetHom _ _ (a .F-† f) (b .F-† f) i
 
-  DagFunctor : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
-  DagFunctor = Σ[ F ∈ Functor (C .cat) (D .cat) ] IsDagFunctor F
+  †Functor : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
+  †Functor = Σ[ F ∈ Functor (C .cat) (D .cat) ] Is†Functor F
 
 open Functor
 
-†Id : DagFunctor C C
+†Id : †Functor C C
 †Id .fst = Id
 †Id .snd .F-† f = refl
 
-†FuncComp : DagFunctor C D → DagFunctor D E → DagFunctor C E
+†FuncComp : †Functor C D → †Functor D E → †Functor C E
 †FuncComp F G .fst = G .fst ∘F F .fst
 †FuncComp {C = C} {D = D} {E = E} F G .snd .F-† f =
   G .fst ⟪ F .fst ⟪ f †[ C ] ⟫ ⟫ ≡⟨ cong (G .fst .F-hom) (F .snd .F-† f) ⟩
   G .fst ⟪ F .fst ⟪ f ⟫ †[ D ] ⟫ ≡⟨ G .snd .F-† (F .fst .F-hom f) ⟩
   G .fst ⟪ F .fst ⟪ f ⟫ ⟫ †[ E ] ∎
 
-_∘†F_ : DagFunctor D E → DagFunctor C D → DagFunctor C E
+_∘†F_ : †Functor D E → †Functor C D → †Functor C E
 G ∘†F F = †FuncComp F G
 
-†Func≡ : (F G : DagFunctor C D) → F .fst ≡ G .fst → F ≡ G
-†Func≡ {C} {D} F G = Σ≡Prop (isPropIsDagFunctor C D)
+†Func≡ : (F G : †Functor C D) → F .fst ≡ G .fst → F ≡ G
+†Func≡ {C} {D} F G = Σ≡Prop (isPropIs†Functor C D)
 
 open †Category
 
-†Constant : ob D → DagFunctor C D
+†Constant : ob D → †Functor C D
 †Constant {D} d .fst = Constant _ _ d
 †Constant {D} d .snd .F-† _ = sym (D .†-id)
 
 open NatTrans
 
-NT† : (F G : DagFunctor C D) → NatTrans (F .fst) (G .fst) → NatTrans (G .fst) (F .fst)
+NT† : (F G : †Functor C D) → NatTrans (F .fst) (G .fst) → NatTrans (G .fst) (F .fst)
 NT† {C} {D} F G n .N-ob x = n ⟦ x ⟧ †[ D ]
 NT† {C} {D} F G n .N-hom {x} {y} f =
   G .fst ⟪ f ⟫ D.⋆ n ⟦ y ⟧ D.†         ≡⟨ congL D._⋆_ (sym (D .†-invol (G .fst ⟪ f ⟫))) ⟩

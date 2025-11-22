@@ -27,15 +27,14 @@ module _ (†C : †Category ℓ ℓ') where
   open CategoryPath
 
   -- Every dagger category is equal to its opposite
-  dagCat≡op : C ≡ C ^op
-  dagCat≡op = CategoryPath.mk≡ λ where
+  †Cat≡op : C ≡ C ^op
+  †Cat≡op = CategoryPath.mk≡ λ where
     .ob≡ → refl
-    .Hom≡ → funExt λ x → funExt λ y →
-      TypeIso.isoToPath λ where
-        .TypeIso.fun → _†
-        .TypeIso.inv → _†
-        .TypeIso.leftInv → †-invol
-        .TypeIso.rightInv → †-invol
+    .Hom≡ → funExt λ x → funExt λ y → TypeIso.isoToPath λ where
+      .TypeIso.fun → _†
+      .TypeIso.inv → _†
+      .TypeIso.leftInv → †-invol
+      .TypeIso.rightInv → †-invol
     .id≡ → implicitFunExt (toPathP (transportRefl (id †) ∙ †-id))
     .⋆≡ → implicitFunExt $ implicitFunExt $ implicitFunExt $ toPathP $ funExt λ f → funExt λ g →
       transport refl ((transport refl f † ⋆ transport refl g †) †) ≡⟨ transportRefl _ ⟩
@@ -51,23 +50,23 @@ module _ (†C : †Category ℓ ℓ') where
   open NatTrans
   open UnitCounit.TriangleIdentities
 
-  dagCatEquivOp : AdjointEquivalence C (C ^op)
-  dagCatEquivOp .fun .F-ob = idfun _
-  dagCatEquivOp .fun .F-hom = _†
-  dagCatEquivOp .fun .F-id = †-id
-  dagCatEquivOp .fun .F-seq = †-seq
-  dagCatEquivOp .inv .F-ob = idfun _
-  dagCatEquivOp .inv .F-hom = _†
-  dagCatEquivOp .inv .F-id = †-id
-  dagCatEquivOp .inv .F-seq = flip †-seq
-  dagCatEquivOp .η .trans .N-ob _ = id
-  dagCatEquivOp .η .trans .N-hom f = ⋆IdR f ∙∙ sym (†-invol f) ∙∙ sym (⋆IdL ((f †) †))
-  dagCatEquivOp .η .nIso _ = idCatIso .snd
-  dagCatEquivOp .ε .trans .N-ob _ = id
-  dagCatEquivOp .ε .trans .N-hom f = ⋆IdL ((f †) †) ∙∙ †-invol f ∙∙ sym (⋆IdR f)
-  dagCatEquivOp .ε .nIso _ = idCatIso .snd
-  dagCatEquivOp .triangleIdentities .Δ₁ _ = ⋆IdL _ ∙ †-id
-  dagCatEquivOp .triangleIdentities .Δ₂ _ = ⋆IdL _ ∙ †-id
+  †CatEquivOp : AdjointEquivalence C (C ^op)
+  †CatEquivOp .fun .F-ob = idfun _
+  †CatEquivOp .fun .F-hom = _†
+  †CatEquivOp .fun .F-id = †-id
+  †CatEquivOp .fun .F-seq = †-seq
+  †CatEquivOp .inv .F-ob = idfun _
+  †CatEquivOp .inv .F-hom = _†
+  †CatEquivOp .inv .F-id = †-id
+  †CatEquivOp .inv .F-seq = flip †-seq
+  †CatEquivOp .η .trans .N-ob _ = id
+  †CatEquivOp .η .trans .N-hom f = ⋆IdR f ∙∙ sym (†-invol f) ∙∙ sym (⋆IdL ((f †) †))
+  †CatEquivOp .η .nIso _ = idCatIso .snd
+  †CatEquivOp .ε .trans .N-ob _ = id
+  †CatEquivOp .ε .trans .N-hom f = ⋆IdL ((f †) †) ∙∙ †-invol f ∙∙ sym (⋆IdR f)
+  †CatEquivOp .ε .nIso _ = idCatIso .snd
+  †CatEquivOp .triangleIdentities .Δ₁ _ = ⋆IdL _ ∙ †-id
+  †CatEquivOp .triangleIdentities .Δ₂ _ = ⋆IdL _ ∙ †-id
 
 module †Morphisms (†C : †Category ℓ ℓ') where
   open †Category †C renaming (cat to C)
