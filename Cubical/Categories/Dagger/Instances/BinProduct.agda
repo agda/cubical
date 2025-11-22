@@ -1,5 +1,3 @@
-{-# OPTIONS --safe #-}
-
 module Cubical.Categories.Dagger.Instances.BinProduct where
 
 open import Cubical.Foundations.Prelude

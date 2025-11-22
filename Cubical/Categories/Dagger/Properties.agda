@@ -1,5 +1,3 @@
-{-# OPTIONS --safe #-}
-
 module Cubical.Categories.Dagger.Properties where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --hidden-argument-puns #-}
+{-# OPTIONS --hidden-argument-puns #-}
 
 module Cubical.Categories.Dagger.Functor where
 
@@ -40,7 +40,7 @@ open Functor
 
 †FuncComp : †Functor C D → †Functor D E → †Functor C E
 †FuncComp F G .fst = G .fst ∘F F .fst
-†FuncComp {C = C} {D = D} {E = E} F G .snd .F-† f =
+†FuncComp {C} {D} {E} F G .snd .F-† f =
   G .fst ⟪ F .fst ⟪ f †[ C ] ⟫ ⟫ ≡⟨ cong (G .fst .F-hom) (F .snd .F-† f) ⟩
   G .fst ⟪ F .fst ⟪ f ⟫ †[ D ] ⟫ ≡⟨ G .snd .F-† (F .fst .F-hom f) ⟩
   G .fst ⟪ F .fst ⟪ f ⟫ ⟫ †[ E ] ∎
