@@ -544,6 +544,10 @@ min-0< (pos (suc m)) (pos (suc n)) p q with m ℕ.<ᵇ n
 ... | false = tt
 ... | true  = tt
 
+0≤x² : ∀ n → 0 ≤ n ℤ.· n
+0≤x² (pos n)    = zero-≤pos
+0≤x² (negsuc n) = zero-≤pos
+
 ≤Dec : ∀ m n → Dec (m ≤ n)
 ≤Dec (pos m)    (pos n)    with ℕ.≤Dec m n
 ... | yes p = yes (ℕ≤→≤ p)

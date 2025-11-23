@@ -344,20 +344,15 @@ sign = Rec.go w
 <→sign x =
  let ((y , _) , (y' , _) , (y'' , _)) = <≃sign x
  in (y , y' , y'')
-{-
+
 abs≡sign· : ∀ x → abs x ≡ x · (sign x)
 abs≡sign· x = abs'≡abs x ∙ ElimProp.go w x
  where
  w : ElimProp (λ z → abs' z ≡ z · sign z)
  w .ElimProp.isPropB _ = isSetℚ _ _
- w .ElimProp.f x@(ℤ.pos zero , snd₁) = decℚ?
- w .ElimProp.f x@(ℤ.pos (suc n) , snd₁) =
-  eq/ _ _ $
-    cong₂ ℤ._·_ (sym (ℤ.·IdR _)) (cong ℕ₊₁→ℤ (·₊₁-identityʳ (snd₁)))
-
- w .ElimProp.f x@(ℤ.negsuc n , snd₁) = eq/ _ _
-   $ cong₂ ℤ._·_ (ℤ.·Comm (ℤ.negsuc 0) (ℤ.negsuc n) )
-      (cong ℕ₊₁→ℤ (·₊₁-identityʳ (snd₁)))
+ w .ElimProp.f x@(ℤ.pos zero , snd₁)    = decℚ?
+ w .ElimProp.f x@(ℤ.pos (suc n) , snd₁) = sym (·CancelR 1)
+ w .ElimProp.f x@(ℤ.negsuc n , snd₁)    = sym (·CancelR 1)
 
 absPos : ∀ x → 0 < x → abs x ≡ x
 absPos x 0<x = abs≡sign· x ∙∙ cong (x ·_) (fst (<→sign x) 0<x)  ∙∙ (·IdR x)
@@ -598,7 +593,6 @@ inClamps L L' x u v =
 -abs' : ∀ x → abs' x ≡ abs' (- x)
 -abs' x = sym (abs'≡abs x) ∙∙ -abs x ∙∙ abs'≡abs (- x)
 
-
 -≤abs' : ∀ x → - x ≤ abs' x
 -≤abs' x = subst (- x ≤_) (sym (-abs' x)) (≤abs' (- x))
 
@@ -724,6 +718,7 @@ invℚ₊-invol = uncurry (ElimProp.go w)
 equivInvℚ₊ : ℚ₊ ≃ ℚ₊
 equivInvℚ₊ = involEquiv {f = invℚ₊} λ x → ℚ₊≡ (invℚ₊-invol x)
 
+{-
 x·invℚ₊[x] : ∀ x → fst x · fst (invℚ₊ x) ≡ 1
 x·invℚ₊[x] = uncurry (ElimProp.go w)
  where

@@ -657,35 +657,28 @@ abs' = SetQuotient.Rec.go w
      ∙∙ cong (λ x → ℤ.pos (ℤ.abs x)) r
      ∙∙ sym ((sym (ℤ.pos·pos (ℤ.abs a') (suc b)) ∙
       cong ℤ.pos (sym (ℤ.abs· (a') (ℕ₊₁→ℤ (1+ b))) ))))
-{-
-abs'≡abs : ∀ x → abs x ≡ abs' x
-abs'≡abs = SetQuotient.ElimProp.go w
- where
- w : SetQuotient.ElimProp (λ z → abs z ≡ abs' z)
- w .SetQuotient.ElimProp.isPropB _ = isSetℚ _ _
- w .SetQuotient.ElimProp.f (a , 1+ b) = eq/ _ _  ww
-  where
 
-  ww : ℤ.max (a ℤ.· ℕ₊₁→ℤ (1 ·₊₁ 1+ b))
-              ((-1 ·ℤ a)  ℤ.· ℕ₊₁→ℤ (1+ b)) ℤ.· ℤ.pos (suc b) ≡
-         ℤ.pos (ℤ.abs a) ℤ.·
-           ℕ₊₁→ℤ ((1+ b) ·₊₁ (1 ·₊₁ 1+ b))
-  ww = cong (ℤ._· ℤ.pos (suc b))
-            ({! ℤ.max (a ·ℤ ℕ₊₁→ℤ ((1+ 0) ·₊₁ (1+ b)))
-      (negsuc 0 ·ℤ a ·ℤ ℕ₊₁→ℤ (1+ b))
-      ≡ ℤ.max a (-ℤ a) ·ℤ ℕ₊₁→ℤ (1+ b) ·ℤ ℕ₊₁→ℤ (1+ b)  !} ∙∙
-       (λ i → ℤ.·Assoc (ℤ.abs-max a (~ i)) (ℕ₊₁→ℤ (1+ b))
-          (ℕ₊₁→ℤ (·₊₁-identityˡ (1+ b) (~ i))) (~ i)) ∙∙
-           {! cong (ℤ.pos (ℤ.abs a) ℤ.·_)
-            (sym (pos·pos (suc b) (ℕ₊₁→ℕ (·₊₁-identityˡ (1+ b) (~ i1))))) !})
-  --  cong (ℤ._· ℤ.pos (suc b))
-  --        ((λ i → ℤ.max (a ℤ.· ℕ₊₁→ℤ (·₊₁-identityˡ (1+ b) i))
-  --             ((ℤ.- a)  ℤ.· ℕ₊₁→ℤ (1+ b))) ∙ sym (ℤ.·DistPosLMax a ((ℤ.- a)) (suc b)) ) ∙∙
-  --     (λ i → ℤ.·Assoc (ℤ.abs-max a (~ i)) (ℕ₊₁→ℤ (1+ b))
-  --        (ℕ₊₁→ℤ (·₊₁-identityˡ (1+ b) (~ i))) (~ i)) ∙∙
-  --         cong (ℤ.pos (ℤ.abs a) ℤ.·_)
-  --          (sym (pos·pos (suc b) (ℕ₊₁→ℕ (·₊₁-identityˡ (1+ b) (~ i1)))))
--}
+abs'≡abs : ∀ x → abs x ≡ abs' x
+abs'≡abs = SetQuotient.ElimProp.go λ where
+  .SetQuotient.ElimProp.isPropB _ → isSetℚ _ _
+  .SetQuotient.ElimProp.f (a , b) →
+    abs [ a / b ]
+                            ≡⟨⟩
+    max [ a / b ] [ -1 ·ℤ a / 1 ·₊₁ b ]
+                            ≡[ i ]⟨ max [ a / b ] [ ℤ.-1·x≡-x a i / ·₊₁-identityˡ b i ] ⟩
+    max [ a / b ] [ -ℤ a / b ]
+                            ≡⟨⟩
+    [ ℤ.max (a ·ℤ ℕ₊₁→ℤ b) (-ℤ a ·ℤ ℕ₊₁→ℤ b) / b ·₊₁ b ]
+                            ≡⟨ sym $ cong [_/ _ ] (ℤ.·DistPosLMax a (-ℤ a) (ℕ₊₁→ℕ b)) ⟩
+    [ ℤ.max a (-ℤ a) ·ℤ (ℕ₊₁→ℤ b) / b ·₊₁ b ]
+                            ≡⟨ ·CancelR b ⟩
+    [ ℤ.max a (-ℤ a) / b ]
+                            ≡⟨ sym $ cong [_/ b ] (ℤ.abs-max a) ⟩
+    [ pos ∣ a ∣ℤ / b ]
+                            ≡⟨⟩
+    abs' [ a / b ]
+                            ∎
+
 
 ℤ+→ℚ+ : ∀ m n → [ m / 1 ] + [ n / 1 ] ≡ [ m ℤ.+ n / 1 ]
 ℤ+→ℚ+ m n = cong [_/ 1 ] (cong₂ ℤ._+_ (ℤ.·IdR m) (ℤ.·IdR n))
