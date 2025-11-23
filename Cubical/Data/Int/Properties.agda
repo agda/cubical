@@ -11,9 +11,10 @@ open import Cubical.Relation.Nullary
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
-  hiding   (+-assoc ; +-comm ; min ; max ; minComm ; maxComm)
+  hiding   (+-assoc ; +-comm ; minComm ; maxComm)
   renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ;
-            ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
+            ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ ;
+            min to ℕmin ; max to ℕmax )
 open import Cubical.Data.Sum
 open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
@@ -1509,3 +1510,29 @@ sumFinℤHom {n = n} = sumFinGenHom _+_ 0 (λ _ → refl) +Comm +Assoc n
 clamp : ℤ → ℕ
 clamp (pos n) = n
 clamp (negsuc n) = zero
+
+
+abs-max : ∀ n → pos (abs n) ≡ max n (- n)
+abs-max (pos zero) = refl
+abs-max (pos (suc n)) = refl
+abs-max (negsuc n) = refl
+
+min-pos-pos : ∀ m n → min (pos m) (pos n) ≡ pos (ℕmin m n)
+min-pos-pos zero n = refl
+min-pos-pos (suc m) zero = refl
+min-pos-pos (suc m) (suc n) = cong sucℤ (min-pos-pos m n) ∙ sym (cong pos (minSuc {m} {n}))
+
+max-pos-pos : ∀ m n → max (pos m) (pos n) ≡ pos (ℕmax m n)
+max-pos-pos zero n = refl
+max-pos-pos (suc m) zero = refl
+max-pos-pos (suc m) (suc n) = cong sucℤ (max-pos-pos m n) ∙ sym (cong pos (maxSuc {m} {n}))
+
+sign : ℤ → ℤ
+sign (pos zero) = 0
+sign (pos (suc n)) = 1
+sign (negsuc n) = -1
+
+sign·abs : ∀ m → sign m · pos (abs m) ≡ m
+sign·abs (pos zero) = refl
+sign·abs (pos (suc n)) = refl
+sign·abs (negsuc n) = refl

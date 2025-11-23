@@ -1,0 +1,1455 @@
+{-# OPTIONS --safe #-}
+
+module Cubical.HITs.CauchyReals.ShapeMore where
+
+open import Cubical.Foundations.Prelude renaming (Cube to PreludeCube)
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Powerset
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.Univalence
+
+import Cubical.Functions.Logic as L
+open import Cubical.Functions.FunExtEquiv
+open import Cubical.Functions.Surjection
+open import Cubical.Functions.Embedding
+
+open import Cubical.Data.Unit
+open import Cubical.Data.Bool as 𝟚 hiding (_≤_)
+open import Cubical.Data.Nat as ℕ hiding (_·_;_+_)
+-- open import Cubical.Data.Fin
+
+import Cubical.Data.Nat.Mod as ℕ
+import Cubical.Data.Vec as V
+import Cubical.Data.Nat.Order as ℕ
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sum as ⊎
+open import Cubical.Data.Int as ℤ using (pos;ℤ)
+import Cubical.Data.Int.Order as ℤ
+open import Cubical.Data.Sigma
+
+open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.PropositionalTruncation.Monad
+
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.GroupoidTruncation as GT
+
+open import Cubical.Data.NatPlusOne
+
+open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
+open import Cubical.Data.Rationals.Order as ℚ using
+  ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
+open import Cubical.Data.Rationals.Order.Properties as ℚ
+ using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
+
+
+open import Cubical.HITs.CauchyReals.Base
+open import Cubical.HITs.CauchyReals.Lems
+open import Cubical.HITs.CauchyReals.Closeness
+open import Cubical.HITs.CauchyReals.Lipschitz
+open import Cubical.HITs.CauchyReals.Order
+open import Cubical.HITs.CauchyReals.Continuous
+open import Cubical.HITs.CauchyReals.Multiplication
+open import Cubical.HITs.CauchyReals.Inverse
+open import Cubical.HITs.CauchyReals.Sequence
+open import Cubical.HITs.CauchyReals.Derivative
+open import Cubical.HITs.CauchyReals.Integration
+open import Cubical.HITs.CauchyReals.IntegrationMore
+open import Cubical.HITs.CauchyReals.MeanValue
+open import Cubical.HITs.CauchyReals.Exponentiation
+open import Cubical.HITs.CauchyReals.ExponentiationDer
+open import Cubical.HITs.CauchyReals.ExponentiationMore
+open import Cubical.HITs.CauchyReals.Uniform
+open import Cubical.HITs.CauchyReals.PiNumber
+open import Cubical.HITs.CauchyReals.NthRoot
+open import Cubical.HITs.CauchyReals.Summation
+
+open import Cubical.Algebra.Ring.BigOps
+
+
+open import Cubical.Algebra.CommRing.Properties
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Properties
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.CommRing.Base
+import Cubical.Data.FinData as FD
+
+open import Cubical.HITs.CauchyReals.TrigonometricIdentities
+open import Cubical.HITs.CauchyReals.ArcSin
+
+open import Cubical.HITs.SetQuotients as SQ renaming ([_] to [_]/)
+open import Cubical.HITs.GroupoidQuotients as GQ renaming ([_] to [_]//)
+open import Cubical.Relation.Binary
+open import Cubical.Relation.Nullary
+open import Cubical.HITs.CauchyReals.Circle
+open import Cubical.HITs.CauchyReals.CircleMore
+open import Cubical.HITs.Sn
+open import Cubical.HITs.S1 as S1
+open import Cubical.HITs.Susp
+open import Cubical.Tactics.CommRingSolver
+open import Cubical.Algebra.Group.Instances.Int
+
+-- open import Cubical.Categories.Category
+
+-- open import Cubical.WildCat.Base
+
+open import Cubical.Algebra.Group.ZAction
+
+open import Cubical.Structures.Pointed
+open import Cubical.Structures.Product
+
+import Cubical.Homotopy.Loopspace as Lsp
+import Cubical.Homotopy.Group.Base as HG
+
+open import Cubical.HITs.SequentialColimit as Seq
+open import Cubical.Data.Sequence
+import Cubical.Foundations.Pointed as P
+
+open import Cubical.Foundations.Cubes
+
+-- open import Cubical.Categories.Category renaming (isIso to isCIso)
+-- open import Cubical.Categories.Monoidal
+-- open import Cubical.Categories.Functor
+
+-- open import Cubical.HITs.CauchyReals.BoundaryHIT
+
+open import Cubical.HITs.Truncation as T
+
+open import Cubical.HITs.CauchyReals.Shape
+
+open import Cubical.HITs.EilenbergMacLane1.Base
+
+import Cubical.HITs.EilenbergMacLane1 as EM₁
+
+open import Cubical.Homotopy.EilenbergMacLane.Base
+open import Cubical.Homotopy.EilenbergMacLane.Properties
+
+
+private
+  variable
+   ℓ ℓ' ℓ'' : Level
+   X : Type ℓ
+-- open TensorStr
+
+
+-- module _ (A : P.Pointed₀) where
+
+
+--  ≡QuotEquality : ∀ n → Path
+--   (Σ Type (λ x → ((x × (x → x → x)) × (x → x))))
+   
+--    (∥ ⟨(Lsp.Ω^ (suc n)) A ⟩ ∥₂ ,
+--     (HG.1π (suc n) , HG.·π n) , HG.-π n)
+--    ((⟨(Lsp.Ω^ (suc n)) A ⟩ SQ./ _≡_) ,
+--      ([ refl ]/ ,
+--            setQuotBinOp
+--         (λ _ → refl) (λ _ → refl)
+--         _∙_ λ _ _  _ _ p q →
+--           cong (_∙ _) p ∙ cong (_ ∙_) q)
+--            , (setQuotUnaryOp sym λ _ _ → cong sym))
+--  ≡QuotEquality n = {!!}
+--  -- ΣPathP
+--  --   ({!!} , {!!})
+
+  
+--  ΩGSeq : GSeq (λ n → ⟨ (Lsp.Ω^ (suc n)) A ⟩ ) _≡_  
+--  ΩGSeq .GSeq.isEquivRel≋ n =
+--   BinaryRelation.equivRel (λ _ → refl ) (λ _ _ → sym) λ _ _ _ → _∙_
+--  ΩGSeq .GSeq.obj-inv = sym
+--  ΩGSeq .GSeq.obj-inv-funct _ _ = cong sym
+--  ΩGSeq .GSeq._⊙_ = _∙_
+--  ΩGSeq .GSeq.⊙-sym n = Lsp.EH n
+--  ΩGSeq .GSeq.⊙-functL _ _ _ _ = cong (_∙ _)
+--  ΩGSeq .GSeq.⊙-functR _ _ _ _ = cong (_ ∙_)
+--  ΩGSeq .GSeq.unit = refl
+--  ΩGSeq .GSeq.middleIso = Lsp.IsoΩ× _
+--  ΩGSeq .GSeq.isGrp⊙/₀ =
+--    subst (uncurry λ x → uncurry (uncurry (IsGroup {G = x})))
+--     (≡QuotEquality zero)
+--     (GroupStr.isGroup (snd (HG.πGr 0 A)))
+--  ΩGSeq .GSeq.isAbGrp⊙/ n =
+--    subst (uncurry λ x → uncurry (uncurry (IsAbGroup {A = x})))
+--     (≡QuotEquality (suc n))
+--     (isabgroup (GroupStr.isGroup (snd (HG.πGr (suc n) A)))
+--       (ST.elim2 (λ _ _ → isProp→isSet (ST.squash₂ _ _)) λ a b → cong ∣_∣₂
+--        (Lsp.EH {A = A} n a b)))
+
+--  ΩGSeq .GSeq.middle-⊙ = {!!}
+--  ΩGSeq .GSeq.reflOver≋ n = {!!}
+--  ΩGSeq .GSeq.to-middle-≋ = {!!}
+--  ΩGSeq .GSeq.from-middle-≋ = {!!}
+
+--  ≡QuotGroupIso : ∀ n → GroupIso (GSeq.objGroup ΩGSeq n) (HG.πGr n A)
+--  ≡QuotGroupIso = {!(ΩGSeq (Shape.Shape∙ Se))!}
+
+
+-- open BinaryRelation
+
+-- isOfHLevelSeqColim : (A : Sequence ℓ) (h : HLevel)
+--   → (∀ n → isOfHLevel h (A .Sequence.obj n))
+--   → isOfHLevel h (SeqColim A)
+-- isOfHLevelSeqColim A = {!!}
+
+ColimTruncIso : {A : Sequence ℓ} (h : HLevel)
+   → Iso (T.∥ SeqColim A ∥ h) (SeqColim (truncateSequence h A))
+ColimTruncIso {A = A} h .Iso.fun =
+ T.rec {!c!}
+  (realiseSequenceMap (truncateMap h A))
+ColimTruncIso {A = A} h .Iso.inv = {!!}
+ColimTruncIso {A = A} h .Iso.rightInv = {!!}
+ColimTruncIso {A = A} h .Iso.leftInv = {!!}
+
+module Shape {obj : ℕ → Type}
+         {_≋_ : ∀ {n} → Rel (obj n) (obj n) ℓ-zero}
+         (gSeq : GSeq obj _≋_) where
+ open GSeq gSeq
+
+ module Sh-more (n : ℕ) (A : Type) (ptA : A)
+            (evS₊ : obj n → S₊ (suc n) → A)
+            (evS₊pt : ∀ x → evS₊ x (ptSn (suc n)) ≡ ptA )
+             where
+  open Sh n A ptA evS₊ evS₊pt public
+
+
+  module _ (x y : obj (suc n)) where
+   opaque 
+    evS₊-suc-comp-sq : ∀ (a : S₊ (suc n)) → Square
+      (cong (fst (HG.∙Π {A = (Sh , σ ptA)} {n = suc (suc n)}
+        (evS₊-suc x  , evS₊pt-suc _)
+        (evS₊-suc y  , evS₊pt-suc _))) (merid a))
+      ((spoke (middle (x ⊙ y) .fst) (fst (snd (middle (x ⊙ y))))
+           a
+           ∙∙ (λ _ → σ (evS₊ (middle (x ⊙ y) .fst) a)) ∙∙
+           (λ i₁ →
+              spoke (middle (x ⊙ y) .fst) (snd (snd (middle (x ⊙ y)))) a (~ i₁))))
+      (cong σ (sym (evS₊pt (middle (x ⊙ y) .fst))) ∙' sym (spoke _ _ _))
+      (cong σ (sym (evS₊pt (middle (x ⊙ y) .fst))) ∙' sym (spoke _ _ _))
+    evS₊-suc-comp-sq a =
+
+      compPathR→PathP∙∙
+        (     cong₂ _∙_
+             (evS₊-suc-sq-hlp x a)
+             (evS₊-suc-sq-hlp y a) ∙
+              (λ j → (λ i → evS₊-suc-sq-hlp x a i1 (j ∧ i))
+                 ∙∙ (λ i → evS₊-suc-sq-hlp x a i1 (i ∨ j))
+                  ∙∙ evS₊-suc-sq-hlp y a i1 ) ◁
+
+          hh ∙
+         λ j →
+           ((
+           (cong σ (sym (evS₊pt (middle (x ⊙ y) .fst))) ∙'
+            sym
+            (spoke (middle (x ⊙ y) .fst) (fst (snd (middle (x ⊙ y))))
+             (ptSn (suc n))))
+           )
+        ∙∙
+        (λ i → spoke (middle (x ⊙ y) .fst) (fst (snd (middle (x ⊙ y)))) a i) ∙∙
+        (λ _ → σ (evS₊ (middle (x ⊙ y) .fst) a)) ∙∙
+        (λ i →
+           spoke (middle (x ⊙ y) .fst) (snd (snd (middle (x ⊙ y)))) a (~ i))
+        ∙∙
+        sym
+        (
+           (cong σ (sym (evS₊pt (middle (x ⊙ y) .fst))) ∙'
+            sym
+            (spoke (middle (x ⊙ y) .fst) (snd (snd (middle (x ⊙ y))))
+             (ptSn (suc n))))
+           )))
+       where
+       hhh : ∀ m r → Square
+               (sym (spoke-hub-spoke-pt m r a))
+               ((cong σ (sym (evS₊pt m))) ∙'
+             (sym (spoke m r (ptSn (suc n)))))
+               refl
+               (sym (spoke m r a))
+       hhh m r i j = 
+         hcomp {φ = ~ i ∨ ~ j ∨ j}
+           (λ k →
+             λ {(i = i0) → spoke-hub-spoke-pt m r a (~ j)
+               ;(j = i0) → σ (evS₊pt m (~ i ∨ k))
+               ;(j = i1) → spoke m r a (~ i)
+               })
+           (spoke-hub-sq m r a i (~ j))
+
+       hh : (evS₊-suc-sq-hlp x a i1 ∙∙
+             (refl {x = σ ptA}) ∙∙ evS₊-suc-sq-hlp y a i1)
+             ≡
+                ((((cong
+                   σ (sym (evS₊pt (middle (x ⊙ y) .fst)))) ∙'
+             (sym (spoke (middle (x ⊙ y) .fst)
+                (fst (snd (middle (x ⊙ y))))
+                    (ptSn (suc n)))))
+            ∙∙
+            ((spoke (middle (x ⊙ y) .fst)
+                (fst (snd (middle (x ⊙ y)))) a)
+            ∙∙ refl ∙∙
+            (sym
+               (spoke
+                (middle (x ⊙ y) .fst)
+                 (snd (snd (middle (x ⊙ y)))) a)))
+            ∙∙
+            ((((
+                   spoke (middle (x ⊙ y) .fst)
+                    (snd (snd (middle (x ⊙ y))))
+                   (ptSn (suc n))))
+                   ∙ (cong
+                 σ ((evS₊pt (middle (x ⊙ y) .fst))))))
+               ))
+       hh = {!!}
+            ∙ λ j →
+               (hhh _ (fst (snd (middle (x ⊙ y)))) j
+                 ∙∙ doubleCompPath-filler
+                  (spoke (middle (x ⊙ y) .fst)
+                (fst (snd (middle (x ⊙ y)))) a)
+                refl
+                (sym
+               (spoke
+                (middle (x ⊙ y) .fst)
+                 (snd (snd (middle (x ⊙ y)))) a)) j
+                 ∙∙ sym
+                  (hhh _ (snd (snd (middle (x ⊙ y)))) j))
+    evS₊-suc-comp : ∀ s →
+      fst (HG.∙Π {A = (Sh , σ ptA)}
+        (evS₊-suc x  , evS₊pt-suc _)
+        (evS₊-suc y  , evS₊pt-suc _)) s ≡
+        (evS₊-suc (x ⊙ y)) s
+    evS₊-suc-comp north = cong σ (sym (evS₊pt (middle (x ⊙ y) .fst))) ∙' sym (spoke _ _ _)
+    evS₊-suc-comp south = cong σ (sym (evS₊pt (middle (x ⊙ y) .fst))) ∙' sym (spoke _ _ _)
+    evS₊-suc-comp (merid a i) j = evS₊-suc-comp-sq a j i
+
+
+    evS₊-suc-compPt : 
+
+          PathP
+            (λ i →
+               funExt (evS₊-suc-comp) i (S₊∙ (suc (suc n)) .snd) ≡
+               Sh∙ .snd)
+               (·Susp (S₊∙ (suc n))
+                (evS₊-suc x , evS₊pt-suc x)
+                (evS₊-suc y , evS₊pt-suc y) .snd)
+            (evS₊pt-suc (x ⊙ y))
+    evS₊-suc-compPt i j =
+     evS₊pt-suc (x ⊙ y) (~ i ∨ j)
+
+
+
+
+ ΣTy : ℕ → Type₁
+ ΣTy n = Σ[ X ∈ Type ] ( (Σ[ (ptX , ev) ∈ (X × (obj n → S₊ (suc n) → X)) ]
+         ((x : obj n) → ev x (ptSn (suc n)) ≡ ptX)))
+
+ ΣTy-ev∙ : ∀ n → (X : ΣTy n) →
+    obj n → fst (S₊∙ (suc n) P.→∙ (fst X , fst (fst (snd X))) ∙)
+ ΣTy-ev∙ n X o = snd (fst (snd X)) o , (snd (snd X)) o
+ 
+--  ΣTy-inv : ∀ n → (X : ΣTy n) → ∀ x →
+--    ∣ ΣTy-ev∙ n X (obj-inv x) ∣₂ ≡ HG.-π' n ∣ (ΣTy-ev∙ n X x) ∣₂  
+--  ΣTy-inv = {!!}
+
+--  -- ΣTy-1g : ∀ n → (X : ΣTy n) → 
+--  --   ∣ ΣTy-ev∙ n X (unit) ∣₂ ≡  HG.1π' (suc n)  
+--  -- ΣTy-1g = {!!}
+
+ trunc : ℕ → ∀ n → ΣTy n
+         → ΣTy n
+ trunc h n (X , ((ptX , ev) , (ev-pt))) = 
+  hLevelTrunc h X ,
+  (∣ ptX ∣ₕ ,  (∣_∣ₕ ∘_) ∘ ev) , (cong ∣_∣ₕ ∘ ev-pt) 
+   -- where
+   --  ww : (x y : obj n) →
+   --        HG.∙Π ((λ x₁ → ∣ ev x x₁ ∣ₕ) , (λ i → ∣ ev-pt x i ∣ₕ))
+   --        ((λ x₁ → ∣ ev y x₁ ∣ₕ) , (λ i → ∣ ev-pt y i ∣ₕ))
+   --        ≡ ((λ x₁ → ∣ ev (x ⊙ y) x₁ ∣ₕ) , (λ i → ∣ ev-pt (x ⊙ y) i ∣ₕ))
+   --  ww x y = ΣPathP (funExt ww₁ , {!!})
+   --   where
+   --   ww₁ : (x₁ : S₊∙ (suc n) .fst) →
+   --         Path
+   --         (hLevelTrunc h X)
+   --          (fst
+   --          (HG.∙Π ((λ x₂ → ∣ ev x x₂ ∣ₕ) , (λ i → ∣ ev-pt x i ∣ₕ))
+   --           ((λ x₂ → ∣ ev y x₂ ∣ₕ) , (λ i → ∣ ev-pt y i ∣ₕ)))
+   --          x₁)
+   --           ∣ ev (x ⊙ y) x₁ ∣ₕ
+   --   ww₁ x₁ = {!!} ∙ cong ∣_∣ₕ (cong fst (ev+ x y) ≡$ x₁)
+
+ Sh₀ : ΣTy zero
+ Sh₀ .fst = Unit // λ _ _ _ → _⊙_ {zero} 
+ Sh₀ .snd .fst .fst = [ tt ]//
+ Sh₀ .snd .fst .snd o = S1.rec [ tt ]// (eq// o) 
+ Sh₀ .snd .snd _ = refl
+
+-- EM₁ (objGroup zero)
+--   , (embase , λ o → S1.rec embase (emloop [ o ]/) )
+--   , λ _ → refl
+
+ Shₙ : ∀ n → ΣTy n
+ Shₙ zero = Sh₀
+ Shₙ (suc n) = Sh , (σ (fst (fst (snd (Shₙ-trunc)))) ,
+     evS₊-suc) , (evS₊pt-suc)
+  where
+   Shₙ-trunc = trunc (4 ℕ.+ n) n (Shₙ n)
+   open Sh-more n (fst (Shₙ-trunc)) (fst (fst (snd (Shₙ-trunc))))
+    (snd (fst (snd (Shₙ-trunc))))
+    ((snd (snd (Shₙ-trunc))))
+
+ Shₙ∙ : ℕ → P.Pointed ℓ-zero
+ Shₙ∙ n = fst (Shₙ n) , fst (fst (snd (Shₙ n))) 
+ 
+ σ∙ : ∀ n → Shₙ∙ n P.→∙ Shₙ∙ (suc n)
+ σ∙ n .fst = Sh.σ ∘S ∣_∣
+ σ∙ n .snd = refl
+
+ Shₙ-ev : ∀ {n} → obj n → S₊∙ (suc n) P.→∙ (Shₙ∙ n)
+ Shₙ-ev {n} = ΣTy-ev∙ n (Shₙ n) 
+ 
+ Sh-comp : ∀ n → (o o' : obj n) →
+         
+        (HG.∙Π {A = Shₙ∙ n} (Shₙ-ev o) (Shₙ-ev o'))
+        ≡ (Shₙ-ev (o ⊙ o'))
+ Sh-comp zero o o' =
+   ΣPathP ( (funExt (S1.elim _
+       refl (flipSquare
+         (cong₂ _∙_ (sym (rUnit _)) (sym (rUnit _))
+          ∙ sym (comp'// Unit (λ _ _ _ → _⊙_) o o'))))
+      ) , refl)
+ Sh-comp (suc n) o o' = ΣPathP
+   ((funExt (evS₊-suc-comp o o'))
+     , evS₊-suc-compPt o o')
+
+-- -- evS₊-suc-comp
+   where
+   Shₙ-trunc = trunc (4 ℕ.+ n) n (Shₙ n)
+   open Sh-more n (fst (Shₙ-trunc)) (fst (fst (snd (Shₙ-trunc))))
+    (snd (fst (snd (Shₙ-trunc))))
+    ((snd (snd (Shₙ-trunc))))
+ 
+--  -- Shₙ→S₊∙n→∙ : ∀ n → obj n →  (S₊∙ (suc n) P.→∙ Shₙ∙ (suc n)) 
+--  -- Shₙ→S₊∙n→∙ n o = σ ∘ (snd (fst (snd (Shₙ-trunc)))) o ,
+--  --   cong σ ((fst (snd (snd (Shₙ-trunc)))) _) 
+--  --  where
+--  --   Shₙ-trunc = trunc (4 ℕ.+ n) n (Shₙ n)
+--  --   open Sh-more n (fst (Shₙ-trunc)) (fst (fst (snd (Shₙ-trunc))))
+--  --    (snd (fst (snd (Shₙ-trunc))))
+--  --    (fst (snd (snd (Shₙ-trunc))))
+
+
+--  -- Shₙ→π' : ∀ n → obj n → ⟨ HG.π'Gr n (Shₙ∙ (suc n)) ⟩
+--  -- Shₙ→π' n s = ∣ Shₙ→S₊∙n→∙ n s ∣₂ 
+
+
+ -- Sh-CODE : fst (Shₙ 1) → hSet ℓ-zero 
+ -- Sh-CODE = {!!}
+
+
+ ShSequence : Sequence ℓ-zero
+ ShSequence .Sequence.obj n = fst (Shₙ n)
+ ShSequence .Sequence.map = fst (σ∙ _)
+
+
+ Shape : Type ℓ-zero
+ Shape = SeqColim ShSequence
+
+
+
+ truncatedShConverges : (m : ℕ) → 
+  converges (truncateSequence (2 ℕ.+ m) ShSequence) m
+ truncatedShConverges n zero =
+   subst isEquiv (funExt (T.elim
+    (λ _ →
+      isOfHLevelPath (suc (suc n)) (isOfHLevelTrunc (suc (suc n))) _ _)
+      (λ _ → refl)))
+    (isoToIsEquiv (compIso (truncOfTruncIso (2 ℕ.+ n) 2) Trunc-Sh))
+  where
+
+  Shₙ-trunc = trunc (4 ℕ.+ n) n (Shₙ n)
+  open Sh-more n (fst (Shₙ-trunc)) (fst (fst (snd (Shₙ-trunc))))
+   (snd (fst (snd (Shₙ-trunc))))
+   ((snd (snd (Shₙ-trunc))))
+ truncatedShConverges m k@(suc k') = zzz
+  
+  where
+    n n' : ℕ
+    n = (k ℕ.+ m)
+    n' = k' ℕ.+ m
+    Shₙ-trunc = trunc (4 ℕ.+ n) n (Shₙ n)
+    Shₙ-trunc' = trunc (4 ℕ.+ n') n' (Shₙ n')
+    module M = Sh-more n (fst (Shₙ-trunc)) (fst (fst (snd (Shₙ-trunc))))
+     (snd (fst (snd (Shₙ-trunc))))
+     ((snd (snd (Shₙ-trunc))))
+
+    module M' = Sh-more n' (fst (Shₙ-trunc')) (fst (fst (snd (Shₙ-trunc'))))
+     (snd (fst (snd (Shₙ-trunc'))))
+     ((snd (snd (Shₙ-trunc'))))
+
+
+
+    zzz' : isEquiv {A = T.∥ fst (Shₙ (k ℕ.+ m)) ∥
+                      (suc (suc m))}
+                 {B = T.∥  fst (Shₙ (suc (k ℕ.+ m))) ∥
+                     (suc (suc m))}
+            _
+    zzz' = isoToIsEquiv
+      (compIso
+      (compIso (compIso (truncOfTruncIso (2 ℕ.+ m) (2 ℕ.+ k))
+         (T.mapCompIso
+           (substIso (T.∥ fst (Shₙ (k ℕ.+ m))  ∥_)
+             (cong (suc ∘ suc) (((ℕ.+-suc k (suc m))
+               ∙ (ℕ.+-suc (suc k) m)))))))
+          (truncOfTruncIso (2 ℕ.+ m) k))
+       (compIso (T.mapCompIso {n = 2 ℕ.+ m}
+         ( (compIso (compIso
+           (substIso (T.∥ fst Shₙ-trunc  ∥_)
+            ((ℕ.+-suc k (suc m)) ∙ (ℕ.+-suc (suc k) m))) M.Trunc-Sh)
+           ((substIso
+           (T.∥ fst (Shₙ (suc (k ℕ.+ m))) ∥_)
+           (sym (ℕ.+-suc (suc k) _) ∙
+             sym (ℕ.+-suc k (suc m))))))))
+         ((invIso (truncOfTruncIso (2 ℕ.+ m) k)))))
+
+    zzz : isEquiv {A = T.∥ fst (Shₙ (k ℕ.+ m)) ∥
+                      (suc (suc m))}
+                 {B = T.∥  fst (Shₙ (suc (k ℕ.+ m))) ∥
+                     (suc (suc m))}
+            _
+    zzz = subst isEquiv (funExt (T.elim {n = suc (suc m)} {B = _}
+         (λ _ → isOfHLevelPath (suc (suc m))
+           (isOfHLevelTrunc (suc (suc m)))
+           _ _ )
+         (cong (∣_∣ ∘S M.Sh.σ ∘S  ∣_∣) ∘
+          λ _ → transportRefl _ ∙∙
+            transportRefl _ ∙∙ transportRefl _))) zzz'
+
+ trunc-Shₙ-Shape : ∀ n → Iso
+   (T.∥ fst (Shₙ n) ∥ suc (suc n))
+   (T.∥ Shape ∥ suc (suc n))
+ trunc-Shₙ-Shape n =
+  compIso (converges→ColimIso {seq = truncateSequence (2 ℕ.+ n) ShSequence}
+   n (truncatedShConverges n)) (invIso (ColimTruncIso (suc (suc n))))
+
+ Shape∙ : P.Pointed ℓ-zero
+ Shape∙ = (Shape , incl {n = zero} ([ tt ]//))
+
+ trunc-Shₙ-Shape-≃∙ : ∀ n →
+      hLevelTrunc∙ (suc (suc (suc n))) Shape∙ P.≃∙
+      hLevelTrunc∙ (suc (suc (suc n))) (Shₙ∙ (suc n))
+ trunc-Shₙ-Shape-≃∙ n .fst = isoToEquiv (invIso (trunc-Shₙ-Shape (suc n)))
+ trunc-Shₙ-Shape-≃∙ n .snd = {!c!}
+ 
+--   -- (isoToEquiv (invIso (trunc-Shₙ-Shape (suc n)))) ,
+--   --  (elimShiftedβ (truncateSequence (suc (suc (suc n))) ShSequence) n
+--   --   {!!} {!!} {!!} ≡$ ( ∣_∣ {n = suc (suc n)}
+--   --    ( embase {ℓ = ℓ-zero} {Group = {!!}} ) ) )
+--   --    ∙ {!!}
+ 
+ π-trunc-Shₙ-Shape : ∀ n → GroupIso
+    (HG.πGr n Shape∙)
+    (HG.πGr n (Shₙ∙ (suc n)))
+ π-trunc-Shₙ-Shape n = compGroupIso
+   (HG.πTruncGroupIso n)
+    (compGroupIso
+    (GroupEquiv→GroupIso
+       (HG.πIso (trunc-Shₙ-Shape-≃∙ n) n))
+    (invGroupIso (HG.πTruncGroupIso n)))
+
+
+ Is∞Grpₙ : Type
+ Is∞Grpₙ = ∀ n → GroupIso
+   (objGroup n)
+   (HG.π'Gr n (Shₙ∙ (suc n)))
+
+ 
+
+ Is∞Grp≤ : ℕ → Type
+ Is∞Grp≤ N = ∀ n → n ℕ.≤ N → GroupIso
+   (objGroup n)
+   (HG.πGr n Shape∙)
+
+ Is∞Grp≤' : ℕ → Type
+ Is∞Grp≤' N = ∀ n → n ℕ.≤ N → GroupIso
+   (objGroup n)
+   (HG.πGr n (Shₙ∙ (suc n)))
+
+ CODE-Sh₀ : fst (Shₙ 0) → hSet ℓ-zero
+ CODE-Sh₀ = GQ.rec
+  (λ _ _ _ → _⊙_) isGroupoidHSet
+   (λ _ → obj/ 0 , squash/)
+   (λ o → TypeOfHLevel≡ 2 (ua (rightEquiv (objGroup 0) [ o ]/)) )
+   λ r s → ΣSquareSet (λ _ → isProp→isSet isPropIsSet)
+     (symP (compPathR→PathP∙∙
+       (cong ua (equivEq (funExt
+         λ t → GroupStr.·Assoc (snd (objGroup 0)) t [ r ]/ [ s ]/))
+         ∙ uaCompEquiv _ _)))
+ 
+ CODE-Sh₁ : fst (Shₙ 1) → hSet ℓ-zero
+ CODE-Sh₁ = Sh-more.ShRec-sn.go _ _ _ _ _ w
+  where
+  w : Sh-more.ShRec-sn 0
+        _  _ _ _ (hSet ℓ-zero)
+  w .GSeq.Sh.ShRec-sn.σB =
+   T.rec (isOfHLevelSuc 3 isGroupoidHSet )
+    CODE-Sh₀ 
+  w .GSeq.Sh.ShRec-sn.hubB _ _ = CODE-Sh₀ [ tt ]//
+  w .GSeq.Sh.ShRec-sn.spokeB m r = 
+    S1.elim _ refl
+     (flipSquare (ΣSquareSet (λ _ → isProp→isSet isPropIsSet)
+      (sym uaIdEquiv ∙ cong ua (equivEq
+        (funExt λ x →  sym (GroupStr.·IdR 
+              (snd (objGroup 0)) x) ∙
+               cong (x ⊙/_) (eq/ _ _ r) 
+          )) )))
+
+ sh-loop : obj/ 0 → ⟨ HG.πGr 0 (Shₙ∙ 1) ⟩ 
+ sh-loop = SQ.Rec.go w
+  where
+   w : Rec ⟨ HG.πGr 0 (Shₙ∙ 1)  ⟩
+   w .Rec.isSetB = squash₂
+   w .Rec.f o = ∣  cong (Sh-more.σ ∘S ∣_∣) (eq// o) ∣₂
+   w .Rec.f∼ a a' a≋a' = {!!}
+    where
+    ww : {!!} ≡ eq// a ∙ eq// (obj-inv a')
+    ww = {!!}
+      ∙ comp'// Unit (λ _ _ _ → _⊙_ {zero}) a (obj-inv a')
+
+ CODE-Shₙ : ∀ n → T.hLevelTrunc (3 ℕ.+ n) (fst (Shₙ∙ (suc n)))
+    → TypeOfHLevel ℓ-zero (2 ℕ.+ n)
+ CODE-Shₙ zero = T.rec (isOfHLevelTypeOfHLevel 2) CODE-Sh₁
+ CODE-Shₙ (suc n) =
+   T.rec (isOfHLevelTypeOfHLevel (3 ℕ.+ n))
+     (Sh-more.ShRec-sn.go _ _ _ _ _ w)
+  where
+
+  Shₙ-trunc = trunc (4 ℕ.+ n) n (Shₙ n)
+  module SS =
+    Sh-more n (fst (Shₙ-trunc)) (fst (fst (snd (Shₙ-trunc))))
+   (snd (fst (snd (Shₙ-trunc))))
+   ((snd (snd (Shₙ-trunc))))
+
+
+  wwC : T.hLevelTrunc (4 ℕ.+ (suc n)) (fst (Shₙ∙ (suc n))) →
+         TypeOfHLevel ℓ-zero (suc (suc (suc n)))
+  wwC a = Path
+       (T.hLevelTrunc (3 ℕ.+ (suc n))
+         (fst (Shₙ∙ (suc (suc n)))))
+       ∣ (snd (Shₙ∙ (suc (suc n)))) ∣ ∣ Sh.σ a ∣
+
+    , isOfHLevelPath' (3 ℕ.+ n) (isOfHLevelTrunc (4 ℕ.+ n)) _ _
+
+
+  w : Sh-more.ShRec-sn (suc n)
+        _  _ _ _ (TypeOfHLevel ℓ-zero (2 ℕ.+ suc n))
+  w .GSeq.Sh.ShRec-sn.σB = wwC
+  w .GSeq.Sh.ShRec-sn.hubB _ _ =
+   wwC ∣ (snd (Shₙ∙ (suc n))) ∣
+  w .GSeq.Sh.ShRec-sn.spokeB m r s =
+   TypeOfHLevel≡ (suc (suc (suc n)))
+   (ua eee)
+   where
+   eee : (∣ snd (Shₙ∙ (suc (suc n))) ∣ ≡
+          ∣ snd (Shₙ∙ (suc (suc n))) ∣) ≃
+           (∣ snd (Shₙ∙ (suc (suc n))) ∣ ≡
+           _)
+   eee = compPathrEquiv (cong ∣_∣
+    (sym (Sh.spoke-hub-spoke-pt m r s) ))
+
+
+
+--  CODE-Shₙ' : ∀ n →
+--   Σ ((α : T.hLevelTrunc (3 ℕ.+ n) (fst (Shₙ∙ (suc n))))
+--     → Σ (TypeOfHLevel ℓ-zero (2 ℕ.+ n))
+--         λ (X , _) → X → ∣ (snd (Shₙ∙ (suc n))) ∣ ≡ α)
+--   (λ CO → fst (fst (CO ∣ snd (Shₙ∙ (suc n)) ∣)))
+--  CODE-Shₙ' zero = {!!}
+--   -- T.rec (isOfHLevelTypeOfHLevel 2) CODE-Sh₁
+--  CODE-Shₙ' (suc n) = T.elim
+--    (λ _ → isOfHLevelΣ (4 ℕ.+ n)
+--      ((isOfHLevelTypeOfHLevel (3 ℕ.+ n)))
+--       λ _ → isOfHLevelΠ ((4 ℕ.+ n)) λ _ →  {!!})
+--        (Sh-more.ShElim.go _ _ _ _ _ w) , refl
+-- --    T.rec (isOfHLevelTypeOfHLevel (3 ℕ.+ n))
+-- --      (Sh-more.ShRec-sn.go _ _ _ _ _ w)
+--   where
+
+--   Shₙ-trunc = trunc (4 ℕ.+ n) n (Shₙ n)
+--   module SS =
+--     Sh-more n (fst (Shₙ-trunc)) (fst (fst (snd (Shₙ-trunc))))
+--    (snd (fst (snd (Shₙ-trunc))))
+--    ((snd (snd (Shₙ-trunc))))
+
+
+--   wwC : T.hLevelTrunc (4 ℕ.+ (suc n)) (fst (Shₙ∙ (suc n))) →
+--          TypeOfHLevel ℓ-zero (suc (suc (suc n)))
+--   wwC a = Path
+--        (T.hLevelTrunc (3 ℕ.+ (suc n))
+--          (fst (Shₙ∙ (suc (suc n)))))
+--        ∣ (snd (Shₙ∙ (suc (suc n)))) ∣ ∣ Sh.σ a ∣
+
+--     , isOfHLevelPath' (3 ℕ.+ n) (isOfHLevelTrunc (4 ℕ.+ n)) _ _
+
+--   ΣwwC : ∀ x → _ 
+--   ΣwwC a = wwC a , idfun _
+--   w : Sh-more.ShElim (suc n) _ _ _ _ _
+--   w .GSeq.Sh.ShElim.σB = ΣwwC
+--   w .GSeq.Sh.ShElim.hubB m r =
+--     (_ ,
+--      isOfHLevelPath' (3 ℕ.+ n)
+--       (isOfHLevelTrunc (4 ℕ.+ n)) _ _) , λ p → p
+--   w .GSeq.Sh.ShElim.spokeB m r s =
+--    ΣPathP (TypeOfHLevel≡ (suc (suc (suc n)))
+--      (ua eee)
+--      , ua→ λ _ → compPath-filler _ _)
+--     where
+--     eee : (_ ≡ _) ≃ (_ ≡ _)
+--     eee = compPathrEquiv (cong ∣_∣
+--            (Sh.spoke m r s))
+--   w .GSeq.Sh.ShElim.spoke-hub-spokeB = {!!}
+--   w .GSeq.Sh.ShElim.spoke-hub-sqB = {!!}
+  
+  -- w : Sh-more.ShRec-sn (suc n)
+  --       _  _ _ _ (TypeOfHLevel ℓ-zero (2 ℕ.+ suc n))
+  -- w .GSeq.Sh.ShRec-sn.σB = wwC
+  -- w .GSeq.Sh.ShRec-sn.hubB _ _ =
+  --  wwC ∣ (snd (Shₙ∙ (suc n))) ∣
+  -- w .GSeq.Sh.ShRec-sn.spokeB m r s =
+  --  TypeOfHLevel≡ (suc (suc (suc n)))
+  --  (ua eee)
+  --  where
+  --  eee : (∣ snd (Shₙ∙ (suc (suc n))) ∣ ≡
+  --         ∣ snd (Shₙ∙ (suc (suc n))) ∣) ≃
+  --          (∣ snd (Shₙ∙ (suc (suc n))) ∣ ≡
+  --          _)
+  --  eee = compPathrEquiv (cong ∣_∣
+  --   (sym (Sh.spoke-hub-spoke-pt m r s) ))
+
+
+--   -- encode-Shₙ : ∀ n x → ⟨ CODE-Shₙ n x ⟩ →
+--   --   ∣ (snd (Shₙ∙ (suc n))) ∣ ≡ x
+--   -- encode-Shₙ zero = {!!}
+--   -- encode-Shₙ (suc zero) = {!!}
+--   -- encode-Shₙ (suc (suc n)) = T.elim {!!}
+--   --   (Sh-more.ShElim.go _ _ _ _ _  ww)
+--   --  where
+--   --  ww : Sh-more.ShElim
+--   --        _ _ _ _ _
+--   --        λ z →
+--   --           ⟨ CODE-Shₙ (suc (suc n)) ∣ z ∣ₕ ⟩
+--   --            → ∣ snd (Shₙ∙ (suc (suc (suc n)))) ∣ ≡ ∣ z ∣ₕ
+--   --  ww .GSeq.Sh.ShElim.σB =
+--   --   T.elim {!!} λ a → {!!}
+     
+--   --  ww .GSeq.Sh.ShElim.hubB m r x = {!!} ∙ {!!}
+--   --  ww .GSeq.Sh.ShElim.spokeB m r x = {!!}
+--   --  ww .GSeq.Sh.ShElim.spoke-hub-spokeB = {!!}
+--   --  ww .GSeq.Sh.ShElim.spoke-hub-sqB = {!!}
+
+
+  -- CODE-pt : ∀ n → fst
+  --  (fst (fst (CODE-Shₙ' n ∣ (snd (Shₙ∙ (suc n))) ∣)))
+  --     -- ⟨ (fst (CODE-Sh'ₙ n ∣ (snd (Shₙ∙ (suc n))))) ∣ ⟩
+  -- CODE-pt n = {!!} 
+  
+  -- decode-Shₙ : ∀ n x → ∣ (snd (Shₙ∙ (suc n))) ∣ ≡ x
+  --   → ⟨ (fst (fst (CODE-Shₙ' n) x)) ⟩
+  -- decode-Shₙ n x p =
+  --  subst (λ x → ⟨ (fst (fst (CODE-Shₙ' n) x)) ⟩) p
+  --   (snd (CODE-Shₙ' n))
+   
+ Is∞Grp₀-Iso : Iso ⟨ objGroup zero ⟩ ⟨ HG.πGr 0 (Shₙ∙ 1) ⟩
+ Is∞Grp₀-Iso .Iso.fun = sh-loop
+ Is∞Grp₀-Iso .Iso.inv =
+  ST.rec squash/ (flip (subst (fst ∘ CODE-Sh₁)) [ unit ]/ )
+ Is∞Grp₀-Iso .Iso.rightInv =
+   ST.elim 
+   (λ _ → isProp→isSet (squash₂ _ _))
+    {!!}
+   -- (J (λ y p →
+   --    {!sh-loop ?!} ≡ ∣ p ∣₂) {!!})
+   --  -- (J (λ y (p : _ ≡ y) →
+   --  --   ∣ {!subst (fst ∘ CODE-Sh₁) p ?!} ∣₂ ≡ ∣ {!!} ∣₂ )
+   --  --  {!!})
+
+-- (a : typ ((Lsp.Ω^ suc 0) (Shₙ∙ 1))) →
+--       Iso.fun Is∞Grp₀-Iso (Iso.inv Is∞Grp₀-Iso ∣ a ∣₂) ≡ ∣ a ∣₂
+
+ Is∞Grp₀-Iso .Iso.leftInv =
+  SQ.elimProp (λ _ → squash/ _ _)
+   λ a → transportRefl _ ∙
+      GroupStr.·IdL (snd (objGroup 0)) [ a ]/
+ 
+ Is∞Grp₀ : GroupIso (objGroup zero) (HG.πGr zero Shape∙)
+ Is∞Grp₀ = compGroupIso
+   {!!}
+   (invGroupIso (π-trunc-Shₙ-Shape zero))
+  where
+  w : Iso (objGroup zero .fst) (HG.πGr zero Shape∙ .fst)
+  w = {!!}
+
+
+
+
+
+--  -- isGrp∞em : ∀ n → Iso 
+--  --    ⟨ HG.π'Gr n (EM∙ (objAbGroup n) n) ⟩
+--  --    ⟨ HG.π'Gr n Shape∙ ⟩
+--  -- isGrp∞em zero = {!!}
+--  -- isGrp∞em (suc n) = {!!}
+
+--  -- ∞grpsIso : ∀ n → Iso
+--  --   ⟨ objGroup n ⟩
+--  --   ⟨ HG.πGr n Shape∙ ⟩ 
+ 
+--  -- ∞grpsIso zero = invIso (compIso (fst (π-trunc-Shₙ-Shape 0)) ({!ΩEM^ 1!}) )
+--  -- ∞grpsIso (suc n) = {!!}
+ 
+--  -- Is∞Grp : Type
+--  -- Is∞Grp = ∀ n → GroupIso
+--  --   (objGroup n)
+--  --   (HG.π'Gr n Shape∙)
+
+
+
+--  -- is∞Grp : Is∞Grp
+--  -- is∞Grp zero = {!!}
+--  -- is∞Grp (suc n) = {!!}
+
+module GSeqSuc (obj : ℕ → Type)
+         (_≋_ : ∀ {n} → Rel (obj n) (obj n) ℓ-zero)
+         (gseq : GSeq obj _≋_ ) where
+
+ module G = GSeq gseq
+ module G' = Shape gseq 
+ GSeqSuc : GSeq (obj ∘ suc) _≋_
+ GSeqSuc = w
+  where
+
+  w : GSeq (obj ∘ suc) _≋_
+  w .GSeq.isEquivRel≋ n = G.isEquivRel≋ (suc n)
+  w .GSeq.obj-inv = G.obj-inv 
+  w .GSeq.obj-inv-funct = G.obj-inv-funct
+  w .GSeq._⊙_ = G._⊙_
+  w .GSeq.⊙-sym = G.⊙-sym ∘ suc
+  w .GSeq.⊙-functL = G.⊙-functL ∘ suc
+  w .GSeq.⊙-functR = G.⊙-functR ∘ suc
+  w .GSeq.unit = G.unit
+  w .GSeq.middleIso = G.middleIso
+  w .GSeq.isGrp⊙/₀ =
+   AbGroupStr.isGroup
+    (abgroupstr _ _ _ (G.isAbGrp⊙/ zero)) 
+  w .GSeq.isAbGrp⊙/ = G.isAbGrp⊙/ ∘ suc
+  w .GSeq.middle-⊙ = G.middle-⊙ ∘ suc
+  w .GSeq.reflOver≋ = G.reflOver≋ ∘ suc
+  w .GSeq.to-middle-≋ = G.to-middle-≋ ∘ suc
+  w .GSeq.from-middle-≋ = G.from-middle-≋ ∘ suc
+ 
+ -- module SG = GSeq GSeqSuc
+ -- module SG' = Shape GSeqSuc
+
+
+-- is∞GrpShapeΩ : ∀ N n → n ℕ.≤ N → {obj : ∀ n → Type}
+--               {_≋_ : {n = n : ℕ} → Rel (obj n) (obj n) ℓ-zero}
+--             → GroupIso {!!} {!!}
+-- is∞GrpShapeΩ = {!!}
+
+ -- SH-CODE :
+ --      ∀ n →
+ --       Σ ((α : fst (T.hLevelTrunc∙ (4 ℕ.+ n)
+ --            (G'.Shₙ∙(suc (suc n))))) →
+ --             Σ (TypeOfHLevel ℓ-zero (3 ℕ.+ n)) λ (X , _) →
+ --              X →
+ --               ∣ snd (G'.Shₙ∙ (suc (suc n))) ∣
+ --                ≡ α)
+ --         λ X → fst (fst (X
+ --             ∣ snd (G'.Shₙ∙ (suc (suc n))) ∣))
+ -- SH-CODE zero = {!!}            
+ -- SH-CODE (suc n) = T.elim {!!}
+ --   (G.Sh.ShElim.go ww) , {!!}
+ --  where
+ --  Shₙ-trunc =
+ --    G'.trunc (4 ℕ.+ (suc (suc n))) (suc (suc n))
+ --      (G'.Shₙ (suc (suc n)))
+ --  module SS =
+ --    G'.Sh-more (suc (suc n))
+ --      (fst (Shₙ-trunc)) (fst (fst (snd (Shₙ-trunc))))
+ --   (snd (fst (snd (Shₙ-trunc))))
+ --   ((snd (snd (Shₙ-trunc))))
+
+ --  ppp = SH-CODE n
+
+ --  ww : G.Sh.ShElim _ _ _ _ _
+ --    λ z →
+ --       Σ (TypeOfHLevel ℓ-zero (3 ℕ.+ suc n))
+ --       (λ (X , _) →
+ --          X →
+ --          Path (T.hLevelTrunc (5 ℕ.+ n)
+ --                 (fst (G'.Shₙ∙ (suc (suc (suc n))))))
+ --          ∣ snd (G'.Shₙ∙ (suc (suc (suc n)))) ∣ ∣ z ∣ₕ)
+        
+ --  ww .GSeq.Sh.ShElim.σB =
+ --    zzzz ∘ (T.elim
+ --      {B = λ z →
+ --              Σ (TypeOfHLevel ℓ-zero (3 ℕ.+ n))
+ --              (λ (X , _) →
+ --                 X →
+ --                 ∣_∣ₕ {n = (5 ℕ.+ n)}
+ --                   (snd (G'.Shₙ∙ (suc (suc (suc n)))))
+ --                  ≡ ∣ SS.Sh.σ z ∣ₕ)}
+ --      {!!} zzz)
+
+ --   where
+ --   zzz : (a : G'.Shₙ (suc (suc n)) .fst) →
+ --          Σ (TypeOfHLevel ℓ-zero (3 ℕ.+ n))
+ --          (λ (X , _) →
+ --             X →
+ --             Path (T.hLevelTrunc (5 ℕ.+ n)
+ --                 (fst (G'.Shₙ∙ (suc (suc (suc n))))))
+ --             (∣ snd (G'.Shₙ∙ (suc (suc (suc n)))) ∣)
+ --             (∣ SS.Sh.σ ∣ a ∣ₕ ∣ₕ))
+ --   zzz a =
+ --    let (zz , zz') = fst ppp ∣ a ∣
+ --        zzF : (T.hLevelTrunc (4 ℕ.+ n)
+ --                 (fst (G'.Shₙ∙ (suc (suc n))))) →
+ --               (T.hLevelTrunc (5 ℕ.+ n)
+ --                 (fst (G'.Shₙ∙ (suc (suc (suc n))))))
+ --        zzF = {!!}
+ --    in zz , λ aa →
+ --        let zsz : Path ((T.hLevelTrunc (4 ℕ.+ n)
+ --                    (fst (G'.Shₙ∙ (suc (suc n))))))
+ --                  ∣ snd (G'.Shₙ∙ (suc (suc n))) ∣
+ --                  ∣ a ∣
+ --            zsz = zz' aa
+ --            szs : Path (((T.hLevelTrunc (6 ℕ.+ n)
+ --                    (fst (G'.Shₙ∙ (suc (suc n)))))))
+ --                   {!!} {!!}
+ --            szs = {!!}
+ --        in cong (∣_∣ₕ {n = 5 ℕ.+ n})
+ --             (cong SS.Sh.σ szs )
+ --         --  {!!}
+ --         -- ∙∙ cong zzF (zz' aa)
+ --         -- ∙∙ {!!}
+ --            -- lower≡ 3 (suc n)
+ --            --       (cong (T.map (fst (G'.σ∙ (suc (suc n)))))
+ --            --        (zz' aa))
+                   
+ --   zzzz : ∀ {z} → Σ (TypeOfHLevel ℓ-zero (3 ℕ.+ n))
+ --       (λ (X , _) →
+ --          X →
+ --          Path (T.hLevelTrunc (5 ℕ.+ n)
+ --                 (fst (G'.Shₙ∙ (suc (suc (suc n))))))
+ --          ∣ snd (G'.Shₙ∙ (suc (suc (suc n)))) ∣ₕ ∣ SS.Sh.σ z ∣ₕ)
+ --              → Σ (TypeOfHLevel ℓ-zero (3 ℕ.+ suc n))
+ --       (λ (X , _) →
+ --          X →
+ --          Path (T.hLevelTrunc (5 ℕ.+ n)
+ --                 (fst (G'.Shₙ∙ (suc (suc (suc n))))))
+ --          ∣ snd (G'.Shₙ∙ (suc (suc (suc n)))) ∣ₕ ∣ SS.Sh.σ z ∣ₕ)
+ --   zzzz (x , y) = 
+ --     (map-snd (isOfHLevelSuc (3 ℕ.+ n)) x) ,
+ --        y
+   
+ --  ww .GSeq.Sh.ShElim.hubB = {!!}
+ --  ww .GSeq.Sh.ShElim.spokeB = {!!}
+ --  ww .GSeq.Sh.ShElim.spoke-hub-spokeB = {!!}
+ --  ww .GSeq.Sh.ShElim.spoke-hub-sqB = {!!}
+
+-- module _ {obj : ∀ n → Type}
+--               {_≋_ : {n = n : ℕ} → Rel (obj n) (obj n) ℓ-zero}
+--      (Se : GSeq obj _≋_) where
+--  SH-CODE :
+--       ∀ n →
+--        Σ ((α : fst (T.hLevelTrunc∙ (4 ℕ.+ n)
+--             (GSeqSuc.G'.Shₙ∙ _ _ Se (suc (suc n))))) →
+--              Σ (TypeOfHLevel ℓ-zero (3 ℕ.+ n)) λ (X , _) →
+--               X →
+--                ∣ snd (GSeqSuc.G'.Shₙ∙ _ _ Se (suc (suc n))) ∣
+--                 ≡ α)
+--          λ X → fst (fst (X
+--              ∣ snd (GSeqSuc.G'.Shₙ∙ _ _ Se (suc (suc n))) ∣))
+--  SH-CODE n = {!!}
+--   where
+--   Shₙ-trunc =
+--     Shape.trunc Se (4 ℕ.+ (suc n)) (suc n) (Shape.Shₙ Se (suc n))
+--   module SS =
+--     Shape.Sh-more  ? (suc n)
+--       (fst (Shₙ-trunc)) (fst (fst (snd (Shₙ-trunc))))
+--    (snd (fst (snd (Shₙ-trunc))))
+--    ((snd (snd (Shₙ-trunc))))
+
+
+is∞GrpShape : ∀ N {obj : ∀ n → Type}
+              {_≋_ : {n = n : ℕ} → Rel (obj n) (obj n) ℓ-zero}
+     (Se : GSeq obj _≋_) → Shape.Is∞Grp≤' {obj = obj} {_≋_ = _≋_} Se N
+is∞GrpShape _ Se zero x = {!!} --Shape.Is∞Grp₀ Se 
+is∞GrpShape zero Se (suc n) x = ⊥.rec (ℕ.¬-<-zero x)
+is∞GrpShape (suc N) Se (suc n) x =
+  -- compGroupIso
+  (compGroupIso
+    (compGroupIso
+      ((subst (GroupIso _)
+       (ΣPathP (refl ,
+         cong (groupstr _ _ _) (isPropIsGroup _ _ _ _ _))) idGroupIso))
+      (is∞GrpShape N
+         (GSeqSuc.GSeqSuc _ _ Se)
+         n (ℕ.predℕ-≤-predℕ x)))
+    (compGroupIso (compGroupIso
+      (compGroupIso (HG.πTruncGroupIso n)
+        (GroupEquiv→GroupIso
+          (HG.πIso (ww≃∙ n) n)))
+       (HG.GrIso-πΩ-π n)
+       )
+      (invGroupIso (HG.πTruncGroupIso (suc n)))
+      ))
+
+ where
+
+ -- ww→R : Shape.Sh-more.ShRec _ _ _ _  _ _ _
+ -- ww→R .GSeq.Sh.ShRec.σB a = {!a!}
+ -- ww→R .GSeq.Sh.ShRec.hubB = {!Shape.Sh-more.ShRec!}
+ -- ww→R .GSeq.Sh.ShRec.spokeB = {!!}
+ -- ww→R .GSeq.Sh.ShRec.spoke-hub-spokeB = {!!}
+ -- ww→R .GSeq.Sh.ShRec.spoke-hub-sqB = {!!}
+ 
+ -- ww→ : Shape.Shₙ∙ (GSeqSuc.GSeqSuc _ _ Se) (suc n)
+ --        P.→∙
+ --        Lsp.Ω (Shape.Shₙ∙ Se (suc (suc n)))
+ -- ww→ .fst = Shape.Sh-more.ShRec.go _ _ _ _ _ _ ww→R
+ -- ww→ .snd = {!!}
+
+ -- ww← : {!!}
+ -- ww← = {!!}
+
+ ww≃∙ : ∀ n → T.hLevelTrunc∙ (3 ℕ.+ n)
+         ((GSeqSuc.G'.Shₙ∙ _ _
+           (GSeqSuc.GSeqSuc _ _ Se) (suc n)))
+     P.≃∙
+     Lsp.Ω (T.hLevelTrunc∙ (4 ℕ.+ n)
+      (GSeqSuc.G'.Shₙ∙ _ _ Se (suc (suc n)))) 
+ ww≃∙ zero = isoToEquiv zzz , {!!}
+
+  where
+  zzz→R : GSeqSuc.G'.Sh-more.ShElim _ _ _ _ _ _ _ _ _ 
+  zzz→R .GSeq.Sh.ShElim.σB a = {!∣ ? ∣ !}
+  zzz→R .GSeq.Sh.ShElim.hubB = {!!}
+  zzz→R .GSeq.Sh.ShElim.spokeB = {!!}
+  zzz→R .GSeq.Sh.ShElim.spoke-hub-spokeB = {!!}
+  zzz→R .GSeq.Sh.ShElim.spoke-hub-sqB = {!!}
+
+  zzz→ : fst
+          (hLevelTrunc∙ (3 ℕ.+ zero)
+           (GSeqSuc.G'.Shₙ∙ _ (λ {n = n₁} → _)
+            (GSeqSuc.GSeqSuc _ _ Se) 1)) →
+          fst (Lsp.Ω (hLevelTrunc∙ (4 ℕ.+ zero) (GSeqSuc.G'.Shₙ∙ _ _ Se 2)))
+  zzz→ = T.rec {!!}
+    (GSeqSuc.G'.Sh-more.ShElim.go _ _ _ _ _ _ _ _ zzz→R)
+   
+  zzz : Iso _ _
+  zzz .Iso.fun = zzz→
+  zzz .Iso.inv = {!!}
+  zzz .Iso.rightInv = {!!}
+  zzz .Iso.leftInv = {!!}
+
+ ww≃∙ (suc n) = {!!}
+
+
+ -- ww : GroupIso _ _
+ -- ww = wwIso , {!!}
+
+
+-- -- --  gSucMap : ∀ n → Sequence.obj SG'.ShSequence n → Sequence.obj G'.ShSequence n
+-- -- --  gSucMapComm : (n : ℕ) (x : Sequence.obj SG'.ShSequence n) →
+-- -- --       Sequence.map  G'.ShSequence {n = n} (gSucMap n x) ≡
+-- -- --       G.Sh.σ (T.map (gSucMap n) ∣ x ∣)
+
+-- -- --  gSucMapHlp : ∀ n m s → G'.Shₙ n .snd .fst .snd (fst (G.middle m)) s ≡
+-- -- --       gSucMap n (SG'.Shₙ n .snd .fst .snd m s)
+
+-- -- --  gSucMap zero = inducedFun-EM₁ (_ , G.middleGroupHom 0)
+-- -- --  gSucMap (suc n) = SG.Sh.ShElim.go w
+-- -- --    where
+-- -- --    w : SG.Sh.ShElim n _ _ _ _ _
+-- -- --    w .GSeq.Sh.ShElim.σB = G.Sh.σ ∘ T.map (gSucMap n) 
+-- -- --    w .GSeq.Sh.ShElim.hubB m r =
+-- -- --      G.Sh.hub (fst (G.middle m)) {!!}
+-- -- --    w .GSeq.Sh.ShElim.spokeB m r s =
+-- -- --       G.Sh.spoke _ _ s  ∙
+-- -- --         cong (G'.Sh-more.Sh.σ ∘S ∣_∣)
+-- -- --          (gSucMapHlp n m s)
+-- -- --    w .GSeq.Sh.ShElim.spoke-hub-spokeB = {!!}
+-- -- --    w .GSeq.Sh.ShElim.spoke-hub-sqB = {!!}
+
+-- -- --  gSucMapComm n x = refl
+
+-- -- --  gSucMapHlp = {!!}
+ 
+-- -- --  GSeqSucFuncSeqMap : SequenceMap SG'.ShSequence G'.ShSequence
+-- -- --  GSeqSucFuncSeqMap .SequenceMap.map = gSucMap
+ 
+-- -- --  GSeqSucFuncSeqMap .SequenceMap.comm = gSucMapComm
+ 
+-- -- --  GSeqSucFunc : SG'.Shape → G'.Shape 
+-- -- --  GSeqSucFunc = realiseSequenceMap GSeqSucFuncSeqMap 
+
+
+
+-- -- --  -- -- --  -- objGrpHom : ∀ n → GroupHom
+-- -- -- -- -- --  --   (objGroup n)
+-- -- -- -- -- --  --   (HG.π'Gr n (Shₙ∙ (suc n)))
+
+-- -- -- --  σ∙π· : ∀ n x y → Path ⟨ HG.π'Gr n (Shₙ∙ (suc n)) ⟩
+-- -- -- --            ∣ (HG.∙Π ((σ∙ n) P.∘∙ x)
+-- -- -- --                    ((σ∙ n) P.∘∙ y)) ∣₂
+-- -- -- --            (ST.map (P._∘∙_ (σ∙ n))
+-- -- -- --                ∣ HG.∙Π x y ∣₂)
+-- -- -- --  σ∙π· n x y = {!!}
+-- -- -- --  -- cong ∣_∣₂ (ΣPathP (((funExt w) , {!!}))) 
+-- -- -- --  --  where
+-- -- -- --  --  w : (x₁ : S₊∙ (suc (suc n)) .fst) →
+-- -- -- --  --       PathP (λ _ → Shₙ∙ (suc (suc n)) .fst)
+-- -- -- --  --       (fst (HG.∙Π (σ∙ (suc n) P.∘∙ x) (σ∙ (suc n) P.∘∙ y)) x₁)
+-- -- -- --  --       (fst (σ∙ (suc n) P.∘∙ HG.∙Π x y) x₁)
+-- -- -- --  --  w north = refl
+-- -- -- --  --  w south = refl
+-- -- -- --  --  w (merid a i) = {!!}
+
+
+-- -- -- --  σ∙Π- : ∀ n x → Path (S₊∙ (suc (n)) P.→∙ Shₙ∙ (suc (n)))
+-- -- -- --            (HG.-Π ((σ∙ (n)) P.∘∙ x)) 
+-- -- -- --            ((σ∙ (n)) P.∘∙ (HG.-Π x))
+-- -- -- --  σ∙Π- n x = {!!}
+-- -- -- --  -- ΣPathP ((funExt w) , refl) 
+-- -- -- --  --  where
+-- -- -- --  --  w : (x₁ : S₊∙ (suc (suc n)) .fst) →
+-- -- -- --  --       fst (HG.-Π (σ∙ (suc n) P.∘∙ x)) x₁ ≡
+-- -- -- --  --       fst (σ∙ (suc n) P.∘∙ HG.-Π x) x₁
+-- -- -- --  --  w north = refl
+-- -- -- --  --  w south = refl
+-- -- -- --  --  w (merid a i) = refl
+
+
+-- -- -- --  σ∙π- : ∀ n x → Path ⟨ HG.π'Gr (n) (Shₙ∙ (suc (n))) ⟩
+-- -- -- --            ∣ (HG.-Π ((σ∙ (n)) P.∘∙ x)) ∣₂
+-- -- -- --            (ST.map (P._∘∙_ (σ∙ (n)))
+-- -- -- --                ∣ HG.-Π x ∣₂)
+-- -- -- --  σ∙π- n x = cong ∣_∣₂ (σ∙Π- n x)
+ 
+-- -- -- -- -- (snd (HG.π'Gr (suc n) (Shₙ∙ (suc (suc n)))) GroupStr.· ff a)
+-- -- -- -- --       (snd (HG.π'Gr (suc n) (Shₙ∙ (suc (suc n)))) .GroupStr.inv (ff a'))
+-- -- -- -- --       ≡
+-- -- -- -- --       ST.map (P._∘∙_ (σ∙ (suc n)))
+-- -- -- -- --       ∣
+-- -- -- -- --       HG.∙Π (ΣTy-ev∙ (suc n) (Shₙ (suc n)) a)
+-- -- -- -- --       (ΣTy-ev∙ (suc n) (Shₙ (suc n)) (obj-inv a'))
+-- -- -- -- --       ∣₂
+
+-- -- -- --  unit≋→π'Gr≡ :  ∀ n o →
+-- -- -- --     unit {n} ≋ o
+-- -- -- --      → Path (fst (HG.π'Gr n (Shₙ∙ (suc n))))
+-- -- -- --             (HG.1π' (suc n))
+-- -- -- --              (ST.map (σ∙ n P.∘∙_) ∣ (ΣTy-ev∙ n (Shₙ n) o) ∣₂)
+-- -- -- --  unit≋→π'Gr≡ n o ≋o =
+-- -- -- --    cong ∣_∣₂ (ΣPathP
+-- -- -- --      ((funExt (λ s →
+-- -- -- --        sym (spoke-hub-spoke-pt o ≋o s))) ,
+-- -- -- --         (flipSquare (cong sym (spoke-hub-spoke-pt-refl o ≋o) ◁
+-- -- -- --          λ j i → σ∙ n .fst (ΣTy-ev∙ n (Shₙ n) o .snd (~ i ∨ j))) ▷ rUnit _)))
+-- -- -- --   where
+-- -- -- --    Shₙ-trunc = trunc (4 ℕ.+ n) n (Shₙ n)
+-- -- -- --    open Sh-more n (fst (Shₙ-trunc)) (fst (fst (snd (Shₙ-trunc))))
+-- -- -- --     (snd (fst (snd (Shₙ-trunc))))
+-- -- -- --     (fst (snd (snd (Shₙ-trunc))))
+
+-- -- -- --  -- ∞GrpIso→ : ∀ n → ⟨ objGroup n ⟩
+-- -- -- --  --            →     ⟨ HG.π'Gr n (Shₙ∙ (suc n)) ⟩
+-- -- -- --  -- ∞GrpIso→ n = SQ.Rec.go w
+-- -- -- --  --  where
+-- -- -- --  --  module GT' = GroupTheory (HG.π'Gr n (Shₙ∙ (suc n)))
+-- -- -- --  --  w : Rec ⟨ HG.π'Gr n (Shₙ∙ (suc n)) ⟩
+-- -- -- --  --  w .Rec.isSetB = squash₂
+-- -- -- --  --  w .Rec.f = Shₙ→π' n
+-- -- -- --  --  w .Rec.f∼ a a' a≋a' =
+-- -- -- --  --    let z : unit ≋ (a ⊙ obj-inv a') 
+-- -- -- --  --        z = {!!}
+
+-- -- -- --  --    in GT'.invUniqueL {g = Shₙ→π' n a}
+-- -- -- --  --              {h = snd (HG.π'Gr (n) (Shₙ∙ (suc (n))))
+-- -- -- --  --                  .GroupStr.inv (Shₙ→π' n a')}
+-- -- -- --  --               ((
+
+-- -- -- --  --                (cong {x = (snd (HG.π'Gr (n) (Shₙ∙ (suc (n))))
+-- -- -- --  --                          .GroupStr.inv (Shₙ→π' n a'))}
+-- -- -- --  --                       {y = ∣ σ∙ (n) P.∘∙
+-- -- -- --  --                             ΣTy-ev∙ (n) (Shₙ (n)) (obj-inv a') ∣₂}
+-- -- -- --  --                       (snd (HG.π'Gr (n) (Shₙ∙ (suc (n))))
+-- -- -- --  --                     GroupStr.· Shₙ→π' n a)
+-- -- -- --  --                      {!!}
+-- -- -- --  --                     -- (σ∙π- n (ΣTy-ev∙ (n) (Shₙ (n)) a')
+-- -- -- --  --                     --  ∙ cong (ST.map (σ∙ (n) P.∘∙_))
+-- -- -- --  --                     --     (sym (ΣTy-inv (n) (Shₙ (n)) a')))
+-- -- -- --  --                     ∙ {!!}
+-- -- -- --  --                   --   σ∙π· n
+-- -- -- --  --                   -- (ΣTy-ev∙ (n) (Shₙ (n)) a)
+-- -- -- --  --                   -- (ΣTy-ev∙ (n) (Shₙ (n)) (obj-inv a'))
+-- -- -- --  --                   )
+                   
+-- -- -- --  --                 ∙
+-- -- -- --  --                 cong {x =
+-- -- -- --  --                   HG.∙Π
+-- -- -- --  --                    (ΣTy-ev∙ (n) (Shₙ (n)) a)
+-- -- -- --  --                    (ΣTy-ev∙ (n) (Shₙ (n)) (obj-inv a'))} 
+-- -- -- --  --                   (ST.map (P._∘∙_ (σ∙ (n))) ∘ ∣_∣₂)
+-- -- -- --  --                   (snd (snd (snd (Shₙ (n))))
+-- -- -- --  --                    a (obj-inv a')))
+-- -- -- --  --                 ∙ sym (unit≋→π'Gr≡ (n) (a ⊙ obj-inv a') z)) ∙
+-- -- -- --  --               GT'.invInv (Shₙ→π' n a')
+
+-- -- -- --    ∞GrpIso₀ : GroupIso
+-- -- -- --        (objGroup 0)
+-- -- -- --       (HG.π'Gr 0 (Shₙ∙ 1))
+-- -- -- --    ∞GrpIso₀ = {!!}  
+-- -- -- -- --  ∞GrpIso : ∀ n →  
+-- -- -- -- --     Σ[ isom ∈ (Iso
+-- -- -- -- --        ⟨ objGroup n ⟩
+-- -- -- -- --        ⟨ HG.π'Gr n (Shₙ∙ (suc n)) ⟩ ) ]
+-- -- -- -- --        Unit
+-- -- -- -- --  ∞GrpIso zero = {!!}
+-- -- -- -- --  ∞GrpIso (suc n) .fst =
+-- -- -- -- --    compIso (middleIso/ n)
+-- -- -- -- --     (compIso
+-- -- -- -- --       zz
+-- -- -- -- --       (ST.setTruncIso
+-- -- -- -- --        (compIso  (invIso (Lsp.IsoΩ× _))
+-- -- -- -- --         (IsoΩFunSuspFun {A = S₊∙ (suc n)} {B = Shₙ∙ (suc (suc n))}))))
+-- -- -- -- --    where
+
+-- -- -- -- --    module N = Iso (∞GrpIso n .fst)
+
+-- -- -- -- --    zz→ : ∀ _ → _ →  _
+-- -- -- -- --    zz→ x = SQ.Rec.go zzz
+-- -- -- -- --     where
+-- -- -- -- --     x' : ⟨ HG.π'Gr n (Shₙ∙ (suc n)) ⟩
+-- -- -- -- --     x' = N.fun SQ.[ x ]
+-- -- -- -- --     zzz : SQ.Rec _
+-- -- -- -- --     zzz .Rec.isSetB = ST.squash₂
+-- -- -- -- --     zzz .Rec.f (u≋x₀ , u≋x₁) =
+-- -- -- -- --       ST.rec squash₂ (λ x'' →
+-- -- -- -- --         ∣ (( σ∙ (suc n) P.∘∙ x'') ,
+-- -- -- -- --           {!!}) ∣₂)
+-- -- -- -- --         x'
+-- -- -- -- --     zzz .Rec.f∼ a a' r = {!!}
+    
+-- -- -- -- --    zz : Iso ∥ Σ (obj n // ER≋.transitive) _ ∥₂
+-- -- -- -- --             ∥ Σ (S₊∙ (suc n) P.→∙ Shₙ∙ (suc (suc n)))
+-- -- -- -- --                 (λ x → ((_ , refl) ≡ x) × ((_ , refl) ≡ x)) ∥₂
+-- -- -- -- --    zz .Iso.fun =
+-- -- -- -- --      ST.rec squash₂ (uncurry
+-- -- -- -- --       (GQ.elimSet ER≋.transitive (λ _ → isSet→ ST.squash₂)
+-- -- -- -- --        zz→ {!!})) 
+-- -- -- -- --    zz .Iso.inv = {!!}
+-- -- -- -- --    zz .Iso.rightInv = {!!}
+-- -- -- -- --    zz .Iso.leftInv = {!!}
+   
+-- -- -- -- --  ∞GrpIso (suc n) .snd = {!!}
+ 
+-- -- -- -- -- --  objGrpHom : ∀ n → GroupHom
+-- -- -- -- -- --    (objGroup n)
+-- -- -- -- -- --    (HG.π'Gr n (Shₙ∙ (suc n)))
+-- -- -- -- -- --  objGrpHom n = SQ.Rec.go wq ,
+-- -- -- -- -- --    {!!}
+-- -- -- -- -- --   where
+-- -- -- -- -- --    open GroupTheory (HG.π'Gr n (Shₙ∙ n))
+-- -- -- -- -- --    module GT' = GroupTheory (HG.π'Gr n (Shₙ∙ (suc n)))
+
+
+-- -- -- -- -- --    ff' : obj n →
+-- -- -- -- -- --          HG.π'Gr n (fst (Shₙ n) , fst (fst (snd (Shₙ n))))
+-- -- -- -- -- --          .fst
+-- -- -- -- -- --    ff' = ∣_∣₂ ∘S ΣTy-ev∙ n (Shₙ n)
+
+-- -- -- -- -- --    ff : obj n →
+-- -- -- -- -- --          HG.π'Gr n (fst (Shₙ (suc n)) , fst (fst (snd (Shₙ (suc n)))))
+-- -- -- -- -- --          .fst
+-- -- -- -- -- --    ff = ST.map (σ∙ n P.∘∙_) ∘S ff'
+
+-- -- -- -- -- --    wq : Rec (HG.π'Gr n (Shₙ∙ (suc n)) .fst)
+-- -- -- -- -- --    wq .Rec.isSetB = squash₂
+-- -- -- -- -- --    wq .Rec.f = ff
+-- -- -- -- -- --    wq .Rec.f∼ a a' a≋a' =
+-- -- -- -- -- --     let z : unit ≋ (a ⊙ obj-inv a') 
+-- -- -- -- -- --         z = {!!}
+
+-- -- -- -- -- --     in GT'.invUniqueL {g = ff a}
+-- -- -- -- -- --               {h = snd (HG.π'Gr (n) (Shₙ∙ (suc (n))))
+-- -- -- -- -- --                   .GroupStr.inv (ff a')}
+-- -- -- -- -- --                ((
+
+-- -- -- -- -- --                 (cong {x = (snd (HG.π'Gr (n) (Shₙ∙ (suc (n))))
+-- -- -- -- -- --                           .GroupStr.inv (ff a'))}
+-- -- -- -- -- --                        {y = ∣ σ∙ (n) P.∘∙
+-- -- -- -- -- --                              ΣTy-ev∙ (n) (Shₙ (n)) (obj-inv a') ∣₂}
+-- -- -- -- -- --                        (snd (HG.π'Gr (n) (Shₙ∙ (suc (n))))
+-- -- -- -- -- --                      GroupStr.· ff a)
+-- -- -- -- -- --                      (σ∙π- n (ΣTy-ev∙ (n) (Shₙ (n)) a')
+-- -- -- -- -- --                       ∙ cong (ST.map (σ∙ (n) P.∘∙_))
+-- -- -- -- -- --                          (sym (ΣTy-inv (n) (Shₙ (n)) a')))
+-- -- -- -- -- --                      ∙ σ∙π· n
+-- -- -- -- -- --                    (ΣTy-ev∙ (n) (Shₙ (n)) a)
+-- -- -- -- -- --                    (ΣTy-ev∙ (n) (Shₙ (n)) (obj-inv a')))
+                   
+-- -- -- -- -- --                  ∙
+-- -- -- -- -- --                  cong {x =
+-- -- -- -- -- --                    HG.∙Π
+-- -- -- -- -- --                     (ΣTy-ev∙ (n) (Shₙ (n)) a)
+-- -- -- -- -- --                     (ΣTy-ev∙ (n) (Shₙ (n)) (obj-inv a'))} 
+-- -- -- -- -- --                    (ST.map (P._∘∙_ (σ∙ (n))) ∘ ∣_∣₂)
+-- -- -- -- -- --                    (snd (snd (snd (Shₙ (n))))
+-- -- -- -- -- --                     a (obj-inv a')))
+-- -- -- -- -- --                  ∙ sym (unit≋→π'Gr≡ (n) (a ⊙ obj-inv a') z)) ∙
+-- -- -- -- -- --                GT'.invInv (ff a')
+
+
+-- -- -- -- -- --  -- objGrpHom : ∀ n → GroupHom
+-- -- -- -- -- --  --   (objGroup n)
+-- -- -- -- -- --  --   (HG.π'Gr n (Shₙ∙ (suc n)))
+-- -- -- -- -- --  -- objGrpHom zero = {!!}
+-- -- -- -- -- --  -- objGrpHom (suc n) =
+-- -- -- -- -- --  --   SQ.Rec.go w , makeIsGroupHom (SQ.ElimProp2.go ww)
+-- -- -- -- -- --  --   where
+-- -- -- -- -- --  --   open GroupTheory (HG.π'Gr (suc n) (Shₙ∙ (suc n)))
+-- -- -- -- -- --  --   module GT' = GroupTheory (HG.π'Gr (suc n) (Shₙ∙ (suc (suc n))))
+
+-- -- -- -- -- --  --   ff' : obj (suc n) →
+-- -- -- -- -- --  --         HG.π'Gr (suc n) (fst (Shₙ (suc n)) , fst (fst (snd (Shₙ (suc n)))))
+-- -- -- -- -- --  --         .fst
+-- -- -- -- -- --  --   ff' = ∣_∣₂ ∘S ΣTy-ev∙ (suc n) (Shₙ (suc n))
+
+-- -- -- -- -- --  --   ff : obj (suc n) →
+-- -- -- -- -- --  --         HG.π'Gr (suc n) (fst (Shₙ (suc (suc n))) , fst (fst (snd (Shₙ (suc (suc n))))))
+-- -- -- -- -- --  --         .fst
+-- -- -- -- -- --  --   ff = ST.map (σ∙ (suc n) P.∘∙_) ∘S ff'
+
+-- -- -- -- -- --  --   w : Rec
+-- -- -- -- -- --  --        (HG.π'Gr (suc n)
+-- -- -- -- -- --  --         (fst (Shₙ (suc (suc n))) , fst (fst (snd (Shₙ (suc (suc n)))))) .fst)
+-- -- -- -- -- --  --   w .Rec.isSetB = squash₂ 
+-- -- -- -- -- --  --   w .Rec.f = ff
+-- -- -- -- -- --  --   w .Rec.f∼ a a' a≋a' =
+-- -- -- -- -- --  --    let z : unit ≋ (a ⊙ obj-inv a') 
+-- -- -- -- -- --  --        z = {!!}
+
+-- -- -- -- -- --  --    in GT'.invUniqueL {g = ff a}
+-- -- -- -- -- --  --              {h = snd (HG.π'Gr (suc n) (Shₙ∙ (suc (suc n))))
+-- -- -- -- -- --  --                  .GroupStr.inv (ff a')}
+-- -- -- -- -- --  --               ((
+
+-- -- -- -- -- --  --                (cong {x = (snd (HG.π'Gr (suc n) (Shₙ∙ (suc (suc n))))
+-- -- -- -- -- --  --                          .GroupStr.inv (ff a'))}
+-- -- -- -- -- --  --                       {y = ∣ σ∙ (suc n) P.∘∙
+-- -- -- -- -- --  --                             ΣTy-ev∙ (suc n) (Shₙ (suc n)) (obj-inv a') ∣₂}
+-- -- -- -- -- --  --                       (snd (HG.π'Gr (suc n) (Shₙ∙ (suc (suc n))))
+-- -- -- -- -- --  --                     GroupStr.· ff a)
+-- -- -- -- -- --  --                     (σ∙π- n (ΣTy-ev∙ (suc n) (Shₙ (suc n)) a')
+-- -- -- -- -- --  --                      ∙ cong (ST.map (σ∙ (suc n) P.∘∙_))
+-- -- -- -- -- --  --                         (sym (ΣTy-inv (suc n) (Shₙ (suc n)) a')))
+-- -- -- -- -- --  --                     ∙ σ∙π· n
+-- -- -- -- -- --  --                   (ΣTy-ev∙ (suc n) (Shₙ (suc n)) a)
+-- -- -- -- -- --  --                   (ΣTy-ev∙ (suc n) (Shₙ (suc n)) (obj-inv a')))
+                   
+-- -- -- -- -- --  --                 ∙
+-- -- -- -- -- --  --                 cong {x =
+-- -- -- -- -- --  --                   HG.∙Π
+-- -- -- -- -- --  --                    (ΣTy-ev∙ (suc n) (Shₙ (suc n)) a)
+-- -- -- -- -- --  --                    (ΣTy-ev∙ (suc n) (Shₙ (suc n)) (obj-inv a'))} 
+-- -- -- -- -- --  --                   (ST.map (P._∘∙_ (σ∙ (suc n))) ∘ ∣_∣₂)
+-- -- -- -- -- --  --                   (snd (snd (snd (Shₙ (suc n))))
+-- -- -- -- -- --  --                    a (obj-inv a')))
+-- -- -- -- -- --  --                 ∙ sym (unit≋→π'Gr≡ (suc n) (a ⊙ obj-inv a') z)) ∙
+-- -- -- -- -- --  --               GT'.invInv (ff a')
+
+-- -- -- -- -- --  --   ww : ElimProp2
+-- -- -- -- -- --  --         (λ z z₁ →
+-- -- -- -- -- --  --            Rec.go w ((objGroup (suc n) .snd GroupStr.· z) z₁) ≡
+-- -- -- -- -- --  --            (HG.π'Gr (suc n) (Shₙ∙ (suc (suc n))) .snd GroupStr.· Rec.go w z)
+-- -- -- -- -- --  --            (Rec.go w z₁))
+-- -- -- -- -- --  --   ww .ElimProp2.isPropB _ _ = squash₂ _ _ 
+-- -- -- -- -- --  --   ww .ElimProp2.f x y =
+-- -- -- -- -- --  --     cong {x = ff' (x ⊙ y)}
+-- -- -- -- -- --  --           {y = ∣ HG.∙Π (ΣTy-ev∙ (suc n) (Shₙ (suc n)) x)
+-- -- -- -- -- --  --                     (ΣTy-ev∙ (suc n) (Shₙ (suc n)) y) ∣₂}
+-- -- -- -- -- --  --                      (ST.map (P._∘∙_ (σ∙ (suc n))))
+-- -- -- -- -- --  --          (cong ∣_∣₂ (sym (snd (snd (snd (Shₙ (suc n))))
+-- -- -- -- -- --  --           x y)))
+-- -- -- -- -- --  --     ∙ sym (σ∙π· n
+-- -- -- -- -- --  --       (ΣTy-ev∙ (suc n) (Shₙ (suc n)) x)
+-- -- -- -- -- --  --       (ΣTy-ev∙ (suc n) (Shₙ (suc n)) y)) 
+
+
+-- -- -- -- -- --  -- is∞Grp-zero : GroupIso (objGroup zero)
+-- -- -- -- -- --  --      (HG.π'Gr zero (EM₁ (objGroup zero) , embase))
+-- -- -- -- -- --  -- is∞Grp-zero = {!!} , {!!}
+
+-- -- -- -- -- --  is∞Grp-inj : ∀ n → isInjective (objGrpHom n)
+-- -- -- -- -- --  is∞Grp-inj zero = {!!}
+-- -- -- -- -- --  is∞Grp-inj (suc n) = SQ.ElimProp.go w
+-- -- -- -- -- --   where
+-- -- -- -- -- --   w : ElimProp
+-- -- -- -- -- --        (λ z →
+-- -- -- -- -- --           isInKer (objGrpHom (suc n)) z →
+-- -- -- -- -- --           z ≡ GroupStr.1g (objGroup (suc n) .snd))
+-- -- -- -- -- --   w .ElimProp.isPropB _ = isPropΠ λ _ → squash/ _ _
+-- -- -- -- -- --   w .ElimProp.f x = PT.rec (squash/ _ _)
+-- -- -- -- -- --    {!? ∘ cong (Iso.fun (suspRecIso (Shₙ∙ (suc n))))!}
+-- -- -- -- -- --    ∘S Iso.fun PathIdTrunc₀Iso
+ 
+-- -- -- -- -- --  is∞Grp : ∀ n → BijectionIso (objGroup n)
+-- -- -- -- -- --   (HG.π'Gr n (Shₙ∙ (suc n)))
+-- -- -- -- -- --  is∞Grp n .BijectionIso.fun = objGrpHom n
+-- -- -- -- -- --  is∞Grp n .BijectionIso.inj = is∞Grp-inj n
+-- -- -- -- -- --  is∞Grp zero .BijectionIso.surj = {!!}
+-- -- -- -- -- --  is∞Grp (suc n) .BijectionIso.surj = 
+-- -- -- -- -- --    ST.elim (λ _ → isProp→isSet squash₁)
+-- -- -- -- -- --     ((Iso.inv (domIsoDep
+-- -- -- -- -- --      ( invIso (suspRecIso (S₊∙ (suc n)) {B = Shₙ∙ (suc (suc n))})))
+-- -- -- -- -- --       (uncurry
+-- -- -- -- -- --         (S.ShElimProp.go w))))
+-- -- -- -- -- --   where
+-- -- -- -- -- --   Shₙ-trunc' = trunc (4 ℕ.+ (suc n)) (suc n) (Shₙ (suc n))
+-- -- -- -- -- --   Shₙ-trunc = trunc (4 ℕ.+ n) n (Shₙ n)
+-- -- -- -- -- --   module S = Sh-more (suc n) (fst (Shₙ-trunc')) (fst (fst (snd (Shₙ-trunc'))))
+-- -- -- -- -- --     (snd (fst (snd (Shₙ-trunc'))))
+-- -- -- -- -- --     (fst (snd (snd (Shₙ-trunc'))))
+-- -- -- -- -- --   module S-p = Sh-more n (fst (Shₙ-trunc)) (fst (fst (snd (Shₙ-trunc))))
+-- -- -- -- -- --     (snd (fst (snd (Shₙ-trunc))))
+-- -- -- -- -- --     (fst (snd (snd (Shₙ-trunc))))
+-- -- -- -- -- --   w : S.ShElimProp
+-- -- -- -- -- --        (λ z →
+-- -- -- -- -- --           (y : fst (S₊∙ (suc n)) → snd (Shₙ∙ (suc (suc n))) ≡ z) →
+-- -- -- -- -- --           isInIm (is∞Grp (suc n) .BijectionIso.fun)
+-- -- -- -- -- --           ∣ Iso.fun (invIso (suspRecIso (S₊∙ (suc n)))) (z , y) ∣₂)
+-- -- -- -- -- --   w .GSeq.Sh.ShElimProp.σB = T.elim
+-- -- -- -- -- --    (λ _ → isOfHLevelPlus' {n = (suc (suc (suc (suc n))))} 1
+-- -- -- -- -- --           (isPropΠ λ _ → squash₁) 
+-- -- -- -- -- --          ) (S-p.ShElimProp.go ww)
+
+
+-- -- -- -- -- --    where
+-- -- -- -- -- --     ww : S-p.ShElimProp _
+-- -- -- -- -- --     ww .GSeq.Sh.ShElimProp.σB = {!!}
+-- -- -- -- -- --       -- T.elim {!!}
+-- -- -- -- -- --       --   λ a y →
+-- -- -- -- -- --       --     ∣ ([ unit ]/ , {!!}) ∣₁
+-- -- -- -- -- --     ww .GSeq.Sh.ShElimProp.isPropB _ =
+-- -- -- -- -- --       isPropΠ λ _ → squash₁
+    
+  
+-- -- -- -- -- --   w .GSeq.Sh.ShElimProp.isPropB = {!!}
+  
+-- -- -- -- -- --  -- zero = {!!}
+-- -- -- -- -- --  -- is∞Grp (suc n) = compIso {!!}
+-- -- -- -- -- --  --   (setTruncIso (ΩSuspAdjointIso {A = _ , ptSn (suc n)}) )
+-- -- -- -- -- --  --    , {!!}

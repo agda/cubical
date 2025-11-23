@@ -653,3 +653,155 @@ quotientEqualityLemma4 {ℓ} {A}{B}{R}{R'}{ER} iso/r R'→R R→R' =
       step1 : (A / R) ≡ (B / R* {iso/r = iso/r})
       step1 = quotientEqualityLemma {ℓ}{A}{B}{R}{ER}{iso/r}
 
+
+
+record Rec {A : Type ℓ} {R : A → A → Type ℓ'} (B : Type ℓ'') :
+     Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')  where
+ no-eta-equality
+ field
+  isSetB : isSet B
+  f : A → B
+  f∼ : ∀ a a' → R a a' → f a ≡ f a'
+
+
+ go : _ / R → B
+ go [ a ] = f a
+ go (eq/ a a' r i) = f∼ a a' r i
+ go (squash/ x y p q i i₁) =
+   isSetB (go x) (go y) (cong go p) (cong go q) i i₁
+
+
+record Elim {A : Type ℓ} {R : A → A → Type ℓ'} (B : A / R →  Type ℓ'') :
+     Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')  where
+ no-eta-equality
+ field
+  isSetB : ∀ x → isSet (B x)
+  f : ∀ x → B [ x ]
+  f∼ : ∀ a a' → (r : R a a') → PathP (λ i → B (eq/ a a' r i)) (f a) (f a')
+
+
+ go : ∀ x → B x
+ go [ a ] = f a
+ go (eq/ a a' r i) = f∼ a a' r i
+ go (squash/ x y p q i i₁) =
+   isSet→SquareP
+     (λ i i₁ → (isSetB (squash/ x y p q i i₁)))
+     (cong go p) (cong go q) (λ _ → go x) (λ _ → go y)  i i₁
+
+record ElimProp {A : Type ℓ} {R : A → A → Type ℓ'} (B : A / R →  Type ℓ'') :
+     Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')  where
+ no-eta-equality
+ field
+  isPropB : ∀ x → isProp (B x)
+  f : ∀ x → B [ x ]
+
+ go : ∀ x → B x
+ go = Elim.go w
+  where
+  w : Elim B
+  w .Elim.isSetB = isProp→isSet ∘ isPropB
+  w .Elim.f = f
+  w .Elim.f∼ a a' r =
+    isProp→PathP (λ i → isPropB (eq/ a a' r i) ) _ _
+
+
+record Rec2 {A : Type ℓ} {R : A → A → Type ℓ'} (B : Type ℓ'') :
+     Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')  where
+ no-eta-equality
+ field
+  isSetB : isSet B
+  f : A → A → B
+  f∼ : ∀ x (a a' : A) → R a a' → f x a ≡ f x a'
+  ∼f : ∀ (a a' : A) x → R a a' → f a x ≡ f a' x
+
+
+
+ go : _ / R  → _ / R → B
+ go = Rec.go w
+  where
+  w : Rec {A = A} {R} (_ / R → B)
+  w .Rec.isSetB = isSet→ isSetB
+  w .Rec.f x = Rec.go w'
+     where
+      w' : Rec _
+      w' .Rec.isSetB = isSetB
+      w' .Rec.f x' = f x x'
+      w' .Rec.f∼ = f∼ x
+  w .Rec.f∼ a a' r = funExt
+    (ElimProp.go w')
+   where
+   w' : ElimProp _
+   w' .ElimProp.isPropB _ = isSetB _ _
+   w' .ElimProp.f x = ∼f a a' x r
+
+
+record ElimProp2 {A : Type ℓ} {R : A → A → Type ℓ'} (B : A / R → A / R →  Type ℓ'') :
+     Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')  where
+ no-eta-equality
+ field
+  isPropB : ∀ x y → isProp (B x y)
+  f : ∀ x y → B [ x ] [ y ]
+
+ go : ∀ x y → B x y
+ go = ElimProp.go w
+  where
+  w : ElimProp (λ z → (y : A / R) → B z y)
+  w .ElimProp.isPropB _ = isPropΠ λ _ → isPropB _ _
+  w .ElimProp.f x = ElimProp.go w'
+   where
+   w' : ElimProp (λ z → B [ x ] z)
+   w' .ElimProp.isPropB _ = isPropB _ _
+   w' .ElimProp.f = f x
+
+
+record ElimProp3 {A : Type ℓ} {R : A → A → Type ℓ'}
+        (B : A / R → A / R → A / R →  Type ℓ'') :
+     Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')  where
+ no-eta-equality
+ field
+  isPropB : ∀ x y z → isProp (B x y z)
+  f : ∀ x y z → B [ x ] [ y ] [ z ]
+
+ go : ∀ x y z → B x y z
+ go = ElimProp2.go w
+  where
+  w : ElimProp2 (λ z z₁ → (z₂ : A / R) → B z z₁ z₂)
+  w .ElimProp2.isPropB _ _ = isPropΠ λ _ → isPropB _ _ _
+  w .ElimProp2.f x y = ElimProp.go w'
+   where
+   w' : ElimProp (λ z → B [ x ] [ y ] z)
+   w' .ElimProp.isPropB _ = isPropB _ _ _
+   w' .ElimProp.f = f x y
+
+ 
+module _ {A : Type ℓ} {B : Type ℓ'} (R : A → A → Type ℓ'')
+         (isom : Iso A B) where
+ module 𝓘 = Iso isom
+ private
+  R' : B → B → Type ℓ''
+  R' = λ b b' → R (𝓘.inv b) (𝓘.inv b')
+
+ fR : Rec {R = R} (B / R')
+ fR .Rec.isSetB = squash/
+ fR .Rec.f a = [ 𝓘.fun a ]
+ fR .Rec.f∼ a a' r = eq/ _ _
+  (subst2 R (sym (𝓘.leftInv a)) (sym (𝓘.leftInv a')) r)
+
+ iR : Rec {R = R'} (A / R) 
+ iR .Rec.isSetB = squash/
+ iR .Rec.f b = [ 𝓘.inv b ]
+ iR .Rec.f∼ b b' r' = eq/ _ _ r' 
+
+ sR : ElimProp {R = R'} λ b → Rec.go fR (Rec.go iR b) ≡ b
+ sR .ElimProp.isPropB _ = squash/ _ _
+ sR .ElimProp.f = congS [_] ∘ 𝓘.rightInv 
+ 
+ rR : ElimProp {R = R} λ a → Rec.go iR (Rec.go fR a) ≡ a
+ rR .ElimProp.isPropB _ = squash/ _ _
+ rR .ElimProp.f = cong [_] ∘ 𝓘.leftInv
+
+ liftIso/ : Iso (A / R) (B / λ b b' → R (𝓘.inv b) (𝓘.inv b'))
+ liftIso/ .Iso.fun = Rec.go fR
+ liftIso/ .Iso.inv = Rec.go iR
+ liftIso/ .Iso.rightInv = ElimProp.go sR
+ liftIso/ .Iso.leftInv = ElimProp.go rR
