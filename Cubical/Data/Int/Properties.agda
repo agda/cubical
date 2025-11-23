@@ -1455,6 +1455,11 @@ abs· (negsuc m) (pos n) =
   cong abs (negsuc·pos m n) ∙ abs- (pos (suc m) · pos n) ∙ absPos·Pos (suc m) n
 abs· (negsuc m) (negsuc n) = cong abs (negsuc·negsuc m n) ∙ absPos·Pos (suc m) (suc n)
 
+sign·abs : ∀ m → sign m · pos (abs m) ≡ m
+sign·abs (pos zero) = refl
+sign·abs (pos (suc n)) = refl
+sign·abs (negsuc n) = refl
+
 -- ℤ is integral domain
 
 isIntegralℤPosPos : (c m : ℕ) → pos c · pos m ≡ 0 → ¬ c ≡ 0 → m ≡ 0
@@ -1527,12 +1532,12 @@ max-pos-pos zero n = refl
 max-pos-pos (suc m) zero = refl
 max-pos-pos (suc m) (suc n) = cong sucℤ (max-pos-pos m n) ∙ sym (cong pos (maxSuc {m} {n}))
 
-sign : ℤ → ℤ
-sign (pos zero) = 0
-sign (pos (suc n)) = 1
-sign (negsuc n) = -1
+-- sign : ℤ → ℤ
+-- sign (pos zero) = 0
+-- sign (pos (suc n)) = 1
+-- sign (negsuc n) = -1
 
-sign·abs : ∀ m → sign m · pos (abs m) ≡ m
-sign·abs (pos zero) = refl
-sign·abs (pos (suc n)) = refl
-sign·abs (negsuc n) = refl
+-- sign·abs : ∀ m → sign m · pos (abs m) ≡ m
+-- sign·abs (pos zero) = refl
+-- sign·abs (pos (suc n)) = refl
+-- sign·abs (negsuc n) = refl

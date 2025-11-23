@@ -23,9 +23,9 @@ private
 min : ℕ → ℕ → ℕ
 min zero m = zero
 min (suc n) zero = zero
-min (suc n) (suc m) with n <ᵇ m
-... | false = suc m
-... | true  = suc n
+min (suc n) (suc m) with n <ᵇ m UsingEq
+... | false , _ = suc m
+... | true  , _ = suc n
 
 minSuc : min (suc n) (suc m) ≡ suc (min n m)
 minSuc {zero} {zero} = refl
@@ -44,9 +44,9 @@ minComm (suc n) (suc m) = minSuc ∙∙ cong suc (minComm n m) ∙∙ sym minSuc
 max : ℕ → ℕ → ℕ
 max zero m = m
 max (suc n) zero = suc n
-max (suc n) (suc m) with n <ᵇ m
-... | false = suc n
-... | true  = suc m
+max (suc n) (suc m) with n <ᵇ m UsingEq
+... | false , _ = suc n
+... | true  , _ = suc m
 
 maxSuc : max (suc n) (suc m) ≡ suc (max n m)
 maxSuc {zero} {zero} = refl
