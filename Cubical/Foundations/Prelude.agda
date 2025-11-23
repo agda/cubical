@@ -19,6 +19,8 @@ This file proves a variety of basic results about paths:
 
 - Export universe lifting
 
+- Biimplication
+
 -}
 module Cubical.Foundations.Prelude where
 
@@ -651,3 +653,16 @@ liftExt x i = lift (x i)
 liftFun : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'}
   (f : A → B) → Lift {j = ℓ''} A → Lift {j = ℓ'''} B
 liftFun f (lift a) = lift (f a)
+
+-- Biimplication
+_↔_ : (A : Type ℓ) (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
+A ↔ B = Σ (A → B) λ _ → (B → A)
+
+id↔ : A ↔ A
+id↔ .fst x = x
+id↔ .snd x = x
+
+comp↔ : {B : Type ℓ'} {C :  Type ℓ''}
+  → A ↔ B → B ↔ C → A ↔ C
+comp↔ (f , g) (h , r) .fst x = h (f x)
+comp↔ (f , g) (h , r) .snd x = g (r x)
