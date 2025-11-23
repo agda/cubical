@@ -10,6 +10,8 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎
 
+open import Cubical.Data.Bool.Base hiding (_≟_)
+
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
 
@@ -377,11 +379,27 @@ Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)
 Trichotomy-suc (eq m=n) = eq (cong suc m=n)
 Trichotomy-suc (gt n<m) = gt (suc-≤-suc n<m)
 
+private
+  ∸→>ᵇ : ∀ m n → caseNat ⊥.⊥ Unit (m ∸ n) → Bool→Type (m >ᵇ n)
+  ∸→>ᵇ (suc m) zero    t = tt
+  ∸→>ᵇ (suc m) (suc n) t = ∸→>ᵇ m n t
+
 _≟_ : ∀ m n → Trichotomy m n
-zero ≟ zero = eq refl
-zero ≟ suc n = lt (n , +-comm n 1)
-suc m ≟ zero = gt (m , +-comm m 1)
-suc m ≟ suc n = Trichotomy-suc (m ≟ n)
+m ≟ n with m ∸ n UsingEq | n ∸ m UsingEq
+... | zero  , p | zero  , q = eq (∸≡0→≡ p q)
+... | zero  , p | suc _ , q = lt (<ᵇ→< $ ∸→>ᵇ n m $ subst (caseNat ⊥.⊥ Unit) (sym q) tt)
+... | suc _ , p | zero  , q = gt (<ᵇ→< $ ∸→>ᵇ m n $ subst (caseNat ⊥.⊥ Unit) (sym p) tt)
+... | suc _ , p | suc _ , q = ⊥.rec $ ¬m<m {m} $ <-trans
+  (<ᵇ→< $ ∸→>ᵇ n m $ subst (caseNat ⊥.⊥ Unit) (sym q) tt)
+  (<ᵇ→< $ ∸→>ᵇ m n $ subst (caseNat ⊥.⊥ Unit) (sym p) tt)
+
+--  Alternative version of ≟, defined without builtin primitives
+
+_≟'_ : ∀ m n → Trichotomy m n
+zero ≟' zero = eq refl
+zero ≟' suc n = lt (n , +-comm n 1)
+suc m ≟' zero = gt (m , +-comm m 1)
+suc m ≟' suc n = Trichotomy-suc (m ≟' n)
 
 Dichotomyℕ : ∀ (n m : ℕ) → (n ≤ m) ⊎ (n > m)
 Dichotomyℕ n m with (n ≟ m)
@@ -412,7 +430,10 @@ splitℕ-< m n with m ≟ n
 <-split : m < suc n → (m < n) ⊎ (m ≡ n)
 <-split {n = zero} = inr ∘ snd ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
 <-split {zero} {suc n} = λ _ → inl (suc-≤-suc zero-≤)
-<-split {suc m} {suc n} = ⊎.map suc-≤-suc (cong suc) ∘ <-split ∘ pred-≤-pred
+<-split {suc m} {suc n} sm<ssn with m ≟ n
+... | lt m<n = inl (suc-≤-suc m<n)
+... | eq m≡n = inr (cong suc m≡n)
+... | gt n<m = ⊥.rec $ ¬m<m {suc (suc n)} $ ≤-trans (suc-≤-suc (suc-≤-suc n<m)) sm<ssn
 
 ≤-split : m ≤ n → (m < n) ⊎ (m ≡ n)
 ≤-split p = <-split (suc-≤-suc p)
@@ -783,7 +804,7 @@ Monotone! {suc m} {suc n} sm≤sn =
 -- eventualGrowth⇒eventuallyLarger = {!!}
 
 --  -- where
- 
+
 -- -- Σk-m<snᵏ : Σ[ k ∈ ℕ ] (m < (suc (suc n)) ^ k)
 -- -- Σk-m<snᵏ {zero} = 1 , zero-<-suc
 -- -- Σk-m<snᵏ {suc m} {n} = {!n!}

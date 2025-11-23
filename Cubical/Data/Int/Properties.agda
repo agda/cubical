@@ -1532,12 +1532,12 @@ max-pos-pos zero n = refl
 max-pos-pos (suc m) zero = refl
 max-pos-pos (suc m) (suc n) = cong sucℤ (max-pos-pos m n) ∙ sym (cong pos (maxSuc {m} {n}))
 
-sign : ℤ → ℤ
-sign (pos zero) = 0
-sign (pos (suc n)) = 1
-sign (negsuc n) = -1
+-- sign : ℤ → ℤ
+-- sign (pos zero) = 0
+-- sign (pos (suc n)) = 1
+-- sign (negsuc n) = -1
 
-sign·abs : ∀ m → sign m · pos (abs m) ≡ m
-sign·abs (pos zero) = refl
-sign·abs (pos (suc n)) = refl
-sign·abs (negsuc n) = refl
+-- sign·abs : ∀ m → sign m · pos (abs m) ≡ m
+-- sign·abs (pos zero) = refl
+-- sign·abs (pos (suc n)) = refl
+-- sign·abs (negsuc n) = refl
