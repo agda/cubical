@@ -45,7 +45,9 @@ record HeapStr (H : Type ℓ) : Type ℓ where
 Heap : ∀ ℓ → Type (ℓ-suc ℓ)
 Heap ℓ = TypeWithStr ℓ HeapStr
 
-record IsHeapHom {X : Type ℓ} {Y : Type ℓ'} (H : HeapStr X) (f : X → Y) (H' : HeapStr Y) : Type (ℓ-max ℓ ℓ') where
+record IsHeapHom {X : Type ℓ} {Y : Type ℓ'} (H : HeapStr X) (f : X → Y) (H' : HeapStr Y)
+  : Type (ℓ-max ℓ ℓ') where
+
   constructor makeIsHeapHom
 
   private
@@ -58,10 +60,14 @@ unquoteDecl IsHeapHomIsoΣ = declareRecordIsoΣ IsHeapHomIsoΣ (quote IsHeapHom)
 
 isPropIsHeap : {H : Type ℓ} ([_,_,_] : H → H → H → H) → isProp (IsHeap [_,_,_])
 isPropIsHeap [_,_,_] = isOfHLevelRetractFromIso 1 IsHeapIsoΣ $ isPropΣ isPropIsSet λ is-set →
-   isProp×3 (isPropΠ5 (λ _ _ _ _ _ → is-set _ _)) (isPropΠ2 λ _ _ → is-set _ _) (isPropΠ2 λ _ _ → is-set _ _) isPropPropTrunc
+   isProp×3 (isPropΠ5 λ _ _ _ _ _ → is-set _ _)
+            (isPropΠ2 λ _ _ → is-set _ _)
+            (isPropΠ2 λ _ _ → is-set _ _)
+            isPropPropTrunc
 
 isPropIsHeapHom : (H : HeapStr X) (f : X → Y) (H' : HeapStr Y) → isProp (IsHeapHom H f H')
-isPropIsHeapHom H f H' = isOfHLevelRetractFromIso 1 IsHeapHomIsoΣ $ isPropΠ3 λ _ _ _ → H' .is-set _ _
+isPropIsHeapHom H f H' = isOfHLevelRetractFromIso 1 IsHeapHomIsoΣ $
+  isPropΠ3 λ _ _ _ → H' .is-set _ _
   where open HeapStr
 
 IsHeapEquiv : {X : Type ℓ} {Y : Type ℓ'} (H : HeapStr X) (e : X ≃ Y) (H' : HeapStr Y) → Type _
