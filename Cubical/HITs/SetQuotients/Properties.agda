@@ -773,7 +773,7 @@ record ElimProp3 {A : Type ℓ} {R : A → A → Type ℓ'}
    w' .ElimProp.isPropB _ = isPropB _ _ _
    w' .ElimProp.f = f x y
 
- 
+
 module _ {A : Type ℓ} {B : Type ℓ'} (R : A → A → Type ℓ'')
          (isom : Iso A B) where
  module 𝓘 = Iso isom
@@ -787,15 +787,15 @@ module _ {A : Type ℓ} {B : Type ℓ'} (R : A → A → Type ℓ'')
  fR .Rec.f∼ a a' r = eq/ _ _
   (subst2 R (sym (𝓘.leftInv a)) (sym (𝓘.leftInv a')) r)
 
- iR : Rec {R = R'} (A / R) 
+ iR : Rec {R = R'} (A / R)
  iR .Rec.isSetB = squash/
  iR .Rec.f b = [ 𝓘.inv b ]
- iR .Rec.f∼ b b' r' = eq/ _ _ r' 
+ iR .Rec.f∼ b b' r' = eq/ _ _ r'
 
  sR : ElimProp {R = R'} λ b → Rec.go fR (Rec.go iR b) ≡ b
  sR .ElimProp.isPropB _ = squash/ _ _
- sR .ElimProp.f = congS [_] ∘ 𝓘.rightInv 
- 
+ sR .ElimProp.f = congS [_] ∘ 𝓘.rightInv
+
  rR : ElimProp {R = R} λ a → Rec.go iR (Rec.go fR a) ≡ a
  rR .ElimProp.isPropB _ = squash/ _ _
  rR .ElimProp.f = cong [_] ∘ 𝓘.leftInv

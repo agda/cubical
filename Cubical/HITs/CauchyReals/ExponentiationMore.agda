@@ -1274,7 +1274,7 @@ seq-^-intervals∈Pos x 0<x =
 
                  (((≤ℚ→≤ᵣ (fromNat (suc n)) _
                       (ℚ.≤ℤ→≤ℚ _ _ (ℤ.ℕ≤→pos-≤-pos _ _ (ℕ.≤-suc $ ℕ.suc-≤-suc (ℕ.left-≤-max {n} {n'})))))))
-                       
+
                )
     (getClamps x) (getClamps (fst (invℝ₊ (x , 0<x))))
 

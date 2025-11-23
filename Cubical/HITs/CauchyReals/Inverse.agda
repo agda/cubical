@@ -56,9 +56,9 @@ module 𝐑' = RP.RingTheory Rℝ
 
 module 𝐐' = RP.RingTheory (CR.CommRing→Ring ℚCommRing)
 
-module L𝐑 = Lems ((_ , CR.commringstr 0 1 _+ᵣ_ _·ᵣ_ -ᵣ_ IsCommRingℝ)) 
+module L𝐑 = Lems ((_ , CR.commringstr 0 1 _+ᵣ_ _·ᵣ_ -ᵣ_ IsCommRingℝ))
 
- 
+
 
 
 Invᵣ-restrℚ : (η : ℚ₊) →

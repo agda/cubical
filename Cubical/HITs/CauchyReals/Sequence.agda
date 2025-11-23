@@ -61,10 +61,10 @@ foldlFin : ∀ {n} → (B → A → B) → B → (F.Fin n → A) → B
 foldlFin {n = zero} f b v = b
 foldlFin {n = suc n} f b v = foldlFin {n = n} f (f b (v F.fzero)) (v ∘ F.fsuc)
 
-k·mᵏ<[m+sn]ᵏ : ∀ k m n → k ℕ.· (m ℕ.^ k) ℕ.< (m ℕ.+ suc n) ℕ.^ (suc k) 
+k·mᵏ<[m+sn]ᵏ : ∀ k m n → k ℕ.· (m ℕ.^ k) ℕ.< (m ℕ.+ suc n) ℕ.^ (suc k)
 k·mᵏ<[m+sn]ᵏ zero m n = subst2 ℕ._<_ refl
   (sym (ℕ.·-identityʳ _)) (ℕ.≤-+-< (ℕ.zero-≤ {m}) (ℕ.zero-<-suc {n}))
-k·mᵏ<[m+sn]ᵏ (suc k) zero n = 
+k·mᵏ<[m+sn]ᵏ (suc k) zero n =
  subst2 ℕ._<_
   (ℕ.0≡m·0 _)
     refl (ℕ.monotone-^ 0 (suc n) (suc k) (ℕ.zero-<-suc {n}))
@@ -82,23 +82,23 @@ k·mᵏ<[m+sn]ᵏ (suc k) m@(suc m') n =
        ∙ cong₂ ℕ._+_ refl (ℕ.+-comm _ _))
       ∙ sym (binomialℕ (suc (suc k)) (suc n) m)
       ∙ cong (ℕ._^ (suc (suc k))) (ℕ.+-comm (suc n) m))
-    (ℕ.<-+-≤ {zero} {_} 
+    (ℕ.<-+-≤ {zero} {_}
       (ℕ.<-+-≤ (ℕ.monotone-^ 0 (suc m') (suc k) (ℕ.zero-<-suc {m'})) ℕ.zero-≤)
       (ℕ.≤monotone· (ℕ.≤-·k (ℕ.≤-sucℕ {suc k}))
-       (ℕ.suc-≤-suc (ℕ.zero-≤ {n}))) 
-      ) 
+       (ℕ.suc-≤-suc (ℕ.zero-≤ {n})))
+      )
 
 
  where
  open Cubical.Algebra.CommRing.BinomialThm.BinomialThm ℤCommRing
   renaming (_choose_ to _ℤchoose_)
  open Exponentiation ℤCommRing renaming (_^_ to _^ℤ_)
- open Cubical.Algebra.Ring.BigOps.Sum (CommRing→Ring ℤCommRing) 
+ open Cubical.Algebra.Ring.BigOps.Sum (CommRing→Ring ℤCommRing)
 
  choose1 : ∀ n → n choose 1 ≡  n
  choose1 zero = refl
  choose1 (suc n) = ℕ.+-comm _ _ ∙ cong suc (choose1 n)
- 
+
 
  binVecℕ : ∀ k n m → FD.Fin (suc k) → ℕ
  binVecℕ k n m i = (k choose (FD.toℕ i)) ℕ.· n ℕ.^
@@ -118,7 +118,7 @@ k·mᵏ<[m+sn]ᵏ (suc k) m@(suc m') n =
   ∙ cong₂ ℤ._·_ refl (^-lemma a b)
 
 
- binVecℕ≡bvℤ : ∀ k n m f  → 
+ binVecℕ≡bvℤ : ∀ k n m f  →
    pos (binVecℕ k n m f) ≡ BinomialVec k (pos n) (pos m) f
  binVecℕ≡bvℤ k n m f =
    ℤ.pos·pos _ _ ∙
@@ -126,12 +126,12 @@ k·mᵏ<[m+sn]ᵏ (suc k) m@(suc m') n =
      (ℤ.pos·pos _ _ ∙ cong₂ ℤ._·_
        (choose≡ℤchoose _ _) (^-lemma _ _))
      (^-lemma m (k ∸ FD.toℕ f))
-      
- 
+
+
  bnmℕ : ∀ k f → pos (FD.foldrFin {n = k} ℕ._+_ zero f)
      ≡ (FD.foldrFin ℤ._+_ (pos zero) (pos ∘ f))
-     
- bnmℕ zero f = refl 
+
+ bnmℕ zero f = refl
  bnmℕ (suc k) f = ℤ.pos+ _ _ ∙
    cong₂ ℤ._+_
     refl (bnmℕ k _)
@@ -147,13 +147,13 @@ k·mᵏ<[m+sn]ᵏ (suc k) m@(suc m') n =
    ∙∙ (cong (FD.foldrFin ℤ._+_ (pos zero))
      (funExt (sym ∘ binVecℕ≡bvℤ k n m))
      ∙ sym (bnmℕ (suc k) (binVecℕ k n m))))
- 
+
 
 ℕkⁿ<ε : ∀ p q r s → 0 ℕ.< q →  s ℕ.< r → Σ[ n ∈ ℕ ]
              p ℕ.· s ℕ.^ n ℕ.< q ℕ.· r ℕ.^ n
 ℕkⁿ<ε p q zero s 0<q s<r = ⊥.rec (ℕ.¬-<-zero s<r)
 ℕkⁿ<ε p zero _ s 0<q s<r = ⊥.rec (ℕ.¬-<-zero 0<q)
-ℕkⁿ<ε p (suc q) (suc r) s 0<q (u , u+ss=sr) = 
+ℕkⁿ<ε p (suc q) (suc r) s 0<q (u , u+ss=sr) =
 
 
  let n = p ℕ.· s
@@ -164,9 +164,9 @@ k·mᵏ<[m+sn]ᵏ (suc k) m@(suc m') n =
           {suc q ℕ.· (suc r ℕ.^ suc n)}
           (k·mᵏ<[m+sn]ᵏ n s u)
           (subst2 (ℕ._≤_)
-             (+-zero _) 
+             (+-zero _)
              (cong (λ r → suc q ℕ.· (r ^ suc n))
-               ((+-suc s u ∙ +-comm (suc s) u) ∙ u+ss=sr)) 
+               ((+-suc s u ∙ +-comm (suc s) u) ∙ u+ss=sr))
              (ℕ.≤-·k {1} {suc q} {k = (s ℕ.+ suc u) ^ suc n}
                (ℕ.zero-<-suc {q}))))
 
@@ -263,9 +263,9 @@ Seq = ℕ → ℝ
     ∙ rat·ᵣrat _ _ ∙
       cong (rat r ·ᵣ_) (sym (invℝ-rat _ _ (fst (rat＃ _ _) p)) )) x
 
-/nᵣ-／ᵣ₊ : ∀ n x 
+/nᵣ-／ᵣ₊ : ∀ n x
             → /nᵣ n x ≡ (x ／ᵣ₊ (fromNat (ℕ₊₁→ℕ n)) )
-/nᵣ-／ᵣ₊ n x = 
+/nᵣ-／ᵣ₊ n x =
  ≡Continuous _ _
    (Lipschitz→IsContinuous _ (fst (/nᵣ-L n)) (snd (/nᵣ-L n)))
     (IsContinuous·ᵣR _)
@@ -576,7 +576,7 @@ Seq'≤→Σ≤ s s' x (suc n) =
 
 
 abs[seqΣ]≤seqΣ[abs] : ∀ s n → absᵣ (seqΣ s n) ≤ᵣ seqΣ (absᵣ ∘ s) n
-abs[seqΣ]≤seqΣ[abs] s zero = ≡ᵣWeaken≤ᵣ _ _ absᵣ0 
+abs[seqΣ]≤seqΣ[abs] s zero = ≡ᵣWeaken≤ᵣ _ _ absᵣ0
 abs[seqΣ]≤seqΣ[abs] s (suc n) =
  isTrans≤ᵣ _ _ _
    (absᵣ-triangle _ _)
@@ -595,7 +595,7 @@ absᵣIdemp x = absᵣNonNeg _ (0≤absᵣ _)
 
 
 seqΣ'-truncateNonNeg : ∀ f → (∀ k → 0 ≤ᵣ f k) →
-  ∀ n m → n ℕ.≤ m → seqΣ' f n ≤ᵣ seqΣ' f m 
+  ∀ n m → n ℕ.≤ m → seqΣ' f n ≤ᵣ seqΣ' f m
 seqΣ'-truncateNonNeg f f-nonNeg zero m n≤m = 0≤seqΣ' f f-nonNeg m
 seqΣ'-truncateNonNeg f f-nonNeg (suc n) zero n≤m =
   ⊥.rec (ℕ.¬-<-zero n≤m )
@@ -607,23 +607,23 @@ seqΣ'-truncateNonNeg f f-nonNeg (suc n) (suc m) n≤m =
 
 seqΣ-truncateNonNeg : ∀ f → (∀ k → 0 ≤ᵣ f k) →
   ∀ n m → n ℕ.≤ m → seqΣ f n ≤ᵣ seqΣ f m
-seqΣ-truncateNonNeg f f-nonNeg n m n≤m =   
+seqΣ-truncateNonNeg f f-nonNeg n m n≤m =
   subst2 _≤ᵣ_
     (sym (seqSumUpTo≡seqSumUpTo' f n) )
     (sym (seqSumUpTo≡seqSumUpTo' f m))
-   (seqΣ'-truncateNonNeg f f-nonNeg n m n≤m)    
+   (seqΣ'-truncateNonNeg f f-nonNeg n m n≤m)
 
 series-subSeqLemma : (s : ℕ → ℝ) → (∀ n → 0 ≤ᵣ s n)
    → (spd : ∀ n → Σ _ (n ℕ.≤_))
-   → (∀ k → (fst (spd k) ℕ.< fst (spd (suc k)))) 
-   → ∀ m m'  
+   → (∀ k → (fst (spd k) ℕ.< fst (spd (suc k))))
+   → ∀ m m'
    → seqΣ (λ z → s (fst (spd (z ℕ.+ m)))) m' ≤ᵣ
      seqΣ (λ z → s (z ℕ.+ m)) ((m' ℕ.+ fst (snd (spd (predℕ m' ℕ.+ m)))))
-     
-series-subSeqLemma s 0≤s spd _ m zero = 
-   0≤seqΣ _ 
+
+series-subSeqLemma s 0≤s spd _ m zero =
+   0≤seqΣ _
      (λ n → 0≤s (n ℕ.+ m))
-     ((fst (snd (spd m)))) 
+     ((fst (snd (spd m))))
 series-subSeqLemma s 0≤s spd sIncr m (suc m') =
 
   isTrans≤≡ᵣ _ _ _
@@ -639,7 +639,7 @@ series-subSeqLemma s 0≤s spd sIncr m (suc m') =
    spdMon : ∀ m' → m' ℕ.+ (fst (snd (spd (predℕ m' ℕ.+ m)))) ℕ.≤
         m' ℕ.+ fst (snd (spd (m' ℕ.+ m)))
    spdMon zero = ℕ.≤-refl
-   spdMon (suc m') = 
+   spdMon (suc m') =
      let p = snd (snd (spd (m' ℕ.+ m)))
          p' = snd (snd (spd (suc m' ℕ.+ m)))
      in subst2 ℕ._≤_
@@ -663,7 +663,7 @@ series-subSeqLemma s 0≤s spd sIncr m (suc m') =
 abs[seqΣ]≡seqΣ : ∀ s n → (∀ n → 0 ≤ᵣ s n) →  absᵣ (seqΣ s n) ≡ seqΣ s n
 abs[seqΣ]≡seqΣ s n 0≤s =
   absᵣNonNeg _ (isTrans≡≤ᵣ _ _ _
-       (sym (𝐑'.0LeftAnnihilates _) 
+       (sym (𝐑'.0LeftAnnihilates _)
      ∙∙ sym (seqSumUpToConst 0 n)
      ∙∙ sym (seqSumUpTo≡seqSumUpTo' _ _)) (Seq'≤→Σ≤ _ _ 0≤s n))
 
@@ -1010,7 +1010,7 @@ module bⁿ-aⁿ n'  where
          (isTrans<ᵣ _ _ _ (snd ((y , 0<y) ₊·ᵣ ℚ₊→ℝ₊ ([ 1 / 2 ] , _)))
            y/2<x) 0<y xⁿ≤yⁿ))
     (Dichotomyℝ' (y ·ᵣ rat [ 1 / 2 ]) x y
-      (isTrans<≡ᵣ _ _ _ (<ᵣ-o·ᵣ _ _ (_ , 0<y) decℚ<ᵣ?) (·IdR _) )) 
+      (isTrans<≡ᵣ _ _ _ (<ᵣ-o·ᵣ _ _ (_ , 0<y) decℚ<ᵣ?) (·IdR _) ))
 
 
 ^ⁿStrictMonotone⁻¹ : ∀ {x y : ℝ} (n : ℕ) → (0 ℕ.< n) → 0 <ᵣ x → 0 <ᵣ y
@@ -1028,7 +1028,7 @@ module bⁿ-aⁿ n'  where
          (subst2 _<ᵣ_
            (sym (𝐑'.0RightAnnihilates (bⁿ-aⁿ.S n x y 0<x 0<y)))
             (·ᵣComm (y -ᵣ x) _) z))
- 
+
 _~seq_ : Seq → Seq → Type
 s ~seq s' = ∀ (ε : ℚ₊) → Σ[ N ∈ ℕ ] (∀ m n → N ℕ.< n → N ℕ.< m →
    absᵣ ((s n) +ᵣ (-ᵣ (s' m))) <ᵣ rat (fst ε)   )
@@ -1258,7 +1258,7 @@ fromCauchySequence'-≡ s s' ics ics' p =
 fromCauchySequence'₁ : ∀ s → ∥ IsCauchySequence' s ∥₁ → ℝ
 fromCauchySequence'₁ s = PT.rec→Set isSetℝ
   (fromCauchySequence' s)
-  (fromCauchySequence'-≡-lem s)  
+  (fromCauchySequence'-≡-lem s)
 
 fromCauchySequence'≡ : ∀ s ics x
          → ((∀ (ε : ℚ₊) →
@@ -1288,7 +1288,7 @@ fromCauchySequence'₁≡ : ∀ s ics x
                   absᵣ ((s n) -ᵣ x) <ᵣ rat (fst ε))))
          → fromCauchySequence'₁ s ics ≡ x
 fromCauchySequence'₁≡ s ics x p =
-  PT.elim {P = λ ics → fromCauchySequence'₁ s ics ≡ x} 
+  PT.elim {P = λ ics → fromCauchySequence'₁ s ics ≡ x}
     (λ _ → isSetℝ _ _)
     (λ ics → fromCauchySequence'≡ s ics x p)
     ics
@@ -1325,20 +1325,20 @@ fromCauchySequence'-lim s ics ε =
 cauchySequenceFaster : ∀ s
   → (spd : ∀ n → Σ _ (n ℕ.≤_))
     (ics : IsCauchySequence' s)
-    
+
   → Σ[ ics' ∈ IsCauchySequence' (s ∘ fst ∘ spd) ]
       fromCauchySequence' s ics ≡
        fromCauchySequence' (λ z → (s ∘ (λ r → fst r) ∘ spd) z) ics'
 cauchySequenceFaster s spd ics =
   ics' ,
    sym (fromCauchySequence'≡ (s ∘ fst ∘ spd) ics' _
-      (λ ε → 
+      (λ ε →
          let (N , X) = fromCauchySequence'-lim s ics ε
          in ∣ N , (λ n <n → X _ (ℕ.<≤-trans <n (snd (spd _)))) ∣₁))
  where
  ics' = map-snd (λ X _ _ n< m< →
    X _ _ (ℕ.<≤-trans n< (snd (spd _))) (ℕ.<≤-trans m< (snd (spd _)))) ∘ ics
-   
+
 
 fromCauchySequence'₁-∘+ : ∀ s k ics ics' →
        fromCauchySequence'₁ s ics
@@ -1347,7 +1347,7 @@ fromCauchySequence'₁-∘+ s k =
   PT.elim2 (λ _ _ → isSetℝ _ _)
    λ ics ics' →
     fromCauchySequence'≡ _ _ _
-      (λ ε → 
+      (λ ε →
          let (N , X) = fromCauchySequence'-lim (s ∘ (k ℕ.+_)) ics' ε
          in ∣ k ℕ.+ N , (λ n x →
             isTrans≡<ᵣ _ _ _
@@ -1357,8 +1357,8 @@ fromCauchySequence'₁-∘+ s k =
                    ∙ sym (+-suc _ _)
                   ∙∙ sym (ℕ.+-assoc k (x .fst) (suc N)))))
                refl))
-              (X (fst x ℕ.+ suc N) (ℕ.≤SumRight {suc N})) ) ∣₁)  
-  
+              (X (fst x ℕ.+ suc N) (ℕ.≤SumRight {suc N})) ) ∣₁)
+
 Limₙ→∞ : Seq → Type
 Limₙ→∞ s = Σ _ (limₙ→∞ s is_)
 
@@ -1883,8 +1883,8 @@ opaque
    PT.elim2
      (λ ics ics' → isPropΠ λ _ → isProp≤ᵣ
        (fromCauchySequence'₁ s ics) (fromCauchySequence'₁ s' ics'))
-     λ ics ics' p → fromCauchySequence'≤ s ics s' ics' p 
- 
+     λ ics ics' p → fromCauchySequence'≤ s ics s' ics' p
+
 mapNE-fromCauchySequence' : ∀ {h} (ne : NonExpanding₂ h) s ics s' ics' →
     Σ (IsCauchySequence'
          λ k → NonExpanding₂.go ne (s k) (s' k)) λ icsf →
@@ -1934,7 +1934,7 @@ fromConvAbs s =
     ∘_
 
 ratioTest : ∀ (s : Seq)
-     → (0＃sₙ : ∀ n → 0 ＃ s n ) 
+     → (0＃sₙ : ∀ n → 0 ＃ s n )
      → lim'ₙ→∞ s is 0
      → lim'ₙ→∞ (λ n →  s (suc n) ／ᵣ[ s n , 0＃sₙ n ]) is 0
      → IsConvSeries' s
@@ -1957,7 +1957,7 @@ ratioTest s 0＃sₙ l' l =
              absᵣ (s (suc n)) ／ᵣ[ absᵣ (s n) , inl (0＃→0<abs (s n) (0＃sₙ n)) ])
           is 0
  abs-l = map-snd (λ X →
-   λ n x → isTrans≡<ᵣ _ _ _ 
+   λ n x → isTrans≡<ᵣ _ _ _
           (cong absᵣ (cong₂ _+ᵣ_ refl (-ᵣ-rat 0) ∙ +IdR _)
              ∙∙ cong absᵣ (
                   cong₂ _·ᵣ_
@@ -1984,7 +1984,7 @@ expℚ₊ q = fromCauchySequence' _
     (expSeriesConvergesAtℚ₊ (fst q) (ℚ.0<ℚ₊ q)))
 
 
-expℝ-convSeriesF : ∀ r r' → absᵣ r <ᵣ r' → ∀ (ε : ℚ₊) → 
+expℝ-convSeriesF : ∀ r r' → absᵣ r <ᵣ r' → ∀ (ε : ℚ₊) →
         ∀ N →
          ((n m : ℕ) →
            absᵣ (seqΣ (λ x → expSeq r' (x ℕ.+ (n ℕ.+ suc N))) m) <ᵣ
@@ -2005,7 +2005,7 @@ expℝ-convSeriesF r r' ∣r∣<r' ε a X n m =
               (0≤absᵣ r) ∣r∣<r') _))))
       (X n m)
    where
-   
+
    zzz' : ∀ n → absᵣ (expSeq r n) ≤ᵣ expSeq r' n
    zzz' zero = ≡ᵣWeaken≤ᵣ _ _ (absᵣ-rat 1)
    zzz' (suc n) = subst2 _≤ᵣ_
@@ -2049,7 +2049,7 @@ expℝ-cauchySeq r = (PT.map
 expℝ : ℝ → ℝ
 expℝ r =
  fromCauchySequence'₁ (seqΣ (expSeq r)) (expℝ-cauchySeq r)
-   
+
 
 
 

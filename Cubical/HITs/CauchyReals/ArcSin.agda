@@ -91,11 +91,11 @@ Integral-≤ a b a≤b f f' s s' f≤f' s=∫ s'=∫ =
 Integral0ℙ : (a b : ℝ) →
              a ≤ᵣ b →
              on[ a , b ]IntegralOf (λ _ _ _ → 0) is 0
-Integral0ℙ a b a≤b = 
+Integral0ℙ a b a≤b =
   subst (on[ a , b ]IntegralOf (λ _ _ _ → rat [ pos 0 / 1+ 0 ]) is_)
     (𝐑'.0LeftAnnihilates _) (IntegralConstℙ a b a≤b 0)
 
-cos∘absᵣ : ∀ x → cos x ≡ cos (absᵣ x) 
+cos∘absᵣ : ∀ x → cos x ≡ cos (absᵣ x)
 cos∘absᵣ = ≡Continuous _ _
   isContinuousCos
   (IsContinuous∘ _ _ isContinuousCos IsContinuousAbsᵣ)
@@ -130,7 +130,7 @@ cos∘absᵣ = ≡Continuous _ _
       (isTrans<≡ᵣ _  _ _  (-ᵣ<ᵣ _ _ (fst x∈)) (-ᵣInvol _ ))))))
    (sym (cos∘absᵣ x))
 
-  
+
 sin-firstQuarter-Monotone :
       (x y : ℝ)
       (x∈ : x ∈ intervalℙ 0 π-number/2)
@@ -145,7 +145,7 @@ sin-firstQuarter-Monotone x y x∈ y∈ x≤y =
            isTrans≤ᵣ _ _ _ x'≤ (snd y∈ ) ))
       (Integral0ℙ _ _ x≤y)
       (∫cos x y x≤y))
-      
+
 sin-Monotone :
       (x y : ℝ)
       (x∈ : x ∈ intervalℙ (-ᵣ π-number/2) π-number/2)
@@ -180,7 +180,7 @@ cos-firstQuarter-Monotone x y x∈ y∈ x≤y =
                    (isTrans≤ᵣ _ _ _ (fst x∈) ≤x')))
               (Integral0ℙ _ _ x≤y)
               (∫sin x y x≤y))
- 
+
 
 denseℝ : ∀ u v → u <ᵣ v → Σ[ r ∈ ℝ ] ((u <ᵣ r) × (r <ᵣ v))
 denseℝ u v u<v =
@@ -290,7 +290,7 @@ sin-strictMonotone :
       (y∈ : y ∈ intervalℙ (-ᵣ π-number/2) π-number/2)
       → x <ᵣ y → sin x <ᵣ sin y
 sin-strictMonotone x y x∈ y∈ x<y =
-  
+
  let (m , x<m , m<y)  = denseℝ _ _ x<y
      (m' , x<m' , m'<m)  = denseℝ _ _ x<m
      m∈ : m ∈ ointervalℙ (-ᵣ π-number/2) π-number/2
@@ -306,18 +306,18 @@ sin-strictMonotone x y x∈ y∈ x<y =
        m∈ m'<m))
       (sin-Monotone _ _ (ointervalℙ⊆intervalℙ _ _ m m∈) y∈
       (<ᵣWeaken≤ᵣ _ _ m<y))
-      
 
 
 
-  
+
+
 -- reciporalDerivativeUℙ :
 --     ∀ P (f f' : ∀ x → x ∈ P → ℝ)
 --      → (fPos : ∀ x x∈ → 0 <ᵣ f x x∈)
 --     → IsUContinuousℙ P f
 --     → uDerivativeOfℙ P ,
 --        ((λ x x∈ → fst (invℝ₊ (f x x∈ , fPos _ _)))) is
---          λ x x∈ → (-ᵣ (f' x x∈ ／ᵣ₊ ((f x x∈ , fPos _ _ ) ₊^ⁿ 2)))                   
+--          λ x x∈ → (-ᵣ (f' x x∈ ／ᵣ₊ ((f x x∈ , fPos _ _ ) ₊^ⁿ 2)))
 -- reciporalDerivativeUℙ = {!!}
 
 -- DerivativeUℙ-invℝ₊ : ∀ (q : ℚ₊) →
@@ -326,12 +326,12 @@ sin-strictMonotone x y x∈ y∈ x<y =
 --      is λ x x∈ → fst (invℝ₊ ((x , (fst x∈)) ₊^ⁿ 2))
 -- DerivativeUℙ-invℝ₊ q = {!!}
 
-    
+
 -- TODO : if we switch to bishop definition of derivative,
 -- we can ditch injectivity of f
 
 opaque
- chainRule-uDℙ : ∀ P P' →  
+ chainRule-uDℙ : ∀ P P' →
    (f : ∀ x → x ∈ P → ℝ)
    (f' : ∀ x → x ∈ P → ℝ)
    (g : ∀ x → x ∈ P' → ℝ)
@@ -352,15 +352,15 @@ opaque
    f∈ ucf ucg' gD fD ε = do
   (∣g'∣ , <∣g'∣) ← gBd
   let α = ℚ.invℚ₊ (1 ℚ₊+ (∣f'∣)) ℚ₊· /2₊ ε
-      β = ℚ.invℚ₊ (α ℚ₊+ ∣g'∣) ℚ₊· /2₊ ε  
+      β = ℚ.invℚ₊ (α ℚ₊+ ∣g'∣) ℚ₊· /2₊ ε
   (δ-g , <δ-g) ← (gD α)
   (δ-f , <δ-f) ← (fD β)
   let ω-f , <ω-f = ucf δ-g
       δ : ℚ₊
       δ = ℚ.min₊ ω-f δ-f
-      g∘f : ∀ x → x ∈ P → ℝ 
+      g∘f : ∀ x → x ∈ P → ℝ
       g∘f = λ x x∈ → g (f x x∈) (f∈ x x∈)
-      g'∘f : ∀ x → x ∈ P → ℝ 
+      g'∘f : ∀ x → x ∈ P → ℝ
       g'∘f = λ x x∈ → g' (f x x∈) (f∈ x x∈)
   ∣ δ , (λ x x∈ h h∈ 0＃h h< →
     let ∣h∣ : ℝ₊
@@ -430,7 +430,7 @@ opaque
              -ᵣ ((g∘f (x +ᵣ h) h∈ -ᵣ g∘f x x∈))) <ᵣ rat (fst ε) ·ᵣ absᵣ h
         z = isTrans≤<ᵣ _
                      ((rat (fst α) ·ᵣ rat (fst ∣f'∣) ·ᵣ absᵣ h)
-                   +ᵣ rat (fst (α ℚ₊+ ∣g'∣)) ·ᵣ 
+                   +ᵣ rat (fst (α ℚ₊+ ∣g'∣)) ·ᵣ
                       (absᵣ (f' x x∈ ·ᵣ h -ᵣ (f _ h∈ -ᵣ f _ x∈)))) _
               (isTrans≤ᵣ _ _ _
                 (isTrans≡≤ᵣ _ _ _
@@ -503,7 +503,7 @@ arcSin'-Monotone x y x∈ y∈ x≤y =
 ·invℝ₊ : ∀ x y → fst (invℝ₊ (x ₊·ᵣ y)) ≡ fst (invℝ₊ x) ·ᵣ fst (invℝ₊ y)
 ·invℝ₊ x y =
   sym (·IdL _) ∙
-  sym (x·y≡z→x≡z/₊y _ _ _ 
+  sym (x·y≡z→x≡z/₊y _ _ _
     (·ᵣComm _ _
      ∙∙    sym (·ᵣAssoc _ _ _)
         ∙∙ cong (fst x ·ᵣ_) (·ᵣAssoc _ _ _ ∙ ·ᵣComm _ _)
@@ -520,14 +520,14 @@ arcSin'-Monotone x y x∈ y∈ x≤y =
       ∙ cong₂ _·ᵣ_ (·ᵣComm _ _) refl)
     (sym ([x/₊y]·yᵣ _ v₊))
     ∙ sym (𝐑'.·DistR- _ _ _)
-    ∙ ·ᵣComm _ _ 
+    ∙ ·ᵣComm _ _
     ∙ cong₂ _·ᵣ_ refl (sym (·invℝ₊ u₊ v₊))
 
 
-pre-invℝ₊UC : ∀ (x : ℚ₊) → 
+pre-invℝ₊UC : ∀ (x : ℚ₊) →
   IsUContinuousℙ (pred≥ (rat (fst x)))
          (λ x' x≤x' → fst (invℝ₊ (x' ,
-           isTrans<≤ᵣ _ _ _ (snd (ℚ₊→ℝ₊ x)) x≤x'))) 
+           isTrans<≤ᵣ _ _ _ (snd (ℚ₊→ℝ₊ x)) x≤x')))
 pre-invℝ₊UC q ε =
   ((q ℚ₊^ⁿ 2) ℚ₊· ε) ,
    λ u v u∈ v∈ → invEq (∼≃abs<ε _ _ _) ∘S
@@ -544,7 +544,7 @@ pre-invℝ₊UC q ε =
              ∙ ·absᵣ _ _ ∙
             cong₂ _·ᵣ_
               refl (absᵣPos _ (snd (invℝ₊ (u₊ ₊·ᵣ v₊)))))
-              
+
            (invEq (z/y<x₊≃z<y₊·x _ _ _)
              (isTrans<≤ᵣ _ _ _ ∣u-v∣<ε²
               (isTrans≡≤ᵣ _ _ _
@@ -581,8 +581,8 @@ arcSin'-UC : ∀ x → (x∈ : x ∈ pred≤< 0 1) →
    ∥ IsUContinuousℙ (intervalℙ 0 x)
       (λ x' x'∈ → arcSin' x' (fst x'∈ , isTrans≤<ᵣ x' x 1 (snd x'∈) (snd x∈)))
       ∥₁
-arcSin'-UC y (0≤y , y<1) = 
- let z =  
+arcSin'-UC y (0≤y , y<1) =
+ let z =
       PT.map (flip (IsUContinuousℙ∘ℙ (intervalℙ 0 y)
         (intervalℙ (fst (root 2 (1 -ᵣ y ^ⁿ 2 ,
           (x<y→0<y-x _ _ (^<1 y 0≤y 1 y<1)))))  1)
@@ -591,7 +591,7 @@ arcSin'-UC y (0≤y , y<1) =
            ((x , isTrans<≤ᵣ _ _ _
              (snd (root 2 (1 -ᵣ (y ^ⁿ 2) ,
              x<y→0<y-x (y ^ⁿ 2) 1 (^<1 y 0≤y 1 y<1))))
-             (fst  x∈))))} 
+             (fst  x∈))))}
                  λ x' (0≤x' , x'<y) →
                    ₙ√-Monotone 2 (≤ᵣ-o+ _ _ 1
                     (-ᵣ≤ᵣ _ _ (^ⁿ-Monotone 2 0≤x'  x'<y)))  ,
@@ -600,7 +600,7 @@ arcSin'-UC y (0≤y , y<1) =
                      (≤ᵣ-o+ _ _ 1 (-ᵣ≤ᵣ _ _ ( 0≤x^ⁿ x' 2 0≤x')))
                       (𝐑'.+IdR' _ _ (-ᵣ-rat 0))))
                     (cong fst (ₙ√1 2) )) )
-                 
+
          (IsUContinuousℙ∘ℙ (intervalℙ 0 y) (pred> 0)
            {λ x x∈ → fst (root 2 (x , x∈)) }
             {λ x _ → 1 -ᵣ (x ^ⁿ 2)}
@@ -614,9 +614,9 @@ arcSin'-UC y (0≤y , y<1) =
                (IsUContinuousℙ-restr (intervalℙ 0 1) (intervalℙ 0 y)
                  _ (λ x → map-snd (flip (isTrans≤ᵣ _ _ _) (<ᵣWeaken≤ᵣ _ _ y<1) ))
                (IsUContinuousℙ^ⁿ 0 1 ((decℚ≤ᵣ? {0} {1})) 2)))))
-               ) 
-          
-        (PT.map 
+               )
+
+        (PT.map
          (subst (IsUContinuousℙ (intervalℙ _ 1))
           (funExt₂ λ x _ → cong (fst ∘ invℝ₊) (ℝ₊≡ refl)) ∘
             IsUContinuousℙ-restr (pred≥ _)
@@ -625,18 +625,18 @@ arcSin'-UC y (0≤y , y<1) =
                λ _ → fst)
             (invℝ₊UC _ ((snd (root 2 (1 -ᵣ y ^ⁿ 2 ,
           (x<y→0<y-x _ _ (^<1 y 0≤y 1 y<1))))))))
-  in 
+  in
     PT.map (subst (IsUContinuousℙ (intervalℙ (rat [ pos 0 / 1+ 0 ]) y))
      (funExt₂ λ x x∈ →
         cong (fst ∘ invℝ₊) (ℝ₊≡
-          refl))) z    
+          refl))) z
 
 opaque
  arcSinDef : ∀ x → (x∈ : x ∈ pred≤< 0 1) →
    Σ[ arcSinX ∈ ℝ ]
      (on[ 0 , x ]IntegralOf
        (λ x' ≤x x< → arcSin' x' (≤x , isTrans≤<ᵣ _ _ _ x< (snd x∈))) is arcSinX )
- arcSinDef x x∈@(0≤x , x<1) = 
+ arcSinDef x x∈@(0≤x , x<1) =
   PT.rec
    (IntegratedℙPropℙ _ _ 0≤x _)
     (Integrate-UContinuousℙ
@@ -658,11 +658,11 @@ emptyIntegral x f ε = ∣ 1 ,
      ∙ absᵣ0)
     (snd (ℚ₊→ℝ₊ ε))) ∣₁
 
-arcSin[0]≡0 : (0∈ : 0 ∈ pred≤< 0 1) → arcSin 0 0∈ ≡ 0 
+arcSin[0]≡0 : (0∈ : 0 ∈ pred≤< 0 1) → arcSin 0 0∈ ≡ 0
 arcSin[0]≡0 0∈ = IntegralUniq 0 0 (fst 0∈) _ _ _
   (snd (arcSinDef 0 0∈)) (emptyIntegral 0 _)
 
-arcSinInj : ∀ x y x∈ y∈ → arcSin x x∈ ≡ arcSin y y∈ → x ≡ y  
+arcSinInj : ∀ x y x∈ y∈ → arcSin x x∈ ≡ arcSin y y∈ → x ≡ y
 arcSinInj x y x∈@(0≤x , x<1) y∈@(0≤y , y<1) p =
   ≡-byContracdition _ _ w
 
@@ -670,7 +670,7 @@ arcSinInj x y x∈@(0≤x , x<1) y∈@(0≤y , y<1) p =
   where
   w : (ε : ℚ₊) → rat (fst ε) <ᵣ absᵣ (x -ᵣ y) → ⊥
   w ε ε< =
-    ⊎.rec 
+    ⊎.rec
            (w' y x y∈ x∈ (sym p))
            (w' x y x∈ y∈ p)
       cases<
@@ -678,21 +678,21 @@ arcSinInj x y x∈@(0≤x , x<1) y∈@(0≤y , y<1) p =
      -- TODO : lemma somwhere in order
      cases< :  (y +ᵣ rat (fst ε) <ᵣ x) ⊎ (x +ᵣ rat (fst ε) <ᵣ y)
      cases< = ⊎.map
-         (λ 0<x-y → 
+         (λ 0<x-y →
             let z = isTrans<≡ᵣ _ _ _ ε< (absᵣPos _ 0<x-y)
             in isTrans≡<ᵣ _ _ _ (+ᵣComm _ _) (a<b-c⇒a+c<b _ _ _ z))
          (λ 0<y-x →
             let z = isTrans<≡ᵣ _ _ _ ε< (absᵣNeg _ 0<y-x ∙ -[x-y]≡y-x _ _)
             in isTrans≡<ᵣ _ _ _ (+ᵣComm _ _) (a<b-c⇒a+c<b _ _ _ z))
        (decCut _ (isTrans<ᵣ _ _ _ (snd (ℚ₊→ℝ₊ ε)) ε<))
-     
+
      w' : ∀ x y x∈ y∈ → arcSin x x∈ ≡ arcSin y y∈ →
           x +ᵣ rat (fst ε) <ᵣ y → ⊥
      w' x y x∈@(0≤x , x<1) y∈@(0≤y , y<1) p x+ε<y =
        ≤ᵣ→≯ᵣ (fst Δ) 0
          (≤-o+-cancel _ _ _ (≡ᵣWeaken≤ᵣ _ _ (cc ∙ sym p ∙ sym (+IdR _))))
          0<Δ
-         
+
       where
        x<y : x <ᵣ y
        x<y = isTrans<ᵣ _ _ _
@@ -701,9 +701,9 @@ arcSinInj x y x∈@(0≤x , x<1) y∈@(0≤y , y<1) p =
 
        x≤y : x ≤ᵣ y
        x≤y = <ᵣWeaken≤ᵣ _ _ x<y
-       
+
        Δ : Σ ℝ (on[_,_]IntegralOf_is_ x y (curry ∘ (λ x' x'∈ → arcSin' x' _)))
-       Δ = PT.rec 
+       Δ = PT.rec
            (IntegratedℙPropℙ _ _ x≤y
              (curry ∘ (λ x' x'∈ → arcSin' x' _)))
                (Integrate-UContinuousℙ
@@ -714,7 +714,7 @@ arcSinInj x y x∈@(0≤x , x<1) y∈@(0≤y , y<1) p =
                 IsUContinuousℙ-restr (intervalℙ 0 y) (intervalℙ x y) _
                   λ _ → map-fst λ x∈ → isTrans≤ᵣ _ _ _ 0≤x x∈)
                 (arcSin'-UC y y∈)
-                
+
        0<Δ : 0 <ᵣ fst Δ
        0<Δ = isTrans<≤ᵣ 0 _ _
           (isTrans<≡ᵣ _ _ _ (x<y→0<y-x _ _ x<y) (sym (·IdL _)))
@@ -726,7 +726,7 @@ arcSinInj x y x∈@(0≤x , x<1) y∈@(0≤y , y<1) p =
               (arcSin'-Monotone _ _ _ _ (isTrans≤ᵣ _ _ _ 0≤x ≤x'))))
             (IntegralConstℙ x y x≤y 1)
             (snd Δ))
-          
+
        arcSin-x : _
        arcSin-x = subst (λ f → on[ 0 , x ]IntegralOf
             f is
@@ -798,7 +798,7 @@ x∈⟨0,π/2⟩→sin[x]∈⟨0,1⟩ x x∈ =
    sin[π/2]≡1)
 
 
-bounded-arcSin' : ∀ x → (x∈ : x ∈ ointervalℙ 0 1) → 
+bounded-arcSin' : ∀ x → (x∈ : x ∈ ointervalℙ 0 1) →
   ∥ Bounded (intervalℙ 0 x)
     (λ x' (≤x , x≤) → arcSin' x' (≤x , isTrans≤<ᵣ _ _ _ x≤ (snd x∈)))
     ∥₁
@@ -816,7 +816,7 @@ bounded-arcSin' x x∈ =
 
 sin＃-firstQuarter : (x y : ℝ) (x∈ : x ∈ intervalℙ 0 π-number/2)
       (y∈ : y ∈ intervalℙ 0 π-number/2) →
-      x ＃ y → sin x ＃ sin y 
+      x ＃ y → sin x ＃ sin y
 sin＃-firstQuarter x y x∈ y∈ =
  ⊎.map (sin-firstQuarter-strictMonotone x y x∈ y∈)
        (sin-firstQuarter-strictMonotone y x y∈ x∈)
@@ -826,7 +826,7 @@ sin＃-firstQuarter x y x∈ y∈ =
      (λ x' x'∈ → arcSin (sin x')
       ((x∈[0,π/2⟩→sin[x]∈[0,1⟩ x'
        (map-snd (flip (isTrans≤<ᵣ _ _ _) (snd x∈)) x'∈)))) is λ _ _ → 1
-[arcSin∘Sin]'=1 x x∈ = 
+[arcSin∘Sin]'=1 x x∈ =
   subst2 (uDerivativeOfℙ (intervalℙ 0 x) ,_is_)
       (funExt₂ λ _ _ → cong (uncurry arcSin)
        (Σ≡Prop (∈-isProp (pred≤< 0 1)) refl))
@@ -836,8 +836,8 @@ sin＃-firstQuarter x y x∈ y∈ =
  w : uDerivativeOfℙ intervalℙ 0 x , _ is _
 
  w = chainRule-uDℙ (intervalℙ 0 x) (intervalℙ 0 (sin x))
-        (λ x _ → sin x) (λ x _ → cos x) _ _ 
-        (bounded-cos (intervalℙ 0 x)) 
+        (λ x _ → sin x) (λ x _ → cos x) _ _
+        (bounded-cos (intervalℙ 0 x))
         (bounded-arcSin' (sin x) (x∈⟨0,π/2⟩→sin[x]∈⟨0,1⟩ x x∈)) --bounded-arcSin'
         (λ y y∈ → fst (x∈[0,π/2⟩→sin[x]∈[0,1⟩ y
           ((map-snd (flip (isTrans≤<ᵣ y x π-number/2) (snd x∈)) y∈))) ,
@@ -851,21 +851,21 @@ sin＃-firstQuarter x y x∈ y∈ =
             (map-snd (flip (isTrans≤ᵣ _ _ _) (<ᵣWeaken≤ᵣ _ _ (snd x∈))) y∈))
         (arcSinDer (sin x) (x∈⟨0,π/2⟩→sin[x]∈⟨0,1⟩ x x∈))
         (sin'=cos-uder' 0 x (fst x∈))
-        
+
 
 
  w= : ∀ (x' : ℝ) x'∈ →
       _ ≡ 1
- w= x' x'∈ = 
+ w= x' x'∈ =
    cong (_·ᵣ fst cosx₊)
     (cong (fst ∘ invℝ₊)
       (ℝ₊≡ (cong fst (sym
        (invEq (equivAdjointEquiv
          (_ , isEquiv-₊^ⁿ 2) {_ , snd cosx₊})
-        (ℝ₊≡ 
+        (ℝ₊≡
          (sym (𝐑'.plusMinus _ _)
          ∙ cong (_-ᵣ (sin x' ^ⁿ 2))
-         (+ᵣComm _ _ ∙ sin²+cos²=1 x')))))))) 
+         (+ᵣComm _ _ ∙ sin²+cos²=1 x'))))))))
     ∙ ·ᵣComm _ _ ∙ x·invℝ₊[x] cosx₊
   where
    cosx₊ : ℝ₊
@@ -880,7 +880,7 @@ module as-mon x y (x∈@(0≤x , _) : x ∈ pred≤< 0 1)
 
 
  Δ : Σ ℝ (on[_,_]IntegralOf_is_ x y (curry ∘ (λ x' x'∈ → arcSin' x' _)))
- Δ = PT.rec 
+ Δ = PT.rec
      (IntegratedℙPropℙ _ _ x≤y
        (curry ∘ (λ x' x'∈ → arcSin' x' _)))
          (Integrate-UContinuousℙ
@@ -906,7 +906,7 @@ module as-mon x y (x∈@(0≤x , _) : x ∈ pred≤< 0 1)
                      cong (arcSin' x') (∈-isProp (pred≤< 0 1) _ _ _))
                    (snd (arcSinDef x x∈)))
                (snd Δ) (snd (arcSinDef y y∈))
-   
+
  0≤Δ : 0 ≤ᵣ fst Δ
  0≤Δ = isTrans≤ᵣ 0 _ _
           (isTrans≤≡ᵣ _ _ _ (x≤y→0≤y-x _ _ x≤y) (sym (·IdL (y +ᵣ -ᵣ x))))
@@ -920,7 +920,7 @@ module as-mon x y (x∈@(0≤x , _) : x ∈ pred≤< 0 1)
             (snd Δ))
 
 
-  
+
  arcSin-Monotone : arcSin x x∈ ≤ᵣ arcSin y y∈
  arcSin-Monotone =
      isTrans≤≡ᵣ _ _ _
@@ -973,7 +973,7 @@ secArcSin x sinx∈ x∈@(0≤x , _) =
             sin0=0) ∙ arcSin[0]≡0 _)  ∙ -ᵣ-rat 0))) ∙∙ IntegralUniq 0 x 0≤x (λ r _ _ → 1) _ _
      z (IntegralConstℙ 0 x 0≤x 1)
      ∙∙ (·IdL _ ∙ 𝐑'.+IdR' _ _ (-ᵣ-rat 0))
- 
+
 arcSin∈[0,1⟩ : ∀ x x∈ → arcSin x x∈ ∈ pred≤< 0 π-number/2
 arcSin∈[0,1⟩ x x∈ =
 
@@ -991,7 +991,7 @@ arcSin∈[0,1⟩ x x∈ =
                    (𝐑'.+IdR' _ _ (-ᵣ-rat 0)))
          zzz = (x≤y→0≤y-x _ _
                  (isTrans≤ᵣ _ _ _
-                    
+
                     (isTrans≤≡ᵣ _ _ _
                       (≤ᵣ-o+ _ _ _
                        (-ᵣ≤ᵣ _ _ (isTrans≤ᵣ _ _ _
@@ -1041,7 +1041,7 @@ intervalℙ⊆ointervalℙ : ∀ a' b' a b → a <ᵣ a' → b' <ᵣ b
   → intervalℙ a' b' ⊆ ointervalℙ a b
 intervalℙ⊆ointervalℙ a' b' a b a<a' b'<b x (a'≤x , x≤b') =
   isTrans<≤ᵣ _ _ _ a<a' a'≤x ,
-   isTrans≤<ᵣ _ _ _ x≤b' b'<b 
+   isTrans≤<ᵣ _ _ _ x≤b' b'<b
 
 sym-intervalℙ⊆ointervalℙ : ∀ a b → a <ᵣ b →
   intervalℙ (-ᵣ a) a ⊆ ointervalℙ (-ᵣ b) b
@@ -1074,7 +1074,7 @@ Integral-additive* P a b c a≤b b≤c f {s = s} {s'} s∫ s'∫ s+s'∫ =
    s+s'∫
 
 IntegralNonNeg : ∀ a b → a ≤ᵣ b → ∀ f s →  on[ a , b ]IntegralOf f is s →
-               (∀ x ≤x x≤ → 0 ≤ᵣ f x ≤x x≤ ) → 0 ≤ᵣ s 
+               (∀ x ≤x x≤ → 0 ≤ᵣ f x ≤x x≤ ) → 0 ≤ᵣ s
 IntegralNonNeg a b a≤b f _ s∫ 0≤f =
  isTrans≡≤ᵣ _ _ _ (sym (𝐑'.0LeftAnnihilates _))
   (Integral-≤ a b a≤b (λ _ _ _ → 0) _ _ _
@@ -1084,17 +1084,17 @@ IntegralNonNeg a b a≤b f _ s∫ 0≤f =
 arcSinDiff-Help : ∀ U → 0 ≤ᵣ U → U <ᵣ 1 → Σ[ L ∈ ℝ₊ ]
  (∀ u u' u∈ u'∈ →  u ≤ᵣ U → u' ≤ᵣ U
                →  absᵣ (arcSin u u∈ -ᵣ arcSin u' u'∈) ≤ᵣ
-                      
-                  absᵣ (u -ᵣ u') ·ᵣ fst L )          
+
+                  absᵣ (u -ᵣ u') ·ᵣ fst L )
 arcSinDiff-Help U 0≤U U<1 =
    2 ₊·ᵣ L , w
-    
+
  where
 
   U∈ = (0≤U , U<1)
 
   L : ℝ₊
-  L = arcSin'₊ U U∈ 
+  L = arcSin'₊ U U∈
 
 
   w : _
@@ -1111,7 +1111,7 @@ arcSinDiff-Help U 0≤U U<1 =
          (sym (-absᵣ _)  ∙ absᵣNonNeg _
            ((IntegralNonNeg _ _ (min≤ᵣ' u u') _ _ (snd u'∫)
              λ x ≤x x< →
-              <ᵣWeaken≤ᵣ _ _ (snd (arcSin'₊ _ (_ , isTrans≤<ᵣ _ _ _ x< _))))))))) 
+              <ᵣWeaken≤ᵣ _ _ (snd (arcSin'₊ _ (_ , isTrans≤<ᵣ _ _ _ x< _)))))))))
     (isTrans≤ᵣ _ _ _
       (≤ᵣMonotone+ᵣ _ _ _ _
         (Integral-≤ _ _ (min≤ᵣ u u') _ _ _ _
@@ -1120,7 +1120,7 @@ arcSinDiff-Help U 0≤U U<1 =
               (isTrans≤ᵣ _ _ _ x≤ (u≤U)) )
           (snd u∫) (IntegralConstℙ _ _ (min≤ᵣ u u') (fst L)))
         (Integral-≤ _ _ (min≤ᵣ' u u') _ _ _ _
-          (λ x ≤x x≤ → 
+          (λ x ≤x x≤ →
             arcSin'-Monotone _ _ _ U∈
                (isTrans≤ᵣ _ _ _ x≤ u'≤U))
           (snd u'∫) (IntegralConstℙ _ _ (min≤ᵣ' u u') (fst L))))
@@ -1143,13 +1143,13 @@ arcSinDiff-Help U 0≤U U<1 =
        u⊓u' : ℝ₀₊
        u⊓u' = minᵣ₀₊ (_ ,  0≤u) (_ , 0≤u')
 
-       u⊓u'∈ : fst u⊓u' ∈ pred≤< 0 1 
+       u⊓u'∈ : fst u⊓u' ∈ pred≤< 0 1
        u⊓u'∈ = snd u⊓u' , isTrans≤<ᵣ _ _ _ (min≤ᵣ _ _) u<1
 
        u∫ = (PT.rec
                   (IntegratedℙPropℙ _ _ (min≤ᵣ u u') _)
                    ((Integrate-UContinuousℙ
-                   (fst u⊓u') 
+                   (fst u⊓u')
                    u
                    (min≤ᵣ u u')
                    (λ x' x'∈ → arcSin' _ _))
@@ -1161,7 +1161,7 @@ arcSinDiff-Help U 0≤U U<1 =
        u'∫ = (PT.rec
                   (IntegratedℙPropℙ _ _ (min≤ᵣ' u u') _)
                    ((Integrate-UContinuousℙ
-                   (fst u⊓u') 
+                   (fst u⊓u')
                    u'
                    (min≤ᵣ' u u')
                    (λ x' x'∈ → arcSin' _ _))
@@ -1184,7 +1184,7 @@ arcSinDiff-Help U 0≤U U<1 =
                (snd (arcSinDef _ u⊓u'∈))
                 (snd u'∫)
                 (snd (arcSinDef _ _)))
-           
+
 IsContinuousWithPredArcSin : IsContinuousWithPred (pred≤< 0 1) arcSin
 IsContinuousWithPredArcSin u ε u∈@(0≤u , u<1) = do
   let (b , u<b , b<1) = denseℝ _ _ u<1
@@ -1193,7 +1193,7 @@ IsContinuousWithPredArcSin u ε u∈@(0≤u , u<1) = do
             (isTrans≤ᵣ _ _ _ 0≤u (<ᵣWeaken≤ᵣ _ _ u<b)) b<1
   (υ , L<υ) ← ∃ℚ₊LargerThanℝ₊ L
   let η₊ = η , ℚ.<→0< η (<ᵣ→<ℚ 0 η 0<η)
-      δ = ℚ.min₊ η₊ (invℚ₊ υ  ℚ₊· ε)   
+      δ = ℚ.min₊ η₊ (invℚ₊ υ  ℚ₊· ε)
   ∣ δ , (λ v v∈ u∼v →
       invEq (∼≃abs<ε _ _ _)
        let z = fst (∼≃abs<ε _ _ _) u∼v
@@ -1210,8 +1210,8 @@ IsContinuousWithPredArcSin u ε u∈@(0≤u , u<1) = do
                (isTrans<≤ᵣ _ _ _
                  z
                  (≤ℚ→≤ᵣ _ _ (ℚ.min≤' η _))) L<υ)
-                
-                  ((·ᵣComm _ _ ∙ sym (rat·ᵣrat _ _) ∙ 
+
+                  ((·ᵣComm _ _ ∙ sym (rat·ᵣrat _ _) ∙
                  cong rat (ℚ.y·[x/y] υ _))))) ∣₁
 
 ointerval→abs< : ∀ x y → x ∈ ointervalℙ (-ᵣ y) y → absᵣ x <ᵣ y
@@ -1219,7 +1219,7 @@ ointerval→abs< x y (-y<x , x<y) =
    isTrans≡<ᵣ _ _ _  (abs-max _)
     (max<-lem x (-ᵣ x) y x<y (isTrans<≡ᵣ _ _ _ (-ᵣ<ᵣ _ _ -y<x) (-ᵣInvol _)))
 
-abs<→ointerval : ∀ x y → absᵣ x <ᵣ y → x ∈ ointervalℙ (-ᵣ y) y 
+abs<→ointerval : ∀ x y → absᵣ x <ᵣ y → x ∈ ointervalℙ (-ᵣ y) y
 abs<→ointerval x y ∣x∣<y =
      isTrans<≡ᵣ _ _ _
        ( -ᵣ<ᵣ _ _ (isTrans≤<ᵣ _ _ _
@@ -1227,7 +1227,7 @@ abs<→ointerval x y ∣x∣<y =
        ∣x∣<y)) (-ᵣInvol x)
    , isTrans≤<ᵣ _ _ _ (≤absᵣ x) ∣x∣<y
 
-abs≤→interval : ∀ x y → absᵣ x ≤ᵣ y → x ∈ intervalℙ (-ᵣ y) y 
+abs≤→interval : ∀ x y → absᵣ x ≤ᵣ y → x ∈ intervalℙ (-ᵣ y) y
 abs≤→interval x y ∣x∣≤y =
      isTrans≤≡ᵣ _ _ _
        ( -ᵣ≤ᵣ _ _ (isTrans≤ᵣ _ _ _
@@ -1290,7 +1290,7 @@ opaque
            ((isTrans<≡ᵣ _ _ _ (-ᵣ<ᵣ _ _ (fst x∈))
             (-ᵣ-rat -1)))))
 
- -- IsContinuousWPArcSin⟨⟩ : IsContinuousWithPred (ointervalℙ -1 1) arcSin⟨⟩ 
+ -- IsContinuousWPArcSin⟨⟩ : IsContinuousWithPred (ointervalℙ -1 1) arcSin⟨⟩
  -- IsContinuousWPArcSin⟨⟩ = {!!}
 
  opaque
@@ -1315,17 +1315,17 @@ opaque
   →  (q∈ : rat q ∈ intervalℙ (-ᵣ (rat (fst Q))) (rat (fst Q)))
   → ∀ sinq∈
    → arcSin⟨⟩ (sin (rat q)) sinq∈
-  
-   ≡ (rat q) 
+
+   ≡ (rat q)
  arcSin⟨⟩∘sin-ℚ Q Q<π/2 q (inl 0≤q') (_ , q<Q) sinq∈@(_ , sinq<1) =
-  let 0≤q : 0 ≤ᵣ (rat q) 
+  let 0≤q : 0 ≤ᵣ (rat q)
       0≤q = ≤ℚ→≤ᵣ _ _ 0≤q'
       q<π/2 : (rat q) <ᵣ π-number/2
       q<π/2 = isTrans≤<ᵣ _ _ _ q<Q Q<π/2
       0≤sinq : 0 ≤ᵣ sin (rat q)
       0≤sinq = fst $ x∈[0,π/2⟩→sin[x]∈[0,1⟩ (rat q)
           (0≤q , q<π/2)
-      
+
   in 𝐑'.+IdL' _ _ (
        cong -ᵣ_
          (cong (uncurry arcSin)
@@ -1334,7 +1334,7 @@ opaque
               decℚ≤ᵣ?
               (isTrans≤≡ᵣ _ _ _ (-ᵣ≤ᵣ _ _  0≤sinq)
                (-ᵣ-rat 0)  )))
-           ∙ arcSin[0]≡0 (≤ᵣ-refl 0 , decℚ<ᵣ?)) 
+           ∙ arcSin[0]≡0 (≤ᵣ-refl 0 , decℚ<ᵣ?))
        ∙ -ᵣ-rat 0)
      ∙ cong (uncurry arcSin)
          ((Σ≡Prop (∈-isProp (pred≤< 0 1))
@@ -1344,7 +1344,7 @@ opaque
   let 0≤-q : 0 ≤ᵣ -ᵣ rat q
       0≤-q = isTrans≡≤ᵣ _ _ _ (sym (-ᵣ-rat 0))
               (-ᵣ≤ᵣ _ _ (≤ℚ→≤ᵣ _ _ q'≤0))
-      
+
       sin-q<1 : sin (-ᵣ rat q) <ᵣ 1
       sin-q<1 = subst2 _<ᵣ_ (sin-odd (rat q)) (-ᵣ-rat -1)
           (-ᵣ<ᵣ _ _ -1<sinq)
@@ -1358,7 +1358,7 @@ opaque
         (subst2 _≤ᵣ_ (sym (-ᵣ-rat 0)) (sym (sin-odd (rat q)))
          (fst (x∈[0,π/2⟩→sin[x]∈[0,1⟩ (-ᵣ (rat q))
           (0≤-q , -q<π/2))))
-         
+
   in 𝐑'.+IdR' _ _
       (cong (uncurry arcSin)
             (Σ≡Prop (∈-isProp (pred≤< 0 1))
@@ -1397,7 +1397,7 @@ opaque
     → sin (arcSin⟨⟩ (rat q) q∈) ≡ (rat q)
  sin∘arcSin⟨⟩ℚ q (-1<q , q<1) (inl 0≤q') =
    let 0≤q = ≤ℚ→≤ᵣ 0 q 0≤q'
-       
+
    in cong sin (𝐑'.+IdL' _ _
         (cong -ᵣ_
           (cong (uncurry arcSin)
@@ -1419,7 +1419,7 @@ opaque
        0≤-q = isTrans≡≤ᵣ _ _ _ (sym (-ᵣ-rat 0)) (-ᵣ≤ᵣ _ _ q≤0)
        -q<1 : -ᵣ rat q <ᵣ 1
        -q<1 = isTrans<≡ᵣ _ _ _ (-ᵣ<ᵣ _ _ -1<q)
-                (-ᵣ-rat -1) 
+                (-ᵣ-rat -1)
    in cong sin (𝐑'.+IdR' _ _ (cong (uncurry arcSin)
             (Σ≡Prop (∈-isProp (pred≤< 0 1))
              (x≤→clampᵣ≡ 0 1 (rat q)
@@ -1434,7 +1434,7 @@ opaque
 
 
 
- 
+
  opaque
   unfolding _+ᵣ_
   IsContinuousWPArcSin⟨⟩ : IsContinuousWithPred (ointervalℙ -1 1) arcSin⟨⟩
@@ -1476,7 +1476,7 @@ opaque
              (((AsContinuousWithPred (ointervalℙ -1 1)
               (clampᵣ 0 1 ) (IsContinuousClamp 0 1)))))
 
-  
+
 arcSin⟨⟩∘sin : ∀ x sinx∈
  → x ∈ ointervalℙ (-ᵣ π-number/2) π-number/2
  → arcSin⟨⟩ (sin x) sinx∈ ≡ x
@@ -1500,7 +1500,7 @@ arcSin⟨⟩∘sin x sinx∈@(<negx , x<) x∈ =
                       (cong sin
                        ((∈ℚintervalℙ→clampᵣ≡ (rat ((ℚ.- Q))) (rat Q)
                  x x∈Q))))
-          
+
       in zzz ∙∙
          ≡Continuous
            (λ x → arcSin⟨⟩ (sin (clampᵣ (rat (ℚ.- Q)) (rat Q) x))
@@ -1539,7 +1539,7 @@ arcSin⟨⟩∘sin x sinx∈@(<negx , x<) x∈ =
                   ∙∙ arcSin⟨⟩∘sin-ℚ Q₊ Q<π/2
                    (ℚ.clamp (ℚ.- Q) Q q)
                     (ℚ.≤cases 0 (ℚ.clamp (ℚ.- Q) Q q)) q∈ sinq∈ ∙∙ z)
-               x 
+               x
          ∙∙ (sym (∈ℚintervalℙ→clampᵣ≡ (rat ((ℚ.- Q))) (rat Q)
                  x x∈Q)))
     (denseℚinℝ (absᵣ x) π-number/2  (
@@ -1547,7 +1547,7 @@ arcSin⟨⟩∘sin x sinx∈@(<negx , x<) x∈ =
 
 sym-clamp-rat : ∀ q (Q : ℚ₊) →
                      clampᵣ (-ᵣ rat (fst Q)) (rat (fst Q)) (rat q) ≡
-                    rat (ℚ.clamp (ℚ.- (fst Q)) (fst Q) q) 
+                    rat (ℚ.clamp (ℚ.- (fst Q)) (fst Q) q)
 sym-clamp-rat q Q = (cong clampᵣ (-ᵣ-rat (fst Q))
   ≡$ (rat (fst Q)) ≡$ rat q) ∙ clampᵣ-rat (ℚ.- (fst Q)) (fst Q) q
 
@@ -1589,8 +1589,8 @@ sin∘arcSin⟨⟩ x x∈ = fst (propTruncIdempotent≃ (isSetℝ _ _)) $ do
          let p' = sym (sym-clamp-rat y q₊)
          in cong sin (cong (uncurry arcSin⟨⟩)
               (Σ≡Prop (∈-isProp (ointervalℙ -1 1))
-                (sym p'))) ∙ 
-             sin∘arcSin⟨⟩ℚ 
+                (sym p'))) ∙
+             sin∘arcSin⟨⟩ℚ
              (ℚ.clamp (ℚ.- q) q y)
              (invEq (h _) (sym-intervalℙ⊆ointervalℙ (rat q) 1 q<1  _
                   ((subst-∈ (intervalℙ (-ᵣ rat q) (rat q))

@@ -22,7 +22,7 @@ open import Cubical.Data.Int.Properties as ℤ using ()
 open import Cubical.Data.Int.Order as ℤ using ()
 open import Cubical.Data.Int.Divisibility as ℤ
 open import Cubical.Data.Rationals.Base as ℚ
-open import Cubical.Data.Rationals.Properties 
+open import Cubical.Data.Rationals.Properties
 open import Cubical.Data.Nat as ℕ using (ℕ; suc; zero;znots)
 open import Cubical.Data.Nat.Mod as ℕ
 import Cubical.Data.Nat.Order as ℕ
@@ -1757,9 +1757,9 @@ invℚ₊-≤-invℚ₊ q r =
 
 
 lowerBoundℕ⁻¹ : ∀ (q : ℚ₊) → Σ[ k ∈ ℕ₊₁ ] ([ 1 , k ] < fst q)
-lowerBoundℕ⁻¹ q = 
+lowerBoundℕ⁻¹ q =
  map-snd (subst ([ 1 , _ ] <_) (cong (fst ∘ invℚ₊)
-   (ℚ₊≡ {abs (fst (invℚ₊ q)) , 
+   (ℚ₊≡ {abs (fst (invℚ₊ q)) ,
      (subst (0<_) (sym (absPos _ (0<ℚ₊ (invℚ₊ q))))
       (snd (invℚ₊ q)))}
     (absPos _ (0<ℚ₊ (invℚ₊ q)))) ∙ invℚ₊-invol q)  ∘S fst (invℚ₊-<-invℚ₊ _ _)) (boundℕ (fst (invℚ₊ q)))

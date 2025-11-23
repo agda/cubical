@@ -83,7 +83,7 @@ stichFns a b a<b f g f=g x =
  w (inl u) (inr v) = f=g x u v
  w (inr u) (inl v) = sym (f=g x v u)
  w (inr u) (inr v) = cong (g x) (isProp<ᵣ _ _ u v)
- 
+
 
 Bishop-Proposition7 : ∀ n (f : Fin n → ℝ)
  → 0 <ᵣ foldlFin {n = n} (λ a k → a +ᵣ f k) 0 (idfun _)
@@ -362,7 +362,7 @@ Rolle'sTheorem a b a<b a∈ b∈ f f' ucf udf fa≡fb ε =
     PT.rec squash₁
       (⊎.rec (∀case ∘ (ε<abs→ε<⊎<-ε (ℚ₊→ℝ₊ (/2₊ ε)) _ ∘_))
              (∣_∣₁ ∘ (_ ,_) ∘ snd))
-     (Fin-∀A⊎∃B (suc (suc Pa.len)) 
+     (Fin-∀A⊎∃B (suc (suc Pa.len))
        _ _
         λ k → PT.map (Iso.fun ⊎-swap-Iso) (Dichotomyℝ'
                         (rat (fst (/2₊ ε)))
@@ -767,8 +767,8 @@ nullDerivative→const a b a∈ b∈ a<b f udf  =
 --         _ (cong {x = finj k'}
 --                 {(suc k , 1 , cong suc p)} pts'
 --                  (toℕ-injective refl)) z
---  pts'≤pts' (suc k , suc l , p) = 
-   
+--  pts'≤pts' (suc k , suc l , p) =
+
 --      subst2 _≤ᵣ_
 --          (cong (λ u → pts (k , l ℕ.+ (suc zero) , u))
 --            (isSetℕ _ _ _ _))
@@ -961,7 +961,7 @@ nullDerivative→const a b a∈ b∈ a<b f udf  =
 --   → f a a∈ ≡ f b b∈
 --   → ∀ (ε : ℚ₊) → ∃[ (x₀ , x∈) ∈ Σ _ (_∈ intervalℙ a b) ]
 --             absᵣ (f' x₀ x∈) <ᵣ rat (fst ε)
--- Rolle'sTheorem a b a≤b a∈ b∈ f f' ucf udf fa≡fb ε = 
+-- Rolle'sTheorem a b a≤b a∈ b∈ f f' ucf udf fa≡fb ε =
 --   PT.rec squash₁ (w (ucf ε)) (udf (/2₊ ε))
 
 --  where
@@ -999,7 +999,7 @@ nullDerivative→const a b a∈ b∈ a<b f udf  =
 --         → ∃-syntax (Fin (suc Pa.len))
 --         (λ k → (-ᵣ rat (fst ε))
 --           <ᵣ f' (Pa.pts' (finj k)) (Pa.a≤pts' (finj k) , Pa.pts'≤b (finj k)))
---    z f f' fa≡fb X' = 
+--    z f f' fa≡fb X' =
 --     PT.map
 --           (map-snd
 --            λ {l} X → 0<y-x→x<y _ _
@@ -1010,14 +1010,14 @@ nullDerivative→const a b a∈ b∈ a<b f udf  =
 --                 (·ᵣComm _ _))))
 --                 (cong₂ _+ᵣ_ refl
 --                  (sym (-ᵣInvol _)))))
-                 
+
 --         (Bishop-Proposition7 (suc (Pa.len))
-         
+
 --         (λ k → (f' (Pa.pts' (finj k))
 --                      (Pa.a≤pts' (finj k) , Pa.pts'≤b (finj k))
 --                     +ᵣ rat (fst ε))
 --              ·ᵣ (Pa.pts' (fsuc k) -ᵣ Pa.pts' (finj k)))
-        
+
 --         (isTrans≡<ᵣ _ _ _
 --            (sym (𝐑'.+InvR' _ _ (sym fa≡fb))
 --              ∙ cong₂ _-ᵣ_
@@ -1074,7 +1074,7 @@ nullDerivative→const a b a∈ b∈ a<b f udf  =
 
 --    z' : ∃-syntax (Fin (suc (Pa.len)))
 --         (λ k → f' (Pa.pts' (finj k)) _ <ᵣ rat (fst ε))
---    z' = 
+--    z' =
 --      PT.map (map-snd (<ᵣ-ᵣ _ _))
 --           (z (λ x x∈ → -ᵣ (f x x∈))
 --                (λ x x∈ → -ᵣ (f' x x∈))
@@ -1112,7 +1112,7 @@ nullDerivative→const a b a∈ b∈ a<b f udf  =
 --                            (-ᵣ-rat 0)) (snd (ℚ₊→ℝ₊ ε))))
 --                       (isTrans<≡ᵣ _ _ _ (-ᵣ<ᵣ _ _ U) (-ᵣInvol _))))
 --               (z f f' fa≡fb X'))
-              
+
 --           (λ ∀<f → PT.map
 --              (λ (k , U) →
 --                 _ ,

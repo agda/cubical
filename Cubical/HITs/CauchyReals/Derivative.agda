@@ -114,7 +114,7 @@ IsUContinuousℙ∘ℙ : ∀ P P' {f g} → (g∈ : ∀ x x∈ → g x x∈ ∈ 
 IsUContinuousℙ∘ℙ P P' g∈ cF cG  ε =
   let (η , X) = cF ε ; (δ , Y) = cG η
      in _ , λ _ _ _ _ → X _ _ _ _ ∘ Y _ _ _ _
-  
+
 
 IsUContinuous-εᵣ : ∀ f → IsUContinuous f →
    ∀ (ε : ℝ₊) → ∃[ δ ∈ ℚ₊ ]
@@ -504,7 +504,7 @@ diff-≃ P f f' ε δ x x∈ h h∈ 0＃h =
             ∙∙ ·absᵣ _ _ ∙∙
             cong₂ _·ᵣ_ refl (absᵣ-invℝ _ _))
       ∙ₑ z/y<x₊≃z<y₊·x (rat (fst ε)) (absᵣ ((f' x x∈ ·ᵣ  h) -ᵣ
-                       (f (x +ᵣ h) h∈ -ᵣ f x x∈))) 
+                       (f (x +ᵣ h) h∈ -ᵣ f x x∈)))
           (absᵣ h , 0＃→0<abs h 0＃h)
       ∙ₑ substEquiv (_ <ᵣ_) (·ᵣComm _ _)
 
@@ -526,10 +526,10 @@ uDerivativeOfℙ-restr P P' f f' P'⊆P X =
   PT.map (map-snd (λ X _ _ _ _ → X _ _ _ _)) ∘ X
 
 IsUContinuousℙ-restr : ∀ (P P' : ℙ ℝ) f → (P'⊆P : P' ⊆ P)
- → IsUContinuousℙ P f 
+ → IsUContinuousℙ P f
  → IsUContinuousℙ P' (λ x x∈ → f x (P'⊆P x x∈))
 IsUContinuousℙ-restr P P' f  P'⊆P X =
-  map-snd (λ X u v u∈ v∈  → X _ _ _ _) ∘ X 
+  map-snd (λ X u v u∈ v∈  → X _ _ _ _) ∘ X
 
 IsContinuousWithPred-differenceAt : ∀ x f → IsContinuous f
    → IsContinuousWithPred (＃ℙ 0) (differenceAt f x)
@@ -639,7 +639,7 @@ substDer₂ : ∀ {x f' g' f g} →
 substDer₂ p q = subst2 (derivativeOf_at _ is_) (funExt p) q
 
 
-Derivative-ᵣ : ∀ x f f'x 
+Derivative-ᵣ : ∀ x f f'x
         → derivativeOf f at x is f'x
         → derivativeOf (-ᵣ_ ∘ f) at x is (-ᵣ f'x)
 Derivative-ᵣ x f f'x dF =
@@ -725,23 +725,23 @@ C·uDerivativeℙ P C f f' udp ε =
 uDerivativeOfℙ-ᵣ : ∀ P f f'
         → uDerivativeOfℙ P , f is f'
         → uDerivativeOfℙ P , (λ x x∈ → -ᵣ (f x x∈)) is (λ x x∈ → -ᵣ (f' x x∈))
-uDerivativeOfℙ-ᵣ P f f' df = 
+uDerivativeOfℙ-ᵣ P f f' df =
      subst2
      (uDerivativeOfℙ P ,_is_)
      (funExt₂ λ _ _ → sym (-ᵣ≡[-1·ᵣ] _))
      (funExt₂ λ _ _ → sym (-ᵣ≡[-1·ᵣ] _))
-     (C·uDerivativeℙ P -1 f f' df) 
+     (C·uDerivativeℙ P -1 f f' df)
 
 
 ·CuDerivativeℙ : ∀ P C f f'
         → uDerivativeOfℙ P , f is f'
         → uDerivativeOfℙ P , (λ x x∈ → f x x∈ ·ᵣ C) is (λ x x∈ → f' x x∈ ·ᵣ C)
-·CuDerivativeℙ P C f f' df = 
+·CuDerivativeℙ P C f f' df =
      subst2
      (uDerivativeOfℙ P ,_is_)
      (funExt₂ λ _ _ → ·ᵣComm _ _)
      (funExt₂ λ _ _ → ·ᵣComm _ _)
-     (C·uDerivativeℙ P C f f' df) 
+     (C·uDerivativeℙ P C f f' df)
 
 
 -uDerivativeℙ : ∀ P  f f' g g'
@@ -767,7 +767,7 @@ C·Derivative' C x f f'x F =
 -- ·Derivative x f f'x g g'x F G ε =
 --   PT.map2
 --     (λ (δ , X) (δ' , X') →
---       let ∣f'g'∣+1 = _ , 
+--       let ∣f'g'∣+1 = _ ,
 --                 isTrans≡<ᵣ _ _ _
 --                   (sym (+ᵣ-rat 0 0))
 --                   (≤<ᵣMonotone+ᵣ 0 (absᵣ (f'x ·ᵣ g'x)) 0 1
@@ -781,7 +781,7 @@ C·Derivative' C x f f'x F =
 --                   (≤ᵣ-o·ᵣ _ _ _ (0≤absᵣ _)
 --                     (isTrans≡≤ᵣ _ _ _
 --                       (absᵣPos _ (snd ⊔δ))
---                       (min≤ᵣ' _ _))) 
+--                       (min≤ᵣ' _ _)))
 --                   {!!})
 --       in ⊔δ , λ h 0＃h ∣h∣< →
 --             isTrans≤<ᵣ _ _ _
@@ -801,7 +801,7 @@ C·Derivative' C x f f'x F =
 --                     ∙ decℚ≡ᵣ?) ∙ ·IdR _)))
 --     (F (ε ₊·ᵣ ℚ₊→ℝ₊ ([ 1 / 4 ] , _)))
 --     (G (ε ₊·ᵣ ℚ₊→ℝ₊ ([ 1 / 4 ] , _)))
-    
+
 
 ·Derivative : ∀ x f f'x g g'x
         → IsContinuous g
@@ -843,7 +843,7 @@ Derivative² x g g'x gC gD =
   subst (derivativeOf (g $[ _·ᵣ_ ]$ g) at x is_)
     (cong₂ _+ᵣ_ refl (·ᵣComm _ _)
      ∙ x+x≡2x _ ) (·Derivative x g g'x g g'x gC gD gD)
-     
+
 -- -- LimEverywhere→LimIncl : ∀ f → (∀ x → at x limitOf (λ x _ → f x) is (f x))
 -- --                            → (∀ x → at x inclLimitOf f is (f x))
 -- -- LimEverywhere→LimIncl = {!!}
@@ -1023,7 +1023,7 @@ uDer-lem ε x y h 0＃h =
     z/y<x₊≃z<y₊·x _ _ (_ , 0＃→0<abs h 0＃h)
 
 Bounded : (P : ℙ ℝ) → (f : ∀ x → x ∈ P → ℝ)
-                    → Type 
+                    → Type
 Bounded P f = Σ[ b ∈ ℚ₊ ] (∀ x x∈ → absᵣ (f x x∈) ≤ᵣ rat (fst b))
 
 
@@ -1132,7 +1132,7 @@ uDerivativeOfℙ· a b a<b f g f' g'
                   (sym (·DistL+ _ _ _)))
                 (cong₂ _·ᵣ_ refl
                    (cong₂ _+ᵣ_ (+ᵣ-rat _ _) refl
-                     ∙ +ᵣ-rat _ _ ∙ 
+                     ∙ +ᵣ-rat _ _ ∙
                      cong rat (sym (ℚ.+Assoc _ _ _)
                       ∙ ℚ.ε/3+ε/3+ε/3≡ε (fst ε)))))))
 
@@ -1164,7 +1164,7 @@ uDerivativeOfℙ-transl P f f' Δ =
         ) (X (x +ᵣ Δ) x∈ h (subst-∈ P
       (sym (+ᵣAssoc _ _ _) ∙∙ cong (x +ᵣ_) (+ᵣComm _ _)
         ∙∙ +ᵣAssoc _ _ _) h∈) 0＃h h<))) ∘_
-        
+
 -- mapLimit : ∀ x f y (g : ℝ → ℝ)
 --   → IsContinuousWithPred (＃ℙ x) f
 --   → IsContinuous g

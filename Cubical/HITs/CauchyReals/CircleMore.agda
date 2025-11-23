@@ -91,7 +91,7 @@ cDistInj = SQ.ElimProp2.go w
    let w = cos=1⇒ (a -ᵣ a') (cong cos (·ᵣAssoc _ _ _)
             ∙ sym (𝐑'.equalByDifference _ _ 1-cosΔ=0))
     in eq/ a a' (map-snd
-         (λ p → solve! ℝring ∙ p) w) 
+         (λ p → solve! ℝring ∙ p) w)
 
 
 cDist≡ℝ²-dist : ∀ x y → 2 ·ᵣ cDist x y ≡
@@ -101,7 +101,7 @@ cDist≡ℝ²-dist = SQ.ElimProp2.go w
  where
  w : ElimProp2 _
  w .ElimProp2.isPropB _ _ = isSetℝ _ _
- w .ElimProp2.f x y = 
+ w .ElimProp2.f x y =
      𝐑'.·DistR- _ _ _
    ∙ cong₂ _-ᵣ_
      (sym (x+x≡2x _)
@@ -109,15 +109,15 @@ cDist≡ℝ²-dist = SQ.ElimProp2.go w
                    (sym (sin·sin+cos·cos=1 (y CRℝ.· (2 ·ᵣ π-number)))))
      (cong (2 ·ᵣ_) (cong cos (sym (·ᵣAssoc _ _ _)
           ∙ 𝐑'.·DistL- _ _ _) ∙
-           cosOfSum _ _ ∙ cong₂ _-ᵣ_ 
+           cosOfSum _ _ ∙ cong₂ _-ᵣ_
              (cong₂ _·ᵣ_ refl (sym (cos-even _)) )
              (cong₂ _·ᵣ_ refl (sym (sin-odd _))))
-       ∙ sym (x+x≡2x _)) 
+       ∙ sym (x+x≡2x _))
    ∙ solve! ℝring
    ∙ cong₂ _+ᵣ_
     (cong₂ _·ᵣ_ (sym (·IdL _)) refl)
     (cong₂ _·ᵣ_ (sym (·IdL _)) refl)
-    
+
 Circle→[cos,sin]-inj : ∀ x y →
                 ((cosFromCircle x ≡ cosFromCircle y)
                 × (sinFromCircle x ≡ sinFromCircle y))
@@ -131,8 +131,8 @@ Circle→[cos,sin]-inj x y (cosx≡cosy , sinx≡siny) =
     (cong (_^ⁿ 2) (𝐑'.+InvR' _ _ sinx≡siny) ∙ 0^ⁿ 1)
     (cong (_^ⁿ 2) (𝐑'.+InvR' _ _ cosx≡cosy) ∙ 0^ⁿ 1)
    ∙ +ᵣ-rat 0 0) ∙∙ (sym (rat·ᵣrat _ _)
-        ∙ decℚ≡ᵣ?)) 
-  
+        ∙ decℚ≡ᵣ?))
+
 
 isEquivCircle→distCircle : isEquiv Circle→distCircle
 isEquivCircle→distCircle =
@@ -154,7 +154,7 @@ module Stiching {ℓ} (A : Type ℓ) (a b : ℝ) (a<b : a <ᵣ b)
             where
 
 
- w₂ : (∀ x x< <x → f x x< ≡ g x <x) → ∀ x → 2-Constant (⊎.rec (f x) (g x)) 
+ w₂ : (∀ x x< <x → f x x< ≡ g x <x) → ∀ x → 2-Constant (⊎.rec (f x) (g x))
  w₂ f=g x (inl u) (inl v)  = cong (f x) (isProp<ᵣ _ _ u v)
  w₂ f=g x (inl u) (inr v) = f=g x u v
  w₂ f=g x (inr u) (inl v) = sym (f=g x v u)
@@ -166,7 +166,7 @@ module Stiching {ℓ} (A : Type ℓ) (a b : ℝ) (a<b : a <ᵣ b)
     preStichSetFns x = PT.rec→Set isSetA
         (⊎.rec (f x) (g x))
         (w₂ f=g x)
-       
+
 
     stichSetFns : ℝ → A
     stichSetFns x = preStichSetFns x (Dichotomyℝ' a x b a<b)
@@ -180,10 +180,10 @@ module Stiching {ℓ} (A : Type ℓ) (a b : ℝ) (a<b : a <ᵣ b)
     stichSetFns-<x x a<x =
        cong (preStichSetFns x) (squash₁ (Dichotomyℝ' a x b a<b)
          ∣ inr a<x ∣₁)
-         
+
 -- open Stiching public using (hLev2.stichSetFns)
 
-CircleOverlap→Circle-inj : ∀ ε → ∀ x y → 
+CircleOverlap→Circle-inj : ∀ ε → ∀ x y →
    CircleOverlap[ ε ]→Circle x ≡  CircleOverlap[ ε ]→Circle y
    → x ≡ y
 CircleOverlap→Circle-inj ε = SQ.ElimProp2.go w
@@ -199,7 +199,7 @@ CircleOverlap→Circle-inj ε = SQ.ElimProp2.go w
 opaque
  CircleOverlap→[cos,sin]-surj : ∀ ε → isSurjection
    (Circle→distCircle ∘ CircleOverlap[ ε ]→Circle)
- CircleOverlap→[cos,sin]-surj ε ((x , y) , x²+y²≡1) = 
+ CircleOverlap→[cos,sin]-surj ε ((x , y) , x²+y²≡1) =
    PT.map (λ (φ , φ∈ , cosφ≡x , sinφ≡y) →
      [ (φ ／ᵣ₊ (2 ₊·ᵣ π-number₊) +ᵣ fst (invℝ₊ (ℚ₊→ℝ₊ 2))) ,
        subst2 _<ᵣ_
@@ -222,7 +222,7 @@ opaque
                 ∙ [x/₊y]·yᵣ _ _ ∙ invℝ₊-rat 2) (invℝ₊-rat 2)
                 ∙ +ᵣ-rat _ _ ∙ decℚ≡ᵣ?)
              ∙ +ᵣComm _ _)
-           ]/ 
+           ]/
      ,
        Σ≡Prop (λ _ → isSetℝ _ _)
        (cong₂ _,_
@@ -252,11 +252,11 @@ opaque
             (CircleOverlap→Circle-inj ε _ _)))
      , CircleOverlap→[cos,sin]-surj ε)
 
- 
+
 CircleOverlap≃distCircle : ∀ ε → CircleOverlap[ ε ] ≃ distCircle
 CircleOverlap≃distCircle ε = Circle→distCircle ∘ CircleOverlap[ ε ]→Circle
-  , isEquiv[Circle→distCircle∘CircleOverlap[ε]→Circle] ε 
-  
+  , isEquiv[Circle→distCircle∘CircleOverlap[ε]→Circle] ε
+
 
 fromWeldedInterval : ∀ {ℓ} (A : Type ℓ) → Type ℓ
 fromWeldedInterval A =
@@ -275,9 +275,9 @@ opaque
  injCircle0≡circle0 = distCircle≡
    (cong cos (𝐑'.0LeftAnnihilates _) ∙ cos0=1)
    (cong sin (𝐑'.0LeftAnnihilates _) ∙ sin0=0)
- 
+
  circle+ : distCircle → distCircle → distCircle
- circle+ ((a , b) , p) ((c , d) , q) = 
+ circle+ ((a , b) , p) ((c , d) , q) =
    ((a ·ᵣ c -ᵣ b ·ᵣ d) , a ·ᵣ d +ᵣ b ·ᵣ c) ,
      (solve! ℝring)
        ∙ cong₂ _·ᵣ_
@@ -299,7 +299,7 @@ opaque
   (x , -ᵣ y) , cong₂ _+ᵣ_ refl (-ᵣ·-ᵣ _ _) ∙ p
 
 ℝS¹AbGroupStr : AbGroupStr distCircle
-ℝS¹AbGroupStr .AbGroupStr.0g = circle0 
+ℝS¹AbGroupStr .AbGroupStr.0g = circle0
 ℝS¹AbGroupStr .AbGroupStr._+_  = circle+
 ℝS¹AbGroupStr .AbGroupStr.-_  = circleNeg
 ℝS¹AbGroupStr .AbGroupStr.isAbGroup = IsAbGroupℝS¹
@@ -309,11 +309,11 @@ opaque
    IsAbGroupℝS¹ : IsAbGroup
      circle0
      circle+
-     circleNeg 
-   IsAbGroupℝS¹ = 
+     circleNeg
+   IsAbGroupℝS¹ =
       makeIsAbGroup isSetDistCircle
       (λ _ _ _ → distCircle≡ (solve! ℝring) (solve! ℝring))
-      (λ _ → distCircle≡ (cong₂ _+ᵣ_ (·IdR _) (cong -ᵣ_ (𝐑'.0RightAnnihilates _)) 
+      (λ _ → distCircle≡ (cong₂ _+ᵣ_ (·IdR _) (cong -ᵣ_ (𝐑'.0RightAnnihilates _))
           ∙ 𝐑'.+IdR' _ _ (-ᵣ-rat 0))
         (cong₂ _+ᵣ_ (𝐑'.0RightAnnihilates _ ) (·IdR _)
           ∙ +IdL _))
@@ -325,10 +325,10 @@ opaque
 ℝS¹AbGroup = _ , ℝS¹AbGroupStr
 
 
-interpℝ0 : ∀ a b → interpℝ a b 0 ≡ a 
+interpℝ0 : ∀ a b → interpℝ a b 0 ≡ a
 interpℝ0 a b = solve! ℝring
 
-interpℝ1 : ∀ a b → interpℝ a b 1 ≡ b 
+interpℝ1 : ∀ a b → interpℝ a b 1 ≡ b
 interpℝ1 a b = cong₂ _+ᵣ_ refl (·IdL _) ∙ solve! ℝring
 
 pathFromToCircle∃ : (x₀ x₁ : Circle) →
@@ -358,9 +358,9 @@ rotationIso : distCircle → Iso distCircle distCircle
 rotationIso x .Iso.fun = ℝS¹._+ x
 rotationIso x .Iso.inv = ℝS¹._- x
 rotationIso x .Iso.rightInv a =
-  sym (ℝS¹.+Assoc _ _ _) ∙ cong (a ℝS¹.+_) (ℝS¹.+InvL _) ∙ ℝS¹.+IdR _ 
+  sym (ℝS¹.+Assoc _ _ _) ∙ cong (a ℝS¹.+_) (ℝS¹.+InvL _) ∙ ℝS¹.+IdR _
 rotationIso x .Iso.leftInv a =
-  sym (ℝS¹.+Assoc _ _ _) ∙ cong (a ℝS¹.+_) (ℝS¹.+InvR _) ∙ ℝS¹.+IdR _ 
+  sym (ℝS¹.+Assoc _ _ _) ∙ cong (a ℝS¹.+_) (ℝS¹.+InvR _) ∙ ℝS¹.+IdR _
 
 rotationEquiv : distCircle → distCircle ≃ distCircle
 rotationEquiv x = isoToEquiv (rotationIso x)
@@ -368,7 +368,7 @@ rotationEquiv x = isoToEquiv (rotationIso x)
 opaque
  unfolding circle+ circleNeg
  rotationEquivPresDist : ∀ x y z →
-    cartDist² (fst x) (fst y) ≡ cartDist² (fst (x ℝS¹.+ z)) (fst (y ℝS¹.+ z)) 
+    cartDist² (fst x) (fst y) ≡ cartDist² (fst (x ℝS¹.+ z)) (fst (y ℝS¹.+ z))
  rotationEquivPresDist x y z =
     sym (𝐑'.·IdR' _ _ (snd z)) ∙ solve! ℝring
 
@@ -380,7 +380,7 @@ opaque
 --    → Σ[ h ∈ _ ] (IsUContinuousℙ (intervalℙ a c) h ×
 --        ((∀ x x∈ x∈' → f x x∈ ≡ h x x∈')
 --         × (∀ x x∈ x∈' → g x x∈ ≡ h x x∈')))
-   
+
 -- extendUCAcrossIntervals = {!!}
 
 
@@ -389,10 +389,10 @@ opaque
 --         → Σ[ f ∈ (distCircle → ℝ) ]
 --            (∀ x x∈ → f (Circle→distCircle (injCircle (fst fwi x x∈)))
 --              ≡ fst fwi x x∈)
-               
+
 -- fromFWI fwi uc = {!!}
 --  -- where
- 
+
 
 fromInterval→ℝ-uC : Type
 fromInterval→ℝ-uC = Σ _ (IsUContinuousℙ (intervalℙ 0 1))
@@ -404,16 +404,16 @@ rotateToOrigin : ∀ D (x : distCircle) → Iso
 rotateToOrigin D x@((X , Y) , _) = w
  where
 
- 
+
  w : Iso (Σ distCircle (λ x' → cartDist² (fst x) (fst x') <ᵣ D))
          (Σ distCircle (λ x' → cartDist² (fst circle0) (fst x') <ᵣ D))
  w .Iso.fun (p@((X' , Y') , _) , d) = p ℝS¹.- x ,
   isTrans≡<ᵣ _ _ _ (cong₂ cartDist² (cong fst (sym (ℝS¹.+InvR x)) ) refl
     ∙ sym (rotationEquivPresDist x p (ℝS¹.- x))) d
-   
+
  w .Iso.inv (p@((X' , Y') , _) , d) = p ℝS¹.+ x ,
    isTrans≡<ᵣ _ _ _ ((cong₂ cartDist² (cong fst (sym (ℝS¹.+IdL _)) ) refl
-    ∙ sym (rotationEquivPresDist circle0 p x))) d 
+    ∙ sym (rotationEquivPresDist circle0 p x))) d
  w .Iso.rightInv _ = Σ≡Prop (λ _ → isProp<ᵣ _ _)
                  (sym (ℝS¹.+Assoc _ x (ℝS¹.- x))
                    ∙ cong (_ ℝS¹.+_) (ℝS¹.+InvR _) ∙ ℝS¹.+IdR _)
@@ -431,7 +431,7 @@ openHalfCircleIso = w
       rat [ pos 0 / 1+ 0 ] <ᵣ
       cos
        (x ·ᵣ (rat [ pos 2 , (1+ 0) ]/ ·ᵣ
-        (rat [ pos 2 , (1+ 0) ]/ ·ᵣ π-number/2))) 
+        (rat [ pos 2 , (1+ 0) ]/ ·ᵣ π-number/2)))
  f x x∈ = ∣x∣<π/2→0<cos[x] _
     (subst2 (λ a b →
       x ·ᵣ a
@@ -443,7 +443,7 @@ openHalfCircleIso = w
  inv∈ : ∀ x y → cartNorm² (x , y) ≡ rat [ pos 1 / 1+ 0 ]
        → 0 <ᵣ x → ∀ y∈ →  arcSin⟨⟩ y y∈ ·ᵣ fst (invℝ₊ (π-number/2₊ ₊·ᵣ 4)) ∈
       ointervalℙ (-ᵣ rat [ 1 / 4 ]) (rat [ 1 / 4 ])
- inv∈ x y p 0<y y∈ = 
+ inv∈ x y p 0<y y∈ =
    subst {x = fst π-number/2₊ ·ᵣ
                  fst
                  (invℝ₊
@@ -465,15 +465,15 @@ openHalfCircleIso = w
   arcSin⟨⟩ y y∈ ·ᵣ fst (invℝ₊ (π-number/2₊ ₊·ᵣ 4)) ,
     inv∈ x y p 0<x y∈
     --inv∈ x y p 0<y ?
-  
-       
+
+
   where
    y∈ : y ∈ ointervalℙ -1 1
    y∈ = subst (λ b → y ∈ ointervalℙ b 1)
      (-ᵣ-rat 1)
       (abs<→ointerval y 1
         (x²<1→∣x∣<1 _ (isTrans<≡ᵣ _ _ _
-          (isTrans≡<ᵣ _ _ _ 
+          (isTrans≡<ᵣ _ _ _
             (x^²=x·x y ∙ sym (+IdR _))
             (<ᵣ-o+ _ _ (y ·ᵣ y) (snd ((x , 0<x) ₊·ᵣ (x , 0<x))))
             )
@@ -487,7 +487,7 @@ openHalfCircleIso = w
        (ℝ₊≡ $ (x^²=x·x _ ∙
          cos·cos=1-sin·sin φ) ∙∙  cong (_-ᵣ_ 1)
         (cong₂ _·ᵣ_ p-sin p-sin)
-       
+
         ∙ sym (cong (_-ᵣ (y ·ᵣ y))
          ( (p))) ∙  (𝐑'.plusMinus _ _)
          ∙∙ sym (x^²=x·x x) ))) p-sin)
@@ -502,7 +502,7 @@ openHalfCircleIso = w
  w .Iso.leftInv (t , t∈) =
   Σ≡Prop
       (∈-isProp (ointervalℙ (-ᵣ (rat [ 1 / 4 ])) (rat [ 1 / 4 ])))
-      
+
        (cong₂ _·ᵣ_ (arcSin⟨⟩∘sin _ _
         ((subst2 (λ a b →
       t ·ᵣ a
@@ -531,7 +531,7 @@ record IsMetric {ℓ} (A : Type ℓ) (𝑑[_,_] : A → A → ℝ) : Type ℓ wh
   constructor ismetric
 
   field
-   is-set : isSet A   
+   is-set : isSet A
    𝑑-nonNeg : ∀ x y → 0 ≤ᵣ 𝑑[ x , y ]
    𝑑-sym : ∀ x y → 𝑑[ x , y ] ≡ 𝑑[ y , x ]
    𝑑-pos : ∀ x y → (0 <ᵣ 𝑑[ x , y ]) → x ≡ y → ⊥
@@ -552,7 +552,7 @@ record MetricSpaceStr {ℓ} (A : Type ℓ) : Type ℓ where
    isMetric : IsMetric A 𝑑[_,_]
 
   open IsMetric isMetric public
-  
+
 MetricSpace : ∀ ℓ → Type (ℓ-suc ℓ)
 MetricSpace ℓ = TypeWithStr ℓ MetricSpaceStr
 
@@ -583,7 +583,7 @@ MetricSubSpaceStr A P msp = w
  where
  module M = MetricSpaceStr msp
  open IsMetric
- 
+
  ww : IsMetric _ _
  ww .is-set = isSetΣ M.is-set (isProp→isSet ∘ ∈-isProp P)
  ww .𝑑-nonNeg _ _ = M.𝑑-nonNeg _ _
@@ -598,7 +598,7 @@ MetricSubSpaceStr A P msp = w
  w .MetricSpaceStr.𝑑[_,_] (x , _) (y , _) = M.𝑑[ x , y ]
  w .MetricSpaceStr.isMetric = ww
 
-MetricSubSpace : ∀ {ℓ} 
+MetricSubSpace : ∀ {ℓ}
   → (A : MetricSpace ℓ) → (P : ℙ ⟨ A ⟩)
   → MetricSpace ℓ
 MetricSubSpace A P = Σ ⟨ A ⟩ (_∈ P) , MetricSubSpaceStr _ P (snd A)
@@ -615,15 +615,15 @@ IsUContMap AM f BM =
     module BM = MetricSpaceStr BM
 
 IsIsometry : ∀ {ℓ} {A : Type ℓ}
-         (AM : MetricSpaceStr A) (f : A → A) 
+         (AM : MetricSpaceStr A) (f : A → A)
          → Type ℓ
-IsIsometry AM f = ∀ x y → AM.𝑑[ x , y ] ≡ AM.𝑑[ f x , f y ] 
+IsIsometry AM f = ∀ x y → AM.𝑑[ x , y ] ≡ AM.𝑑[ f x , f y ]
  where
     module AM = MetricSpaceStr AM
 
 
 IsIsometry→IsEmbedding : ∀ {ℓ} {A : Type ℓ}
-         (AM : MetricSpaceStr A) (f : A → A) 
+         (AM : MetricSpaceStr A) (f : A → A)
          → IsIsometry AM f → isEmbedding f
 IsIsometry→IsEmbedding AM f isIsom =
   injEmbedding AM.is-set
@@ -639,13 +639,13 @@ UContMap (_ , A) (_ , B) = Σ _ λ f → ∥ IsUContMap A f B ∥₁
 
 
 
-subsSpaceInjUContMap : ∀ {ℓ} 
+subsSpaceInjUContMap : ∀ {ℓ}
   → (A : MetricSpace ℓ) (P : ℙ ⟨ A ⟩)
   → UContMap (MetricSubSpace A P) A
 subsSpaceInjUContMap A P = fst ,
   ∣ (λ ε →  ε , λ _ _ <ε → <ε) ∣₁
 
--- subsSpaceInjUContMapJoin : ∀ {ℓ} 
+-- subsSpaceInjUContMapJoin : ∀ {ℓ}
 --   → (A : MetricSpace ℓ) (P Q : ℙ ⟨ A ⟩)
 --   → {!MetricSubSpace (MetricSubSpace A P) (Q ∘ fst)
 --       ≡ !}
@@ -658,7 +658,7 @@ uContMapConst A B b .fst _ = b
 uContMapConst A B b .snd =
   ∣ (λ ε → 1 , λ _ _ _ → isTrans≡<ᵣ _ _ _ (sym (BM.𝑑-≡→zero b b refl))
    (snd (ℚ₊→ℝ₊ ε))) ∣₁
- 
+
   where
     module BM = MetricSpaceStr (snd B)
 
@@ -677,20 +677,20 @@ isUContMap∘ f g fucm gucm ε =
 restrUContMap : ∀ {ℓ ℓ'} {A : MetricSpace ℓ} {B : MetricSpace ℓ'} (P : ℙ ⟨ A ⟩) (Q : ℙ ⟨ B ⟩) →
      (f : UContMap A B) →
      (f∈ : ∀ x → x ∈ P → fst f x ∈ Q)
-    → UContMap (MetricSubSpace A P) (MetricSubSpace B Q)  
+    → UContMap (MetricSubSpace A P) (MetricSubSpace B Q)
 restrUContMap P Q f f∈ .fst (x , x∈) = fst f x , f∈ x x∈
 restrUContMap P Q f f∈ .snd = PT.map (λ X ε → map-snd (λ {δ} Y _ _ → Y _ _  ) (X ε)) (snd f)
 
 UContMap∘ : ∀ {ℓ ℓ' ℓ''} {A : MetricSpace ℓ} {B : MetricSpace ℓ'} {C : MetricSpace ℓ''}
      → UContMap B C → UContMap A B → UContMap A C
 UContMap∘ {A = A} {B} {C} (f , fucm) (g , gucm) =
- f ∘ g , PT.map2 (isUContMap∘ {A = A} {B} {C} f g) fucm gucm 
+ f ∘ g , PT.map2 (isUContMap∘ {A = A} {B} {C} f g) fucm gucm
 
 
 IsUContinuous→UContMap :
          ∀ f → ∥ IsUContinuous f ∥₁
          → UContMap ℝMetricSpace ℝMetricSpace
-         
+
 IsUContinuous→UContMap f fUC =
   f , PT.map (λ X ε → map-snd (λ {δ} Y _ _ → fst (∼≃abs<ε _ _ _) ∘ Y _ _ ∘ invEq (∼≃abs<ε _ _ _)) (X ε)) fUC
 
@@ -711,19 +711,19 @@ Interval[ a , b ]MetricSpace = MetricSubSpace ℝMetricSpace (intervalℙ a b)
 
 nth-rootNonNegDist· : ∀ n x y →
  fst (nth-rootNonNeg n x) ·ᵣ fst (nth-rootNonNeg n y)
-   ≡ fst (nth-rootNonNeg n (x ₀₊·₀₊ᵣ y)) 
+   ≡ fst (nth-rootNonNeg n (x ₀₊·₀₊ᵣ y))
 nth-rootNonNegDist· (1+ n) x y = cong fst $
  sym (invEq≡→equivFun≡ (invEquiv (nth-pow-root-equiv₀₊ (1+ n)))
    {b = ((nth-rootNonNeg (1+ n)) x) ₀₊·₀₊ᵣ (nth-rootNonNeg (1+ n)) y}
   (ℝ₀₊≡ (^ⁿDist·ᵣ (suc n) _ _) ∙
    cong₂ _₀₊·₀₊ᵣ_
      (Iso.rightInv (nth-pow-root-iso₀₊ (1+ n)) x)
-     (Iso.rightInv (nth-pow-root-iso₀₊ (1+ n)) y))) 
+     (Iso.rightInv (nth-pow-root-iso₀₊ (1+ n)) y)))
 
 
 -- TODO : this should be general lemma about monotonicicty of isomorphisms
 
-nth-rootNonNegMonotone : ∀ n x y 
+nth-rootNonNegMonotone : ∀ n x y
   → fst x ≤ᵣ fst y
   → fst (nth-rootNonNeg n x) ≤ᵣ fst (nth-rootNonNeg n y)
 nth-rootNonNegMonotone (1+ n) (x , 0≤x) (y , 0≤y) x≤y =
@@ -737,7 +737,7 @@ nth-rootNonNegMonotone (1+ n) (x , 0≤x) (y , 0≤y) x≤y =
           (nth-rootNonNeg (1+ n) (y , 0≤y) .snd)
           (nth-rootNonNeg (1+ n) (x , 0≤x) .snd) √x<√y))
 
-nth-rootNonNegMonotoneStrict : ∀ n x y 
+nth-rootNonNegMonotoneStrict : ∀ n x y
   → fst x <ᵣ fst y
   → fst (nth-rootNonNeg n x) <ᵣ fst (nth-rootNonNeg n y)
 nth-rootNonNegMonotoneStrict (1+ n) (x , 0≤x) (y , 0≤y) x<y =
@@ -761,7 +761,7 @@ nth-rootNonNegMonotoneStrict (1+ n) (x , 0≤x) (y , 0≤y) x<y =
 [a+b]^ⁿ2≡[a^ⁿ2+b^ⁿ2]+2ab _ _ = (x^²=x·x _ ∙ solve! ℝring ∙
                  cong₂ _+ᵣ_
                   (cong₂ _+ᵣ_ (sym (x^²=x·x _)) (sym (x^²=x·x _)))
-                   (x+x≡2x _)) 
+                   (x+x≡2x _))
 
 𝒑-norm×-lem : ∀ n → ℕ₊₁→ℕ n ℕ.≤ 2 → ∀ ab bc a'b' b'c' →
    ((fst ab +ᵣ fst bc) ^ⁿ ℕ₊₁→ℕ n) +ᵣ
@@ -834,7 +834,7 @@ nth-rootNonNegMonotoneStrict (1+ n) (x , 0≤x) (y , 0≤y) x<y =
 --             ((bc ₀₊^ⁿ ℕ₊₁→ℕ n) ₀₊+₀₊ᵣ (b'c' ₀₊^ⁿ ℕ₊₁→ℕ n)))) ^ⁿ ℕ₊₁→ℕ n)
 -- 𝒑-norm×-lem n' ab bc a'b' b'c' =
 --   invEq (z≤x≃y₊·z≤y₊·x _ _ 2)
---     (subst2 _≤ᵣ_ 
+--     (subst2 _≤ᵣ_
 --       (cong (∑ {n = suc n}) (funExt λ i → ·DistL+ (n choose (FD.toℕ i))
 --         ((fst ab) E.^ (FD.toℕ i) ·ᵣ (fst bc) E.^ (n ∸ FD.toℕ i)
 --              +ᵣ (fst a'b') E.^ (FD.toℕ i) ·ᵣ (fst b'c') E.^ (n ∸ FD.toℕ i))
@@ -848,7 +848,7 @@ nth-rootNonNegMonotoneStrict (1+ n) (x , 0≤x) (y , 0≤y) x<y =
 --         (λ i → (n choose (FD.toℕ i)) ·ᵣ
 --           ((fst bc) E.^ (FD.toℕ i) ·ᵣ (fst ab) E.^ (n ∸ FD.toℕ i)
 --              +ᵣ (fst b'c') E.^ (FD.toℕ i) ·ᵣ (fst a'b') E.^ (n ∸ FD.toℕ i)))
---         ∙ cong₂ _+ᵣ_ 
+--         ∙ cong₂ _+ᵣ_
 --             (sym (BinomialSum n _ _ _ _)
 --               ∙ cong₂ _+ᵣ_
 --               (^≡^ⁿ _ n)
@@ -916,7 +916,7 @@ nth-rootNonNegMonotoneStrict (1+ n) (x , 0≤x) (y , 0≤y) x<y =
 --       {!!})
 
 
--- sym (∑Split _ _) 
+-- sym (∑Split _ _)
 --    ∙ cong ∑ (funExt λ i → sym (·DistR+ _ _ _))
 
  --   subst2 _≤ᵣ_
@@ -927,7 +927,7 @@ nth-rootNonNegMonotoneStrict (1+ n) (x , 0≤x) (y , 0≤y) x<y =
  --    (sym (BinomialThm n _ _) ∙ ^≡^ⁿ _ n)
  --    {!!}
  -- where
- -- open BinomialThm ℝring 
+ -- open BinomialThm ℝring
  -- open Sum (CommRing→Ring ℝring)
  -- n = ℕ₊₁→ℕ n'
  -- module E = Exponentiation ℝring
@@ -950,7 +950,7 @@ nth-rootNonNegMonotoneStrict (1+ n) (x , 0≤x) (y , 0≤y) x<y =
        (isTrans≤≡ᵣ _ _ _  (-ᵣ≤ᵣ _ _ (snd y)) (-ᵣ-rat 0))))
   , isAntisym≤ᵣ 0 (fst y) (snd y)
      (isTrans≡≤ᵣ _ _ _ (𝐑'.implicitInverse _ _ (sym 0≡x+y))
-       (isTrans≤≡ᵣ _ _ _  (-ᵣ≤ᵣ _ _ (snd x)) (-ᵣ-rat 0))) 
+       (isTrans≤≡ᵣ _ _ _  (-ᵣ≤ᵣ _ _ (snd x)) (-ᵣ-rat 0)))
 
 0<ℝ₀₊+ℝ₀₊→atLeastOne>0 : ∀ (x y : ℝ₀₊)
    → 0 <ᵣ fst (x ₀₊+₀₊ᵣ y)
@@ -971,10 +971,10 @@ module _ {ℓ ℓ'} {A : Type ℓ} {A' : Type ℓ'}
  private
   module MA  = MetricSpaceStr mA
   module MA' = MetricSpaceStr mA'
- 
+
  open IsMetric
 
- 𝒑-norm-dist : ℕ₊₁ → A × A' → A × A' → ℝ 
+ 𝒑-norm-dist : ℕ₊₁ → A × A' → A × A' → ℝ
  𝒑-norm-dist n (a , a') (b , b') =
     fst (nth-rootNonNeg n
       ((MA.𝑑₊[ a , b ] ₀₊^ⁿ (ℕ₊₁→ℕ n) ) ₀₊+₀₊ᵣ
@@ -989,25 +989,25 @@ module _ {ℓ ℓ'} {A : Type ℓ} {A' : Type ℓ'}
 
   w : IsMetric _ (𝒑-norm-dist n)
   w .is-set = isSet× MA.is-set MA'.is-set
-  w .𝑑-nonNeg (a , a') (b , b') = 
+  w .𝑑-nonNeg (a , a') (b , b') =
     snd (nth-rootNonNeg n
       ((MA.𝑑₊[ a , b ] ₀₊^ⁿ (ℕ₊₁→ℕ n) ) ₀₊+₀₊ᵣ
-        (MA'.𝑑₊[ a' , b' ] ₀₊^ⁿ (ℕ₊₁→ℕ n) ))) 
-  w .𝑑-sym (a , a') (b , b') = 
+        (MA'.𝑑₊[ a' , b' ] ₀₊^ⁿ (ℕ₊₁→ℕ n) )))
+  w .𝑑-sym (a , a') (b , b') =
     cong (fst ∘ nth-rootNonNeg n)
       (ℝ₀₊≡ (cong₂ _+ᵣ_ (cong (_^ⁿ (ℕ₊₁→ℕ n)) (MA.𝑑-sym a b))
-            (cong (_^ⁿ (ℕ₊₁→ℕ n)) (MA'.𝑑-sym a' b')))) 
+            (cong (_^ⁿ (ℕ₊₁→ℕ n)) (MA'.𝑑-sym a' b'))))
   w .𝑑-pos (a , a') (b , b') 0<d p =
    PT.rec isProp⊥  (⊎.rec (flip (MA.𝑑-pos a b) (cong fst p))
          (flip (MA'.𝑑-pos a' b') (cong snd p))
       ∘ (⊎.map
-        (λ 0<d → 
+        (λ 0<d →
           subst2 _<ᵣ_
             (sym $ nth-rootNonNeg0 n _)
             (cong fst (Iso.leftInv (nth-pow-root-iso₀₊ n) _))
             (nth-rootNonNegMonotoneStrict n (0 , decℚ≤ᵣ?)
               ((MA.𝑑₊[ a , b ] ₀₊^ⁿ ℕ₊₁→ℕ (1+ n'))) 0<d))
-        (λ 0<d → 
+        (λ 0<d →
           subst2 _<ᵣ_
             (sym $ nth-rootNonNeg0 n _)
             (cong fst (Iso.leftInv (nth-pow-root-iso₀₊ n) _))
@@ -1029,7 +1029,7 @@ module _ {ℓ ℓ'} {A : Type ℓ} {A' : Type ℓ'}
            (nth-rootNonNeg n _ .snd) 0<d)
             (cong fst (Iso.rightInv (nth-pow-root-iso₀₊ n) _))
             )
-  w .𝑑-zero→≡ (a , a') (b , b') 0≡d = 
+  w .𝑑-zero→≡ (a , a') (b , b') 0≡d =
    cong₂ _,_
     (MA.𝑑-zero→≡ a b
        (nth-rootNonNeg0 n (≤ᵣ-refl 0)
@@ -1062,7 +1062,7 @@ module _ {ℓ ℓ'} {A : Type ℓ} {A' : Type ℓ'}
          (MA.𝑑-≡→zero a b (cong fst aa'≡bb')))
         (sym (0^ⁿ (predℕ (ℕ₊₁→ℕ n))) ∙ cong (_^ⁿ (ℕ₊₁→ℕ n))
          (MA'.𝑑-≡→zero a' b' (cong snd aa'≡bb')))))
-  w .𝑑-triangle (a , a') (b , b') (c , c') = 
+  w .𝑑-triangle (a , a') (b , b') (c , c') =
     isTrans≤≡ᵣ _ _ _
       (nth-rootNonNegMonotone n _ _
         (isTrans≤ᵣ _ _ _
@@ -1088,11 +1088,11 @@ module _ {ℓ ℓ'} {A : Type ℓ} {A' : Type ℓ'}
          ))))
 
   ww : MetricSpaceStr (_ × _)
-  ww .MetricSpaceStr.𝑑[_,_] = 𝒑-norm-dist n 
+  ww .MetricSpaceStr.𝑑[_,_] = 𝒑-norm-dist n
   ww .MetricSpaceStr.isMetric = w
 
  𝒑-norm-×-fst-const : ∀ n x a' b' →
-  𝒑-norm-dist n (x , a') (x , b') ≡ MA'.𝑑[ a' , b' ] 
+  𝒑-norm-dist n (x , a') (x , b') ≡ MA'.𝑑[ a' , b' ]
  𝒑-norm-×-fst-const n x a' b' =
    cong fst (cong (nth-rootNonNeg n)
          (ℝ₀₊≡ (𝐑'.+IdL' _ _
@@ -1110,10 +1110,10 @@ pair-ucm n n< X Y x .snd = ∣ (λ ε → ε , λ x₁ y x₂ →
 
 
 𝐑²MetricSpaceStr : MetricSpaceStr (ℝ × ℝ)
-𝐑²MetricSpaceStr = 𝒑-norm-× 
+𝐑²MetricSpaceStr = 𝒑-norm-×
   (snd ℝMetricSpace) (snd ℝMetricSpace) 2 (ℕ.≤-solver 2 2)
-  
-distCircleMetricSpaceStr : MetricSpaceStr distCircle 
+
+distCircleMetricSpaceStr : MetricSpaceStr distCircle
 distCircleMetricSpaceStr =
  MetricSubSpaceStr (ℝ × ℝ)
   (λ z → (cartNorm² z ≡ 1) , isSetℝ _ _)
@@ -1127,12 +1127,12 @@ distCircleMetricSpace = _ , distCircleMetricSpaceStr
   (x -ᵣ y) ·ᵣ (x -ᵣ y) ≡
     x ·ᵣ x +ᵣ (-ᵣ (2 ·ᵣ (x ·ᵣ y) )) +ᵣ y ·ᵣ y
 [x-y][x-y]≡xx-2xy+yy x y =
-  solve! ℝring ∙ cong₂ _+ᵣ_ 
+  solve! ℝring ∙ cong₂ _+ᵣ_
    (cong₂ _-ᵣ_  refl (x+x≡2x _) )
     refl
 opaque
 
- cartDist≃upperHalf :  (p : distCircle) → 
+ cartDist≃upperHalf :  (p : distCircle) →
     (cartDist² (fst circle0) (fst p) <ᵣ 2)
      ≃ (0 <ᵣ fst (fst p))
  cartDist≃upperHalf ((x , y) , p) =
@@ -1152,17 +1152,17 @@ opaque
               ( cong₂ (_+ᵣ_) (·IdR _) p ∙  (+ᵣ-rat 1 1)  )
                (cong (2 ·ᵣ_) (·IdL x)))
           (sym (-ᵣ-rat₂ _ _) ∙
-            cong₂ _-ᵣ_ refl (rat·ᵣrat _ _))    
+            cong₂ _-ᵣ_ refl (rat·ᵣrat _ _))
      ∙ₑ x+y<x+z≃y<z 2 _ _
-     ∙ₑ invEquiv (x<y≃-y<-x _ _)  
+     ∙ₑ invEquiv (x<y≃-y<-x _ _)
      ∙ₑ invEquiv (z<x≃y₊·z<y₊·x x 0 2)
 
-unwindDistCirclePathStep : ∀ a b a≤b → 
+unwindDistCirclePathStep : ∀ a b a≤b →
    (f : Interval[ a , b ]MetricSpace .fst → distCircle)
  → (∀ x → cartDist² (fst (f (a , (≤ᵣ-refl a , a≤b)))) (fst (f x) ) <ᵣ 2)
  → Σ ((fst (Interval[ a , b ]MetricSpace)) → ℝ)
    λ g → ∀ x → f x ≡ f (a , (≤ᵣ-refl a , a≤b)) ℝS¹.+
-     Circle→distCircle (injCircle (g x)) 
+     Circle→distCircle (injCircle (g x))
 unwindDistCirclePathStep a b a≤b f fDist =
   g , g-eq
 
@@ -1202,12 +1202,12 @@ unwindDistCirclePathStep a b a≤b f fDist =
       ∙ ℝS¹.+Comm _ _
 
 
-unwindDistCirclePathStep' : ∀ a b a≤b → 
+unwindDistCirclePathStep' : ∀ a b a≤b →
    (f : Interval[ a , b ]MetricSpace .fst → distCircle)
  → (∀ x → cartDist² (fst (f (a , (≤ᵣ-refl a , a≤b)))) (fst (f x) ) <ᵣ 2)
  → Σ ((fst (Interval[ a , b ]MetricSpace)) → ℝ)
    λ g → ((∀ x → f x ≡ f (a , (≤ᵣ-refl a , a≤b)) ℝS¹.+
-     Circle→distCircle (injCircle (g x))) × (g (a , (≤ᵣ-refl a , a≤b)) ≡ 0)) 
+     Circle→distCircle (injCircle (g x))) × (g (a , (≤ᵣ-refl a , a≤b)) ≡ 0))
 unwindDistCirclePathStep' a b a≤b f fDist =
   let (g , g=) = unwindDistCirclePathStep a b a≤b f fDist
       ga= = g= (a , (≤ᵣ-refl a , a≤b))
@@ -1220,7 +1220,7 @@ unwindDistCirclePathStep' a b a≤b f fDist =
           ∙ sym (1gUniqueR _ (sym (ga=))))
 
       ga='' = fromCircle≡ _ _ (sym ga=')
-      
+
   in (λ (x , x∈) → g (x , x∈) -ᵣ g (a , (≤ᵣ-refl a , a≤b)))
     ,  (λ (x , x∈) → g= (x , x∈) ∙
       cong (f (a , ≤ᵣ-refl a , a≤b) ℝS¹.+_)
@@ -1233,10 +1233,10 @@ unwindDistCirclePathStep' a b a≤b f fDist =
 
  where
   open GroupTheory (AbGroup→Group ℝS¹AbGroup)
-  
 
 
-DiscreteMetricStr : ∀ {ℓ} {A : Type ℓ} → Discrete A → MetricSpaceStr A 
+
+DiscreteMetricStr : ∀ {ℓ} {A : Type ℓ} → Discrete A → MetricSpaceStr A
 DiscreteMetricStr _≟_ = ww
  where
 
@@ -1245,7 +1245,7 @@ DiscreteMetricStr _≟_ = ww
   discDist (yes p) = 0
   discDist (no ¬p) = 1
 
-  discDistNonNeg : ∀ d → 0 ≤ᵣ discDist d 
+  discDistNonNeg : ∀ d → 0 ≤ᵣ discDist d
   discDistNonNeg (yes p) = decℚ≤ᵣ?
   discDistNonNeg (no ¬p) = decℚ≤ᵣ?
 
@@ -1270,8 +1270,8 @@ DiscreteMetricStr _≟_ = ww
  discDistTriangle x y z (no ¬p) (no ¬p₁) d'' =
   isTrans≡≤ᵣ _ _ _ (sym (+IdR _)) (≤ᵣ-o+ _ _ 1 (discDistNonNeg y z d''))
  open IsMetric
- 
- w : IsMetric _ (λ x y → discDist _ _ (x ≟ y)) 
+
+ w : IsMetric _ (λ x y → discDist _ _ (x ≟ y))
  w .is-set = Discrete→isSet _≟_
  w .𝑑-nonNeg x y = discDistNonNeg x y (x ≟ y)
  w .𝑑-sym x y = discDistSym x y (x ≟ y) (y ≟ x)
@@ -1279,8 +1279,8 @@ DiscreteMetricStr _≟_ = ww
    isIrrefl<ᵣ 0
      (isTrans<≡ᵣ _ _ _ 0<d (cong (discDist x y)
       (isPropDec (Discrete→isSet _≟_ x y) (x ≟ y) (yes x=y))))
-     
-     
+
+
  w .𝑑-zero→≡ x y = discDist0→ x y (x ≟ y)
  w .𝑑-≡→zero x y x=y = cong (discDist x y)
       (isPropDec (Discrete→isSet _≟_ x y) (yes x=y) (x ≟ y))
@@ -1290,11 +1290,11 @@ DiscreteMetricStr _≟_ = ww
  ww : MetricSpaceStr _
  ww .MetricSpaceStr.𝑑[_,_] x y = discDist _ _ (x ≟ y)
  ww .MetricSpaceStr.isMetric = w
- 
+
 trivialMetricSpace : MetricSpace₀
 trivialMetricSpace = _ , DiscreteMetricStr {A = Unit} λ _ _ → yes refl
 
-isUContFromTrivialMetricSpace : ∀ {ℓ} (A : MetricSpace ℓ)  
+isUContFromTrivialMetricSpace : ∀ {ℓ} (A : MetricSpace ℓ)
   (f : ⟨ trivialMetricSpace ⟩ → ⟨ A ⟩ )
   → IsUContMap (snd (trivialMetricSpace)) f (snd A)
 isUContFromTrivialMetricSpace A f ε =

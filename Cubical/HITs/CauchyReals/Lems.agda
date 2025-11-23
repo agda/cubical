@@ -349,8 +349,8 @@ module Lems (R : CR.CommRing ℓ-zero) where
  lem--090 = solve! R
 
  lem--091 : ∀ {f'x fx fy gx g'x gy} →
-       (f'x · gx + g'x · fx) · ε 
-         - (fy · gy - fx · gx)  
+       (f'x · gx + g'x · fx) · ε
+         - (fy · gy - fx · gx)
       ≡
       gx · (f'x · ε - (fy - fx)) +
       fy · (g'x · ε - (gy - gx))

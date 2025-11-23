@@ -413,7 +413,7 @@ getClamps = Elimℝ-Prop.go w
 
 
 
-eqℝ≃< : ∀ x y → (x ≡ y) ≃ (∀ ε → absᵣ (x -ᵣ y) <ᵣ rat (fst ε)) 
+eqℝ≃< : ∀ x y → (x ≡ y) ≃ (∀ ε → absᵣ (x -ᵣ y) <ᵣ rat (fst ε))
 eqℝ≃< x y = invEquiv (∼≃≡ _ _ ) ∙ₑ equivΠCod λ ε → ∼≃abs<ε _ _ _
 
 lim≡≃∼ : ∀ x y a → (lim x y ≡ a)
@@ -1064,14 +1064,14 @@ cont₂-id _ = (λ _ → IsContinuousConst _) , (λ _ → IsContinuousConst _)
 
 asIsContinuous₂-fst : ∀ f
   → IsContinuous f
-  → IsContinuous₂ (λ x _ → f x) 
+  → IsContinuous₂ (λ x _ → f x)
 asIsContinuous₂-fst f cf = (λ _ → IsContinuousConst _) , λ _ → cf
 
 
 asIsContinuous₂-snd : ∀ f
   → IsContinuous f
-  → IsContinuous₂ (λ _ x → f x) 
-asIsContinuous₂-snd f cf = (λ _ → cf) , (λ _ → IsContinuousConst _) 
+  → IsContinuous₂ (λ _ x → f x)
+asIsContinuous₂-snd f cf = (λ _ → cf) , (λ _ → IsContinuousConst _)
 
 
 ≡Cont₂ : {f₀ f₁ : ℝ → ℝ → ℝ}

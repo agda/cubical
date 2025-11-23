@@ -365,7 +365,7 @@ Iso⊎→Iso {A = A} {C = C} {B = B} {D = D} f e p = Iso'
   Iso.inv Iso' = e⁻-pres-inr
   Iso.rightInv Iso' x = lem2 x (_ , refl) (_ , refl)
   Iso.leftInv Iso' x = lem1 x (_ , refl) (_ , refl)
-  
+
 rec-map : (f : C → F) (g : D → F) (h : A → C) (k : B → D)
         → (x : A ⊎ B)
         → ⊎.rec f g (⊎.map h k x) ≡ ⊎.rec (f ∘ h) (g ∘ k) x

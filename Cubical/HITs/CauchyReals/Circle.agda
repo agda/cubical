@@ -84,18 +84,18 @@ x^²=x·x x = cong (_·ᵣ x) (·IdL _)
 
 
 cartNorm² : ℝ × ℝ → ℝ
-cartNorm² (x , y) = x ·ᵣ x +ᵣ y ·ᵣ y 
+cartNorm² (x , y) = x ·ᵣ x +ᵣ y ·ᵣ y
 
 
 cartDist² : ℝ × ℝ → ℝ × ℝ → ℝ
 cartDist² (x , y) (x' , y') = cartNorm² (x -ᵣ x' , y -ᵣ y')
 
 
-cartDis²Comm : ∀ p p' → cartDist² p p' ≡ cartDist² p' p 
+cartDis²Comm : ∀ p p' → cartDist² p p' ≡ cartDist² p' p
 cartDis²Comm p p' = solve! ℝring
 
 distCircle : Type
-distCircle = Σ (ℝ × ℝ) λ xy → cartNorm² xy ≡ 1 
+distCircle = Σ (ℝ × ℝ) λ xy → cartNorm² xy ≡ 1
 
 
 distCircle≡ : ∀ {x y : distCircle}
@@ -104,7 +104,7 @@ distCircle≡ : ∀ {x y : distCircle}
   → x ≡ y
 distCircle≡ x=x' y=y' =
  Σ≡Prop (λ _ → isSetℝ  _ _) (cong₂ _,_ x=x' y=y')
- 
+
 isSetDistCircle : isSet distCircle
 isSetDistCircle = isSetΣ (isSet× isSetℝ isSetℝ) (isProp→isSet ∘ λ _ → isSetℝ _ _ )
 
@@ -135,7 +135,7 @@ isSetDistCircle = isSetΣ (isSet× isSetℝ isSetℝ) (isProp→isSet ∘ λ _ �
     (Dichotomyℝ' 0 (absᵣ x) _ (snd (root 2 (_ , 0<x²))))
 
 
--- pre-distCircle→angle : ∀ x y → x ^ⁿ 2 +ᵣ y ^ⁿ 2 ≡ 1 
+-- pre-distCircle→angle : ∀ x y → x ^ⁿ 2 +ᵣ y ^ⁿ 2 ≡ 1
 --   → absᵣ x ≤ᵣ (rat [ 3 / 4 ])
 --   → Σ[ φ ∈ ℝ ] {!φ = ?!} × ((sin φ ≡ x) × (cos φ ≡ y))
 -- pre-distCircle→angle x y x²+y²=1 ∣x∣≤3/4 =
@@ -159,18 +159,18 @@ isSetDistCircle = isSetΣ (isSet× isSetℝ isSetℝ) (isProp→isSet ∘ λ _ �
 --             ointervalℙ X 1)
 --            (-ᵣ-rat 1) (sym-intervalℙ⊆ointervalℙ _ 1 decℚ<ᵣ? x x∈))
 --      φ = arcSin⟨⟩ x x∈
-        
+
 --      sin= = sin∘arcSin⟨⟩ x _
 --      zz :  (cos φ ^ⁿ 2) ≡ (y ^ⁿ 2)
---      zz = sym (𝐑'.plusMinus _ _) ∙ 
+--      zz = sym (𝐑'.plusMinus _ _) ∙
 --       cong (_-ᵣ (x ^ⁿ 2))
 --        (+ᵣComm _ _ ∙ cong (_+ᵣ (cos φ ^ⁿ 2))
 --         (sym (cong (_^ⁿ 2) sin=)) ∙ sin²+cos²=1 φ ∙ sym x²+y²=1
 --          ∙ +ᵣComm _ _)
---          ∙ 𝐑'.plusMinus _ _ 
-       
+--          ∙ 𝐑'.plusMinus _ _
+
 --      cos= : cos φ ≡ absᵣ y
---      cos= =  
+--      cos= =
 --          cong fst (invEq (congEquiv
 --            {x = _ , ∣x∣<π/2→0<cos[x] φ (arcSin⟨⟩∈ _ x∈)}
 --            {_ , 0<∣y∣}
@@ -187,7 +187,7 @@ isSetDistCircle = isSetΣ (isSet× isSetℝ isSetℝ) (isProp→isSet ∘ λ _ �
 --           cong sin (+ᵣComm _ _)
 --            ∙ sin[x]=-sin[x+π] (-ᵣ φ)
 --            ∙ sin-odd _ ∙
---             cong sin (-ᵣInvol _) ∙ sin= 
+--             cong sin (-ᵣInvol _) ∙ sin=
 --           , cong cos (+ᵣComm _ _)
 --             ∙ cos[x]=-cos[x+π] (-ᵣ φ)
 --             ∙ cong -ᵣ_ (
@@ -197,7 +197,7 @@ isSetDistCircle = isSetΣ (isSet× isSetℝ isSetℝ) (isProp→isSet ∘ λ _ �
 --       (decCut y 0<∣y∣)
 
 
-pre-distCircle→angle : ∀ x y → x ^ⁿ 2 +ᵣ y ^ⁿ 2 ≡ 1 
+pre-distCircle→angle : ∀ x y → x ^ⁿ 2 +ᵣ y ^ⁿ 2 ≡ 1
   → absᵣ x ≤ᵣ (rat [ 3 / 4 ])
   → Σ[ φ ∈ ℝ ] ((φ ∈ ointervalℙ (-ᵣ π-number/2) π-number/2)
               ⊎ (φ ∈ ointervalℙ π-number/2 (π-number/2 +ᵣ π-number)))
@@ -223,18 +223,18 @@ pre-distCircle→angle x y x²+y²=1 ∣x∣≤3/4 =
             ointervalℙ X 1)
            (-ᵣ-rat 1) (sym-intervalℙ⊆ointervalℙ _ 1 decℚ<ᵣ? x x∈))
      φ = arcSin⟨⟩ x x∈
-     φ∈ = arcSin⟨⟩∈ x x∈   
+     φ∈ = arcSin⟨⟩∈ x x∈
      sin= = sin∘arcSin⟨⟩ x _
      zz :  (cos φ ^ⁿ 2) ≡ (y ^ⁿ 2)
-     zz = sym (𝐑'.plusMinus _ _) ∙ 
+     zz = sym (𝐑'.plusMinus _ _) ∙
       cong (_-ᵣ (x ^ⁿ 2))
        (+ᵣComm _ _ ∙ cong (_+ᵣ (cos φ ^ⁿ 2))
         (sym (cong (_^ⁿ 2) sin=)) ∙ sin²+cos²=1 φ ∙ sym x²+y²=1
          ∙ +ᵣComm _ _)
-         ∙ 𝐑'.plusMinus _ _ 
-       
+         ∙ 𝐑'.plusMinus _ _
+
      cos= : cos φ ≡ absᵣ y
-     cos= =  
+     cos= =
          cong fst (invEq (congEquiv
            {x = _ , ∣x∣<π/2→0<cos[x] φ (arcSin⟨⟩∈ _ x∈)}
            {_ , 0<∣y∣}
@@ -249,7 +249,7 @@ pre-distCircle→angle x y x²+y²=1 ∣x∣≤3/4 =
      f-inr : y <ᵣ 0 → Σ[ φ ∈ ℝ ]
       (φ ∈ ointervalℙ π-number/2 (π-number/2 +ᵣ π-number))
       × ((sin φ ≡ x) × (cos φ ≡ y))
-     f-inr y<0 = 
+     f-inr y<0 =
         π-number -ᵣ φ ,
           (isTrans≡<ᵣ _ _ _
             (sym (𝐑'.plusMinus _ _) ∙ cong₂ _+ᵣ_ (x+x≡2x _) refl)
@@ -260,7 +260,7 @@ pre-distCircle→angle x y x²+y²=1 ∣x∣≤3/4 =
           cong sin (+ᵣComm _ _)
            ∙ sin[x]=-sin[x+π] (-ᵣ φ)
            ∙ sin-odd _ ∙
-            cong sin (-ᵣInvol _) ∙ sin= 
+            cong sin (-ᵣInvol _) ∙ sin=
           , cong cos (+ᵣComm _ _)
             ∙ cos[x]=-cos[x+π] (-ᵣ φ)
             ∙ cong -ᵣ_ (
@@ -279,20 +279,20 @@ from-√½< : ∀ x y → x ^ⁿ 2 +ᵣ y ^ⁿ 2 ≡ 1
 from-√½< x y x²+y²=1 √½<∣x∣ =
  let z = sym (𝐑'.plusMinus _ _)
            ∙ cong (_-ᵣ (x ^ⁿ 2)) (+ᵣComm _ _ ∙ x²+y²=1)
-     
+
      zz = isTrans<≡ᵣ _ _ _ (^ⁿ-StrictMonotone 2
            (ℕ.≤-solver 1 2)
            (<ᵣWeaken≤ᵣ _ _ (snd √½) )
            (0≤absᵣ _) √½<∣x∣)
             (sym (abs[x^²ⁿ] 1 x ∙ absᵣ^ⁿ x 2))
-     zzz : (y ^ⁿ 2) <ᵣ rat [ 1 / 2 ]      
+     zzz : (y ^ⁿ 2) <ᵣ rat [ 1 / 2 ]
      zzz = isTrans<≡ᵣ _ _ (rat [ 1 / 2 ]) (isTrans≡<ᵣ _ _ _ z
              (<ᵣ-o+ _ _ 1 (-ᵣ<ᵣ _ _ zz)))
               (cong (1 +ᵣ_) (cong -ᵣ_
                 (cong fst (Iso.rightInv
                   (nth-pow-root-iso 2) (ℚ₊→ℝ₊ ([ 1 / 2 ] , _))) ))
                ∙  (-ᵣ-rat₂ _ _) ∙ decℚ≡ᵣ?)
-      
+
  in isTrans≡≤ᵣ _ _ _
     (sym (-absᵣ _))
      (^ⁿMonotone⁻¹-with0 2 (ℕ.≤-solver 1 2)
@@ -303,7 +303,7 @@ from-√½< x y x²+y²=1 √½<∣x∣ =
           (isTrans≤≡ᵣ _ _ _ decℚ≤ᵣ? (sym (cong fst (^ℤ-rat _ 2)))))))
 
 
-ointervalℙ⊆ointervalℙ : ∀ {a b a' b'} 
+ointervalℙ⊆ointervalℙ : ∀ {a b a' b'}
   → a' ≤ᵣ a → b ≤ᵣ b'
   → ointervalℙ a b ⊆ ointervalℙ a' b'
 ointervalℙ⊆ointervalℙ a'≤a b≤b' _ (a<x , x<b) =
@@ -319,7 +319,7 @@ distCircle→angle-badConvention ε x y x²+y²=1 = do
  c ← Dichotomyℝ' (fst √½) (absᵣ x)
       (rat [ 3 / 4 ])
       √½<3/4
-      
+
  let f-inl-inl (φ , φ∈ , sinφ , cosφ) =
         ∣ φ , ointervalℙ⊆ointervalℙ
             (-ᵣ≤ᵣ _ _ (isTrans≡≤ᵣ _ _ _
@@ -342,7 +342,7 @@ distCircle→angle-badConvention ε x y x²+y²=1 = do
        let f-inl-inr-inl : φ <ᵣ π-number +ᵣ fst ε →
               ∃[ φ ∈ ℝ ]
                 ((φ ∈ ointervalℙ (-ᵣ π-number) (π-number +ᵣ fst ε))
-                 × ((sin φ ≡ x) × (cos φ ≡ y)))     
+                 × ((sin φ ≡ x) × (cos φ ≡ y)))
            f-inl-inr-inl φ<π+ε =
                (∣ φ , (isTrans<ᵣ _ _ _
                     (-ℝ₊<ℝ₊ π-number₊ π-number/2₊) (fst φ∈)
@@ -359,7 +359,7 @@ distCircle→angle-badConvention ε x y x²+y²=1 = do
                           ∙ cong -ᵣ_
                            (+ᵣAssoc _ _ _ ∙
                             𝐑'.+InvR' _ _
-                             (x+x≡2x _)) 
+                             (x+x≡2x _))
                           ∙ -ᵣ-rat 0))
                       (<ᵣ-+o _ _ (-ᵣ (2 ·ᵣ π-number)) π<φ)
                   , isTrans<ᵣ _ _ _
@@ -378,7 +378,7 @@ distCircle→angle-badConvention ε x y x²+y²=1 = do
                     , (sym (cos-period _) ∙
                       cong cos (𝐑'.minusPlus _ _)) ∙ cosφ ∣₁
        ⊎.rec f-inl-inr-inl f-inl-inr-inr c
-     f-inl = 
+     f-inl =
           ⊎.rec f-inl-inl f-inl-inr
        ∘S (λ (φ , u , v) → ⊎.map (λ u → φ , u , v) (λ u → φ , u , v) u)
        ∘S pre-distCircle→angle x y x²+y²=1
@@ -408,7 +408,7 @@ distCircle→angle-badConvention ε x y x²+y²=1 = do
            f-inr-inr-inl : φ <ᵣ π-number/2 +ᵣ fst ε →
               ∃[ φ ∈ ℝ ]
                 ((φ ∈ ointervalℙ (-ᵣ π-number) (π-number +ᵣ fst ε))
-                 × ((sin φ ≡ x) × (cos φ ≡ y)))     
+                 × ((sin φ ≡ x) × (cos φ ≡ y)))
            f-inr-inr-inl φ<π/2+ε =
                (∣ φ +ᵣ π-number/2
                  , (isTrans<ᵣ _ _ _
@@ -462,7 +462,7 @@ distCircle→angle-badConvention ε x y x²+y²=1 = do
      f-inr = ⊎.rec f-inr-inl f-inr-inr
        ∘S (λ (φ , u , v) → ⊎.map (λ u → φ , u , v) (λ u → φ , u , v) u)
 
- ⊎.rec 
+ ⊎.rec
    f-inl
    (f-inr
     ∘S pre-distCircle→angle (-ᵣ y) x
@@ -484,7 +484,7 @@ distCircle→angle ε x y p =
 --  c ← Dichotomyℝ' (fst √½) (absᵣ x)
 --       (rat [ 3 / 4 ])
 --       √½<3/4
---  ∣ ⊎.rec 
+--  ∣ ⊎.rec
 --    (map-snd snd ∘ pre-distCircle→angle x y x²+y²=1  ∘ <ᵣWeaken≤ᵣ _ _)
 --    ((λ (φ , _ , sinφ , cosφ) →
 --       φ +ᵣ π-number/2 , sin[x+π/2]=cos[x] φ ∙ cosφ ,
@@ -519,7 +519,7 @@ sin-k-period-pos a a' (suc n) p =
 
 
 circle-rel : ℝ → ℝ → Type
-circle-rel x y = Σ[ k ∈ ℤ.ℤ ] x -ᵣ y ≡ rat [ k / 1 ] 
+circle-rel x y = Σ[ k ∈ ℤ.ℤ ] x -ᵣ y ≡ rat [ k / 1 ]
 
 
 sin-k-period : (a a' : ℝ) → circle-rel a a' →
@@ -572,7 +572,7 @@ isEquivRelCircleRel .BinaryRelation.isEquivRel.transitive
      (sym L𝐑.lem--074
       ∙∙ cong₂ _+ᵣ_ p p' ∙∙
       (+ᵣ-rat _ _ ∙ cong rat (ℚ.ℤ+→ℚ+ n n')))
-      
+
 Circle : Type
 Circle = ℝ / circle-rel
 
@@ -582,7 +582,7 @@ fromCircle≡ = SQ.effective isPropCircle-rel isEquivRelCircleRel
 isSetCircle : isSet Circle
 isSetCircle = squash/
 
-injCircle : ℝ → Circle 
+injCircle : ℝ → Circle
 injCircle = [_]/
 
 
@@ -604,7 +604,7 @@ cosFromCircle = SQ.Rec.go w
 
 
 module _ (ε : ℝ₊) where
- circle-rel-overlap : 
+ circle-rel-overlap :
    (x y : (Σ[ x ∈ ℝ ] x ∈ ointervalℙ 0 (1 +ᵣ fst ε))) → Type
  circle-rel-overlap (x , _) (y , _) = circle-rel x y
 
@@ -622,7 +622,7 @@ module _ (ε : ℝ₊) where
   w .Rec.f (a , _) = [ a ]/
   w .Rec.f∼ _ _ = eq/ _ _
 
- 
+
 Intervalℝ : Type
 Intervalℝ = Σ ℝ (_∈ (intervalℙ 0 1))
 
@@ -630,7 +630,7 @@ Intervalℝ = Σ ℝ (_∈ (intervalℙ 0 1))
 
 Circle→distCircle : Circle → distCircle
 Circle→distCircle x = (cosFromCircle x , sinFromCircle x) ,
- SQ.ElimProp.go w x  
+ SQ.ElimProp.go w x
  where
  w : ElimProp λ x → cosFromCircle x ·ᵣ cosFromCircle x +ᵣ
                      sinFromCircle x ·ᵣ sinFromCircle x ≡ rat [ pos 1 / 1 ]
@@ -653,13 +653,13 @@ Circle→[cos,sin]-surj ((x , y) , x²+y²≡1) =
 
 
 cosx≡1→sinx≡0 : ∀ x → cos x ≡ 1 → sin x ≡ 0
-cosx≡1→sinx≡0 x cosx=1 = 
+cosx≡1→sinx≡0 x cosx=1 =
   x²≡0→x≡0 (sin x)
-    (((cong₂ _·ᵣ_ (sym (·IdL _)) refl 
+    (((cong₂ _·ᵣ_ (sym (·IdL _)) refl
      ∙ sym (𝐑'.+IdR' _ _
       (𝐑'.+InvR' _ _ (cong (_^ⁿ 2) cosx=1 ∙ 1^ⁿ 2))))
       ∙ +ᵣAssoc _ _ _) ∙ cong (_-ᵣ 1) (sin²+cos²=1 x) ∙ +-ᵣ 1)
-  
+
 
 opaque
  scale-sym-ointervalℙ : ∀ a (K : ℝ₊) x
@@ -670,10 +670,10 @@ opaque
     , <ᵣ-·ᵣo _ _ K x<a
 
 
-⟨0,2π⟩→cos<1 : ∀ x → x ∈ ointervalℙ 0 (2 ·ᵣ π-number) → cos x <ᵣ 1  
+⟨0,2π⟩→cos<1 : ∀ x → x ∈ ointervalℙ 0 (2 ·ᵣ π-number) → cos x <ᵣ 1
 ⟨0,2π⟩→cos<1 x (x<0 , x<2π) =
  let x/2 = ℚ₊→ℝ₊ ([ 1 / 2 ] , _ ) ₊·ᵣ (_ , x<0)
- in isTrans≡<ᵣ _ _ _ 
+ in isTrans≡<ᵣ _ _ _
     (cong cos (sym (𝐑'.·IdL' _ _ (sym (rat·ᵣrat _ _) ∙ decℚ≡ᵣ?))
       ∙ sym (·ᵣAssoc _ _ _))
       ∙ cos[2φ]=2cos²[φ]-1 (rat [ 1 / 2 ] ·ᵣ x))
@@ -690,8 +690,8 @@ opaque
                     ⟨-π/2,π/2⟩→sin∈⟨-1,1⟩ _
                      (isTrans≡<ᵣ _ _ _ (sym (+IdL _))
                        (<ᵣ-+o _ _ _ (snd $ x/2) )
-                       ,  
-                          isTrans<≡ᵣ _ _ _  
+                       ,
+                          isTrans<≡ᵣ _ _ _
                           (<ᵣ-+o _ _ (-ᵣ π-number/2)
                             (<ᵣ-o·ᵣ _ _ (ℚ₊→ℝ₊ ([ 1 / 2 ] , _ )) x<2π))
                             (cong₂ _-ᵣ_
@@ -701,10 +701,10 @@ opaque
                                ∙ sym (x+x≡2x _)) refl
                              ∙ 𝐑'.plusMinus π-number/2 π-number/2)
                        )))
-                   
+
                        ))))))
            (sym (x+x≡2x 1))))
-     
+
 
 cos=1⇒ : ∀ x → cos (x ·ᵣ (2 ·ᵣ π-number)) ≡ 1 → circle-rel x 0
 cos=1⇒ x p = PT.rec
@@ -783,9 +783,9 @@ cos=1⇒ x p = PT.rec
                in 𝐑'.equalByDifference _ _
                    ( ((x·y≡z→x≡z/₊y _ _ (2 ₊·ᵣ π-number₊) (cong fst uu))) ∙
                      𝐑'.0LeftAnnihilates _))
-            
-                (ℚ.Dichotomyℚ (fst ε) q-z) 
-        
+
+                (ℚ.Dichotomyℚ (fst ε) q-z)
+
     in z , (𝐑'.+IdR' _ _ (-ᵣ-rat 0)) ∙ x≡z)
   (denseℚinℝ x (x +ᵣ rat (fst ε))
     (isTrans≡<ᵣ _ _ _ (sym (+IdR _))
@@ -813,9 +813,9 @@ cDist = SQ.Rec2.go w
 
  w : Rec2 ℝ
  w .Rec2.isSetB = isSetℝ
- w .Rec2.f x y = 1 -ᵣ cos ((x -ᵣ y) ·ᵣ 2 ·ᵣ π-number) 
- w .Rec2.f∼ x a a' r = 
-    cong₂ _-ᵣ_ refl (zzz x a a' r) 
+ w .Rec2.f x y = 1 -ᵣ cos ((x -ᵣ y) ·ᵣ 2 ·ᵣ π-number)
+ w .Rec2.f∼ x a a' r =
+    cong₂ _-ᵣ_ refl (zzz x a a' r)
  w .Rec2.∼f a a' x r =
     cong₂ _-ᵣ_ refl (
           sym (cong cos

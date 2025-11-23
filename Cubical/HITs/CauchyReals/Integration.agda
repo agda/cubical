@@ -141,10 +141,10 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
            cong ((S +ᵣ_) ∘ (b-a ·ᵣ_))
                (f≡g t (a≤t , t≤b))))
          ≡$ (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k))
-  
+
   riemannSum-clamp : (f : ∀ r → r ∈ intervalℙ a b → ℝ)
     → riemannSum (curry ∘ f) ≡
-      riemannSum' 
+      riemannSum'
       (λ x₁ →  f (clampᵣ a b x₁) (clampᵣ∈ℚintervalℙ a b a≤b x₁))
   riemannSum-clamp f =
     cong (λ g → foldlFin {n = 2 ℕ.+ len}
@@ -222,7 +222,7 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
   riemannSum'- : (f g : ℝ → ℝ) →
     riemannSum' f -ᵣ riemannSum' g
       ≡ riemannSum' (λ x → f x -ᵣ g x)
-  riemannSum'- f g = 
+  riemannSum'- f g =
       cong₂ _+ᵣ_ refl
         (-ᵣ≡[-1·ᵣ] _
          ∙ sym (riemannSum'C· -1 _)
@@ -233,7 +233,7 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
   riemannSum- : ∀ f g →
     riemannSum f -ᵣ riemannSum g
       ≡ riemannSum (λ x ≤x x≤ → f x ≤x x≤ -ᵣ g x ≤x x≤)
-  riemannSum- f g = 
+  riemannSum- f g =
       cong₂ _+ᵣ_ refl
         (-ᵣ≡[-1·ᵣ] _
          ∙ sym (riemannSumC· -1 _)
@@ -258,10 +258,10 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
   riemannSum-empty : (f : ∀ r → r ∈ intervalℙ a b → ℝ)
     → a ≡ b
     → 0 ≡ riemannSum (curry ∘ f)
-      
+
   riemannSum-empty f a≡b =
       sym (𝐑'.0RightAnnihilates _)
-    ∙ sym (foldFin+Const (2 ℕ.+ len) 0 (idfun _)) 
+    ∙ sym (foldFin+Const (2 ℕ.+ len) 0 (idfun _))
     ∙ (cong (foldlFin {n = 2 ℕ.+ len}) (funExt₂
       (λ S y → cong (S +ᵣ_) ((sym (𝐑'.0LeftAnnihilates' _ _
         (𝐑'.+InvR' _ _ (
@@ -1494,7 +1494,7 @@ module Resample where
          -ᵣ
         clampᵣ (P.pts' (finj k)) (P.pts' (fsuc k)) (P'.pts' (finj k')))
 
-    
+
     opaque
      unfolding maxᵣ minᵣ
      zzzz :

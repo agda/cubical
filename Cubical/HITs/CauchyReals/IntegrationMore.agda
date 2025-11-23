@@ -52,11 +52,11 @@ open import Cubical.HITs.CauchyReals.Summation
 
 clampᵣ-IntegralOf' : ∀ a b → (a≤b : a ≤ᵣ b) → ∀ (f : (x : ℝ) → x ∈ intervalℙ a b → ℝ) s
    → on[ a , b ]IntegralOf
-      (λ x → f (clampᵣ a b x) (clampᵣ∈ℚintervalℙ a b a≤b x)) is' s 
+      (λ x → f (clampᵣ a b x) (clampᵣ∈ℚintervalℙ a b a≤b x)) is' s
    ≃ on[ a , b ]IntegralOf curry ∘ f is s
-   
+
 clampᵣ-IntegralOf' a b a≤b f s =
-  
+
   propBiimpl→Equiv
    (isPropΠ λ _ → squash₁) (isPropΠ λ _ → squash₁)
     (PT.map (map-snd
@@ -255,7 +255,7 @@ opaque
  IsUContinuousMaxᵣ : ∀ x → IsUContinuous (maxᵣ x)
  IsUContinuousMaxᵣ x = Lipschitiz→IsUContinuous 1 (maxᵣ x)
    λ u v ε x₁ → NonExpanding₂-Lemmas.NE.go∼R _ maxR x u v (1 ℚ₊· ε)
-     (subst∼ (sym (ℚ.·IdL _)) x₁) 
+     (subst∼ (sym (ℚ.·IdL _)) x₁)
 
 
 IsUContinuous+ᵣ₂ : ∀ f g → IsUContinuous f → IsUContinuous g →
@@ -677,7 +677,7 @@ concatTaggedPartition a b c a≤b b≤c (p-ab , s-ab) (p-bc , s-bc) =
  ⊎→F''' : Fin (suc (suc (suc (len p-ab)))) ⊎ Fin (suc (suc (len p-bc))) →
            Fin (suc (suc (suc (len p-ab))) ℕ.+ suc (suc (len p-bc)))
  ⊎→F''' = Iso.inv (Iso-Fin+⊎ (suc (suc (suc (len p-ab)))) _)
- 
+
  w'''-⊎ : (δ : ℝ) → mesh≤ᵣ p-ab δ → mesh≤ᵣ p-bc δ →
          ∀ k → (pts' pAC
            (⊎→F''' (⊎suc k) ))
@@ -1353,7 +1353,7 @@ module IntegrationUC
              ∙ nullDerivative→const a b
                 a∈ b∈
                 a<b (λ r r∈ → F r r∈ +ᵣ f* r r∈)
-                 
+
                  (subst (uDerivativeOfℙ (intervalℙ a b) ,
                    (λ r r∈ → F r r∈ +ᵣ f* r r∈) is_)
                    (funExt₂ (λ x x∈ →
@@ -1376,14 +1376,14 @@ module IntegrationUC
  -- FTOC⇐'' a b a<b f F ucf fd x x∈ = {!w!}
  --  where
  --  w = FTOC⇐' a x
-  
+
  FTOC⇐ : ∀ a b (a<b : a <ᵣ b) (f F : ∀ x → x ∈ intervalℙ a b → ℝ)
         → IsUContinuousℙ (intervalℙ a b) f
            → uDerivativeOfℙ (intervalℙ a b) , F is f
            → (on[ a , b ]IntegralOf curry ∘ f is (F b _ -ᵣ F a _))
- FTOC⇐ a b a<b f F ucf udc =   
+ FTOC⇐ a b a<b f F ucf udc =
      subst (on[ a , b ]IntegralOf curry ∘ f is_)
      (FTOC⇐' a b a<b _ _ ucf udc)
      (snd (Integrate-UContinuousℙ a b (<ᵣWeaken≤ᵣ a b a<b) f ucf))
-  
+
 open IntegrationUC rtp-1/n  public

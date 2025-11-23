@@ -476,7 +476,7 @@ opaque
                          (subst (fst δ ℚ.≤_) (ℚ.·IdL (fst θ))
                           (ℚ.≤-·o ([ pos (suc (suc n)) / 1+ (suc n⊔) ]) 1
                              (fst θ) (ℚ.0≤ℚ₊ θ)
-                               
+
                                (subst2 ℤ._≤_ (sym (ℤ.·IdR _))
                                 ((ℤ.max-pos-pos (suc (suc n)) (suc (suc n')))
                                       ∙ cong pos (maxSuc ∙ cong suc maxSuc ))
@@ -486,7 +486,7 @@ opaque
                          (subst (fst η ℚ.≤_) (ℚ.·IdL (fst θ))
                           ((ℚ.≤-·o ([ pos (suc (suc n')) / 1+ (suc n⊔) ]) 1
                              (fst θ) (ℚ.0≤ℚ₊ θ)
-                             
+
                               ((subst2 ℤ._≤_ (sym (ℤ.·IdR _))
                                 (ℤ.max-pos-pos (suc (suc n')) (suc (suc n))
                                   ∙ cong pos (maxComm _ _ ∙
@@ -551,7 +551,7 @@ opaque
         ν<n : absᵣ (x υ) <ᵣ fromNat (suc n)
         ν<n = isTrans<≤ᵣ (absᵣ (x υ)) (fromNat (suc n⊓)) (fromNat (suc n))
                  ν<n⊓ (≤ℚ→≤ᵣ _ _
-                   
+
                    (subst (λ n* → [ n* / 1+ 0 ] ℚ.≤ (fromNat (suc n)))
                      (cong ℤ.sucℤ (ℤ.min-pos-pos n n'))
                       (ℚ.≤ℤ→≤ℚ _ _ (ℤ.min≤ {pos (suc n)} {pos (suc n')})) )
@@ -560,7 +560,7 @@ opaque
         ν<n' : absᵣ (x υ) <ᵣ fromNat (suc n')
         ν<n' = isTrans<≤ᵣ (absᵣ (x υ)) (fromNat (suc n⊓)) (fromNat (suc n'))
                  ν<n⊓ (≤ℚ→≤ᵣ _ _
-                   
+
                    (subst (λ n* → [ n* / 1+ 0 ] ℚ.≤ (fromNat (suc n')))
                      (cong ℤ.sucℤ (ℤ.min-pos-pos n' n) ∙
                        cong (pos ∘ suc) (minComm _ _))

@@ -268,7 +268,7 @@ module NthRoot (m : ℕ) where
      where
      h : [ pos (suc (suc n)) / 1 ] ℚ.≤ [ pos (suc (suc n')) / 1 ]
      h = ℚ.≤ℤ→≤ℚ _ _ (ℤ.suc-≤-suc (ℤ.≤-suc (ℤ.ℕ≤→pos-≤-pos _ _ n<n')))
-     
+
      inClmp' : ∀ r → ℚ.clamp (fst (invℚ₊ (ℚ.[ pos (suc (suc n)) , (1+ 0) ] , tt)))
        [ pos (suc (suc n)) / 1+ 0 ] r
        ∈
@@ -367,7 +367,7 @@ module NthRoot (m : ℕ) where
              (((ℚ.≤ℤ→≤ℚ _ _
           (ℤ.ℕ≤→pos-≤-pos _ _
           (ℕ.≤-trans (ℕ.≤-suc (ℕ.≤-suc ℕ.≤-refl))
-           (ℕ.≤-k+ {_} {_} {2} (ℕ.left-≤-max {lo𝑵} {hi𝑵})) 
+           (ℕ.≤-k+ {_} {_} {2} (ℕ.left-≤-max {lo𝑵} {hi𝑵}))
            )))))))
           ))
 

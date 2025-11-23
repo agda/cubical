@@ -1273,7 +1273,7 @@ module expPreDer (Z : ℕ) where
 
 
      opaque
-      unfolding maxᵣ 
+      unfolding maxᵣ
       w-r : ∀ n r 0<r → diff (ℚ₊→ℝ₊ (r , 0<r)) n ≡
                          diff (maxᵣ₊ (ℚ₊→ℝ₊ (r , 0<r)) (ℚ₊→ℝ₊ (invℚ₊ (r , 0<r)))) n
       w-r n r 0<r = ⊎.rec

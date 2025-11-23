@@ -151,7 +151,7 @@ maxR = w
 opaque
  minᵣ : ℝ → ℝ → ℝ
  minᵣ = NonExpanding₂.go minR
- 
+
  maxᵣ : ℝ → ℝ → ℝ
  maxᵣ = NonExpanding₂.go maxR
 
@@ -202,7 +202,7 @@ opaque
 
 
 clamp-lim : ∀ d u x y →
-          
+
            clampᵣ d u (lim x y) ≡ lim (λ ε → clampᵣ d u (x ε)) _
 clamp-lim d u x y = snd (clamp-limΣ d u x y)
 
@@ -406,7 +406,7 @@ opaque
 
  isAntisym≤ᵣ : BinaryRelation.isAntisym _≤ᵣ_
  isAntisym≤ᵣ a b a≤b b≤a = sym b≤a ∙∙ maxᵣComm _ _ ∙∙ a≤b
- 
+
  -ᵣR : Σ (ℝ → ℝ) (Lipschitz-ℝ→ℝ (1 , tt))
  -ᵣR = fromLipschitz (1 , _)
    ((rat ∘ ℚ.-_ ) , λ q r ε x x₁ →
@@ -782,7 +782,7 @@ intervalℙ a b x = ((a ≤ᵣ x) × (x ≤ᵣ b)) ,
   isProp× (isProp≤ᵣ _ _ )  (isProp≤ᵣ _ _ )
 
 
-pointIntervalℙ : ∀ x y → x ≡ y → isContr (Σ _ (_∈ intervalℙ x y)) 
+pointIntervalℙ : ∀ x y → x ≡ y → isContr (Σ _ (_∈ intervalℙ x y))
 pointIntervalℙ x y x≡y = (x , ≤ᵣ-refl x , ≡ᵣWeaken≤ᵣ _ _ x≡y) ,
   λ (z , x≤z , z≤y) →
    Σ≡Prop (∈-isProp (intervalℙ x y))
@@ -825,11 +825,11 @@ isPosetℝ .IsPoset.is-antisym = isAntisym≤ᵣ
 
 
 
-supremumℙ : ∀ (P : ℙ ℝ) → (f : ∀ x → x ∈ P → ℝ) → Type         
+supremumℙ : ∀ (P : ℙ ℝ) → (f : ∀ x → x ∈ P → ℝ) → Type
 supremumℙ P f =
   Σ _ (isSupremum (isPoset→isProset isPosetℝ) (uncurry f))
 
-infimumℙ : ∀ (P : ℙ ℝ) → (f : ∀ x → x ∈ P → ℝ) → Type         
+infimumℙ : ∀ (P : ℙ ℝ) → (f : ∀ x → x ∈ P → ℝ) → Type
 infimumℙ P f =
   Σ _ (isInfimum (isPoset→isProset isPosetℝ) (uncurry f))
 

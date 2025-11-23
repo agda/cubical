@@ -67,7 +67,7 @@ ointervalℙ⊆-max n m x (≤x , x≤) =
        (≤ℚ→≤ᵣ _ _
          (ℚ.≤ℤ→≤ℚ _ _
           (ℤ.ℕ≤→pos-≤-pos _ _ (ℕ.≤-k+ {_} {_} {1} $ ℕ.left-≤-max {n} {m})))
-        
+
          )
 
 
@@ -307,12 +307,12 @@ module _ (f : ℚ → ℝ) (B : ℕ → ℚ₊)  where
   Seq⊆→Power .Seq⊆→.fun x n _ = fst (fst (flₙ n)) x
   Seq⊆→Power .Seq⊆→.fun⊆ x n m x∈@(<x , x<) x'∈@(<x' , x'<) n<m = ww
    where
-   
+
    opaque
     unfolding maxᵣ
 
     ww : fst (fst (flₙ n)) x ≡ fst (fst (flₙ m)) x
-    ww = 
+    ww =
       (cong (fst (fst (flₙ n))) (∈ℚintervalℙ→clampᵣ≡ _ _ _
         (<ᵣWeaken≤ᵣ _ _ <x , <ᵣWeaken≤ᵣ _ _ x<)) ∙∙
       ≡Continuous _ _
