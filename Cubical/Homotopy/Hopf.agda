@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Homotopy.Hopf where
 
 open import Cubical.Homotopy.HSpace
@@ -19,7 +18,7 @@ open import Cubical.Data.Int hiding (_·_)
 
 open import Cubical.HITs.Pushout.Flattening
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.Sn hiding (joinS¹S¹→S³)
+open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2

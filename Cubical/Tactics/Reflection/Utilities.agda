@@ -59,7 +59,6 @@ This module provides utilities for traversing the reflected representation of te
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Tactics.Reflection.Utilities where
 
 open import Cubical.Foundations.Prelude hiding (Type)

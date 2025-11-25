@@ -1,10 +1,11 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.AbGroup.Instances.FreeAbGroup where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat hiding (_·_) renaming (_+_ to _+ℕ_)
@@ -15,13 +16,20 @@ open import Cubical.Data.Fin.Inductive
 open import Cubical.Data.Empty as ⊥
 
 open import Cubical.HITs.FreeAbGroup
+open import Cubical.HITs.FreeGroup as FG hiding (rec)
+open import Cubical.HITs.SetQuotients as SQ hiding (_/_ ; rec)
 
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.Pi
 open import Cubical.Algebra.AbGroup.Instances.Int
+open import Cubical.Algebra.AbGroup.Instances.DirectProduct
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Abelianization.Base
+open import Cubical.Algebra.Group.Abelianization.Properties as Abi hiding (rec)
+open import Cubical.Algebra.Group.Subgroup
+open import Cubical.Algebra.Group.QuotientGroup
 
 
 private variable
@@ -32,10 +40,65 @@ module _ {A : Type ℓ} where
   FAGAbGroup : AbGroup ℓ
   FAGAbGroup = makeAbGroup {G = FreeAbGroup A} ε _·_ _⁻¹ trunc assoc identityᵣ invᵣ comm
 
+FAGAbGroup→AbGroupHom : ∀ {ℓ ℓ'} {A : Type ℓ} {G : AbGroup ℓ'}
+  → (A → fst G) → AbGroupHom (FAGAbGroup {A = A}) G
+fst (FAGAbGroup→AbGroupHom {G = G} f) =
+  Rec.f (AbGroupStr.is-set (snd G)) f
+    (AbGroupStr.0g (snd G)) (AbGroupStr._+_ (snd G)) (AbGroupStr.-_ (snd G))
+    (AbGroupStr.+Assoc (snd G)) (AbGroupStr.+Comm (snd G))
+    (AbGroupStr.+IdR (snd G)) (AbGroupStr.+InvR (snd G))
+snd (FAGAbGroup→AbGroupHom {G = G} f) = makeIsGroupHom λ x y → refl
+
+FAGAbGroupGroupHom≡ : ∀ {ℓ ℓ'} {A : Type ℓ} {G : AbGroup ℓ'}
+  (f g : AbGroupHom (FAGAbGroup {A = A}) G)
+  → (∀ a → (fst f) (⟦ a ⟧) ≡ (fst g) (⟦ a ⟧)) → f ≡ g
+FAGAbGroupGroupHom≡ {G = G} f g p =
+  GroupHom≡ (funExt (ElimProp.f (AbGroupStr.is-set (snd G) _ _)
+    p (IsGroupHom.pres1 (snd f) ∙ sym (IsGroupHom.pres1 (snd g)))
+    (λ p q → IsGroupHom.pres· (snd f) _ _
+            ∙ cong₂ (AbGroupStr._+_ (snd G)) p q
+            ∙ sym (IsGroupHom.pres· (snd g) _ _))
+    λ p → IsGroupHom.presinv (snd f) _
+        ∙ cong (AbGroupStr.-_ (snd G)) p
+        ∙ sym (IsGroupHom.presinv (snd g) _)))
+
+module _ {A : Type ℓ} where
+  freeGroup→freeAbGroup : GroupHom (freeGroupGroup A)
+                                    (AbGroup→Group (FAGAbGroup {A = A}))
+  freeGroup→freeAbGroup = FG.rec {Group = AbGroup→Group (FAGAbGroup {A = A})} ⟦_⟧
+
+  AbelienizeFreeGroup→FreeAbGroup :
+    AbGroupHom (AbelianizationAbGroup (freeGroupGroup A)) (FAGAbGroup {A = A})
+  AbelienizeFreeGroup→FreeAbGroup =
+    fromAbelianization FAGAbGroup freeGroup→freeAbGroup
+
+  FreeAbGroup→AbelienizeFreeGroup :
+    AbGroupHom (FAGAbGroup {A = A}) (AbelianizationAbGroup (freeGroupGroup A))
+  FreeAbGroup→AbelienizeFreeGroup = FAGAbGroup→AbGroupHom λ a → η (η a)
+
+  GroupIso-AbelienizeFreeGroup→FreeAbGroup :
+    AbGroupIso (AbelianizationAbGroup (freeGroupGroup A)) (FAGAbGroup {A = A})
+  Iso.fun (fst GroupIso-AbelienizeFreeGroup→FreeAbGroup) =
+    AbelienizeFreeGroup→FreeAbGroup .fst
+  Iso.inv (fst GroupIso-AbelienizeFreeGroup→FreeAbGroup) =
+    FreeAbGroup→AbelienizeFreeGroup .fst
+  Iso.rightInv (fst GroupIso-AbelienizeFreeGroup→FreeAbGroup) x i =
+    FAGAbGroupGroupHom≡
+      (compGroupHom FreeAbGroup→AbelienizeFreeGroup
+                    AbelienizeFreeGroup→FreeAbGroup)
+      idGroupHom (λ _ → refl) i .fst x
+  Iso.leftInv (fst GroupIso-AbelienizeFreeGroup→FreeAbGroup) =
+    Abi.elimProp _ (λ _ → isset _ _)
+    (funExt⁻ (cong fst (freeGroupHom≡
+      {f = compGroupHom  freeGroup→freeAbGroup FreeAbGroup→AbelienizeFreeGroup}
+      {g = AbelianizationGroupStructure.ηAsGroupHom (freeGroupGroup A)}
+      λ _ → refl)))
+  snd GroupIso-AbelienizeFreeGroup→FreeAbGroup =
+    AbelienizeFreeGroup→FreeAbGroup .snd
+
 -- Alternative definition of case when A = Fin n
 ℤ[Fin_] : (n : ℕ) → AbGroup ℓ-zero
 ℤ[Fin n ] = ΠℤAbGroup (Fin n)
-
 
 --  generator of ℤ[Fin_]
 ℤFinGenerator : {n : ℕ} (k : Fin n) → ℤ[Fin n ] .fst
@@ -397,19 +460,109 @@ snd (ℤFinFunct {n = n} {m} f) =
   ... | gt _ = refl
 
 -- Homs are equal if they agree on generators
-agreeOnℤFinGenerator→≡ : ∀ {n m : ℕ}
-  → {ϕ ψ : AbGroupHom (ℤ[Fin n ]) (ℤ[Fin m ])}
+agreeOnℤFinGenerator→≡ : ∀ {ℓ} {n : ℕ} {G : Group ℓ}
+  → {ϕ ψ : GroupHom (AbGroup→Group (ℤ[Fin n ])) G}
   → ((x : _) → fst ϕ (ℤFinGenerator x) ≡ fst ψ (ℤFinGenerator x))
   → ϕ ≡ ψ
-agreeOnℤFinGenerator→≡ {n} {m} {ϕ} {ψ} idr =
+agreeOnℤFinGenerator→≡ {G = G} {ϕ} {ψ} w =
   Σ≡Prop (λ _ → isPropIsGroupHom _ _)
    (funExt
-    (elimPropℤFin _ _ (λ _ → isOfHLevelPath' 1 (isSetΠ (λ _ → isSetℤ)) _ _)
+    (elimPropℤFin _ _ (λ _ → isOfHLevelPath' 1 (GroupStr.is-set (snd G)) _ _)
       (IsGroupHom.pres1 (snd ϕ) ∙ sym (IsGroupHom.pres1 (snd ψ)))
-      idr
+      w
       (λ f g p q → IsGroupHom.pres· (snd ϕ) f g
-                 ∙∙ (λ i x → p i x + q i x)
+                 ∙∙ (λ i → GroupStr._·_ (snd G) (p i) (q i))
                  ∙∙ sym (IsGroupHom.pres· (snd ψ) f g ))
       λ f p → IsGroupHom.presinv (snd ϕ) f
-           ∙∙ (λ i x → -ℤ (p i x))
+           ∙∙ cong (GroupStr.inv (G .snd) ) p
            ∙∙ sym (IsGroupHom.presinv (snd ψ) f)))
+
+--
+sumCoefficients : (n : ℕ) → AbGroupHom (ℤ[Fin n ]) (ℤ[Fin 1 ])
+fst (sumCoefficients n) v = λ _ → sumFinℤ v
+snd (sumCoefficients n) = makeIsGroupHom (λ x y → funExt λ _ → sumFinℤHom x y)
+
+ℤFinProductIso : (n m : ℕ) → Iso (ℤ[Fin (n +ℕ m) ] .fst) ((AbDirProd ℤ[Fin n ] ℤ[Fin m ]) .fst)
+ℤFinProductIso n m = iso sum→product product→sum product→sum→product sum→product→sum
+  where
+    sum→product : (ℤ[Fin (n +ℕ m) ] .fst) → ((AbDirProd ℤ[Fin n ] ℤ[Fin m ]) .fst)
+    sum→product x = ((λ (a , Ha) → x (a , <→<ᵗ (≤-trans (<ᵗ→< Ha) (≤SumLeft {n}{m}))))
+                    , λ (a , Ha) → x (n +ℕ a , <→<ᵗ (<-k+ {a}{m}{n} (<ᵗ→< Ha))))
+
+    product→sum : ((AbDirProd ℤ[Fin n ] ℤ[Fin m ]) .fst) → (ℤ[Fin (n +ℕ m) ] .fst)
+    product→sum (x , y) (a , Ha) with (a ≟ᵗ n)
+    ... | lt H = x (a , H)
+    ... | eq H = y (a ∸ n , <→<ᵗ (subst (a ∸ n <_) (∸+ m n) (<-∸-< a (n +ℕ m) n (<ᵗ→< Ha) (subst (λ a → a < n +ℕ m) H (<ᵗ→< Ha)))))
+    ... | gt H = y (a ∸ n , <→<ᵗ (subst (a ∸ n <_) (∸+ m n) (<-∸-< a (n +ℕ m) n (<ᵗ→< Ha) (<ᵗ→< (<ᵗ-trans {n}{a}{n +ℕ m} H Ha)))))
+
+    product→sum→product : ∀ x → sum→product (product→sum x) ≡ x
+    product→sum→product (x , y) = ≡-× (funExt (λ (a , Ha) → lemx a Ha)) (funExt (λ (a , Ha) → lemy a Ha))
+      where
+        lemx : (a : ℕ) (Ha : a <ᵗ n) → fst (sum→product (product→sum (x , y))) (a , Ha) ≡ x (a , Ha)
+        lemx a Ha with (a ≟ᵗ n)
+        ... | lt H = cong x (Fin≡ (a , H) (a , Ha) refl)
+        ... | eq H = rec (¬m<ᵗm (subst (λ a → a <ᵗ n) H Ha))
+        ... | gt H = rec (¬m<ᵗm (<ᵗ-trans Ha H))
+
+        lemy : (a : ℕ) (Ha : a <ᵗ m) → snd (sum→product (product→sum (x , y))) (a , Ha) ≡ y (a , Ha)
+        lemy a Ha with ((n +ℕ a) ≟ᵗ n)
+        ... | lt H = rec (¬m<m (≤<-trans (≤SumLeft {n}{a}) (<ᵗ→< H)))
+        ... | eq H = cong y (Fin≡ _ _ (∸+ a n))
+        ... | gt H = cong y (Fin≡ _ _ (∸+ a n))
+
+    sum→product→sum : ∀ x → product→sum (sum→product x) ≡ x
+    sum→product→sum x = funExt (λ (a , Ha) → lem a Ha)
+      where
+        lem : (a : ℕ) (Ha : a <ᵗ (n +ℕ m)) → product→sum (sum→product x) (a , Ha) ≡ x (a , Ha)
+        lem a Ha with (a ≟ᵗ n)
+        ... | lt H = cong x (Fin≡ _ _ refl)
+        ... | eq H = cong x (Fin≡ _ _ ((+-comm n (a ∸ n)) ∙ ≤-∸-+-cancel (subst (n ≤_) (sym H) ≤-refl)))
+        ... | gt H = cong x (Fin≡ _ _ ((+-comm n (a ∸ n)) ∙ ≤-∸-+-cancel (<-weaken (<ᵗ→< H))))
+
+ℤFinProduct : (n m : ℕ) → AbGroupIso ℤ[Fin (n +ℕ m) ] (AbDirProd ℤ[Fin n ] ℤ[Fin m ])
+fst (ℤFinProduct n m) = ℤFinProductIso n m
+snd (ℤFinProduct n m) = makeIsGroupHom (λ x y → refl)
+
+-- lemmas about quotients of Free abelian groups
+ℤ[]/-GroupHom≡ : ∀ {ℓ} {n : ℕ} (G : Group ℓ)
+  {Q : NormalSubgroup (AbGroup→Group ℤ[Fin n ])}
+  (ϕ ψ : GroupHom (AbGroup→Group (ℤ[Fin n ]) / Q ) G)
+ → ((k : _) → fst ϕ [ ℤFinGenerator k ] ≡ fst ψ [ ℤFinGenerator k ])
+ → ϕ ≡ ψ
+ℤ[]/-GroupHom≡ G ϕ ψ s = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+  (funExt (SQ.elimProp (λ _ → GroupStr.is-set (snd G) _ _)
+    λ x → funExt⁻ (cong fst (agreeOnℤFinGenerator→≡
+      {ϕ = compGroupHom ([_] , makeIsGroupHom λ f g → refl) ϕ}
+      {ψ = compGroupHom ([_] , makeIsGroupHom λ f g → refl) ψ}
+      s)) x))
+
+makeℤ[]/Equiv : ∀ {ℓ ℓ'} {G : Group ℓ} {H : Group ℓ'} {n : ℕ}
+  {T : NormalSubgroup (AbGroup→Group ℤ[Fin n ])}
+  (ϕ : GroupEquiv (AbGroup→Group ℤ[Fin n ] / T) G)
+  (ψ : GroupEquiv (AbGroup→Group ℤ[Fin n ] / T) H)
+  (m : GroupHom G H)
+  → ((k : _) → fst m (fst (fst ϕ) [ ℤFinGenerator k ])
+              ≡ fst (fst ψ) [ ℤFinGenerator k ])
+  → isEquiv (fst m)
+makeℤ[]/Equiv {n = n} {T = T} ϕ ψ m ind =
+  subst isEquiv (cong fst lem)
+    (compEquiv (invEquiv (fst ϕ)) (fst ψ) .snd)
+  where
+  ξ : GroupHom (AbGroup→Group ℤ[Fin n ] / T) (AbGroup→Group ℤ[Fin n ] / T)
+  ξ = compGroupHom (GroupEquiv→GroupHom ϕ)
+          (compGroupHom m (GroupEquiv→GroupHom (invGroupEquiv ψ)))
+
+  ξ≡id : ξ ≡ idGroupHom
+  ξ≡id = ℤ[]/-GroupHom≡ _ _ _
+    λ w → cong (invEq (fst ψ)) (ind w)
+         ∙ retEq (fst ψ) [ ℤFinGenerator w ]
+
+  lem : compGroupHom (GroupEquiv→GroupHom (invGroupEquiv ϕ))
+                      (GroupEquiv→GroupHom ψ)
+       ≡ m
+  lem = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+    (funExt λ x → (sym (funExt⁻
+      (cong fst (cong (compGroupHom (GroupEquiv→GroupHom (invGroupEquiv ϕ)))
+             (cong (λ X → compGroupHom X (GroupEquiv→GroupHom ψ)) ξ≡id))) x))
+       ∙ secEq (fst ψ) _
+       ∙ cong (fst m) (secEq (fst ϕ) x))

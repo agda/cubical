@@ -1,7 +1,6 @@
 {-
   Monoidal, braided and monoidal symmetric wild categories
 -}
-{-# OPTIONS --safe #-}
 module Cubical.WildCat.BraidedSymmetricMonoidal where
 
 open import Cubical.Foundations.Prelude

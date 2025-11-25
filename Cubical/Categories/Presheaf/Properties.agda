@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Presheaf.Properties where
 
@@ -329,7 +328,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
                   refl≡comm : PathP (λ i → (F ⟪ f ⟫) (eq i) ≡ (eq' i)) refl comm
                   refl≡comm = isOfHLevel→isOfHLevelDep 1 (λ (v , w) → snd (F ⟅ d ⟆) ((F ⟪ f ⟫) w) v) refl comm λ i → (eq' i , eq i)
 
-                  X'≡subst : PathP (λ i → fst (P ⟅ c , eq i ⟆)) X' (subst _ eq X')
+                  X'≡subst : PathP (λ i → fst (P ⟅ c , eq i ⟆)) X' (subst (λ v → fst (P ⟅ c , v ⟆)) eq X')
                   X'≡subst = transport-filler (λ i → fst (P ⟅ c , eq i ⟆)) X'
 
               -- bottom left of the commuting diagram
@@ -355,7 +354,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
             right i = (α ⟦ c , eq i ⟧) (X'≡subst i)
               where
                 -- this is exactly the same as the one from before, can refactor?
-                X'≡subst : PathP (λ i → fst (P ⟅ c , eq i ⟆)) X' (subst _ eq X')
+                X'≡subst : PathP (λ i → fst (P ⟅ c , eq i ⟆)) X' (subst (λ v → fst (P ⟅ c , v ⟆)) eq X')
                 X'≡subst = transport-filler _ _
 
             -- extracted out type since need to use in in 'left' body as well

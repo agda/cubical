@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.CommRing.RadicalIdeal where
 
 open import Cubical.Foundations.Prelude
@@ -99,8 +99,12 @@ module RadicalIdeal (R' : CommRing ℓ) where
  1∈√→1∈ : ∀ (I : CommIdeal) → 1r ∈ √ I → 1r ∈ I
  1∈√→1∈ I = PT.rec (∈-isProp (fst I) _) λ (n , 1ⁿ∈I) → subst-∈ I (1ⁿ≡1 n) 1ⁿ∈I
 
+ √Resp⊆ : (I J : CommIdeal) → I ⊆ J → √ I ⊆ √ J
+ √Resp⊆ I J I⊆J x = map (map-snd λ {a} → I⊆J (x ^ a))
+
  -- important lemma for characterization of the Zariski lattice
  open KroneckerDelta (CommRing→Ring R')
+
  √FGIdealCharLImpl : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
          → √ ⟨ V ⟩[ R' ] ⊆ √ I → (∀ i → V i ∈ √ I)
  √FGIdealCharLImpl V I √⟨V⟩⊆√I i = √⟨V⟩⊆√I _ (∈→∈√ ⟨ V ⟩[ R' ] (V i)
@@ -234,3 +238,10 @@ module RadicalIdeal (R' : CommRing ℓ) where
 
  √·Absorb+ : ∀ (I J : CommIdeal) → √ (I ·i (I +i J)) ≡ √ I
  √·Absorb+ I J = CommIdeal≡Char (√·Absorb+LIncl I J) (√·Absorb+RIncl I J)
+
+ √·ContrLIncl : ∀ (I J : CommIdeal) → √ (√ I ·i √ J) ⊆ √ (I ·i J)
+ √·ContrLIncl I J x = √·RContrLIncl I J x ∘ subst (x ∈_) (√·LContr I (√ J))
+
+ √Pres·LIncl : ∀ (I J : CommIdeal) → (√ I ·i √ J) ⊆ √ (I ·i J)
+ √Pres·LIncl I J x = √·ContrLIncl I J x ∘ ∈→∈√ (√ I ·i √ J) x
+

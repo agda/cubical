@@ -2,7 +2,6 @@
   This is mostly for convenience, when working with ideals
   (which are defined for general rings) in a commutative ring.
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Ideal.Base where
 
 open import Cubical.Foundations.Prelude
@@ -35,75 +34,81 @@ private
     ℓ : Level
 
 module CommIdeal (R' : CommRing ℓ) where
- private R = fst R'
- open CommRingStr (snd R')
- open Sum (CommRing→Ring R')
- open CommRingTheory R'
- open RingTheory (CommRing→Ring R')
+  private R = fst R'
+  open CommRingStr (snd R')
+  open Sum (CommRing→Ring R')
+  open CommRingTheory R'
+  open RingTheory (CommRing→Ring R')
 
- record isCommIdeal (I : ℙ R) : Type ℓ where
-  constructor
-   makeIsCommIdeal
-  field
-   +Closed : ∀ {x y : R} → x ∈p I → y ∈p I → (x + y) ∈p I
-   contains0 : 0r ∈p I
-   ·Closed : ∀ {x : R} (r : R) → x ∈p I → r · x ∈p I
+  record isCommIdeal (I : ℙ R) : Type ℓ where
+   constructor
+    makeIsCommIdeal
+   field
+    +Closed : ∀ {x y : R} → x ∈p I → y ∈p I → (x + y) ∈p I
+    contains0 : 0r ∈p I
+    ·Closed : ∀ {x : R} (r : R) → x ∈p I → r · x ∈p I
 
-  ·RClosed :  ∀ {x : R} (r : R) → x ∈p I → x · r ∈p I
-  ·RClosed r x∈pI = subst-∈p I (·Comm _ _) (·Closed r x∈pI)
+   ·RClosed :  ∀ {x : R} (r : R) → x ∈p I → x · r ∈p I
+   ·RClosed r x∈pI = subst-∈p I (·Comm _ _) (·Closed r x∈pI)
 
- open isCommIdeal
- isPropIsCommIdeal : (I : ℙ R) → isProp (isCommIdeal I)
- +Closed (isPropIsCommIdeal I ici₁ ici₂ i) x∈pI y∈pI =
-         I _ .snd (ici₁ .+Closed x∈pI y∈pI) (ici₂ .+Closed x∈pI y∈pI) i
- contains0 (isPropIsCommIdeal I ici₁ ici₂ i) = I 0r .snd (ici₁ .contains0) (ici₂ .contains0) i
- ·Closed (isPropIsCommIdeal I ici₁ ici₂ i) r x∈pI =
-         I _ .snd (ici₁ .·Closed r x∈pI) (ici₂ .·Closed r x∈pI) i
+  open isCommIdeal
+  isPropIsCommIdeal : (I : ℙ R) → isProp (isCommIdeal I)
+  +Closed (isPropIsCommIdeal I ici₁ ici₂ i) x∈pI y∈pI =
+          I _ .snd (ici₁ .+Closed x∈pI y∈pI) (ici₂ .+Closed x∈pI y∈pI) i
+  contains0 (isPropIsCommIdeal I ici₁ ici₂ i) = I 0r .snd (ici₁ .contains0) (ici₂ .contains0) i
+  ·Closed (isPropIsCommIdeal I ici₁ ici₂ i) r x∈pI =
+          I _ .snd (ici₁ .·Closed r x∈pI) (ici₂ .·Closed r x∈pI) i
 
- CommIdeal : Type (ℓ-suc ℓ)
- CommIdeal = Σ[ I ∈ ℙ R ] isCommIdeal I
+  CommIdeal : Type (ℓ-suc ℓ)
+  CommIdeal = Σ[ I ∈ ℙ R ] isCommIdeal I
 
- isSetCommIdeal : isSet CommIdeal
- isSetCommIdeal = isSetΣSndProp isSetℙ isPropIsCommIdeal
+  isSetCommIdeal : isSet CommIdeal
+  isSetCommIdeal = isSetΣSndProp isSetℙ isPropIsCommIdeal
 
- --inclusion and containment of ideals
- _⊆_ : CommIdeal → CommIdeal → Type ℓ
- I ⊆ J = I .fst ⊆p J .fst
+  --inclusion and containment of ideals
+  _⊆_ : CommIdeal → CommIdeal → Type ℓ
+  I ⊆ J = I .fst ⊆p J .fst
 
- infix 5 _∈_
- _∈_ : R → CommIdeal → Type ℓ
- x ∈ I = x ∈p I .fst
+  infix 5 _∈_
+  _∈_ : R → CommIdeal → Type ℓ
+  x ∈ I = x ∈p I .fst
 
- subst-∈ : (I : CommIdeal) {x y : R} → x ≡ y → x ∈ I → y ∈ I
- subst-∈ I = subst-∈p (I .fst)
+  subst-∈ : (I : CommIdeal) {x y : R} → x ≡ y → x ∈ I → y ∈ I
+  subst-∈ I = subst-∈p (I .fst)
 
- CommIdeal≡Char : {I J : CommIdeal} → I ⊆ J → J ⊆ I → I ≡ J
- CommIdeal≡Char I⊆J J⊆I = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (I⊆J , J⊆I))
+  CommIdeal≡Char : {I J : CommIdeal} → I ⊆ J → J ⊆ I → I ≡ J
+  CommIdeal≡Char I⊆J J⊆I = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (I⊆J , J⊆I))
 
- -Closed : (I : CommIdeal) (x : R)
-         → x ∈ I → (- x) ∈ I
- -Closed I x x∈I = subst (_∈ I) (solve! R') (·Closed (snd I) (- 1r) x∈I)
+  -Closed : (I : CommIdeal) (x : R)
+          → x ∈ I → (- x) ∈ I
+  -Closed I x x∈I = subst (_∈ I) (solve! R') (·Closed (snd I) (- 1r) x∈I)
 
- ∑Closed : (I : CommIdeal) {n : ℕ} (V : FinVec R n)
-         → (∀ i → V i ∈ I) → ∑ V ∈ I
- ∑Closed I {n = zero} _ _ = I .snd .contains0
- ∑Closed I {n = suc n} V h = I .snd .+Closed (h zero) (∑Closed I (V ∘ suc) (h ∘ suc))
+  ∑Closed : (I : CommIdeal) {n : ℕ} (V : FinVec R n)
+          → (∀ i → V i ∈ I) → ∑ V ∈ I
+  ∑Closed I {n = zero} _ _ = I .snd .contains0
+  ∑Closed I {n = suc n} V h = I .snd .+Closed (h zero) (∑Closed I (V ∘ suc) (h ∘ suc))
 
- 0Ideal : CommIdeal
- fst 0Ideal x = (x ≡ 0r) , is-set _ _
- +Closed (snd 0Ideal) x≡0 y≡0 = cong₂ (_+_) x≡0 y≡0 ∙ +IdR _
- contains0 (snd 0Ideal) = refl
- ·Closed (snd 0Ideal) r x≡0 = cong (r ·_) x≡0 ∙ 0RightAnnihilates _
+  open Exponentiation R'
 
- 1Ideal : CommIdeal
- fst 1Ideal x = ⊤
- +Closed (snd 1Ideal) _ _ = lift tt
- contains0 (snd 1Ideal) = lift tt
- ·Closed (snd 1Ideal) _ _ = lift tt
+  ^sucClosed : (I : CommIdeal) (x : R) {n : ℕ}
+              → x ∈ I → x ^ suc n ∈ I
+  ^sucClosed I x x∈I = subst-∈ I (·Comm _ x) (·Closed (snd I) _ x∈I)
 
- contains1Is1 : (I : CommIdeal) → 1r ∈ I → I ≡ 1Ideal
- contains1Is1 I 1∈I = CommIdeal≡Char (λ _ _ → lift tt)
-   λ x _ → subst-∈ I (·IdR _) (I .snd .·Closed x 1∈I) -- x≡x·1 ∈ I
+  0Ideal : CommIdeal
+  fst 0Ideal x = (x ≡ 0r) , is-set _ _
+  +Closed (snd 0Ideal) x≡0 y≡0 = cong₂ (_+_) x≡0 y≡0 ∙ +IdR _
+  contains0 (snd 0Ideal) = refl
+  ·Closed (snd 0Ideal) r x≡0 = cong (r ·_) x≡0 ∙ 0RightAnnihilates _
+
+  1Ideal : CommIdeal
+  fst 1Ideal x = ⊤
+  +Closed (snd 1Ideal) _ _ = lift tt
+  contains0 (snd 1Ideal) = lift tt
+  ·Closed (snd 1Ideal) _ _ = lift tt
+
+  contains1Is1 : (I : CommIdeal) → 1r ∈ I → I ≡ 1Ideal
+  contains1Is1 I 1∈I = CommIdeal≡Char (λ _ _ → lift tt)
+    λ x _ → subst-∈ I (·IdR _) (I .snd .·Closed x 1∈I) -- x≡x·1 ∈ I
 
 IdealsIn : (R : CommRing ℓ) → Type _
 IdealsIn R = CommIdeal.CommIdeal R

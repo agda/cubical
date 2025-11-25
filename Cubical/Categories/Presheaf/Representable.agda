@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 
     This file defines 3 equivalent formulations of when a presheaf P is
@@ -33,6 +32,7 @@ open import Cubical.Reflection.RecordEquiv
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Constructions.Elements
+open import Cubical.Categories.Constructions.Opposite
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
@@ -43,7 +43,7 @@ open import Cubical.Categories.Presheaf.Properties
 open import Cubical.Categories.Yoneda
 
 private
-  variable ℓ ℓ' : Level
+  variable ℓ ℓ' ℓS : Level
 
 open Category
 open Contravariant
@@ -74,7 +74,7 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   isUniversal : (vertex : C .ob) (element : (P ⟅ vertex ⟆) .fst)
               → Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
   isUniversal vertex element =
-    ∀ A → isEquiv λ (f : C [ A , vertex ]) → element ∘ᴾ⟨ C , P ⟩ f
+    ∀ A → isEquiv λ (f : C [ A , vertex ]) → element ∘ᴾ⟨ P ⟩ f
 
   isPropIsUniversal : ∀ vertex element → isProp (isUniversal vertex element)
   isPropIsUniversal vertex element = isPropΠ (λ _ → isPropIsEquiv _)
@@ -194,3 +194,12 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
     compIso
       Representation≅UniversalElement
       (invIso TerminalElement≅UniversalElement)
+
+module _
+  {C : Category ℓ ℓ'} (isUnivC : isUnivalent C) (P : Presheaf C ℓS) where
+  open Contravariant
+  isPropUniversalElement : isProp (UniversalElement C P)
+  isPropUniversalElement = isOfHLevelRetractFromIso 1
+    (invIso (TerminalElement≅UniversalElement C P))
+    (isPropTerminal (∫ᴾ_ {C = C} P)
+    (isUnivalentOp (Covariant.isUnivalent∫ (isUnivalentOp isUnivC) P)))

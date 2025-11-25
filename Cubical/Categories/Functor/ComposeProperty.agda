@@ -1,10 +1,9 @@
-{-# OPTIONS --safe --lossy-unification #-}
-
 module Cubical.Categories.Functor.ComposeProperty where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
+open import Cubical.Functions.Embedding
 
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation as Prop
@@ -12,12 +11,18 @@ open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.Categories.Category
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation.Base
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Equivalence
 open import Cubical.Categories.Equivalence.WeakEquivalence
 
 open import Cubical.Categories.Instances.Functors
 
+
+open Category
+open Functor
+open NatTrans
+open isIso
+open isWeakEquivalence
 
 -- Composition by functor with special properties
 
@@ -25,12 +30,6 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (E : Category ℓE ℓE')
   (F : Functor C D)
   where
-
-  open Category
-  open Functor
-  open NatTrans
-  open isIso
-
 
   -- If F is essential surjective, (- ∘ F) is faithful.
 
@@ -97,6 +96,7 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
       → F .F-hom (f ⋆⟨ D ⟩ g ⋆⟨ D ⟩ h) ≡ F .F-hom f ⋆⟨ E ⟩ F .F-hom g ⋆⟨ E ⟩ F .F-hom h
     F-seq3 F = F .F-seq _ _ ∙ cong (λ x → x ⋆⟨ E ⟩ _) (F .F-seq _ _)
 
+    module E = Category E
     ext : NatTrans A B
     ext .N-ob d = isContrMor d .fst .fst
     ext .N-hom {x = d} {y = d'} f = Prop.rec2 (E .isSetHom _ _)
@@ -105,11 +105,10 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
             (λ i → A .F-hom f ⋆⟨ E ⟩ mor-eq d' c' h' i)
           ∙ cong (λ x → A .F-hom f ⋆⟨ E ⟩ x) (E .⋆Assoc _ _ _)
           ∙ sym (E .⋆Assoc _ _ _) ∙ sym (E .⋆Assoc _ _ _)
-          ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (E .⋆IdL _))
-          ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (F-Iso {F = A} h .snd .sec))
+          ∙ E.⟨ E.⟨ sym (E.⋆IdL _) ∙ E.⟨ sym (F-Iso {F = A} h .snd .sec) ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
           ∙ cong (λ x → x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (E .⋆Assoc _ _ _)
           ∙ cong (λ x → _ ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (E .⋆Assoc _ _ _))
-          ∙ cong (λ x → _ ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (F-seq3 A))
+          ∙ E.⟨ E.⟨ E.⟨ refl ⟩⋆⟨ E.⟨ sym (A .F-seq _ _) ⟩⋆⟨ refl ⟩ ∙ sym (A .F-seq _ _) ⟩ ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
           ∙ cong (λ x → A .F-hom (invIso h .fst) ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _ ⋆⟨ E ⟩ _) (sym (cong (A .F-hom) p))
           ∙ cong (λ x → x ⋆⟨ E ⟩ _) (E .⋆Assoc _ _ _)
           ∙ cong (λ x → _ ⋆⟨ E ⟩ x ⋆⟨ E ⟩ _) (α .N-hom k)
@@ -139,20 +138,12 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
     isFull+Faithful→isFullyFaithful {F = precomposeF E F}
       (isEssSurj+Full→isFullPrecomp surj full) (isEssSurj→isFaithfulPrecomp surj)
 
-
 module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {E : Category ℓE ℓE'} (isUnivE : isUnivalent E)
   (F : Functor C D)
   where
-
-  open Category
-  open Functor
-  open NatTrans
-  open isIso
-  open isWeakEquivalence
   open isUnivalent isUnivE
-
 
   -- If F is weak equivalence and the target category is univalent, (- ∘ F) is essentially surjective.
 
@@ -418,3 +409,38 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   isWeakEquiv→isEquivPrecomp w-equiv =
     isWeakEquiv→isEquiv (isUnivalentFUNCTOR _ _ isUnivE) (isUnivalentFUNCTOR _ _ isUnivE)
       (isWeakEquiv→isWeakEquivPrecomp w-equiv)
+
+module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {E : Category ℓE ℓE'}
+  {G : Functor D E}
+  (isFullyFaithfulG : isFullyFaithful G)
+  where
+
+  private
+    GFF : ∀ {x y} → D [ x , y ] ≃ E [ G ⟅ x ⟆ , G ⟅ y ⟆ ]
+    GFF = _ , (isFullyFaithfulG _ _)
+
+    GFaith : ∀ {x y} → (D [ x , y ]) ↪ (E [ G ⟅ x ⟆ , G ⟅ y ⟆ ])
+    GFaith = _ , isEquiv→isEmbedding (GFF .snd)
+    -- this would be convenient as FF.Reasoning
+    G-hom⁻ : ∀ {x y} → E [ G ⟅ x ⟆ , G ⟅ y ⟆ ] → D [ x , y ]
+    G-hom⁻ = invIsEq (isFullyFaithfulG _ _)
+
+
+  isFullyFaithfulPostcomposeF : isFullyFaithful (postcomposeF C G)
+  isFullyFaithfulPostcomposeF F F' .equiv-proof α =
+    uniqueExists
+      (natTrans (λ x → G-hom⁻ (α ⟦ x ⟧)) λ f →
+        isEmbedding→Inj (GFaith .snd) _ _
+        ( G .F-seq _ _
+        ∙ cong₂ (seq' E) refl (secEq GFF _)
+        ∙ α.N-hom _
+        ∙ sym (cong₂ (seq' E) (secEq GFF _) refl)
+        ∙ sym (G .F-seq _ _)))
+      (makeNatTransPath (funExt λ c → secIsEq (isFullyFaithfulG _ _) (α ⟦ c ⟧)))
+      (λ _ → isSetNatTrans _ _)
+      λ β G∘β≡α → makeNatTransPath (funExt λ c →
+        isEmbedding→Inj (isEquiv→isEmbedding (isFullyFaithfulG _ _)) _ _
+        (secIsEq (isFullyFaithfulG _ _) _ ∙ sym (cong (_⟦ c ⟧) G∘β≡α)))
+
+    where module α = NatTrans α

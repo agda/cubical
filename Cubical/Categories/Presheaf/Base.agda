@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Presheaf.Base where
 
 open import Cubical.Foundations.Prelude
@@ -27,21 +26,21 @@ isUnivalentPresheafCategory = isUnivalentFUNCTOR _ _ isUnivalentSET
 open Category
 open Functor
 
-action : ∀ (C : Category ℓ ℓ') → (P : Presheaf C ℓS)
+action : {C : Category ℓ ℓ'} → (P : Presheaf C ℓS)
        → {a b : C .ob} → C [ a , b ] → fst (P ⟅ b ⟆) → fst (P ⟅ a ⟆)
-action C P = P .F-hom
+action P = P .F-hom
 
 -- Convenient notation for naturality
-syntax action C P f ϕ = ϕ ∘ᴾ⟨ C , P ⟩ f
+syntax action P f ϕ = ϕ ∘ᴾ⟨ P ⟩ f
 
 ∘ᴾId : ∀ (C : Category ℓ ℓ') → (P : Presheaf C ℓS) → {a : C .ob}
      → (ϕ : fst (P ⟅ a ⟆))
-     → ϕ ∘ᴾ⟨ C , P ⟩ C .id ≡ ϕ
+     → ϕ ∘ᴾ⟨ P ⟩ C .id ≡ ϕ
 ∘ᴾId C P ϕ i = P .F-id i ϕ
 
 ∘ᴾAssoc : ∀ (C : Category ℓ ℓ') → (P : Presheaf C ℓS) → {a b c : C .ob}
         → (ϕ : fst (P ⟅ c ⟆))
         → (f : C [ b , c ])
         → (g : C [ a , b ])
-        → ϕ ∘ᴾ⟨ C , P ⟩ (f ∘⟨ C ⟩ g) ≡ (ϕ ∘ᴾ⟨ C , P ⟩ f) ∘ᴾ⟨ C , P ⟩ g
+        → ϕ ∘ᴾ⟨ P ⟩ (f ∘⟨ C ⟩ g) ≡ (ϕ ∘ᴾ⟨ P ⟩ f) ∘ᴾ⟨ P ⟩ g
 ∘ᴾAssoc C P ϕ f g i = P .F-seq f g i ϕ

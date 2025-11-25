@@ -11,7 +11,6 @@
    - https://github.com/agda/cubical/issues/266
    - https://github.com/agda/cubical/pull/238
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Experiments.NatMinusTwo where
 
 open import Cubical.Experiments.NatMinusTwo.Base public

@@ -7,7 +7,6 @@ Theory about isomorphisms
 - Any isomorphism is an equivalence ([isoToEquiv])
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Isomorphism where
 
 open import Cubical.Core.Glue
@@ -103,6 +102,20 @@ module _ (i : Iso A B) where
 isoToEquiv : Iso A B → A ≃ B
 isoToEquiv i .fst = i .Iso.fun
 isoToEquiv i .snd = isoToIsEquiv i
+
+IsoToIsIso : (f : Iso A B) → isIso (f .Iso.fun)
+IsoToIsIso f .fst = f .Iso.inv
+IsoToIsIso f .snd .fst = f .Iso.rightInv
+IsoToIsIso f .snd .snd = f .Iso.leftInv
+
+isIsoToIso : {f : A → B} → isIso f → Iso A B
+isIsoToIso {f = f} fIsIso .Iso.fun = f
+isIsoToIso fIsIso .Iso.inv = fIsIso .fst
+isIsoToIso fIsIso .Iso.rightInv = fIsIso .snd .fst
+isIsoToIso fIsIso .Iso.leftInv = fIsIso .snd .snd
+
+isIsoToIsEquiv : {f : A → B} → isIso f → isEquiv f
+isIsoToIsEquiv fIsIso = isoToIsEquiv (isIsoToIso fIsIso)
 
 isoToPath : Iso A B → A ≡ B
 isoToPath {A = A} {B = B} f i =

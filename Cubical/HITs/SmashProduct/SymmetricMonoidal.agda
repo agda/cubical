@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.SmashProduct.SymmetricMonoidal where
 
 open import Cubical.Foundations.Prelude
@@ -230,7 +229,6 @@ Bool⋀→ {A = A} (push (inr x) i) = pt A
 Bool⋀→ {A = A} (push (push a i₁) i) = pt A
 
 ⋀lIdIso : Iso (Bool*∙ {ℓ} ⋀ A) (typ A)
-Iso.fun (⋀lIdIso {A = A}) (inl x) = pt A
 Iso.fun ⋀lIdIso = Bool⋀→
 Iso.inv ⋀lIdIso a = inr (false* , a)
 Iso.rightInv ⋀lIdIso a = refl

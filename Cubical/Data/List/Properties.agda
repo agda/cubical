@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.List.Properties where
 
 

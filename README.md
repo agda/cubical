@@ -1,7 +1,7 @@
 A standard library for Cubical Agda
 ===================================
 
-The source code has a glorious clickable [rendered version](https://agda.github.io/cubical/Cubical.README.html).
+The source code has a glorious clickable [rendered version](https://agda.github.io/cubical/Cubical.Everything.html).
 
 There is also a [discord server](https://discord.gg/yjTKHzepMx), shared with [agda-unimath](https://unimath.github.io/agda-unimath/) and the [1lab](https://1lab.dev/).
 
@@ -12,12 +12,15 @@ For detailed install instructions see the
 [INSTALL](https://github.com/agda/cubical/blob/master/INSTALL.md)
 file.
 If you want to use some specific release of Agda,
-the following table lists which releases of Agda you can use with which release of this library.
+the following table lists which releases of Agda are known to work with which release of this library.
+Most likely, a lot more combinations work as well.
 Agda versions as written below, correspond to tags.
 
 | cubical library version | Agda versions                  |
 |-------------------------|--------------------------------|
-| current master          | `v2.6.4` `v2.6.4.1` `v2.6.4.3` |
+| current master          | `v2.8.0`                       |
+| `v0.9`                  | `v2.8.0`                       |
+| `v0.8`                  | `v2.6.4.1` `v2.7.0.1`          |
 | `v0.7`                  | `v2.6.4` `v2.6.4.1`            |
 | `v0.6`                  | `v2.6.4`                       |
 | `v0.5`                  | `v2.6.3` `v2.6.4`              |
@@ -79,13 +82,14 @@ we should request a review, by one of the reviewers below.
 If that doesn't happen, you can also request a reviewer yourself (for reviewer expertise see below),
 to make us aware of the open PR. Feel free to use Discord to get in touch with a reviewer in case reviewing is taking a very long time.
 
-| Reviewer                                                                | github handle | Area of expertise                           |
-|-------------------------------------------------------------------------|---------------|---------------------------------------------|
-| [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/)            | [mortberg](https://github.com/mortberg) | *Most topics*  |
-| [Evan Cavallo](https://ecavallo.net/)                                   | [ecavallo](https://github.com/ecavallo) | *Most topics*  |
-| [Felix Cherubini](https://felix-cherubini.de)                           | [felixwellen](https://github.com/felixwellen) | *Mainly algebra related topics* |
-| [Max Zeuner](https://www.su.se/english/profiles/maze1512-1.450461)      | [mzeuner](https://github.com/mzeuner) | *Algebra related topics*                   |
-| [Axel Ljungström](https://aljungstrom.github.io)                        | [aljungstrom](https://github.com/aljungstrom) | *Synthetic homotopy theory and cohomology* |
-| [Andrea Vezzosi](http://saizan.github.io/)                              | [Saizan](https://github.com/Saizan)   | *Inactive*                                 |
+| Reviewer                                                           | github handle                                 | Area of expertise                          |
+|--------------------------------------------------------------------|-----------------------------------------------|--------------------------------------------|
+| [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/)       | [mortberg](https://github.com/mortberg)       | *Most topics*                              |
+| [Evan Cavallo](https://ecavallo.net/)                              | [ecavallo](https://github.com/ecavallo)       | *Most topics*                              |
+| [Felix Cherubini](https://felix-cherubini.de)                      | [felixwellen](https://github.com/felixwellen) | *Mainly algebra related topics*            |
+| [Max Zeuner](https://www.su.se/english/profiles/maze1512-1.450461) | [mzeuner](https://github.com/mzeuner)         | *Algebra related topics*                   |
+| [Axel Ljungström](https://aljungstrom.github.io)                   | [aljungstrom](https://github.com/aljungstrom) | *Synthetic homotopy theory and cohomology* |
+| [Max New](http://maxsnew.com)                                      | [maxsnew](https://github.com/maxsnew)         | *Category theory*                          |
+| [Andrea Vezzosi](http://saizan.github.io/)                         | [Saizan](https://github.com/Saizan)           | *Inactive*                                 |
 
 [Overview](https://github.com/agda/cubical/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-asc+draft%3Afalse) of the current open PRs, descending time since last action.

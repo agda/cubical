@@ -8,7 +8,6 @@
 
 -}
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.Equality.Base where
 
@@ -116,3 +115,12 @@ id x = x
 
 isEquivId : isEquiv (id {A = A})
 equiv-proof isEquivId y = (y , refl) , λ where (_ , refl) → refl
+
+HEq : {A0 A1 : Type ℓ}(Aeq : A0 ≡ A1) (a0 : A0)(a1 : A1) → Type _
+HEq Aeq a0 a1 = transport (λ A → A) Aeq a0 ≡ a1
+
+singlP : {A0 A1 : Type ℓ}(Aeq : A0 ≡ A1) (a : A0) → Type _
+singlP {A1 = A1} Aeq a = Σ[ x ∈ A1 ] HEq Aeq a x
+
+singl : {A : Type ℓ}(a : A) → Type _
+singl {A = A} a = singlP refl a

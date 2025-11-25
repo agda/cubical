@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   This treatment of well-orderings follows chapter 10.3 of the HoTT book
 -}
@@ -24,7 +23,7 @@ open import Cubical.Relation.Binary.Order.Woset.Base
 open import Cubical.Relation.Binary.Order.Poset
 open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.Binary.Extensionality
-open import Cubical.Relation.Binary.Order.Properties
+open import Cubical.Relation.Binary.Order.Proset.Properties
 
 private
   variable

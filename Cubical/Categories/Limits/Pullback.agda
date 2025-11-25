@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Limits.Pullback where
 
 open import Cubical.Foundations.Prelude
@@ -53,13 +52,23 @@ module _ (C : Category ℓ ℓ') where
       pbCommutes : pbPr₁ ⋆ cspn .s₁ ≡ pbPr₂ ⋆ cspn .s₂
       univProp : isPullback cspn pbPr₁ pbPr₂ pbCommutes
 
+    pullbackArrow :
+      {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
+      (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) → C [ c , pbOb ]
+    pullbackArrow p₁ p₂ H = univProp p₁ p₂ H .fst .fst
+
+    pullbackArrowUnique :
+        {c : ob} {p₁ : C [ c , cspn .l ]} {p₂ : C [ c , cspn .r ]}
+        {H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂}
+        {pbArrow' : C [ c , pbOb ]}
+        (H₁ : p₁ ≡ pbArrow' ⋆ pbPr₁) (H₂ : p₂ ≡ pbArrow' ⋆ pbPr₂)
+        → pullbackArrow p₁ p₂ H ≡ pbArrow'
+    pullbackArrowUnique H₁ H₂ =
+        cong fst (univProp _ _ _ .snd (_ , (H₁ , H₂)))
+
+
   open Pullback
 
-  pullbackArrow :
-    {cspn : Cospan} (pb : Pullback cspn)
-    {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
-    (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) → C [ c , pb . pbOb ]
-  pullbackArrow pb p₁ p₂ H = pb .univProp p₁ p₂ H .fst .fst
 
   pullbackArrowPr₁ :
     {cspn : Cospan} (pb : Pullback cspn)
@@ -74,16 +83,6 @@ module _ (C : Category ℓ ℓ') where
     (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) →
     p₂ ≡ pullbackArrow pb p₁ p₂ H ⋆ pbPr₂ pb
   pullbackArrowPr₂ pb p₁ p₂ H = pb .univProp p₁ p₂ H .fst .snd .snd
-
-  pullbackArrowUnique :
-    {cspn : Cospan} (pb : Pullback cspn)
-    {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
-    (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂)
-    (pbArrow' : C [ c , pb .pbOb ])
-    (H₁ : p₁ ≡ pbArrow' ⋆ pbPr₁ pb) (H₂ : p₂ ≡ pbArrow' ⋆ pbPr₂ pb)
-    → pullbackArrow pb p₁ p₂ H ≡ pbArrow'
-  pullbackArrowUnique pb p₁ p₂ H pbArrow' H₁ H₂ =
-    cong fst (pb .univProp p₁ p₂ H .snd (pbArrow' , (H₁ , H₂)))
 
   Pullbacks : Type (ℓ-max ℓ ℓ')
   Pullbacks = (cspn : Cospan) → Pullback cspn

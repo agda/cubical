@@ -4,7 +4,6 @@
 - transport is an equivalence ([pathToEquiv])
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Transport where
 
 open import Cubical.Foundations.Prelude
@@ -73,6 +72,10 @@ substSubst⁻ {x = x} {y = y} B p v = transportTransport⁻ {A = B x} {B = B y} 
 
 substEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {a a' : A} (P : A → Type ℓ') (p : a ≡ a') → P a ≃ P a'
 substEquiv P p = (subst P p , isEquivTransport (λ i → P (p i)))
+
+subst2Equiv : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {a a' : A} {b b' : B} (P : A → B → Type ℓ'')
+            (p : a ≡ a') (q : b ≡ b') → P a b ≃ P a' b'
+subst2Equiv P p q = (subst2 P p q , isEquivTransport (λ i → P (p i) (q i)))
 
 liftEquiv : ∀ {ℓ ℓ'} {A B : Type ℓ} (P : Type ℓ → Type ℓ') (e : A ≃ B) → P A ≃ P B
 liftEquiv P e = substEquiv P (ua e)

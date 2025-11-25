@@ -7,7 +7,6 @@
 - β-rules for recursion and induction in terms of _≡_
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.Equality.S1 where
 

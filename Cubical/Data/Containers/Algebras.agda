@@ -4,7 +4,6 @@
 
 -}
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.Containers.Algebras where
 

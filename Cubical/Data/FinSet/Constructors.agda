@@ -4,7 +4,6 @@ This files contains:
 - Facts about constructions on finite sets, especially when they preserve finiteness.
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.Constructors where
 
@@ -168,7 +167,7 @@ module _
   (X : FinSet ℓ) where
 
   isFinSetAut : isFinSet (X .fst ≃ X .fst)
-  isFinSetAut = LehmerCode.factorial (card X) ,
+  isFinSetAut = card X ! ,
     Prop.map (λ p → isFinOrd≃ (X .fst) (card X , p) .snd) (X .snd .snd)
 
   isFinSetTypeAut : isFinSet (X .fst ≡ X .fst)

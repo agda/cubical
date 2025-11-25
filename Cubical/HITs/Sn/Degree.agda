@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Sn.Degree where
 {-
 Contains facts about the degree of maps Sⁿ → Sⁿ
@@ -9,11 +8,13 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Bool
-open import Cubical.Data.Int renaming (_·_ to _·ℤ_)
+open import Cubical.Data.Int renaming (_·_ to _·ℤ_ ; _+_ to _+ℤ_)
 
+open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation as TR
@@ -25,7 +26,10 @@ open import Cubical.Algebra.Group.Morphisms
 
 open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.Group.PinSn
+open import Cubical.Homotopy.Loopspace
 
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Sn
 
 -- prelims for definition in 0 case
@@ -161,3 +165,54 @@ degreeIdfun (suc n) =
    cong (degree (suc n)) (sym (cong fst suspFunS∙Id))
   ∙∙ (sym (degreeSusp n (idfun _)))
   ∙∙ degreeIdfun n
+
+degreeHom : {n : ℕ} (f g : S₊∙ (suc n) →∙ S₊∙ (suc n))
+  → degree (suc n) (∙Π f g .fst)
+   ≡ degree (suc n) (fst f) +ℤ degree (suc n) (fst g)
+degreeHom {n = n} f g =
+   cong (Iso.fun (Hⁿ-Sⁿ≅ℤ n .fst)) (cong ∣_∣₂ (funExt
+     λ x → cong ∣_∣ₕ (cong₂ (λ f g → ∙Π f g .fst x)
+                     (sym (Iso.rightInv (sphereFunIso n) f))
+                     (sym (Iso.rightInv (sphereFunIso n) g)))
+         ∙∙ help n _ _ x
+         ∙∙ cong₂ (λ x y → ∣ x ∣ₕ +[ suc n ]ₖ ∣ y ∣ₕ)
+                  (funExt⁻ (cong fst (Iso.rightInv (sphereFunIso n) f)) x)
+                  (funExt⁻ (cong fst (Iso.rightInv (sphereFunIso n) g)) x)))
+  ∙ IsGroupHom.pres· (Hⁿ-Sⁿ≅ℤ n .snd) _ _
+  where
+  help : (n : ℕ) (f g : S₊∙ n →∙ Ω (S₊∙ (suc n))) (x : S₊ (suc n))
+                      → Path (coHomK (suc n))
+                  ∣ ∙Π (Iso.fun (sphereFunIso n) f)
+                       (Iso.fun (sphereFunIso n) g) .fst x ∣ₕ
+                  (∣ fst (Iso.fun (sphereFunIso n) f) x ∣
+       +[ suc n ]ₖ ∣ fst (Iso.fun (sphereFunIso n) g) x ∣)
+  help zero f g base = refl
+  help zero f g (loop i) j = lem j i
+    where
+    lem : cong ∣_∣ₕ ((fst f false ∙ refl) ∙ fst g false ∙ refl)
+        ≡ cong₂ (λ x y → ∣ x ∣ₕ +[ suc zero ]ₖ ∣ y ∣ₕ)
+                (fst f false) (fst g false)
+    lem = cong-∙ ∣_∣ₕ _ _
+      ∙ cong₂ _∙_ ((λ i j → ∣ rUnit (fst f false) (~ i) j  ∣ₕ)
+                ∙ (λ j → cong (λ x → rUnitₖ 1 ∣ x ∣ₕ (~ j)) (fst f false)))
+                ((λ i j → ∣ rUnit (fst g false) (~ i) j  ∣ₕ)
+                ∙ (λ j → cong (λ x → lUnitₖ 1 ∣ x ∣ₕ (~ j)) (fst g false)))
+      ∙ sym (cong₂Funct (λ x y → ∣ x ∣ₕ +[ suc zero ]ₖ ∣ y ∣ₕ)
+             (fst f false) (fst g false))
+  help (suc n) f g north = refl
+  help (suc n) f g south = refl
+  help (suc n) f g (merid a i) j = lem j i
+    where
+    lem : cong ∣_∣ₕ ((cong (fst (toΩ→fromSusp f)) (σS a) ∙ refl)
+                 ∙ (cong (fst (toΩ→fromSusp g)) (σS a) ∙ refl))
+        ≡ cong₂ (λ x y → ∣ x ∣ₕ +[ suc (suc n) ]ₖ ∣ y ∣ₕ)
+                (fst f a) (fst g a)
+    lem = cong-∙ ∣_∣ₕ _ _
+      ∙ cong₂ _∙_ (cong (cong ∣_∣ₕ)
+                    (funExt⁻ (cong fst (Iso.leftInv ΩSuspAdjointIso f)) a)
+                  ∙ λ j i → rUnitₖ (suc (suc n)) ∣ fst f a i ∣ₕ (~ j))
+                  (cong (cong ∣_∣ₕ)
+                    (funExt⁻ (cong fst (Iso.leftInv ΩSuspAdjointIso g)) a)
+                  ∙ (λ j i → lUnitₖ (suc (suc n)) ∣ fst g a i ∣ₕ (~ j)))
+      ∙ sym (cong₂Funct (λ x y → ∣ x ∣ₕ +[ suc (suc n) ]ₖ ∣ y ∣ₕ)
+              (fst f a) (fst g a))

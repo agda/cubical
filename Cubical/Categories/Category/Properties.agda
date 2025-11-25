@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Category.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -30,9 +29,10 @@ module _ {C : Category ℓ ℓ'} where
   isSetHomP2r = isOfHLevel→isOfHLevelDep 2 (λ a → isSetHom C {y = a})
 
 
--- opposite of opposite is definitionally equal to itself
-involutiveOp : ∀ {C : Category ℓ ℓ'} → C ^op ^op ≡ C
-involutiveOp = refl
+-- opposite of opposite is *not* definitionally equal to itself.
+-- The following does *not* type check because of no-eta-equality.
+-- involutiveOp : ∀ {C : Category ℓ ℓ'} → C ^op ^op ≡ C
+-- involutiveOp = refl
 
 module _ {C : Category ℓ ℓ'} where
   -- Other useful operations on categories
@@ -92,26 +92,27 @@ module _ {C : Category ℓ ℓ'} where
                   → f ⋆⟨ C ⟩ g ≡ seqP' {p = p} f' g
   rCatWhiskerP f' f g r = cong (λ v → v ⋆⟨ C ⟩ g) (sym (fromPathP r))
 
+module _ (C : Category ℓ ℓ') where
 
   AssocCong₂⋆L : {x y' y z w : C .ob} →
           {f' : C [ x , y' ]} {f : C [ x , y ]}
           {g' : C [ y' , z ]} {g : C [ y , z ]}
-          → f ⋆⟨ C ⟩ g ≡ f' ⋆⟨ C ⟩ g' → (h : C [ z , w ])
+          → f ⋆⟨ C ⟩ g ≡ f' ⋆⟨ C ⟩ g' → {h : C [ z , w ]}
           → f ⋆⟨ C ⟩ (g ⋆⟨ C ⟩ h) ≡
               f' ⋆⟨ C ⟩ (g' ⋆⟨ C ⟩ h)
-  AssocCong₂⋆L p h =
-    sym (⋆Assoc C _ _ h)
+  AssocCong₂⋆L p {h} =
+    sym (⋆Assoc C _ _ _)
       ∙∙ (λ i → p i ⋆⟨ C ⟩ h) ∙∙
     ⋆Assoc C _ _ h
 
   AssocCong₂⋆R : {x y z z' w : C .ob} →
-          (f : C [ x , y ])
+          {f : C [ x , y ]}
           {g' : C [ y , z' ]} {g : C [ y , z ]}
           {h' : C [ z' , w ]} {h : C [ z , w ]}
           → g ⋆⟨ C ⟩ h ≡ g' ⋆⟨ C ⟩ h'
           → (f ⋆⟨ C ⟩ g) ⋆⟨ C ⟩ h ≡
               (f ⋆⟨ C ⟩ g') ⋆⟨ C ⟩ h'
-  AssocCong₂⋆R f p =
+  AssocCong₂⋆R {f = f} p =
     ⋆Assoc C f _ _
       ∙∙ (λ i → f ⋆⟨ C ⟩ p i) ∙∙
     sym (⋆Assoc C _ _ _)

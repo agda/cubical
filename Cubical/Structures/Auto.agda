@@ -12,7 +12,7 @@ is [constant (ℕ → ℕ)] rather than [function (constant ℕ) (constant ℕ)]
 Writing [auto* (λ X → ⋯)] doesn't seem to work, but [auto* (λ (X : Type ℓ) → ⋯)] does.
 
 -}
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Structures.Auto where
 
 open import Cubical.Foundations.Prelude

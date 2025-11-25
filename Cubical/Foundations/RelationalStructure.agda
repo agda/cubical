@@ -3,7 +3,6 @@
 Definition of what it means to be a notion of relational structure
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.RelationalStructure where
 
 open import Cubical.Foundations.Prelude

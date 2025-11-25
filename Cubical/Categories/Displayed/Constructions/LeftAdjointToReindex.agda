@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 --
 module Cubical.Categories.Displayed.Constructions.LeftAdjointToReindex where
 
@@ -13,7 +12,7 @@ open import Cubical.Categories.Instances.Terminal
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Properties
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base
 open import Cubical.Categories.Constructions.TotalCategory
 
 private
@@ -123,4 +122,4 @@ private
 
       weaken' : Categoryᴰ C (ℓ-max (ℓ-max ℓ-zero ℓC) ℓD)
                  (ℓ-max (ℓ-max ℓ-zero ℓC') ℓD')
-      weaken' = ∃F (Category→DispOverTerminal D) F
+      weaken' = ∃F (weaken _ D) F

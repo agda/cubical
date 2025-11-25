@@ -20,7 +20,6 @@ This file proves a variety of basic results about paths:
 - Export universe lifting
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Prelude where
 
 open import Cubical.Core.Primitives public
@@ -88,6 +87,16 @@ cong₂ : {C : (a : A) → (b : B a) → Type ℓ} →
         PathP (λ i → C (p i) (q i)) (f x u) (f y v)
 cong₂ f p q i = f (p i) (q i)
 {-# INLINE cong₂ #-}
+
+cong₃ : {C : (a : A) → (b : B a) → Type ℓ}
+        {D : (a : A) (b : B a) → C a b → Type ℓ'}
+        (f : (a : A) (b : B a) (c : C a b) → D a b c) →
+        {x y : A} (p : x ≡ y)
+        {u : B x} {v : B y} (q : PathP (λ i → B (p i)) u v)
+        {s : C x u} {t : C y v} (r : PathP (λ i → C (p i) (q i)) s t)
+      → PathP (λ i → D (p i) (q i) (r i)) (f x u s) (f y v t)
+cong₃ f p q r i = f (p i) (q i) (r i)
+{-# INLINE cong₃ #-}
 
 congP₂ : {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
   {C : (i : I) (a : A i) → B i a → Type ℓ''}
@@ -503,6 +512,20 @@ isContrSinglP A a .fst = _ , transport-filler (λ i → A i) a
 isContrSinglP A a .snd (x , p) i =
   _ , λ j → fill A (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
 
+-- Helpers for carrying equalities into with-abstractions
+-- see `discreteℕ` in Data.Nat.Properties for an example of usage
+
+infixl 0 _UsingEq
+infixl 0 _i0:>_UsingEqP
+
+-- Similar to `inspect`, but more convenient when `a` is not a function
+-- application, or when the applied function is not relevant
+_UsingEq : (a : A) → singl a
+a UsingEq = isContrSingl a .fst
+
+_i0:>_UsingEqP : (A : I → Type ℓ) (a : A i0) → singlP A a
+A i0:> a UsingEqP = isContrSinglP A a .fst
+
 -- Higher cube types
 
 SquareP :
@@ -638,3 +661,7 @@ open Lift public
 
 liftExt : ∀ {A : Type ℓ} {a b : Lift {ℓ} {ℓ'} A} → (lower a ≡ lower b) → a ≡ b
 liftExt x i = lift (x i)
+
+liftFun : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'}
+  (f : A → B) → Lift {j = ℓ''} A → Lift {j = ℓ'''} B
+liftFun f (lift a) = lift (f a)

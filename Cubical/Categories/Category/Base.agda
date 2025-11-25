@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Category.Base where
 
 open import Cubical.Foundations.Prelude
@@ -13,7 +12,8 @@ private
 
 -- Categories with hom-sets
 record Category ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
-  -- no-eta-equality ; NOTE: need eta equality for `opop`
+  -- TODO: document the impetus for this change
+  no-eta-equality
   field
     ob : Type ℓ
     Hom[_,_] : ob → ob → Type ℓ'
@@ -28,6 +28,10 @@ record Category ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   -- composition: alternative to diagramatic order
   _∘_ : ∀ {x y z} (g : Hom[ y , z ]) (f : Hom[ x , y ]) → Hom[ x , z ]
   g ∘ f = f ⋆ g
+
+  ⟨_⟩⋆⟨_⟩ : {x y z : ob} {f f' : Hom[ x , y ]} {g g' : Hom[ y , z ]}
+          → f ≡ f' → g ≡ g' → f ⋆ g ≡ f' ⋆ g'
+  ⟨ ≡f ⟩⋆⟨ ≡g ⟩ = cong₂ _⋆_ ≡f ≡g
 
   infixr 9 _⋆_
   infixr 9 _∘_
@@ -134,6 +138,7 @@ isPropIsUnivalent =
   (isPropΠ2 λ _ _ → isPropIsEquiv _ )
 
 -- Opposite category
+-- TODO: move all of this to Constructions.Opposite?
 _^op : Category ℓ ℓ' → Category ℓ ℓ'
 ob (C ^op)           = ob C
 Hom[_,_] (C ^op) x y = C [ y , x ]

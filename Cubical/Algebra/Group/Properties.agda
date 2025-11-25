@@ -1,10 +1,10 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws hiding (assoc)
 open import Cubical.Data.Sigma
 
@@ -102,3 +102,27 @@ congIdLeft≡congIdRight _·G_ -G_ 0G rUnitG lUnitG r≡l p =
          ∙∙ cong₂ (λ x y → x ∙∙ p ∙∙ y) (sym r≡l) (cong sym (sym r≡l))
          ∙∙ λ i → (λ j → rUnitG 0G (~ i ∧ j)) ∙∙ cong (λ x → rUnitG x (~ i)) p ∙∙ λ j → rUnitG 0G (~ i ∧ ~ j))
          ∙∙ sym (rUnit (congL _·G_ p))
+
+·GroupAutomorphismL : ∀ {ℓ} (G : Group ℓ) (g : fst G) → Iso (fst G) (fst G)
+Iso.fun (·GroupAutomorphismL G g) = GroupStr._·_ (snd G) g
+Iso.inv (·GroupAutomorphismL G g) = GroupStr._·_ (snd G) (GroupStr.inv (snd G) g)
+Iso.rightInv (·GroupAutomorphismL G g) h =
+  GroupStr.·Assoc (snd G) _ _ _
+  ∙ cong₂ (GroupStr._·_ (snd G)) (GroupStr.·InvR (snd G) g) refl
+  ∙ GroupStr.·IdL (snd G) h
+Iso.leftInv (·GroupAutomorphismL G g) h =
+  GroupStr.·Assoc (snd G) _ _ _
+  ∙ cong₂ (GroupStr._·_ (snd G)) (GroupStr.·InvL (snd G) g) refl
+  ∙ GroupStr.·IdL (snd G) h
+
+·GroupAutomorphismR : ∀ {ℓ} (G : Group ℓ) (g : fst G) → Iso (fst G) (fst G)
+Iso.fun (·GroupAutomorphismR G g) x = GroupStr._·_ (snd G) x g
+Iso.inv (·GroupAutomorphismR G g) x = GroupStr._·_ (snd G) x (GroupStr.inv (snd G) g)
+Iso.rightInv (·GroupAutomorphismR G g) h =
+  sym (GroupStr.·Assoc (snd G) _ _ _)
+  ∙ cong₂ (GroupStr._·_ (snd G)) refl (GroupStr.·InvL (snd G) g) --
+  ∙ GroupStr.·IdR (snd G) h
+Iso.leftInv (·GroupAutomorphismR G g) h =
+    sym (GroupStr.·Assoc (snd G) _ _ _)
+  ∙ cong₂ (GroupStr._·_ (snd G)) refl (GroupStr.·InvR (snd G) g) --
+  ∙ GroupStr.·IdR (snd G) h

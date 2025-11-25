@@ -1,5 +1,4 @@
 -- Product of two categories
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Constructions.BinProduct where
 
@@ -64,6 +63,12 @@ module _ where
 
   _×F_ : Functor A C → Functor B D → Functor (A ×C B) (C ×C D)
   _×F_ {A = A} {B = B} G H = G ∘F Fst A B ,F H ∘F Snd A B
+
+Δ : ∀ (C : Category ℓC ℓC') → Functor C (C ×C C)
+Δ C = Id ,F Id
+
+Sym : {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} → Functor (C ×C D) (D ×C C)
+Sym {C = C}{D = D} = Snd C D ,F Fst C D
 
 -- Some useful functors
 module _ (C : Category ℓC ℓC')

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Nat.GCD where
 
 open import Cubical.Foundations.Prelude
@@ -10,7 +9,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Induction.WellFounded
 
 open import Cubical.Data.Sigma as Σ
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin   as F hiding (_%_ ; _/_)
 open import Cubical.Data.NatPlusOne
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
@@ -18,6 +17,9 @@ open import Cubical.HITs.PropositionalTruncation as PropTrunc
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Mod renaming (
+  quotient'_/_  to _/_ ; remainder'_/_ to _%_
+  ; ≡remainder'+quotient' to ≡%+·/ ; mod'< to %< )
 open import Cubical.Data.Nat.Divisibility
 
 open import Cubical.Relation.Nullary
@@ -67,46 +69,95 @@ oneGCD m = symGCD (divsGCD (∣-oneˡ m))
 zeroGCD : ∀ m → isGCD m 0 m
 zeroGCD m = divsGCD (∣-zeroʳ m)
 
+-- a pair of useful lemmas about ∣ and (efficient) %
 private
-  lem₁ : prediv d (suc n) → prediv d (m % suc n) → prediv d m
-  lem₁ {d} {n} {m} (c₁ , p₁) (c₂ , p₂) = (q · c₁ + c₂) , p
-    where r = m % suc n; q = n%k≡n[modk] m (suc n) .fst
-          p = (q · c₁ + c₂) · d     ≡⟨ sym (·-distribʳ (q · c₁) c₂ d) ⟩
-              (q · c₁) · d + c₂ · d ≡⟨ cong (_+ c₂ · d) (sym (·-assoc q c₁ d))  ⟩
-              q · (c₁ · d) + c₂ · d ≡[ i ]⟨ q · (p₁ i) + (p₂ i) ⟩
-              q · (suc n)  + r      ≡⟨ n%k≡n[modk] m (suc n) .snd ⟩
-              m                     ∎
+  ∣→∣% : ∀ {m n d} → d ∣ m → d ∣ n → d ∣ (m % n)
+  ∣%→∣ : ∀ {m n d} → d ∣ (m % n) → d ∣ n → d ∣ m
 
-  lem₂ : prediv d (suc n) → prediv d m → prediv d (m % suc n)
-  lem₂ {d} {n} {m} (c₁ , p₁) (c₂ , p₂) = c₂ ∸ q · c₁ , p
-    where r = m % suc n; q = n%k≡n[modk] m (suc n) .fst
-          p = (c₂ ∸ q · c₁) · d               ≡⟨ ∸-distribʳ c₂ (q · c₁) d ⟩
-              c₂ · d ∸ (q · c₁) · d           ≡⟨ cong (c₂ · d ∸_) (sym (·-assoc q c₁ d)) ⟩
-              c₂ · d ∸ q · (c₁ · d)           ≡[ i ]⟨ p₂ i ∸ q · (p₁ i) ⟩
-              m      ∸ q · (suc n)            ≡⟨ cong (_∸ q · (suc n)) (sym (n%k≡n[modk] m (suc n) .snd)) ⟩
-              (q · (suc n) + r) ∸ q · (suc n) ≡⟨ cong (_∸ q · (suc n)) (+-comm (q · (suc n)) r) ⟩
-              (r + q · (suc n)) ∸ q · (suc n) ≡⟨ ∸-cancelʳ r zero (q · (suc n)) ⟩
-              r ∎
+∣→∣% {m} {0}         {d} d∣m d∣n = d∣m
+∣→∣% {m} {n@(suc _)} {d} d∣m d∣n =
+  let
+    k₁     = ∣-untrunc d∣m .fst
+    k₁·d≡m = ∣-untrunc d∣m .snd
+    k₂     = ∣-untrunc d∣n .fst
+    k₂·d≡n = ∣-untrunc d∣n .snd
+    p      =
+      (k₁ ∸ m / n · k₂) · d         ≡⟨ ∸-distribʳ k₁ (m / n · k₂) d ⟩
+      k₁ · d ∸ m / n · k₂ · d       ≡⟨ sym $ cong (k₁ · d ∸_) (·-assoc (m / n) _ _) ⟩
+      k₁ · d ∸ m / n · (k₂ · d)     ≡⟨ cong₂ (λ l r → l ∸ m / n · r) k₁·d≡m k₂·d≡n ⟩
+      m ∸ m / n · n                 ≡⟨ cong (m ∸_) (·-comm (m / n) n) ⟩
+      m ∸ n · m / n                 ≡⟨ sym $ cong (_∸ n · m / n) (≡%+·/ n m)  ⟩
+      m % n + n · m / n ∸ n · m / n ≡⟨ +∸ (m % n) (n · m / n) ⟩
+      m % n                         ∎
+  in
+    ∣ k₁ ∸ m / n · k₂ , p ∣₁
+
+∣%→∣ {m} {0}         {d} d∣m%n d∣n = d∣m%n
+∣%→∣ {m} {n@(suc _)} {d} d∣m%n d∣n =
+  let
+    k₁       = ∣-untrunc d∣m%n .fst
+    k₁·d≡m%n = ∣-untrunc d∣m%n .snd
+    k₂       = ∣-untrunc d∣n   .fst
+    k₂·d≡n   = ∣-untrunc d∣n   .snd
+    p        =
+      (k₁ + k₂ · m / n) · d     ≡⟨ sym $ ·-distribʳ k₁ (k₂ · m / n) d ⟩
+      k₁ · d + k₂ · m / n · d   ≡⟨ cong (λ p → k₁ · d + p · d) (·-comm k₂ (m / n)) ⟩
+      k₁ · d + m / n · k₂ · d   ≡⟨ sym $ cong (k₁ · d +_) (·-assoc (m / n) k₂ d) ⟩
+      k₁ · d + m / n · (k₂ · d) ≡⟨ cong₂ (λ l r → l + m / n · r) k₁·d≡m%n k₂·d≡n ⟩
+      m % n + m / n · n         ≡⟨ cong (m % n +_) (·-comm (m / n) n) ⟩
+      m % n + n · m / n         ≡⟨ ≡%+·/ n m ⟩
+      m                         ∎
+  in
+    ∣ k₁ + k₂ · m / n , p ∣₁
 
 -- The inductive step of the Euclidean algorithm
 stepGCD : isGCD (suc n) (m % suc n) d
         → isGCD m       (suc n)     d
-fst (stepGCD ((d∣n , d∣m%n) , gr)) = PropTrunc.map2 lem₁ d∣n d∣m%n , d∣n
-snd (stepGCD ((d∣n , d∣m%n) , gr)) d' (d'∣m , d'∣n) = gr d' (d'∣n , PropTrunc.map2 lem₂ d'∣n d'∣m)
+stepGCD w =
+  let
+    g∣1+n            = w .fst .fst
+    g∣m%1+n          = w .fst .snd
+    d∣1+n→d∣m%1+n→d∣g = w .snd
+  in
+    (∣%→∣ g∣m%1+n g∣1+n , g∣1+n) ,
+    λ d' (d'∣m , d'∣1+n) → d∣1+n→d∣m%1+n→d∣g d' (d'∣1+n , (∣→∣% d'∣m d'∣1+n))
 
--- putting it all together using well-founded induction
+-- putting it all together using an auxiliary variable to pass the termination checking
 
-euclid< : ∀ m n → n < m → GCD m n
-euclid< = WFI.induction <-wellfounded λ {
-  m rec zero    p → m , zeroGCD m ;
-  m rec (suc n) p → let d , dGCD = rec (suc n) p (m % suc n) (n%sk<sk m n)
-                     in d , stepGCD dGCD }
+private
+  euclid-helper< : (m n f : ℕ) → (n < m) → (m ≤ f) → GCD m n
+  euclid-helper< m       n       zero    n<m m≤0 .fst = 0
+  euclid-helper< m       n       zero    n<m m≤0 .snd .fst .fst = ∣-refl $ sym $ ≤0→≡0 m≤0
+  euclid-helper< m       n       zero    n<m m≤0 .snd .fst .snd = ∣-refl $ sym $ ≤0→≡0 $
+                                                              <-weaken $ <≤-trans n<m m≤0
+  euclid-helper< m       n       zero    n<m m≤0 .snd .snd d' _ = ∣-zeroʳ d'
+  euclid-helper< zero    zero    (suc _) _   _   .fst = 0
+  euclid-helper< zero    zero    (suc _) _   _   .snd .fst .fst = ∣-refl refl
+  euclid-helper< zero    zero    (suc _) _   _   .snd .fst .snd = ∣-refl refl
+  euclid-helper< zero    zero    (suc _) _   _   .snd .snd d' _ = ∣-zeroʳ d'
+  euclid-helper< zero    (suc n) (suc _) _   _   .fst = suc n
+  euclid-helper< zero    (suc n) (suc _) _   _   .snd .fst .fst = ∣-zeroʳ (suc n)
+  euclid-helper< zero    (suc n) (suc _) _   _   .snd .fst .snd = ∣-refl refl
+  euclid-helper< zero    (suc n) (suc _) _   _   .snd .snd d' (_ , d'∣1+n) = d'∣1+n
+  euclid-helper< (suc m) zero    (suc _) _   _   .fst = suc m
+  euclid-helper< (suc m) zero    (suc _) _   _   .snd .fst .fst = ∣-refl refl
+  euclid-helper< (suc m) zero    (suc _) _   _   .snd .fst .snd = ∣-zeroʳ (suc m)
+  euclid-helper< (suc m) zero    (suc _) _   _   .snd .snd d' (d'∣1+m , _) = d'∣1+m
+  euclid-helper< m@(suc _) n@(suc n-1) (suc f) n<m m≤1+f =
+    let
+      n≤f = predℕ-≤-predℕ $ <≤-trans n<m m≤1+f
+      r   = euclid-helper< n (m % n) f (%< n-1 m) n≤f
+    in
+      r .fst , stepGCD (r .snd)
 
 euclid : ∀ m n → GCD m n
-euclid m n with n ≟ m
-... | lt p = euclid< m n p
-... | gt p = Σ.map-snd symGCD (euclid< n m p)
-... | eq p = m , divsGCD (∣-refl (sym p))
+euclid m zero        = m , (∣-refl refl , ∣-zeroʳ m) , λ d' (d'∣m , _) → d'∣m
+euclid m n@(suc n-1) =
+  let
+    r = euclid-helper< n (m % n) n (%< n-1 m) ≤-refl
+  in
+    r .fst , stepGCD (r .snd)
+
 
 isContrGCD : ∀ m n → isContr (GCD m n)
 isContrGCD m n = euclid m n , isPropGCD _
@@ -166,3 +217,55 @@ isGCD-multʳ {m} {n} {d} k dGCD = gcd≡→isGCD (gcd-factorʳ m n k ∙ cong (_
 
 stDivIneqGCD : ¬ m ≡ 0 → ¬ m ∣ n → (g : GCD m n) → g .fst < m
 stDivIneqGCD p q g = stDivIneq p q (g .snd .fst .fst) (g .snd .fst .snd)
+
+-- Alternative definition of GCD using % from Cubical.Data.Fin and well-founded induction
+
+private
+  lem₁ : prediv d (suc n) → prediv d (m F.% suc n) → prediv d m
+  lem₁ {d} {n} {m} (c₁ , p₁) (c₂ , p₂) = (q · c₁ + c₂) , p
+    where r = m F.% suc n; q = n%k≡n[modk] m (suc n) .fst
+          p = (q · c₁ + c₂) · d     ≡⟨ sym (·-distribʳ (q · c₁) c₂ d) ⟩
+              (q · c₁) · d + c₂ · d ≡⟨ cong (_+ c₂ · d) (sym (·-assoc q c₁ d))  ⟩
+              q · (c₁ · d) + c₂ · d ≡[ i ]⟨ q · (p₁ i) + (p₂ i) ⟩
+              q · (suc n)  + r      ≡⟨ n%k≡n[modk] m (suc n) .snd ⟩
+              m                     ∎
+
+  lem₂ : prediv d (suc n) → prediv d m → prediv d (m F.% suc n)
+  lem₂ {d} {n} {m} (c₁ , p₁) (c₂ , p₂) = c₂ ∸ q · c₁ , p
+    where r = m F.% suc n; q = n%k≡n[modk] m (suc n) .fst
+          p = (c₂ ∸ q · c₁) · d               ≡⟨ ∸-distribʳ c₂ (q · c₁) d ⟩
+              c₂ · d ∸ (q · c₁) · d           ≡⟨ cong (c₂ · d ∸_) (sym (·-assoc q c₁ d)) ⟩
+              c₂ · d ∸ q · (c₁ · d)           ≡[ i ]⟨ p₂ i ∸ q · (p₁ i) ⟩
+              m      ∸ q · (suc n)            ≡⟨ cong (_∸ q · (suc n)) (sym (n%k≡n[modk] m (suc n) .snd)) ⟩
+              (q · (suc n) + r) ∸ q · (suc n) ≡⟨ cong (_∸ q · (suc n)) (+-comm (q · (suc n)) r) ⟩
+              (r + q · (suc n)) ∸ q · (suc n) ≡⟨ ∸-cancelʳ r zero (q · (suc n)) ⟩
+              r ∎
+
+-- The inductive step of the Euclidean algorithm
+stepGCD' : isGCD (suc n) (m F.% suc n) d
+        → isGCD m       (suc n)     d
+fst (stepGCD' ((d∣n , d∣m%n) , gr)) = PropTrunc.map2 lem₁ d∣n d∣m%n , d∣n
+snd (stepGCD' ((d∣n , d∣m%n) , gr)) d' (d'∣m , d'∣n) = gr d' (d'∣n , PropTrunc.map2 lem₂ d'∣n d'∣m)
+
+-- putting it all together using well-founded induction
+
+euclid'< : ∀ m n → n < m → GCD m n
+euclid'< = WFI.induction <-wellfounded λ {
+  m rec zero    p → m , zeroGCD m ;
+  m rec (suc n) p → let d , dGCD = rec (suc n) p (m F.% suc n) (n%sk<sk m n)
+                     in d , stepGCD' dGCD }
+
+euclid' : ∀ m n → GCD m n
+euclid' m n with n ≟ m
+... | lt p = euclid'< m n p
+... | gt p = Σ.map-snd symGCD (euclid'< n m p)
+... | eq p = m , divsGCD (∣-refl (sym p))
+
+gcd' : ℕ → ℕ → ℕ
+gcd' m n = euclid' m n .fst
+
+euclid≡euclid' : ∀ m n → euclid m n ≡ euclid' m n
+euclid≡euclid' m n = isPropGCD (euclid m n) (euclid' m n)
+
+gcd≡gcd' : ∀ m n → gcd m n ≡ gcd' m n
+gcd≡gcd' m n = cong fst (euclid≡euclid' m n)

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 {-
 This file contains:
 1. The iso π₃S²≅ℤ
@@ -25,6 +25,7 @@ open import Cubical.Foundations.Equiv
 
 open import Cubical.HITs.SetTruncation renaming (elim to sElim)
 open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Multiplication
 open import Cubical.HITs.Susp
 open import Cubical.HITs.S1
 

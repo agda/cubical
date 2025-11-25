@@ -1,5 +1,3 @@
-{-# OPTIONS --cubical --safe #-}
-
 module Cubical.HITs.SphereBouquet.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -10,6 +8,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
@@ -22,8 +21,12 @@ open import Cubical.HITs.Sn
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Susp
 open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.Truncation as TR
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.SphereBouquet.Base
+
+open import Cubical.Homotopy.Connected
+open import Cubical.Homotopy.Group.Base
 
 private
   variable
@@ -54,6 +57,24 @@ isConnectedSphereBouquet {n = n} {A} =
   (λ (a , s) → sphereToPropElim n {A = λ x → ∥ inr (a , x) ≡ inl tt ∥₁}
                                   (λ x → squash₁) ∣ sym (push a) ∣₁ s)
 
+isConnectedSphereBouquet' : {n : ℕ} {A : Type ℓ}
+  → isConnected (suc (suc n)) (SphereBouquet (suc n) A)
+fst (isConnectedSphereBouquet' {n = n}) = ∣ inl tt ∣
+snd (isConnectedSphereBouquet' {n = n} {A = A}) =
+  TR.elim (λ _ → isOfHLevelPath (suc (suc n))
+                   (isOfHLevelTrunc (suc (suc n))) _ _) (lem n)
+  where
+  lem : (n : ℕ) → (a : SphereBouquet (suc n) A)
+    → Path (hLevelTrunc (suc (suc n)) (SphereBouquet (suc n) A))
+            ∣ inl tt ∣ ∣ a ∣
+  lem n (inl x) = refl
+  lem n (inr (x , y)) =
+    sphereElim n {A = λ y → ∣ inl tt ∣ ≡ ∣ inr (x , y) ∣}
+      (λ _ → isOfHLevelTrunc (suc (suc n)) _ _)
+      (cong ∣_∣ₕ (push x)) y
+  lem zero (push a i) j = ∣ push a (i ∧ j) ∣ₕ
+  lem (suc n) (push a i) j = ∣ push a (i ∧ j) ∣ₕ
+
 sphereBouquetSuspIso₀ : {A : Type ℓ}
   → Iso (⋁gen A (λ a → Susp∙ (fst (S₊∙ zero))))
       (SphereBouquet 1 A)
@@ -73,6 +94,22 @@ Iso.leftInv sphereBouquetSuspIso₀ (inl x) = refl
 Iso.leftInv sphereBouquetSuspIso₀ (inr (a , y)) i =
   inr (a , Iso.rightInv (IsoSucSphereSusp 0) y i)
 Iso.leftInv sphereBouquetSuspIso₀ (push a i) = refl
+
+SphereBouquet₀Iso : (n : ℕ)
+  → Iso (SphereBouquet zero (Fin n))
+         (Fin (suc n))
+Iso.fun (SphereBouquet₀Iso n) (inl x) = fzero
+Iso.fun (SphereBouquet₀Iso n) (inr ((x , p) , false)) = suc x , p
+Iso.fun (SphereBouquet₀Iso n) (inr ((x , p) , true)) = fzero
+Iso.fun (SphereBouquet₀Iso n) (push a i) = fzero
+Iso.inv (SphereBouquet₀Iso n) (zero , p) = inl tt
+Iso.inv (SphereBouquet₀Iso n) (suc x , p) = inr ((x , p) , false)
+Iso.rightInv (SphereBouquet₀Iso n) (zero , p) = refl
+Iso.rightInv (SphereBouquet₀Iso n) (suc x , p) = refl
+Iso.leftInv (SphereBouquet₀Iso n) (inl x) = refl
+Iso.leftInv (SphereBouquet₀Iso n) (inr (x , false)) = refl
+Iso.leftInv (SphereBouquet₀Iso n) (inr (x , true)) = push x
+Iso.leftInv (SphereBouquet₀Iso n) (push a i) j = push a (i ∧ j)
 
 --a sphere bouquet is the wedge sum of A n-dimensional spheres
 sphereBouquetSuspIso : {A : Type ℓ} {n : ℕ}
@@ -351,3 +388,61 @@ module _ {Cₙ Cₙ₊₁ : Type ℓ} (n mₙ : ℕ)
 
   Bouquet≃-gen : cofib (invEq e ∘ inl) ≃ SphereBouquet n (Fin mₙ)
   Bouquet≃-gen = isoToEquiv BouquetIso-gen
+
+-- A 'normal form' for functions of type ⋁Sⁿ → ⋁Sⁿ
+normalFormCofibFun : ∀ {n m k : ℕ}
+  (α : SphereBouquet∙ (suc n) (Fin m) →∙ SphereBouquet∙ (suc n) (Fin k))
+  (f : S₊∙ (suc n) →∙ (cofib (fst α) , inl tt))
+  → ∃[ f' ∈ S₊∙ (suc n) →∙ SphereBouquet∙ (suc n) (Fin k) ]
+      (((inr , (λ i → inr (α .snd (~ i))) ∙ sym (push (inl tt))) ∘∙ f') ≡ f)
+normalFormCofibFun {n = n} {m} {k} α f =
+  PT.rec squash₁
+    (λ g → TR.rec (isProp→isOfHLevelSuc n squash₁)
+      (λ gid → ∣ ((λ x → g x .fst) , (cong fst gid))
+               , ΣPathP ((λ i x → g x .snd i)
+               , (lem _ _ _ _ _ _ _ _ _ _ (cong snd gid))) ∣₁)
+      (isConnectedPath (suc n)
+        (help (fst f (ptSn (suc n)))) (g (ptSn (suc n)))
+          ((inl tt) , (((λ i → inr (α .snd (~ i)))
+          ∙ sym (push (inl tt))) ∙ sym (snd f))) .fst))
+    makefun
+  where
+  lem : ∀ {ℓ} {A : Type ℓ} (x y : A) (inrgid : x ≡ y)
+    (z : _) (inrα : y ≡ z) (w : _) (pushtt : z ≡ w)
+    (t : _) (snf : w ≡ t) (s : x ≡ t)
+    → Square s ((inrα ∙ pushtt) ∙ snf) inrgid refl
+    → Square (inrgid ∙ inrα ∙ pushtt) (sym snf) s refl
+  lem x = J> (J> (J> (J> λ s sq → (sym (lUnit _) ∙ sym (rUnit _))
+    ◁ λ i j → (sq ∙ sym (rUnit _) ∙ sym (rUnit _)) j i)))
+  cool : (x : S₊ (suc n)) → Type
+  cool x =
+    Σ[ x' ∈ SphereBouquet (suc n) (Fin k) ]
+      Σ[ y ∈ ((ptSn (suc n) ≡ x) → inl tt ≡ x') ]
+        Σ[ feq ∈ inr x' ≡ fst f x ]
+          ((p : ptSn (suc n) ≡ x)
+            → Square ((λ i → inr (snd α (~ i))) ∙ sym (push (inl tt))) (snd f)
+                      ((λ i → inr (y p i)) ∙∙ feq ∙∙ cong (fst f) (sym p)) refl)
+
+  inr' : SphereBouquet (suc n) (Fin k) → cofib (fst α)
+  inr' = inr
+
+  help : isConnectedFun (suc (suc n)) inr'
+  help = inrConnected _ _ _
+          (isConnected→isConnectedFun _ isConnectedSphereBouquet')
+
+  makefun : ∥ ((x : _)
+           → Σ[ x' ∈ SphereBouquet (suc n) (Fin k) ] inr x' ≡ fst f x) ∥₁
+  makefun = sphereToTrunc _ λ x → help (fst f x) .fst
+
+-- H-space structure
+SphereBouquet∙Π : ∀ {ℓ ℓ'} {n : ℕ} {A : Type ℓ} {B : Pointed ℓ'}
+  → (f g : SphereBouquet∙ (suc n) A →∙ B)
+  → (SphereBouquet∙ (suc n) A →∙ B)
+fst (SphereBouquet∙Π {B = B} f g) (inl x) = pt B
+fst (SphereBouquet∙Π {B = B} f g) (inr (a , s)) =
+  ∙Π ((λ x → fst f (inr (a , x))) , cong (fst f) (sym (push a)) ∙ snd f)
+     ((λ x → fst g (inr (a , x))) , cong (fst g) (sym (push a)) ∙ snd g) .fst s
+fst (SphereBouquet∙Π {B = B} f g) (push a i) =
+  ∙Π ((λ x → fst f (inr (a , x))) , cong (fst f) (sym (push a)) ∙ snd f)
+     ((λ x → fst g (inr (a , x))) , cong (fst g) (sym (push a)) ∙ snd g) .snd (~ i)
+snd (SphereBouquet∙Π f g) = refl

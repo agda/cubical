@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Instances.Functors.Currying where
 
@@ -75,7 +74,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     F-seq (λF⁻ a) _ (eG , cG) =
      cong₂ (seq' D) (F-seq (F-ob a _) _ _) (cong (flip N-ob _)
            (F-seq a _ _))
-          ∙ AssocCong₂⋆R {C = D} _
+          ∙ AssocCong₂⋆R D
               (N-hom ((F-hom a _) ●ᵛ (F-hom a _)) _ ∙
                 (⋆Assoc D _ _ _) ∙
                   cong (seq' D _) (sym (N-hom (F-hom a eG) cG)))
@@ -85,7 +84,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     N-ob (F-hom λF⁻Functor x) = uncurry (N-ob ∘→ N-ob x)
     N-hom ((F-hom λF⁻Functor) {F} {F'} x) {xx} {yy} =
      uncurry λ hh gg →
-                AssocCong₂⋆R {C = D} _ (cong N-ob (N-hom x hh) ≡$ _)
+                AssocCong₂⋆R D (cong N-ob (N-hom x hh) ≡$ _)
             ∙∙ cong (comp' D _) ((N-ob x (fst xx) .N-hom) gg)
             ∙∙ D .⋆Assoc _ _ _
 

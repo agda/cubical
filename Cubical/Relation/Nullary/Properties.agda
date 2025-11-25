@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 
 Properties of nullary relations, i.e. structures on types.
@@ -17,13 +16,14 @@ open import Cubical.Functions.Fixpoint
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma.Base using (_×_)
+open import Cubical.Data.Sum.Base
 
 open import Cubical.Relation.Nullary.Base
 open import Cubical.HITs.PropositionalTruncation.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A B : Type ℓ
     P : A -> Type ℓ
 
@@ -60,6 +60,13 @@ Stable× : Stable A -> Stable B -> Stable (A × B)
 Stable× As Bs e = λ where
   .fst → As λ k → e (k ∘ fst)
   .snd → Bs λ k → e (k ∘ snd)
+
+StableΣ : ∀ {A : Type ℓ} {P : A → Type ℓ'} →
+  Stable A → isProp A → ((a : A) → Stable (P a)) → Stable (Σ A P)
+StableΣ {P = P} As Aprop Ps e =
+  let a = (As (λ notA → e (λ (a , _) → notA a))) in
+  a ,
+  Ps a λ notPa → e (λ (a' , p) → notPa (subst P (Aprop a' a) p))
 
 fromYes : A → Dec A → A
 fromYes _ (yes a) = a
@@ -205,3 +212,8 @@ Discrete→isSet = Separated→isSet ∘ Discrete→Separated
 ≡no : ∀ {A : Type ℓ} x y → Path (Dec A) x (no y)
 ≡no (yes p) y = ⊥.rec (y p)
 ≡no (no ¬p) y i = no (isProp¬ _ ¬p y i)
+
+inhabitedFibres? : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'}
+  (f : A → B) → Type (ℓ-max ℓ ℓ')
+inhabitedFibres? {A = A} {B = B} f =
+  (y : B) → (Σ[ x ∈ A ] f x ≡ y) ⊎ ((x : A) → ¬ f x ≡ y)

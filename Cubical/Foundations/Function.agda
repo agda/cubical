@@ -1,7 +1,6 @@
 {-
   Definitions for functions
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Function where
 
 open import Cubical.Foundations.Prelude
@@ -19,6 +18,15 @@ private
 -- The identity function
 idfun : (A : Type ℓ) → A → A
 idfun _ x = x
+
+-- The membership relation (used to clarify the type of a term to Agda when inside a definition, like :: in Haskell)
+-- We introduce the syntax "x :> A" below.
+hasType : (A : Type ℓ) → A → A
+hasType _ x = x
+
+infixr -8 hasType
+
+syntax hasType A x = x :> A
 
 infixr -1 _$_
 

@@ -5,7 +5,7 @@
 
 -}
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Limits.RightKan where
 
 open import Cubical.Foundations.Prelude
@@ -106,9 +106,9 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
   path v = (F-hom Ran f) ⋆⟨ A ⟩ (F-hom Ran g) ⋆⟨ A ⟩ (limOut (limitA (z ↓Diag) (T* z)) v)
          ≡⟨ ⋆Assoc A _ _ _ ⟩
            (F-hom Ran f) ⋆⟨ A ⟩ ((F-hom Ran g) ⋆⟨ A ⟩ (limOut (limitA (z ↓Diag) (T* z)) v))
-         ≡⟨ cong (seq' A (F-hom Ran f)) (limArrowCommutes _ _ _ _) ⟩
+         ≡⟨ cong (seq' A (F-hom Ran f)) (limArrowCommutes (limitA _ _) _ _ _) ⟩
            (F-hom Ran f) ⋆⟨ A ⟩ limOut (limitA (y ↓Diag) (T* y)) (j g .F-ob v)
-         ≡⟨ limArrowCommutes _ _ _ _ ⟩
+         ≡⟨ limArrowCommutes (limitA _ _) _ _ _ ⟩
            limOut (limitA (x ↓Diag) (T* x)) (j f .F-ob (j g .F-ob v))
          ≡⟨ RanConeTrans f g v ⟩
            coneOut (RanCone (f ⋆⟨ C ⟩ g)) v ∎
@@ -121,7 +121,7 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
      Ran .F-hom (K .F-hom f) ⋆⟨ A ⟩ coneOut (RanCone (id C)) (v , id C)
    ≡⟨ cong (λ g → Ran .F-hom (K .F-hom f) ⋆⟨ A ⟩ g) (sym (RanConeRefl (v , id C))) ⟩
      Ran .F-hom (K .F-hom f) ⋆⟨ A ⟩ limOut (limitA ((K .F-ob v) ↓Diag) (T* (K .F-ob v))) (v , id C)
-   ≡⟨ limArrowCommutes _ _ _ _ ⟩
+   ≡⟨ limArrowCommutes (limitA _ _) _ _ _ ⟩
      coneOut (RanCone (K .F-hom f)) (v , id C)
    ≡⟨ cong (λ g → limOut (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) (v , g))
                          (⋆IdR C (K .F-hom f) ∙ sym (⋆IdL C (K .F-hom f))) ⟩
@@ -169,15 +169,15 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
          (S .F-hom f ⋆⟨ A ⟩ N-ob σ y) ⋆⟨ A ⟩ limOut (limitA (y ↓Diag) (T* y)) (u , g)
        ≡⟨ ⋆Assoc A _ _ _ ⟩
          S .F-hom f ⋆⟨ A ⟩ (N-ob σ y ⋆⟨ A ⟩ limOut (limitA (y ↓Diag) (T* y)) (u , g))
-       ≡⟨ cong (seq' A (S .F-hom f)) (limArrowCommutes _ _ _ _) ⟩
+       ≡⟨ cong (seq' A (S .F-hom f)) (limArrowCommutes (limitA _ _) _ _ _) ⟩
          S .F-hom f ⋆⟨ A ⟩ (S .F-hom g ⋆⟨ A ⟩ α .N-ob u)
        ≡⟨ sym (⋆Assoc A _ _ _) ⟩
          (S .F-hom f ⋆⟨ A ⟩ S .F-hom g) ⋆⟨ A ⟩ α .N-ob u
        ≡⟨ cong (λ h → h ⋆⟨ A ⟩ α .N-ob u) (sym (S .F-seq _ _)) ⟩
          S .F-hom (f ⋆⟨ C ⟩ g) ⋆⟨ A ⟩ α .N-ob u
-       ≡⟨ sym (limArrowCommutes _ _ _ _) ⟩
+       ≡⟨ sym (limArrowCommutes (limitA _ _) _ _ _) ⟩
          N-ob σ x ⋆⟨ A ⟩ limOut (limitA (x ↓Diag) (T* x)) (u , f ⋆⟨ C ⟩ g)
-       ≡⟨ cong (seq' A (N-ob σ x)) (sym (limArrowCommutes _ _ _ _)) ⟩
+       ≡⟨ cong (seq' A (N-ob σ x)) (sym (limArrowCommutes (limitA _ _) _ _ _)) ⟩
          N-ob σ x ⋆⟨ A ⟩ (Ran .F-hom f ⋆⟨ A ⟩ limOut (limitA (y ↓Diag) (T* y)) (u , g))
        ≡⟨ sym (⋆Assoc A _ _ _) ⟩
          (N-ob σ x ⋆⟨ A ⟩ Ran .F-hom f) ⋆⟨ A ⟩ limOut (limitA (y ↓Diag) (T* y)) (u , g) ∎
@@ -200,7 +200,7 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
          S .F-hom (id C ⋆⟨ C ⟩ id C) ⋆⟨ A ⟩ α .N-ob u
        ≡⟨ refl ⟩
          NatTransCone S α (F-ob K u) .coneOut (u , id C ⋆⟨ C ⟩ id C)
-       ≡⟨ sym (limArrowCommutes _ _ _ _) ⟩
+       ≡⟨ sym (limArrowCommutes (limitA _ _) _ _ _) ⟩
          limArrow (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) _ (NatTransCone S α (F-ob K u))
            ⋆⟨ A ⟩ limOut (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) (u , id C ⋆⟨ C ⟩ id C) ∎
 

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.DistLattice.Downset where
 
 open import Cubical.Foundations.Prelude
@@ -16,6 +15,7 @@ open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice.Base
 
 open import Cubical.Relation.Binary.Order.Poset
+open import Cubical.Relation.Binary.Order.Poset.Subset
 
 open Iso
 

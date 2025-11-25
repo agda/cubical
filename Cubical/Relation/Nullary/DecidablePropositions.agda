@@ -1,12 +1,15 @@
-{-# OPTIONS --safe #-}
 module Cubical.Relation.Nullary.DecidablePropositions where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
+open import Cubical.Data.FinSet
+open import Cubical.Data.Sum
+open import Cubical.Data.Empty
 
 open import Cubical.Relation.Nullary.Base
 open import Cubical.Relation.Nullary.Properties
@@ -47,3 +50,18 @@ isPropIsDecProp p q =
 isDecPropRespectEquiv : {P : Type ℓ} {Q : Type ℓ'}
   → P ≃ Q → isDecProp Q → isDecProp P
 isDecPropRespectEquiv e (t , e') = t , e ⋆ e'
+
+DecProp→isFinOrd :
+  ∀ {ℓ} → (A : DecProp ℓ) → isFinOrd (A .fst .fst)
+DecProp→isFinOrd A =
+  decRec
+    (λ a →
+      1 ,
+      isoToEquiv
+      (iso
+        (λ _ → inl _)
+        (λ { (inl tt) → a ; (inr ()) })
+        (λ { (inl tt) → refl ; (inr ()) })
+        (λ a → A .fst .snd _ _)))
+    (λ ¬a → 0 , uninhabEquiv ¬a (λ x → x))
+    (A .snd)

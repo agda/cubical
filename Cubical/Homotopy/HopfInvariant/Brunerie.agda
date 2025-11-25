@@ -6,7 +6,7 @@ product. The proof follows Proposition 5.4.4. in Brunerie (2016)
 closely, but, for simplicity, considers only the case n = 2.
 -}
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Homotopy.HopfInvariant.Brunerie where
 
 open import Cubical.Homotopy.HopfInvariant.Base
@@ -64,7 +64,7 @@ open PlusBis
 
 -- Some abstract versions of imported lemmas/definitions from
 -- ZCohomology.Groups.SphereProduct for faster type checking.
-abstract
+opaque
   H²-genₗabs : coHom 2 (S₊ 2 × S₊ 2)
   H²-genₗabs = H²-S²×S²-genₗ
 
@@ -391,8 +391,7 @@ Brunerie'≡2 = BrunerieNumLem.main (Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ-abs 1 1) Hⁿ�
 -- number in Brunerie (2016)
 Brunerie'≡Brunerie : [ ∣ idfun∙ (S₊∙ 2) ∣₂ ∣ ∣ idfun∙ (S₊∙ 2) ∣₂ ]π' ≡ ∣ fold∘W , refl ∣₂
 Brunerie'≡Brunerie =
-    cong ∣_∣₂ ([]≡[]₂ (idfun∙ (S₊∙ 2)) (idfun∙ (S₊∙ 2)) )
-  ∙ sym fold∘W≡Whitehead
+    sym fold∘W≡Whitehead
   ∙ cong ∣_∣₂ (∘∙-idˡ (fold∘W , refl))
 
 -- And we get the main result

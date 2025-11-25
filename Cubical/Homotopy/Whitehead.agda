@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Homotopy.Whitehead where
 
 open import Cubical.Foundations.Prelude
@@ -15,15 +15,36 @@ open import Cubical.Data.Unit
 open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Multiplication
 open import Cubical.HITs.Join
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.SetTruncation
 
 open import Cubical.Homotopy.Group.Base
+open import Cubical.Homotopy.Loopspace
 
 open Iso
 open 3x3-span
 
+-- Whitehead product (main definition)
+[_∣_]-pre : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       → (S₊∙ (suc n) →∙ X)
+       → (S₊∙ (suc m) →∙ X)
+       → join∙ (S₊∙ n) (S₊∙ m) →∙ X
+fst ([_∣_]-pre {X = X} {n = n} {m = m} f g) (inl x) = pt X
+fst ([_∣_]-pre {X = X} {n = n} {m = m} f g) (inr x) = pt X
+fst ([_∣_]-pre {n = n} {m = m} f g) (push a b i) =
+  (Ω→ g .fst (σS b) ∙ Ω→ f .fst (σS a)) i
+snd ([_∣_]-pre {n = n} {m = m} f g) = refl
+
+[_∣_] : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       → (S₊∙ (suc n) →∙ X)
+       → (S₊∙ (suc m) →∙ X)
+       → S₊∙ (suc (n + m)) →∙ X
+[_∣_] {n = n} {m = m} f g =
+  [ f ∣ g ]-pre ∘∙ (sphere→Join n m , IsoSphereJoin⁻Pres∙ n m)
+
+-- Whitehead product (as a composition)
 joinTo⋁ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
  → join (typ A) (typ B)
  → (Susp (typ A) , north) ⋁ (Susp (typ B) , north)
@@ -34,63 +55,100 @@ joinTo⋁ {A = A} {B = B} (push a b i) =
   ∙∙ sym (push tt)
   ∙∙ λ i → inl (σ A a i)) i
 
--- Whitehead product (main definition)
-[_∣_] : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+[_∣_]comp : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
        → (S₊∙ (suc n) →∙ X)
        → (S₊∙ (suc m) →∙ X)
        → S₊∙ (suc (n + m)) →∙ X
-fst ([_∣_] {X = X} {n = n} {m = m} f g) x =
-  _∨→_ (f ∘∙ (inv (IsoSucSphereSusp n) , IsoSucSphereSusp∙ n))
-        (g ∘∙ (inv (IsoSucSphereSusp m) , IsoSucSphereSusp∙ m))
-        (joinTo⋁ {A = S₊∙ n} {B = S₊∙ m}
-          (inv (IsoSphereJoin n m) x))
-snd ([_∣_] {n = n} {m = m} f g) =
-  cong (_∨→_ (f ∘∙ (inv (IsoSucSphereSusp n) , IsoSucSphereSusp∙ n))
-       (g ∘∙ (inv (IsoSucSphereSusp m) , IsoSucSphereSusp∙ m)))
-       (cong (joinTo⋁ {A = S₊∙ n} {B = S₊∙ m}) (IsoSphereJoin⁻Pres∙ n m))
-    ∙ cong (fst g) (IsoSucSphereSusp∙ m)
-    ∙ snd g
+[_∣_]comp {n = n} {m = m} f g =
+    (((f ∘∙ (inv (IsoSucSphereSusp n) , IsoSucSphereSusp∙ n))
+  ∨→ (g ∘∙ (inv (IsoSucSphereSusp m) , IsoSucSphereSusp∙ m))
+    , cong (fst f) (IsoSucSphereSusp∙ n) ∙ snd f)
+  ∘∙ ((joinTo⋁ {A = S₊∙ n} {B = S₊∙ m} , sym (push tt))))
+  ∘∙ (inv (IsoSphereJoin n m) , IsoSphereJoin⁻Pres∙ n m)
 
--- For Sⁿ, Sᵐ with n, m ≥ 2, we can avoid some bureaucracy. We make
--- a separate definition and prove it equivalent.
-[_∣_]-pre : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
-       → (S₊∙ (suc (suc n)) →∙ X)
-       → (S₊∙ (suc (suc m)) →∙ X)
-       → join (typ (S₊∙ (suc n))) (typ (S₊∙ (suc m))) → fst X
-[_∣_]-pre {n = n} {m = m} f g x =
-  _∨→_ f g
-        (joinTo⋁ {A = S₊∙ (suc n)} {B = S₊∙ (suc m)}
-        x)
+[]comp≡[] : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       → (f : (S₊∙ (suc n) →∙ X))
+       → (g : (S₊∙ (suc m) →∙ X))
+       → [ f ∣ g ]comp ≡ [ f ∣ g ]
+[]comp≡[] {X = X} {n = n} {m} f g =
+  cong (_∘∙ (sphere→Join n m , IsoSphereJoin⁻Pres∙ n m)) (main n m f g)
+    where
+    ∨fun : {n m : ℕ} (f : (S₊∙ (suc n) →∙ X)) (g : (S₊∙ (suc m) →∙ X))
+      → ((_ , inl north) →∙ X)
+    ∨fun {n = n} {m} f g =
+       ((f ∘∙ (inv (IsoSucSphereSusp n) , IsoSucSphereSusp∙ n)) ∨→
+       (g ∘∙ (inv (IsoSucSphereSusp m) , IsoSucSphereSusp∙ m))
+       , cong (fst f) (IsoSucSphereSusp∙ n) ∙ snd f)
 
-[_∣_]₂ : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
-       → (S₊∙ (suc (suc n)) →∙ X)
-       → (S₊∙ (suc (suc m)) →∙ X)
-       → S₊∙ (suc ((suc n) + (suc m))) →∙ X
-fst ([_∣_]₂ {n = n} {m = m} f g) x =
-  [ f ∣ g ]-pre (inv (IsoSphereJoin (suc n) (suc m)) x)
-snd ([_∣_]₂ {n = n} {m = m} f g) =
-    cong ([ f ∣ g ]-pre) (IsoSphereJoin⁻Pres∙ (suc n) (suc m))
-  ∙ snd g
+    open import Cubical.Foundations.Path
+    main : (n m : ℕ) (f : (S₊∙ (suc n) →∙ X)) (g : (S₊∙ (suc m) →∙ X))
+      → (∨fun f g ∘∙ (joinTo⋁ {A = S₊∙ n} {B = S₊∙ m} , sym (push tt)))
+      ≡ [ f ∣ g ]-pre
+    main n m f g =
+      ΣPathP ((funExt (λ { (inl x) → rp
+                         ; (inr x) → lp
+                         ; (push a b i) j → pushcase a b j i}))
+          , ((cong₂ _∙_ (symDistr _ _) refl
+          ∙ sym (assoc _ _ _)
+          ∙ cong (rp ∙_) (rCancel _)
+          ∙ sym (rUnit rp))
+          ◁ λ i j → rp (i ∨ j)))
+      where
+      lp = cong (fst f) (IsoSucSphereSusp∙ n) ∙ snd f
+      rp = cong (fst g) (IsoSucSphereSusp∙ m) ∙ snd g
 
-[]≡[]₂ : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
-       → (f : (S₊∙ (suc (suc n)) →∙ X))
-       → (g : (S₊∙ (suc (suc m)) →∙ X))
-       → [ f ∣ g ] ≡ [ f ∣ g ]₂
-[]≡[]₂ {n = n} {m = m} f g =
-  ΣPathP (
-    (λ i x → _∨→_ (∘∙-idˡ f i)
-                    (∘∙-idˡ g i)
-                (joinTo⋁ {A = S₊∙ (suc n)} {B = S₊∙ (suc m)}
-                 (inv (IsoSphereJoin (suc n) (suc m)) x)))
-  , (cong (cong (_∨→_ (f ∘∙ idfun∙ _)
-                       (g ∘∙ idfun∙ _))
-       (cong (joinTo⋁ {A = S₊∙ (suc n)} {B = S₊∙ (suc m)})
-             (IsoSphereJoin⁻Pres∙ (suc n) (suc m))) ∙_)
-                (sym (lUnit (snd g)))
-  ◁ λ j → (λ i → _∨→_ (∘∙-idˡ f j)
-                        (∘∙-idˡ g j)
-           ( joinTo⋁ {A = S₊∙ (suc n)} {B = S₊∙ (suc m)}
-          ((IsoSphereJoin⁻Pres∙ (suc n) (suc m)) i))) ∙ snd g))
+      help : (n : ℕ) (a : _)
+        → Square (cong (inv (IsoSucSphereSusp n)) (σ (S₊∙ n) a)) (σS a)
+                  (IsoSucSphereSusp∙ n) (IsoSucSphereSusp∙ n)
+      help zero a = cong-∙ SuspBool→S¹ (merid a) (sym (merid (pt (S₊∙ zero))))
+                  ∙ sym (rUnit _)
+      help (suc n) a = refl
+
+      ∙∙Distr∙ : ∀ {ℓ} {A : Type ℓ} {x y z w u : A}
+                 {p : x ≡ y} {q : y ≡ z} {r : z ≡ w} {s : w ≡ u}
+               → p ∙∙ q ∙ r ∙∙ s ≡ ((p ∙ q) ∙ r ∙ s)
+      ∙∙Distr∙ = doubleCompPath≡compPath _ _ _
+               ∙ assoc _ _ _
+               ∙ cong₂ _∙_ (assoc _ _ _) refl
+               ∙ sym (assoc _ _ _)
+
+
+      pushcase : (a : S₊ n) (b : S₊ m)
+        → Square (cong (∨fun f g .fst ∘ joinTo⋁ {A = S₊∙ n} {B = S₊∙ m}) (push a b))
+                  (cong (fst [ f ∣ g ]-pre) (push a b))
+                  rp lp
+      pushcase a b =
+        (cong-∙∙ (∨fun f g .fst) _ _ _
+        ∙ (λ i → cong (fst g) (PathP→compPathR∙∙ (help _ b) i)
+              ∙∙ symDistr lp (sym rp) i
+              ∙∙ cong (fst f) (PathP→compPathR∙∙ (help _ a) i))
+        ∙ (λ i → cong (fst g)
+                      (IsoSucSphereSusp∙ m
+                     ∙∙ σS b
+                     ∙∙ (λ j → IsoSucSphereSusp∙ m (~ j ∨ i)))
+              ∙∙ compPath-filler' (cong (fst g) (IsoSucSphereSusp∙ m)) (snd g) (~ i)
+               ∙ sym (compPath-filler' (cong (fst f) (IsoSucSphereSusp∙ n)) (snd f) (~ i))
+              ∙∙ cong (fst f)
+                      ((λ j → IsoSucSphereSusp∙ n (i ∨ j))
+                      ∙∙ σS a
+                      ∙∙ sym (IsoSucSphereSusp∙ n))))
+       ◁ compPathR→PathP∙∙
+           ( ∙∙Distr∙
+          ∙ cong₂ _∙_ (cong₂ _∙_ (cong (cong (fst g)) (sym (compPath≡compPath' _ _)))
+                                 refl)
+                      refl
+          ∙ cong₂ _∙_ (cong (_∙ snd g) (cong-∙ (fst g) (IsoSucSphereSusp∙ m) (σS b))
+                                     ∙ sym (assoc _ _ _))
+                      (cong (sym (snd f) ∙_)
+                        (cong-∙ (fst f) (σS a)
+                          (sym (IsoSucSphereSusp∙ n)))
+                         ∙ assoc _ _ _)
+          ∙ sym ∙∙Distr∙
+          ∙ cong₃ _∙∙_∙∙_ refl (cong₂ _∙_ refl (compPath≡compPath' _ _)) refl
+         ∙ λ i → compPath-filler (cong (fst g) (IsoSucSphereSusp∙ m)) (snd g) i
+               ∙∙ ((λ j → snd g (~ j ∧ i)) ∙∙ cong (fst g) (σS b) ∙∙ snd g)
+                ∙ (sym (snd f) ∙∙ cong (fst f) (σS a) ∙∙ λ j → snd f (j ∧ i))
+               ∙∙ sym (compPath-filler (cong (fst f) (IsoSucSphereSusp∙ n)) (snd f) i))
 
 -- Homotopy group version
 [_∣_]π' : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
@@ -408,3 +466,105 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
       ∙∙ sym (lUnit (λ i₁ → north , σB a (~ i₁))))
        ∙ (λ i j → north , cong-∙ invSusp (merid a) (sym (merid b₀)) i (~ j) )
         ◁ λ i j → north , compPath-filler (sym (merid a)) (merid b₀) (~ i) (~ j)
+
+-- Generalised Whitehead products
+module _ {ℓ ℓ' ℓ''} {A : Pointed ℓ}
+         {B : Pointed ℓ'} {C : Pointed ℓ''}
+         (f : Susp∙ (typ A) →∙ C) (g : Susp∙ (typ B) →∙ C) where
+
+  _·w_ : join∙ A B →∙ C
+  fst _·w_ (inl x) = pt C
+  fst _·w_ (inr x) = pt C
+  fst _·w_ (push a b i) = (Ω→ g .fst (σ B b) ∙ Ω→ f .fst (σ A a)) i
+  snd _·w_ = refl
+
+  -- The generalised Whitehead product vanishes under suspension
+  isConst-Susp·w : suspFun∙ (_·w_ .fst) ≡ const∙ _ _
+  isConst-Susp·w = Susp·w∙
+                 ∙ cong suspFun∙ (cong fst isConst-const*)
+                 ∙ ΣPathP ((suspFunConst (pt C)) , refl)
+    where
+    const* : join∙ A B →∙ C
+    fst const* (inl x) = pt C
+    fst const* (inr x) = pt C
+    fst const* (push a b i) =
+      (Ω→ f .fst (σ A a) ∙ Ω→ g .fst (σ B b)) i
+    snd const* = refl
+
+    isConst-const* : const* ≡ const∙ _ _
+    fst (isConst-const* i) (inl x) = Ω→ f .fst (σ A x) i
+    fst (isConst-const* i) (inr x) = Ω→ g .fst (σ B x) (~ i)
+    fst (isConst-const* i) (push a b j) =
+      compPath-filler'' (Ω→ f .fst (σ A a)) (Ω→ g .fst (σ B b)) (~ i) j
+    snd (isConst-const* i) j =
+      (cong (Ω→ f .fst) (rCancel (merid (pt A))) ∙ Ω→ f .snd) j i
+
+    Susp·w : suspFun (fst _·w_) ≡ suspFun (fst const*)
+    Susp·w i north = north
+    Susp·w i south = south
+    Susp·w i (merid (inl x) j) = merid (pt C) j
+    Susp·w i (merid (inr x) j) = merid (pt C) j
+    Susp·w i (merid (push a b k) j) =
+      hcomp (λ r →
+        λ {(i = i0) → fill₁ k (~ r) j
+         ; (i = i1) → fill₂ k (~ r) j
+         ; (j = i0) → north
+         ; (j = i1) → merid (pt C) r
+         ; (k = i0) → compPath-filler (merid (snd C)) (merid (pt C) ⁻¹) (~ r) j
+         ; (k = i1) → compPath-filler (merid (snd C)) (merid (pt C) ⁻¹) (~ r) j})
+       (hcomp (λ r →
+        λ {(i = i0) → doubleCompPath-filler
+                         (sym (rCancel (merid (pt C))))
+                         (λ k → fill₁ k i1)
+                         (rCancel (merid (pt C))) (~ r) k j
+         ; (i = i1) → doubleCompPath-filler
+                         (sym (rCancel (merid (pt C))))
+                         (λ k → fill₂ k i1)
+                         (rCancel (merid (pt C))) (~ r) k j
+         ; (j = i0) → north
+         ; (j = i1) → north
+         ; (k = i0) → rCancel (merid (pt C)) (~ r) j
+         ; (k = i1) → rCancel (merid (pt C)) (~ r) j})
+           (main i k j))
+      where
+      F : Ω C .fst → (Ω^ 2) (Susp∙ (fst C)) .fst
+      F p = sym (rCancel (merid (pt C)))
+         ∙∙ cong (σ C) p
+         ∙∙ rCancel (merid (pt C))
+
+      F-hom : (p q : _) → F (p ∙ q) ≡ F p ∙ F q
+      F-hom p q =
+          cong (sym (rCancel (merid (pt C)))
+               ∙∙_∙∙ rCancel (merid (pt C)))
+               (cong-∙ (σ C) p q)
+        ∙ doubleCompPath≡compPath (sym (rCancel (merid (pt C)))) _ _
+        ∙ cong (sym (rCancel (merid (pt C))) ∙_)
+               (sym (assoc _ _ _))
+        ∙ assoc _ _ _
+        ∙ (λ i → (sym (rCancel (merid (pt C)))
+                ∙ compPath-filler (cong (σ C) p) (rCancel (merid (pt C))) i)
+                ∙ compPath-filler' (sym (rCancel (merid (pt C))))
+                                   (cong (σ C) q ∙ rCancel (merid (pt C))) i)
+        ∙ cong₂ _∙_ (sym (doubleCompPath≡compPath _ _ _))
+                    (sym (doubleCompPath≡compPath _ _ _))
+
+      main : F ((Ω→ g .fst (σ B b) ∙ Ω→ f .fst (σ A a)))
+           ≡ F ((Ω→ f .fst (σ A a) ∙ Ω→ g .fst (σ B b)))
+      main = F-hom (Ω→ g .fst (σ B b)) (Ω→ f .fst (σ A a))
+           ∙ EH 0 _ _
+           ∙ sym (F-hom (Ω→ f .fst (σ A a)) (Ω→ g .fst (σ B b)))
+
+      fill₁ : (k : I) → _
+      fill₁ k = compPath-filler
+                (merid ((Ω→ g .fst (σ B b)
+                       ∙ Ω→ f .fst (σ A a)) k))
+                (merid (pt C) ⁻¹)
+
+      fill₂ : (k : I) → _
+      fill₂ k = compPath-filler
+                (merid ((Ω→ f .fst (σ A a)
+                       ∙ Ω→ g .fst (σ B b)) k))
+                (merid (pt C) ⁻¹)
+
+    Susp·w∙ : suspFun∙ (_·w_ .fst) ≡ suspFun∙ (fst const*)
+    Susp·w∙ = ΣPathP (Susp·w , refl)

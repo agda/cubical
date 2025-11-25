@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.AbGroup.Instances.DirectSumFun where
 
 open import Cubical.Foundations.Prelude

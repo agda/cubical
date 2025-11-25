@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
@@ -11,11 +10,11 @@ open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Properties
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Constructions.Vertical
 
 module Cubical.Categories.Displayed.Cartesian where
 
@@ -149,39 +148,27 @@ module Covariant
     module _ (fᴰ-isIsoᴰ : isIsoᴰ Cᴰ f-isIso fᴰ) where
       open isIsoᴰ fᴰ-isIsoᴰ
 
-      private basepath : {c : B.ob} (g : B [ b , c ]) → inv B.⋆ f B.⋆ g ≡ g
-      basepath g =
-          sym (B.⋆Assoc _ _ _)
-        ∙ cong (B._⋆ g) sec
-        ∙ B.⋆IdL _
-      {-# INLINE basepath #-}
-
       isIsoᴰ→isOpcartesian : isOpcartesian fᴰ
       isIsoᴰ→isOpcartesian g .equiv-proof fgᴰ .fst .fst =
         R.reind
-          (basepath g)
+          ( sym (B.⋆Assoc _ _ _)
+          ∙ B.⟨ sec ⟩⋆⟨ refl ⟩
+          ∙ B.⋆IdL _)
           (invᴰ ⋆ᴰ fgᴰ)
       isIsoᴰ→isOpcartesian g .equiv-proof fgᴰ .fst .snd =
-        R.≡[]-rectify $
-          (refl R.[ refl ]⋆[ sym (basepath g) ] symP (R.reind-filler (basepath g) _))
-            R.[ _ ]∙[ _ ]
-          symP (Cᴰ.⋆Assocᴰ fᴰ invᴰ fgᴰ)
-            R.[ sym $ B.⋆Assoc f inv (f B.⋆ g) ]∙[ _ ]
-          (retᴰ R.[ ret ]⋆[ refl ] refl)
-            R.[ _ ]∙[ _ ]
-          Cᴰ.⋆IdLᴰ fgᴰ
+        R.rectify $ R.≡out $
+            R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
+          ∙ sym (R.⋆Assoc _ _ _)
+          ∙ R.⟨ R.≡in retᴰ ⟩⋆⟨ refl ⟩
+          ∙ R.⋆IdL _
       isIsoᴰ→isOpcartesian g .equiv-proof fgᴰ .snd (gᴰ , gᴰ-infib) =
         Σ≡Prop (λ _ → isOfHLevelPathP' 1 Cᴰ.isSetHomᴰ _ _) $
-          R.≡[]-rectify $
-            symP (R.reind-filler (basepath g) _)
-              R.[ sym (basepath g) ]∙[ _ ]
-            (refl R.[ refl ]⋆[ refl ] symP gᴰ-infib)
-              R.[ _ ]∙[ _ ]
-            symP (Cᴰ.⋆Assocᴰ invᴰ fᴰ gᴰ)
-              R.[ sym (B.⋆Assoc inv f g) ]∙[ _ ]
-            (secᴰ R.[ sec ]⋆[ refl ] refl)
-              R.[ _ ]∙[ _ ]
-            Cᴰ.⋆IdLᴰ gᴰ
+          R.rectify $ R.≡out $
+              sym (R.reind-filler _ _)
+            ∙ R.⟨ refl ⟩⋆⟨ sym $ R.≡in gᴰ-infib ⟩
+            ∙ sym (R.⋆Assoc _ _ _)
+            ∙ R.⟨ R.≡in secᴰ ⟩⋆⟨ refl ⟩
+            ∙ R.⋆IdL _
 
     module _ (opcart : isOpcartesian fᴰ) where
       open isIsoᴰ
@@ -189,33 +176,26 @@ module Covariant
       isOpcartesian→isIsoᴰ : isIsoᴰ Cᴰ f-isIso fᴰ
       isOpcartesian→isIsoᴰ .invᴰ =
         opcart inv .equiv-proof (R.reind (sym ret) idᴰ) .fst .fst
-      isOpcartesian→isIsoᴰ .retᴰ = R.≡[]-rectify $
-        opcart inv .equiv-proof (R.reind (sym ret) idᴰ) .fst .snd
-          R.[ _ ]∙[ ret ]
-        R.reind-filler-sym ret idᴰ
+      isOpcartesian→isIsoᴰ .retᴰ = R.rectify $ R.≡out $
+          R.≡in (opcart inv .equiv-proof (R.reind (sym ret) idᴰ) .fst .snd)
+        ∙ sym (R.reind-filler _ _)
       isOpcartesian→isIsoᴰ .secᴰ =
         let
           ≡-any-two-in-fib = isContr→isProp $
             opcart (inv B.⋆ f) .equiv-proof
               (fᴰ ⋆ᴰ (isOpcartesian→isIsoᴰ .invᴰ) ⋆ᴰ fᴰ)
           -- Reindexed idᴰ is a valid lift for the composition.
-          idᴰ-in-fib = R.≡[]-rectify $
-            (refl {x = fᴰ} R.[ refl ]⋆[ _ ] R.reind-filler-sym sec idᴰ)
-              R.[ _ ]∙[ _ ]
-            ⋆IdRᴰ fᴰ
-              R.[ B.⋆IdR f ]∙[ _ ]
-            symP (⋆IdLᴰ fᴰ)
-              R.[ sym (B.⋆IdL f) ]∙[ _ ]
-            (symP (isOpcartesian→isIsoᴰ .retᴰ) R.[ sym ret ]⋆[ refl ] refl {x = fᴰ})
-              R.[ _ ]∙[ _ ]
-            ⋆Assocᴰ fᴰ (isOpcartesian→isIsoᴰ .invᴰ) fᴰ
-        in R.≡[]-rectify $
-        (cong fst $ ≡-any-two-in-fib
-          ((isOpcartesian→isIsoᴰ .invᴰ) ⋆ᴰ fᴰ , refl)
-          (R.reind (sym sec) idᴰ , idᴰ-in-fib))
-
-          R.[ _ ]∙[ _ ]
-        R.reind-filler-sym sec idᴰ
+          idᴰ-in-fib = R.rectify $ R.≡out $
+              R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
+            ∙ R.⋆IdR _
+            ∙ sym (R.⋆IdL _)
+            ∙ R.⟨ sym $ R.≡in $ isOpcartesian→isIsoᴰ .retᴰ ⟩⋆⟨ refl ⟩
+            ∙ R.⋆Assoc _ _ _
+        in R.rectify $ R.≡out $
+            R.≡in (cong fst $ ≡-any-two-in-fib
+              ((isOpcartesian→isIsoᴰ .invᴰ) ⋆ᴰ fᴰ , refl)
+              (R.reind (sym sec) idᴰ , idᴰ-in-fib))
+          ∙ sym (R.reind-filler _ _)
 
   -- Construction of the substitution functor for a general opfibration.
   module _
@@ -236,17 +216,16 @@ module Covariant
            f ⋆ᴰ cleavage σ y .snd .fst)
     substituteArrow f =
         map-snd
-          (λ p → R.≡[]-rectify $
-            p
-              R.[ _ ]∙[ sym (B.⋆IdL _ ∙ sym (B.⋆IdR _)) ]
-            symP (R.reind-filler _ _))
+          (λ p → R.rectify $ R.≡out $
+              R.≡in p
+            ∙ sym (R.reind-filler _ _))
           (cart .fst)
       , λ g' →
           Σ≡Prop
             (λ _ → isOfHLevelPathP' 1 isSetHomᴰ _ _)
             (cong fst $ cart .snd $
               map-snd
-                (λ p → R.≡[]-rectify $ p R.[ _ ]∙[ _ ] R.reind-filler _ _)
+                (λ p → R.rectify $ R.≡out $ R.≡in p ∙ R.reind-filler _ _)
                 g')
       where
         cart : isContr (Σ _ _)
@@ -260,33 +239,22 @@ module Covariant
     substitutionFunctor .F-id {x} = cong fst $
       substituteArrow (VerticalCategory Cᴰ a .Category.id) .snd $
         VerticalCategory Cᴰ b .Category.id
-      , R.≡[]-rectify
-          ((refl R.[ refl ]⋆[ refl ] symP (R.reind-filler refl idᴰ))
-             R.[ cong₂ B._⋆_ refl refl ]∙[ _ ]
-           ⋆IdRᴰ (cleavage σ x .snd .fst)
-             R.[ B.⋆IdR σ ]∙[ _ ]
-           symP (⋆IdLᴰ (cleavage σ x .snd .fst))
-             R.[ sym (B.⋆IdL σ) ]∙[ _ ]
-           (R.reind-filler refl idᴰ R.[ refl ]⋆[ refl ] refl))
+      , (R.rectify $ R.≡out $
+            R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
+          ∙ R.⋆IdR _
+          ∙ sym (R.⋆IdL _)
+          ∙ R.⟨ R.reind-filler _ _ ⟩⋆⟨ refl ⟩)
     substitutionFunctor .F-seq {x} {y} {z} f g = cong fst $
       substituteArrow (VerticalCategory Cᴰ a .Category._⋆_ f g) .snd $
         VerticalCategory Cᴰ b .Category._⋆_ (stepf .fst) (stepg .fst)
-      , R.≡[]-rectify
-          ((refl
-              R.[ refl ]⋆[ sym (B.⋆IdL B.id) ]
-            R.reind-filler-sym (sym $ B.⋆IdL B.id) (stepf .fst ⋆ᴰ stepg .fst))
-             R.[ cong₂ B._⋆_ refl (sym $ B.⋆IdL B.id) ]∙[ _ ]
-           symP (⋆Assocᴰ (cleavage σ x .snd .fst) (stepf .fst) (stepg .fst))
-             R.[ sym (B.⋆Assoc σ B.id B.id) ]∙[ _ ]
-           (stepf .snd R.[ (B.⋆IdR σ ∙ sym (B.⋆IdL σ)) ]⋆[ refl ] refl)
-             R.[ cong₂ B._⋆_ (B.⋆IdR σ ∙ sym (B.⋆IdL σ)) refl ]∙[ _ ]
-           ⋆Assocᴰ f (cleavage σ y .snd .fst) (stepg .fst)
-             R.[ B.⋆Assoc B.id σ B.id ]∙[ _ ]
-           (refl R.[ refl ]⋆[ (B.⋆IdR σ ∙ sym (B.⋆IdL σ)) ] stepg .snd)
-             R.[ cong₂ B._⋆_ refl (B.⋆IdR σ ∙ sym (B.⋆IdL σ)) ]∙[ _ ]
-           symP (⋆Assocᴰ f g (cleavage σ z .snd .fst))
-             R.[ sym (B.⋆Assoc B.id B.id σ) ]∙[ cong₂ B._⋆_ (B.⋆IdL B.id) refl ]
-           (R.reind-filler (B.⋆IdL B.id) (f ⋆ᴰ g) R.[ B.⋆IdL B.id ]⋆[ refl ] refl))
+      , (R.rectify $ R.≡out $
+            R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
+          ∙ sym (R.⋆Assoc _ _ _)
+          ∙ R.⟨ R.≡in $ stepf .snd ⟩⋆⟨ refl ⟩
+          ∙ R.⋆Assoc _ _ _
+          ∙ R.⟨ refl ⟩⋆⟨ R.≡in $ stepg .snd ⟩
+          ∙ sym (R.⋆Assoc _ _ _)
+          ∙ R.⟨ R.reind-filler _ _ ⟩⋆⟨ refl ⟩)
       where
         stepf = substituteArrow f .fst
         stepg = substituteArrow g .fst

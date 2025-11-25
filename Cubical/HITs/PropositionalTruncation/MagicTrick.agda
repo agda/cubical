@@ -11,7 +11,6 @@ Also see the follow-up post by Jason Gross:
   https://homotopytypetheory.org/2014/02/24/composition-is-not-what-you-think-it-is-why-nearly-invertible-isnt/
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.PropositionalTruncation.MagicTrick where
 

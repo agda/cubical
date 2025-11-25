@@ -11,7 +11,6 @@ This file contains:
 - FinProp is equivalent to Bool.
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.Cardinality where
 
@@ -379,7 +378,7 @@ module _
 module _
   (X : FinSet ℓ ) where
 
-  cardAut : card (_ , isFinSetAut X) ≡ LehmerCode.factorial (card X)
+  cardAut : card (_ , isFinSetAut X) ≡ (card X !)
   cardAut = refl
 
 module _

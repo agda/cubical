@@ -1,4 +1,3 @@
-{-# OPTIONS --safe  #-}
 module Cubical.HITs.SetQuotients where
 
 open import Cubical.HITs.SetQuotients.Base public

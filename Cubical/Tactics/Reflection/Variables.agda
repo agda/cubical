@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   This code contains some helper functions for solvers.
   Variables in the sense of this files are things that are treated like variables by a solver.
