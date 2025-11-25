@@ -196,15 +196,14 @@ comp₋₀ s p i j =
     a₁₁
 
 
-coh₃helper : ∀ {ℓ} {A : Type ℓ} →
+coh₃helperI : ∀ {ℓ} {A : Type ℓ} →
                {x₀ x₁ : A} → {p p₀₀ p₀₁ p₁₀ p₁₁ : x₀ ≡ x₁} →
                {s₀₀ : Square refl p₀₀ refl p}
                {s₀₁ : Square refl p₀₁ refl p}
                {s₁₀ : Square refl p₁₀ refl p}
                {s₁₁ : Square refl p₁₁ refl p}
-               →
-               Cube _ _ _ _ (λ _ _ → x₀) (λ _ _ → x₁)
-coh₃helper {x₀ = x₀} {p = p} {s₀₀ = s₀₀} {s₀₁} {s₁₀} {s₁₁} i j k =
+               → I → I → I → A
+coh₃helperI {x₀ = x₀} {p = p} {s₀₀ = s₀₀} {s₀₁} {s₁₀} {s₁₁} i j k =
    hcomp
       (λ z → λ {
         (k = i0) → x₀
@@ -215,6 +214,22 @@ coh₃helper {x₀ = x₀} {p = p} {s₀₀ = s₀₀} {s₀₁} {s₁₀} {s₁
        ;(i = i1)(j = i1) → s₁₁ z k
       }) x₀
 
+coh₃helper : ∀ {ℓ} {A : Type ℓ} →
+               {x₀ x₁ : A} → {p p₀₀ p₀₁ p₁₀ p₁₁ : x₀ ≡ x₁} →
+               {s₀₀ : Square refl p₀₀ refl p}
+               {s₀₁ : Square refl p₀₁ refl p}
+               {s₁₀ : Square refl p₁₀ refl p}
+               {s₁₁ : Square refl p₁₁ refl p}
+               →
+               Cube
+                 (λ j k → coh₃helperI {x₀ = x₀} {p = p} {s₀₀ = s₀₀} {s₀₁} {s₁₀} {s₁₁} i0 j k)
+                 (λ j k → coh₃helperI {x₀ = x₀} {p = p} {s₀₀ = s₀₀} {s₀₁} {s₁₀} {s₁₁} i1 j k)
+                 (λ j k → coh₃helperI {x₀ = x₀} {p = p} {s₀₀ = s₀₀} {s₀₁} {s₁₀} {s₁₁} j i0 k)
+                 (λ j k → coh₃helperI {x₀ = x₀} {p = p} {s₀₀ = s₀₀} {s₀₁} {s₁₀} {s₁₁} j i1 k)
+                 (λ _ _ → x₀) (λ _ _ → x₁)
+coh₃helper {x₀ = x₀} {p = p} {s₀₀ = s₀₀} {s₀₁} {s₁₀} {s₁₁} i j k =
+  coh₃helperI
+   {x₀ = x₀} {p = p} {s₀₀ = s₀₀} {s₀₁} {s₁₀} {s₁₁} i j k
 
 comp-coh-helper : ∀ {ℓ} {A : Type ℓ} →
                {x₀ x₁ : A} → {p p₀ p₁ p₂ : x₀ ≡ x₁} →

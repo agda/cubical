@@ -151,29 +151,33 @@ module HIT {ℓ} where
   _ = solvePathsTest
        Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁
 
+mkPa : ∀ {ℓ} {A : Type ℓ} → (𝒑 : I → A) → 𝒑 i0 ≡ 𝒑 i1
+mkPa 𝒑 i = 𝒑 i
+
 module Edges&Diags {ℓ} (A : Type ℓ)
          (a⁵ : I → I → I → I → I → A)  where
 
+
   𝑝₀ : _  ≡ _
-  𝑝₀ i = a⁵ i0 i i0 i (~ i)
+  𝑝₀ = mkPa λ i → a⁵ i0 i i0 i (~ i)
 
   𝑝₁ : _ ≡ _
-  𝑝₁ i = a⁵ i i1 i i1 i0
+  𝑝₁ = mkPa λ i → a⁵ i i1 i i1 i0
 
   𝑝₂ : _ ≡ _
-  𝑝₂ i = a⁵ i1 (~ i) i1 i1 i0
+  𝑝₂ = mkPa λ i → a⁵ i1 (~ i) i1 i1 i0
 
   𝑝₃ : _ ≡ _
-  𝑝₃ i =  a⁵ (~ i) i (~ i) (~ i) i
+  𝑝₃ = mkPa λ i →  a⁵ (~ i) i (~ i) (~ i) i
 
   𝑝₄ : _ ≡ _
-  𝑝₄ _ = a⁵ i0 i1 i0 i0 i1
+  𝑝₄ = mkPa λ _ → a⁵ i0 i1 i0 i0 i1
 
   𝑝₅ : _ ≡ _
-  𝑝₅ i = a⁵ (i ∧ ~ i) i1 i0 i0 (i ∨  ~ i)
+  𝑝₅ = mkPa λ i → a⁵ (i ∧ ~ i) i1 i0 i0 (i ∨  ~ i)
 
   𝑝₆ : _ ≡ _
-  𝑝₆ i = a⁵ i0 i1 i0 i0 (~ i)
+  𝑝₆ = mkPa λ i → a⁵ i0 i1 i0 i0 (~ i)
 
   a₀₋₋ : Square (𝑝₀ ∙ 𝑝₁) (𝑝₁ ∙∙ 𝑝₂ ∙∙ 𝑝₃) 𝑝₀ (𝑝₂ ∙ 𝑝₃)
   a₀₋₋ = solvePaths
@@ -213,16 +217,16 @@ module InSubTerms {ℓ} (A : Type ℓ)
 
 
   𝑝₀ : _  ≡ _
-  𝑝₀ i = g (p₀₁ i) a₀ (f a₁ i)
+  𝑝₀ = mkPa λ i → g (p₀₁ i) a₀ (f a₁ i)
 
   𝑝₁ : _ ≡ _
-  𝑝₁ i = g (p₀₁ (~ i)) (p₀₁ i) (f (p₀₁ (~ i)) i1)
+  𝑝₁ = mkPa λ i → g (p₀₁ (~ i)) (p₀₁ i) (f (p₀₁ (~ i)) i1)
 
   𝑝₂ : _ ≡ _
-  𝑝₂ i = h i (f a₀ i1)
+  𝑝₂ = mkPa λ i → h i (f a₀ i1)
 
   𝑝₃ : _ ≡ _
-  𝑝₃ i = g (f a₂ i) a₃ (f a₀ i1)
+  𝑝₃ = mkPa λ i → g (f a₂ i) a₃ (f a₀ i1)
 
   𝑝₄ : _ ≡ _
   𝑝₄ = l

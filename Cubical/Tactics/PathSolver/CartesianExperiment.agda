@@ -224,10 +224,10 @@ module Sq-rot-refl {A : Type ℓ}
 
   rot-refl : Cube
          s (λ i j → s j (~ i))
-         refl refl
-         refl refl
-  rot-refl k i j =
-    hcomp (λ l → λ { (i = i0) → s (~ l) (j ∨ k)
+         (λ i j → a) (λ i j → a)
+         (λ i j → a) (λ i j → a)
+  rot-refl k i j = 
+     hcomp (λ l → λ { (i = i0) → s (~ l) (j ∨ k)
                    ; (i = i1) → a
                    ; (j = i0) → s (~ l) (~ i ∧ k)
                    ; (j = i1) → a

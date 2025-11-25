@@ -11,6 +11,7 @@ module Cubical.Tactics.PathSolver.MacroExamples where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Path
 open import Cubical.Tactics.PathSolver.Path
 
 open import Cubical.Tactics.PathSolver.Macro
@@ -35,9 +36,9 @@ module _ (SA : NPath 3 A) (f : A → B) where
 module _ (SA : NPath 6 A) (f : A → {A} → A → A) (g : A → A) (𝑝ₓ : g (NPath.𝑣₀ SA) ≡ g (NPath.𝑣₀ SA)) where
   open NPath SA
 
-  p : f 𝑣₀ 𝑣₁ ≡ f 𝑣₃ 𝑣₆
+  p : f 𝑣₀ {g (𝑣₁)} 𝑣₁ ≡ f 𝑣₃ {g 𝑣₃} 𝑣₆
   p i =  (f ((𝑝₀ ∙∙ 𝑝₁ ∙∙ 𝑝₂) i) {g ((𝑝₁ ∙' 𝑝₂) i)} ((𝑝₁ ∙∙ 𝑝₂ ∙∙ (𝑝₃ ∙∙ 𝑝₄ ∙∙ 𝑝₅)) i))
-
+  
 
   _ :  (λ i → cong$ (p i))
         ≡
@@ -60,12 +61,17 @@ module _ (SA : NPath 6 A) (f : A → {A} → A → A) (g : A → A) (𝑝ₓ : g
   cpf' i j = cong$ (cpf i j)
 
 
+  cpf≡cpf'I : I → I → I → A
+  cpf≡cpf'I _ i j = cong$-fill (cpf i j)
+
   cpf≡cpf' : Cube
               cpf cpf'
-              _ _
-              _ _
+              (λ i j → cpf≡cpf'I i i0 j)
+              (λ i j → cpf≡cpf'I i i1 j)
+              (λ i j → cpf≡cpf'I i j i0)
+              (λ i j → cpf≡cpf'I i j i1)
   cpf≡cpf' _ i j = cong$-fill (cpf i j)
-
+  
 
 
   cpf2 : Square (cong g (𝑝ₓ ∙ cong g (𝑝₀ ∙ 𝑝₁)))
@@ -81,11 +87,16 @@ module _ (SA : NPath 6 A) (f : A → {A} → A → A) (g : A → A) (𝑝ₓ : g
   cpf2' i j = cong$ (cpf2 i j)
 
 
+  cpf2≡cpf2'I : I → I → I → A
+  cpf2≡cpf2'I _ i j = cong$-fill (cpf2 i j)
+
   cpf2≡cpf2' : Cube
               cpf2 cpf2'
-              _ _
-              _ _
-  cpf2≡cpf2' _ i j = cong$-fill (cpf2 i j)
+              (λ i j → cpf2≡cpf2'I i i0 j)
+              (λ i j → cpf2≡cpf2'I i i1 j)
+              (λ i j → cpf2≡cpf2'I i j i0)
+              (λ i j → cpf2≡cpf2'I i j i1)
+  cpf2≡cpf2' z i j = cpf2≡cpf2'I z i j
 
 
 

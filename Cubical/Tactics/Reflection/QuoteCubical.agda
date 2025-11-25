@@ -71,6 +71,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Nat.Order.Recursive as ℕOR
 open import Cubical.Data.Empty
 
+open import Cubical.Foundations.Univalence using (ua)
+
 open import Cubical.Reflection.Base renaming (v to 𝒗)
 open import Cubical.Reflection.Sugar
 import Agda.Builtin.Reflection as R

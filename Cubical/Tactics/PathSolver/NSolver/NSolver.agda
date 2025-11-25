@@ -324,7 +324,7 @@ flipOnFalse b t = if b then t else R.def (quote ~_) v[ t ]
 
 
 
-cpf : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → PathP (λ j → _ ≡ q j) p (p ∙ q)
+cpf : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → PathP (λ j → x ≡ q j) p (p ∙ q)
 
 cpf {x = x} {y} p q i z = hcomp
                 (λ { j (z = i1) → q (i ∧ j)
