@@ -111,15 +111,15 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
              (lift f) .lower)
     lem = funExt (λ f i →
       (yonedaᴾ* {C = C} P (repr .fst)
-        .Iso.leftInv (repr .snd .trans) (~ i) ⟦ A ⟧)
+        .Iso.ret (repr .snd .trans) (~ i) ⟦ A ⟧)
       (lift f) .lower)
 
     anIso : Iso (C [ A , repr .fst ]) (fst (Functor.F-ob P A))
     anIso .Iso.fun f = (repr .snd .trans ⟦ A ⟧) (lift f) .lower
     anIso .Iso.inv p = repr .snd .nIso A .inv (lift p) .lower
-    anIso .Iso.rightInv b =
+    anIso .Iso.sec b =
       cong lower (funExt⁻ (repr .snd .nIso A .sec) (lift b))
-    anIso .Iso.leftInv a =
+    anIso .Iso.ret a =
       cong lower (funExt⁻ (repr .snd .nIso A .ret) (lift a))
 
   universalElementToRepresentation : UniversalElement → Representation
@@ -136,14 +136,14 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   Representation≅UniversalElement : Iso Representation UniversalElement
   Representation≅UniversalElement .Iso.fun = representationToUniversalElement
   Representation≅UniversalElement .Iso.inv = universalElementToRepresentation
-  Representation≅UniversalElement .Iso.rightInv η =
+  Representation≅UniversalElement .Iso.sec η =
     isoFunInjective UniversalElementIsoΣ _ _
       (ΣPathP (refl , (Σ≡Prop (λ _ → isPropIsUniversal _ _)
-      (yonedaᴾ* {C = C} P (η .vertex) .Iso.rightInv (η .element)))))
-  Representation≅UniversalElement .Iso.leftInv repr =
+      (yonedaᴾ* {C = C} P (η .vertex) .Iso.sec (η .element)))))
+  Representation≅UniversalElement .Iso.ret repr =
     ΣPathP (refl ,
     (NatIso≡ (cong NatTrans.N-ob
-      (yonedaᴾ* {C = C} P (repr .fst) .Iso.leftInv (repr .snd .trans)))))
+      (yonedaᴾ* {C = C} P (repr .fst) .Iso.ret (repr .snd .trans)))))
 
   isTerminalToIsUniversal : ∀ {η : Elementᴾ {C = C} P}
     → isTerminal Elements η → isUniversal (η .fst) (η .snd)
@@ -183,10 +183,10 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   TerminalElement≅UniversalElement : Iso TerminalElement UniversalElement
   TerminalElement≅UniversalElement .Iso.fun = terminalElementToUniversalElement
   TerminalElement≅UniversalElement .Iso.inv = universalElementToTerminalElement
-  TerminalElement≅UniversalElement .Iso.rightInv η =
+  TerminalElement≅UniversalElement .Iso.sec η =
     isoFunInjective UniversalElementIsoΣ _ _
     (ΣPathP (refl , (Σ≡Prop (λ _ → isPropIsUniversal _ _) refl)))
-  TerminalElement≅UniversalElement .Iso.leftInv η =
+  TerminalElement≅UniversalElement .Iso.ret η =
     Σ≡Prop (isPropIsTerminal Elements) refl
 
   Representation≅TerminalElement : Iso Representation TerminalElement

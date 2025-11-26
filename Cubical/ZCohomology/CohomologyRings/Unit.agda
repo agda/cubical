@@ -124,8 +124,8 @@ module Equiv-Unit-Properties where
   ϕ₀str = snd e₀
   ϕ₀⁻¹ = inv (fst e₀)
   ϕ₀⁻¹str = snd (invGroupIso e₀)
-  ϕ₀-sect = rightInv (fst e₀)
-  ϕ₀-retr = leftInv (fst e₀)
+  ϕ₀-sect = sec (fst e₀)
+  ϕ₀-retr = ret (fst e₀)
 
 
 -----------------------------------------------------------------------------
@@ -302,8 +302,8 @@ module _ where
     is : Iso ℤ[x]/x (H* Unit)
     fun is = ℤ[x]/x→H*-Unit
     inv is = H*-Unit→ℤ[x]/x
-    rightInv is = e-sect
-    leftInv is = e-retr
+    sec is = e-sect
+    ret is = e-retr
   snd Unit-CohomologyRingP = snd ℤ[X]/X→H*R-Unit
 
   CohomologyRing-UnitP : RingEquiv (H*R Unit) (CommRing→Ring ℤ[X]/X)

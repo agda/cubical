@@ -62,8 +62,8 @@ module _ {xf yg : SliceOb} where
   SOPathIsoPathΣ : Iso (xf ≡ yg) (Σ[ p ∈ x ≡ y ] PathP (λ i → C [ p i , c ]) f g)
   SOPathIsoPathΣ .fun p = (λ i → (p i) .S-ob) , (λ i → (p i) .S-arr)
   SOPathIsoPathΣ .inv (p , q) i = sliceob {p i} (q i)
-  SOPathIsoPathΣ .rightInv _ = refl
-  SOPathIsoPathΣ .leftInv _ = refl
+  SOPathIsoPathΣ .sec _ = refl
+  SOPathIsoPathΣ .ret _ = refl
 
   SOPath≃PathΣ = isoToEquiv SOPathIsoPathΣ
 
@@ -110,8 +110,8 @@ SliceHom-Σ-Iso : ∀ {a b}
             → Iso (SliceHom a b) (Σ[ h ∈ C [ S-ob a , S-ob b ] ] h ⋆⟨ C ⟩ (S-arr b) ≡ S-arr a)
 SliceHom-Σ-Iso .fun (slicehom h c) = h , c
 SliceHom-Σ-Iso .inv (h , c) = slicehom h c
-SliceHom-Σ-Iso .rightInv = λ x → refl
-SliceHom-Σ-Iso .leftInv = λ x → refl
+SliceHom-Σ-Iso .sec = λ x → refl
+SliceHom-Σ-Iso .ret = λ x → refl
 
 
 -- Category definition
@@ -235,7 +235,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
                 pToIBase = catiso (C .id) idx (C .⋆IdL idx) (C .⋆IdL idx)
 
             l≡pToI : l ≡ pathToIso {C = C} x≡y .snd .inv
-            l≡pToI i = pToIIso .rightInv extractIso (~ i) .snd .inv
+            l≡pToI i = pToIIso .sec extractIso (~ i) .snd .inv
 
             l≡id : PathP (λ i → C [ x≡y (~ i) , x ]) l (C .id)
             l≡id = l≡pToI ◁ pToI≡id
@@ -243,8 +243,8 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             lf≡f : PathP (λ i → C [ x≡y (~ i) , c ]) (l ⋆⟨ C ⟩ f) f
             lf≡f = (λ i → (l≡id i) ⋆⟨ C ⟩ f) ▷ C .⋆IdL _
 
-        sIso .rightInv is@(kc , isiso lc s r) i = catiso (kc'≡kc i) (lc'≡lc i) (s'≡s i) (r'≡r i)
-          -- we prove rightInv using a combination of univalence and the fact that homs are an h-set
+        sIso .sec is@(kc , isiso lc s r) i = catiso (kc'≡kc i) (lc'≡lc i) (s'≡s i) (r'≡r i)
+          -- we prove sec using a combination of univalence and the fact that homs are an h-set
           where
             kc' = (sIso .fun) (sIso .inv is) .fst
             lc' = (sIso .fun) (sIso .inv is) .snd .inv
@@ -261,7 +261,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             -- mor
 
             k'≡k : k' ≡ k
-            k'≡k i = (pToIIso .rightInv extractIso) i .fst
+            k'≡k i = (pToIIso .sec extractIso) i .fst
 
             kcom'≡kcom : PathP (λ j → (k'≡k j) ⋆⟨ C ⟩ g ≡ f) (kc' .S-comm) (kc .S-comm)
             kcom'≡kcom = isSetHomP1 {C = C} _ _ λ i → (k'≡k i) ⋆⟨ C ⟩ g
@@ -271,7 +271,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             -- inv
 
             l'≡l : l' ≡ l
-            l'≡l i = (pToIIso .rightInv extractIso) i .snd .inv
+            l'≡l i = (pToIIso .sec extractIso) i .snd .inv
 
             lcom'≡lcom : PathP (λ j → (l'≡l j) ⋆⟨ C ⟩ f ≡ g) (lc' .S-comm) (lc .S-comm)
             lcom'≡lcom = isSetHomP1 {C = C} _ _ λ i → (l'≡l i) ⋆⟨ C ⟩ f
@@ -291,7 +291,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             r'≡r : PathP (λ i → kc'≡kc i ⋆⟨ SliceCat ⟩ lc'≡lc i ≡ SliceCat .id) r' r
             r'≡r = isSetHomP1 {C = SliceCat} _ _ λ i → kc'≡kc i ⋆⟨ SliceCat ⟩ lc'≡lc i
 
-        sIso .leftInv p = p'≡p
+        sIso .ret p = p'≡p
           -- to show that the round trip is equivalent to the identity
           -- we show that this is true for each component (S-ob, S-arr)
           -- and then combine
@@ -335,7 +335,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             -- apply univalence of C
             -- this gives us the first component that we want
             p'Ob≡pOb : p'Ob ≡ pOb
-            p'Ob≡pOb = ppp ∙ pToIIso .leftInv pOb
+            p'Ob≡pOb = ppp ∙ pToIIso .ret pOb
 
             -- isSetHom gives us the second component, path between morphisms
             p'Mor≡pMor : PathP (λ j → PathP (λ i → C [ (p'Ob≡pOb j) i , c ]) f g) p'Mor pMor

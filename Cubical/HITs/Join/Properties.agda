@@ -55,8 +55,8 @@ fun IsoFunSpaceJoin f = (f ∘ inl) , ((f ∘ inr) , (λ a b → cong f (push a 
 inv IsoFunSpaceJoin (f , g , p) (inl x) = f x
 inv IsoFunSpaceJoin (f , g , p) (inr x) = g x
 inv IsoFunSpaceJoin (f , g , p) (push a b i) = p a b i
-rightInv IsoFunSpaceJoin (f , g , p) = refl
-leftInv IsoFunSpaceJoin f =
+sec IsoFunSpaceJoin (f , g , p) = refl
+ret IsoFunSpaceJoin f =
   funExt λ { (inl x) → refl ; (inr x) → refl ; (push a b i) → refl}
 
 -- Alternative definition of the join using a pushout
@@ -465,8 +465,8 @@ join-comm : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'}
   → Iso (join A B) (join B A)
 fun join-comm = join-commFun
 inv join-comm = join-commFun
-rightInv join-comm = join-commFun²
-leftInv join-comm = join-commFun²
+sec join-comm = join-commFun²
+ret join-comm = join-commFun²
 
 join→ : ∀ {ℓ'' ℓ'''}
      {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
@@ -481,14 +481,14 @@ Iso→joinIso : ∀ {ℓ'' ℓ'''}
   → Iso A C → Iso B D → Iso (join A B) (join C D)
 fun (Iso→joinIso is1 is2) x = join→ (Iso.fun is1) (Iso.fun is2) x
 inv (Iso→joinIso is1 is2) x = join→ (Iso.inv is1) (Iso.inv is2) x
-rightInv (Iso→joinIso is1 is2) (inl x) i = inl (rightInv is1 x i)
-rightInv (Iso→joinIso is1 is2) (inr x) i = inr (rightInv is2 x i)
-rightInv (Iso→joinIso is1 is2) (push a b j) i =
-  push (rightInv is1 a i) (rightInv is2 b i) j
-leftInv (Iso→joinIso is1 is2) (inl x) i = inl (leftInv is1 x i)
-leftInv (Iso→joinIso is1 is2) (inr x) i = inr (leftInv is2 x i)
-leftInv (Iso→joinIso is1 is2) (push a b i) j =
-  push (leftInv is1 a j) (leftInv is2 b j) i
+sec (Iso→joinIso is1 is2) (inl x) i = inl (sec is1 x i)
+sec (Iso→joinIso is1 is2) (inr x) i = inr (sec is2 x i)
+sec (Iso→joinIso is1 is2) (push a b j) i =
+  push (sec is1 a i) (sec is2 b i) j
+ret (Iso→joinIso is1 is2) (inl x) i = inl (ret is1 x i)
+ret (Iso→joinIso is1 is2) (inr x) i = inr (ret is2 x i)
+ret (Iso→joinIso is1 is2) (push a b i) j =
+  push (ret is1 a j) (ret is2 b j) i
 
 
 joinAnnihilL : {A : Type ℓ} → isContr (join (Unit* {ℓ'}) A)
@@ -709,5 +709,5 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
   GaneaIso : Iso GaneaFib (join (fiber (fst f) (pt B)) (Ω B .fst))
   fun GaneaIso = GaneaFib→join
   inv GaneaIso = join→GaneaFib
-  rightInv GaneaIso = join→GaneaFib→join
-  leftInv GaneaIso = GaneaFib→join→GaneaFib
+  sec GaneaIso = join→GaneaFib→join
+  ret GaneaIso = GaneaFib→join→GaneaFib

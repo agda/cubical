@@ -140,7 +140,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
       helper F p1 p2 (push a i) j =
         hcomp (λ k → λ { (i = i0) → p1 (~ j) (f a)
                        ; (i = i1) → p2 (~ j) (g a)
-                       ; (j = i0) → Iso.rightInv (Iso-Kn-ΩKn+1 n) ((λ i₁ → p1 (~ i₁) (f a))
+                       ; (j = i0) → Iso.sec (Iso-Kn-ΩKn+1 n) ((λ i₁ → p1 (~ i₁) (f a))
                                                                        ∙∙ cong F (push a)
                                                                        ∙∙ cong (λ F₁ → F₁ (g a)) p2) (~ k) i
                         ; (j = i1) → F (push a i)})
@@ -221,7 +221,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
     helper2 : (Fc : C → coHomK n)
               (p : d-pre n Fc ≡ (λ _ → coHom-pt (suc n))) (c : C)
             → ΩKn+1→Kn n (λ i₁ → p i₁ (inl (f c))) -[ n ]ₖ (ΩKn+1→Kn n (λ i₁ → p i₁ (inr (g c)))) ≡ Fc c
-    helper2 Fc p c = distrHelper n _ _ ∙∙ cong (ΩKn+1→Kn n) helper3 ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 n) (Fc c)
+    helper2 Fc p c = distrHelper n _ _ ∙∙ cong (ΩKn+1→Kn n) helper3 ∙∙ Iso.ret (Iso-Kn-ΩKn+1 n) (Fc c)
       where
       helper3 : (λ i₁ → p i₁ (inl (f c))) ∙ sym (λ i₁ → p i₁ (inr (g c))) ≡ Kn→ΩKn+1 n (Fc c)
       helper3 = cong ((λ i₁ → p i₁ (inl (f c))) ∙_) (lUnit _) ∙ sym (PathP→compPathR (cong (λ f → cong f (push c)) p))

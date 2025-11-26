@@ -695,7 +695,7 @@ module chainHomEquation (m : ℕ) (C : CWskel ℓ) (D : CWskel ℓ')
                      ∘ suspFun (to_cofibCW (fst n) D)
                      ∘ δ (suc (fst n)) D ∘ X ∘ Hn+1/Hn n
                      ∘ Iso.inv (cofibIso (fst n) C))
-              (sym (funExt (Iso.leftInv (BouquetIso D (suc (fst n))))))
+              (sym (funExt (Iso.ret (BouquetIso D (suc (fst n))))))
 
   -- connecting MMΣf to fn+1
   bouquetΣf : bouquetDegree (bouquetMMmap merid-f merid-tt MMΣf) ≡ fn
@@ -797,7 +797,7 @@ module chainHomEquationSuc (m : ℕ) (C : CWskel ℓ) (D : CWskel ℓ')
                              ∘ (Hn+1/Hn (injectSuc n)) ∘ X
                              ∘ suspFun (to_cofibCW (fst n) C) ∘ δ (suc (fst n)) C
                              ∘ Iso.inv (BouquetIso C (suc (fst n))))
-                      (sym (funExt (Iso.leftInv (cofibIso (fst n) C))))
+                      (sym (funExt (Iso.ret (cofibIso (fst n) C))))
 
   chainHomotopySuc : subtrGroupHom _ _ fn gn ≡ addGroupHom _ _ ∂H H∂'
   chainHomotopySuc = chainHomotopy2 ∙ cong (addGroupHom _ _ ∂H) bouquetΣH∂

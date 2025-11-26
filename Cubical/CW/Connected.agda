@@ -364,8 +364,8 @@ module shrinkPushoutLemma (A : Type ℓ) (B : Type ℓ')
   Iso-PushoutF-Pushout-g∘f : Iso (Pushout F fst) (Pushout (g ∘ f) fst)
   Iso.fun Iso-PushoutF-Pushout-g∘f = PushoutF→Pushout-g∘f
   Iso.inv Iso-PushoutF-Pushout-g∘f = Pushout-g∘f-fst→Unit⊎A
-  Iso.rightInv Iso-PushoutF-Pushout-g∘f = PushoutF→Pushout-g∘f→PushoutF
-  Iso.leftInv Iso-PushoutF-Pushout-g∘f = Pushout-g∘f→PushoutF→Pushout-g∘f
+  Iso.sec Iso-PushoutF-Pushout-g∘f = PushoutF→Pushout-g∘f→PushoutF
+  Iso.ret Iso-PushoutF-Pushout-g∘f = Pushout-g∘f→PushoutF→Pushout-g∘f
 
 
 module CWLemmas-0Connected where
@@ -400,8 +400,8 @@ module CWLemmas-0Connected where
        ≡ f (Unit⊎Fin→Fin y , x)
     help (inl a) false = sym p
     help (inl b) true = Σ≡Prop (λ _ → isProp<ᵗ) refl
-    help (inr a) false = Iso.leftInv Iso-Fin-Unit⊎Fin _
-    help (inr a) true = Iso.leftInv Iso-Fin-Unit⊎Fin _
+    help (inr a) false = Iso.ret Iso-Fin-Unit⊎Fin _
+    help (inr a) true = Iso.ret Iso-Fin-Unit⊎Fin _
 
   -- If the domain of f is instead Fin 1 × S⁰, this must also be the
   -- codomain of f.
@@ -442,8 +442,8 @@ module CWLemmas-0Connected where
     mainIso : Iso (Fin 1 × S₊ 0) (Fin (suc (suc m)))
     Iso.fun mainIso = f
     Iso.inv mainIso x = isSurj-α₀ (suc zero) m f c x .fst
-    Iso.rightInv mainIso x = isSurj-α₀ 1 m f c x .snd
-    Iso.leftInv mainIso ((zero , tt) , x) =
+    Iso.sec mainIso x = isSurj-α₀ 1 m f c x .snd
+    Iso.ret mainIso ((zero , tt) , x) =
      (f-inj _ _ (isSurj-α₀ 1 m f c (f (fzero , x)) .snd))
 
   -- Strengthening of shrinkImageAttachingMapLem for domain of f of
@@ -506,9 +506,9 @@ module CWLemmas-0Connected where
 
     ¬f'≡flast : ¬ (f' (flast , true) ≡ flast)
     ¬f'≡flast p = xpath (cong f (ΣPathP (sym (swapFinβₗ flast x₀) , refl))
-                  ∙ sym (Iso.rightInv FinIso2 _)
+                  ∙ sym (Iso.sec FinIso2 _)
                   ∙ cong (Iso.inv FinIso2) (p ∙ sym f'≡flast)
-                  ∙ Iso.rightInv FinIso2 _
+                  ∙ Iso.sec FinIso2 _
                   ∙ cong f (ΣPathP (swapFinβₗ flast x₀ , refl)))
 
     f'-bound : fst (f' (flast , true)) <ᵗ suc m
@@ -522,7 +522,7 @@ module CWLemmas-0Connected where
       (isoToEquiv FinIso2)
       (isoToEquiv (swapFinIso flast x₀))
       (funExt (λ x → cong (FinIso2 .Iso.fun ∘ f)
-                      (sym (Iso.rightInv Fin×S⁰-swapIso x))))
+                      (sym (Iso.sec Fin×S⁰-swapIso x))))
       refl
 
   -- the main lemma: a pushout of f : Fin n × S⁰ → Fin m is equivalent

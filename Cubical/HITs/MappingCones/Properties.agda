@@ -22,12 +22,12 @@ Iso.fun (PushoutUnit-iso-Cone f) (push x i) = spoke x i
 Iso.inv (PushoutUnit-iso-Cone f) (inj x)     = inr x
 Iso.inv (PushoutUnit-iso-Cone f) hub         = inl tt
 Iso.inv (PushoutUnit-iso-Cone f) (spoke x i) = push x i
-Iso.rightInv (PushoutUnit-iso-Cone f) (inj x)     = refl
-Iso.rightInv (PushoutUnit-iso-Cone f) hub         = refl
-Iso.rightInv (PushoutUnit-iso-Cone f) (spoke x i) = refl
-Iso.leftInv (PushoutUnit-iso-Cone f) (inl tt)   = refl
-Iso.leftInv (PushoutUnit-iso-Cone f) (inr x)    = refl
-Iso.leftInv (PushoutUnit-iso-Cone f) (push x i) = refl
+Iso.sec (PushoutUnit-iso-Cone f) (inj x)     = refl
+Iso.sec (PushoutUnit-iso-Cone f) hub         = refl
+Iso.sec (PushoutUnit-iso-Cone f) (spoke x i) = refl
+Iso.ret (PushoutUnit-iso-Cone f) (inl tt)   = refl
+Iso.ret (PushoutUnit-iso-Cone f) (inr x)    = refl
+Iso.ret (PushoutUnit-iso-Cone f) (push x i) = refl
 
 PushoutUnit≡Cone : ∀ {X : Type ℓ} {Y : Type ℓ'} (f : X → Y) → Pushout (const tt) f ≡ Cone f
 PushoutUnit≡Cone f = isoToPath (PushoutUnit-iso-Cone f)
@@ -39,12 +39,12 @@ Iso.fun (ConesUnit-iso-Cone f) (spoke tt x i) = spoke x i
 Iso.inv (ConesUnit-iso-Cone f) (inj x)     = inj x
 Iso.inv (ConesUnit-iso-Cone f) hub         = hub tt
 Iso.inv (ConesUnit-iso-Cone f) (spoke x i) = spoke tt x i
-Iso.rightInv (ConesUnit-iso-Cone f) (inj x)     = refl
-Iso.rightInv (ConesUnit-iso-Cone f) hub         = refl
-Iso.rightInv (ConesUnit-iso-Cone f) (spoke x i) = refl
-Iso.leftInv (ConesUnit-iso-Cone f) (inj x) = refl
-Iso.leftInv (ConesUnit-iso-Cone f) (hub x) = refl
-Iso.leftInv (ConesUnit-iso-Cone f) (spoke a x i) = refl
+Iso.sec (ConesUnit-iso-Cone f) (inj x)     = refl
+Iso.sec (ConesUnit-iso-Cone f) hub         = refl
+Iso.sec (ConesUnit-iso-Cone f) (spoke x i) = refl
+Iso.ret (ConesUnit-iso-Cone f) (inj x) = refl
+Iso.ret (ConesUnit-iso-Cone f) (hub x) = refl
+Iso.ret (ConesUnit-iso-Cone f) (spoke a x i) = refl
 
 ConesUnit≡Cone : ∀ {X : Type ℓ} {Y : Type ℓ'} (f : X → Y) → (Cones Unit (λ { tt → f })) ≡ (Cone f)
 ConesUnit≡Cone f = isoToPath (ConesUnit-iso-Cone f)

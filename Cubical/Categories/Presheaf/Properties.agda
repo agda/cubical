@@ -241,11 +241,11 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
                   → Iso A (Σ[ b ∈ B ] fiber ϕ b)
     typeSectionIso ϕ .fun a = (ϕ a) , (a , refl)
     typeSectionIso ϕ .inv (b , (a , eq)) = a
-    typeSectionIso {isSetB = isSetB} ϕ .rightInv (b , (a , eq))
+    typeSectionIso {isSetB = isSetB} ϕ .sec (b , (a , eq))
       = ΣPathP (eq
                 , ΣPathP (refl
                         , isOfHLevel→isOfHLevelDep 1 (λ b' → isSetB _ _) refl eq eq))
-    typeSectionIso ϕ .leftInv a = refl
+    typeSectionIso ϕ .ret a = refl
 
     -- the natural transformation
     -- just applies typeSectionIso
@@ -294,9 +294,9 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
                   → Iso (B x) (fiber {A = Σ[ a ∈ A ] B a} (λ (x , _) → x) x)
     typeFiberIso {x = x} _ .fun b = (x , b) , refl
     typeFiberIso _ .inv ((a , b) , eq) = subst _ eq b
-    typeFiberIso {isSetA = isSetA} {x = x} B .rightInv ((a , b) , eq)
+    typeFiberIso {isSetA = isSetA} {x = x} B .sec ((a , b) , eq)
       = fibersEqIfRepsEq {isSetB = isSetA} (λ (x , _) → x) (ΣPathP (sym eq , symP (transport-filler (λ i → B (eq i)) b)))
-    typeFiberIso {x = x} _ .leftInv b = sym (transport-filler refl b)
+    typeFiberIso {x = x} _ .ret b = sym (transport-filler refl b)
 
     -- the natural isomorphism
     -- applies typeFiberIso (inv)

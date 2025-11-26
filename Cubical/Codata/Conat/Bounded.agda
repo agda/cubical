@@ -100,8 +100,8 @@ discreteB′ m (i , i≺m) (j , j≺m) with discreteℕ i j
 Σ≺∞≃ℕ = isoToEquiv λ where
     .fun → fst
     .inv n → n , ≺∞ n
-    .rightInv _ → refl
-    .leftInv (n , p) i → λ where
+    .sec _ → refl
+    .ret (n , p) i → λ where
       .fst → n
       .snd → isProp≺ n ∞ (≺∞ n) p i
   where open Iso
@@ -225,14 +225,14 @@ module Untangle
   iso- : Iso (Bounded m) (Bounded n)
   iso- .fun = f-
   iso- .inv = g-
-  iso- .rightInv = f-g-
-  iso- .leftInv = g-f-
+  iso- .sec = f-g-
+  iso- .ret = g-f-
 
 untangled
   : ∀{m n}
   → Iso (Bounded′ (csuc m)) (Bounded′ (csuc n))
   → Iso (Bounded m) (Bounded n)
-untangled isom = Untangle.iso- fun inv rightInv leftInv
+untangled isom = Untangle.iso- fun inv sec ret
   where open Iso isom
 
 Bounded-inj-iso : ∀ m n → Iso (Bounded m) (Bounded n) → m ≡ n

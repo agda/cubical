@@ -128,10 +128,10 @@ fun (⊎Iso iac ibd) (inl x) = inl (iac .fun x)
 fun (⊎Iso iac ibd) (inr x) = inr (ibd .fun x)
 inv (⊎Iso iac ibd) (inl x) = inl (iac .inv x)
 inv (⊎Iso iac ibd) (inr x) = inr (ibd .inv x)
-rightInv (⊎Iso iac ibd) (inl x) = cong inl (iac .rightInv x)
-rightInv (⊎Iso iac ibd) (inr x) = cong inr (ibd .rightInv x)
-leftInv (⊎Iso iac ibd) (inl x)  = cong inl (iac .leftInv x)
-leftInv (⊎Iso iac ibd) (inr x)  = cong inr (ibd .leftInv x)
+sec (⊎Iso iac ibd) (inl x) = cong inl (iac .sec x)
+sec (⊎Iso iac ibd) (inr x) = cong inr (ibd .sec x)
+ret (⊎Iso iac ibd) (inl x)  = cong inl (iac .ret x)
+ret (⊎Iso iac ibd) (inr x)  = cong inr (ibd .ret x)
 
 ⊎-equiv : A ≃ C → B ≃ D → (A ⊎ B) ≃ (C ⊎ D)
 ⊎-equiv p q = isoToEquiv (⊎Iso (equivToIso p) (equivToIso q))
@@ -141,10 +141,10 @@ fun ⊎-swap-Iso (inl x) = inr x
 fun ⊎-swap-Iso (inr x) = inl x
 inv ⊎-swap-Iso (inl x) = inr x
 inv ⊎-swap-Iso (inr x) = inl x
-rightInv ⊎-swap-Iso (inl _) = refl
-rightInv ⊎-swap-Iso (inr _) = refl
-leftInv ⊎-swap-Iso (inl _)  = refl
-leftInv ⊎-swap-Iso (inr _)  = refl
+sec ⊎-swap-Iso (inl _) = refl
+sec ⊎-swap-Iso (inr _) = refl
+ret ⊎-swap-Iso (inl _)  = refl
+ret ⊎-swap-Iso (inr _)  = refl
 
 ⊎-swap-≃ : A ⊎ B ≃ B ⊎ A
 ⊎-swap-≃ = isoToEquiv ⊎-swap-Iso
@@ -156,12 +156,12 @@ fun ⊎-assoc-Iso (inr x)       = inr (inr x)
 inv ⊎-assoc-Iso (inl x)       = inl (inl x)
 inv ⊎-assoc-Iso (inr (inl x)) = inl (inr x)
 inv ⊎-assoc-Iso (inr (inr x)) = inr x
-rightInv ⊎-assoc-Iso (inl _)       = refl
-rightInv ⊎-assoc-Iso (inr (inl _)) = refl
-rightInv ⊎-assoc-Iso (inr (inr _)) = refl
-leftInv ⊎-assoc-Iso (inl (inl _))  = refl
-leftInv ⊎-assoc-Iso (inl (inr _))  = refl
-leftInv ⊎-assoc-Iso (inr _)        = refl
+sec ⊎-assoc-Iso (inl _)       = refl
+sec ⊎-assoc-Iso (inr (inl _)) = refl
+sec ⊎-assoc-Iso (inr (inr _)) = refl
+ret ⊎-assoc-Iso (inl (inl _))  = refl
+ret ⊎-assoc-Iso (inl (inr _))  = refl
+ret ⊎-assoc-Iso (inr _)        = refl
 
 ⊎-assoc-≃ : (A ⊎ B) ⊎ C ≃ A ⊎ (B ⊎ C)
 ⊎-assoc-≃ = isoToEquiv ⊎-assoc-Iso
@@ -169,26 +169,26 @@ leftInv ⊎-assoc-Iso (inr _)        = refl
 ⊎-IdR-⊥-Iso : Iso (A ⊎ ⊥) A
 fun ⊎-IdR-⊥-Iso (inl x) = x
 inv ⊎-IdR-⊥-Iso x       = inl x
-rightInv ⊎-IdR-⊥-Iso _      = refl
-leftInv ⊎-IdR-⊥-Iso (inl _) = refl
+sec ⊎-IdR-⊥-Iso _      = refl
+ret ⊎-IdR-⊥-Iso (inl _) = refl
 
 ⊎-IdL-⊥-Iso : Iso (⊥ ⊎ A) A
 fun ⊎-IdL-⊥-Iso (inr x) = x
 inv ⊎-IdL-⊥-Iso x       = inr x
-rightInv ⊎-IdL-⊥-Iso _      = refl
-leftInv ⊎-IdL-⊥-Iso (inr _) = refl
+sec ⊎-IdL-⊥-Iso _      = refl
+ret ⊎-IdL-⊥-Iso (inr _) = refl
 
 ⊎-IdL-⊥*-Iso : ∀{ℓ} → Iso (⊥* {ℓ} ⊎ A) A
 fun ⊎-IdL-⊥*-Iso (inr x) = x
 inv ⊎-IdL-⊥*-Iso x       = inr x
-rightInv ⊎-IdL-⊥*-Iso _      = refl
-leftInv ⊎-IdL-⊥*-Iso (inr _) = refl
+sec ⊎-IdL-⊥*-Iso _      = refl
+ret ⊎-IdL-⊥*-Iso (inr _) = refl
 
 ⊎-IdR-⊥*-Iso : ∀{ℓ} → Iso (A ⊎ ⊥* {ℓ}) A
 fun ⊎-IdR-⊥*-Iso (inl x) = x
 inv ⊎-IdR-⊥*-Iso x       = inl x
-rightInv ⊎-IdR-⊥*-Iso _      = refl
-leftInv ⊎-IdR-⊥*-Iso (inl _) = refl
+sec ⊎-IdR-⊥*-Iso _      = refl
+ret ⊎-IdR-⊥*-Iso (inl _) = refl
 
 ⊎-IdR-⊥-≃ : A ⊎ ⊥ ≃ A
 ⊎-IdR-⊥-≃ = isoToEquiv ⊎-IdR-⊥-Iso
@@ -207,30 +207,30 @@ fun Π⊎Iso f .fst a = f (inl a)
 fun Π⊎Iso f .snd b = f (inr b)
 inv Π⊎Iso (g1 , g2) (inl a) = g1 a
 inv Π⊎Iso (g1 , g2) (inr b) = g2 b
-rightInv Π⊎Iso (g1 , g2) i .fst a = g1 a
-rightInv Π⊎Iso (g1 , g2) i .snd b = g2 b
-leftInv Π⊎Iso f i (inl a) = f (inl a)
-leftInv Π⊎Iso f i (inr b) = f (inr b)
+sec Π⊎Iso (g1 , g2) i .fst a = g1 a
+sec Π⊎Iso (g1 , g2) i .snd b = g2 b
+ret Π⊎Iso f i (inl a) = f (inl a)
+ret Π⊎Iso f i (inr b) = f (inr b)
 
 Σ⊎Iso : Iso (Σ (A ⊎ B) E) ((Σ A (λ a → E (inl a))) ⊎ (Σ B (λ b → E (inr b))))
 fun Σ⊎Iso (inl a , ea) = inl (a , ea)
 fun Σ⊎Iso (inr b , eb) = inr (b , eb)
 inv Σ⊎Iso (inl (a , ea)) = (inl a , ea)
 inv Σ⊎Iso (inr (b , eb)) = (inr b , eb)
-rightInv Σ⊎Iso (inl (a , ea)) = refl
-rightInv Σ⊎Iso (inr (b , eb)) = refl
-leftInv Σ⊎Iso (inl a , ea) = refl
-leftInv Σ⊎Iso (inr b , eb) = refl
+sec Σ⊎Iso (inl (a , ea)) = refl
+sec Σ⊎Iso (inr (b , eb)) = refl
+ret Σ⊎Iso (inl a , ea) = refl
+ret Σ⊎Iso (inr b , eb) = refl
 
 ×DistR⊎Iso : Iso (A × (B ⊎ C)) ((A × B) ⊎ (A × C))
 fun ×DistR⊎Iso (a , inl b) = inl (a , b)
 fun ×DistR⊎Iso (a , inr c) = inr (a , c)
 inv ×DistR⊎Iso (inl (a , b)) = a , inl b
 inv ×DistR⊎Iso (inr (a , c)) = a , inr c
-rightInv ×DistR⊎Iso (inl (a , b)) = refl
-rightInv ×DistR⊎Iso (inr (a , c)) = refl
-leftInv ×DistR⊎Iso (a , inl b) = refl
-leftInv ×DistR⊎Iso (a , inr c) = refl
+sec ×DistR⊎Iso (inl (a , b)) = refl
+sec ×DistR⊎Iso (inr (a , c)) = refl
+ret ×DistR⊎Iso (a , inl b) = refl
+ret ×DistR⊎Iso (a , inr c) = refl
 
 Π⊎≃ : ((x : A ⊎ B) → E x) ≃ ((a : A) → E (inl a)) × ((b : B) → E (inr b))
 Π⊎≃ = isoToEquiv Π⊎Iso
@@ -314,19 +314,19 @@ Iso⊎→Iso {A = A} {C = C} {B = B} {D = D} f e p = Iso'
            → ((d : D) (s : _) → P (inr d , s))
            → (x : _) → P x
     T-elim b ind (inl x , q) =
-      ⊥.rec (subst ⊥-fib (sym (sym (Iso.leftInv e _)
+      ⊥.rec (subst ⊥-fib (sym (sym (Iso.ret e _)
           ∙ cong (Iso.inv e)
-             (p _ ∙ cong inl (Iso.rightInv f x) ∙ sym q)
-          ∙ Iso.leftInv e _)) tt)
+             (p _ ∙ cong inl (Iso.sec f x) ∙ sym q)
+          ∙ Iso.ret e _)) tt)
     T-elim b ind (inr x , y) = ind x y
 
   e-pres-inr-help : (b : B) → T f e p b  → D
   e-pres-inr-help b = T-elim f e p b λ d _ → d
 
   p' : (a : C) → Iso.inv e (inl a) ≡ inl (Iso.inv f a)
-  p' c = cong (Iso.inv e ∘ inl) (sym (Iso.rightInv f c))
+  p' c = cong (Iso.inv e ∘ inl) (sym (Iso.sec f c))
       ∙∙ cong (Iso.inv e) (sym (p (Iso.inv f c)))
-      ∙∙ Iso.leftInv e _
+      ∙∙ Iso.ret e _
 
   e⁻-pres-inr-help : (d : D) → T (invIso f) (invIso e) p' d → B
   e⁻-pres-inr-help d = T-elim (invIso f) (invIso e) p' d λ b _ → b
@@ -342,20 +342,20 @@ Iso⊎→Iso {A = A} {C = C} {B = B} {D = D} f e p = Iso'
   lem1 b = T-elim f e p b λ d s
     → T-elim (invIso f) (invIso e) p' _
       λ b' s' → invEq (_ , isEmbedding-inr _ _)
-        (sym s' ∙ cong (Iso.inv e) (sym s) ∙ Iso.leftInv e _)
+        (sym s' ∙ cong (Iso.inv e) (sym s) ∙ Iso.ret e _)
 
   lem2 : (d : D) (e : T (invIso f) (invIso e) p' d ) (t : _)
     → e-pres-inr-help (e⁻-pres-inr-help d e) t ≡ d
   lem2 d = T-elim (invIso f) (invIso e) p' d
     λ b s → T-elim f e p _ λ d' s'
     → invEq (_ , isEmbedding-inr _ _)
-         (sym s' ∙ cong (Iso.fun e) (sym s) ∙ Iso.rightInv e _)
+         (sym s' ∙ cong (Iso.fun e) (sym s) ∙ Iso.sec e _)
 
   Iso' : Iso B D
   Iso.fun Iso' = e-pres-inr
   Iso.inv Iso' = e⁻-pres-inr
-  Iso.rightInv Iso' x = lem2 x (_ , refl) (_ , refl)
-  Iso.leftInv Iso' x = lem1 x (_ , refl) (_ , refl)
+  Iso.sec Iso' x = lem2 x (_ , refl) (_ , refl)
+  Iso.ret Iso' x = lem1 x (_ , refl) (_ , refl)
 
 Lift⊎Iso : ∀ (ℓ : Level)
   → Iso (Lift {j = ℓ} A ⊎ Lift {j = ℓ} B)
@@ -364,7 +364,7 @@ fun (Lift⊎Iso ℓD) (inl x) = liftFun inl x
 fun (Lift⊎Iso ℓD) (inr x) = liftFun inr x
 inv (Lift⊎Iso ℓD) (lift (inl x)) = inl (lift x)
 inv (Lift⊎Iso ℓD) (lift (inr x)) = inr (lift x)
-rightInv (Lift⊎Iso ℓD) (lift (inl x)) = refl
-rightInv (Lift⊎Iso ℓD) (lift (inr x)) = refl
-leftInv (Lift⊎Iso ℓD) (inl x) = refl
-leftInv (Lift⊎Iso ℓD) (inr x) = refl
+sec (Lift⊎Iso ℓD) (lift (inl x)) = refl
+sec (Lift⊎Iso ℓD) (lift (inr x)) = refl
+ret (Lift⊎Iso ℓD) (inl x) = refl
+ret (Lift⊎Iso ℓD) (inr x) = refl

@@ -599,9 +599,9 @@ private
        λ k → cong (fst ϕ)
        (sym (cong (inv' (fst (π'ᵃᵇCofibFinSphereBouquetMap≅ℤ[]/BouquetDegree α)))
          (π'ᵃᵇCofibFinSphereBouquetMap≅ℤ[]/BouquetDegreePresGens α k))
-       ∙ leftInv (fst (π'ᵃᵇCofibFinSphereBouquetMap≅ℤ[]/BouquetDegree α)) _)
+       ∙ ret (fst (π'ᵃᵇCofibFinSphereBouquetMap≅ℤ[]/BouquetDegree α)) _)
      ∙ hyp k
-     ∙ sym (leftInv (fst (GroupIso-Hₙ₊₁SphereBouquetⁿ/→ℤ[]/ImSphereMap (fst α)))
+     ∙ sym (ret (fst (GroupIso-Hₙ₊₁SphereBouquetⁿ/→ℤ[]/ImSphereMap (fst α)))
        (genH̃ˢᵏᵉˡSphereBouquet/ˢᵏᵉˡ (fst α) k))
      ∙ cong (ℤ[]/ImSphereMap→HₙSphereBouquetⁿ/ (fst α))
        (isGen-genH̃ˢᵏᵉˡSphereBouquet/ˢᵏᵉˡ (fst α) k)
@@ -1131,7 +1131,7 @@ private
 
       Xˢᵘᵇ→∙X₃₊ₙ : Xˢᵘᵇ∙ →∙ (X₃₊ₙ , CWskel∙ Xˢᵏᵉˡ (fst t) (suc (suc n)))
       fst Xˢᵘᵇ→∙X₃₊ₙ = inv' X₃₊ₙ≅X∞
-      snd Xˢᵘᵇ→∙X₃₊ₙ = leftInv X₃₊ₙ≅X∞ _
+      snd Xˢᵘᵇ→∙X₃₊ₙ = ret X₃₊ₙ≅X∞ _
 
       Xˢᵘᵇ→∙X : Xˢᵘᵇ∙ →∙ X∙
       Xˢᵘᵇ→∙X = (e∞⃖ , e∞⃖-incl)

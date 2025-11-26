@@ -67,8 +67,8 @@ reduce-[] ((posneg i , b) , cp) j =
 Quoℚ-iso-Sigmaℚ : Iso Quo.ℚ Sigma.ℚ
 Iso.fun Quoℚ-iso-Sigmaℚ = reduce
 Iso.inv Quoℚ-iso-Sigmaℚ = Quo.[_] ∘ fst
-Iso.rightInv Quoℚ-iso-Sigmaℚ = reduce-[]
-Iso.leftInv  Quoℚ-iso-Sigmaℚ = []-reduce
+Iso.sec Quoℚ-iso-Sigmaℚ = reduce-[]
+Iso.ret  Quoℚ-iso-Sigmaℚ = []-reduce
 
 Quoℚ≃Sigmaℚ : Quo.ℚ ≃ Sigma.ℚ
 Quoℚ≃Sigmaℚ = isoToEquiv Quoℚ-iso-Sigmaℚ

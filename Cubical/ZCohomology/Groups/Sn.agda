@@ -84,10 +84,10 @@ suspensionAx-Sn n m =
                  λ f → ∣ (λ x → ΩKn+1→Kn (suc n) (f x)) ∣₂))))
   Iso.inv helperIso =
     ST.map λ f → (0ₖ _) , (0ₖ _ , λ x → Kn→ΩKn+1 (suc n) (f x))
-  Iso.rightInv helperIso =
+  Iso.sec helperIso =
     coHomPointedElim _ (ptSn (suc m)) (λ _ → isSetSetTrunc _ _)
-      λ f fId → cong ∣_∣₂ (funExt (λ x → Iso.leftInv (Iso-Kn-ΩKn+1 _) (f x)))
-  Iso.leftInv helperIso =
+      λ f fId → cong ∣_∣₂ (funExt (λ x → Iso.ret (Iso-Kn-ΩKn+1 _) (f x)))
+  Iso.ret helperIso =
     ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
       (uncurry
         (coHomK-elim _
@@ -98,7 +98,7 @@ suspensionAx-Sn n m =
               λ f → cong ∣_∣₂
                       (ΣPathP (refl ,
                         ΣPathP (refl ,
-                          (λ i x → Iso.rightInv (Iso-Kn-ΩKn+1 (suc n)) (f x) i))))))))
+                          (λ i x → Iso.sec (Iso-Kn-ΩKn+1 (suc n)) (f x) i))))))))
 
   theFun : coHom (2 + n) (S₊ (2 + m)) → coHom (suc n) (S₊ (suc m))
   theFun = Iso.fun (compIso (setTruncIso (invIso funSpaceSuspIso))
@@ -143,8 +143,8 @@ S0→ℤ a false = snd a
 H⁰-S⁰≅ℤ×ℤ : GroupIso (coHomGr 0 (S₊ 0)) (DirProd ℤGroup ℤGroup)
 fun (fst H⁰-S⁰≅ℤ×ℤ) = ST.rec (isSet× isSetℤ isSetℤ) λ f → (f true) , (f false)
 inv (fst H⁰-S⁰≅ℤ×ℤ) a = ∣ S0→ℤ a ∣₂
-rightInv (fst H⁰-S⁰≅ℤ×ℤ) _ = refl
-leftInv (fst H⁰-S⁰≅ℤ×ℤ) =
+sec (fst H⁰-S⁰≅ℤ×ℤ) _ = refl
+ret (fst H⁰-S⁰≅ℤ×ℤ) =
   ST.elim (λ _ → isSet→isGroupoid isSetSetTrunc _ _)
         (λ f → cong ∣_∣₂ (funExt (λ {true → refl ; false → refl})))
 snd H⁰-S⁰≅ℤ×ℤ =
@@ -160,13 +160,13 @@ private
   Iso.fun (Hⁿ-S0≃Kₙ×Kₙ n) f = (f true) , (f false)
   Iso.inv (Hⁿ-S0≃Kₙ×Kₙ n) (a , b) true = a
   Iso.inv (Hⁿ-S0≃Kₙ×Kₙ n) (a , b) false = b
-  Iso.rightInv (Hⁿ-S0≃Kₙ×Kₙ n) a = refl
-  Iso.leftInv (Hⁿ-S0≃Kₙ×Kₙ n) b = funExt λ {true → refl ; false → refl}
+  Iso.sec (Hⁿ-S0≃Kₙ×Kₙ n) a = refl
+  Iso.ret (Hⁿ-S0≃Kₙ×Kₙ n) b = funExt λ {true → refl ; false → refl}
 
   isContrHⁿ-S0 : (n : ℕ) → isContr (coHom (suc n) (S₊ 0))
   isContrHⁿ-S0 n = isContrRetract (Iso.fun (setTruncIso (Hⁿ-S0≃Kₙ×Kₙ n)))
                                   (Iso.inv (setTruncIso (Hⁿ-S0≃Kₙ×Kₙ n)))
-                                  (Iso.leftInv (setTruncIso (Hⁿ-S0≃Kₙ×Kₙ n)))
+                                  (Iso.ret (setTruncIso (Hⁿ-S0≃Kₙ×Kₙ n)))
                                   (isContrHelper n)
     where
     isContrHelper : (n : ℕ) → isContr (∥ (coHomK (suc n) × coHomK (suc n)) ∥₂)
@@ -270,13 +270,13 @@ H¹-S¹≅ℤ = theIso
   theIso : GroupIso (coHomGr 1 (S₊ 1)) ℤGroup
   fun (fst theIso) = ST.rec isSetℤ (λ f → snd (F f))
   inv (fst theIso) a = ∣ (F⁻ (base , a)) ∣₂
-  rightInv (fst theIso) a = cong snd (Iso.rightInv S¹→S¹≡S¹×ℤ (base , a))
-  leftInv (fst theIso) =
+  sec (fst theIso) a = cong snd (Iso.sec S¹→S¹≡S¹×ℤ (base , a))
+  ret (fst theIso) =
     ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
                           λ f → cong ((ST.rec isSetSetTrunc ∣_∣₂)
                                         ∘ ST.rec isSetSetTrunc λ x → ∣ F⁻ (x , (snd (F f))) ∣₂)
                                       (Iso.inv PathIdTrunc₀Iso (isConnectedS¹ (fst (F f))))
-                              ∙ cong ∣_∣₂ (Iso.leftInv S¹→S¹≡S¹×ℤ f)
+                              ∙ cong ∣_∣₂ (Iso.ret S¹→S¹≡S¹×ℤ f)
   snd theIso =
     makeIsGroupHom
       (coHomPointedElimS¹2 _ (λ _ _ → isSetℤ _ _)
@@ -319,7 +319,7 @@ HⁿSⁿ-gen (suc n) = cong (Iso.fun (fst (Hⁿ-Sⁿ≅ℤ n))) main ∙ HⁿS�
 
   main : Iso.fun (fst (suspensionAx-Sn n n)) ∣ ∣_∣ₕ ∣₂ ≡ ∣ ∣_∣ₕ ∣₂
   main = (sym (cong (Iso.fun (fst (suspensionAx-Sn n n))) lem)
-     ∙ Iso.rightInv (fst (suspensionAx-Sn n n)) ∣ ∣_∣ₕ ∣₂)
+     ∙ Iso.sec (fst (suspensionAx-Sn n n)) ∣ ∣_∣ₕ ∣₂)
 
 ----------------------- multiplication ----------------------------
 -- explicit description of the (ring) multiplication on Hⁿ(Sⁿ)
@@ -435,9 +435,9 @@ Hⁿ-Sⁿ≅ℤ-pres· n f g =
   H = coHomGr (suc n) (S₊ (suc n))
 
   repl : (f : H .fst) → (ϕ f ℤ[ H ]· ∣ ∣_∣ₕ ∣₂) ≡ f
-  repl f = sym (Iso.leftInv (fst (Hⁿ-Sⁿ≅ℤ n)) _)
+  repl f = sym (Iso.ret (fst (Hⁿ-Sⁿ≅ℤ n)) _)
         ∙∙ cong ϕ⁻ lem
-        ∙∙ Iso.leftInv (fst (Hⁿ-Sⁿ≅ℤ n)) f
+        ∙∙ Iso.ret (fst (Hⁿ-Sⁿ≅ℤ n)) f
     where
     lem : ϕ (ϕ f ℤ[ H ]· ∣ ∣_∣ₕ ∣₂) ≡ ϕ f
     lem = homPresℤ· (_ , snd (Hⁿ-Sⁿ≅ℤ n)) ∣ ∣_∣ₕ ∣₂ (ϕ f)

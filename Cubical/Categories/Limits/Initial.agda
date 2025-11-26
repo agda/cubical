@@ -79,5 +79,5 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) w
     _♯ F⊣G (fst (initX (F-ob G y)))
       ≡⟨ cong (F⊣G ♯) (snd (initX (F-ob G y)) (_♭ F⊣G ψ)) ⟩
     _♯ F⊣G (_♭ F⊣G ψ)
-      ≡⟨ leftInv (adjIso F⊣G) ψ ⟩
+      ≡⟨ ret (adjIso F⊣G) ψ ⟩
     ψ ∎

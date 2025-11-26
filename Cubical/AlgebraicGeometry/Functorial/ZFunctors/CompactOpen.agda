@@ -360,7 +360,7 @@ module _ {ℓ : Level} where
                 U .N-ob R[1/ (f i) ]AsCommRing (X .F-hom /1AsCommRingHom x)
 
               ≡⟨ cong (U .N-ob R[1/ f i ]AsCommRing)
-                      (funExt⁻ (cong fst (isoX .rightInv (compatibleFamIncl fam))) i) ⟩
+                      (funExt⁻ (cong fst (isoX .sec (compatibleFamIncl fam))) i) ⟩
 
                 U .N-ob R[1/ (f i) ]AsCommRing (fam .fst i .fst)
 
@@ -372,11 +372,11 @@ module _ {ℓ : Level} where
 
                 inducedZarLatHom /1AsCommRingHom .fst (D R 1r) ∎
 
-    rightInv isoU fam =
+    sec isoU fam =
       Σ≡Prop (λ _ → isPropIsCompatibleFamily _ _ _)
         (funExt λ i → Σ≡Prop (λ _ → squash/ _ _)
                         (funExt⁻ (cong fst
-                          (isoX .rightInv (compatibleFamIncl fam))) i))
-    leftInv isoU y = Σ≡Prop (λ _ → squash/ _ _)
+                          (isoX .sec (compatibleFamIncl fam))) i))
+    ret isoU y = Σ≡Prop (λ _ → squash/ _ _)
                             (cong (isoX .inv) (compatibleFamIncl≡ y)
-                              ∙ isoX .leftInv (y .fst))
+                              ∙ isoX .ret (y .fst))

@@ -367,7 +367,7 @@ module IsoCoeqHIT (G : Group ℓ) where
     where
       r : (x : fst asAbelianGroup)
         → fst (compGroupHom (GroupIso→GroupHom h) (GroupIso→GroupHom (invGroupIso h))) x ≡ x
-      r = λ x → (h .fst .Iso.leftInv) x
+      r = λ x → (h .fst .Iso.ret) x
 
       leftInvGroupHom : (compGroupHom
                           (GroupIso→GroupHom h)

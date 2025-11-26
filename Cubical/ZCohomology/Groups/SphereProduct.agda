@@ -98,7 +98,7 @@ fun (fst (×leftSuspensionIso n m)) =
   ST.map (uncurry ∘ ↑Sⁿ×Sᵐ→Kₙ₊ₘ n m ∘ curry)
 inv (fst (×leftSuspensionIso n m)) =
   ST.map ((uncurry ∘ ↓Sⁿ×Sᵐ→Kₙ₊ₘ n m ∘ curry))
-rightInv (fst (×leftSuspensionIso n m)) =
+sec (fst (×leftSuspensionIso n m)) =
   ST.elim (λ _ → isSetPathImplicit)
     λ f → inv PathIdTrunc₀Iso
       (PT.rec squash₁
@@ -176,7 +176,7 @@ rightInv (fst (×leftSuspensionIso n m)) =
                     (↓Sⁿ×Sᵐ→Kₙ₊ₘ n m (curry (charac-fun g))))
                      (merid a i , y))
       ≡ g a y
-    helper = (λ i → rightInv (Iso-Kn-ΩKn+1 _)
+    helper = (λ i → sec (Iso-Kn-ΩKn+1 _)
                   ((sym (rCancel≡refl _ i)
            ∙∙ cong-∙ (λ x → rUnitₖ _ (charac-fun g (x , y)) i)
                 (merid a) (sym (merid (ptSn (suc n)))) i
@@ -184,7 +184,7 @@ rightInv (fst (×leftSuspensionIso n m)) =
         ∙∙ sym (rUnit _)
         ∙∙ (cong (g a y ∙_) (cong sym (funExt⁻ gid y))
           ∙ sym (rUnit (g a y)))
-leftInv (fst (×leftSuspensionIso n m)) =
+ret (fst (×leftSuspensionIso n m)) =
   ST.elim (λ _ → isSetPathImplicit)
         λ f → PT.rec (squash₂ _ _)
           (λ id
@@ -201,7 +201,7 @@ leftInv (fst (×leftSuspensionIso n m)) =
                        (cong sym (cong (Kn→ΩKn+1 _)
                                   (funExt⁻ id y) ∙ (Kn→ΩKn+10ₖ _)))
                          ∙ sym (rUnit _))
-                ∙ leftInv (Iso-Kn-ΩKn+1 _) (f (x , y))})))
+                ∙ ret (Iso-Kn-ΩKn+1 _) (f (x , y))})))
           (∥HⁿSᵐPath∥ (suc n + m) m (λ x → f (ptSn _ , x))
             (¬lem n m))
 snd (×leftSuspensionIso n m) =
@@ -238,7 +238,7 @@ Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ : (m : ℕ)
               (coHomGr (suc (suc m)) (S₊ (suc zero) × S₊ (suc m)))
 fun (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) = ST.map (uncurry ∘ Hⁿ-S¹×Sⁿ→Hⁿ-Sⁿ m)
 inv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) = ST.map (Hⁿ-Sⁿ→Hⁿ-S¹×Sⁿ m ∘ curry)
-rightInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
+sec (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
   ST.elim (λ _ → isSetPathImplicit)
     λ f → inv PathIdTrunc₀Iso
       (PT.map (uncurry (λ g p
@@ -265,7 +265,7 @@ rightInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
     help : cong (λ x → Hⁿ-S¹×Sⁿ→Hⁿ-Sⁿ m
                          (Hⁿ-Sⁿ→Hⁿ-S¹×Sⁿ m (curry (characFun g))) x y) loop
          ≡ Kn→ΩKn+1 _ (g y)
-    help = rightInv (Iso-Kn-ΩKn+1 (suc m))
+    help = sec (Iso-Kn-ΩKn+1 (suc m))
                  (sym (rCancelₖ _ (0ₖ _))
               ∙∙ ((λ i → Kn→ΩKn+1 _ (g y) i -ₖ 0ₖ _))
               ∙∙ rCancelₖ _ (0ₖ _))
@@ -290,7 +290,7 @@ rightInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
                                   ; (i = i1) → funExt⁻ p x j
                                   ; (j = i0) → f (loop i , x)
                                   ; (j = i1) →
-                                      rightInv (Iso-Kn-ΩKn+1 (suc m))
+                                      sec (Iso-Kn-ΩKn+1 (suc m))
                                         (sym (funExt⁻ p x)
                                         ∙∙ (λ i → f (loop i , x))
                                         ∙∙ funExt⁻ p x) (~ k) i})
@@ -299,7 +299,7 @@ rightInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
                             (λ i → f (loop i , x))
                             (funExt⁻ p x) j i)})
      (∥HⁿSᵐPath∥ (suc m) m (λ x → f (base , x)) (lem m))
-leftInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
+ret (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
   ST.elim (λ _ → isSetPathImplicit)
     λ f
       → cong ∣_∣₂ (funExt λ x
@@ -307,7 +307,7 @@ leftInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
                ((λ i → sym (rCancel≡refl _ i)
                  ∙∙ cong (λ z → rUnitₖ _ (Hⁿ-S¹×Sⁿ→Hⁿ-Sⁿ m f z x) i) loop
                  ∙∙ rCancel≡refl _ i) ∙ sym (rUnit (Kn→ΩKn+1 (suc m) (f x))))
-        ∙ leftInv (Iso-Kn-ΩKn+1 _) (f x))
+        ∙ ret (Iso-Kn-ΩKn+1 _) (f x))
 snd (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m) =
   makeIsGroupHom
     (ST.elim2

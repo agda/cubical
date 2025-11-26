@@ -155,16 +155,16 @@ module Equiv-RP2-Properties where
   ϕ₀str = snd e₀
   ϕ₀⁻¹ = inv (fst e₀)
   ϕ₀⁻¹str = snd (invGroupIso e₀)
-  ϕ₀-sect = rightInv (fst e₀)
-  ϕ₀-retr = leftInv (fst e₀)
+  ϕ₀-sect = sec (fst e₀)
+  ϕ₀-retr = ret (fst e₀)
 
   e₂ = invGroupIso H²-S²⋁S⁴≅ℤ
   ϕ₂ = fun (fst e₂)
   ϕ₂str = snd e₂
   ϕ₂⁻¹ = inv (fst e₂)
   ϕ₂⁻¹str = snd (invGroupIso e₂)
-  ϕ₂-sect = rightInv (fst e₂)
-  ϕ₂-retr = leftInv (fst e₂)
+  ϕ₂-sect = sec (fst e₂)
+  ϕ₂-retr = ret (fst e₂)
 
   -- This equivalence need to be put in module
   -- However, it never type checks
@@ -179,8 +179,8 @@ module Equiv-RP2-Properties where
     ϕ₄⁻¹ : coHom 4 S²⋁S⁴ → ℤ
     ϕ₄⁻¹ = inv (fst e₄)
     ϕ₄⁻¹str = snd (invGroupIso e₄)
-    ϕ₄-sect = rightInv (fst e₄)
-    ϕ₄-retr = leftInv (fst e₄)
+    ϕ₄-sect = sec (fst e₄)
+    ϕ₄-retr = ret (fst e₄)
 
     -- Partition
     data partℕ (k : ℕ) : Type ℓ-zero where
@@ -516,8 +516,8 @@ module _ where
     is : Iso ℤ[x,y]/<xy,x²,y²> (H* S²⋁S⁴)
     fun is = ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴
     inv is = H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²>
-    rightInv is = e-sect
-    leftInv is = e-retr
+    sec is = e-sect
+    ret is = e-retr
   snd S²⋁S⁴-CohomologyRing = snd ℤ[X,Y]/<XY,X²,Y²>→H*R-S²⋁S⁴
 
   CohomologyRing-S²⋁S⁴ : RingEquiv (H*R S²⋁S⁴) (CommRing→Ring ℤ[X,Y]/<XY,X²,Y²>)

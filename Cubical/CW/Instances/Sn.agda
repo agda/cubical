@@ -138,10 +138,10 @@ fun (isPushoutSuspSphereIso n m e s) (merid a i) = push (fzero , a) i
 inv (isPushoutSuspSphereIso n m e s) (inl x) = north
 inv (isPushoutSuspSphereIso n m e s) (inr x) = south
 inv (isPushoutSuspSphereIso n m e s) (push a i) = merid (snd a) i
-rightInv (isPushoutSuspSphereIso n m e s) (inl x) i =
+sec (isPushoutSuspSphereIso n m e s) (inl x) i =
   inl (isContrSfamGen (suc n) m (subst (_<ᵗ suc n) e <ᵗsucm) s .snd x i)
-rightInv (isPushoutSuspSphereIso n m e s) (inr (zero , tt)) j = inr fzero
-rightInv (isPushoutSuspSphereIso n m e s) (push ((zero , tt) , a) i) = help i
+sec (isPushoutSuspSphereIso n m e s) (inr (zero , tt)) j = inr fzero
+sec (isPushoutSuspSphereIso n m e s) (push ((zero , tt) , a) i) = help i
   where
   ee = subst (_<ᵗ suc n) e <ᵗsucm
   help : Square {A = Pushout {A = Fin 1 × S₊ m}
@@ -155,9 +155,9 @@ rightInv (isPushoutSuspSphereIso n m e s) (push ((zero , tt) , a) i) = help i
                           (isContrSfamGen (suc n) m ee s .snd
                            (Sgen.Sfam∙ (suc n) m s)) refl i j))
        ◁ λ i j → push (fzero , a) i
-leftInv (isPushoutSuspSphereIso n m e s) north = refl
-leftInv (isPushoutSuspSphereIso n m e s) south = refl
-leftInv (isPushoutSuspSphereIso n m e s) (merid a i) = refl
+ret (isPushoutSuspSphereIso n m e s) north = refl
+ret (isPushoutSuspSphereIso n m e s) south = refl
+ret (isPushoutSuspSphereIso n m e s) (merid a i) = refl
 
 SfamGenTopElement : (n m : ℕ) → (n <ᵗ m) → (q : _) → S₊ n ≃ Sgen.Sfam n m q
 SfamGenTopElement n (suc m) p (lt x) = ⊥.rec (¬squeeze (x , p))
@@ -175,18 +175,18 @@ SuspSphere→Sphere (suc n) (merid a i) = merid a i
 IsoSucSphereSusp' : (n : ℕ) → Iso (S₊ (suc n)) (Susp (S₊ n))
 fun (IsoSucSphereSusp' n) = fun (IsoSucSphereSusp n)
 inv (IsoSucSphereSusp' n) = SuspSphere→Sphere n
-rightInv (IsoSucSphereSusp' zero) north = refl
-rightInv (IsoSucSphereSusp' zero) south = SuspBool→S¹→SuspBool south
-rightInv (IsoSucSphereSusp' zero) (merid a i) =
+sec (IsoSucSphereSusp' zero) north = refl
+sec (IsoSucSphereSusp' zero) south = SuspBool→S¹→SuspBool south
+sec (IsoSucSphereSusp' zero) (merid a i) =
   SuspBool→S¹→SuspBool (merid a i)
-rightInv (IsoSucSphereSusp' (suc n)) north = refl
-rightInv (IsoSucSphereSusp' (suc n)) south = refl
-rightInv (IsoSucSphereSusp' (suc n)) (merid a i) = refl
-leftInv (IsoSucSphereSusp' zero) base = S¹→SuspBool→S¹ base
-leftInv (IsoSucSphereSusp' zero) (loop i) = S¹→SuspBool→S¹ (loop i)
-leftInv (IsoSucSphereSusp' (suc n)) north = refl
-leftInv (IsoSucSphereSusp' (suc n)) south = refl
-leftInv (IsoSucSphereSusp' (suc n)) (merid a i) = refl
+sec (IsoSucSphereSusp' (suc n)) north = refl
+sec (IsoSucSphereSusp' (suc n)) south = refl
+sec (IsoSucSphereSusp' (suc n)) (merid a i) = refl
+ret (IsoSucSphereSusp' zero) base = S¹→SuspBool→S¹ base
+ret (IsoSucSphereSusp' zero) (loop i) = S¹→SuspBool→S¹ (loop i)
+ret (IsoSucSphereSusp' (suc n)) north = refl
+ret (IsoSucSphereSusp' (suc n)) south = refl
+ret (IsoSucSphereSusp' (suc n)) (merid a i) = refl
 
 -- Our family Sfam satisfies the pushout property (i.e. is a CW complex)
 SαEqGen : (n m : ℕ) (p : Trichotomyᵗ (suc m) (suc n)) (q : _)

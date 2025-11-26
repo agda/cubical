@@ -157,9 +157,9 @@ typeQuotSetTruncIso : Iso (A / R) ∥ A /ₜ R ∥₂
 Iso.fun typeQuotSetTruncIso = rec isSetSetTrunc (λ a → ∣ [ a ] ∣₂)
                                                  λ a b r → cong ∣_∣₂ (eq/ a b r)
 Iso.inv typeQuotSetTruncIso = SetTrunc.rec squash/ (TypeQuot.rec [_] eq/)
-Iso.rightInv typeQuotSetTruncIso = SetTrunc.elim (λ _ → isProp→isSet (squash₂ _ _))
+Iso.sec typeQuotSetTruncIso = SetTrunc.elim (λ _ → isProp→isSet (squash₂ _ _))
                                   (TypeQuot.elimProp (λ _ → squash₂ _ _) λ _ → refl)
-Iso.leftInv typeQuotSetTruncIso = elimProp (λ _ → squash/ _ _) λ _ → refl
+Iso.ret typeQuotSetTruncIso = elimProp (λ _ → squash/ _ _) λ _ → refl
 
 module rec→Gpd {B : Type ℓ''} (Bgpd : isGroupoid B)
   (f : A → B)
@@ -190,8 +190,8 @@ setQuotUniversalIso : isSet B
   → Iso (A / R → B) (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
 Iso.fun (setQuotUniversalIso Bset) g = (λ a → g [ a ]) , λ a b r i → g (eq/ a b r i)
 Iso.inv (setQuotUniversalIso Bset) h = rec Bset (fst h) (snd h)
-Iso.rightInv (setQuotUniversalIso Bset) h = refl
-Iso.leftInv (setQuotUniversalIso Bset) g =
+Iso.sec (setQuotUniversalIso Bset) h = refl
+Iso.ret (setQuotUniversalIso Bset) g =
  funExt λ x →
  PropTrunc.rec
    (Bset (out (intro g) x) (g x))
@@ -230,9 +230,9 @@ Iso.inv (setQuotUniversal2Iso {R = R} {S = S} Bset isReflR isReflS) (_∗_ , h) 
 
   hright : ∀ a b b' → S b b' → (a ∗ b) ≡ (a ∗ b')
   hright a _ _ r = h _ _ _ _ (isReflR a) r
-Iso.rightInv (setQuotUniversal2Iso Bset isReflR isReflS) (_∗_ , h) =
+Iso.sec (setQuotUniversal2Iso Bset isReflR isReflS) (_∗_ , h) =
    Σ≡Prop (λ _ → isPropΠ4 λ _ _ _ _ → isPropΠ2 λ _ _ → Bset _ _) refl
-Iso.leftInv (setQuotUniversal2Iso Bset isReflR isReflS) _∗/_ =
+Iso.ret (setQuotUniversal2Iso Bset isReflR isReflS) _∗/_ =
    funExt₂ (elimProp2 (λ _ _ → Bset _ _) λ _ _ → refl)
 
 setQuotUniversal2 : isSet C → isRefl R → isRefl S
@@ -288,8 +288,8 @@ isEquivRel→effectiveIso : isPropValued R → isEquivRel R
   → (a b : A) → Iso ([ a ] ≡ [ b ]) (R a b)
 Iso.fun (isEquivRel→effectiveIso {R = R} Rprop Req a b) = effective Rprop Req a b
 Iso.inv (isEquivRel→effectiveIso {R = R} Rprop Req a b) = eq/ a b
-Iso.rightInv (isEquivRel→effectiveIso {R = R} Rprop Req a b) _ = Rprop a b _ _
-Iso.leftInv (isEquivRel→effectiveIso {R = R} Rprop Req a b) _ = squash/ _ _ _ _
+Iso.sec (isEquivRel→effectiveIso {R = R} Rprop Req a b) _ = Rprop a b _ _
+Iso.ret (isEquivRel→effectiveIso {R = R} Rprop Req a b) _ = squash/ _ _ _ _
 
 isEquivRel→isEffective : isPropValued R → isEquivRel R → isEffective R
 isEquivRel→isEffective Rprop Req a b =
@@ -299,8 +299,8 @@ isEquivRel→isEffective Rprop Req a b =
 truncRelIso : Iso (A / R) (A / (λ a b → ∥ R a b ∥₁))
 Iso.fun truncRelIso = rec squash/ [_] λ _ _ r → eq/ _ _ ∣ r ∣₁
 Iso.inv truncRelIso = rec squash/ [_] λ _ _ → PropTrunc.rec (squash/ _ _) λ r → eq/ _ _ r
-Iso.rightInv truncRelIso = elimProp (λ _ → squash/ _ _) λ _ → refl
-Iso.leftInv truncRelIso = elimProp (λ _ → squash/ _ _) λ _ → refl
+Iso.sec truncRelIso = elimProp (λ _ → squash/ _ _) λ _ → refl
+Iso.ret truncRelIso = elimProp (λ _ → squash/ _ _) λ _ → refl
 
 truncRelEquiv : A / R ≃ A / (λ a b → ∥ R a b ∥₁)
 truncRelEquiv = isoToEquiv truncRelIso
@@ -336,8 +336,8 @@ discreteSetQuotients {A = A} {R = R} Req Rdec =
 relBiimpl→TruncIso : ({a b : A} → R a b → S a b) → ({a b : A} → S a b → R a b) → Iso (A / R) (A / S)
 Iso.fun (relBiimpl→TruncIso R→S S→R) = rec squash/ [_] λ _ _ Rab → eq/ _ _ (R→S Rab)
 Iso.inv (relBiimpl→TruncIso R→S S→R) = rec squash/ [_] λ _ _ Sab → eq/ _ _ (S→R Sab)
-Iso.rightInv (relBiimpl→TruncIso R→S S→R) = elimProp (λ _ → squash/ _ _) λ _ → refl
-Iso.leftInv (relBiimpl→TruncIso R→S S→R) = elimProp (λ _ → squash/ _ _) λ _ → refl
+Iso.sec (relBiimpl→TruncIso R→S S→R) = elimProp (λ _ → squash/ _ _) λ _ → refl
+Iso.ret (relBiimpl→TruncIso R→S S→R) = elimProp (λ _ → squash/ _ _) λ _ → refl
 
 descendMapPath : {M : Type ℓ} (f g : A / R → M) (isSetM : isSet M)
                → ((x : A) → f [ x ] ≡ g [ x ])

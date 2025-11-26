@@ -285,7 +285,7 @@ snd (fst π₃*joinS¹S¹≅π₃*S²) =
         λ f → to3ConnectedId (sphereConnected 2)
           (funExt λ x
             → (λ i → fst (JoinS¹S¹→TotalHopf (Iso.inv (IsoSphereJoin 1 1)
-                              (fst f (Iso.rightInv (IsoSphereJoin 1 1) x i)))))
+                              (fst f (Iso.sec (IsoSphereJoin 1 1) x i)))))
                     ∙ sym (funExt⁻ (sym (cong fst hopfMap≡HopfMap'))
                                 (fst f x)))
 
@@ -319,7 +319,7 @@ snd π₃*joinS¹S¹≅π₃*S² = snd π₃*joinS¹S¹→π₃*S²
   lem₁ : fold∘W ∘ joinS¹S¹→S³ ≡ fold⋁ ∘ (joinTo⋁ {A = S₊∙ 1} {B = S₊∙ 1})
   lem₁ = funExt λ x
     → cong (fold⋁ ∘ (joinTo⋁ {A = S₊∙ 1} {B = S₊∙ 1}))
-      (leftInv (IsoSphereJoin 1 1) x)
+      (ret (IsoSphereJoin 1 1) x)
 
   lem₂ : (x : join S¹ S¹) → fst η₁-raw x ≡ (fold⋁ ∘ joinTo⋁) x
   lem₂ (inl x) = refl
@@ -666,7 +666,7 @@ private
   Iso (π₃*S³' .fst) ((π'Gr 0 (S₊∙ 1 →∙ Ω (Susp∙ S²) ∙)) .fst)
 fun π₃*S³'≅π₁S¹→∙ΩS³'-raw = sMap map→
 inv π₃*S³'≅π₁S¹→∙ΩS³'-raw = sMap map←
-rightInv π₃*S³'≅π₁S¹→∙ΩS³'-raw =
+sec π₃*S³'≅π₁S¹→∙ΩS³'-raw =
   sElim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂
       (→∙Homogeneous≡
@@ -692,7 +692,7 @@ rightInv π₃*S³'≅π₁S¹→∙ΩS³'-raw =
                                  (cong₂ _∙_ (fst f base .snd) (cong sym (fst f x .snd))
                                    ∙ sym (rUnit refl))
                          ∙∙ sym (rUnit (f .fst x .fst y)))))
-leftInv π₃*S³'≅π₁S¹→∙ΩS³'-raw =
+ret π₃*S³'≅π₁S¹→∙ΩS³'-raw =
   sElim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (ΣPathP
       ((funExt

@@ -55,7 +55,7 @@ isSetEl (un b c e i)
   = isPropIsSetEl (isSetEl b) (isSetEl c) (un b c e) i
 
 isGroupoidBinary : isGroupoid Binary
-isGroupoidBinary b c = isOfHLevelRetract 2 fun inv leftInv sub
+isGroupoidBinary b c = isOfHLevelRetract 2 fun inv ret sub
   where
   open Iso (pathIso b c)
   sub : isSet (El b ≡ El c)
@@ -93,8 +93,8 @@ module Reflection where
   reflectIso : Iso Binary (FS.Binary ℓ-zero)
   reflectIso .fun = bigger
   reflectIso .inv = smaller
-  reflectIso .rightInv = bigger-smaller
-  reflectIso .leftInv = smaller-bigger
+  reflectIso .sec = bigger-smaller
+  reflectIso .ret = smaller-bigger
 
 reflect : Binary ≃ FS.Binary ℓ-zero
 reflect = isoToEquiv Reflection.reflectIso

@@ -100,8 +100,8 @@ snd (⋀S∙ n m) = refl
   → Iso (S₊∙ zero ⋀ S₊∙ m) (S₊ m)
 fun (⋀S-base m) = ⋀S zero m
 inv (⋀S-base m) x = inr (false , x)
-rightInv (⋀S-base m) x = refl
-leftInv (⋀S-base m) =
+sec (⋀S-base m) x = refl
+ret (⋀S-base m) =
   ⋀-fun≡ _ _
     (sym (push (inl false)))
     (λ { (false , y) → refl
@@ -373,12 +373,12 @@ IsoSphereJoin : (n m : ℕ)
   → Iso (join (S₊ n) (S₊ m)) (S₊ (suc (n + m)))
 fun (IsoSphereJoin n m) = join→Sphere n m
 inv (IsoSphereJoin n m) = sphere→Join n m
-rightInv (IsoSphereJoin n m) x =
+sec (IsoSphereJoin n m) x =
   (λ i → join→Sphere≡ n m (sphere→Join≡ n m x i) i)
-  ∙ joinSphereIso' n m .Iso.rightInv x
-leftInv (IsoSphereJoin n m) x =
+  ∙ joinSphereIso' n m .Iso.sec x
+ret (IsoSphereJoin n m) x =
   (λ i → sphere→Join≡ n m (join→Sphere≡ n m x i) i)
-  ∙ joinSphereIso' n m .Iso.leftInv x
+  ∙ joinSphereIso' n m .Iso.ret x
 
 joinSphereEquiv∙ : (n m : ℕ) → join∙ (S₊∙ n) (S₊∙ m) ≃∙ S₊∙ (suc (n + m))
 fst (joinSphereEquiv∙ n m) = isoToEquiv (IsoSphereJoin n m)
@@ -518,8 +518,8 @@ invSphere-S^ (suc n) x = cong invSphere (invSphere-S^ n x)
 -S^Iso : {k : ℕ} (n : ℕ) → Iso (S₊ k) (S₊ k)
 fun (-S^Iso n) = -S^ n
 inv (-S^Iso n) = -S^ n
-rightInv (-S^Iso n) = -S^² n
-leftInv (-S^Iso n) = -S^² n
+sec (-S^Iso n) = -S^² n
+ret (-S^Iso n) = -S^² n
 
 -S^-comp : {k : ℕ} (n m : ℕ) (x : S₊ k)
   → -S^ n (-S^ m x) ≡ -S^ (n + m) x

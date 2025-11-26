@@ -106,10 +106,10 @@ Iso.fun IsoPointedPointer = ⌊_⌋
 Iso.inv (IsoPointedPointer {A = A}) pt₀ = pt A
 Iso.inv IsoPointedPointer ⌊ x ⌋ = x
 Iso.inv (IsoPointedPointer {A = A}) (id i) = pt A
-Iso.rightInv IsoPointedPointer pt₀ = id
-Iso.rightInv IsoPointedPointer ⌊ x ⌋ = refl
-Iso.rightInv IsoPointedPointer (id i) j = id (i ∧ j)
-Iso.leftInv IsoPointedPointer x = refl
+Iso.sec IsoPointedPointer pt₀ = id
+Iso.sec IsoPointedPointer ⌊ x ⌋ = refl
+Iso.sec IsoPointedPointer (id i) j = id (i ∧ j)
+Iso.ret IsoPointedPointer x = refl
 
 Pointed≡Pointer : {A : Pointed ℓ} → typ A ≡ Pointer A
 Pointed≡Pointer = isoToPath IsoPointedPointer

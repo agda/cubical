@@ -64,7 +64,7 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (G : AbGroup ℓ) where
       λ f → ∣ f ∘ inl ∣₂ , ∣ f ∘ inr ∣₂
   Iso.inv (Hⁿ⋁-Iso n) =
     uncurry (ST.rec2 squash₂ λ f g → ∣ Hⁿ-⋁→Hⁿ× n f g ∣₂)
-  Iso.rightInv (Hⁿ⋁-Iso n) =
+  Iso.sec (Hⁿ⋁-Iso n) =
     uncurry (ST.elim2
       (λ _ _ → isOfHLevelPath 2 (isSet× squash₂ squash₂) _ _)
       λ f g
@@ -80,7 +80,7 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (G : AbGroup ℓ) where
                               ∙ rUnitₖ (suc n) (g x)))
               (isConnectedPath (suc n)
                (isConnectedEM (suc n)) (g (pt B)) (0ₖ (suc n)) .fst)))
-  Iso.leftInv (Hⁿ⋁-Iso n) =
+  Iso.ret (Hⁿ⋁-Iso n) =
     ST.elim (λ _ → isSetPathImplicit)
       λ f → Trunc.rec (isProp→isOfHLevelSuc n (squash₂ _ _))
         (λ p → cong ∣_∣₂

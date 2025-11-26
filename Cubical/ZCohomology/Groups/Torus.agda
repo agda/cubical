@@ -207,10 +207,10 @@ H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
   helper : Iso (∥ ((a : S¹) → coHomK 2) ∥₂ × ∥ ((a : S¹) → coHomK 1) ∥₂) (coHom 1 S¹)
   inv helper s = 0ₕ _ , s
   fun helper = snd
-  leftInv helper _ =
+  ret helper _ =
     ΣPathP (isOfHLevelSuc 0 (isOfHLevelRetractFromIso 0 (fst (Hⁿ-S¹≅0 0)) (isContrUnit)) _ _
           , refl)
-  rightInv helper _ = refl
+  sec helper _ = refl
   theIso : Iso (coHom 2 (S¹ × S¹)) (coHom 1 S¹)
   theIso = setTruncIso (curryIso ⋄ codomainIso S1→K2≡K2×K1 ⋄ toProdIso)
          ⋄ setTruncOfProdIso
@@ -293,8 +293,8 @@ private
 
   hasTrivial⌣₁S²∨S¹∨S¹ : hasTrivial⌣₁ S²⋁S¹⋁S¹
   hasTrivial⌣₁S²∨S¹∨S¹ x y =
-    x ⌣ y                                                    ≡⟨ cong₂ _⌣_ (sym (leftInv (fst (H¹-S²⋁S¹⋁S¹)) x)) (sym (leftInv (fst (H¹-S²⋁S¹⋁S¹)) y)) ⟩
-    from₁-∨ (to₁-∨ x) ⌣ from₁-∨ (to₁-∨ y)                     ≡⟨ sym (leftInv (fst (H²-S²⋁S¹⋁S¹)) (from₁-∨ (to₁-∨ x) ⌣ from₁-∨ (to₁-∨ y))) ⟩
+    x ⌣ y                                                    ≡⟨ cong₂ _⌣_ (sym (ret (fst (H¹-S²⋁S¹⋁S¹)) x)) (sym (ret (fst (H¹-S²⋁S¹⋁S¹)) y)) ⟩
+    from₁-∨ (to₁-∨ x) ⌣ from₁-∨ (to₁-∨ y)                     ≡⟨ sym (ret (fst (H²-S²⋁S¹⋁S¹)) (from₁-∨ (to₁-∨ x) ⌣ from₁-∨ (to₁-∨ y))) ⟩
     from₂-∨ (to₂-∨ (from₁-∨ (to₁-∨ x) ⌣ from₁-∨ (to₁-∨ y)))   ≡⟨ refl ⟩ -- holds by computation (even with open terms in the context)!
     from₂-∨ 0                                                 ≡⟨ hom1g (snd ℤGroup) from₂-∨ (snd (coHomGr 2 S²⋁S¹⋁S¹))
                                                                        ((invGroupEquiv (GroupIso→GroupEquiv H²-S²⋁S¹⋁S¹)) .snd .pres·) ⟩

@@ -47,6 +47,6 @@ snd (ΠGroupHom fam) =
 Iso.fun (fst (ΠGroupIso fam)) = fst (ΠGroupHom λ a → GroupIso→GroupHom (fam a))
 Iso.inv (fst (ΠGroupIso fam)) =
   fst (ΠGroupHom λ a → GroupIso→GroupHom (invGroupIso (fam a)))
-Iso.rightInv (fst (ΠGroupIso fam)) f = funExt λ x → Iso.rightInv (fst (fam x)) _
-Iso.leftInv (fst (ΠGroupIso fam)) f = funExt λ x → Iso.leftInv (fst (fam x)) _
+Iso.sec (fst (ΠGroupIso fam)) f = funExt λ x → Iso.sec (fst (fam x)) _
+Iso.ret (fst (ΠGroupIso fam)) f = funExt λ x → Iso.ret (fst (fam x)) _
 snd (ΠGroupIso fam) = snd (ΠGroupHom λ a → GroupIso→GroupHom (fam a))

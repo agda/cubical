@@ -39,11 +39,11 @@ module _
   Iso.inv (fst Equiv-Coproduct-CoHom)      = uncurry
                            (ST.rec (λ u v p q i j y → squash₂ (u y) (v y) (λ X → p X y) (λ X → q X y) i j)
                            (λ g → ST.rec squash₂ (λ h → ∣ Sum.rec g h ∣₂)))
-  Iso.rightInv (fst Equiv-Coproduct-CoHom) = uncurry
+  Iso.sec (fst Equiv-Coproduct-CoHom) = uncurry
                            (ST.elim (λ x → isProp→isSet λ u v i y → isSet× squash₂ squash₂ _ _ (u y) (v y) i)
                            (λ g → ST.elim (λ _ → isProp→isSet (isSet× squash₂ squash₂ _ _))
                                    (λ h → refl)))
-  Iso.leftInv (fst Equiv-Coproduct-CoHom) = ST.elim (λ _ → isProp→isSet (squash₂ _ _))
+  Iso.ret (fst Equiv-Coproduct-CoHom) = ST.elim (λ _ → isProp→isSet (squash₂ _ _))
                           λ f → cong ∣_∣₂ (funExt (Sum.elim (λ x → refl) (λ x → refl)))
   snd Equiv-Coproduct-CoHom =               makeIsGroupHom
                           (ST.elim (λ x → isProp→isSet λ u v i y → isSet× squash₂ squash₂ _ _ (u y) (v y) i)

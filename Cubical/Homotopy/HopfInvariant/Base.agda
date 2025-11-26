@@ -144,7 +144,7 @@ module _ (n : ℕ) (f : S₊∙ (3 +ℕ n +ℕ n) →∙ S₊∙ (2 +ℕ n)) whe
                   (Hⁿ-Sⁿ≅ℤ (suc (suc (n +ℕ n)))))
 
 Hⁿ-Sⁿ≅ℤ-nice-generator : (n : ℕ) → Iso.inv (fst (Hⁿ-Sⁿ≅ℤ (suc n))) 1 ≡ ∣ ∣_∣ ∣₂
-Hⁿ-Sⁿ≅ℤ-nice-generator zero = Iso.leftInv (fst (Hⁿ-Sⁿ≅ℤ (suc zero))) _
+Hⁿ-Sⁿ≅ℤ-nice-generator zero = Iso.ret (fst (Hⁿ-Sⁿ≅ℤ (suc zero))) _
 Hⁿ-Sⁿ≅ℤ-nice-generator (suc n) =
   (λ i → Iso.inv (fst (suspensionAx-Sn (suc n) (suc n)))
                   (Hⁿ-Sⁿ≅ℤ-nice-generator n i))
@@ -158,7 +158,7 @@ Hopfβ↦1 : (n : ℕ) (f : S₊∙ (3 +ℕ n +ℕ n) →∙ S₊∙ (2 +ℕ n))
   → Iso.fun (fst (Hopfβ-Iso n f)) (Hopfβ n f) ≡ 1
 Hopfβ↦1 n f =
     sym (cong (Iso.fun (fst (Hopfβ-Iso n f))) lem)
-  ∙ Iso.rightInv (fst (Hopfβ-Iso n f)) (pos 1)
+  ∙ Iso.sec (fst (Hopfβ-Iso n f)) (pos 1)
   where
   lem : Iso.inv (fst (Hopfβ-Iso n f)) (pos 1) ≡ Hopfβ n f
   lem = (λ i → fst (MV.d _ _ _ (λ _ → tt) (fst f) (3 +ℕ n +ℕ n))
@@ -209,13 +209,13 @@ module _ (n : ℕ) (f : S₊∙ (3 +ℕ n +ℕ n) →∙ S₊∙ (2 +ℕ n)) whe
         (coHom (2 +ℕ n) (S₊ (2 +ℕ n)))
   Iso.fun HIPSphereCohomIso = H→Sphere
   Iso.inv HIPSphereCohomIso = Sphere→H
-  Iso.rightInv HIPSphereCohomIso =
+  Iso.sec HIPSphereCohomIso =
     sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
       λ g → pRec (squash₂ _ _)
                   (λ p → cong ∣_∣₂ (funExt λ x → cong (g x +ₖ_) (cong (-ₖ_) p)
                                  ∙ rUnitₖ _ (g x)))
                   (conCohom2+n (g north))
-  Iso.leftInv HIPSphereCohomIso =
+  Iso.ret HIPSphereCohomIso =
     sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
       λ g →
        pRec (squash₂ _ _)
@@ -267,7 +267,7 @@ Hopfα-Iso-α : (n : ℕ) (f : _)
             ≡ 1
 Hopfα-Iso-α n f =
     sym (cong (Iso.fun (fst (Hⁿ-Sⁿ≅ℤ (suc n)))) (Hⁿ-Sⁿ≅ℤ-nice-generator n))
-  ∙ Iso.rightInv (fst (Hⁿ-Sⁿ≅ℤ (suc n))) (pos 1)
+  ∙ Iso.sec (fst (Hⁿ-Sⁿ≅ℤ (suc n))) (pos 1)
   where
   hz : Iso.fun (HIPSphereCohomIso n f) (Hopfα n f) ≡ ∣ ∣_∣ ∣₂
   hz = refl

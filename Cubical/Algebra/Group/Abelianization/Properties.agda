@@ -356,9 +356,9 @@ fst (AbelianizationEquiv {G = G} {H} ϕ) = isoToEquiv main
   main : Iso _ _
   Iso.fun main = fst (AbelianizationFun (GroupEquiv→GroupHom ϕ))
   Iso.inv main = fst (AbelianizationFun (GroupEquiv→GroupHom (invGroupEquiv ϕ)))
-  Iso.rightInv main =
+  Iso.sec main =
     elimProp _ (λ _ → isset _ _) λ g → cong η (secEq (fst ϕ) g)
-  Iso.leftInv main =
+  Iso.ret main =
     elimProp _ (λ _ → isset _ _) λ g → cong η (retEq (fst ϕ) g)
 snd (AbelianizationEquiv {G = G} {H} ϕ) =
   snd (AbelianizationFun (fst (fst ϕ) , snd ϕ))
@@ -370,8 +370,8 @@ Iso.inv (fst (AbelianizationIdempotent G)) =
   rec _ (AbGroupStr.is-set (snd G))
   (λ x → x)
   λ a b c → cong (AbGroupStr._+_ (snd G) a) (AbGroupStr.+Comm (snd G) _ _)
-Iso.rightInv (fst (AbelianizationIdempotent G)) =
+Iso.sec (fst (AbelianizationIdempotent G)) =
   elimProp _ (λ _ → isset _ _) (λ _ → refl)
-Iso.leftInv (fst (AbelianizationIdempotent G)) x = refl
+Iso.ret (fst (AbelianizationIdempotent G)) x = refl
 snd (AbelianizationIdempotent G) =
   snd (AbelianizationGroupStructure.ηAsGroupHom _)

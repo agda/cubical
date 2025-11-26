@@ -65,8 +65,8 @@ module _ {R : CommRing ℓ} where
   typevariateListPolyIso : Iso ⟨ R [ Unit ] ⟩  ⟨ ListPolyCommAlgebra R ⟩
   fun typevariateListPolyIso = fst to
   inv typevariateListPolyIso = fst from
-  rightInv typevariateListPolyIso = toFrom
-  leftInv typevariateListPolyIso = fromTo
+  sec typevariateListPolyIso = toFrom
+  ret typevariateListPolyIso = fromTo
 
   typevariateListPolyEquiv : CommAlgebraEquiv (R [ Unit ]) (ListPolyCommAlgebra R)
   fst typevariateListPolyEquiv = isoToEquiv typevariateListPolyIso

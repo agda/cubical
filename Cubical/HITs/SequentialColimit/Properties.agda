@@ -190,31 +190,31 @@ module _
       (Y : SeqColim X → TypeOfHLevel ℓ' d) where
 
       module _
-        (sec : (x : X .obj n) → Y (incl (X .map x)) .fst) where
+        (sec' : (x : X .obj n) → Y (incl (X .map x)) .fst) where
 
         lift-iso = elim.isIsoPrecompose _ d (Y ∘ incl) conn
 
         liftSec' : (x : X .obj (1 + n)) → Y (incl x) .fst
-        liftSec' = lift-iso .inv sec
+        liftSec' = lift-iso .inv sec'
 
-        liftSecPath' : (x : X .obj n) → sec x ≡ liftSec' (X .map x)
-        liftSecPath' x i = lift-iso .rightInv sec (~ i) x
+        liftSecPath' : (x : X .obj n) → sec' x ≡ liftSec' (X .map x)
+        liftSecPath' x i = lift-iso .sec sec' (~ i) x
 
       module _
-        (sec : (x : X .obj n) → Y (incl x) .fst) where
+        (sec' : (x : X .obj n) → Y (incl x) .fst) where
 
         liftSec : (x : X .obj (1 + n)) → Y (incl x) .fst
-        liftSec = liftSec' (transpSec n (λ x → Y x .fst) sec)
+        liftSec = liftSec' (transpSec n (λ x → Y x .fst) sec')
 
         liftSecPath :
           (x : X .obj n)
-          → PathP (λ i → Y (push x i) .fst) (sec x) (liftSec (X .map x))
+          → PathP (λ i → Y (push x i) .fst) (sec' x) (liftSec (X .map x))
         liftSecPath x i =
           hcomp (λ j → λ
-            { (i = i0) → sec x
+            { (i = i0) → sec' x
             ; (i = i1) → liftSecPath'
-                (transpSec n (λ x → Y x .fst) sec) x j })
-            (transport-filler (λ i → Y (push x i) .fst) (sec x) i)
+                (transpSec n (λ x → Y x .fst) sec') x j })
+            (transport-filler (λ i → Y (push x i) .fst) (sec' x) i)
 
   module _
     (d : ℕ)(n : ℕ)
@@ -340,7 +340,7 @@ converges→ColimIso : ∀ {ℓ} {seq : Sequence ℓ} (n : ℕ)
   → Iso (obj seq n) (SeqColim seq)
 Iso.fun (converges→ColimIso {seq = seq} n e) = incl
 Iso.inv (converges→ColimIso {seq = seq} n e) = elimShifted seq n _ (shiftEqShifted seq n e)
-Iso.rightInv (converges→ColimIso {seq = seq} n e) = elimShifted seq n _
+Iso.sec (converges→ColimIso {seq = seq} n e) = elimShifted seq n _
   (elimdata-shift (λ {k} → paths k) (λ {k} → cohs k))
   where
   zero-case : (x : seq .obj n)
@@ -369,7 +369,7 @@ Iso.rightInv (converges→ColimIso {seq = seq} n e) = elimShifted seq n _
       (converges→ColimIso-main-lem seq n e zero-case k x)
       (push x)
     ▷ sym (converges→ColimIso-main-lemβ seq n e (zero-case) k x)
-Iso.leftInv (converges→ColimIso {seq = seq} n e) a =
+Iso.ret (converges→ColimIso {seq = seq} n e) a =
     funExt⁻ (elimShiftedβ seq n _ (λ _ → obj seq n)
              (shiftEqShifted seq n e)) a
 
@@ -443,8 +443,8 @@ sequenceEquiv→ColimIso e = mainIso
   mainIso : Iso _ _
   Iso.fun mainIso = realiseSequenceMap (fst e)
   Iso.inv mainIso = realiseSequenceMap (fst (invSequenceEquiv e))
-  Iso.rightInv mainIso = main _ e .fst
-  Iso.leftInv mainIso = main _ e .snd
+  Iso.sec mainIso = main _ e .fst
+  Iso.ret mainIso = main _ e .snd
 
 sequenceIso→ColimIso : {A B : Sequence ℓ}
   → SequenceIso A B → Iso (SeqColim A) (SeqColim B)
@@ -501,8 +501,8 @@ module _ (X : Sequence ℓ) where
   Iso-FinSeqColim₀-Top : Iso (FinSeqColim 0 X) (obj X zero)
   Iso.fun Iso-FinSeqColim₀-Top (fincl (zero , p) x) = x
   Iso.inv Iso-FinSeqColim₀-Top a = fincl fzero a
-  Iso.rightInv Iso-FinSeqColim₀-Top a = refl
-  Iso.leftInv Iso-FinSeqColim₀-Top (fincl (zero , p) x) = refl
+  Iso.sec Iso-FinSeqColim₀-Top a = refl
+  Iso.ret Iso-FinSeqColim₀-Top (fincl (zero , p) x) = refl
 
 pre-Iso-FinSeqColim-Top : (X : Sequence ℓ) (m : ℕ)
   → Iso (FinSeqColim m X) (obj X m)
@@ -522,12 +522,12 @@ Iso-FinSeqColim-Top : (X : Sequence ℓ) (m : ℕ)
   → Iso (FinSeqColim m X) (obj X m)
 Iso.fun (Iso-FinSeqColim-Top X m) = Iso.fun (pre-Iso-FinSeqColim-Top X m)
 Iso.inv (Iso-FinSeqColim-Top X m) = fincl flast
-Iso.rightInv (Iso-FinSeqColim-Top X m) r =
+Iso.sec (Iso-FinSeqColim-Top X m) r =
   cong (Iso.fun (pre-Iso-FinSeqColim-Top X m)) (sym (characInverse X m r))
-  ∙ Iso.rightInv (pre-Iso-FinSeqColim-Top X m) r
-Iso.leftInv (Iso-FinSeqColim-Top X m) r =
+  ∙ Iso.sec (pre-Iso-FinSeqColim-Top X m) r
+Iso.ret (Iso-FinSeqColim-Top X m) r =
     sym (characInverse X m (Iso.fun (pre-Iso-FinSeqColim-Top X m) r))
-  ∙ Iso.leftInv (pre-Iso-FinSeqColim-Top X m) r
+  ∙ Iso.ret (pre-Iso-FinSeqColim-Top X m) r
 
   -- main corollary : given two maps (f g : SeqColim Xᵢ → B) and a
   -- family of homotopies hᵢ : (x : Xᵢ) → f (incl x) ≡ g (incl x) for
@@ -775,15 +775,15 @@ module _ {ℓ ℓ' ℓ'' : Level} {A : Sequence ℓ} {B : Sequence ℓ'} {C : Se
   Iso-PushoutColim-ColimPushout : Iso PushoutColim (SeqColim PushoutSequence)
   Iso.fun Iso-PushoutColim-ColimPushout = PushoutColim→ColimPushout
   Iso.inv Iso-PushoutColim-ColimPushout = ColimPushout→PushoutColim
-  Iso.rightInv Iso-PushoutColim-ColimPushout x =
+  Iso.sec Iso-PushoutColim-ColimPushout x =
     PushoutColim→ColimPushout→PushoutColim x
-  Iso.leftInv Iso-PushoutColim-ColimPushout (inl x) =
+  Iso.ret Iso-PushoutColim-ColimPushout (inl x) =
     ColimPushout→PushoutColim→ColimPushout-inl x
-  Iso.leftInv Iso-PushoutColim-ColimPushout (inr x) =
+  Iso.ret Iso-PushoutColim-ColimPushout (inr x) =
     ColimPushout→PushoutColim→ColimPushout-inr x
-  Iso.leftInv Iso-PushoutColim-ColimPushout (push (incl {n = n} x) i) j =
+  Iso.ret Iso-PushoutColim-ColimPushout (push (incl {n = n} x) i) j =
     push (incl {n = n} x) i
-  Iso.leftInv Iso-PushoutColim-ColimPushout (push (push {n = n} x k) i) j =
+  Iso.ret Iso-PushoutColim-ColimPushout (push (push {n = n} x k) i) j =
     hcomp (λ r →
     λ {(i = i0) → ColimPushout→PushoutColim→ColimPushout-inl
                    (compPath-filler'
@@ -806,7 +806,7 @@ Iso.fun (SeqColimLift S) (incl (lift x)) = incl x
 Iso.fun (SeqColimLift S) (push (lift x) i) = push x i
 Iso.inv (SeqColimLift S) (incl x) = incl (lift x)
 Iso.inv (SeqColimLift S) (push x i) = push (lift x) i
-Iso.rightInv (SeqColimLift S) (incl x) = refl
-Iso.rightInv (SeqColimLift S) (push x i) = refl
-Iso.leftInv (SeqColimLift S) (incl x) = refl
-Iso.leftInv (SeqColimLift S) (push x i) = refl
+Iso.sec (SeqColimLift S) (incl x) = refl
+Iso.sec (SeqColimLift S) (push x i) = refl
+Iso.ret (SeqColimLift S) (incl x) = refl
+Iso.ret (SeqColimLift S) (push x i) = refl

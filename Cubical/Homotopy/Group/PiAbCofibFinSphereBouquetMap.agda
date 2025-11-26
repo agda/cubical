@@ -577,10 +577,10 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
                   (fun Iso-ΩFinBouquet-FreeGroup y')
                   p
                   (cong (cong Bouquet→CofibFinBouquetMap)
-                    (leftInv Iso-ΩFinBouquet-FreeGroup x') ∙ sym xe)
+                    (ret Iso-ΩFinBouquet-FreeGroup x') ∙ sym xe)
                   q
                   (cong (cong Bouquet→CofibFinBouquetMap)
-                    (leftInv Iso-ΩFinBouquet-FreeGroup y') ∙ sym ye)})
+                    (ret Iso-ΩFinBouquet-FreeGroup y') ∙ sym ye)})
           (aux _ p)
           (aux _ q)
       ∙ sym (substComposite CofibFinBoquetFunCode q p [ η ε ])
@@ -639,9 +639,9 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
     Hom-Freeᵃᵇ/ImFinBouquetMap-π₁ᵃᵇCofibFinBouquetMap .fst
   inv' (fst Freeᵃᵇ/ImFinBouquetMap≅π₁ᵃᵇCofibFinBouquetMap) =
     encodeCofibFinBoquetFun (inr base)
-  rightInv (fst Freeᵃᵇ/ImFinBouquetMap≅π₁ᵃᵇCofibFinBouquetMap) =
+  sec (fst Freeᵃᵇ/ImFinBouquetMap≅π₁ᵃᵇCofibFinBouquetMap) =
     decodeEncodeCofibFinBouquetMap (inr base)
-  leftInv (fst Freeᵃᵇ/ImFinBouquetMap≅π₁ᵃᵇCofibFinBouquetMap) =
+  ret (fst Freeᵃᵇ/ImFinBouquetMap≅π₁ᵃᵇCofibFinBouquetMap) =
     encodeDecodeCofibFinBouquetMap
   snd Freeᵃᵇ/ImFinBouquetMap≅π₁ᵃᵇCofibFinBouquetMap =
     Hom-Freeᵃᵇ/ImFinBouquetMap-π₁ᵃᵇCofibFinBouquetMap .snd
@@ -661,7 +661,7 @@ module _ {m k : ℕ} (α' : Fin m → FreeGroup (Fin k)) where
      (invEquiv (Bouquet≃∙SphereBouquet .fst))
      (λ i x → tt)
      (funExt λ x → cong (invEq (isoToEquiv Iso-SphereBouquet-Bouquet))
-       (cong (fst α) (sym (rightInv Iso-SphereBouquet-Bouquet x))))
+       (cong (fst α) (sym (sec Iso-SphereBouquet-Bouquet x))))
 
   -- π₁ᵃᵇ(cofib α) ≅ Freeᵃᵇ/Im(deg(α))
   Freeᵃᵇ/ImFinBouquetMap≅π'₁ᵃᵇCofibFinSphereBouquetMap :
@@ -744,7 +744,7 @@ private
   π'ᵃᵇCofibFinSphereBouquetMap≅ℤ[]/BouquetDegreeMain {n = zero} {m} {k} α =
     lem (inv' (compIso (invIso CharacFinBouquetFunIso)
                            Iso-Bouquet→∙-SphereBouquet₁→∙) α) α
-         (rightInv (compIso (invIso CharacFinBouquetFunIso)
+         (sec (compIso (invIso CharacFinBouquetFunIso)
                                  Iso-Bouquet→∙-SphereBouquet₁→∙) α)
     where
     Goal : (α : _) (s : (w : _) → _) → Type
@@ -774,7 +774,7 @@ private
           ∙ cong₃ _∙∙_∙∙_ refl refl (sym (rUnit refl))
           ∙ sym (rUnit refl)
          where
-         lem : rightInv (invIso (equivToIso (fst Bouquet≃∙SphereBouquet)))
+         lem : sec (invIso (equivToIso (fst Bouquet≃∙SphereBouquet)))
               ((fst (isoToEquiv (invIso (equivToIso (fst Bouquet≃∙SphereBouquet))))
                 (pt (Bouquet∙ (Fin m))))) ≡ refl
          lem = ∙∙lCancel _
@@ -826,7 +826,7 @@ private
                       α' unlock .fst)) p
           ∙ cong (fun (Freeᵃᵇ/ImFinBouquetMap≅π'₁ᵃᵇCofibFinSphereBouquetMap-Lock
                       α' unlock .fst)) (sym lem2)
-           ∙ rightInv (Freeᵃᵇ/ImFinBouquetMap≅π'₁ᵃᵇCofibFinSphereBouquetMap-Lock
+           ∙ sec (Freeᵃᵇ/ImFinBouquetMap≅π'₁ᵃᵇCofibFinSphereBouquetMap-Lock
                       α' unlock .fst) [ η (η w) ]
 
         presGen' : (lock : _) (w : Fin k)
@@ -840,7 +840,7 @@ private
            ≡ (πᵃᵇFinSphereBouquetMapGenerator gens→finSphereBouquetMap∙ w)
         presGen⁻ lock w =
            cong (fun (lockIso lock)) (sym (presGen lock w _ refl))
-         ∙ rightInv (lockIso lock)
+         ∙ sec (lockIso lock)
             (πᵃᵇFinSphereBouquetMapGenerator gens→finSphereBouquetMap∙ w)
 
       abstract
@@ -898,7 +898,7 @@ private
                (cong (fun (fst (isoThm1 _)))
                  (sym (cong (inv' (fst (surjImIso (π'∘∙Hom (suc n) inr')
                                          isSurjective-π'∘∙Hominr))) t)
-               ∙ leftInv (fst (surjImIso (π'∘∙Hom (suc n) inr')
+               ∙ ret (fst (surjImIso (π'∘∙Hom (suc n) inr')
                                 isSurjective-π'∘∙Hominr))
                                   (∣ r ∣₂ , ∣ q ∣₁))))
 

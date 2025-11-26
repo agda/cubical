@@ -215,8 +215,8 @@ record Iso {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') w
   field
     fun : A → B
     inv : B → A
-    rightInv : (b : B) → fun (inv b) ≡ b
-    leftInv  : (a : A) → inv (fun a) ≡ a
+    sec : (b : B) → fun (inv b) ≡ b
+    ret  : (a : A) → inv (fun a) ≡ a
 
 isoToIsoPath : Iso A B → IsoPath A B
 isoToIsoPath (iso f g η ε) = isoPath f g (λ b → eqToPath (η b)) (λ a → eqToPath (ε a))

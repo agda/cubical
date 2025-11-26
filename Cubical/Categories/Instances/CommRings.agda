@@ -61,24 +61,24 @@ CommRingIsoIsoCatIso : {R S : CommRing ℓ} → Iso (CommRingIso R S) (CatIso Co
 (fun CommRingIsoIsoCatIso e) .fst = (e .fst .fun) , (e .snd)
 (fun (CommRingIsoIsoCatIso {R = R} {S}) e) .snd .inv =
     e .fst .inv
-  , makeIsCommRingHom (sym (cong (e .fst .inv) (pres1 (e .snd))) ∙ e .fst .leftInv _)
-                  (λ x y → let rem = e .fst .rightInv _
-                                  ∙∙ (λ i → S .snd ._+_ (e .fst .rightInv x (~ i)) (e .fst .rightInv y (~ i)))
+  , makeIsCommRingHom (sym (cong (e .fst .inv) (pres1 (e .snd))) ∙ e .fst .ret _)
+                  (λ x y → let rem = e .fst .sec _
+                                  ∙∙ (λ i → S .snd ._+_ (e .fst .sec x (~ i)) (e .fst .sec y (~ i)))
                                   ∙∙ sym (pres+ (e .snd) _ _)
                             in injCommRingIso {R = R} {S} e _ _ rem)
-                  (λ x y → let rem = e .fst .rightInv _
-                                  ∙∙ (λ i → S .snd ._·_ (e .fst .rightInv x (~ i)) (e .fst .rightInv y (~ i)))
+                  (λ x y → let rem = e .fst .sec _
+                                  ∙∙ (λ i → S .snd ._·_ (e .fst .sec x (~ i)) (e .fst .sec y (~ i)))
                                   ∙∙ sym (pres· (e .snd) _ _)
                            in injCommRingIso {R = R} {S} e _ _ rem)
-(fun CommRingIsoIsoCatIso e) .snd .sec = CommRingHom≡ (funExt (e .fst .rightInv))
-(fun CommRingIsoIsoCatIso e) .snd .ret = CommRingHom≡ (funExt (e .fst .leftInv))
+(fun CommRingIsoIsoCatIso e) .snd .sec = CommRingHom≡ (funExt (e .fst .sec))
+(fun CommRingIsoIsoCatIso e) .snd .ret = CommRingHom≡ (funExt (e .fst .ret))
 fun (fst (inv CommRingIsoIsoCatIso e)) = e .fst .fst
 inv (fst (inv CommRingIsoIsoCatIso e)) = e .snd .inv .fst
-rightInv (fst (inv CommRingIsoIsoCatIso e)) x i = fst (e .snd .sec i) x
-leftInv  (fst (inv CommRingIsoIsoCatIso e)) x i = fst (e .snd .ret i) x
+sec (fst (inv CommRingIsoIsoCatIso e)) x i = fst (e .snd .sec i) x
+ret  (fst (inv CommRingIsoIsoCatIso e)) x i = fst (e .snd .ret i) x
 snd (inv CommRingIsoIsoCatIso e) = e .fst .snd
-rightInv CommRingIsoIsoCatIso x = CatIso≡ _ _ (CommRingHom≡ refl)
-leftInv (CommRingIsoIsoCatIso {R = R} {S}) x =
+sec CommRingIsoIsoCatIso x = CatIso≡ _ _ (CommRingHom≡ refl)
+ret (CommRingIsoIsoCatIso {R = R} {S}) x =
   Σ≡Prop (λ x → isPropIsCommRingHom (R .snd)
                                 (x .fun)
                                 (S .snd))

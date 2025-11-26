@@ -694,10 +694,10 @@ coHomIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) → Iso A B
   → GroupIso (coHomGr n B) (coHomGr n A)
 fun (fst (coHomIso n is)) = fst (coHomMorph n (fun is))
 inv' (fst (coHomIso n is)) = fst (coHomMorph n (inv' is))
-rightInv (fst (coHomIso n is)) =
-  ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → cong f (leftInv is x))
-leftInv (fst (coHomIso n is)) =
-  ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → cong f (rightInv is x))
+sec (fst (coHomIso n is)) =
+  ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → cong f (ret is x))
+ret (fst (coHomIso n is)) =
+  ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → cong f (sec is x))
 snd (coHomIso n is) = snd (coHomMorph n (fun is))
 
 -- Alternative definition of cohomology using ΩKₙ instead. Useful for breaking proofs of group isos
@@ -726,8 +726,8 @@ coHomGrΩ n A = ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂ , coHomGrnA
 addIso : (n : ℕ) (x : coHomK n) → Iso (coHomK n) (coHomK n)
 fun (addIso n x) y = y +[ n ]ₖ x
 inv' (addIso n x) y = y -[ n ]ₖ x
-rightInv (addIso n x) y = -+cancelₖ n y x
-leftInv (addIso n x) y = -cancelRₖ n x y
+sec (addIso n x) y = -+cancelₖ n y x
+ret (addIso n x) y = -cancelRₖ n x y
 
 baseChange : (n : ℕ) (x : coHomK (suc n)) → (0ₖ (suc n) ≡ 0ₖ (suc n)) ≃ (x ≡ x)
 baseChange n x = isoToEquiv is
@@ -781,8 +781,8 @@ baseChange n x = isoToEquiv is
   is : Iso _ _
   fun is = f n x
   inv' is = g n x
-  rightInv is = f-g n x
-  leftInv is = g-f n x
+  sec is = f-g n x
+  ret is = g-f n x
 
 isCommΩK-based : (n : ℕ) (x : coHomK n) → isComm∙ (coHomK n , x)
 isCommΩK-based zero x p q = isSetℤ _ _ (p ∙ q) (q ∙ p)
@@ -929,7 +929,7 @@ open IsGroupHom
 --                (coHom n A , λ x y → Iso.inv (isom e) (_+gr_ (snd G) (fun (isom e) x)
 --                                                          (fun (isom e) y)))
 --                (idEquiv _)
---                λ x y → sym (leftInv (isom e) _)
+--                λ x y → sym (ret (isom e) _)
 --                       ∙ cong (Iso.inv (isom e)) (isHom e x y)
 
 -- induced+ : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
@@ -941,7 +941,7 @@ open IsGroupHom
 --                → (e : GroupIso (coHomGr n A) G)
 --                → GroupIso (coHomGr n A) (inducedCoHom e)
 -- isom (inducedCoHomIso e) = idIso
--- isHom (inducedCoHomIso e) x y = sym (leftInv (isom e) _)
+-- isHom (inducedCoHomIso e) x y = sym (ret (isom e) _)
 --                               ∙ cong (Iso.inv (isom e)) (isHom e x y)
 
 -- inducedCoHomPath : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}

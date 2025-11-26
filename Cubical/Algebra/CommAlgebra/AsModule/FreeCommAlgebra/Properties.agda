@@ -278,8 +278,8 @@ homMapIso : {R : CommRing ℓ} {I : Type ℓ''} (A : CommAlgebra R ℓ')
              → Iso (CommAlgebraHom (R [ I ]) A) (I → (fst A))
 Iso.fun (homMapIso A) = evaluateAt A
 Iso.inv (homMapIso A) = inducedHom A
-Iso.rightInv (homMapIso A) = λ ϕ → Theory.mapRetrievable A ϕ
-Iso.leftInv (homMapIso {R = R} {I = I} A) =
+Iso.sec (homMapIso A) = λ ϕ → Theory.mapRetrievable A ϕ
+Iso.ret (homMapIso {R = R} {I = I} A) =
   λ f → Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ I ]} {N = A} f)
                (Theory.homRetrievable A f)
 
@@ -344,7 +344,7 @@ module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
   natIndHomR ψ ϕ = isoFunInjective (homMapIso B) _ _
                 (evaluateAt B (ψ ∘a (inducedHom A ϕ))        ≡⟨ refl ⟩
                  fst ψ ∘ evaluateAt A (inducedHom A ϕ)       ≡⟨ refl ⟩
-                 fst ψ ∘ ϕ                                   ≡⟨ Iso.rightInv (homMapIso B) _ ⟩
+                 fst ψ ∘ ϕ                                   ≡⟨ Iso.sec (homMapIso B) _ ⟩
                  evaluateAt B (inducedHom B (fst ψ ∘ ϕ))     ∎)
 
   {-

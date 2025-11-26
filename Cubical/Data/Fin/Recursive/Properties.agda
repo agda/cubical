@@ -85,8 +85,8 @@ module Cover where
     theIso : Iso (w ≡ x) (suc w ≡ suc x)
     theIso .fun = cong suc
     theIso .inv p = predp p
-    theIso .rightInv = suc-retract
-    theIso .leftInv
+    theIso .sec = suc-retract
+    theIso .ret
       = J (λ _ q → transport (λ i → w ≡ q i) refl ≡ q) (transportRefl refl)
 
 private
@@ -262,9 +262,9 @@ module Isos where
   sumIso : Iso (Fin m ⊎ Fin n) (Fin (m + n))
   sumIso {m} .fun = Sum.rec up (m ⊕_)
   sumIso {m} .inv i = split m i
-  sumIso {m} .rightInv i = desplit-ident m i
-  sumIso {m} .leftInv (inr j) = resplit-identᵣ m j
-  sumIso {m} .leftInv (inl i) = resplit-identₗ m i
+  sumIso {m} .sec i = desplit-ident m i
+  sumIso {m} .ret (inr j) = resplit-identᵣ m j
+  sumIso {m} .ret (inl i) = resplit-identₗ m i
 
 sum≡ : Fin m ⊎ Fin n ≡ Fin (m + n)
 sum≡ = isoToPath Isos.sumIso

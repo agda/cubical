@@ -31,8 +31,8 @@ module _ {ℓ} (A : Type ℓ) {ℓ'} (B : Pointed ℓ') where
   freelyPointedIso : Iso (Maybe∙ A →∙ B) (A → ⟨ B ⟩)
   Iso.fun freelyPointedIso f∙ = fst f∙ ∘ just
   Iso.inv freelyPointedIso f = Maybe.rec (pt B) f , refl
-  Iso.rightInv freelyPointedIso f = refl
-  Iso.leftInv freelyPointedIso f∙ =
+  Iso.sec freelyPointedIso f = refl
+  Iso.ret freelyPointedIso f∙ =
     ΣPathP
       ( funExt (Maybe.elim _ (sym (snd f∙)) (λ a → refl))
       , λ i j → snd f∙ (~ i ∨ j))
@@ -174,7 +174,7 @@ congMaybeEquiv e = isoToEquiv isom
   isom : Iso _ _
   isom .fun = map-Maybe (equivFun e)
   isom .inv = map-Maybe (invEq e)
-  isom .rightInv nothing = refl
-  isom .rightInv (just b) = cong just (secEq e b)
-  isom .leftInv nothing = refl
-  isom .leftInv (just a) = cong just (retEq e a)
+  isom .sec nothing = refl
+  isom .sec (just b) = cong just (secEq e b)
+  isom .ret nothing = refl
+  isom .ret (just a) = cong just (retEq e a)

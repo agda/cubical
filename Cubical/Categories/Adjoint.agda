@@ -88,8 +88,8 @@ module _ {F : Functor C D} {G : Functor D C} where
   Iso⊣^opF : Iso (F ⊣ G) ((G ^opF) ⊣ (F ^opF))
   fun Iso⊣^opF = opositeAdjunction
   inv Iso⊣^opF = _
-  rightInv Iso⊣^opF _ = refl
-  leftInv Iso⊣^opF _ = refl
+  sec Iso⊣^opF _ = refl
+  ret Iso⊣^opF _ = refl
 
 private
   variable
@@ -207,22 +207,22 @@ module NaturalBijection where
                 → g ♯ ⋆⟨ D ⟩ k ≡ (g ⋆⟨ C ⟩ G ⟪ k ⟫) ♯
     adjNatInD' {c} {d} {d'} g k =
       g ♯ ⋆⟨ D ⟩ k
-        ≡⟨ sym (adjIso .leftInv (g ♯ ⋆⟨ D ⟩ k)) ⟩
+        ≡⟨ sym (adjIso .ret (g ♯ ⋆⟨ D ⟩ k)) ⟩
       ((g ♯ ⋆⟨ D ⟩ k) ♭) ♯
         ≡⟨ cong _♯ (adjNatInD (g ♯) k) ⟩
       ((g ♯) ♭ ⋆⟨ C ⟩ G ⟪ k ⟫) ♯
-        ≡⟨ cong _♯ (cong (λ g' → seq' C g' (G ⟪ k ⟫)) (adjIso .rightInv g)) ⟩
+        ≡⟨ cong _♯ (cong (λ g' → seq' C g' (G ⟪ k ⟫)) (adjIso .sec g)) ⟩
       (g ⋆⟨ C ⟩ G ⟪ k ⟫) ♯ ∎
 
     adjNatInC' : ∀ {c' c d} (f : D [ F ⟅ c ⟆ , d ]) (h : C [ c' , c ])
                 → h ⋆⟨ C ⟩ (f ♭) ≡ (F ⟪ h ⟫ ⋆⟨ D ⟩ f) ♭
     adjNatInC' {c'} {c} {d} f h =
       h ⋆⟨ C ⟩ (f ♭)
-        ≡⟨ sym (adjIso .rightInv (h ⋆⟨ C ⟩ (f ♭))) ⟩
+        ≡⟨ sym (adjIso .sec (h ⋆⟨ C ⟩ (f ♭))) ⟩
       ((h ⋆⟨ C ⟩ (f ♭)) ♯) ♭
         ≡⟨ cong _♭ (adjNatInC (f ♭) h) ⟩
       ((F ⟪ h ⟫ ⋆⟨ D ⟩ (f ♭) ♯) ♭)
-        ≡⟨ cong _♭ (cong (λ f' → seq' D (F ⟪ h ⟫) f') (adjIso .leftInv f)) ⟩
+        ≡⟨ cong _♭ (cong (λ f' → seq' D (F ⟪ h ⟫) f') (adjIso .ret f)) ⟩
       (F ⟪ h ⟫ ⋆⟨ D ⟩ f) ♭ ∎
 
   isLeftAdjoint : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) → Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
@@ -282,12 +282,12 @@ module _ (F : Functor C D) (G : Functor D C) where
                 (F ⟪ h ⟫ ⋆⟨ D ⟩ g ♯) ♭
               ≡⟨ sym (cong _♭ (adjNatInC _ _)) ⟩
                 (h ⋆⟨ C ⟩ g) ♯ ♭
-              ≡⟨ adjIso .rightInv _ ⟩
+              ≡⟨ adjIso .sec _ ⟩
                 h ⋆⟨ C ⟩ g
               ∎
         C→D : (f ♭ ⋆⟨ C ⟩ G ⟪ k ⟫ ≡ h ⋆⟨ C ⟩ g) → (f ⋆⟨ D ⟩ k ≡ F ⟪ h ⟫ ⋆⟨ D ⟩ g ♯)
         C→D eq = f ⋆⟨ D ⟩ k
-              ≡⟨ sym (adjIso .leftInv _) ⟩
+              ≡⟨ sym (adjIso .ret _) ⟩
                 (f ⋆⟨ D ⟩ k) ♭ ♯
               ≡⟨ cong _♯ (adjNatInD _ _) ⟩
                 (f ♭ ⋆⟨ C ⟩ G ⟪ k ⟫) ♯
@@ -317,7 +317,7 @@ module _ (F : Functor C D) (G : Functor D C) where
         commInD f = (D .⋆IdL _) ∙ sym (D .⋆IdR _)
 
         sharpen1 : ∀ {x y} (f : C [ x , y ]) → F ⟪ f ⟫ ⋆⟨ D ⟩ D .id ≡ F ⟪ f ⟫ ⋆⟨ D ⟩ D .id ♭ ♯
-        sharpen1 f = cong (λ v → F ⟪ f ⟫ ⋆⟨ D ⟩ v) (sym (adjIso .leftInv _))
+        sharpen1 f = cong (λ v → F ⟪ f ⟫ ⋆⟨ D ⟩ v) (sym (adjIso .ret _))
 
         η' : 𝟙⟨ C ⟩ ⇒ G ∘F F
         η' .N-ob x = D .id ♭
@@ -330,7 +330,7 @@ module _ (F : Functor C D) (G : Functor D C) where
         commInC g = (C .⋆IdL _) ∙ sym (C .⋆IdR _)
 
         sharpen2 : ∀ {x y} (g : D [ x , y ]) → C .id ♯ ♭ ⋆⟨ C ⟩ G ⟪ g ⟫ ≡ C .id ⋆⟨ C ⟩ G ⟪ g ⟫
-        sharpen2 g = cong (λ v → v ⋆⟨ C ⟩ G ⟪ g ⟫) (adjIso .rightInv _)
+        sharpen2 g = cong (λ v → v ⋆⟨ C ⟩ G ⟪ g ⟫) (adjIso .sec _)
 
         ε' : F ∘F G ⇒ 𝟙⟨ D ⟩
         ε' .N-ob x  = C .id ♯
@@ -371,7 +371,7 @@ module _ (F : Functor C D) (G : Functor D C) where
     -- takes g to Fg postcomposed with the counit
     adj→adj' .adjIso {d = d} .inv g = F ⟪ g ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧
     -- invertibility follows from the triangle identities
-    adj→adj' .adjIso {c = c} {d} .rightInv g
+    adj→adj' .adjIso {c = c} {d} .sec g
       = η ⟦ c ⟧ ⋆⟨ C ⟩ G ⟪ F ⟪ g ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧ ⟫
       ≡⟨ cong (λ v → η ⟦ c ⟧ ⋆⟨ C ⟩ v) (G .F-seq _ _) ⟩
         η ⟦ c ⟧ ⋆⟨ C ⟩ (G ⟪ F ⟪ g ⟫ ⟫ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫)
@@ -390,7 +390,7 @@ module _ (F : Functor C D) (G : Functor D C) where
       where
         natu : η ⟦ c ⟧ ⋆⟨ C ⟩ G ⟪ F ⟪ g ⟫ ⟫ ≡ g ⋆⟨ C ⟩ η ⟦ G ⟅ d ⟆ ⟧
         natu = sym (η .N-hom _)
-    adj→adj' .adjIso {c = c} {d} .leftInv f
+    adj→adj' .adjIso {c = c} {d} .ret f
       = F ⟪ η ⟦ c ⟧ ⋆⟨ C ⟩ G ⟪ f ⟫ ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧
       ≡⟨ cong (λ v → v ⋆⟨ D ⟩ ε ⟦ d ⟧) (F .F-seq _ _) ⟩
         F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ F ⟪ G ⟪ f ⟫ ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧

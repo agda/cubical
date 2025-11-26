@@ -333,10 +333,10 @@ module List₂ where
  Iso∥List∥₂List∥∥₂ : Iso (List ∥ A ∥₂) ∥ List A ∥₂
  Iso.fun Iso∥List∥₂List∥∥₂ = List∥∥₂→∥List∥₂
  Iso.inv Iso∥List∥₂List∥∥₂ = ∥List∥₂→List∥∥₂
- Iso.rightInv Iso∥List∥₂List∥∥₂ =
+ Iso.sec Iso∥List∥₂List∥∥₂ =
    elim₂ (isProp→isSet ∘ λ _ → squash₂ _ _)
      (List.elim refl (cong (rec2 squash₂ (λ x₁ xs → ∣ x₁ ∷ xs ∣₂) ∣ _ ∣₂)))
- Iso.leftInv Iso∥List∥₂List∥∥₂ = List.elim refl ((lem _ _ ∙_) ∘S cong (_ ∷_))
+ Iso.ret Iso∥List∥₂List∥∥₂ = List.elim refl ((lem _ _ ∙_) ∘S cong (_ ∷_))
   where
   lem = elim2 {C = λ a l' → ∥List∥₂→List∥∥₂
       (rec2 squash₂ (λ x₁ xs → ∣ x₁ ∷ xs ∣₂) a l')

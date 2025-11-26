@@ -425,11 +425,11 @@ module NormalForm (A : Type ℓ) where
   η·iso : (Bool × A) → Iso (Σ [𝟚× A ] IsNormalised) (Σ [𝟚× A ] IsNormalised)
   Iso.fun (η·iso x) = nη· x
   Iso.inv (η·iso x) = nη· (not₁ x)
-  Iso.rightInv (η·iso x) b =
+  Iso.sec (η·iso x) b =
     Σ≡Prop isPropIsNormalised
      (funExt⁻ (cong η· (sym (not₁not₁ x)) ) (η· (not₁ x) (fst b))
       ∙ sec-preη· (not₁ x) _ (HeadIsRedex? _) (HeadIsRedex? _) (snd b))
-  Iso.leftInv (η·iso x) a =
+  Iso.ret (η·iso x) a =
     Σ≡Prop isPropIsNormalised
      (sec-preη· x _ (HeadIsRedex? _) (HeadIsRedex? _) (snd a))
 
@@ -461,9 +461,9 @@ module NormalForm (A : Type ℓ) where
       ∘S ⇊1g++comm a' (invLi b') ∘S ≡ε
       ∘S flip (·⁻¹≡ε-trans _ _ _) (·⁻¹≡ε-sym _ _ t')
       ∘S ·⁻¹≡ε-trans _ _ _ t
-  rightInv IsoNF = SQ.elimProp (λ _ → squash/ _ _)
+  sec IsoNF = SQ.elimProp (λ _ → squash/ _ _)
     (eq/ _ _ ∘ fst ∘ snd ∘ normalise)
-  leftInv IsoNF = Σ≡Prop isPropIsNormalised ∘ uncurry
+  ret IsoNF = Σ≡Prop isPropIsNormalised ∘ uncurry
    (Li.elim (λ _ → refl) λ f v →
    let lem : ∀ uu → preη· _ _ uu ≡ _ ∷ _
        lem =

@@ -51,8 +51,8 @@ IsoTotalSpaceJoin' = compIso hopfS¹.IsoTotalSpaceJoin (IsoSphereJoin 1 1)
 IsoFiberTotalHopfS¹ : Iso (fiber (fst TotalHopf→∙S²) north) S¹
 fun IsoFiberTotalHopfS¹ ((x , y) , z) = subst S¹Hopf z y
 inv IsoFiberTotalHopfS¹ x = (north , x) , refl
-rightInv IsoFiberTotalHopfS¹ x = refl
-leftInv IsoFiberTotalHopfS¹ ((x , y) , z) =
+sec IsoFiberTotalHopfS¹ x = refl
+ret IsoFiberTotalHopfS¹ ((x , y) , z) =
   ΣPathP
     ((ΣPathP
       (sym z , (λ i → transp (λ j → S¹Hopf (z (~ i ∧ j))) i y)))

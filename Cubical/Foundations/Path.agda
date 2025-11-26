@@ -33,7 +33,7 @@ PathP≡Path⁻ P p q i = PathP (λ j → P (~ i ∧ j)) p (transport⁻-filler 
 PathPIsoPath : ∀ (A : I → Type ℓ) (x : A i0) (y : A i1) → Iso (PathP A x y) (transport (λ i → A i) x ≡ y)
 PathPIsoPath A x y .Iso.fun = fromPathP
 PathPIsoPath A x y .Iso.inv = toPathP
-PathPIsoPath A x y .Iso.rightInv q k i =
+PathPIsoPath A x y .Iso.sec q k i =
   hcomp
     (λ j → λ
       { (i = i0) → slide (j ∨ ~ k)
@@ -67,7 +67,7 @@ PathPIsoPath A x y .Iso.rightInv q k i =
         ; (j = i1) → q (i ∧ l)
         })
       (slide (i ∨ j))
-PathPIsoPath A x y .Iso.leftInv q k i =
+PathPIsoPath A x y .Iso.ret q k i =
   outS
     (hcomp-unique
       (λ j → λ
@@ -288,11 +288,11 @@ Jequiv P = isoToEquiv isom
   isom : Iso _ _
   Iso.fun isom = J P
   Iso.inv isom f = f refl
-  Iso.rightInv isom f =
+  Iso.sec isom f =
     implicitFunExt λ {_} →
     funExt λ t →
     J (λ _ t → J P (f refl) t ≡ f t) (JRefl P (f refl)) t
-  Iso.leftInv isom = JRefl P
+  Iso.ret isom = JRefl P
 
 -- Action of PathP on equivalences (without relying on univalence)
 
@@ -307,7 +307,7 @@ congPathIso {A = A} {B} e {a₀} {a₁} .Iso.inv q i =
       ; (i = i1) → retEq (e i1) a₁ j
       })
     (invEq (e i) (q i))
-congPathIso {A = A} {B} e {a₀} {a₁} .Iso.rightInv q k i =
+congPathIso {A = A} {B} e {a₀} {a₁} .Iso.sec q k i =
   hcomp
     (λ j → λ
       { (i = i0) → commSqIsEq (e i0 .snd) a₀ j k
@@ -325,7 +325,7 @@ congPathIso {A = A} {B} e {a₀} {a₁} .Iso.rightInv q k i =
       })
     (secEq (e i) (q i) k)
     where b = commSqIsEq
-congPathIso {A = A} {B} e {a₀} {a₁} .Iso.leftInv p k i =
+congPathIso {A = A} {B} e {a₀} {a₁} .Iso.ret p k i =
   hcomp
     (λ j → λ
       { (i = i0) → retEq (e i0) a₀ (j ∨ k)

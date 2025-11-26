@@ -544,7 +544,7 @@ module _ where
 β²↦0 = cong H²K²→ℤ/2 cupIdΒ ∙ ℤ/2→H²K²→ℤ/2 0
   where
   ℤ/2→Ω²K₂-refl : ℤ/2→Ω²K₂ 0 ≡ refl
-  ℤ/2→Ω²K₂-refl = Iso.leftInv Iso-Ω²K₂-ℤ/2 refl
+  ℤ/2→Ω²K₂-refl = Iso.ret Iso-Ω²K₂-ℤ/2 refl
 
   cupIdΒ : _⌣_ {G'' = ℤ/2Ring} {n = 1} {m = 1} K²gen.β K²gen.β
          ≡ ∣ KleinFun (0ₖ 2) refl refl (ℤ/2→Ω²K₂ 0) ∣₂
@@ -891,7 +891,7 @@ fst ℤ/2[X,Y]/<X³,Y²,XY+X²>≅H*KleinBottle = isoToEquiv is
   is : Iso  _ _
   fun is = ℤ/2[X,Y]/I→H*Klein .fst
   inv is = H*Klein→ℤ/2[X,Y]/I
-  rightInv is = DS-Ind-Prop.f _ _ _ _
+  sec is = DS-Ind-Prop.f _ _ _ _
     (λ _ → trunc _ _)
     refl
     (λ { zero a → lem₀ a _ refl
@@ -1015,7 +1015,7 @@ fst ℤ/2[X,Y]/<X³,Y²,XY+X²>≅H*KleinBottle = isoToEquiv is
           ∙∙ cong (invEq (H²[K²,ℤ/2]≅ℤ/2* .fst)) (p ∙ sym α²↦1')
           ∙∙ retEq (H²[K²,ℤ/2]≅ℤ/2* .fst) α⌣α
 
-  leftInv is =
+  ret is =
     SQ.elimProp
       (λ _ → squash/ _ _)
       (DS-Ind-Prop.f _ _ _ _

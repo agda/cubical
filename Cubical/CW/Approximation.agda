@@ -280,7 +280,7 @@ finCWmap→CellMap n C D f =
   PT.map (λ {(ϕ , p) → ψ ϕ (funExt⁻ p)
   , funExt λ x
     → subst (λ x → realiseCellMap (ψ ϕ (funExt⁻ p)) x ≡ f x)
-            (Iso.rightInv (converges→ColimIso
+            (Iso.sec (converges→ColimIso
               {seq = realiseSeq (finCWskel→CWskel n C)} n (C .snd .snd)) x)
             (cong (incl {n = n})
               (silly ϕ (funExt⁻ p) _)

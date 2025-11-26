@@ -127,10 +127,10 @@ module _ (f : ℕ → ℕ) (f0=0 : f 0 ≡ 0) (fInc : isStrictlyIncreasing f) wh
       n<fsk : n < f (suc k)
       n<fsk = snd (snd (fst incApprox))
 
-  Iso.rightInv partition≅ℕ n =
+  Iso.sec partition≅ℕ n =
     snd (fst (snd (fst (nearestValues n))))
 
-  Iso.leftInv  partition≅ℕ  y@(k , i , i+fk<fsk) =
+  Iso.ret  partition≅ℕ  y@(k , i , i+fk<fsk) =
     ΣPathP (k'=k , ΣPathPProp (λ a → isProp≤) i'=i) where
 
       inv = Iso.inv partition≅ℕ

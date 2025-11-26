@@ -191,12 +191,12 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
       i : Iso (R a a') (a ≡ a')
       Iso.fun i r = cong fst (h aρa (a' , r))
       Iso.inv i = J Q (ρ a)
-      Iso.rightInv i = J (λ y p → cong fst (h aρa (y , J Q (ρ a) p)) ≡ p)
+      Iso.sec i = J (λ y p → cong fst (h aρa (y , J Q (ρ a) p)) ≡ p)
                          (J (λ q _ → cong fst (h aρa (a , q)) ≡ refl)
                            (J (λ α _ → cong fst α ≡ refl) refl
                              (isProp→isSet h _ _ refl (h _ _)))
                            (sym (JRefl Q (ρ a))))
-      Iso.leftInv i r = J (λ w β → J Q (ρ a) (cong fst β) ≡ snd w)
+      Iso.ret i r = J (λ w β → J Q (ρ a) (cong fst β) ≡ snd w)
                           (JRefl Q (ρ a)) (h aρa (a' , r))
 
   isUnivalent→contrRelSingl : isUnivalent → contrRelSingl
@@ -225,8 +225,8 @@ record RelIso {A : Type ℓA} (_≅_ : Rel A A ℓ≅A)
   field
     fun : A → A'
     inv : A' → A
-    rightInv : (a' : A') → fun (inv a') ≅' a'
-    leftInv : (a : A) → inv (fun a) ≅ a
+    sec : (a' : A') → fun (inv a') ≅' a'
+    ret : (a : A) → inv (fun a) ≅ a
 
 open BinaryRelation
 
@@ -237,10 +237,10 @@ RelIso→Iso : {A : Type ℓA} {A' : Type ℓA'}
              → Iso A A'
 Iso.fun (RelIso→Iso _ _ _ _ f) = RelIso.fun f
 Iso.inv (RelIso→Iso _ _ _ _ f) = RelIso.inv f
-Iso.rightInv (RelIso→Iso _ _ uni uni' f) a'
-  = uni' (RelIso.rightInv f a')
-Iso.leftInv (RelIso→Iso _ _ uni uni' f) a
-  = uni (RelIso.leftInv f a)
+Iso.sec (RelIso→Iso _ _ uni uni' f) a'
+  = uni' (RelIso.sec f a')
+Iso.ret (RelIso→Iso _ _ uni uni' f) a
+  = uni (RelIso.ret f a)
 
 isIrreflIrreflKernel : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isIrrefl (IrreflKernel R)
 isIrreflIrreflKernel _ _ (_ , ¬a≡a) = ¬a≡a refl

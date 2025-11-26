@@ -214,10 +214,10 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
   Iso-A0□-⋁ : Iso (A0□ whitehead3x3) A∨B
   fun Iso-A0□-⋁ = A0□→A∨B
   inv Iso-A0□-⋁ = A∨B→A0□
-  rightInv Iso-A0□-⋁ (inl x) = refl
-  rightInv Iso-A0□-⋁ (inr north) = push tt
-  rightInv Iso-A0□-⋁ (inr south) = push tt ∙ λ i → inr (merid b₀ i)
-  rightInv Iso-A0□-⋁ (inr (merid a i)) j = lem j i
+  sec Iso-A0□-⋁ (inl x) = refl
+  sec Iso-A0□-⋁ (inr north) = push tt
+  sec Iso-A0□-⋁ (inr south) = push tt ∙ λ i → inr (merid b₀ i)
+  sec Iso-A0□-⋁ (inr (merid a i)) j = lem j i
     where
     lem : PathP (λ i → push tt i ≡ (push tt ∙ (λ i → inr (merid b₀ i))) i)
               (cong A0□→A∨B (cong A∨B→A0□ λ i → inr (merid a i)))
@@ -238,10 +238,10 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
                         (inr (compPath-filler (merid a)
                                               (sym (merid b₀)) (~ i) j))
 
-  rightInv Iso-A0□-⋁ (push a i) j = push tt (i ∧ j)
-  leftInv Iso-A0□-⋁ (inl x) = refl
-  leftInv Iso-A0□-⋁ (inr tt) = push b₀
-  leftInv Iso-A0□-⋁ (push b i) j = help j i
+  sec Iso-A0□-⋁ (push a i) j = push tt (i ∧ j)
+  ret Iso-A0□-⋁ (inl x) = refl
+  ret Iso-A0□-⋁ (inr tt) = push b₀
+  ret Iso-A0□-⋁ (push b i) j = help j i
     where
     help : PathP (λ i → inl north ≡ push b₀ i)
                  (cong A∨B→A0□ (cong A0□→A∨B (push b)))
@@ -261,12 +261,12 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
   inv Iso-A2□-join (inl x) = inr x
   inv Iso-A2□-join (inr x) = inl x
   inv Iso-A2□-join (push a b i) = push (a , b) (~ i)
-  rightInv Iso-A2□-join (inl x) = refl
-  rightInv Iso-A2□-join (inr x) = refl
-  rightInv Iso-A2□-join (push a b i) = refl
-  leftInv Iso-A2□-join (inl x) = refl
-  leftInv Iso-A2□-join (inr x) = refl
-  leftInv Iso-A2□-join (push a i) = refl
+  sec Iso-A2□-join (inl x) = refl
+  sec Iso-A2□-join (inr x) = refl
+  sec Iso-A2□-join (push a b i) = refl
+  ret Iso-A2□-join (inl x) = refl
+  ret Iso-A2□-join (inr x) = refl
+  ret Iso-A2□-join (push a i) = refl
 
   isContrA4□ : isContr (A4□ whitehead3x3)
   fst isContrA4□ = inr tt
@@ -282,10 +282,10 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
   fun Iso-A□0-Susp (inr x) = north
   fun Iso-A□0-Susp (push a i) = merid a₀ (~ i)
   inv Iso-A□0-Susp x = inl x
-  rightInv Iso-A□0-Susp x = refl
-  leftInv Iso-A□0-Susp (inl x) = refl
-  leftInv Iso-A□0-Susp (inr x) = (λ i → inl (merid a₀ i)) ∙ push x
-  leftInv Iso-A□0-Susp (push a i) j =
+  sec Iso-A□0-Susp x = refl
+  ret Iso-A□0-Susp (inl x) = refl
+  ret Iso-A□0-Susp (inr x) = (λ i → inl (merid a₀ i)) ∙ push x
+  ret Iso-A□0-Susp (push a i) j =
     hcomp (λ k → λ { (i = i0) → inl (merid a₀ (k ∨ j))
                     ; (i = i1) → compPath-filler
                                    (λ i₁ → inl (merid a₀ i₁))
@@ -301,12 +301,12 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
   inv Iso-A□2-Susp× (north , y) = inl y
   inv Iso-A□2-Susp× (south , y) = inr y
   inv Iso-A□2-Susp× (merid a i , y) = push (a , y) i
-  rightInv Iso-A□2-Susp× (north , snd₁) = refl
-  rightInv Iso-A□2-Susp× (south , snd₁) = refl
-  rightInv Iso-A□2-Susp× (merid a i , snd₁) = refl
-  leftInv Iso-A□2-Susp× (inl x) = refl
-  leftInv Iso-A□2-Susp× (inr x) = refl
-  leftInv Iso-A□2-Susp× (push a i) = refl
+  sec Iso-A□2-Susp× (north , snd₁) = refl
+  sec Iso-A□2-Susp× (south , snd₁) = refl
+  sec Iso-A□2-Susp× (merid a i , snd₁) = refl
+  ret Iso-A□2-Susp× (inl x) = refl
+  ret Iso-A□2-Susp× (inr x) = refl
+  ret Iso-A□2-Susp× (push a i) = refl
 
   Iso-A□4-Susp : Iso (A□4 whitehead3x3) (Susp A)
   fun Iso-A□4-Susp (inl x) = north
@@ -315,12 +315,12 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
   inv Iso-A□4-Susp north = inl tt
   inv Iso-A□4-Susp south = inr tt
   inv Iso-A□4-Susp (merid a i) = push a i
-  rightInv Iso-A□4-Susp north = refl
-  rightInv Iso-A□4-Susp south = refl
-  rightInv Iso-A□4-Susp (merid a i) = refl
-  leftInv Iso-A□4-Susp (inl x) = refl
-  leftInv Iso-A□4-Susp (inr x) = refl
-  leftInv Iso-A□4-Susp (push a i) = refl
+  sec Iso-A□4-Susp north = refl
+  sec Iso-A□4-Susp south = refl
+  sec Iso-A□4-Susp (merid a i) = refl
+  ret Iso-A□4-Susp (inl x) = refl
+  ret Iso-A□4-Susp (inr x) = refl
+  ret Iso-A□4-Susp (push a i) = refl
 
   Iso-PushSusp×-Susp×Susp :
     Iso (Pushout {A = Susp A × B} fst fst) (Susp A × Susp B)
@@ -354,11 +354,11 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
     theIso : Iso (Pushout fst fst) (Susp A × Susp B)
     fun theIso = F
     inv theIso = G
-    rightInv theIso (a , north) = refl
-    rightInv theIso (a , south) = ΣPathP (refl , merid b₀)
-    rightInv theIso (a , merid b i) j =
+    sec theIso (a , north) = refl
+    sec theIso (a , south) = ΣPathP (refl , merid b₀)
+    sec theIso (a , merid b i) j =
       a , compPath-filler (merid b) (sym (merid b₀)) (~ j) i
-    leftInv theIso = retr
+    ret theIso = retr
 
   Iso-A□○-PushSusp× :
     Iso (A□○ whitehead3x3) (Pushout {A = Susp A × B} fst fst)

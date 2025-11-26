@@ -98,15 +98,15 @@ isEquivFunctor≡ {C = C} {D = D} = Iso.isoToIsEquiv isom
  isom : Iso.Iso _ _
  fun isom = _
  inv isom x = (λ c i → F-ob (x i) c) , λ {c} {c'} f i → F-hom (x i) {c} {c'} f
- F-ob (rightInv isom b _ i₁) = F-ob (b i₁)
- F-hom (rightInv isom b _ i₁) = F-hom (b i₁)
- F-id (rightInv isom b i i₁) = isProp→SquareP
+ F-ob (sec isom b _ i₁) = F-ob (b i₁)
+ F-hom (sec isom b _ i₁) = F-hom (b i₁)
+ F-id (sec isom b i i₁) = isProp→SquareP
       (λ i i₁ → D .isSetHom (F-hom (b i₁) (C .id)) (D .id)) refl refl
      (isProp→PathP (λ j → isSetHom D _ _) _ _) (λ i₁ → F-id (b i₁)) i i₁
- F-seq (rightInv isom b i i₁) f g = isProp→SquareP
+ F-seq (sec isom b i i₁) f g = isProp→SquareP
      (λ i i₁ → D .isSetHom (F-hom (b i₁) _) (seq' D (F-hom (b i₁) f) _))
      refl refl (isProp→PathP (λ j → isSetHom D _ _) _ _) (λ i₁ → F-seq (b i₁) f g) i i₁
- leftInv isom _ = refl
+ ret isom _ = refl
 
 isOfHLevelFunctor : ∀ hLevel → isOfHLevel (2 + hLevel) (D .ob)
                              → isOfHLevel (2 + hLevel) (Functor C D)

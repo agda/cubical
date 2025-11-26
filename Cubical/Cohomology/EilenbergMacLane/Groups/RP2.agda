@@ -140,7 +140,7 @@ H¹[RP²,ℤ/2]→ℤ/2 =
 
 ℤ/2→H¹[RP²,ℤ/2]→ℤ/2 : (x : fst ℤ/2)
   → H¹[RP²,ℤ/2]→ℤ/2 (ℤ/2→H¹[RP²,ℤ/2] x) ≡ x
-ℤ/2→H¹[RP²,ℤ/2]→ℤ/2 = Iso.leftInv (Iso-EM-ΩEM+1 0)
+ℤ/2→H¹[RP²,ℤ/2]→ℤ/2 = Iso.ret (Iso-EM-ΩEM+1 0)
 
 H¹[RP²,ℤ/2]→ℤ/2→H¹[RP²,ℤ/2]  : (f : coHom 1 ℤ/2 RP²)
   → ℤ/2→H¹[RP²,ℤ/2] (H¹[RP²,ℤ/2]→ℤ/2 f) ≡ f
@@ -153,7 +153,7 @@ H¹[RP²,ℤ/2]→ℤ/2→H¹[RP²,ℤ/2] =
       λ l sq → cong ∣_∣₂
         (funExt (elimSetRP² (λ _ → hLevelEM _ 1 _ _)
           refl
-          (flipSquare (Iso.rightInv (Iso-EM-ΩEM+1 0) l)))))
+          (flipSquare (Iso.sec (Iso-EM-ΩEM+1 0) l)))))
 
 H¹[RP²,ℤ/2]≅ℤ/2 : AbGroupEquiv (coHomGr 1 ℤ/2 RP²) ℤ/2
 fst H¹[RP²,ℤ/2]≅ℤ/2 = isoToEquiv is
@@ -161,8 +161,8 @@ fst H¹[RP²,ℤ/2]≅ℤ/2 = isoToEquiv is
   is : Iso _ _
   Iso.fun is = H¹[RP²,ℤ/2]→ℤ/2
   Iso.inv is = ℤ/2→H¹[RP²,ℤ/2]
-  Iso.rightInv is = ℤ/2→H¹[RP²,ℤ/2]→ℤ/2
-  Iso.leftInv is = H¹[RP²,ℤ/2]→ℤ/2→H¹[RP²,ℤ/2]
+  Iso.sec is = ℤ/2→H¹[RP²,ℤ/2]→ℤ/2
+  Iso.ret is = H¹[RP²,ℤ/2]→ℤ/2→H¹[RP²,ℤ/2]
 snd H¹[RP²,ℤ/2]≅ℤ/2 =
   isGroupHomInv ((invEquiv (fst H¹[RP²,ℤ/2]≅ℤ/2))
     , makeIsGroupHom λ x y → cong ∣_∣₂
@@ -197,7 +197,7 @@ H²[RP²,ℤ/2]→ℤ/2-Id q = cong (Iso.fun Iso-Ω²K₂-ℤ/2) lem
   → H²[RP²,ℤ/2]→ℤ/2 (ℤ/2→H²[RP²,ℤ/2] x) ≡ x
 ℤ/2→H²[RP²,ℤ/2]→ℤ/2 x =
     H²[RP²,ℤ/2]→ℤ/2-Id (Iso.inv Iso-Ω²K₂-ℤ/2 x)
-  ∙ Iso.rightInv Iso-Ω²K₂-ℤ/2 x
+  ∙ Iso.sec Iso-Ω²K₂-ℤ/2 x
 
 H²[RP²,ℤ/2]→ℤ/2→H²[RP²,ℤ/2] : (x : coHom 2 ℤ/2 RP²)
   → ℤ/2→H²[RP²,ℤ/2] (H²[RP²,ℤ/2]→ℤ/2 x) ≡ x
@@ -210,7 +210,7 @@ H²[RP²,ℤ/2]→ℤ/2→H²[RP²,ℤ/2] =
       λ sq → cong (ℤ/2→H²[RP²,ℤ/2])
                (H²[RP²,ℤ/2]→ℤ/2-Id sq)
             ∙ cong ∣_∣₂ (cong (RP²Fun (snd (EM∙ ℤ/2 2)) refl)
-               (Iso.leftInv Iso-Ω²K₂-ℤ/2 sq)))
+               (Iso.ret Iso-Ω²K₂-ℤ/2 sq)))
 
 H²[RP²,ℤ/2]≅ℤ/2 : AbGroupEquiv (coHomGr 2 ℤ/2 RP²) ℤ/2
 fst H²[RP²,ℤ/2]≅ℤ/2 = isoToEquiv is
@@ -218,8 +218,8 @@ fst H²[RP²,ℤ/2]≅ℤ/2 = isoToEquiv is
   is : Iso _ _
   Iso.fun is = H²[RP²,ℤ/2]→ℤ/2
   Iso.inv is = ℤ/2→H²[RP²,ℤ/2]
-  Iso.rightInv is = ℤ/2→H²[RP²,ℤ/2]→ℤ/2
-  Iso.leftInv is = H²[RP²,ℤ/2]→ℤ/2→H²[RP²,ℤ/2]
+  Iso.sec is = ℤ/2→H²[RP²,ℤ/2]→ℤ/2
+  Iso.ret is = H²[RP²,ℤ/2]→ℤ/2→H²[RP²,ℤ/2]
 snd H²[RP²,ℤ/2]≅ℤ/2 =
   Isoℤ/2-morph (fst H²[RP²,ℤ/2]≅ℤ/2)
     _ (sym (H²[RP²,ℤ/2]→ℤ/2-Id refl)
@@ -296,16 +296,16 @@ module _ {ℓ : Level} (G : AbGroup ℓ) where
       is : Iso _ _
       Iso.fun is =  H¹[RP²,G]→G[2]
       Iso.inv is =  G[2]→H¹[RP²,G]
-      Iso.rightInv is (g , p) =
+      Iso.sec is (g , p) =
         Σ≡Prop (λ _ → is-set (snd G) _ _)
-        (Iso.leftInv (Iso-EM-ΩEM+1 0) g)
-      Iso.leftInv is = ST.elim (λ _ → isSetPathImplicit)
+        (Iso.ret (Iso-EM-ΩEM+1 0) g)
+      Iso.ret is = ST.elim (λ _ → isSetPathImplicit)
         (RP²Conn.elim₁ (isConnectedEM 1) (λ _ → squash₂ _ _)
           embase
           λ p q → cong ∣_∣₂
             (funExt (elimSetRP² (λ _ → emsquash _ _)
             refl
-            (flipSquare (Iso.rightInv (Iso-EM-ΩEM+1 {G = G} 0) p)))))
+            (flipSquare (Iso.sec (Iso-EM-ΩEM+1 {G = G} 0) p)))))
     snd G[2]≅H¹[RP²,G] = makeIsGroupHom
       λ x y → cong ∣_∣₂
         (funExt (elimSetRP² (λ _ → emsquash _ _) refl
@@ -350,8 +350,8 @@ module _ (G : AbGroup ℓ) where
           (λ _ → isOfHLevelΠ (suc (suc n))
             λ _ → isOfHLevelPlus' {n = n} 2 squash₂) ∣_∣₂)))
   Iso.inv (killFirstCompIsoGen n) = ST.map (0ₖ (2 +ℕ n) ,_)
-  Iso.rightInv (killFirstCompIsoGen n) = ST.elim (λ _ → isSetPathImplicit) λ _ → refl
-  Iso.leftInv (killFirstCompIsoGen n) = ST.elim (λ _ → isSetPathImplicit)
+  Iso.sec (killFirstCompIsoGen n) = ST.elim (λ _ → isSetPathImplicit) λ _ → refl
+  Iso.ret (killFirstCompIsoGen n) = ST.elim (λ _ → isSetPathImplicit)
     (uncurry (TR.elim (λ _ → isProp→isOfHLevelSuc (3 +ℕ n)
                         (isPropΠ (λ _ → squash₂ _ _)))
       (EM-raw'-trivElim G (suc n) (λ _ → isProp→isOfHLevelSuc (suc n)
@@ -435,7 +435,7 @@ module _ (G : AbGroup ℓ) where
                        , cong (snd G ._+_ g) (+IdR (snd G) _)
                         ∙ sym (+IdR (snd G) (snd G ._+_ g g))
                         ∙ cong₂ (snd G ._+_)
-                            (sym (Iso.leftInv (Iso-EM-ΩEM+1 0) _)
+                            (sym (Iso.ret (Iso-EM-ΩEM+1 0) _)
                              ∙ cong (ΩEM+1→EM 0) (emloop-comp _ g g))
                             (sym (+InvR (snd G) (ΩEM+1→EM 0 q)))
                         ∙ +Assoc (snd G) _ _ _ ∣₁)
@@ -464,11 +464,11 @@ module _ (G : AbGroup ℓ) where
                 ∙ (sym (+Assoc (snd G) _ _ _)
                 ∙ cong (_+_ (snd G) b) (+InvL (snd G) a))
                 ∙ +IdR (snd G) b)))))
-  Iso.rightInv H²RP²-Iso₃ = SQ.elimProp (λ _ → squash/ _ _)
-    λ a → cong [_] (Iso.leftInv (Iso-EM-ΩEM+1 0) a)
-  Iso.leftInv H²RP²-Iso₃ = ST.elim (λ _ → isSetPathImplicit)
+  Iso.sec H²RP²-Iso₃ = SQ.elimProp (λ _ → squash/ _ _)
+    λ a → cong [_] (Iso.ret (Iso-EM-ΩEM+1 0) a)
+  Iso.ret H²RP²-Iso₃ = ST.elim (λ _ → isSetPathImplicit)
     (uncurry (EM1.elimProp (AbGroup→Group G) (λ _ → isPropΠ λ _ → squash₂ _ _)
-      λ p → cong ∣_∣₂ (ΣPathP (refl , (Iso.rightInv (Iso-EM-ΩEM+1 0) p)))))
+      λ p → cong ∣_∣₂ (ΣPathP (refl , (Iso.sec (Iso-EM-ΩEM+1 0) p)))))
 
   H²[RP²,G]≅G/2 : AbGroupEquiv (coHomGr 2 G RP²) (G /^ 2)
   fst H²[RP²,G]≅G/2 = isoToEquiv is

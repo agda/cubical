@@ -572,8 +572,8 @@ open Iso
 Iso-∥FinSet∥₂-ℕ : Iso ∥ FinSet ℓ ∥₂ ℕ
 Iso-∥FinSet∥₂-ℕ .fun = Set.rec isSetℕ card
 Iso-∥FinSet∥₂-ℕ .inv n = ∣ 𝔽in n ∣₂
-Iso-∥FinSet∥₂-ℕ .rightInv n = card𝔽in n
-Iso-∥FinSet∥₂-ℕ {ℓ = ℓ} .leftInv =
+Iso-∥FinSet∥₂-ℕ .sec n = card𝔽in n
+Iso-∥FinSet∥₂-ℕ {ℓ = ℓ} .ret =
   Set.elim {B = λ X → ∣ 𝔽in (Set.rec isSetℕ card X) ∣₂ ≡ X}
     (λ X → isSetPathImplicit)
     (elimProp (λ X → ∣ 𝔽in (card X) ∣₂ ≡ ∣ X ∣₂) (λ X → squash₂ _ _)

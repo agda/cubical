@@ -55,8 +55,8 @@ module _ {ℓ} {E : Type ℓ} (p : E → B) where
     where isom : Iso E (Σ B (fiber p))
           Iso.fun isom x           = p x , x , refl
           Iso.inv isom (b , x , q) = x
-          Iso.leftInv  isom x           i = x
-          Iso.rightInv isom (b , x , q) i = q i , x , λ j → q (i ∧ j)
+          Iso.ret  isom x           i = x
+          Iso.sec isom (b , x , q) i = q i , x , λ j → q (i ∧ j)
 
 module _ (B : Type ℓb) (ℓ : Level) where
   private
@@ -68,8 +68,8 @@ module _ (B : Type ℓb) (ℓ : Level) where
     where isom : Iso (Σ[ E ∈ Type ℓ' ] (E → B)) (B → Type ℓ')
           Iso.fun isom (E , p) = fiber p
           Iso.inv isom p⁻¹     = Σ B p⁻¹ , fst
-          Iso.rightInv isom p⁻¹ i x = ua (fiberEquiv p⁻¹ x) i
-          Iso.leftInv  isom (E , p) i = ua e (~ i) , fst ∘ ua-unglue e (~ i)
+          Iso.sec isom p⁻¹ i x = ua (fiberEquiv p⁻¹ x) i
+          Iso.ret  isom (E , p) i = ua e (~ i) , fst ∘ ua-unglue e (~ i)
             where e = totalEquiv p
 
 
