@@ -27,9 +27,9 @@ m - n = m + (- n)
 _·_ : ℤ → ℤ → ℤ
 pos m       · pos n       = pos (m ℕ.· n)
 pos zero    · negsuc n    = pos zero
-pos (suc m) · negsuc n    = negsuc (predℕ (suc m ℕ.· suc n))
+pos (suc m) · negsuc n    = negsuc (n ℕ.+ m ℕ.· suc n)
 negsuc m    · pos zero    = pos zero
-negsuc m    · pos (suc n) = negsuc (predℕ (suc m ℕ.· suc n))
+negsuc m    · pos (suc n) = negsuc (n ℕ.+ m ℕ.· suc n)
 negsuc m    · negsuc n    = pos (suc m ℕ.· suc n)
 
 sumFinℤ : {n : ℕ} (f : Fin n → ℤ) → ℤ
@@ -38,3 +38,25 @@ sumFinℤ {n = n} f = sumFinGen {n = n} _+_ 0 f
 sumFinℤId : (n : ℕ) {f g : Fin n → ℤ}
   → ((x : _) → f x ≡ g x) → sumFinℤ {n = n} f ≡ sumFinℤ {n = n} g
 sumFinℤId n t i = sumFinℤ {n = n} λ x → t x i
+
+module _ (m n : ℕ) where
+
+  _ : negsuc n
+      ≡ - (1 + pos n)  
+  _ = refl
+
+  _ = negsuc (predℕ (suc m ℕ.· suc n)) ≡
+        - ((1 + pos n) · (1 + pos m))
+  _ = refl
+
+  _ : pos (suc m ℕ.· suc n) ≡ ((1 + pos m) · (1 + pos n)) 
+  _ = refl
+
+  _ : pos m · pos n  ≡  pos (m ℕ.· n)
+  _ = refl
+
+  _ : pos 1 + pos n ≡ pos (suc n)
+  _ = refl
+
+  _ : pos m + - (1 + pos n)  ≡ m ℕ- (suc n)
+  _ = refl

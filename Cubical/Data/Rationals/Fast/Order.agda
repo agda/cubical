@@ -26,6 +26,7 @@ open import Cubical.HITs.SetQuotients
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
+open import Cubical.Tactics.CommRingSolver.IntReflection
 
 infix 4 _≤_ _<_ _≥_ _>_
 
@@ -161,11 +162,15 @@ private
         fun (squash/ x y p q i j) z = isSet→SquareP (λ _ _ → isSetHProp)
           (λ _ → fun x z) (λ _ → fun y z) (λ i → fun (p i) z) (λ i → fun (q i) z) j i
 
-_≤_ : ℚ → ℚ → Type₀
-m ≤ n = fst (m ≤' n)
+record _≤_ (m n : ℚ ) : Type₀ where
+ constructor inj
+ field
+  prf : fst (m ≤' n)
 
-_<_ : ℚ → ℚ → Type₀
-m < n = fst (m <' n)
+record _<_ (m n : ℚ ) : Type₀ where
+ constructor inj
+ field
+  prf : fst (m <' n)
 
 _≥_ : ℚ → ℚ → Type₀
 m ≥ n = n ≤ m
@@ -198,29 +203,29 @@ module _ where
   open BinaryRelation
 
   isProp≤ : isPropValued _≤_
-  isProp≤ m n = snd (m ≤' n)
+  isProp≤ m n (inj prf) (inj prf₁) = cong inj (snd (m ≤' n) prf prf₁)
 
   isProp< : isPropValued _<_
-  isProp< m n = snd (m <' n)
+  isProp< m n (inj prf) (inj prf₁) = cong inj (snd (m <' n) prf prf₁)
 
   isRefl≤ : isRefl _≤_
-  isRefl≤ = elimProp {P = λ x → x ≤ x} (λ x → isProp≤ x x) λ _ → ℤ.isRefl≤
+  isRefl≤ = elimProp {P = λ x → x ≤ x} (λ x → isProp≤ x x) λ _ → inj ℤ.isRefl≤
 
   isIrrefl< : isIrrefl _<_
-  isIrrefl< = elimProp {P = λ x → ¬ x < x} (λ _ → isProp¬ _) λ _ → ℤ.isIrrefl<
+  isIrrefl< = elimProp {P = λ x → ¬ x < x} (λ _ → isProp¬ _) λ _ → ℤ.isIrrefl< ∘ _<_.prf
 
   isAntisym≤ : isAntisym _≤_
   isAntisym≤ =
     elimProp2 {P = λ a b → a ≤ b → b ≤ a → a ≡ b}
               (λ x y → isPropΠ2 λ _ _ → isSetℚ x y)
-              λ a b a≤b b≤a → eq/ a b (ℤ.isAntisym≤ a≤b b≤a)
+              λ a b (inj a≤b) (inj b≤a) → eq/ a b (ℤ.isAntisym≤ a≤b b≤a)
 
   isTrans≤ : isTrans _≤_
   isTrans≤ =
     elimProp3 {P = λ a b c → a ≤ b → b ≤ c → a ≤ c}
               (λ x _ z → isPropΠ2 λ _ _ → isProp≤ x z)
-              λ { (a , b) (c , d) (e , f) ad≤cb cf≤ed →
-                ℤ.≤-·o-cancel {a ℤ.· ℕ₊₁→ℤ f} {k = -1+ d}
+              λ (a , b) (c , d) (e , f) (inj ad≤cb) (inj cf≤ed) →
+                inj (ℤ.≤-·o-cancel {a ℤ.· ℕ₊₁→ℤ f} {k = -1+ d}
                   (subst (ℤ._≤ e ℤ.· ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ d)
                     (·CommR a (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f))
                   (ℤ.isTrans≤ {(a ℤ.· ℕ₊₁→ℤ d) ℤ.· ℕ₊₁→ℤ f}
@@ -228,14 +233,14 @@ module _ where
                     (subst2 ℤ._≤_
                       (·CommR c (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ b))
                       (·CommR e (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b))
-                      (ℤ.≤-·o {c ℤ.· ℕ₊₁→ℤ f} {k = ℕ₊₁→ℕ b} cf≤ed)))) }
+                      (ℤ.≤-·o {c ℤ.· ℕ₊₁→ℤ f} {k = ℕ₊₁→ℕ b} cf≤ed))))) 
 
   isTrans< : isTrans _<_
   isTrans< =
     elimProp3 {P = λ a b c → a < b → b < c → a < c}
               (λ x _ z → isPropΠ2 λ _ _ → isProp< x z)
-              λ { (a , b) (c , d) (e , f) ad<cb cf<ed →
-                ℤ.<-·o-cancel {a ℤ.· ℕ₊₁→ℤ f} {k = -1+ d}
+              λ { (a , b) (c , d) (e , f) (inj ad<cb) (inj cf<ed) →
+                inj ( ℤ.<-·o-cancel {a ℤ.· ℕ₊₁→ℤ f} {k = -1+ d}
                   (subst (ℤ._< e ℤ.· ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ d)
                     (·CommR a (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f))
                   (ℤ.isTrans< {(a ℤ.· ℕ₊₁→ℤ d) ℤ.· ℕ₊₁→ℤ f}
@@ -243,7 +248,7 @@ module _ where
                     (subst2 ℤ._<_
                       (·CommR c (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ b))
                       (·CommR e (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b))
-                      (ℤ.<-·o {c ℤ.· ℕ₊₁→ℤ f} {k = -1+ b} cf<ed)))) }
+                      (ℤ.<-·o {c ℤ.· ℕ₊₁→ℤ f} {k = -1+ b} cf<ed))))) }
 
   isAsym< : isAsym _<_
   isAsym< = isIrrefl×isTrans→isAsym _<_ (isIrrefl< , isTrans<)
@@ -256,9 +261,9 @@ module _ where
     where
       lem : (a b : ℤ.ℤ × ℕ₊₁) → ([ a ] ≤ [ b ]) ⊎ ([ b ] ≤ [ a ])
       lem (a , b) (c , d) with (a ℤ.· ℕ₊₁→ℤ d) ℤ.≟ (c ℤ.· ℕ₊₁→ℤ b)
-      ... | ℤ.lt ad<cb = inl (ℤ.<-weaken {a ℤ.· ℕ₊₁→ℤ d} ad<cb)
-      ... | ℤ.eq ad≡cb = inl (0 , ℤ.+IdR _ ∙ ad≡cb) -- (0 , ad≡cb)
-      ... | ℤ.gt cb<ad = inr (ℤ.<-weaken {c ℤ.· ℕ₊₁→ℤ b} cb<ad)
+      ... | ℤ.lt ad<cb = inl (inj (ℤ.<-weaken {a ℤ.· ℕ₊₁→ℤ d} ad<cb))
+      ... | ℤ.eq ad≡cb = inl (inj (0 , ℤ.+IdR _ ∙ ad≡cb)) -- (0 , ad≡cb))
+      ... | ℤ.gt cb<ad = inr (inj (ℤ.<-weaken {c ℤ.· ℕ₊₁→ℤ b} cb<ad))
 
   isConnected< : isConnected _<_
   isConnected< =
@@ -268,9 +273,9 @@ module _ where
     where
       lem : (a b : ℤ.ℤ × ℕ₊₁) → (¬ [ a ] < [ b ]) × (¬ [ b ] < [ a ]) → [ a ] ≡ [ b ]
       lem (a , b) (c , d) (¬ad<cb , ¬cb<ad) with (a ℤ.· ℕ₊₁→ℤ d) ℤ.≟ (c ℤ.· ℕ₊₁→ℤ b)
-      ... | ℤ.lt ad<cb = ⊥.rec (¬ad<cb ad<cb)
+      ... | ℤ.lt ad<cb = ⊥.rec (¬ad<cb (inj ad<cb))
       ... | ℤ.eq ad≡cb = eq/ (a , b) (c , d) ad≡cb
-      ... | ℤ.gt cb<ad = ⊥.rec (¬cb<ad cb<ad)
+      ... | ℤ.gt cb<ad = ⊥.rec (¬cb<ad (inj cb<ad))
 
   isProp# : isPropValued _#_
   isProp# x y = isProp⊎ (isProp< x y) (isProp< y x) (isAsym< x y)
@@ -291,9 +296,9 @@ module _ where
     where
       lem : (a b : ℤ.ℤ × ℕ₊₁) → ¬ [_] {R = _∼_} a ≡ [ b ] → [ a ] # [ b ]
       lem (a , b) (c , d) ¬a≡b with (a ℤ.· ℕ₊₁→ℤ d) ℤ.≟ (c ℤ.· ℕ₊₁→ℤ b)
-      ... | ℤ.lt ad<cb = inl ad<cb
+      ... | ℤ.lt ad<cb = inl (inj ad<cb)
       ... | ℤ.eq ad≡cb = ⊥.rec (¬a≡b (eq/ (a , b) (c , d) ad≡cb))
-      ... | ℤ.gt cb<ad = inr cb<ad
+      ... | ℤ.gt cb<ad = inr (inj cb<ad)
 
   isWeaklyLinear< : isWeaklyLinear _<_
   isWeaklyLinear< =
@@ -323,43 +328,18 @@ module _ where
 ≤-+o =
   elimProp3 {P = λ a b c → a ≤ b → a ℚ.+ c ≤ b ℚ.+ c}
             (λ x y z → isProp→ (isProp≤ (x ℚ.+ z) (y ℚ.+ z)))
-             λ { (a , b) (c , d) (e , f) ad≤cb →
-               subst2 ℤ._≤_
-                       (cong₂ ℤ._+_
-                              (cong (λ x → a ℤ.· ℕ₊₁→ℤ d ℤ.· x)
-                                    (ℤ.pos·pos (ℕ₊₁→ℕ f) (ℕ₊₁→ℕ f)) ∙
-                                    sym (ℤ.·Assoc a (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f ℤ.· ℕ₊₁→ℤ f)) ∙
-                                    cong (a ℤ.·_) (ℤ.·Assoc (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ f) ∙
-                                    cong (ℤ._· ℕ₊₁→ℤ f) (ℤ.·Comm (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f)) ∙
-                                    sym (ℤ.·Assoc (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f))) ∙
-                                    ℤ.·Assoc a (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ d ℤ.· ℕ₊₁→ℤ f) ∙
-                                    cong (λ x → a ℤ.· ℕ₊₁→ℤ f ℤ.· x)
-                                         (sym (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ f))))
-                              (sym (ℤ.·Assoc (e ℤ.· ℕ₊₁→ℤ b) (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f)) ∙
-                                   cong (λ x → e ℤ.· ℕ₊₁→ℤ b ℤ.· x)
-                                        (sym (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ f)))) ∙
-                              sym (ℤ.·DistL+ (a ℤ.· ℕ₊₁→ℤ f) (e ℤ.· ℕ₊₁→ℤ b) (ℕ₊₁→ℤ (d ·₊₁ f))))
-                       (cong₂ ℤ._+_
-                              (cong (λ x → c ℤ.· ℕ₊₁→ℤ b ℤ.· x)
-                                    (ℤ.pos·pos (ℕ₊₁→ℕ f) (ℕ₊₁→ℕ f)) ∙
-                                    sym (ℤ.·Assoc c (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f ℤ.· ℕ₊₁→ℤ f)) ∙
-                                    cong (c ℤ.·_) (ℤ.·Assoc (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ f) ∙
-                                    cong (ℤ._· ℕ₊₁→ℤ f) (ℤ.·Comm (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f)) ∙
-                                    sym (ℤ.·Assoc (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f))) ∙
-                                    ℤ.·Assoc c (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ f) ∙
-                                    cong (λ x → c ℤ.· ℕ₊₁→ℤ f ℤ.· x)
-                                         (sym (ℤ.pos·pos (ℕ₊₁→ℕ b) (ℕ₊₁→ℕ f))))
-                              (cong (ℤ._· ℕ₊₁→ℤ f)
-                                    (sym (ℤ.·Assoc e (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ d)) ∙
-                                    cong (e ℤ.·_) (ℤ.·Comm (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ d)) ∙
-                                    ℤ.·Assoc e (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b)) ∙
-                                    sym (ℤ.·Assoc (e ℤ.· ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f)) ∙
-                                    cong (λ x → e ℤ.· ℕ₊₁→ℤ d ℤ.· x)
-                                         (sym (ℤ.pos·pos (ℕ₊₁→ℕ b) (ℕ₊₁→ℕ f)))) ∙
-                       sym (ℤ.·DistL+ (c ℤ.· ℕ₊₁→ℤ f) (e ℤ.· ℕ₊₁→ℤ d) (ℕ₊₁→ℤ (b ·₊₁ f))))
+             λ { (a , b) (c , d) (e , f) ad≤cb → inj
+               (subst2 {x = a ℤ.· ℕ₊₁→ℤ d ℤ.· ℤ.pos (ℕ₊₁→ℕ f ℕ.· ℕ₊₁→ℕ f) ℤ.+
+                            e ℤ.· ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ d ℤ.· ℕ₊₁→ℤ f}
+                       {y = (a ℤ.· ℕ₊₁→ℤ f ℤ.+ e ℤ.· ℕ₊₁→ℤ b) ℤ.· ℕ₊₁→ℤ (d ·₊₁ f)}
+                        {z = c ℤ.· ℕ₊₁→ℤ b ℤ.· ℤ.pos (ℕ₊₁→ℕ f ℕ.· ℕ₊₁→ℕ f) ℤ.+
+                              e ℤ.· ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ d ℤ.· ℕ₊₁→ℤ f}
+                              {w = (c ℤ.· ℕ₊₁→ℤ f ℤ.+ e ℤ.· ℕ₊₁→ℤ d) ℤ.· ℕ₊₁→ℤ (b ·₊₁ f)}
+                              ℤ._≤_ 
+                       ℤ! ℤ!
                        (ℤ.≤-+o {a ℤ.· ℕ₊₁→ℤ d ℤ.· ℤ.pos (ℕ₊₁→ℕ f ℕ.· ℕ₊₁→ℕ f)}
                                {o = e ℤ.· ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ d ℤ.· ℕ₊₁→ℤ f}
-                               (ℤ.≤-·o {a ℤ.· ℕ₊₁→ℤ d} {k = ℕ₊₁→ℕ (f ·₊₁ f)} ad≤cb)) }
+                               (ℤ.≤-·o {a ℤ.· ℕ₊₁→ℤ d} {k = ℕ₊₁→ℕ (f ·₊₁ f)} (ad≤cb ._≤_.prf)))) }
 
 ≤-o+ : ∀ m n o →  m ≤ n → o ℚ.+ m ≤ o ℚ.+ n
 ≤-o+ m n o = subst2 _≤_ (+Comm m o)
@@ -391,42 +371,16 @@ module _ where
   elimProp3 {P = λ a b c → a < b → a ℚ.+ c < b ℚ.+ c}
             (λ x y z → isProp→ (isProp< (x ℚ.+ z) (y ℚ.+ z)))
              λ { (a , b) (c , d) (e , f) ad<cb →
-               subst2 ℤ._<_
-                       (cong₂ ℤ._+_
-                              (cong (λ x → a ℤ.· ℕ₊₁→ℤ d ℤ.· x)
-                                    (ℤ.pos·pos (ℕ₊₁→ℕ f) (ℕ₊₁→ℕ f)) ∙
-                                    sym (ℤ.·Assoc a (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f ℤ.· ℕ₊₁→ℤ f)) ∙
-                                    cong (a ℤ.·_) (ℤ.·Assoc (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ f) ∙
-                                    cong (ℤ._· ℕ₊₁→ℤ f) (ℤ.·Comm (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f)) ∙
-                                    sym (ℤ.·Assoc (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f))) ∙
-                                    ℤ.·Assoc a (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ d ℤ.· ℕ₊₁→ℤ f) ∙
-                                    cong (λ x → a ℤ.· ℕ₊₁→ℤ f ℤ.· x)
-                                         (sym (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ f))))
-                              (sym (ℤ.·Assoc (e ℤ.· ℕ₊₁→ℤ b) (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f)) ∙
-                                   cong (λ x → e ℤ.· ℕ₊₁→ℤ b ℤ.· x)
-                                        (sym (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ f)))) ∙
-                       sym (ℤ.·DistL+ (a ℤ.· ℕ₊₁→ℤ f) (e ℤ.· ℕ₊₁→ℤ b) (ℕ₊₁→ℤ (d ·₊₁ f))))
-                       (cong₂ ℤ._+_
-                              (cong (λ x → c ℤ.· ℕ₊₁→ℤ b ℤ.· x)
-                                    (ℤ.pos·pos (ℕ₊₁→ℕ f) (ℕ₊₁→ℕ f)) ∙
-                                    sym (ℤ.·Assoc c (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f ℤ.· ℕ₊₁→ℤ f)) ∙
-                                    cong (c ℤ.·_) (ℤ.·Assoc (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ f) ∙
-                                    cong (ℤ._· ℕ₊₁→ℤ f) (ℤ.·Comm (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f)) ∙
-                                    sym (ℤ.·Assoc (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f))) ∙
-                                    ℤ.·Assoc c (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ f) ∙
-                                    cong (λ x → c ℤ.· ℕ₊₁→ℤ f ℤ.· x)
-                                         (sym (ℤ.pos·pos (ℕ₊₁→ℕ b) (ℕ₊₁→ℕ f))))
-                              (cong (ℤ._· ℕ₊₁→ℤ f)
-                                    (sym (ℤ.·Assoc e (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ d)) ∙
-                                    cong (e ℤ.·_) (ℤ.·Comm (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ d)) ∙
-                                    ℤ.·Assoc e (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b)) ∙
-                                    sym (ℤ.·Assoc (e ℤ.· ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f)) ∙
-                                    cong (λ x → e ℤ.· ℕ₊₁→ℤ d ℤ.· x)
-                                         (sym (ℤ.pos·pos (ℕ₊₁→ℕ b) (ℕ₊₁→ℕ f)))) ∙
-                       sym (ℤ.·DistL+ (c ℤ.· ℕ₊₁→ℤ f) (e ℤ.· ℕ₊₁→ℤ d) (ℕ₊₁→ℤ (b ·₊₁ f))))
+               inj (subst2 {x = a ℤ.· ℕ₊₁→ℤ d ℤ.· ℤ.pos (ℕ₊₁→ℕ f ℕ.· ℕ₊₁→ℕ f) ℤ.+
+                            e ℤ.· ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ d ℤ.· ℕ₊₁→ℤ f}
+                      {y = (a ℤ.· ℕ₊₁→ℤ f ℤ.+ e ℤ.· ℕ₊₁→ℤ b) ℤ.· ℕ₊₁→ℤ (d ·₊₁ f)}
+                      {z = c ℤ.· ℕ₊₁→ℤ b ℤ.· ℤ.pos (ℕ₊₁→ℕ f ℕ.· ℕ₊₁→ℕ f) ℤ.+
+                            e ℤ.· ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ d ℤ.· ℕ₊₁→ℤ f}
+                      {w = (c ℤ.· ℕ₊₁→ℤ f ℤ.+ e ℤ.· ℕ₊₁→ℤ d) ℤ.· ℕ₊₁→ℤ (b ·₊₁ f)}
+                    ℤ._<_ ℤ! ℤ!
                        (ℤ.<-+o {a ℤ.· ℕ₊₁→ℤ d ℤ.· ℤ.pos (ℕ₊₁→ℕ f ℕ.· ℕ₊₁→ℕ f)}
                                {o = e ℤ.· ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ d ℤ.· ℕ₊₁→ℤ f}
-                               (ℤ.<-·o {a ℤ.· ℕ₊₁→ℤ d} {k = -1+ (f ·₊₁ f)} ad<cb)) }
+                               (ℤ.<-·o {a ℤ.· ℕ₊₁→ℤ d} {k = -1+ (f ·₊₁ f)} (ad<cb ._<_.prf)))) }
 
 <-o+ : ∀ m n o → m < n → o ℚ.+ m < o ℚ.+ n
 <-o+ m n o = subst2 _<_ (+Comm m o) (+Comm n o) ∘ <-+o m n o
@@ -450,43 +404,44 @@ module _ where
 <Weaken≤ : ∀ m n → m < n → m ≤ n
 <Weaken≤ m n = elimProp2 {P = λ x y → x < y → x ≤ y}
                              (λ x y → isProp→ (isProp≤ x y))
-                             (λ { (a , b) (c , d) → ℤ.<-weaken {a ℤ.· ℕ₊₁→ℤ d} }) m n
+                             (λ { (a , b) (c , d) →  inj ∘S (ℤ.<-weaken {a ℤ.· ℕ₊₁→ℤ d}) ∘ _<_.prf })
+                                m n
 
 isTrans<≤ : ∀ m n o → m < n → n ≤ o → m < o
 isTrans<≤ =
     elimProp3 {P = λ a b c → a < b → b ≤ c → a < c}
               (λ x _ z → isPropΠ2 λ _ _ → isProp< x z)
                λ { (a , b) (c , d) (e , f) ad<cb cf≤ed
-                → ℤ.<-·o-cancel {a ℤ.· ℕ₊₁→ℤ f} {k = -1+ d}
+                → inj (ℤ.<-·o-cancel {a ℤ.· ℕ₊₁→ℤ f} {k = -1+ d}
                  (ℤ.<≤-trans {a ℤ.· ℕ₊₁→ℤ f ℤ.· ℕ₊₁→ℤ d} {m = c ℤ.· ℕ₊₁→ℤ f ℤ.· ℕ₊₁→ℤ b}
                               (subst2 ℤ._<_ (·CommR a (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f))
                                             (·CommR c (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f))
-                                            (ℤ.<-·o {a ℤ.· ℕ₊₁→ℤ d} {k = -1+ f} ad<cb))
+                                            (ℤ.<-·o {a ℤ.· ℕ₊₁→ℤ d} {k = -1+ f} (ad<cb ._<_.prf)))
                               (subst (c ℤ.· ℕ₊₁→ℤ f ℤ.· ℕ₊₁→ℤ b ℤ.≤_)
                                      (·CommR e (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b))
-                                     (ℤ.≤-·o {c ℤ.· ℕ₊₁→ℤ f} {k = ℕ₊₁→ℕ b} cf≤ed)) )}
+                                     (ℤ.≤-·o {c ℤ.· ℕ₊₁→ℤ f} {k = ℕ₊₁→ℕ b} (cf≤ed ._≤_.prf))) ))}
 
 isTrans≤< : ∀ m n o → m ≤ n → n < o → m < o
 isTrans≤< =
     elimProp3 {P = λ a b c → a ≤ b → b < c → a < c}
               (λ x _ z → isPropΠ2 λ _ _ → isProp< x z)
                λ { (a , b) (c , d) (e , f) ad≤cb cf<ed
-                → ℤ.<-·o-cancel {a ℤ.· ℕ₊₁→ℤ f} {k = -1+ d}
+                → inj (ℤ.<-·o-cancel {a ℤ.· ℕ₊₁→ℤ f} {k = -1+ d}
                  (ℤ.≤<-trans {a ℤ.· ℕ₊₁→ℤ f ℤ.· ℕ₊₁→ℤ d} {m = c ℤ.· ℕ₊₁→ℤ f ℤ.· ℕ₊₁→ℤ b}
                               (subst2 ℤ._≤_ (·CommR a (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f))
                                              (·CommR c (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f))
-                                             (ℤ.≤-·o {a ℤ.· ℕ₊₁→ℤ d} {k = ℕ₊₁→ℕ f} ad≤cb))
+                                             (ℤ.≤-·o {a ℤ.· ℕ₊₁→ℤ d} {k = ℕ₊₁→ℕ f} (ad≤cb ._≤_.prf)))
                               (subst (c ℤ.· ℕ₊₁→ℤ f ℤ.· ℕ₊₁→ℤ b ℤ.<_)
                                      (·CommR e (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b))
-                                     (ℤ.<-·o {c ℤ.· ℕ₊₁→ℤ f} {k = -1+ b} cf<ed)) )}
+                                     (ℤ.<-·o {c ℤ.· ℕ₊₁→ℤ f} {k = -1+ b} (cf<ed ._<_.prf))) ))}
 
 <≤Monotone+ : ∀ m n o s → m < n → o ≤ s → m ℚ.+ o < n ℚ.+ s
 <≤Monotone+ m n o s x x₁ =
-   isTrans<≤ (m ℚ.+ o) (n ℚ.+ o) (n ℚ.+ s) (<-+o m n o x) (≤-o+ o s n x₁)
+   isTrans<≤ _ _ _ (<-+o m n o x) (≤-o+ o s n x₁)
 
 ≤<Monotone+ : ∀ m n o s → m ≤ n → o < s → m ℚ.+ o < n ℚ.+ s
 ≤<Monotone+ m n o s x x₁ =
-   isTrans≤< (m ℚ.+ o) (n ℚ.+ o) (n ℚ.+ s) (≤-+o m n o x) (<-o+ o s n x₁)
+   isTrans≤< _ _ _ (≤-+o m n o x) (<-o+ o s n x₁)
 
 
 <Weaken+nonNeg : ∀ m n o → m < n → 0 ≤ o → m < (n ℚ.+ o)
@@ -503,7 +458,7 @@ isTrans≤< =
   elimProp3 {P = λ a b c → 0 ≤ c → a ≤ b → a ℚ.· c ≤ b ℚ.· c}
             (λ x y z → isPropΠ2 λ _ _ → isProp≤ (x ℚ.· z) (y ℚ.· z))
              λ { (a , b) (c , d) (e , f) 0≤e ad≤cb
-             → subst2 ℤ._≤_ (cong (ℤ._· ℕ₊₁→ℤ f) (·CommR a (ℕ₊₁→ℤ d) e) ∙
+             → inj (subst2 ℤ._≤_ (cong (ℤ._· ℕ₊₁→ℤ f) (·CommR a (ℕ₊₁→ℤ d) e) ∙
                               sym (ℤ.·Assoc (a ℤ.· e) (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f)) ∙
                               cong (a ℤ.· e ℤ.·_) (sym (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ f))))
                              (cong (ℤ._· ℕ₊₁→ℤ f) (·CommR c (ℕ₊₁→ℤ b) e) ∙
@@ -511,7 +466,7 @@ isTrans≤< =
                               cong (c ℤ.· e ℤ.·_) (sym (ℤ.pos·pos (ℕ₊₁→ℕ b) (ℕ₊₁→ℕ f))))
                              (ℤ.≤-·o {a ℤ.· ℕ₊₁→ℤ d ℤ.· e} {k = ℕ₊₁→ℕ f}
                                     (ℤ.0≤o→≤-·o {e} {a ℤ.· ℕ₊₁→ℤ d}
-                                                (subst (0 ℤ.≤_) (ℤ.·IdR e) 0≤e) ad≤cb)) }
+                                    (subst (0 ℤ.≤_) (ℤ.·IdR e) (0≤e ._≤_.prf)) (ad≤cb ._≤_.prf)))) }
 
 ≤-o· : ∀ m n o → 0 ≤ o → m ≤ n → o ℚ.· m ≤ o ℚ.· n
 ≤-o· m n o x = subst2 _≤_ (·Comm m o)
@@ -524,38 +479,28 @@ isTrans≤< =
   elimProp3 {P = λ a b c → 0 < c → a ℚ.· c ≤ b ℚ.· c → a ≤ b}
             (λ x y _ → isPropΠ2 λ _ _ → isProp≤ x y)
              λ { (a , b) (c , d) (e , f) 0<e aedf≤cebf
-             → ℤ.0<o→≤-·o-cancel {e} {a ℤ.· ℕ₊₁→ℤ d} (subst (0 ℤ.<_) (ℤ.·IdR e) 0<e)
+             → inj (ℤ.0<o→≤-·o-cancel {e} {a ℤ.· ℕ₊₁→ℤ d} (subst (0 ℤ.<_) (ℤ.·IdR e) (0<e ._<_.prf))
                (subst2 ℤ._≤_ (·CommR a e (ℕ₊₁→ℤ d)) (·CommR c e (ℕ₊₁→ℤ b))
                       (ℤ.≤-·o-cancel {a ℤ.· e ℤ.· ℕ₊₁→ℤ d} {k = -1+ f}
-                        (subst2 ℤ._≤_ (sym (ℤ.·Assoc a e (ℕ₊₁→ℤ (d ·₊₁ f))) ∙
-                                       cong (λ x → a ℤ.· (e ℤ.· x))
-                                            (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ f)) ∙
-                                             assoc {a} {e})
-                                       (sym (ℤ.·Assoc c e (ℕ₊₁→ℤ (b ·₊₁ f))) ∙
-                                        cong (λ x → c ℤ.· (e ℤ.· x))
-                                             (ℤ.pos·pos (ℕ₊₁→ℕ b) (ℕ₊₁→ℕ f)) ∙
-                                              assoc {c} {e})
-                                        aedf≤cebf))) }
+                        (subst2 {x = a ℤ.· e ℤ.· ℕ₊₁→ℤ (d ·₊₁ f)}
+                              {a ℤ.· e ℤ.· ℕ₊₁→ℤ d ℤ.· ℤ.pos (suc (-1+ f))}
+                          ℤ._≤_ ℤ! ℤ! (aedf≤cebf ._≤_.prf))))) }
 
-  where assoc : ∀{a b c d} → a ℤ.· (b ℤ.· (c ℤ.· d)) ≡ a ℤ.· b ℤ.· c ℤ.· d
-        assoc {a} {b} {c} {d} = cong (a ℤ.·_) (ℤ.·Assoc b c d) ∙
-                                ℤ.·Assoc a (b ℤ.· c) d ∙
-                                cong (ℤ._· d) (ℤ.·Assoc a b c)
 
 <-·o : ∀ m n o → 0 < o → m < n → m ℚ.· o < n ℚ.· o
 <-·o =
   elimProp3 {P = λ a b c → 0 < c → a < b → a ℚ.· c < b ℚ.· c}
             (λ x y z → isPropΠ2 λ _ _ → isProp< (x ℚ.· z) (y ℚ.· z))
-             λ { (a , b) (c , d) (e , f) 0<e ad<cb
-             → subst2 ℤ._<_ (cong (ℤ._· ℕ₊₁→ℤ f) (·CommR a (ℕ₊₁→ℤ d) e) ∙
+             λ { (a , b) (c , d) (e , f) (inj 0<e) (inj ad<cb)
+             → inj (subst2 {x = a ℤ.· ℕ₊₁→ℤ d ℤ.· e ℤ.· ℕ₊₁→ℤ f}
+                           {y = a ℤ.· e ℤ.· ℤ.pos (ℕ₊₁→ℕ d ℕ.· ℕ₊₁→ℕ f)}
+                     ℤ._<_ (cong (ℤ._· ℕ₊₁→ℤ f) (·CommR a (ℕ₊₁→ℤ d) e) ∙
                              sym (ℤ.·Assoc (a ℤ.· e) (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f)) ∙
                              cong (a ℤ.· e ℤ.·_) (sym (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ f))))
-                            (cong (ℤ._· ℕ₊₁→ℤ f) (·CommR c (ℕ₊₁→ℤ b) e) ∙
-                             sym (ℤ.·Assoc (c ℤ.· e) (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f)) ∙
-                             cong (c ℤ.· e ℤ.·_) (sym (ℤ.pos·pos (ℕ₊₁→ℕ b) (ℕ₊₁→ℕ f))))
+                            ℤ!
                             (ℤ.<-·o {a ℤ.· ℕ₊₁→ℤ d ℤ.· e} {k = -1+ f}
                                     (ℤ.0<o→<-·o {e} {a ℤ.· ℕ₊₁→ℤ d}
-                                                (subst (0 ℤ.<_) (ℤ.·IdR e) 0<e) ad<cb)) }
+                                                (subst (0 ℤ.<_) (ℤ.·IdR e) 0<e) ad<cb))) }
 
 <-o· : ∀ m n o → 0 < o → m < n → o ℚ.· m < o ℚ.· n
 <-o· m n o x = subst2 _<_ (·Comm m o)
@@ -572,38 +517,28 @@ isTrans≤< =
 <-·o-cancel =
   elimProp3 {P = λ a b c → 0 < c → a ℚ.· c < b ℚ.· c → a < b}
             (λ x y _ → isPropΠ2 λ _ _ → isProp< x y)
-             λ { (a , b) (c , d) (e , f) 0<e aedf<cebf
-             → ℤ.0<o→<-·o-cancel {e} {a ℤ.· ℕ₊₁→ℤ d} (subst (0 ℤ.<_) (ℤ.·IdR e) 0<e)
+             (λ  (a , b) (c , d) (e , f) (inj 0<e) (inj aedf<cebf)
+             → inj (ℤ.0<o→<-·o-cancel {e} {a ℤ.· ℕ₊₁→ℤ d} (subst (0 ℤ.<_) (ℤ.·IdR e) 0<e)
                (subst2 ℤ._<_ (·CommR a e (ℕ₊₁→ℤ d)) (·CommR c e (ℕ₊₁→ℤ b))
                       (ℤ.<-·o-cancel {a ℤ.· e ℤ.· ℕ₊₁→ℤ d} {k = -1+ f}
-                        (subst2 ℤ._<_ (sym (ℤ.·Assoc a e (ℕ₊₁→ℤ (d ·₊₁ f))) ∙
-                                       cong (λ x → a ℤ.· (e ℤ.· x))
-                                            (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ f)) ∙
-                                             assoc {a} {e})
-                                       (sym (ℤ.·Assoc c e (ℕ₊₁→ℤ (b ·₊₁ f))) ∙
-                                        cong (λ x → c ℤ.· (e ℤ.· x))
-                                             (ℤ.pos·pos (ℕ₊₁→ℕ b) (ℕ₊₁→ℕ f)) ∙
-                                              assoc {c} {e})
-                                        aedf<cebf))) }
+                        (subst2 {x = a ℤ.· e ℤ.· ℕ₊₁→ℤ (d ·₊₁ f)}
+                         {a ℤ.· e ℤ.· ℕ₊₁→ℤ d ℤ.· ℤ.pos (suc (-1+ f))}
+                           ℤ._<_ ℤ! ℤ! aedf<cebf)))) )
 
-  where assoc : ∀{a b c d} → a ℤ.· (b ℤ.· (c ℤ.· d)) ≡ a ℤ.· b ℤ.· c ℤ.· d
-        assoc {a} {b} {c} {d} = cong (a ℤ.·_) (ℤ.·Assoc b c d) ∙
-                                ℤ.·Assoc a (b ℤ.· c) d ∙
-                                cong (ℤ._· d) (ℤ.·Assoc a b c)
 
 min≤ : ∀ m n → ℚ.min m n ≤ m
 min≤
     = elimProp2 {P = λ a b → ℚ.min a b ≤ a}
                 (λ x y → isProp≤ (ℚ.min x y) x)
                  λ { (a , b) (c , d)
-                  → subst2 ℤ._≤_ (sym (ℤ.·DistPosLMin (a ℤ.· ℕ₊₁→ℤ d)
+                  → inj (subst2 ℤ._≤_ (sym (ℤ.·DistPosLMin (a ℤ.· ℕ₊₁→ℤ d)
                                                        (c ℤ.· ℕ₊₁→ℤ b)
                                                        (ℕ₊₁→ℕ b)))
                                   (sym (ℤ.·Assoc a (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b)) ∙
                                    cong (a ℤ.·_) (sym (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ b)) ∙
                                                   cong ℕ₊₁→ℤ (·₊₁-comm d b)))
                                   (ℤ.min≤ {a ℤ.· ℕ₊₁→ℤ d ℤ.· ℕ₊₁→ℤ b}
-                                           {c ℤ.· ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ b}) }
+                                           {c ℤ.· ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ b})) }
 
 min≤' : ∀ m n → ℚ.min m n ≤ n
 min≤' m n = subst (_≤ n) (ℚ.minComm n m) (min≤ n m)
@@ -612,7 +547,7 @@ min≤' m n = subst (_≤ n) (ℚ.minComm n m) (min≤ n m)
 ≤→min
     = elimProp2 {P = λ a b → a ≤ b → ℚ.min a b ≡ a}
                 (λ x y → isProp→ (isSetℚ (ℚ.min x y) x))
-                 λ { (a , b) (c , d) ad≤cb
+                 λ { (a , b) (c , d) (inj ad≤cb)
                   → eq/ (ℤ.min (a ℤ.· ℕ₊₁→ℤ d)
                                (c ℤ.· ℕ₊₁→ℤ b)
                          , b ·₊₁ d)
@@ -626,15 +561,15 @@ min≤' m n = subst (_≤ n) (ℚ.minComm n m) (min≤ n m)
 ≤max
     = elimProp2 {P = λ a b → a ≤ ℚ.max a b}
                 (λ x y → isProp≤ x (ℚ.max x y))
-                 λ { (a , b) (c , d)
-                  → subst2 ℤ._≤_ (sym (ℤ.·Assoc a (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b)) ∙
+                 (λ  (a , b) (c , d)
+                  → inj (subst2 ℤ._≤_ (sym (ℤ.·Assoc a (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b)) ∙
                                    cong (a ℤ.·_) (sym (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ b)) ∙
                                                   cong ℕ₊₁→ℤ (·₊₁-comm d b)))
                                   (sym (ℤ.·DistPosLMax (a ℤ.· ℕ₊₁→ℤ d)
                                                        (c ℤ.· ℕ₊₁→ℤ b)
                                                        (ℕ₊₁→ℕ b)))
                                   (ℤ.≤max {a ℤ.· ℕ₊₁→ℤ d ℤ.· ℕ₊₁→ℤ b}
-                                           {c ℤ.· ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ b}) }
+                                           {c ℤ.· ℕ₊₁→ℤ b ℤ.· ℕ₊₁→ℤ b})) )
 ≤max' : ∀ m n → n ≤ ℚ.max m n
 ≤max' m n = subst (n ≤_) (ℚ.maxComm n m) (≤max n m)
 
@@ -642,7 +577,7 @@ min≤' m n = subst (_≤ n) (ℚ.minComm n m) (min≤ n m)
 ≤→max m n
     = elimProp2 {P = λ a b → a ≤ b → ℚ.max a b ≡ b}
                 (λ x y → isProp→ (isSetℚ (ℚ.max x y) y))
-                (λ { (a , b) (c , d) ad≤cb
+                (λ { (a , b) (c , d) (inj ad≤cb)
                   → eq/ (ℤ.max (a ℤ.· ℕ₊₁→ℤ d)
                                (c ℤ.· ℕ₊₁→ℤ b)
                          , b ·₊₁ d)
@@ -653,11 +588,13 @@ min≤' m n = subst (_≤ n) (ℚ.minComm n m) (min≤ n m)
 
 ≤Dec : ∀ m n → Dec (m ≤ n)
 ≤Dec = elimProp2 (λ x y → isPropDec (isProp≤ x y))
-       λ { (a , b) (c , d) → ℤ.≤Dec (a ℤ.· ℕ₊₁→ℤ d) (c ℤ.· ℕ₊₁→ℤ b) }
+       (λ (a , b) (c , d) → decRec (yes ∘ inj) (no ∘ _∘ _≤_.prf)
+        (ℤ.≤Dec (a ℤ.· ℕ₊₁→ℤ d) (c ℤ.· ℕ₊₁→ℤ b))  )
 
 <Dec : ∀ m n → Dec (m < n)
 <Dec = elimProp2 (λ x y → isPropDec (isProp< x y))
-       λ { (a , b) (c , d) → ℤ.<Dec (a ℤ.· ℕ₊₁→ℤ d) (c ℤ.· ℕ₊₁→ℤ b) }
+       λ { (a , b) (c , d) → decRec (yes ∘ inj) (no ∘ _∘ _<_.prf)
+        (ℤ.<Dec (a ℤ.· ℕ₊₁→ℤ d) (c ℤ.· ℕ₊₁→ℤ b)) }
 
 
 _≟_ : (m n : ℚ) → Trichotomy m n
@@ -838,12 +775,8 @@ _ℚ₊+_ x x₁ = ((fst x) ℚ.+ (fst x₁)) ,
   +0< (fst x) (fst x₁) (snd x) (snd x₁)
 
 0<→< : ∀ q → 0< q → 0 < q
-0<→< = elimProp (λ x → isProp→ (isProp< 0 x)) zz
- where
-
- zz : ∀ a → 0< [ a ] → 0 < [ a ]
- zz (ℤ.pos (suc n) , snd₁) x = n ,
-  (sym (ℤ.pos+ 1 n) ∙ sym (ℤ.·IdR (ℤ.pos (suc n))))
+0<→< = elimProp (λ x → isProp→ (isProp< 0 x))
+  λ { (ℤ.pos (suc a) , x) z → inj (_ , refl) }
 
 0<ℚ₊ : (ε : ℚ₊) → 0 < fst ε
 0<ℚ₊ = uncurry 0<→<
@@ -857,22 +790,18 @@ _ℚ₊+_ x x₁ = ((fst x) ℚ.+ (fst x₁)) ,
  zz
  where
  zz : ∀ a → 0 < [ a ] → 0< [ a ]
- zz (ℤ.pos zero , snd₁) x =
-  ℕ.snotz (ℤ.injPos (ℤ.pos+ 1 (x .fst) ∙ snd x))
+ zz (ℤ.pos zero , snd₁) (inj (_ , p)) =
+  ℕ.snotz (ℤ.injPos p)
  zz (ℤ.pos (suc n) , snd₁) x = tt
- zz (ℤ.negsuc n , snd₁) x =
-   ℤ.posNotnegsuc _ _
-    (ℤ.pos+ 1 (x .fst) ∙  snd x ∙ ℤ.·IdR (ℤ.negsuc n))
+ zz (ℤ.negsuc n , snd₁) (inj (_ , p)) =
+   ℤ.posNotnegsuc _ _ p
 
 0<-min : ∀ x y → 0< x → 0< y → 0< (ℚ.min x y)
 0<-min = elimProp2
  (λ x y → isPropΠ2 λ _ _ → snd (0<ₚ (ℚ.min x y)))
- λ a b x x₁ →
-   let zzz = ℤ.min-0< (a .fst ℤ.· ℕ₊₁→ℤ (b .snd)) (b .fst ℤ.· ℕ₊₁→ℤ (a .snd))
+ λ a b x x₁ → ℤ.min-0< (a .fst ℤ.· ℕ₊₁→ℤ (b .snd)) (b .fst ℤ.· ℕ₊₁→ℤ (a .snd))
                 (ℤ.·0< (a .fst) (ℕ₊₁→ℤ (b .snd)) x _ )
                  ((ℤ.·0< (b .fst) (ℕ₊₁→ℤ (a .snd)) x₁ _ ))
-
-   in zzz
 
 min₊ : ℚ₊ → ℚ₊ → ℚ₊
 min₊ (x , y) (x' , y') =
@@ -884,12 +813,13 @@ max₊ (x , y) (x' , y') =
 
 -- min< : ∀ n m → n < m →  ℚ.min n m ≡ n
 -- min< = elimProp2 (λ _ _ → isPropΠ λ _ → isSetℚ _ _)
---   λ (x , y) (x' , y') →
---     {!!}
+--   λ (x , 1+ y) (x' , 1+ y') (inj (u , p)) →
+--     eq/ _ _
+--      (ℤ.·DistPosLMin _ _ _ ∙ {!!})
 -- -- with n ≟ m
--- ... | lt x₁ = {!x!}
--- ... | eq x₁ = cong (ℚ.min n) (sym x₁) ∙ minIdem n
--- ... | gt x₁ = {!x!}
+-- -- ... | lt x₁ = {!x!}
+-- -- ... | eq x₁ = cong (ℚ.min n) (sym x₁) ∙ minIdem n
+-- -- ... | gt x₁ = {!x!}
 
 -< : ∀ q r → q < r → 0 < r ℚ.- q
 -< q r x = subst (_< r ℚ.- q) (+InvR q) (<-+o q r (ℚ.- q) x)
@@ -1005,13 +935,13 @@ clamp d u x = ℚ.min (ℚ.max d x) u
     (≤→≡⊎< q r) (⊎.rec (≡Weaken≤ _ _) (<Weaken≤ q r))
 
 ≤ℤ→≤ℚ : ∀ m n → m ℤ.≤ n → [ m , 1 ] ≤ [ n , 1 ]
-≤ℤ→≤ℚ m n = subst2 ℤ._≤_ (sym (ℤ.·IdR m)) (sym (ℤ.·IdR n))
+≤ℤ→≤ℚ m n = inj ∘S (subst2 ℤ._≤_ (sym (ℤ.·IdR m)) (sym (ℤ.·IdR n)))
 
 <ℤ→<ℚ : ∀ m n → m ℤ.< n → [ m , 1 ] < [ n , 1 ]
-<ℤ→<ℚ m n = subst2 ℤ._<_ (sym (ℤ.·IdR m)) (sym (ℤ.·IdR n))
+<ℤ→<ℚ m n = inj ∘S subst2 ℤ._<_ (sym (ℤ.·IdR m)) (sym (ℤ.·IdR n))
 
 [k/n]<[k'/n] : ∀ k k' n → k ℤ.< k' → ([ ( k , n ) ]) < ([ (k' , n) ])
-[k/n]<[k'/n] k k' n k<k' = ℤ.<-·o {k} k<k'
+[k/n]<[k'/n] k k' n k<k' = inj (ℤ.<-·o {k} k<k')
 
 [k/n]≤[k'/n] : ∀ k k' n → k ℤ.≤ k' → ([ ( k , n ) ]) ≤ ([ (k' , n) ])
-[k/n]≤[k'/n] k k' n k<k' = ℤ.≤-·o {k} k<k'
+[k/n]≤[k'/n] k k' n k<k' = inj (ℤ.≤-·o {k} k<k')

@@ -1,3 +1,5 @@
+-- {-# OPTIONS --verbose rsolver:20 #-}
+
 module Cubical.Data.Int.Fast.Order where
 
 open import Cubical.Foundations.Prelude
@@ -12,7 +14,7 @@ open import Cubical.Data.Empty as ⊥ using (⊥)
 
 open import Cubical.Data.Bool.Base hiding (_≟_)
 
-open import Cubical.Data.Int.Fast.Base as ℤ
+open import Cubical.Data.Int.Fast.Base as ℤ hiding (sucℤ;predℤ)
 open import Cubical.Data.Int.Fast.Properties as ℤ
 open import Cubical.Data.Nat as ℕ hiding (_<ᵇ_)
 import Cubical.Data.Nat.Order as ℕ
@@ -23,14 +25,22 @@ open import Cubical.Data.Sum
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
+open import Cubical.Algebra.CommRing.Instances.Int.Fast
+open import Cubical.Tactics.CommRingSolver.IntReflection
 
 infix 4 _≤_ _<_ _≥_ _>_
+
+sucℤ : ℤ → ℤ
+sucℤ = 1 ℤ.+_
+
+predℤ : ℤ → ℤ
+predℤ = -1 ℤ.+_
 
 _≤_ : ℤ → ℤ → Type₀
 m ≤ n = Σ[ k ∈ ℕ ] m ℤ.+ pos k ≡ n
 
 _<_ : ℤ → ℤ → Type₀
-m < n = sucℤ m ≤ n
+m < n = (1 ℤ.+ m) ≤ n
 
 _≥_ : ℤ → ℤ → Type₀
 m ≥ n = n ≤ m
@@ -111,7 +121,7 @@ isProp≤ {m} {n} (k , p) (l , q)
     lemma = injPos (inj-z+ {m} {pos k} {pos l} (p ∙ sym q))
 
 isProp< : isProp (m < n)
-isProp< {m} = isProp≤ {sucℤ m}
+isProp< {m} = isProp≤ {1 ℤ.+ m}
 
 -- this proof warrants the particular order of summands in the definition of order
 zero-≤pos : 0 ≤ pos l
@@ -128,12 +138,8 @@ negsuc≤-zero {k} = suc k , nℕ-n≡0 k
 
 negsuc<-zero : negsuc k < 0
 negsuc<-zero {k} .fst = k
-negsuc<-zero {k} .snd =
-  sucℤ (negsuc k) ℤ.+ pos k    ≡⟨ sym (sucℤ+ (negsuc k) (pos k)) ⟩
-  sucℤ (negsuc k ℤ.+ pos k)    ≡⟨ +sucℤ (negsuc k) (pos k) ⟩
-  neg (suc k) ℤ.+ pos (suc k)  ≡⟨ -Cancel' (pos (suc k)) ⟩
-  pos zero                     ∎
-
+negsuc<-zero {k} .snd = ℤ!
+    
 ¬pos≤negsuc : ¬ (pos k) ≤ negsuc l
 ¬pos≤negsuc {k} {l} (i , p) = posNotnegsuc (k ℕ.+ i) l (pos+ k i ∙ p)
 
@@ -145,38 +151,22 @@ negsuc<pos : negsuc k < pos l
 negsuc<pos {zero} {zero}   = 0 , refl
 negsuc<pos {zero} {suc l}  = suc l , sym (pos0+ (pos (suc l)))
 negsuc<pos {suc k} {zero}  = suc k , -Cancel' (pos (suc k))
-negsuc<pos {suc k} {suc l} = suc k ℕ.+ suc l
-                           , cong (negsuc k ℤ.+_) (pos+ (suc k) (suc l)) ∙
-                             +Assoc (negsuc k) (pos (suc k)) (pos (suc l)) ∙
-                             cong (ℤ._+ pos (suc l)) (-Cancel' (pos (suc k))) ∙
-                             sym (pos0+ (pos (suc l)))
+negsuc<pos {suc k} {suc l} = suc k ℕ.+ suc l , ℤ!
 
 suc-≤-suc : m ≤ n → sucℤ m ≤ sucℤ n
-suc-≤-suc {m} {n} (k , p) = k , (sym (sucℤ+pos k m) ∙ cong sucℤ p)
+suc-≤-suc {m} {n} (k , p) = k , (ℤ! ∙ cong sucℤ p)
 
 negsuc-≤-negsuc : pos k ≤ pos l → negsuc l ≤ negsuc k
 negsuc-≤-negsuc {k} {l} (i , p) .fst = i
 negsuc-≤-negsuc {k} {l} (i , p) .snd =
-  negsuc l ℤ.+ pos i                ≡⟨ +Comm (negsuc l) (pos i) ⟩
-  pos i ℤ.+ negsuc l                ≡⟨ -AntiComm (pos i) (pos (suc l)) ⟩
-  - (pos (suc l) - pos i)           ≡⟨ sym $ cong (-_ ∘ (_- pos i) ∘ sucℤ) p ⟩
-  - (pos (suc k) ℤ.+ pos i - pos i) ≡⟨ cong -_ (plusMinus (pos i) _) ⟩
-  negsuc k                          ∎
+  ℤ! ∙∙ (sym $ cong (-_ ∘ (_- pos i) ∘ (1 ℤ.+_)) p) ∙∙ ℤ!
 
 pos-≤-pos : negsuc k ≤ negsuc l → pos l ≤ pos k
 pos-≤-pos {k} {l} (i , p) .fst = i
 pos-≤-pos {k} {l} (i , p) .snd =
-  pos l ℤ.+ pos i                       ≡⟨ sym $ -Involutive _ ⟩
-  - (- (pos l ℤ.+ pos i))               ≡⟨ cong -_ (-Dist+ (pos l) (pos i)) ⟩
-  - (- pos l - pos i)                   ≡⟨ sym $ cong (-_ ∘ (_- _)) (sucℤ[negsuc]-pos l) ⟩
-  - (sucℤ (negsuc l) - pos i)           ≡⟨ sym $ cong (-_ ∘ (_- _) ∘ sucℤ) p ⟩
-  - (sucℤ (negsuc k ℤ.+ pos i) - pos i) ≡⟨ cong (-_ ∘ (_- _)) (sucℤ+ (negsuc k) _) ⟩
-  - (sucℤ (negsuc k) ℤ.+ pos i - pos i) ≡⟨ cong -_ (plusMinus (pos i) (sucℤ (negsuc k))) ⟩
-  - sucℤ (negsuc k)                     ≡⟨ cong -_ (sucℤ[negsuc]-pos k) ⟩
-  - (- pos k)                           ≡⟨ -Involutive _ ⟩
-  pos k                                 ∎
+ ℤ! ∙∙ (sym $ cong (-_ ∘ (_- pos i) ∘ (1 ℤ.+_)) p ) ∙∙ ℤ!
 
--- Conversions between natural, integer and boolean orders
+-- -- Conversions between natural, integer and boolean orders
 
 ℕ≤→≤ : ∀ {m n} → m ℕ.≤ n → pos m ≤ pos n
 ℕ≤→≤ {m} (i , p) = i , cong pos (+-comm m i ∙ p)
@@ -235,45 +225,33 @@ negsuc≥negsuc→ℕ≤ = ≤→ℕ≤ ∘ pos-≤-pos
 pred-≤-pred : sucℤ m ≤ sucℤ n → m ≤ n
 pred-≤-pred {m} {n} (k , p) .fst = k
 pred-≤-pred {m} {n} (k , p) .snd =
-  m ℤ.+ pos k              ≡⟨ sym $ cong (ℤ._+ pos k) (predSuc m) ⟩
-  predℤ (sucℤ m) ℤ.+ pos k ≡⟨ sym $ predℤ+ (sucℤ m) (pos k) ⟩
-  predℤ (sucℤ m ℤ.+ pos k) ≡⟨ cong predℤ p ⟩
-  predℤ (sucℤ n)           ≡⟨ predSuc n ⟩
-  n                        ∎
+  ℤ! ∙∙ cong predℤ p ∙∙ ℤ!
 
 isRefl≤ : m ≤ m
 isRefl≤ = 0 , +IdR _
 
 ≤-suc : m ≤ n → m ≤ sucℤ n
-≤-suc {m} {n} (k , p) = suc k , sym (+sucℤ m (pos k)) ∙ cong sucℤ p
+≤-suc {m} {n} (k , p) = suc k , ℤ! ∙ cong sucℤ p
 
 suc-< : sucℤ m < n → m < n
 suc-< {m} {n} p = pred-≤-pred {sucℤ m} (≤-suc {sucℤ (sucℤ m)} p)
 
 ≤-sucℤ : n ≤ sucℤ n
-≤-sucℤ {n} = ≤-suc {n} isRefl≤
+≤-sucℤ {n} = 1 , ℤ!
 
 ≤-predℤ : predℤ n ≤ n
-≤-predℤ {n} = 1 , sym (predℤ+ n 1) ∙ cong predℤ (+Comm n 1 ∙ sym (sucℤ≡1+ _)) ∙ predSuc n
+≤-predℤ {n} = 1 , ℤ!
 
 isTrans≤ : m ≤ n → n ≤ o → m ≤ o
 isTrans≤ {m} {n} {o} (i , p) (j , q) .fst = i ℕ.+ j
 isTrans≤ {m} {n} {o} (i , p) (j , q) .snd =
-  m ℤ.+ (pos i ℤ.+ pos j) ≡⟨ +Assoc m (pos i) (pos j) ⟩
-  (m ℤ.+ pos i) ℤ.+ pos j ≡⟨ cong (ℤ._+ pos j) p ⟩
-  n ℤ.+ pos j             ≡⟨ q ⟩
-  o                       ∎
+  ℤ! ∙∙ cong (ℤ._+ pos j) p ∙∙ q 
 
 isAntisym≤ : m ≤ n → n ≤ m → m ≡ n
 isAntisym≤ {m} {n} (i , p) (j , q) =
   sym (+IdR _) ∙ cong ((m ℤ.+_) ∘ pos) (injPos lemma₂) ∙ p
   where lemma₀ : pos (j ℕ.+ i) ℤ.+ m ≡ m
-        lemma₀ = pos (j ℕ.+ i) ℤ.+ m    ≡⟨ sym (+Assoc (pos j) (pos i) m) ⟩
-                 pos j ℤ.+ (pos i ℤ.+ m) ≡⟨ cong (pos j ℤ.+_) (+Comm (pos i) m) ⟩
-                 pos j ℤ.+ (m ℤ.+ pos i) ≡⟨ cong (pos j ℤ.+_) p ⟩
-                 pos j ℤ.+ n             ≡⟨ +Comm (pos j) n ⟩
-                 n ℤ.+ pos j             ≡⟨ q ⟩
-                 m                       ∎
+        lemma₀ = ℤ! ∙ cong (pos j ℤ.+_) p ∙∙ +Comm (pos j) n ∙∙ q
         lemma₁ : pos (j ℕ.+ i) ≡ 0
         lemma₁ = n+z≡z→n≡0 (pos (j ℕ.+ i)) m lemma₀
 
@@ -288,12 +266,7 @@ isAntisym≤ {m} {n} (i , p) (j , q) =
 
 ≤-+o-cancel : m ℤ.+ o ≤ n ℤ.+ o → m ≤ n
 ≤-+o-cancel {m} {o} {n} (i , p) .fst = i
-≤-+o-cancel {m} {o} {n} (i , p) .snd = inj-+z {z = o} $
-  (m ℤ.+  pos i) ℤ.+ o  ≡⟨ sym (+Assoc m (pos i) o) ⟩
-   m ℤ.+ (pos i  ℤ.+ o) ≡⟨ cong (m ℤ.+_) (+Comm (pos i) o) ⟩
-   m ℤ.+ (o  ℤ.+ pos i) ≡⟨ +Assoc m o (pos i) ⟩
-  (m ℤ.+  o) ℤ.+ pos i  ≡⟨ p ⟩
-  n ℤ.+ o               ∎
+≤-+o-cancel {m} {o} {n} (i , p) .snd = inj-+z {z = o} $ ℤ! ∙ p
 
 ≤-+pos-trans : m ℤ.+ pos k ≤ n → m ≤ n
 ≤-+pos-trans {m} {k} {n} p = isTrans≤ {m} (≤SumRightPos {m}) (subst (_≤ n) (+Comm m _) p)
@@ -314,39 +287,20 @@ isAntisym≤ {m} {n} (i , p) (j , q) =
 
 <-·o : m < n → m ℤ.· (pos (suc k)) < n ℤ.· (pos (suc k))
 <-·o {m} {n} {k} (i , p) .fst = i ℕ.· suc k ℕ.+ k
-<-·o {m} {n} {k} (i , p) .snd =
-  sucℤ (m ℤ.· pos (suc k)) ℤ.+
-    (pos i ℤ.· pos (suc k) ℤ.+ pos k)       ≡⟨ cong (sucℤ (m ℤ.· pos (suc k)) ℤ.+_)
-                                               (+Comm (pos _) (pos k)) ⟩
-  sucℤ (m ℤ.· pos (suc k)) ℤ.+
-    (pos k ℤ.+ pos i ℤ.· pos (suc k))       ≡⟨ +Assoc (sucℤ (m ℤ.· pos _)) _ _ ⟩
-  (sucℤ (m ℤ.· pos (suc k)) ℤ.+ pos k) ℤ.+
-    pos i ℤ.· pos (suc k)                   ≡⟨ sym $ cong (ℤ._+ pos _)
-                                                     (sucℤ+ (m ℤ.· pos _) _) ⟩
-  sucℤ (m ℤ.· pos (suc k) ℤ.+ pos k) ℤ.+
-    pos i ℤ.· pos (suc k)                   ≡⟨ cong (ℤ._+ pos _) (+sucℤ (m ℤ.· pos _) _) ⟩
-  (m ℤ.· pos (suc k) ℤ.+ pos (suc k)) ℤ.+
-    pos i ℤ.· pos (suc k)                   ≡⟨ cong (ℤ._+ pos _)
-                                                (+Comm (m ℤ.· pos (suc k)) _) ⟩
-  (pos (suc k) ℤ.+ m ℤ.· pos (suc k)) ℤ.+
-    pos i ℤ.· pos (suc k)                   ≡⟨ sym $ cong (ℤ._+ pos _) (sucℤ· m _) ⟩
-  (sucℤ m ℤ.· pos (suc k)) ℤ.+
-    pos i ℤ.· pos (suc k)                   ≡⟨ sym $ ·DistL+ (sucℤ m) (pos i) _ ⟩
-  ((sucℤ m) ℤ.+ pos i) ℤ.· pos (suc k)      ≡⟨ cong (ℤ._· pos _) p ⟩
-  n ℤ.· pos (suc k)                                              ∎
+<-·o {m} {n} {k} (i , p) .snd = ℤ! ∙ cong (ℤ._· pos _) p 
 
 <-o+-cancel : o ℤ.+ m < o ℤ.+ n → m < n
-<-o+-cancel {o} {m} {n} = ≤-o+-cancel {o} ∘ subst (_≤ o ℤ.+ n) (+sucℤ o m)
+<-o+-cancel {o} {m} {n} (l , p) = l , (ℤ! ∙∙ cong (ℤ._- o) p ∙∙ ℤ!)
 
 <-weaken : m < n → m ≤ n
-<-weaken {m} (i , p) = (suc i) , sym (+sucℤ m (pos i)) ∙ sucℤ+ m (pos i) ∙ p
+<-weaken {m} (i , p) = (suc i) , ℤ! ∙ p
 
 isIrrefl< : ¬ m < m
 isIrrefl< {pos zero}       (i , p) = snotz (injPos p)
-isIrrefl< {pos (suc n)}    (i , p) = isIrrefl< {pos n} (i , cong predℤ p)
+isIrrefl< {pos (suc n)}    (i , p) = isIrrefl< {pos n} (i , cong predℤ p ∙ ℤ!)
 isIrrefl< {negsuc zero}    (i , p) = posNotnegsuc i 0 p
 isIrrefl< {negsuc (suc n)} (i , p) = isIrrefl< {negsuc n} (i ,
-                                     sym (sucℤ+ (negsuc n) _) ∙ cong sucℤ p)
+                                     ℤ! ∙ cong sucℤ p)
 
 0<o→<-·o : 0 < o → m < n → m ℤ.· o < n ℤ.· o
 0<o→<-·o {pos zero}        0<o _   = ⊥.rec (isIrrefl< 0<o)
@@ -359,10 +313,7 @@ pos≤0→≡0 {suc k} p = ⊥.rec (¬-pos<-zero {k = k} p)
 
 predℤ-≤-predℤ : m ≤ n → predℤ m ≤ predℤ n
 predℤ-≤-predℤ {m} {n} (i , p) .fst = i
-predℤ-≤-predℤ {m} {n} (i , p) .snd =
-  predℤ m ℤ.+ pos i   ≡⟨ sym (predℤ+ m _) ⟩
-  predℤ (m ℤ.+ pos i) ≡⟨ cong predℤ p ⟩
-  predℤ n             ∎
+predℤ-≤-predℤ {m} {n} (i , p) .snd = ℤ! ∙ cong predℤ p 
 
 ¬m+posk<m : ¬ m ℤ.+ pos k < m
 ¬m+posk<m {m} {k} = ¬-pos<-zero ∘ <-o+-cancel {o = m} {m = pos k} {n = 0}
@@ -381,10 +332,10 @@ isAsym< : m < n → ¬ n ≤ m
 isAsym< {m} m<n = isIrrefl< ∘ <≤-trans {m} m<n
 
 <-+o : m < n → m ℤ.+ o < n ℤ.+ o
-<-+o {m} {n} {o} = subst (_≤ n ℤ.+ o) (sym (sucℤ+ m o)) ∘ ≤-+o {sucℤ m} {o = o}
+<-+o {m} {n} {o} (l , p) = l , ℤ! ∙∙ cong (ℤ._+ o) p ∙∙ ℤ!
 
 <-o+ : m < n → o ℤ.+ m < o ℤ.+ n
-<-o+ {m} {n} {o} = subst (_≤ o ℤ.+ n) (sym (+sucℤ o m)) ∘ ≤-o+ {o = o}
+<-o+ {m} {n} {o} (l , p) = l , ℤ! ∙∙ cong (ℤ._+ o) p ∙∙ ℤ!
 
 <-+pos-trans : m ℤ.+ pos k < n → m < n
 <-+pos-trans {m} {k} = ≤<-trans {m} (k , refl)
@@ -457,9 +408,8 @@ isAsym< {m} m<n = isIrrefl< ∘ <≤-trans {m} m<n
 -Dist≤ {negsuc m}       {negsuc n}    = suc-≤-suc {pos n} {pos m} ∘ pos-≤-pos
 
 -Dist< : m < n → (- n) < (- m)
--Dist< {m} {n} = subst (- n <_) (cong sucℤ (-sucℤ m) ∙ sucPred (- m))
-               ∘ suc-≤-suc { - n} { - sucℤ m}
-               ∘ -Dist≤ {sucℤ m} {n}
+-Dist< {m} {n} (l , p) = l ,
+  (ℤ! ∙∙ cong (λ x → ℤ.- (x ℤ.- (1 ℤ.+ pos l)) ) (sym p) ∙∙ ℤ!)
 
 ≤max : m ≤ ℤ.max m n
 ≤max {pos m}    {pos n}     = ℕ≤→≤ ℕ.left-≤-max
@@ -574,9 +524,7 @@ Trichotomy-suc {n = n} (gt n<m) = gt (suc-≤-suc {sucℤ n} n<m)
 
 Trichotomy-pred : Trichotomy (sucℤ m) (sucℤ n) → Trichotomy m n
 Trichotomy-pred {m}     (lt m<n) = lt (pred-≤-pred {sucℤ m} m<n)
-Trichotomy-pred {m} {n} (eq m≡n) = eq (sym (predSuc m)
-                                      ∙ cong predℤ m≡n
-                                      ∙ predSuc n)
+Trichotomy-pred {m} {n} (eq m≡n) = eq (ℤ! ∙ cong predℤ m≡n ∙ ℤ!)
 Trichotomy-pred {n = n} (gt n<m) = gt (pred-≤-pred {sucℤ n} n<m)
 
 _≟_ : ∀ m n → Trichotomy m n

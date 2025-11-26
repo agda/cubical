@@ -35,7 +35,8 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int.Fast
-open import Cubical.Tactics.CommRingSolver
+
+open import Cubical.Tactics.CommRingSolver.IntReflection
 
 private
   variable
@@ -203,8 +204,7 @@ bézoutReduction : (m d r : ℤ) → Bézout r m → Bézout m (d · m + r)
 bézoutReduction m d r b .coef₁ = - b .coef₁ · d + b .coef₂
 bézoutReduction m d r b .coef₂ = b .coef₁
 bézoutReduction m d r b .gcd   = b .gcd
-bézoutReduction m d r b .identity =
-   solve! ℤCommRing ∙ b .identity
+bézoutReduction m d r b .identity = ℤ! ∙ b .identity
 bézoutReduction m d r b .isCD .fst = b .isCD .snd
 bézoutReduction m d r b .isCD .snd = ∣-+ (∣-right· {n = d} (b .isCD .snd)) (b .isCD .fst)
 
@@ -233,23 +233,18 @@ module _
 
   div·-helper : g · (div₁ · n) ≡ g · (div₂ · m)
   div·-helper =
-      ·Assoc g div₁ n
-    ∙ (λ i → ·Comm g div₁ i · n)
+      ℤ!
     ∙ (λ i → divideEq (b .isCD .fst) i · n)
-    ∙ ·Comm m n
+    ∙ ℤ!
     ∙ (λ i → divideEq (b .isCD .snd) (~ i) · m)
-    ∙ (λ i → ·Comm div₂ g i · m)
-    ∙ sym (·Assoc g div₂ m)
+    ∙ ℤ!
 
   div·-g≠0 : ¬ g ≡ 0 → div₁ · n ≡ div₂ · m
   div·-g≠0 p = ·lCancel _ _ _ div·-helper p
 
   div·-g≡0 : g ≡ 0 → div₁ · n ≡ div₂ · m
   div·-g≡0 p =
-      (λ i → div₁ · gcd≡0 p .snd i)
-    ∙ ·AnnihilR div₁
-    ∙ sym (·AnnihilR div₂)
-    ∙ λ i → div₂ · gcd≡0 p .fst (~ i)
+      (λ i → div₁ · gcd≡0 p .snd i) ∙∙ ℤ! ∙∙ λ i → div₂ · gcd≡0 p .fst (~ i)
 
   div·-case : Dec (g ≡ 0) → div₁ · n ≡ div₂ · m
   div·-case (yes p) = div·-g≡0  p
@@ -290,7 +285,7 @@ module _
     ; (inr q) →
         let ∣+  = ∣-+ p (∣-right {m = m} {k = - qr .div})
             m∣r = subst {x = n + - qr .div · m} {y = qr .rem}
-                (m ∣_) (cong (_+ _) (qr .quotEq) ∙ solve! ℤCommRing) ∣+
+                (m ∣_) (cong (_+ _) (qr .quotEq) ∙ ℤ!) ∣+
             m≤r = m∣n→m≤n (¬x≡0→¬abs≡0 (q .fst)) (∣→∣ℕ m∣r)
         in  Empty.rec (<-asym (q .snd) m≤r) }
 
@@ -316,11 +311,7 @@ module _
   euclidStep 0 _ _ h _ = Empty.rec (¬-<-zero h)
   euclidStep (suc N) m n h (quotrem div rem quotEq (inl p)) =
     let q = subst (λ r → n ≡ div · m + r) p quotEq
-    in  bezout 1 0 m (
-      1 · m + 0 · n ≡⟨ cong (1 · m +_) (·AnnihilL n) ⟩
-      1 · m + 0     ≡⟨ ℤ.+IdR (1 · m) ⟩
-      1 · m         ≡⟨ ℤ.·IdL m ⟩
-      m             ∎ )
+    in  bezout 1 0 m ℤ!
       (∣-refl refl , subst (λ k → m ∣ k) (sym q) (subst (m ∣_) (sym (ℤ.+IdR (div · m))) (∣-right {k = div})) )
   euclidStep (suc N) m n h (quotrem div rem quotEq (inr p)) =
     let b = euclidStep N rem m (<≤-trans (p .snd) (pred-≤-pred h)) (quotRem _ _ (p .fst))
@@ -359,12 +350,8 @@ private
 quotRemPosPos : (m n : ℕ)(¬z : ¬ pos m ≡ 0) → QuotRem (pos m) (pos n)
 quotRemPosPos m n _ .div = pos (quotient  n / m)
 quotRemPosPos m n _ .rem = pos (remainder n / m)
-quotRemPosPos m n _ .quotEq =
-    (λ t → pos (≡remainder+quotient m n (~ t)))
-  ∙ pos+ (remainder n / m) (m ·ℕ (quotient n / m))
-  ∙ +Comm (pos (remainder n / m)) (pos (m ·ℕ (quotient n / m)))
-  ∙ (λ t → pos·pos m (quotient n / m) t + pos (remainder n / m))
-  ∙ (λ t → ·Comm (pos m) (pos (quotient n / m)) t + pos (remainder n / m))
+quotRemPosPos m n _ .quotEq =   
+    (λ t → pos (≡remainder+quotient m n (~ t))) ∙ ℤ!
 quotRemPosPos 0       n ¬z .normIneq = Empty.rec (¬z refl)
 quotRemPosPos (suc m) n ¬z .normIneq = dec-helper (discreteℤ _ 0) (mod< m n)
 
@@ -399,7 +386,7 @@ private
 quotRemNeg : (m : ℤ)(n : ℕ)(¬z : ¬ m ≡ 0) → QuotRem m (- pos n)
 quotRemNeg m n ¬z .div = - (quotRemPos m n ¬z .div)
 quotRemNeg m n ¬z .rem = - (quotRemPos m n ¬z .rem)
-quotRemNeg m n ¬z .quotEq =
+quotRemNeg m n ¬z .quotEq = 
     (λ t → - quotRemPos m n ¬z .quotEq t)
   ∙ -Dist+ (quotRemPos m n ¬z .div · m) (quotRemPos m n ¬z .rem)
   ∙ (λ t → -DistL· (quotRemPos m n ¬z .div) m t + - quotRemPos m n ¬z .rem)
