@@ -127,13 +127,13 @@ module _ (G : AbGroup ℓ) where
   HⁿSⁿ↓ n = ST.map λ f x → ΩEM+1→EM-gen (suc n) _ (cong f (toSusp (S₊∙ (suc n)) x))
 
   private
-    liftMap : (n : ℕ) (f : S₊ (suc n) → EM G (suc n))
+    liftMapEM : (n : ℕ) (f : S₊ (suc n) → EM G (suc n))
            → S₊ (suc (suc n)) → EM G (suc (suc n))
-    liftMap n f = SⁿFun n (0ₖ _) (EM→ΩEM+1 (suc n) ∘ f)
+    liftMapEM n f = SⁿFun n (0ₖ _) (EM→ΩEM+1 (suc n) ∘ f)
 
   HⁿSⁿ↑ : (n : ℕ) → coHom (suc n) G (S₊ (suc n))
                   → coHom (suc (suc n)) G (S₊ (suc (suc n)))
-  HⁿSⁿ↑ n = ST.map (liftMap n)
+  HⁿSⁿ↑ n = ST.map (liftMapEM n)
 
   Hⁿ[Sⁿ,G]≅Hⁿ⁺¹[Sⁿ⁺¹,G] : (n : ℕ)
     → AbGroupEquiv (coHomGr (suc n) G (S₊ (suc n)))
@@ -168,8 +168,8 @@ module _ (G : AbGroup ℓ) where
         λ f → TR.rec (isProp→isOfHLevelSuc n (squash₂ _ _))
           (λ q → cong ∣_∣₂ (funExt λ x
           → cong (ΩEM+1→EM (suc n))
-                   (cong-∙ (liftMap n f) (merid x) (sym (merid (ptSn _)))
-                 ∙ cong (cong (liftMap n f) (merid x) ∙_)
+                   (cong-∙ (liftMapEM n f) (merid x) (sym (merid (ptSn _)))
+                 ∙ cong (cong (liftMapEM n f) (merid x) ∙_)
                         (cong sym (cong (EM→ΩEM+1 (suc n)) q
                                 ∙ EM→ΩEM+1-0ₖ (suc n)))
                  ∙ sym (rUnit _))

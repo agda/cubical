@@ -137,7 +137,7 @@ inv lUnit×Iso = tt ,_
 rightInv lUnit×Iso _ = refl
 leftInv lUnit×Iso _ = refl
 
-lUnit*×Iso : ∀{ℓ} → Iso (Unit* {ℓ} × A) A
+lUnit*×Iso : Iso (Unit* {ℓ} × A) A
 fun lUnit*×Iso = snd
 inv lUnit*×Iso = tt* ,_
 rightInv lUnit*×Iso _ = refl
@@ -149,7 +149,7 @@ inv rUnit×Iso = _, tt
 rightInv rUnit×Iso _ = refl
 leftInv rUnit×Iso _ = refl
 
-rUnit*×Iso : ∀{ℓ} → Iso (A × Unit* {ℓ}) A
+rUnit*×Iso : Iso (A × Unit* {ℓ}) A
 fun rUnit*×Iso = fst
 inv rUnit*×Iso = _, tt*
 rightInv rUnit*×Iso _ = refl

@@ -86,15 +86,14 @@ dichotomyBoolSym true = inr refl
 
 -- Universe lifted booleans
 Bool* : ∀ {ℓ} → Type ℓ
-Bool* = Lift Bool
+Bool* {ℓ} = Lift _ Bool
 
-true* : ∀ {ℓ} → Bool* {ℓ}
+true* : Bool* {ℓ}
 true* = lift true
 
-false* : ∀ {ℓ} → Bool* {ℓ}
+false* : Bool* {ℓ}
 false* = lift false
 
 -- Pointed version
 Bool*∙ : ∀ {ℓ} → Σ[ X ∈ Type ℓ ] X
-fst Bool*∙ = Bool*
-snd Bool*∙ = true*
+Bool*∙ = Bool* , true*

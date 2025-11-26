@@ -173,11 +173,11 @@ compEquiv-assoc : (f : A ≃ B) (g : B ≃ C) (h : C ≃ D)
                 → compEquiv f (compEquiv g h) ≡ compEquiv (compEquiv f g) h
 compEquiv-assoc f g h = equivEq refl
 
-LiftEquiv : A ≃ Lift {i = ℓ} {j = ℓ'} A
+LiftEquiv : A ≃ Lift ℓ' A
 LiftEquiv .fst a .lower = a
 LiftEquiv .snd .equiv-proof = strictContrFibers lower
 
-Lift≃Lift : (e : A ≃ B) → Lift {j = ℓ'} A ≃ Lift {j = ℓ''} B
+Lift≃Lift : (e : A ≃ B) → Lift ℓ' A ≃ Lift ℓ'' B
 Lift≃Lift e .fst a .lower = e .fst (a .lower)
 Lift≃Lift e .snd .equiv-proof b .fst .fst .lower = invEq e (b .lower)
 Lift≃Lift e .snd .equiv-proof b .fst .snd i .lower =

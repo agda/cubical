@@ -161,7 +161,7 @@ inv (compIsoIdR isom i) = inv isom
 rightInv (compIsoIdR isom i) b = rUnit (isom .rightInv b) (~ i)
 leftInv (compIsoIdR isom i) a = lUnit (isom .leftInv a) (~ i)
 
-LiftIso : Iso A (Lift {i = ℓ} {j = ℓ'} A)
+LiftIso : Iso A (Lift ℓ' A)
 fun LiftIso = lift
 inv LiftIso = lower
 rightInv LiftIso _ = refl

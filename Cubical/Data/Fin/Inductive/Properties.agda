@@ -19,7 +19,7 @@ open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Fin.Base as FinOld
   hiding (Fin ; injectSuc ; fsuc ; fzero ; flast ; ¬Fin0 ; sumFinGen)
 open import Cubical.Data.Fin.Properties as FinOldProps
-  hiding (sumFinGen0 ; isSetFin ; sumFin-choose ; sumFinGenHom ; sumFinGenId)
+  hiding (sumFinGen0 ; isSetFin ; isContrFin1 ; sumFin-choose ; sumFinGenHom ; sumFinGenId)
 
 open import Cubical.Relation.Nullary
 
@@ -145,6 +145,9 @@ isSetFin {n = n} =
 
 isPropFin1 : isProp (Fin 1)
 isPropFin1 (zero , tt) (zero , tt) = refl
+
+isContrFin1 : isContr (Fin 1)
+isContrFin1 = inhProp→isContr fzero isPropFin1
 
 DiscreteFin : ∀ {n} → Discrete (Fin n)
 DiscreteFin x y with discreteℕ (fst x) (fst y)

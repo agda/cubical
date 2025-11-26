@@ -29,7 +29,7 @@ data LFSet (A : Type ℓ) : Type ℓ where
 -- at the end.
 -- We might want to avoid it, or come up with a more clever equational reasoning.
 _∈_ : {A : Type ℓ} → A → LFSet A → hProp ℓ
-z ∈ []                  = Lift ⊥.⊥ , isOfHLevelLift 1 isProp⊥
+z ∈ []                  = ⊥.⊥* , isOfHLevelLift 1 isProp⊥
 z ∈ (y ∷ xs)            = (z ≡ₚ y) ⊔ (z ∈ xs)
 z ∈ dup x xs i          = proof i
   where
