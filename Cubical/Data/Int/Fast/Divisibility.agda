@@ -35,8 +35,8 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int.Fast
-
 open import Cubical.Tactics.CommRingSolver.IntReflection
+
 
 private
   variable
@@ -233,12 +233,8 @@ module _
 
   div·-helper : g · (div₁ · n) ≡ g · (div₂ · m)
   div·-helper =
-      ℤ!
-    ∙ (λ i → divideEq (b .isCD .fst) i · n)
-    ∙ ℤ!
-    ∙ (λ i → divideEq (b .isCD .snd) (~ i) · m)
-    ∙ ℤ!
-
+      ℤ! ∙ (λ i → divideEq (b .isCD .fst) i · n)
+    ∙ ℤ! ∙ (λ i → divideEq (b .isCD .snd) (~ i) · m) ∙ ℤ!
   div·-g≠0 : ¬ g ≡ 0 → div₁ · n ≡ div₂ · m
   div·-g≠0 p = ·lCancel _ _ _ div·-helper p
 
@@ -311,6 +307,7 @@ module _
   euclidStep 0 _ _ h _ = Empty.rec (¬-<-zero h)
   euclidStep (suc N) m n h (quotrem div rem quotEq (inl p)) =
     let q = subst (λ r → n ≡ div · m + r) p quotEq
+
     in  bezout 1 0 m ℤ!
       (∣-refl refl , subst (λ k → m ∣ k) (sym q) (subst (m ∣_) (sym (ℤ.+IdR (div · m))) (∣-right {k = div})) )
   euclidStep (suc N) m n h (quotrem div rem quotEq (inr p)) =
@@ -386,7 +383,7 @@ private
 quotRemNeg : (m : ℤ)(n : ℕ)(¬z : ¬ m ≡ 0) → QuotRem m (- pos n)
 quotRemNeg m n ¬z .div = - (quotRemPos m n ¬z .div)
 quotRemNeg m n ¬z .rem = - (quotRemPos m n ¬z .rem)
-quotRemNeg m n ¬z .quotEq = 
+quotRemNeg m n ¬z .quotEq =
     (λ t → - quotRemPos m n ¬z .quotEq t)
   ∙ -Dist+ (quotRemPos m n ¬z .div · m) (quotRemPos m n ¬z .rem)
   ∙ (λ t → -DistL· (quotRemPos m n ¬z .div) m t + - quotRemPos m n ¬z .rem)

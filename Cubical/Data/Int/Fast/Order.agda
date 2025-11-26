@@ -1,5 +1,3 @@
--- {-# OPTIONS --verbose rsolver:20 #-}
-
 module Cubical.Data.Int.Fast.Order where
 
 open import Cubical.Foundations.Prelude
@@ -25,6 +23,7 @@ open import Cubical.Data.Sum
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
+
 open import Cubical.Algebra.CommRing.Instances.Int.Fast
 open import Cubical.Tactics.CommRingSolver.IntReflection
 
@@ -123,6 +122,7 @@ isProp≤ {m} {n} (k , p) (l , q)
 isProp< : isProp (m < n)
 isProp< {m} = isProp≤ {1 ℤ.+ m}
 
+
 -- this proof warrants the particular order of summands in the definition of order
 zero-≤pos : 0 ≤ pos l
 zero-≤pos {l} = l , refl
@@ -139,7 +139,7 @@ negsuc≤-zero {k} = suc k , nℕ-n≡0 k
 negsuc<-zero : negsuc k < 0
 negsuc<-zero {k} .fst = k
 negsuc<-zero {k} .snd = ℤ!
-    
+
 ¬pos≤negsuc : ¬ (pos k) ≤ negsuc l
 ¬pos≤negsuc {k} {l} (i , p) = posNotnegsuc (k ℕ.+ i) l (pos+ k i ∙ p)
 
@@ -245,6 +245,7 @@ suc-< {m} {n} p = pred-≤-pred {sucℤ m} (≤-suc {sucℤ (sucℤ m)} p)
 isTrans≤ : m ≤ n → n ≤ o → m ≤ o
 isTrans≤ {m} {n} {o} (i , p) (j , q) .fst = i ℕ.+ j
 isTrans≤ {m} {n} {o} (i , p) (j , q) .snd =
+
   ℤ! ∙∙ cong (ℤ._+ pos j) p ∙∙ q 
 
 isAntisym≤ : m ≤ n → n ≤ m → m ≡ n
@@ -252,6 +253,7 @@ isAntisym≤ {m} {n} (i , p) (j , q) =
   sym (+IdR _) ∙ cong ((m ℤ.+_) ∘ pos) (injPos lemma₂) ∙ p
   where lemma₀ : pos (j ℕ.+ i) ℤ.+ m ≡ m
         lemma₀ = ℤ! ∙ cong (pos j ℤ.+_) p ∙∙ +Comm (pos j) n ∙∙ q
+        
         lemma₁ : pos (j ℕ.+ i) ≡ 0
         lemma₁ = n+z≡z→n≡0 (pos (j ℕ.+ i)) m lemma₀
 
@@ -301,7 +303,6 @@ isIrrefl< {pos (suc n)}    (i , p) = isIrrefl< {pos n} (i , cong predℤ p ∙ �
 isIrrefl< {negsuc zero}    (i , p) = posNotnegsuc i 0 p
 isIrrefl< {negsuc (suc n)} (i , p) = isIrrefl< {negsuc n} (i ,
                                      ℤ! ∙ cong sucℤ p)
-
 0<o→<-·o : 0 < o → m < n → m ℤ.· o < n ℤ.· o
 0<o→<-·o {pos zero}        0<o _   = ⊥.rec (isIrrefl< 0<o)
 0<o→<-·o {pos (suc o)} {m} _   m<n = <-·o {m} {k = o} m<n
@@ -336,6 +337,7 @@ isAsym< {m} m<n = isIrrefl< ∘ <≤-trans {m} m<n
 
 <-o+ : m < n → o ℤ.+ m < o ℤ.+ n
 <-o+ {m} {n} {o} (l , p) = l , ℤ! ∙∙ cong (ℤ._+ o) p ∙∙ ℤ!
+
 
 <-+pos-trans : m ℤ.+ pos k < n → m < n
 <-+pos-trans {m} {k} = ≤<-trans {m} (k , refl)
@@ -469,6 +471,7 @@ min≤ {negsuc m} {negsuc n} = ℕ≤→negsuc≥negsuc ℕ.left-≤-max
 0<+ (negsuc m)    (pos (suc n)) = λ _ → inr (suc-≤-suc {0} zero-≤pos)
 0<+ (negsuc m)    (negsuc n)    = ⊥.rec ∘ ¬pos≤negsuc
 
+
 0<_ : ℤ → Type
 0< pos zero = ⊥
 0< pos (suc n) = Unit
@@ -497,6 +500,7 @@ min-0< (pos (suc m)) (pos (suc n)) p q with m ℕ.<ᵇ n
 0≤x² : ∀ n → 0 ≤ n ℤ.· n
 0≤x² (pos n)    = zero-≤pos
 0≤x² (negsuc n) = zero-≤pos
+
 
 ≤Dec : ∀ m n → Dec (m ≤ n)
 ≤Dec (pos m)    (pos n)    with ℕ.≤Dec m n
