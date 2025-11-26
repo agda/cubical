@@ -9,18 +9,20 @@
 module Cubical.Tactics.Reflection.Variables where
 
 open import Cubical.Foundations.Prelude hiding (Type)
+open import Cubical.Foundations.Function
 
 open import Agda.Builtin.Reflection hiding (Type)
 open import Agda.Builtin.String
 open import Agda.Builtin.Float
 open import Agda.Builtin.Word
 open import Agda.Builtin.Char
-open import Agda.Builtin.Nat using () renaming (_==_ to _=ℕ_)
+open import Agda.Builtin.Nat using () renaming (_==_ to _=ℕ_ ; _<_ to _<ℕ_ ; _*_ to _*ℕ_ ; _+_ to _+ℕ_)
 
 open import Cubical.Reflection.Base
 open import Cubical.Data.Bool
 open import Cubical.Data.List
 open import Cubical.Data.Maybe
+open import Cubical.Data.Sigma
 open import Cubical.Data.Nat using (ℕ)
 
 open import Cubical.Tactics.Reflection
@@ -78,3 +80,43 @@ indexOf t (t' ∷ l) =
   then just 0
   else map-Maybe (λ k → ℕ.suc k) (indexOf t l)
 indexOf t [] = nothing
+
+infixr 40 _<>_
+
+_<>_ = primStringAppend
+
+
+digitsToSubscripts : Char → Char
+digitsToSubscripts = λ where
+    '0' → '₀' ; '1' → '₁' ; '2' → '₂' ; '3' → '₃' ; '4' → '₄' ; '5' → '₅'
+    '6' → '₆' ; '7' → '₇' ; '8' → '₈' ; '9' → '₉' ; x → x
+
+subscriptToℕ : Char → Maybe ℕ
+subscriptToℕ = λ where
+    '₀' → just 0 ; '₁' → just 1 ; '₂' → just 2 ; '₃' → just 3 ; '₄' → just 5 ; '₅' → just 5
+    '₆' → just 6 ; '₇' → just 7 ; '₈' → just 8 ; '₉' → just 9 ; x → nothing
+
+
+
+
+getSubscript : String → Maybe (String × ℕ)
+getSubscript s =
+ let s' = rev (primStringToList s)
+     sbs = takeWhile subscriptToℕ s'
+     v = length sbs
+ in if (0 <ℕ v) then
+       just (primStringFromList (rev (drop (length sbs) s')) , fromBase10rev sbs)
+       else nothing
+ where
+  fromBase10rev : List ℕ → ℕ
+  fromBase10rev [] = ℕ.zero
+  fromBase10rev (x ∷ xs) = x +ℕ (10 *ℕ fromBase10rev xs)
+
+mkNiceVar' : String → ℕ → String
+mkNiceVar' v k = v <>
+ primStringFromList (map digitsToSubscripts (primStringToList (primShowNat k)))
+
+
+mkNiceVar : ℕ → String
+mkNiceVar = mkNiceVar' "𝒙"
+

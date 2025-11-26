@@ -119,7 +119,8 @@ toSuspPresInvS² (surf i j) k r =
   l2 i j k = l1 j i (~ k)
 
   sym≡cong-sym-refl : ∀ {ℓ} {A : Type ℓ} {x : A} → sym≡cong-sym (λ _ _ → x) ≡ refl
-  sym≡cong-sym-refl {x = x} = transportRefl (λ _ _ _ → x)
+  sym≡cong-sym-refl {x = x} i j u v =
+    hcomp {φ = i ∨ j ∨ ~ j ∨ u ∨ ~ u ∨ v ∨ ~ v} (λ _ _ → x) x
 
   l1≡l2 : l1 ≡ l2
   l1≡l2 = sym (sym≡flipSquare (λ i j → l1 j i))

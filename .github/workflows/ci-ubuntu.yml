@@ -80,7 +80,7 @@ jobs:
       - name: Download and install Agda from github
         if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
+          git clone https://github.com/${{ env.AGDA_REPO }}/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
           cd agda
           ${{ env.CABAL_INSTALL }}
           cd ..

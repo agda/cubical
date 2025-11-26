@@ -1,19 +1,20 @@
 module Cubical.Data.List.Properties where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.GroupoidLaws
+
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
-
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
+open import Cubical.Data.Maybe
+open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎ hiding (map)
 open import Cubical.Data.Unit
-open import Cubical.Data.List.Base as List
-
 open import Cubical.Relation.Nullary
+
+open import Cubical.Data.List.Base as List
 
 module _ {ℓ} {A : Type ℓ} where
 
@@ -41,7 +42,7 @@ module _ {ℓ} {A : Type ℓ} where
 
   rev-rev-snoc : (xs : List A) (y : A) →
     Square (rev-rev (xs ++ [ y ])) (cong (_++ [ y ]) (rev-rev xs)) (cong rev (rev-snoc xs y)) refl
-  rev-rev-snoc [] y = sym (lUnit refl)
+  rev-rev-snoc [] y = sym (compPath-filler refl refl)
   rev-rev-snoc (x ∷ xs) y i j =
     hcomp
       (λ k → λ
@@ -120,7 +121,7 @@ private
   variable
     ℓ ℓ' : Level
     A : Type ℓ
-    B : Type ℓ'
+    B C : Type ℓ'
     x y : A
     xs ys : List A
 
@@ -135,6 +136,14 @@ private
   safe-tail : List A → List A
   safe-tail []       = []
   safe-tail (_ ∷ xs) = xs
+
+SafeHead' : List A → Type _
+SafeHead' [] = Unit*
+SafeHead' {A = A} (x ∷ x₁) = A
+
+safeHead' : ∀ xs → SafeHead' {A = A} xs
+safeHead' [] = tt*
+safeHead' (x ∷ _) = x
 
 cons-inj₁ : x ∷ xs ≡ y ∷ ys → x ≡ y
 cons-inj₁ {x = x} p = cong (safe-head x) p
@@ -192,6 +201,15 @@ length-map : (f : A → B) → (as : List A)
   → length (map f as) ≡ length as
 length-map f [] = refl
 length-map f (a ∷ as) = cong suc (length-map f as)
+
+intersperse : A → List A → List A
+intersperse _ [] = []
+intersperse a (x ∷ []) = x ∷ []
+intersperse a (x ∷ xs) = x ∷ a ∷ intersperse a xs
+
+join : List (List A) → List A
+join [] = []
+join (x ∷ xs) = x ++ join xs
 
 map++ : (f : A → B) → (as bs : List A)
    → map f as ++ map f bs ≡ map f (as ++ bs)
@@ -301,9 +319,13 @@ split++ (x₁ ∷ xs') ys' (x₂ ∷ xs) ys x =
  in zs , ⊎.map (map-fst (λ q i → p    i  ∷ q i))
                (map-fst (λ q i → p (~ i) ∷ q i)) q
 
-rot : List A → List A
-rot [] = []
-rot (x ∷ xs) = xs ∷ʳ x
+zipWithIndex : List A → List (ℕ × A)
+zipWithIndex [] = []
+zipWithIndex (x ∷ xs) = (zero , x) ∷ map (map-fst suc) (zipWithIndex xs)
+
+repeat : ℕ → A → List A
+repeat zero _ = []
+repeat (suc k) x = x ∷ repeat k x
 
 take[] : ∀ n → take {A = A} n [] ≡ []
 take[] zero = refl
@@ -317,6 +339,42 @@ lookupAlways : A → List A → ℕ → A
 lookupAlways a [] _ = a
 lookupAlways _ (x ∷ _) zero = x
 lookupAlways a (x ∷ xs) (suc k) = lookupAlways a xs k
+
+lookupMb : List A → ℕ → Maybe A
+lookupMb = lookupAlways nothing ∘S map just
+
+rot : List A → List A
+rot [] = []
+rot (x ∷ xs) = xs ∷ʳ x
+
+rotN : ℕ → List A → List A
+rotN n = iter n rot
+
+offset : A → ℕ →  List A → List A
+offset a n xs = repeat (substLen n xs) a ++ xs
+ where
+ substLen : ℕ → List A → ℕ
+ substLen zero _ = zero
+ substLen k@(suc _) [] = k
+ substLen (suc k) (_ ∷ xs) = substLen k xs
+
+offsetR : A → ℕ →  List A → List A
+offsetR a zero xs = xs
+offsetR a (suc n) [] = repeat (suc n) a
+offsetR a (suc n) (x ∷ xs) = x ∷ offsetR a n xs
+
+module _ {A : Type ℓ} (_≟_ : Discrete A) where
+
+ private
+  fa : ℕ → (xs ys : List A) → Maybe (Σ _ λ k → xs ≡ rotN k ys)
+  fa zero _ _ = nothing
+  fa (suc k) xs ys =
+    decRec (just ∘ ((length xs ∸ k) ,_))
+     (λ _ → fa k xs ys) (discreteList _≟_ xs (rotN (length xs ∸ k) ys) )
+
+ findAligment : (xs ys : List A) → Maybe (Σ _ λ k → xs ≡ rotN k ys)
+ findAligment xs ys = fa (suc (length xs)) xs ys
+
 
 module List₂ where
  open import Cubical.HITs.SetTruncation renaming
@@ -346,3 +404,100 @@ module List₂ where
 
  List-comm-∥∥₂ : ∀ {ℓ} → List {ℓ} ∘ ∥_∥₂ ≡ ∥_∥₂ ∘ List
  List-comm-∥∥₂ = funExt λ A → isoToPath (Iso∥List∥₂List∥∥₂ {A = A})
+
+zipWith : (A → B → C) → List A → List B → List C
+zipWith f [] ys = []
+zipWith f (x ∷ xs) [] = []
+zipWith f (x ∷ xs) (y ∷ ys) = f x y ∷ zipWith f xs ys
+
+alwaysZipWith : (Maybe A → Maybe B → C) → List A → List B → List C
+alwaysZipWith f [] [] = []
+alwaysZipWith f [] ys = map (f nothing ∘ just) ys
+alwaysZipWith f xs@(_ ∷ _) [] = map (flip f nothing ∘ just) xs
+alwaysZipWith f (x ∷ xs) (y ∷ ys) = f (just x) (just y) ∷ alwaysZipWith f xs ys
+
+range : ℕ → List ℕ
+range zero = []
+range (suc x) = x ∷ range x
+
+insertAt : ℕ → A → List A → List A
+insertAt k a xs = take k xs ++ a ∷ drop k xs
+
+replaceAt : ℕ → A → List A → List A
+replaceAt k a xs = take k xs ++ a ∷ drop (suc k) xs
+
+dropAt : ℕ → List A → List A
+dropAt k xs = take k xs ++ drop (suc k) xs
+
+
+findBy : (A → Bool) → List A → Maybe A
+findBy t [] = nothing
+findBy t (x ∷ xs) = if t x then just x else findBy t xs
+
+
+catMaybes : List (Maybe A) → List A
+catMaybes [] = []
+catMaybes (nothing ∷ xs) = catMaybes xs
+catMaybes (just x ∷ xs) = x ∷ catMaybes xs
+
+fromAllMaybes : List (Maybe A) → Maybe (List A)
+fromAllMaybes [] = just []
+fromAllMaybes (nothing ∷ xs) = nothing
+fromAllMaybes (just x ∷ xs) = map-Maybe (x ∷_) (fromAllMaybes xs)
+
+maybeToList : Maybe A → List A
+maybeToList nothing = []
+maybeToList (just x) = [ x ]
+
+listToMaybe : List A → Maybe A
+listToMaybe [] = nothing
+listToMaybe (x ∷ _) = just x
+
+
+injectiveZipWith, : (xs ys : List (A × B)) →
+  map fst xs ≡ map fst ys →
+  map snd xs ≡ map snd ys →
+  xs ≡ ys
+injectiveZipWith, [] [] x x₁ = refl
+injectiveZipWith, [] (x₂ ∷ ys) x x₁ = ⊥.rec (¬nil≡cons x)
+injectiveZipWith, (x₂ ∷ xs) [] x x₁ = ⊥.rec (¬nil≡cons (sym x))
+injectiveZipWith, (x₂ ∷ xs) (x₃ ∷ ys) x x₁ =
+  cong₂ _∷_ (cong₂ _,_ (cons-inj₁ x) (cons-inj₁ x₁))
+   (injectiveZipWith, xs ys (cons-inj₂ x) (cons-inj₂ x₁))
+
+
+cart : List  A → List B → List (A × B)
+cart la lb = join (map (λ b → map (_, b) la) lb)
+
+filter : (A → Bool) → List A → List A
+filter f [] = []
+filter f (x ∷ xs) = if f x then (x ∷ filter f xs) else (filter f xs)
+
+
+module _ (_≟_ : Discrete A) where
+ nub : List A → List A
+ nub [] = []
+ nub (x ∷ xs) = x ∷ filter (not ∘ Dec→Bool ∘ _≟ x) (nub xs)
+
+ elem? : A → List A → Bool
+ elem? x [] = false
+ elem? x (x₁ ∷ x₂) = Dec→Bool (x ≟ x₁) or elem? x x₂
+
+ subs? : List A → List A → Bool
+ subs? xs xs' = foldr (_and_ ∘ flip elem? xs') true xs
+
+takeWhile : (A → Maybe B) → List A → List B
+takeWhile f [] = []
+takeWhile f (x ∷ xs) with f x
+... | nothing = []
+... | just y = y ∷ takeWhile f xs
+
+dropBy : (A → Bool) → List A → List A
+dropBy _ [] = []
+dropBy f (x ∷ xs) =
+  if f x then (dropBy f xs) else (x ∷ xs)
+
+mapAt : (A → A) → ℕ → List A → List A
+mapAt _ _ [] = []
+mapAt f (suc k) (x ∷ xs) = x ∷ mapAt f k xs
+mapAt f zero (x ∷ xs) = f x ∷ xs
