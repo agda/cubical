@@ -355,7 +355,7 @@ congLim' x y x' p =
 
 -- HoTT Lemma (11.3.40)
 record NonExpanding₂ (g : ℚ → ℚ → ℚ ) : Type where
- no-eta-equality
+ -- no-eta-equality
  field
 
   cL : ∀ q r s →

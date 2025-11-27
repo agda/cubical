@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Order where
 
 open import Cubical.Foundations.Prelude
@@ -13,7 +11,7 @@ open import Cubical.Data.Bool as 𝟚 hiding (_≤_)
 open import Cubical.Data.Nat as ℕ hiding (_·_;_+_)
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as ⊎
-open import Cubical.Data.Int as ℤ
+open import Cubical.Data.Int.Fast as ℤ
 import Cubical.Data.Int.Order as ℤ
 open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
@@ -22,10 +20,10 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _//_)
 
 
-open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Order as ℚ using
+open import Cubical.Data.Rationals.Fast as ℚ using (ℚ ; [_/_])
+open import Cubical.Data.Rationals.Fast.Order as ℚ using
   ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
-open import Cubical.Data.Rationals.Order.Properties as ℚ
+open import Cubical.Data.Rationals.Fast.Order.Properties as ℚ
  using (invℚ₊;/2₊;/3₊;/4₊)
 
 open import Cubical.Data.NatPlusOne
@@ -37,26 +35,31 @@ open import Cubical.Foundations.CartesianKanOps
 open import Cubical.Relation.Binary
 
 open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Lems
 open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
 
 open import Cubical.Relation.Binary.Order.Poset
 open import Cubical.Relation.Binary.Order.Proset
 
-sumR : NonExpanding₂ ℚ._+_
-sumR .NonExpanding₂.cL q r s =
- ℚ.≡Weaken≤  (ℚ.abs ((q ℚ.+ s) ℚ.- (r ℚ.+ s))) (ℚ.abs (q ℚ.- r))
-  (sym $ cong ℚ.abs (lem--036 {q} {r} {s}))
-sumR .NonExpanding₂.cR q r s =
-   ℚ.≡Weaken≤ (ℚ.abs ((q ℚ.+ r) ℚ.- (q ℚ.+ s))) (ℚ.abs (r ℚ.- s))
-   (sym $ cong ℚ.abs (lem--037 {r} {s} {q}))
+open import Cubical.Tactics.CommRingSolver.FastRationalsReflection
+open import Cubical.Tactics.CommRingSolver.IntReflection
+
 
 infix  8 -ᵣ_
 infixl 6 _+ᵣ_ _-ᵣ_
 
 
 opaque
+
+ sumR : NonExpanding₂ ℚ._+_
+ sumR .NonExpanding₂.cL q r s =
+  ℚ.≡Weaken≤  (ℚ.abs ((q ℚ.+ s) ℚ.- (r ℚ.+ s))) (ℚ.abs (q ℚ.- r))
+   (sym $ cong {x = q ℚ.- r} {y = (q ℚ.+ s) ℚ.- (r ℚ.+ s)} ℚ.abs ℚ!)
+ sumR .NonExpanding₂.cR q r s =
+    ℚ.≡Weaken≤ (ℚ.abs ((q ℚ.+ r) ℚ.- (q ℚ.+ s))) (ℚ.abs (r ℚ.- s))
+    (sym $ cong {x = r ℚ.- s} {y = (q ℚ.+ r) ℚ.- (q ℚ.+ s)} ℚ.abs ℚ!)
+
+
  _+ᵣ_ : ℝ → ℝ → ℝ
  _+ᵣ_ = NonExpanding₂.go sumR
 
@@ -87,74 +90,103 @@ opaque
      sumR +ᵣComm ℚ.+Assoc x y z)
 
 
-minR : NonExpanding₂ ℚ.min
-minR = w
 
- where
+ +ᵣ-impl : ∀ x y → x +ᵣ y ≡ NonExpanding₂.go sumR x y 
+ +ᵣ-impl _ _ = refl
 
- w' : (q r s : ℚ) → ℚ.abs (ℚ.min q s ℚ.- ℚ.min r s) ℚ.≤ ℚ.abs (q ℚ.- r)
- w' q r s =
-  let s' = ℚ.min r q
-  in subst (ℚ._≤ (ℚ.abs (q ℚ.- r)))
-     (cong {x = ℚ.min (ℚ.max s' q) s ℚ.-
-                   ℚ.min (ℚ.max s' r) s}
-           {y = ℚ.min q s ℚ.- ℚ.min r s}
-            ℚ.abs
-       (cong₂ (λ q' r' → ℚ.min q' s ℚ.-
-                   ℚ.min r' s)
-                 (ℚ.maxComm s' q ∙∙
-                   cong (ℚ.max q) (ℚ.minComm r q)
-                  ∙∙ ℚ.maxAbsorbLMin q r )
-             ((ℚ.maxComm s' r ∙ ℚ.maxAbsorbLMin r q )
-               ))) (ℚ.clampDist s' s r q)
+ rat-+ᵣ-lim : ∀ r x y → rat r +ᵣ lim x y ≡ lim (λ ε → rat r +ᵣ x ε)
+               λ δ ε → +ᵣ-∼' (x δ) (x ε) (rat r) (δ ℚ₊+ ε) (y δ ε)
+ rat-+ᵣ-lim r x y = NonExpanding₂.β-rat-lim sumR r x y λ δ ε → +ᵣ-∼' (x δ) (x ε) (rat r) (δ ℚ₊+ ε) (y δ ε)
 
+ lim-+ᵣ-rat : ∀ x y r → lim x y +ᵣ rat r ≡ lim (λ ε → x ε +ᵣ rat r )
+               λ δ ε → +ᵣ-∼  (x δ) (x ε) (rat r) (δ ℚ₊+ ε) (y δ ε)
+ lim-+ᵣ-rat x y r = +ᵣComm (lim x y) (rat r) ∙ rat-+ᵣ-lim r x y  ∙
+   congLim _ _ _  _ λ q → +ᵣComm (rat r) (x q)
 
- w : NonExpanding₂ ℚ.min
- w .NonExpanding₂.cL = w'
- w .NonExpanding₂.cR q r s =
-   subst2 (λ u v → ℚ.abs (u ℚ.- v) ℚ.≤ ℚ.abs (r ℚ.- s))
-        (ℚ.minComm r q) (ℚ.minComm s q) (w' r s q)
+ +∼ : ∀ (x : ℚ₊ → ℝ) (y : (δ ε : ℚ₊) → x δ ∼[ δ ℚ₊+ ε ] x ε)
+    (x' : ℚ₊ → ℝ) (y' : (δ ε : ℚ₊) → x' δ ∼[ δ ℚ₊+ ε ] x' ε)
+     δ ε → (x (/2₊ δ) +ᵣ x' (/2₊ δ)) ∼[ δ ℚ₊+ ε ] (x (/2₊ ε) +ᵣ x' (/2₊ ε))
+ +∼ x y x' y' = fst  (NonExpanding₂.β-lim-lim/2 sumR x y x' y')
+
+ lim-+ᵣ-lim : ∀ x (y : (δ ε : ℚ₊) → x δ ∼[ δ ℚ₊+ ε ] x ε) x' y' → lim x y +ᵣ lim x' y' ≡ lim (λ ε → x (/2₊ ε) +ᵣ x' (/2₊ ε))
+                (+∼ x y x' y')
+ lim-+ᵣ-lim x y x' y' = snd (NonExpanding₂.β-lim-lim/2 sumR x y x' y')
 
 
-
-maxR : NonExpanding₂ ℚ.max
-maxR = w
- where
-
- h : ∀ q r s →  ℚ.min (ℚ.max s q) (ℚ.max s (ℚ.max r q)) ≡ ℚ.max q s
- h q r s = cong (ℚ.min (ℚ.max s q)) (cong (ℚ.max s) (ℚ.maxComm r q)
-             ∙ ℚ.maxAssoc s q r) ∙
-      ℚ.minAbsorbLMax (ℚ.max s q) r ∙ ℚ.maxComm s q
-
- w' : (q r s : ℚ) → ℚ.abs (ℚ.max q s ℚ.- ℚ.max r s) ℚ.≤ ℚ.abs (q ℚ.- r)
- w' q r s =
-  let s' = ℚ.max s (ℚ.max r q)
-  in subst (ℚ._≤ (ℚ.abs (q ℚ.- r)))
-       ( cong {x = ℚ.min (ℚ.max s q) s' ℚ.-
-                   ℚ.min (ℚ.max s r) s'}
-           {y = ℚ.max q s ℚ.- ℚ.max r s}
-            ℚ.abs
-            (cong₂ ℚ._-_
-              (h q r s)
-              (cong (ℚ.min (ℚ.max s r))
-                 (cong (ℚ.max s) (ℚ.maxComm r q))
-                ∙ h r q s)) )
-       (ℚ.clampDist s s' r q )
-
- w : NonExpanding₂ ℚ.max
- w .NonExpanding₂.cL = w'
- w .NonExpanding₂.cR q r s =
-   subst2 (λ u v → ℚ.abs (u ℚ.- v) ℚ.≤ ℚ.abs (r ℚ.- s))
-        (ℚ.maxComm r q) (ℚ.maxComm s q)
-         (w' r s q)
 
 opaque
+
+
+ minR : NonExpanding₂ ℚ.min
+ minR = w
+
+  where
+
+  w' : (q r s : ℚ) → ℚ.abs (ℚ.min q s ℚ.- ℚ.min r s) ℚ.≤ ℚ.abs (q ℚ.- r)
+  w' q r s =
+   let s' = ℚ.min r q
+   in subst (ℚ._≤ (ℚ.abs (q ℚ.- r)))
+      (cong {x = ℚ.min (ℚ.max s' q) s ℚ.-
+                    ℚ.min (ℚ.max s' r) s}
+            {y = ℚ.min q s ℚ.- ℚ.min r s}
+             ℚ.abs
+        (cong₂ (λ q' r' → ℚ.min q' s ℚ.-
+                    ℚ.min r' s)
+                  (ℚ.maxComm s' q ∙∙
+                    cong (ℚ.max q) (ℚ.minComm r q)
+                   ∙∙ ℚ.maxAbsorbLMin q r )
+              ((ℚ.maxComm s' r ∙ ℚ.maxAbsorbLMin r q )
+                ))) (ℚ.clampDist s' s r q)
+
+
+  w : NonExpanding₂ ℚ.min
+  w .NonExpanding₂.cL = w'
+  w .NonExpanding₂.cR q r s =
+    subst2 (λ u v → ℚ.abs (u ℚ.- v) ℚ.≤ ℚ.abs (r ℚ.- s))
+         (ℚ.minComm r q) (ℚ.minComm s q) (w' r s q)
+
+
+
+ maxR : NonExpanding₂ ℚ.max
+ maxR = w
+  where
+
+  h : ∀ q r s →  ℚ.min (ℚ.max s q) (ℚ.max s (ℚ.max r q)) ≡ ℚ.max q s
+  h q r s = cong (ℚ.min (ℚ.max s q)) (cong (ℚ.max s) (ℚ.maxComm r q)
+              ∙ ℚ.maxAssoc s q r) ∙
+       ℚ.minAbsorbLMax (ℚ.max s q) r ∙ ℚ.maxComm s q
+
+  w' : (q r s : ℚ) → ℚ.abs (ℚ.max q s ℚ.- ℚ.max r s) ℚ.≤ ℚ.abs (q ℚ.- r)
+  w' q r s =
+   let s' = ℚ.max s (ℚ.max r q)
+   in subst (ℚ._≤ (ℚ.abs (q ℚ.- r)))
+        ( cong {x = ℚ.min (ℚ.max s q) s' ℚ.-
+                    ℚ.min (ℚ.max s r) s'}
+            {y = ℚ.max q s ℚ.- ℚ.max r s}
+             ℚ.abs
+             (cong₂ ℚ._-_
+               (h q r s)
+               (cong (ℚ.min (ℚ.max s r))
+                  (cong (ℚ.max s) (ℚ.maxComm r q))
+                 ∙ h r q s)) )
+        (ℚ.clampDist s s' r q )
+
+  w : NonExpanding₂ ℚ.max
+  w .NonExpanding₂.cL = w'
+  w .NonExpanding₂.cR q r s =
+    subst2 (λ u v → ℚ.abs (u ℚ.- v) ℚ.≤ ℚ.abs (r ℚ.- s))
+         (ℚ.maxComm r q) (ℚ.maxComm s q)
+          (w' r s q)
+
  minᵣ : ℝ → ℝ → ℝ
  minᵣ = NonExpanding₂.go minR
 
  maxᵣ : ℝ → ℝ → ℝ
  maxᵣ = NonExpanding₂.go maxR
 
+ maxᵣ-impl : ∀ x y → maxᵣ x y ≡ NonExpanding₂.go maxR x y 
+ maxᵣ-impl _ _ = refl
+ 
  minᵣ-rat : ∀ a b → minᵣ (rat a) (rat b) ≡ rat (ℚ.min a b)
  minᵣ-rat _ _ = refl
 
@@ -197,8 +229,10 @@ opaque
  clamp-limΣ : ∀ d u x y →
           Σ _ (λ y' →
            clampᵣ d u (lim x y) ≡ lim (λ ε → clampᵣ d u (x ε)) y')
- clamp-limΣ d u x y = _ , cong (flip minᵣ u) (maxᵣComm _ _)
-   ∙ congLim' _ _ _ λ _ → cong (flip minᵣ u) (maxᵣComm _ _)
+ clamp-limΣ d u x y = _ , cong (flip minᵣ u) (maxᵣComm d (lim x y))
+   ∙ congLim' _ (λ δ ε →
+                   Elimℝ.go∼ (NonExpanding₂-Lemmas.NE.w ℚ.min minR)
+                   (Elimℝ.go∼ (NonExpanding₂-Lemmas.NE.w ℚ.max maxR) (y δ ε) d) u) _ λ _ → cong (flip minᵣ u) (maxᵣComm (x _) d)
 
 
 clamp-lim : ∀ d u x y →
@@ -310,14 +344,14 @@ opaque
                     (ℚ.<-o+ 0 (fst (/3₊ (y-x))) x'
                      (ℚ.0<ℚ₊ (/3₊ (y-x))))
          , ≤ℚ→≤ᵣ y' y
-             (subst2 (ℚ._≤_) (ℚ.+IdR y')
-                (lem--048 {x} {y} {ℚ.[ 1 / 3 ]}
+             (subst2 {x = y' ℚ.+ 0} {y = y'} (ℚ._≤_) (ℚ.+IdR y')
+                ({!!}
                   ∙∙
                    cong {x = ℚ.[ 1 / 3 ] ℚ.+ ℚ.[ 1 / 3 ] ℚ.+ ℚ.[ 1 / 3 ]}
                      {1} (λ a → x ℚ.+ a ℚ.· (y ℚ.- x))
                     ℚ.decℚ?
                    ∙∙ (cong (x ℚ.+_) (ℚ.·IdL (y ℚ.- x))
-                       ∙ lem--05))
+                       ∙ ℚ!))
                ((ℚ.≤-o+ 0 (fst (/3₊ (y-x))) y'
                      (ℚ.0≤ℚ₊ (/3₊ (y-x))))))  ∣₁
 
@@ -360,7 +394,7 @@ opaque
             ((q' , r') , (u' , v' , w')) →
              ((q , r')) ,
               (u , ℚ.isTrans< q q' r' (ℚ.isTrans<≤ q r q' v
-                       (≤ᵣ→≤ℚ r q' (isTrans≤ᵣ _ _ _ w u')))
+                       (≤ᵣ→≤ℚ r q' (isTrans≤ᵣ (rat r) _ _ w u')))
                          v' , w')
 
 
@@ -371,8 +405,8 @@ opaque
 
  isTrans<≤ᵣ : ∀ x y z → x <ᵣ y → y ≤ᵣ z → x <ᵣ z
  isTrans<≤ᵣ x y z = flip λ u →
-  PT.map $ map-snd λ (v , v' , v'')
-    → v  , v' , isTrans≤ᵣ _ y z v'' u
+  PT.map $ map-snd λ {a} (v , v' , v'')
+    → v  , v' , isTrans≤ᵣ (rat (a .snd)) y z v'' u
 
  isTrans≤≡ᵣ : ∀ x y z → x ≤ᵣ y → y ≡ z → x ≤ᵣ z
  isTrans≤≡ᵣ x y z p q = subst (x ≤ᵣ_) q p
@@ -389,7 +423,7 @@ opaque
  <ᵣWeaken≤ᵣ : ∀ m n → m <ᵣ n → m ≤ᵣ n
  <ᵣWeaken≤ᵣ m n = PT.rec (isSetℝ _ _)
   λ ((q , q') , x , x' , x'')
-    → isTrans≤ᵣ _ _ _ x (isTrans≤ᵣ _ _ _ (≤ℚ→≤ᵣ _ _ (ℚ.<Weaken≤ _ _ x')) x'')
+    → isTrans≤ᵣ m _ _ x (isTrans≤ᵣ (rat q) _ _ (≤ℚ→≤ᵣ q q' (ℚ.<Weaken≤ q q' x')) x'')
 
  ≡ᵣWeaken≤ᵣ : ∀ m n → m ≡ n → m ≤ᵣ n
  ≡ᵣWeaken≤ᵣ m n p = cong (flip maxᵣ n) p ∙ ≤ᵣ-refl n
@@ -400,16 +434,15 @@ opaque
    PT.rec2 (isProp⊥)
     λ ((q , q') , x , x' , x'')
        ((r , r') , y , y' , y'') →
-        let q<r = ℚ.isTrans<≤ _ _ _ x' (≤ᵣ→≤ℚ _ _ (isTrans≤ᵣ _ _ _ x'' y))
-            r<q = ℚ.isTrans<≤ _ _ _ y' (≤ᵣ→≤ℚ _ _ (isTrans≤ᵣ _ _ _ y'' x))
+        let q<r = ℚ.isTrans<≤ _ _ _ x' (≤ᵣ→≤ℚ _ _ (isTrans≤ᵣ (rat q') _ _ x'' y))
+            r<q = ℚ.isTrans<≤ _ _ _ y' (≤ᵣ→≤ℚ _ _ (isTrans≤ᵣ (rat r') _ _ y'' x))
         in ℚ.isAsym< _ _ q<r r<q
 
  isAntisym≤ᵣ : BinaryRelation.isAntisym _≤ᵣ_
- isAntisym≤ᵣ a b a≤b b≤a = sym b≤a ∙∙ maxᵣComm _ _ ∙∙ a≤b
+ isAntisym≤ᵣ a b a≤b b≤a = sym b≤a ∙∙ maxᵣComm b a ∙∙ a≤b
 
- -ᵣR : Σ (ℝ → ℝ) (Lipschitz-ℝ→ℝ (1 , tt))
- -ᵣR = fromLipschitz (1 , _)
-   ((rat ∘ ℚ.-_ ) , λ q r ε x x₁ →
+ ℚ-isLip : Lipschitz-ℚ→ℝ ([ pos 1 / 1+ 0 ] , tt) (λ x → rat (ℚ.- x))
+ ℚ-isLip q r ε x x₁ =
      subst∼ {ε = ε} (sym $ ℚ.·IdL (fst ε))
       (rat-rat _ _ _ (subst ((ℚ.- fst ε) ℚ.<_)
         (ℚ.-Distr q (ℚ.- r))
@@ -418,7 +451,11 @@ opaque
          (subst ((ℚ.- fst ε) ℚ.<_)
           (sym (ℚ.-[x-y]≡y-x r q) ∙
             cong (ℚ.-_) (ℚ.+Comm r (ℚ.- q) ∙
-              cong ((ℚ.- q) ℚ.+_) (sym $ ℚ.-Invol r))) x))))
+              cong ((ℚ.- q) ℚ.+_) (sym $ ℚ.-Invol r))) x)))
+
+ -ᵣR : Σ (ℝ → ℝ) (Lipschitz-ℝ→ℝ (1 , tt))
+ -ᵣR = fromLipschitz (1 , _)
+   ((rat ∘ ℚ.-_ ) , ℚ-isLip)
 
  -ᵣ_ : ℝ → ℝ
  -ᵣ_ = fst -ᵣR
@@ -426,10 +463,29 @@ opaque
  -ᵣ-rat : ∀ q → -ᵣ (rat q) ≡ rat (ℚ.- q)
  -ᵣ-rat q = refl
 
-
-
+ -ᵣ-impl : ∀ x → -ᵣ x ≡ fst (fromLipschitz (1 , _) ((rat ∘ ℚ.-_ ) , ℚ-isLip)) x
+ -ᵣ-impl x = refl
+ 
  -ᵣ-lip : Lipschitz-ℝ→ℝ 1 -ᵣ_
  -ᵣ-lip = snd -ᵣR
+
+
+ -ᵣ-lim : ∀ x p p' → -ᵣ (lim x p) ≡ lim (λ ε → -ᵣ (x ε)) p'
+ -ᵣ-lim x p p' = cong (uncurry lim)
+   (Σ≡Prop (λ _ → isPropΠ2 λ _ _ → isProp∼ _ _ _)
+    (congS ((-ᵣ_ ∘S x) ∘S_) (funExt λ y → ℚ₊≡ (ℚ.·IdL _))))
+
+ -ᵣ-nonExpanding : ⟨ NonExpandingₚ -ᵣ_ ⟩
+ -ᵣ-nonExpanding u v ε x =
+   subst∼ (ℚ.·IdL _) $ -ᵣ-lip u v ε x
+
+
+ -ᵣ-lim' : ∀ x p → -ᵣ (lim x p) ≡ lim (λ ε → -ᵣ (x ε))
+   λ δ ε → -ᵣ-nonExpanding  _ _ _ (p δ ε)
+ -ᵣ-lim' x p  = cong (uncurry lim)
+   (Σ≡Prop (λ _ → isPropΠ2 λ _ _ → isProp∼ _ _ _)
+    (congS ((-ᵣ_ ∘S x) ∘S_) (funExt λ y → ℚ₊≡ (ℚ.·IdL _))))
+
 
 _-ᵣ_ : ℝ → ℝ → ℝ
 x -ᵣ y = x +ᵣ (-ᵣ y)
@@ -468,12 +524,12 @@ opaque
  abs-dist : ∀ q r → ℚ.abs (ℚ.abs' q ℚ.- ℚ.abs' r) ℚ.≤ ℚ.abs (q ℚ.- r)
  abs-dist =
    ℚ.elimBy≡⊎<'
-     (λ x y → subst2 ℚ._≤_ (ℚ.absComm- _ _) (ℚ.absComm- _ _))
+     (λ x y → subst2 ℚ._≤_ (ℚ.absComm- (ℚ.abs' x) (ℚ.abs' y)) (ℚ.absComm- x y))
      (λ x → ℚ.≡Weaken≤ _ _ (cong ℚ.abs (ℚ.+InvR (ℚ.abs' x) ∙ sym (ℚ.+InvR x))))
      λ x ε → subst (ℚ.abs (ℚ.abs' x ℚ.- ℚ.abs' (x ℚ.+ fst ε)) ℚ.≤_)
        (sym (ℚ.-[x-y]≡y-x x (x ℚ.+ fst ε)) ∙ sym (ℚ.absNeg (x ℚ.- (x ℚ.+ fst ε))
           ((subst {x = ℚ.- (fst ε) } {(x ℚ.- (x ℚ.+ fst ε))}
-            (ℚ._< 0) lem--050 (ℚ.-ℚ₊<0 ε)))))
+            (ℚ._< 0) ℚ! (ℚ.-ℚ₊<0 ε)))))
 
        ((ℚ.absFrom≤×≤ ((x ℚ.+ fst ε) ℚ.- x)
          (ℚ.abs' x ℚ.- ℚ.abs' (x ℚ.+ fst ε))
@@ -481,11 +537,14 @@ opaque
               {x = (ℚ.abs (fst ε ℚ.+ x)) ℚ.+
                       ((ℚ.- ℚ.abs' (x ℚ.+ fst ε)) ℚ.- fst ε)}
               {y = ℚ.- ((x ℚ.+ fst ε) ℚ.- x)}
-             ℚ._≤_ (cong (ℚ._+ ((ℚ.- ℚ.abs' (x ℚ.+ fst ε)) ℚ.- fst ε))
+             ℚ._≤_ (cong {x = ℚ.abs'≡abs (ℚ.+Comm (fst ε) x i0) i0} {y = ℚ.abs'≡abs (ℚ.+Comm (fst ε) x i1) i1}
+                  (ℚ._+ ((ℚ.- ℚ.abs' (x ℚ.+ fst ε)) ℚ.- fst ε))
                        (λ i → ℚ.abs'≡abs (ℚ.+Comm (fst ε) x i) i) ∙
-                           lem--051 )
-                        (λ i → lem--052 {fst ε} {ℚ.abs'≡abs x i}
-                                {ℚ.abs' (x ℚ.+ fst ε)} i) $
+                           ℚ!)
+                            (ℚ! ∙
+                             cong₂ {x = ℚ.abs x} {y = ℚ.abs' x} ℚ._-_ (ℚ.abs'≡abs x)
+                              {u = ℚ.abs' (x ℚ.+ fst ε)} refl)
+                                $
             ℚ.≤-+o (ℚ.abs (fst ε ℚ.+ x)) (fst ε ℚ.+ ℚ.abs x)
             ((ℚ.- ℚ.abs' (x ℚ.+ fst ε)) ℚ.- fst ε)
               (ℚ.abs+pos (fst ε) x (ℚ.0<ℚ₊ ε)))
@@ -494,12 +553,13 @@ opaque
                    {ℚ.abs' x ℚ.- ℚ.abs' (x ℚ.+ fst ε)}
              ℚ._≤_ (cong ((ℚ._+
                   (ℚ.- ℚ.abs' (x ℚ.+ fst ε))))
-                    (congS ℚ.abs (sym (lem--034 {x} {fst ε}))
-                      ∙ ℚ.abs'≡abs _))
+                    (congS {x = x ℚ.+ fst ε ℚ.+ ℚ.- fst ε} {y = x}
+                     ℚ.abs (ℚ!)
+                      ∙ ℚ.abs'≡abs x))
                    ((λ i → ℚ.abs'≡abs (x ℚ.+ fst ε) i
                     ℚ.+ (ℚ.absNeg (ℚ.- fst ε) (ℚ.-ℚ₊<0 ε) i) ℚ.+
                        (ℚ.- ℚ.abs' (x ℚ.+ fst ε))) ∙
-                        lem--053)
+                        ℚ!)
             $ ℚ.≤-+o (ℚ.abs (x ℚ.+ fst ε ℚ.+ (ℚ.- fst ε)))
                   (ℚ.abs (x ℚ.+ fst ε) ℚ.+ ℚ.abs (ℚ.- fst ε))
              (ℚ.- ℚ.abs' (x ℚ.+ fst ε))
@@ -518,7 +578,7 @@ opaque
 
  absᵣ : ℝ → ℝ
  absᵣ = fst absᵣL
-
+ 
  absᵣ0 : absᵣ 0 ≡ 0
  absᵣ0 = refl
 
@@ -532,9 +592,23 @@ opaque
  absᵣ-rat : ∀ q → absᵣ (rat q) ≡ rat (ℚ.abs q)
  absᵣ-rat q = cong rat (sym (ℚ.abs'≡abs q))
 
+ absᵣ-lim : ∀ x p p' → absᵣ (lim x p) ≡ lim (λ ε → absᵣ (x ε)) p'
+ absᵣ-lim x p p' = cong (uncurry lim)
+   (Σ≡Prop (λ _ → isPropΠ2 λ _ _ → isProp∼ _ _ _)
+    (congS ((absᵣ ∘S x) ∘S_) (funExt λ y → ℚ₊≡ (ℚ.·IdL _))))
+
  absᵣ-nonExpanding : ⟨ NonExpandingₚ absᵣ ⟩
  absᵣ-nonExpanding u v ε x =
    subst∼ (ℚ.·IdL _) $ snd absᵣL u v ε x
+
+
+ absᵣ-lim' : ∀ x p → absᵣ (lim x p) ≡ lim (λ ε → absᵣ (x ε))
+   λ δ ε → absᵣ-nonExpanding  _ _ _ (p δ ε)
+ absᵣ-lim' x p  = cong (uncurry lim)
+   (Σ≡Prop (λ _ → isPropΠ2 λ _ _ → isProp∼ _ _ _)
+    (congS ((absᵣ ∘S x) ∘S_) (funExt λ y → ℚ₊≡ (ℚ.·IdL _))))
+
+
 
  lim≤rat→∼ : ∀ x y r → (lim x y ≤ᵣ rat r)
                      ≃ (∀ (ε : ℚ₊) → ∃[ δ ∈ _ ]
@@ -560,26 +634,6 @@ opaque
        (fst (∼≃≡ (NonExpanding₂.go maxR v (rat r)) (rat r)) x )
          (NonExpanding₂.go∼L maxR (rat r) u v ε xx)
 
- 0≤absᵣ : ∀ x → 0 ≤ᵣ absᵣ x
- 0≤absᵣ = Elimℝ-Prop.go w
-  where
-
-  w : Elimℝ-Prop (λ z → 0 ≤ᵣ absᵣ z)
-  w .Elimℝ-Prop.ratA q = ≤ℚ→≤ᵣ 0 (ℚ.abs' q)
-    (subst (0 ℚ.≤_) (ℚ.abs'≡abs q) (ℚ.0≤abs q))
-  w .Elimℝ-Prop.limA x p x₁ =
-   let y0 = _
-       zz0 = NonExpanding₂.β-rat-lim maxR 0 (λ q → (absᵣ (x (ℚ.invℚ₊ 1 ℚ₊· q))))
-                y0 _
-
-       zz = sym (congLim' _ _ _
-                 λ q →
-                    sym $ x₁ (ℚ.invℚ₊ ([ pos 1 / (1+ 0) ] , tt) ℚ₊· q))
-   in _∙_ {x = maxᵣ 0 (lim (λ q → (absᵣ (x (ℚ.invℚ₊ 1 ℚ₊· q)))) y0)}
-        zz0 zz
-
-  w .Elimℝ-Prop.isPropA _ = isSetℝ _ _
-
 
  -ᵣInvol : ∀ x → -ᵣ (-ᵣ x) ≡ x
  -ᵣInvol = Elimℝ-Prop.go w
@@ -592,32 +646,6 @@ opaque
   w .Elimℝ-Prop.isPropA x = isSetℝ (-ᵣ (-ᵣ x)) x
 
 
- -ᵣDistr : ∀ x y → -ᵣ (x +ᵣ y) ≡ (-ᵣ x) +ᵣ (-ᵣ y)
- -ᵣDistr = Elimℝ-Prop2Sym.go w
-  where
-  w : Elimℝ-Prop2Sym (λ z z₁ → (-ᵣ (z +ᵣ z₁)) ≡ ((-ᵣ z) +ᵣ (-ᵣ z₁)))
-  w .Elimℝ-Prop2Sym.rat-ratA r q = cong rat (ℚ.-Distr r q)
-  w .Elimℝ-Prop2Sym.rat-limA r x y x₁ =
-    cong (-ᵣ_) (snd (NonExpanding₂.β-rat-lim' sumR r x y))
-     ∙ fromLipshitzNEβ _ _ (λ q → (rat r) +ᵣ (x q))
-          (fst (NonExpanding₂.β-rat-lim' sumR r x y))
-     ∙  (congLim _ _ _ _ λ q → x₁ _ ∙
-       cong (λ q' → (-ᵣ rat r) +ᵣ (-ᵣ x q')) (sym (ℚ₊≡ $ ℚ.·IdL _)))
-     ∙ cong ((rat (ℚ.- r)) +ᵣ_) (sym (fromLipshitzNEβ _ _ x y))
-
-  w .Elimℝ-Prop2Sym.lim-limA x y x' y' x₁ =
-     cong (-ᵣ_) (snd (NonExpanding₂.β-lim-lim/2 sumR x y x' y'))  ∙
-      fromLipshitzNEβ _ _ (λ q → (x (ℚ./2₊ q)) +ᵣ (x' (ℚ./2₊ q)))
-       (fst (NonExpanding₂.β-lim-lim/2 sumR x y x' y')) ∙
-      congLim _ _ _ _ (λ q → x₁ _ _)
-      ∙ sym (snd (NonExpanding₂.β-lim-lim/2 sumR _ _ _ _))
-       ∙ cong₂ _+ᵣ_ (sym (fromLipshitzNEβ _ _ x y))
-            ((sym (fromLipshitzNEβ _ _ x' y')))
-  w .Elimℝ-Prop2Sym.isSymA x y p =
-   cong (-ᵣ_) (+ᵣComm y x)
-    ∙∙ p  ∙∙
-     +ᵣComm (-ᵣ x) (-ᵣ y)
-  w .Elimℝ-Prop2Sym.isPropA x y = isSetℝ (-ᵣ (x +ᵣ y)) ((-ᵣ x) +ᵣ (-ᵣ y))
 
  -absᵣ : ∀ x → absᵣ x ≡ absᵣ (-ᵣ x)
  -absᵣ = Elimℝ-Prop.go w
@@ -640,6 +668,32 @@ opaque
   w .Elimℝ-Prop.isPropA x = isSetℝ (absᵣ x) (absᵣ (-ᵣ x))
 
 
+-ᵣDistr : ∀ x y → -ᵣ (x +ᵣ y) ≡ (-ᵣ x) +ᵣ (-ᵣ y)
+-ᵣDistr = Elimℝ-Prop2Sym.go w
+ where
+ w : Elimℝ-Prop2Sym (λ z z₁ → (-ᵣ (z +ᵣ z₁)) ≡ ((-ᵣ z) +ᵣ (-ᵣ z₁)))
+ w .Elimℝ-Prop2Sym.rat-ratA r q = (cong -ᵣ_ (+ᵣ-rat _ _) ∙ -ᵣ-rat _) ∙ cong rat (ℚ.-Distr r q) ∙
+   sym (+ᵣ-rat _ _) ∙
+    cong₂ _+ᵣ_ (sym (-ᵣ-rat _)) (sym (-ᵣ-rat _))
+ w .Elimℝ-Prop2Sym.rat-limA r x y x₁ =   
+   cong (-ᵣ_) (rat-+ᵣ-lim _ _ _)
+    ∙  -ᵣ-lim' _ _
+    ∙  (congLim _ _ _ _  λ q → x₁ q ∙ cong (_-ᵣ x q) (-ᵣ-rat r))
+     ∙ sym (rat-+ᵣ-lim _ _ _) ∙ cong₂ _+ᵣ_ (sym (-ᵣ-rat r)) (sym (-ᵣ-lim' _ _) )
+
+ w .Elimℝ-Prop2Sym.lim-limA x y x' y' x₁ =
+   cong -ᵣ_ (lim-+ᵣ-lim x y x' y')
+     ∙ (-ᵣ-lim' _ _ ∙
+      congLim _ _ _ _ (λ q → x₁ (/2₊ q) (/2₊ q))
+       ∙ sym (lim-+ᵣ-lim  _ _ _ _))
+     ∙ cong₂ _+ᵣ_ (sym (-ᵣ-lim' _ _)) (sym (-ᵣ-lim' _ _))
+ w .Elimℝ-Prop2Sym.isSymA x y p =
+  cong (-ᵣ_) (+ᵣComm y x)
+   ∙∙ p  ∙∙
+    +ᵣComm (-ᵣ x) (-ᵣ y)
+ w .Elimℝ-Prop2Sym.isPropA x y = isSetℝ (-ᵣ (x +ᵣ y)) ((-ᵣ x) +ᵣ (-ᵣ y))
+
+
 
  -[x-y]≡y-x : ∀ x y → -ᵣ ( x +ᵣ (-ᵣ y) ) ≡ y +ᵣ (-ᵣ x)
  -[x-y]≡y-x x y =
@@ -652,71 +706,34 @@ opaque
 
 
  denseℚinℝ : ∀ u v → u <ᵣ v → ∃[ q ∈ ℚ ] ((u <ᵣ rat q) × (rat q <ᵣ v))
- denseℚinℝ u v =
-   PT.map λ ((u , v) , (z , (z' , z''))) →
-             u ℚ.+ ((v ℚ.- u) ℚ.· [ 1 / 2 ]) ,
-               ∣ (u , u ℚ.+ ((v ℚ.- u) ℚ.· [ 1 / 4 ]))
-                 , (z , ((
-                      let zz' = ℚ.<-·o u v [ pos 1 / 1+ 3 ]
-                                 (ℚ.0<→< [ pos 1 / 1+ 3 ] _ ) z'
-
-                      in subst (ℚ._<
-                               u ℚ.+ (v ℚ.- u) ℚ.· [ pos 1 / 1+ 3 ])
-                                (cong (u ℚ.+_)
-                                  (ℚ.·AnnihilL [ pos 1 / 1+ 3 ]) ∙ ℚ.+IdR u) $
-                            ℚ.≤<Monotone+ u u ([ pos 0 / 1+ 0 ]
-                               ℚ.· [ pos 1 / 1+ 3 ])
-                            ((v ℚ.- u) ℚ.· [ pos 1 / 1+ 3 ])
-                              (ℚ.isRefl≤ u) (
-                               ℚ.<-·o 0 (v ℚ.- u)
-                                  [ pos 1 / 1+ 3 ]
-                                   (ℚ.decℚ<? {0} {[ pos 1 / 1+ 3 ]})
-                                    (ℚ.<→<minus u v z')))
-                     , ≤ℚ→≤ᵣ _ _
-                        (ℚ.≤-o+
-                          ((v ℚ.- u) ℚ.· [ pos 1 / 1+ 3 ])
-                          ((v ℚ.- u) ℚ.· [ pos 1 / 1+ 1 ])
-                           u (ℚ.≤-o· [ pos 1 / 1+ 3 ]
-                              [ pos 1 / 1+ 1 ] (v ℚ.- u)
-                               (ℚ.0≤ℚ₊ (ℚ.<→ℚ₊ u v z'))
-                                (ℚ.decℚ≤? {[ pos 1 / 1+ 3 ]}
-                                           {[ pos 1 / 1+ 1 ]}))))) ∣₁
-                 , ∣ (v ℚ.- ((v ℚ.- u) ℚ.· [ 1 / 4 ]) , v) ,
-                   (≤ℚ→≤ᵣ _ _
-                      (subst
-                        {x = (u ℚ.+ (v ℚ.- u) ℚ.· [ pos 3 / 1+ 3 ])}
-                        {(v ℚ.- ((v ℚ.- u) ℚ.· [ pos 1 / 1+ 3 ]))}
-                        (u ℚ.+ (v ℚ.- u) ℚ.· [ pos 1 / 1+ 1 ] ℚ.≤_)
-                         ((cong (u ℚ.+_) (ℚ.·DistR+ _ _ _ ∙ ℚ.+Comm _ _)
-                           ∙ ℚ.+Assoc _ _ _) ∙∙
-                             (cong₂ ℚ._+_
-                               distℚ! u ·[
-                                (ge1 +ge ((neg-ge ge1) ·ge
-                                         ge[ [ pos 3 / 1+ 3 ] ]))
-                                      ≡ (neg-ge ((neg-ge ge1) ·ge
-                                         ge[ [ pos 1 / 1+ 3 ] ]))   ]
-                              distℚ! v ·[ (( ge[ [ pos 3 / 1+ 3 ] ]))
-                                      ≡ (ge1 +ge neg-ge (
-                                         ge[ [ pos 1 / 1+ 3 ] ]))   ])
-                             ∙∙ (ℚ.+Comm _ _ ∙ sym (ℚ.+Assoc v
-                                    (ℚ.- (v ℚ.· [ 1 / 4 ]))
-                                     (ℚ.- ((ℚ.- u) ℚ.· [ 1 / 4 ])))
-                               ∙ cong (ℚ._+_ v)
-                                   (sym (ℚ.·DistL+ -1 _ _)) ∙ cong (ℚ._-_ v)
-                              (sym (ℚ.·DistR+ v (ℚ.- u) [ 1 / 4 ])) ))
-                          (ℚ.≤-o+
-                            ((v ℚ.- u) ℚ.· [ pos 1 / 1+ 1 ])
-                            ((v ℚ.- u) ℚ.· [ pos 3 / 1+ 3 ]) u
-                             (ℚ.≤-o· [ pos 1 / 1+ 1 ] [ pos 3 / 1+ 3 ]
-                               (v ℚ.- u) ((ℚ.0≤ℚ₊ (ℚ.<→ℚ₊ u v z')))
-                                 ((ℚ.decℚ≤? {[ pos 1 / 1+ 1 ]}
-                                           {[ pos 3 / 1+ 3 ]})))
-                                   )) , (
-                    subst ((v ℚ.- ((v ℚ.- u) ℚ.· [ pos 1 / 1+ 3 ])) ℚ.<_)
-                     (ℚ.+IdR v) (ℚ.<-o+ (ℚ.- ((v ℚ.- u) ℚ.· [ 1 / 4 ])) 0 v
-                        (ℚ.-ℚ₊<0 (ℚ.<→ℚ₊ u v z' ℚ₊· ([ pos 1 / 1+ 3 ] , _)))) , z'')) ∣₁
+ denseℚinℝ u v = {!!}
 
 
+
+0≤absᵣ : ∀ x → 0 ≤ᵣ absᵣ x
+0≤absᵣ = Elimℝ-Prop.go w
+ where
+
+ w : Elimℝ-Prop (λ z → 0 ≤ᵣ absᵣ z)
+ w .Elimℝ-Prop.ratA q = isTrans≤≡ᵣ _ _ _ (≤ℚ→≤ᵣ 0 (ℚ.abs' q)
+   (subst (0 ℚ.≤_) (ℚ.abs'≡abs q) (ℚ.0≤abs q))) (sym (absᵣ-rat' _))
+ w .Elimℝ-Prop.limA x p x₁ = 
+  let
+
+      zz : _ ≡ _
+      zz = sym (congLim
+              _ _ _ _
+               λ q → sym (≤ᵣ→≡ (x₁ q)) ∙ maxᵣ-impl _ _
+              )
+
+      
+  in ≡→≤ᵣ ((cong₂ maxᵣ refl (absᵣ-lim' _ _) ∙ maxᵣ-impl _ _)
+       ∙ (snd (NonExpanding₂.β-rat-lim' {ℚ.max} maxR 0 (λ q → (absᵣ (x q)))
+          λ _ _ → absᵣ-nonExpanding  _ _ _ (p _ _))
+         ∙ zz) ∙ sym (absᵣ-lim' _ _))
+  
+
+ w .Elimℝ-Prop.isPropA _ = isProp≤ᵣ _ _
 
 
 ℝ₊ : Type
@@ -759,7 +776,7 @@ instance
      Constraint = λ { zero → ⊥ ; _ → Unit }
    ; fromNat = λ { zero {{()}}  ; (suc n) →
      (rat [ pos (suc n) / 1 ]) , <ℚ→<ᵣ _ _
-       (ℚ.<ℤ→<ℚ _ _ (ℤ.suc-≤-suc ℤ.zero-≤pos)) }}
+       (ℚ.<ℤ→<ℚ _ _ (_ , refl)) }}
 
 
 fromNat+ᵣ : ∀ n m → fromNat n +ᵣ fromNat m ≡ fromNat (n ℕ.+ m)
