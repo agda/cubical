@@ -1,6 +1,3 @@
--- {-# OPTIONS --safe --lossy-unification #-}
--- {-# OPTIONS --verbose intSolver:20 #-}
-
 module Cubical.HITs.CauchyReals.Lipschitz where
 
 open import Cubical.Foundations.Prelude

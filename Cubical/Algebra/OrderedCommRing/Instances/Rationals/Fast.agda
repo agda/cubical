@@ -65,4 +65,4 @@ isOrderedCommRing (snd ℚOrderedCommRing) = isOrderedCommRingℚ
   isOrderedCommRingℚ .≤-<-trans       = isTrans≤<
   isOrderedCommRingℚ .·MonoR≤         = ≤-·o
   isOrderedCommRingℚ .·MonoR<         = <-·o
-  isOrderedCommRingℚ .0<1             = isRefl≤ 1
+  isOrderedCommRingℚ .0<1             = inj (_ , refl)
