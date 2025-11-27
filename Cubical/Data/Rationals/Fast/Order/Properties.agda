@@ -765,7 +765,7 @@ invℚ₊Dist· = uncurry (flip ∘ uncurry ∘ ElimProp2.go w)
 
 /4₊≡/2₊/2₊ : ∀ ε → fst (/4₊ ε) ≡ fst (/2₊ (/2₊ ε))
 /4₊≡/2₊/2₊ = uncurry (ElimProp.go w)
- where 
+ where
  w : ElimProp _
  w .ElimProp.isPropB _ = isPropΠ λ _ → isSetℚ _ _
  w .ElimProp.f (pos (suc n) , _)  _ = eq/ _ _ ℤ!
@@ -773,7 +773,7 @@ invℚ₊Dist· = uncurry (flip ∘ uncurry ∘ ElimProp2.go w)
 weak0< : ∀ q (ε δ : ℚ₊)
              →  q < (fst ε - fst δ)
              → q < fst ε
-weak0< q ε δ x = 
+weak0< q ε δ x =
   let z = <Monotone+ q (fst ε - fst δ) 0 (fst δ) x (0<→< (fst δ) (snd δ))
    in subst2 _<_
        (+IdR q) ℚ! z
@@ -783,7 +783,7 @@ weak0< q ε δ x =
 weak0<' : ∀ q (ε δ : ℚ₊)
              → - (fst ε - fst δ) < q
              → - (fst ε) < q
-weak0<' q ε δ x = 
+weak0<' q ε δ x =
   let z = <Monotone+ (- (fst ε - fst δ)) q (- fst δ) 0 x
            (minus-< 0 (fst δ) ((0<→< (fst δ) (snd δ))))
   in (subst2 {x = (- (fst ε - fst δ)) + (- fst δ)}
@@ -1146,7 +1146,7 @@ riseQandD p q r =
                  (cong (_·₊₁ c') (sym (·₊₁-assoc a' b' c')
                      ∙∙ cong (a' ·₊₁_) (·₊₁-comm b' c') ∙∙ (·₊₁-assoc a' c' b'))
                     ∙ sym (·₊₁-assoc (a' ·₊₁ c') b' c')))
-                    -- 
+                    --
 
 
 <MonotoneMax : ∀ m o n s → m < n → o < s → max m o < max n s
@@ -1567,8 +1567,8 @@ maxWithPos ε q .snd = <→0< (max (fst ε) q)
                   ℤ.·Comm (snd
                             (ℤ.0<→ℕ₊₁ (pos (suc x) ℤ.· pos (suc y))
                              (·0< [ pos (suc x) , (1+ x') ] [ pos (suc y) , (1+ y') ] p' q'))
-                            (~ i1)) (pos (ℕ₊₁→ℕ ((1+ y') ·₊₁ (1+ x'))))) ∙ 
-              ℤ! 
+                            (~ i1)) (pos (ℕ₊₁→ℕ ((1+ y') ·₊₁ (1+ x'))))) ∙
+              ℤ!
                ∙ λ i → (ℕ₊₁→ℤ (fst (ℤ.0<→ℕ₊₁
                 (ℕ₊₁→ℤ ((1+ x') ·₊₁ (1+ y'))) tt))
             ℤ.· ((pos (suc y) ℤ.· ℕ₊₁→ℤ (·₊₁-identityˡ (1+ x') (~ i)))

@@ -347,7 +347,7 @@ private
 quotRemPosPos : (m n : ℕ)(¬z : ¬ pos m ≡ 0) → QuotRem (pos m) (pos n)
 quotRemPosPos m n _ .div = pos (quotient  n / m)
 quotRemPosPos m n _ .rem = pos (remainder n / m)
-quotRemPosPos m n _ .quotEq =   
+quotRemPosPos m n _ .quotEq =
     (λ t → pos (≡remainder+quotient m n (~ t))) ∙ ℤ!
 quotRemPosPos 0       n ¬z .normIneq = Empty.rec (¬z refl)
 quotRemPosPos (suc m) n ¬z .normIneq = dec-helper (discreteℤ _ 0) (mod< m n)

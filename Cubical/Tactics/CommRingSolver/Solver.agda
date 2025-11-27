@@ -148,6 +148,6 @@ solve R = EqualityToNormalform.solve R
 
 normaliseRing : (R : CommRing ℓ)
         {n : ℕ} (e₁ : ℤExpr R n) (xs : Vec (fst R) n)
-        
+
         → _
 normaliseRing R {n} e xs  = sym (EqualityToNormalform.isEqualToNormalform R e xs)

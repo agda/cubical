@@ -246,14 +246,14 @@ isTrans≤ : m ≤ n → n ≤ o → m ≤ o
 isTrans≤ {m} {n} {o} (i , p) (j , q) .fst = i ℕ.+ j
 isTrans≤ {m} {n} {o} (i , p) (j , q) .snd =
 
-  ℤ! ∙∙ cong (ℤ._+ pos j) p ∙∙ q 
+  ℤ! ∙∙ cong (ℤ._+ pos j) p ∙∙ q
 
 isAntisym≤ : m ≤ n → n ≤ m → m ≡ n
 isAntisym≤ {m} {n} (i , p) (j , q) =
   sym (+IdR _) ∙ cong ((m ℤ.+_) ∘ pos) (injPos lemma₂) ∙ p
   where lemma₀ : pos (j ℕ.+ i) ℤ.+ m ≡ m
         lemma₀ = ℤ! ∙ cong (pos j ℤ.+_) p ∙∙ +Comm (pos j) n ∙∙ q
-        
+
         lemma₁ : pos (j ℕ.+ i) ≡ 0
         lemma₁ = n+z≡z→n≡0 (pos (j ℕ.+ i)) m lemma₀
 
@@ -289,7 +289,7 @@ isAntisym≤ {m} {n} (i , p) (j , q) =
 
 <-·o : m < n → m ℤ.· (pos (suc k)) < n ℤ.· (pos (suc k))
 <-·o {m} {n} {k} (i , p) .fst = i ℕ.· suc k ℕ.+ k
-<-·o {m} {n} {k} (i , p) .snd = ℤ! ∙ cong (ℤ._· pos _) p 
+<-·o {m} {n} {k} (i , p) .snd = ℤ! ∙ cong (ℤ._· pos _) p
 
 <-o+-cancel : o ℤ.+ m < o ℤ.+ n → m < n
 <-o+-cancel {o} {m} {n} (l , p) = l , (ℤ! ∙∙ cong (ℤ._- o) p ∙∙ ℤ!)
@@ -314,7 +314,7 @@ pos≤0→≡0 {suc k} p = ⊥.rec (¬-pos<-zero {k = k} p)
 
 predℤ-≤-predℤ : m ≤ n → predℤ m ≤ predℤ n
 predℤ-≤-predℤ {m} {n} (i , p) .fst = i
-predℤ-≤-predℤ {m} {n} (i , p) .snd = ℤ! ∙ cong predℤ p 
+predℤ-≤-predℤ {m} {n} (i , p) .snd = ℤ! ∙ cong predℤ p
 
 ¬m+posk<m : ¬ m ℤ.+ pos k < m
 ¬m+posk<m {m} {k} = ¬-pos<-zero ∘ <-o+-cancel {o = m} {m = pos k} {n = 0}
