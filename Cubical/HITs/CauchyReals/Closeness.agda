@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.CauchyReals.Closeness where
 
 open import Cubical.Foundations.Prelude hiding (Path)
@@ -11,17 +10,15 @@ open import Cubical.Functions.FunExtEquiv
 import Cubical.Functions.Logic as L
 
 open import Cubical.Data.Sigma hiding (Path)
-open import Cubical.Data.Rationals as ℚ
-open import Cubical.Data.Rationals.Order as ℚ
-open import Cubical.Data.Rationals.Order.Properties as ℚ
+open import Cubical.Data.Rationals.Fast as ℚ
+open import Cubical.Data.Rationals.Fast.Order as ℚ
+open import Cubical.Data.Rationals.Fast.Order.Properties as ℚ
 open import Cubical.Relation.Binary.Properties
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Lems
-
-
+open import Cubical.Tactics.CommRingSolver.FastRationalsReflection
 
 -- HoTT Lemma (11.3.8)
 refl∼ : ∀ r ε → r ∼[ ε ] r
@@ -148,12 +145,16 @@ w-rel'⇒ : ∀ x y → (∀ ε → w-rel' x y ε) → ∀ ε
 w-rel'⇒ x y x₁ ε x₂ =
  let z = fst (snd x ε) x₂
      z' = PT.map (λ (δ , xx) →
-              /2₊ δ , PT.map
+            let w : ∀ /2₊δ → (/2₊δ) +
+                         (fst ε - (/2₊δ + /2₊δ))
+                         ≡ (fst ε - (/2₊δ))
+                w /2₊δ = ℚ!
+            in /2₊ δ , PT.map
                   (λ (xxx , xxx') →
                     substΣ< y
                       (cong (λ zz → fst (/2₊ δ) ℚ.+ (fst ε ℚ.- zz))
                         (sym (ε/2+ε/2≡ε (fst δ))) ∙
-                          lem--08 {fst (/2₊ δ)} {fst ε})
+                          w (fst (/2₊ δ)))
                        (_ , (fst (x₁ (/2₊ δ) _) xxx')))
                       xx) z
  in snd (snd y ε)
@@ -239,8 +240,7 @@ l-l 𝕒 .snd ε .fst =
     PT.map (map-snd (λ {q'} → PT.map
           (λ (x , x') → strength-lem-01 ε (δ ℚ₊+ η) q' x , ∣ (δ , η) ,
             subst (Σ< (fst ∘ (fst (𝕒 δ η))))
-              (+AssocCommR (fst ε) (ℚ.- (fst δ ℚ.+ fst η))
-                (ℚ.- fst q'))
+              ℚ!
                 (x , x')
             ∣₁ )))
               (fst (snd (𝕒 δ η) _) y))
@@ -252,8 +252,7 @@ l-l 𝕒 .snd ε .snd =
            λ {(δ , η)} (x , x') → strength-lem-01 ε q' (δ ℚ₊+ η) x ,
             (snd (snd (𝕒 δ η) _) ∣ q' , ∣
               subst (Σ< (fst ∘ (fst (𝕒 δ η))))
-               (sym ((+AssocCommR (fst ε) (ℚ.- (fst δ ℚ.+ fst η))
-                (ℚ.- fst q'))))
+               ℚ!
                (x , x') ∣₁ ∣₁) )))
 
 rel-r-r : ∀ 𝕢 → (q r : ℚ) (ε : Σ ℚ 0<_) →
@@ -261,7 +260,7 @@ rel-r-r : ∀ 𝕢 → (q r : ℚ) (ε : Σ ℚ 0<_) →
      (q ℚ.- r) ℚ.< fst ε → w-rel' (r-r 𝕢 q) (r-r 𝕢 r) ε
 rel-r-r 𝕢 q r ε x x₁ η =
  let z : (((q ℚ.- r) ℚ.+ (𝕢 ℚ.- q)) ≡ (𝕢 ℚ.- r))
-     z = lem--09 {q} {r} {𝕢}
+     z = ℚ!
  in (λ (u , v) →
       subst2 ℚ._<_
            (sym $ ℚ.-Distr (fst ε) (fst η))
@@ -278,7 +277,7 @@ rel-r-r 𝕢 q r ε x x₁ η =
                            (ℚ.minus-< (q ℚ.- r) (fst ε)   x₁) u
 
        in subst2 ℚ._<_ (sym $ ℚ.-Distr (fst ε) (fst η) )
-                   (lem--010 {q} {r} {𝕢}) zz
+                   ℚ! zz
                ,
            let zz = ℚ.<Monotone+
                       (ℚ.- (q ℚ.- r)) (ℚ.- (ℚ.- (fst ε))) (𝕢 ℚ.- r)
@@ -286,7 +285,7 @@ rel-r-r 𝕢 q r ε x x₁ η =
            in subst2 {x = (ℚ.- (q ℚ.- r)) ℚ.+ (𝕢 ℚ.- r)} {𝕢 ℚ.- q}
                 {z = (ℚ.- (ℚ.- fst ε)) ℚ.+ fst η} {fst (ε ℚ₊+ η)}
                ℚ._<_
-                (lem--010 {q} {r} {𝕢}) (lem--012 {fst ε} {fst η}) zz)
+                ℚ! ℚ! zz)
 
 rel-r-l : ∀ 𝕢 → (q : ℚ) (y : ℚ₊ → Σ (ℚ₊ → hProp ℓ-zero) w-prop')
      (ε : ℚ₊) (p : (δ ε₁ : ℚ₊) → w-rel' (y δ) (y ε₁) (δ ℚ₊+ ε₁))
@@ -297,9 +296,9 @@ rel-r-l 𝕢 q y ε p δ v₁ x η .fst xx' =
  let z = fst (x η) xx'
  in ∣ δ , (subst {x = fst η ℚ.+ (fst ε ℚ.- fst δ)}
                {y = (fst (ε ℚ₊+ η) ℚ.- fst δ)} 0<_
-               (lem--013 {fst η} {fst ε} {fst δ})
+               ℚ!
                (+0< (fst η) (fst ε ℚ.- fst δ) (snd η) v₁) ,
-        subst (fst ∘ fst (y δ)) (ℚ₊≡ (lem--014 {fst ε} {fst δ} {fst η})) z ) ∣₁
+        subst (fst ∘ fst (y δ)) (ℚ₊≡ ℚ!) z ) ∣₁
 
 rel-r-l 𝕢 q y ε p δ v₁ x η .snd =
    PT.rec (snd (rat-rat' 𝕢 (ε ℚ₊+ η) q))
@@ -311,7 +310,7 @@ rel-r-l 𝕢 q y ε p δ v₁ x η .snd =
                  ((σ* ℚ₊+ δ) ℚ₊+ ((fst η ℚ.- fst σ*) , xx)))}
                 {(ε ℚ₊+ η)}
              (λ xxx → ⟨ rat-rat' 𝕢 xxx q ⟩)
-               (ℚ₊≡ (lem--015 {fst ε} {fst δ} {fst σ*} {fst η})) z'
+               (ℚ₊≡ ℚ!) z'
 
 rel-l-l' : (x y : ℚ₊ → Σ (ℚ₊ → hProp ℓ-zero) w-prop') (ε δ η : ℚ₊)
      (p : (δ₁ ε₁ : ℚ₊) → w-rel' (x δ₁) (x ε₁) (δ₁ ℚ₊+ ε₁))
@@ -325,12 +324,13 @@ rel-l-l' x y ε δ η p p' v₁ η' x₁ =
        let zz = fst (p a δ _) xx'
            zz' = x₁ _ zz
        in η ,
-            subst (ℚ.0<_)
-                (lem-02  (fst ε) (fst δ) (fst η) (fst η'))
-                  (+0< (fst ε ℚ.- (fst δ ℚ.+ fst η))
-                   (fst (δ ℚ₊+ η'))  v₁ (snd (δ ℚ₊+ η')))
+            subst {x = ((fst ε - (fst δ + fst η)) + fst (δ ℚ₊+ η'))}
+                  {y = (fst (ε ℚ₊+ η') - fst η)} (ℚ.0<_)
+                ℚ!
+                  ((+0< (fst ε ℚ.- (fst δ ℚ.+ fst η))
+                   (fst (δ ℚ₊+ η'))  v₁ (snd (δ ℚ₊+ η'))))
              , (subst (fst ∘ y η .fst)
-             (ℚ₊≡ (lem-01 (fst ε) (fst δ) (fst η) (fst η') (fst a))) zz'))
+             (ℚ₊≡ ℚ!) zz'))
 
 
 
@@ -433,10 +433,9 @@ rel-l-l-l {𝕒} x y ε δ η p p' v₁ r η₁ .fst =
                     (fst δ ℚ.+ fst η*)
                    (fst (ε ℚ₊+ η₁) ℚ.- (fst δ* ℚ.+ fst η))
                    xx v₁ (snd (δ ℚ₊+ η*))
-                     (lem--016 {fst η₁} {fst δ*} {fst η*} {fst ε} {fst δ}) ,
+                     ℚ! ,
             subst (λ xx → ⟨ 𝕒 δ* .fst xx (y η)⟩)
-              (ℚ₊≡ (lem-03 (fst ε) (fst η₁)
-                 (fst δ) (fst η) (fst δ*) (fst η*)))
+              (ℚ₊≡ ℚ!)
                  z')
 rel-l-l-l {𝕒}  x y ε δ η p p' v₁ r  η₁ .snd =
   PT.map λ ((δ* , η*) , (xx , xx')) →
@@ -448,12 +447,10 @@ rel-l-l-l {𝕒}  x y ε δ η p p' v₁ r  η₁ .snd =
                    (fst ε ℚ.- (fst δ ℚ.+ fst η))
                     (fst η ℚ.+ fst η*)
                    (fst (ε ℚ₊+ η₁) ℚ.- (fst δ* ℚ.+ fst δ))
-                   xx v₁ (snd (η ℚ₊+ η*))
-                    (lem--017 {fst η₁} {fst δ*} {fst η*} {fst ε} {fst δ})  ,
+                   xx v₁ (snd (η ℚ₊+ η*)) ℚ!  ,
             (
             subst (λ xx → ⟨ 𝕒 δ* .fst xx (x δ)⟩)
-              (ℚ₊≡ (lem-04 (fst ε) (fst η₁)
-                 (fst δ) (fst η) (fst δ*) (fst η*)))
+              (ℚ₊≡ ℚ!)
                  z') )
 module ∼' where
 
@@ -513,27 +510,23 @@ module ∼' where
    PT.map
      λ ((δ* , η*) , (xx , xx')) →
       let z = snd (snd (𝕒 _)) _ _ _ _ r xx'
-      in ((δ* , η*) , δ) , substΣ<' (𝕒 (δ* , η*)) _
-             (lem--018 {fst ε} {fst δ} {fst η} {δ*} ) (_ , z)
+      in ((δ* , η*) , δ) , substΣ<' (𝕒 (δ* , η*)) _ ℚ! (_ , z)
  w'' 𝕒 𝕡 .Casesℝ.rat-lim-B q y ε δ p v₁ r v' u' x η .snd =
    PT.map
      λ ((δ* , η*) , (xx , xx')) →
       let z = snd (snd (𝕒 _)) _ _ _ _ (p _ _) xx'
           z' = snd (snd (𝕒 _)) _ _ _ _ (sym∼ _ _ _ r) z
-      in δ* , substΣ<' (𝕒 δ*) _
-             (lem--019 {fst ε} {fst δ} {fst η*}  {fst η} {fst δ*} ) (_ , z')
+      in δ* , substΣ<' (𝕒 δ*) _ ℚ! (_ , z')
  w'' 𝕒 𝕡 .Casesℝ.lim-rat-B x r ε δ p v₁ u v' u' x₁ η .fst =
    PT.map λ ((δ* , η*) , (xx , xx')) →
       let z = snd (snd (𝕒 _)) _ _ _ _ (p _ _)  xx'
           z'  = snd (snd (𝕒 _)) _ _ _ _ u z
-      in δ* , substΣ<' (𝕒 δ*) _
-            (lem--020 {fst ε} {fst δ} {fst η*}  {fst η} {fst δ*}) (_ , z')
+      in δ* , substΣ<' (𝕒 δ*) _ ℚ! (_ , z')
  w'' 𝕒 𝕡 .Casesℝ.lim-rat-B x r ε δ p v₁ u v' u' x₁ η .snd =
     PT.map
      λ ((δ* , η*) , (xx , xx')) →
       let z = snd (snd (𝕒 _)) _ _ _ _ (sym∼ _ _ _ u) xx'
-      in ((δ* , η*) , δ) , substΣ<' (𝕒 (δ* , η*)) _
-            ((lem--021 {fst ε} {fst δ} {fst η}  {δ*})) (_ , z)
+      in ((δ* , η*) , δ) , substΣ<' (𝕒 (δ* , η*)) _ ℚ! (_ , z)
  w'' 𝕒 𝕡 .Casesℝ.lim-lim-B = rel-l-l-l {𝕒}
  w'' 𝕒 𝕡 .Casesℝ.isPropB a a' ε =
   isPropΠ λ x →
@@ -588,7 +581,7 @@ module ∼' where
   www : Elimℝ-Prop _
   www .Elimℝ-Prop.ratA x* η .fst xx =
    let zz = fst (x (rat x*)  η) xx
-   in ∣ δ ,  substΣ<' (y δ) _ (lem--022 {fst ε} {fst δ} {fst η}) (_ , zz) ∣₁
+   in ∣ δ ,  substΣ<' (y δ) _ ℚ! (_ , zz) ∣₁
 
   www .Elimℝ-Prop.ratA x* η .snd =
     PT.rec (snd (fst (Recℝ.go (w' q) (rat x*)) (ε ℚ₊+ η)))
@@ -598,20 +591,18 @@ module ∼' where
        in subst {x = (((fst ε ℚ.- fst δ) , v₁) ℚ₊+
              ((δ ℚ₊+ δ*) ℚ₊+ ((fst η ℚ.- fst δ*) , xx)))}
             {y = (ε ℚ₊+ η)} (fst ∘ fst (Recℝ.go (w' q) (rat x*)))
-             (ℚ₊≡ (lem--023 {fst ε} {fst δ} {fst δ*} {fst η})) zz'
+             (ℚ₊≡ ℚ!) zz'
 
   www .Elimℝ-Prop.limA x* p* x₁* η* .fst =
     PT.map λ (δ* , (xx , xx')) →
        let z = fst (x (x* δ*) (_ , xx)) xx'
 
-       in (δ , δ*) , substΣ<' (y δ) _
-              (lem--024 {fst ε} {fst δ} {fst η*} {fst δ*}) (_ , z)
+       in (δ , δ*) , substΣ<' (y δ) _ ℚ! (_ , z)
   www .Elimℝ-Prop.limA x'' pp'' x₁'' η'' .snd =
      PT.map λ ((δ* , η*) , (xx , xx')) →
       let z = fst (p _ _ _ _) xx'
           z' = snd (x (x'' η*) _) z
-      in η* , substΣ< (Elimℝ.go (Recℝ.d (w' q)) (x'' η*))
-                   (lem--025 {fst ε} {fst δ} {fst δ*} {fst η''}) (_ , z')
+      in η* , substΣ< (Elimℝ.go (Recℝ.d (w' q)) (x'' η*)) ℚ! (_ , z')
 
   www .Elimℝ-Prop.isPropA = isPropHlp
       (λ x η → fst (Casesℝ.go (w'' y p) x) (ε ℚ₊+ η))
@@ -630,23 +621,21 @@ module ∼' where
              ((δ ℚ₊+ δ*) ℚ₊+ ((fst η' ℚ.- fst δ*) , xx)))}
              {(ε ℚ₊+ η')}
              (fst ∘ (fst (Recℝ.go (w' r) (rat x'))))
-            (ℚ₊≡ $ lem--026 {fst ε} {fst δ} {fst δ*} {fst η'}) zz'
+            (ℚ₊≡ $ ℚ!) zz'
   www .Elimℝ-Prop.ratA x' η' .snd xx =
    let zz = snd (x₁ (rat x')  η') xx
-   in ∣ δ , substΣ<' (x δ) _ (lem--027 {fst ε} {fst δ} {fst η'}) (_ , zz) ∣₁
+   in ∣ δ , substΣ<' (x δ) _ ℚ! (_ , zz) ∣₁
 
   www .Elimℝ-Prop.limA x' p' x₁' η' .fst =
     PT.map λ ((δ* , η*) , (xx , xx')) →
       let z = fst (p _ _ _ _) xx'
           z' = fst (x₁ (x' η*) _) z
-      in η* , substΣ< (Recℝ.go (w' r) (x' η*))
-                ((lem--028 {fst ε} {fst δ}  {fst δ*} {fst η'}  {fst η*})) (_ , z')
+      in η* , substΣ< (Recℝ.go (w' r) (x' η*)) ℚ! (_ , z')
   www .Elimℝ-Prop.limA x' p' x₁' η' .snd =
     PT.map λ (δ* , (xx , xx')) →
       let z = snd (x₁ (x' δ*) ((fst η' ℚ.- fst δ*) , xx)) xx'
 
-      in (δ , δ*) , substΣ<' (x δ) _
-          (lem--029 {fst ε} {fst δ} {fst η'} {fst δ*}) (_ , z)
+      in (δ , δ*) , substΣ<' (x δ) _ ℚ! (_ , z)
   www .Elimℝ-Prop.isPropA = isPropHlp
       (λ x η → fst (Recℝ.go (w' r) x) (ε ℚ₊+ η))
       λ x₂ η → fst (Casesℝ.go (w'' x p) x₂) (ε ℚ₊+ η)
@@ -658,14 +647,12 @@ module ∼' where
     PT.map λ ((δ* , η*) , (xx , xx')) →
      let z = fst ((p _ _) _ _) xx'
          z' = fst (x₁ _ _) z
-     in η , substΣ<' (y η) _
-           (lem--030 {fst ε} {fst δ} {fst η} {δ*}  {fst η'}) (_ , z')
+     in η , substΣ<' (y η) _ ℚ! (_ , z')
   www .Elimℝ-Prop.ratA x* η' .snd =
     PT.map λ ((δ* , η*) , (xx , xx')) →
      let z = fst ((p' _ _) _ _) xx'
          z' = snd (x₁ _ _) z
-     in δ , substΣ<' (x δ) _
-         (lem--031 {fst ε} {fst δ} {fst η} {δ*}  {fst η'} ) (_ , z')
+     in δ , substΣ<' (x δ) _ ℚ! (_ , z')
   www .Elimℝ-Prop.limA x* p* x₁' η₁ .fst =
    PT.map λ ((δ* , η*) , (xx , xx')) →
    let z = (fst (p δ* δ (x* η*) _)) xx'
@@ -676,15 +663,12 @@ module ∼' where
                (x* η*))
        z' = fst (x₁ _ _) z
    in (η , η*) ,
-          substΣ<' (y η) _
-        (lem--032 {fst ε} {fst δ} {fst η} {fst δ*}  {fst η₁} {fst η*})
-           (_ , z')
+          substΣ<' (y η) _ ℚ! (_ , z')
   www .Elimℝ-Prop.limA x* p x₁' η₁ .snd =
    PT.map λ ((δ* , η*) , (xx , xx')) →
     let z = (fst (p' _ _ _ _)) xx'
         z' = snd (x₁ _ _) z
-    in (δ , η*) , substΣ<' (x δ) _
-          (lem--033  {fst ε} {fst δ} {fst η} {fst δ*}  {fst η₁} {fst η*}) (_ , z')
+    in (δ , η*) , substΣ<' (x δ) _ ℚ! (_ , z')
 
   www .Elimℝ-Prop.isPropA = isPropHlp
       (λ x₂ η₂ → fst (Casesℝ.go (w'' y p') x₂) (ε ℚ₊+ η₂))
@@ -782,8 +766,6 @@ rounded∼' u v ε = fst (snd (Recℝ.go ∼'.w u)) v ε
 sym∼' : ∀ r r' ε → r ∼'[ ε ] r' → r' ∼'[ ε ] r
 sym∼' r r' ε =
   ∼→∼' r' r ε ∘S sym∼ r r' ε ∘S ∼'→∼ r r' ε
-
-
 
 -- (11.3.22)
 triangle∼'' : ∀ u v w ε η

@@ -286,7 +286,8 @@ private
   solve!-macro : Term → TC Unit
   solve!-macro hole =
       withReduceDefs
-     (false , ((quote ℤ._+_) ∷ (quote (ℤ.-_)) ∷ (quote ℤ._·_) ∷ (quote ℤ._ℕ-_) ∷ []))
+     (false , ((quote ℕ._·_) ∷
+        (quote ℕ._+_) ∷ (quote ℤ._+_) ∷ (quote (ℤ.-_)) ∷ (quote ℤ._·_) ∷ (quote ℤ._ℕ-_) ∷ []))
     do
       commRing ← checkIsRing (def (quote Fast.ℤCommRing) [])
       goal ← inferType hole >>= normalise
@@ -307,7 +308,8 @@ private
   normalise!-macro : Term → TC Unit
   normalise!-macro hole =
       withReduceDefs
-     (false , ((quote ℤ._+_) ∷ (quote (ℤ.-_)) ∷ (quote ℤ._·_) ∷ (quote ℤ._ℕ-_) ∷ []))
+     (false , ((quote ℕ._·_) ∷
+        (quote ℕ._+_) ∷ (quote ℤ._+_) ∷ (quote (ℤ.-_)) ∷ (quote ℤ._·_) ∷ (quote ℤ._ℕ-_) ∷ []))
     do
       commRing ← checkIsRing (def (quote Fast.ℤCommRing) [])
       goal ← inferType hole >>= normalise

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.CauchyReals.Base where
 
 open import Cubical.Foundations.Prelude hiding (Path)
@@ -6,8 +5,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Int as ℤ
-open import Cubical.Data.Rationals as ℚ
-open import Cubical.Data.Rationals.Order as ℚ
+open import Cubical.Data.Rationals.Fast as ℚ
+open import Cubical.Data.Rationals.Fast.Order as ℚ
 
 open import Cubical.Data.NatPlusOne
 

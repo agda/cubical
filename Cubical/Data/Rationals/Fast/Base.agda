@@ -54,6 +54,9 @@ isEquivRel.transitive isEquivRel∼ (a , b) (c , d) (e , f) p q = ·rCancel _ _ 
 eq/⁻¹ : ∀ x y → Path ℚ [ x ] [ y ] → x ∼ y
 eq/⁻¹ = SetQuotient.effective (λ _ _ → isSetℤ _ _) isEquivRel∼
 
+eqℚ : ∀ {k m k' m'} → (k , 1+ m) ∼ (k' , 1+ m') → [ k / 1+ m ] ≡ [ k' / 1+ m' ]
+eqℚ = eq/ _ _
+
 discreteℚ : Discrete ℚ
 discreteℚ = discreteSetQuotients isEquivRel∼ (λ _ _ → discreteℤ _ _)
 

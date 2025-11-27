@@ -945,3 +945,33 @@ clamp d u x = ℚ.min (ℚ.max d x) u
 
 [k/n]≤[k'/n] : ∀ k k' n → k ℤ.≤ k' → ([ ( k , n ) ]) ≤ ([ (k' , n) ])
 [k/n]≤[k'/n] k k' n k<k' = inj (ℤ.≤-·o {k} k<k')
+
+
+eqElim₊ : (lrhs : ℚ₊ → ℚ × ℚ) →
+  (∀ {k m} → fst (lrhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , tt))
+        ≡  snd (lrhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , tt)))
+    → ∀ (ε : ℚ₊) → fst (lrhs ε) ≡ snd (lrhs ε)
+eqElim₊ lrhs p = uncurry (ElimProp.go w)
+  where
+  w : ElimProp (λ z → ∀ p →  fst (lrhs (z , p)) ≡ snd (lrhs (z , p)))
+  w .ElimProp.isPropB _ = isPropΠ λ _ → isSetℚ _ _
+  w .ElimProp.f (ℤ.pos (suc n) , (1+ n₁)) _ = p {n} {n₁}
+
+
+substℚ₊ : ∀ {ℓ} (A : ℚ → Type ℓ) (lrhs : ℚ₊ → ℚ × ℚ) →
+  (∀ {k m} → fst (lrhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , tt))
+        ≡  snd (lrhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , tt)))
+    → ∀ (ε : ℚ₊) → A (fst (lrhs ε)) → A (snd (lrhs ε))
+substℚ₊ A lrhs p ε =
+  subst A (eqElim₊ lrhs p ε)
+
+
+eqElim₂₊ : {lhs rhs : ℚ₊ → ℚ₊ → ℚ} →
+  (∀ k m k' m' → lhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , tt) ([ ((ℤ.pos (suc k')) , 1+ m') ] , tt)
+        ≡  rhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , tt) ([ ((ℤ.pos (suc k')) , 1+ m') ] , tt))
+    → ∀ {ε ε' : ℚ₊} → lhs ε ε' ≡ rhs ε ε'
+eqElim₂₊ {lhs} {rhs} p {ε , 0<ε} {ε' , 0<ε'} = ElimProp2.go w ε ε' 0<ε 0<ε'
+  where
+  w : ElimProp2 (λ z z' → ∀ p p' →  lhs (z , p) (z' , p') ≡ rhs (z , p) (z' , p'))
+  w .ElimProp2.isPropB _ _ = isPropΠ2 λ _ _ → isSetℚ _ _
+  w .ElimProp2.f (ℤ.pos (suc n) , (1+ n₁)) (ℤ.pos (suc m) , (1+ m₁)) _ _ = p n n₁ m m₁

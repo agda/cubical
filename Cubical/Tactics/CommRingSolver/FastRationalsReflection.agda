@@ -33,6 +33,9 @@ open import Cubical.Tactics.Reflection.Variables
 open import Cubical.Tactics.Reflection.Utilities
 open import Cubical.Algebra.CommRing.Instances.Rationals.Fast
 open import Cubical.Data.Rationals.Fast as ℚ
+import Cubical.Data.NatPlusOne as NatPlusOne
+import Cubical.HITs.SetQuotients as SetQuotient
+
 
 private
   variable
@@ -153,6 +156,41 @@ module CommRingReflection (cring : Term) (names : RingNames) where
   buildExpression v@(var _ _) =
     returnTC ((λ ass → polynomialVariable (ass v)) ,
              v ∷ [])
+
+
+  buildExpression (con (quote SetQuotient.[_])
+        (_ ∷ _ ∷ _ ∷ _ ∷ (con (quote _,_)
+         (_ ∷ _ ∷ _ ∷ _ ∷
+          (con (quote ℤ.pos) ((con (quote ℕ.zero) []) v∷ []))
+          v∷ (con (quote NatPlusOne.1+_) (con (quote ℕ.zero) [] v∷ [] )) v∷ []) ) v∷ [])) =
+           `0` []
+
+  buildExpression (con (quote SetQuotient.[_])
+        (_ ∷ _ ∷ _ ∷ _ ∷ (con (quote _,_)
+         (_ ∷ _ ∷ _ ∷ _ ∷
+          (con (quote ℤ.pos) (lit (nat 0) v∷ []))
+          v∷ (con (quote NatPlusOne.1+_) (lit (nat 0) v∷ [] )) v∷ []) ) v∷ [])) =
+           `0` []
+
+  buildExpression (con (quote SetQuotient.[_])
+        (_ ∷ _ ∷ _ ∷ _ ∷ (con (quote _,_)
+         (_ ∷ _ ∷ _ ∷ _ ∷
+          (con (quote ℤ.pos) ((con (quote ℕ.suc) (con (quote ℕ.zero) [] v∷ [] )) v∷ []))
+          v∷ (con (quote NatPlusOne.1+_) (con (quote ℕ.zero) [] v∷ [] )) v∷ []) ) v∷ [])) =
+           `1` []
+
+
+  buildExpression (con (quote SetQuotient.[_])
+        (_ ∷ _ ∷ _ ∷ _ ∷ (con (quote _,_)
+         (_ ∷ _ ∷ _ ∷ _ ∷
+          (con (quote ℤ.pos) (lit (nat 1) v∷ []))
+          v∷ (con (quote NatPlusOne.1+_) (lit (nat 0) v∷ [] )) v∷ []) ) v∷ [])) =
+           `1` []
+          -- typeError (strErr "got1" ∷ [])
+
+
+            -- typeError (termErr t ∷ termErr t' ∷ [])
+          -- typeError (map (λ _ → strErr " X ") xs)
   buildExpression t@(def n xs) =
     switch (λ f → f n) cases
       case is0 ⇒ `0` xs         break

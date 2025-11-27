@@ -1,4 +1,5 @@
-{-# OPTIONS --safe --lossy-unification #-}
+-- {-# OPTIONS --safe --lossy-unification #-}
+-- {-# OPTIONS --verbose intSolver:20 #-}
 
 module Cubical.HITs.CauchyReals.Lipschitz where
 
@@ -14,17 +15,19 @@ open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
-open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Order as ℚ using
+open import Cubical.Data.Rationals.Fast as ℚ using (ℚ ; [_/_])
+open import Cubical.Data.Rationals.Fast.Order as ℚ using
   ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
-open import Cubical.Data.Rationals.Order.Properties as ℚ
+open import Cubical.Data.Rationals.Fast.Order.Properties as ℚ
  using (invℚ₊;/2₊;/3₊;/4₊ ; /4₊+/4₊≡/2₊ ; ε/2+ε/2≡ε)
 
 open import Cubical.Data.NatPlusOne
 
 open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Lems
 open import Cubical.HITs.CauchyReals.Closeness
+
+open import Cubical.Tactics.CommRingSolver.FastRationalsReflection
+open import Cubical.Tactics.CommRingSolver.IntReflection
 
 sΣℚ< : ∀ {u v ε ε'} → fst ε ≡ ε' → (u ∼[ ε ] v) →
          Σ (0< ε') (λ z → u ∼[ ε' , z ] v)
@@ -46,8 +49,8 @@ sΣℚ<' {u} {v} {ε} p x =
  where
  w : Elimℝ-Prop _
  w .Elimℝ-Prop.ratA x y ε δ p x₁ =
-   rat-lim x y (ε ℚ₊+ δ) δ p (subst 0<_ ((lem--034 {fst ε} {fst δ})) (snd ε))
-    (subst∼ (lem--034 {fst ε} {fst δ}) x₁)
+   rat-lim x y (ε ℚ₊+ δ) δ p (subst {x = ε .fst } {y = (fst (ε ℚ₊+ δ) ℚ.- fst δ)} 0<_ ℚ! (snd ε))
+    (subst∼ ℚ! x₁)
  w .Elimℝ-Prop.limA x p R y ε δ p₁ = PT.rec (isProp∼ _ _ _)
      (uncurry λ θ → PT.rec (isProp∼ _ _ _) (uncurry $ λ vv →
         uncurry (lim-lim _ _ _ (/4₊ θ) δ _ _) ∘
@@ -57,26 +60,30 @@ sΣℚ<' {u} {v} {ε} p x =
                                       ∙ cong₂ ℚ._+_ (cong fst $
                                           sym (/4₊+/4₊≡/2₊ θ))
                                          (cong fst $ sym (/4₊+/4₊≡/2₊ θ))) i ))
-                         ∙ lem--044 {fst (/4₊ θ)} {fst ε} {fst δ}) ∘
+                         ∙ ww (/4₊ θ)) ∘
                     (triangle∼ (R (/4₊ θ) x (/2₊ θ)
                       (/4₊ θ) p (refl∼ _ _)))))) ∘ fst (rounded∼ _ _ _)
-
-
+     where
+       ww : ∀ (/4₊θ : ℚ₊) →  fst (/4₊θ ℚ₊+ /4₊θ) ℚ.+ fst (/4₊θ) ℚ.+
+          (fst ε ℚ.- (fst (/4₊θ ℚ₊+ /4₊θ) ℚ.+ fst (/4₊θ ℚ₊+ /4₊θ)))
+          ≡ ((fst ε ℚ.+ fst δ) ℚ.- (fst (/4₊θ) ℚ.+ fst δ))
+       ww _ = ℚ!
  w .Elimℝ-Prop.isPropA _ = isPropΠ5 λ _ _ _ _ _ → isProp∼ _ _ _
 
 
 -- 11.3.37
 𝕣-lim-self : ∀ x y δ ε → x δ ∼[ δ ℚ₊+ ε ] lim x y
 𝕣-lim-self x y δ ε =
- subst∼ (sym (ℚ.+Assoc _ _ _) ∙ cong (fst δ ℚ.+_) (ε/2+ε/2≡ε (fst ε))) $ 𝕣-lim (x δ) x (δ ℚ₊+ /2₊ ε) ((/2₊ ε)) y
-  (y δ _)
+ subst∼ (sym (ℚ.+Assoc (fst δ) (fst ε ℚ.· [ 1 / 2 ])
+   (fst ε ℚ.· [ 1 / 2 ])) ∙ cong (fst δ ℚ.+_) (ε/2+ε/2≡ε (fst ε))) $ 𝕣-lim (x δ) x (δ ℚ₊+ /2₊ ε) ((/2₊ ε)) y
+  (y δ (/2₊ ε))
 
 -- 11.3.36
 𝕣-lim' : ∀ r y ε δ p v →
           r ∼[ fst ε ℚ.- fst δ , v ] ( y δ )
         → r ∼[ ε ] (lim y p )
 𝕣-lim' r y ε δ p v₁ x =
-   subst∼ (sym (lem--035 {fst ε} {fst δ}))
+   subst∼ (sym (ℚ!))
      $ 𝕣-lim r y (fst ε ℚ.- fst δ , v₁) δ p x
 
 -- 𝕣-lim'← : ∀ r y p ε
@@ -100,7 +107,9 @@ lim-surj = PT.map (map-snd (eqℝ _ _)) ∘ (Elimℝ-Prop.go w)
  w .Elimℝ-Prop.ratA x = ∣ ((λ _ → rat x) , (λ _ _ → refl∼ _ _)) ,
    (λ ε → rat-lim x (λ v → rat x) ε
     (/2₊ ε) (λ v v₁ → refl∼ (rat x) (v ℚ₊+ v₁))
-     (subst 0<_ (lem--034 {fst (/2₊ ε)} {fst (/2₊ ε)} ∙ cong (λ e → e ℚ.- fst (/2₊ ε)) (ε/2+ε/2≡ε (fst ε)) ) (snd (/2₊ ε)))
+     (ℚ.substℚ₊ 0<_ (λ ε → ((fst (/2₊ ε))) , (fst ε ℚ.- fst (/2₊ ε)))
+       (ℚ.eqℚ ℤ!) ε (snd (/2₊ ε)))
+
 
     (refl∼ (rat x) _)) ∣₁
 
@@ -157,12 +166,12 @@ Lipschitz-ℚ→ℚ-extend Δ L f δ δ<Δ x q r ε v =
               (ℚ.clamp (ℚ.- (fst Δ ℚ.- fst δ)) (fst Δ ℚ.- fst δ) u)
                (ℚ.isTrans<≤ (ℚ.- (fst Δ)) (ℚ.- (fst Δ ℚ.- fst δ)) _
                  (subst2 (ℚ._<_)
-                     (ℚ.+IdR _) (ℚ.+Comm _ _
+                     (ℚ.+IdR _) (ℚ.+Comm (ℚ.- fst Δ) (fst δ)
                       ∙ (sym $ ℚ.-[x-y]≡y-x (fst Δ) (fst δ)))
                      ((ℚ.<-o+ 0 (fst δ) (ℚ.- (fst Δ)) (ℚ.0<ℚ₊ δ))))
                  ((ℚ.≤clamp (ℚ.- (fst Δ ℚ.- fst δ)) (fst Δ ℚ.- fst δ) u
                     (( ℚ.pos[-x≤x] (ℚ.<→ℚ₊ (fst δ) (fst Δ) δ<Δ))))) )
-               (ℚ.isTrans≤< _ _ _ (ℚ.clamp≤ _ _ _)
+               (ℚ.isTrans≤< _ _ _ (ℚ.clamp≤ (ℚ.- (fst Δ ℚ.- fst δ)) _ u)
                 (ℚ.<-ℚ₊' (fst Δ) (fst Δ) δ (ℚ.isRefl≤ (fst Δ)) ))
 
  in x (ℚ.clamp (ℚ.- (fst Δ ℚ.- fst δ)) (fst Δ ℚ.- fst δ) q)
@@ -222,9 +231,9 @@ fromLipschitz L (f , fL) = f' ,
           (u' (invℚ₊ L ℚ₊· δ₁) (invℚ₊ L ℚ₊· ε₁)))
           (subst {x = fst L ℚ.· (fst ε ℚ.+ (ℚ.- fst δ))}
                  {fst L ℚ.· fst ε ℚ.+ (ℚ.- fst (L ℚ₊· δ))}
-                0<_ ( lem--046 )
+                0<_ ( ℚ! )
             (ℚ.·0< (fst L) (fst ε ℚ.- fst δ) (snd L) v) )
-              (subst2 (f q ∼[_]_) (ℚ₊≡ lem--046)
+              (subst2 (f q ∼[_]_) (ℚ₊≡ ℚ!)
                  (cong v' (ℚ₊≡ (sym $ ℚ.[y·x]/y L (fst δ)))) z)
 
  w : Elimℝ (λ _ → ℝ) λ u v ε _ → u ∼[ L ℚ₊· ε  ] v
@@ -254,7 +263,7 @@ fromLipschitz L (f , fL) = f' ,
  w .Elimℝ.lim-rat-B x r ε δ p v₁ u v' u' x₁ = sym∼ _ _ _ $
   rl r x ε δ p v₁ (sym∼ _ _ _ u) v' u' (sym∼ _ _ _ x₁)
  w .Elimℝ.lim-lim-B x y ε δ η p p' v₁ r v' u' v'' u'' x₁ =
-  let e = lem--047
+  let e = ℚ!
   in lim-lim _ _ _ (L ℚ₊· δ) (L ℚ₊· η) _ _
        (subst (0<_) e
          $ ℚ.·0< (fst L) (fst ε ℚ.- (fst δ ℚ.+ fst η))
@@ -274,7 +283,7 @@ fromLipschitz L (f , fL) = f' ,
 
 ∼-monotone< : ∀ {u v ε ε'} → fst ε ℚ.< fst ε' → u ∼[ ε ] v → u ∼[ ε' ] v
 ∼-monotone< {u} {v} {ε} {ε'} x x₁ =
-  subst∼ (lem--05 {fst ε} {fst ε'})
+  subst∼ (ℚ!)
    (triangle∼ x₁ (refl∼ v (ℚ.<→ℚ₊ (fst ε) (fst ε') x)))
 
 ∼-monotone≤ : ∀ {u v ε ε'} → fst ε ℚ.≤ fst ε' → u ∼[ ε ] v → u ∼[ ε' ] v
@@ -302,13 +311,13 @@ lipschConstIrrel L₁ L₂ =
 
     (
       (uncurry (lim-lim _ _ ε (/4₊ ε) (/4₊ ε) p₁ p₂)
-         (sΣℚ< ((((cong (fst (/4₊ ε) ℚ.+_) (ℚ.·IdL _)) ∙
-                  cong fst (/4₊+/4₊≡/2₊ ε)  ) ∙ lem--034 ∙
-               cong₂ (ℚ._-_)
-                  (ε/2+ε/2≡ε (fst ε)) (cong fst $ sym (/4₊+/4₊≡/2₊ ε) ))) (( refl subst∼[ refl ] cong x
-               (ℚ₊≡ (ℚ.·Assoc _ _ _ ∙
+         (sΣℚ< ((
+             ℚ.eqElim₊ (λ ε → (fst (/4₊ ε ℚ₊+ (1 ℚ₊· /4₊ ε)) ,
+                  (fst ε ℚ.- (fst (/4₊ ε) ℚ.+ fst (/4₊ ε))))) (ℚ.eqℚ ℤ!) ε
+             )) (( refl subst∼[ refl ] cong x
+               (ℚ₊≡ (ℚ.·Assoc (fst L₁) (fst (invℚ₊ L₁) ℚ.· fst L₂) (fst (/4₊ ε)) ∙
                 cong (ℚ._· (fst (/4₊ ε)))
-                  (ℚ.·Assoc _ _ _ ∙
+                  (ℚ.·Assoc (fst L₁) (fst (invℚ₊ L₁)) (fst L₂) ∙
                    cong (ℚ._· (fst L₂))
                      (ℚ.x·invℚ₊[x] L₁) ∙ ℚ.·IdL (fst (L₂))) ))) $
             (∼-monotone≤ {ε' = (/4₊ ε) ℚ₊+ (1 ℚ₊· (/4₊ ε))}
@@ -433,9 +442,9 @@ record NonExpanding₂ (g : ℚ → ℚ → ℚ ) : Type where
   rr .Elimℝ-Prop.isPropA _ = isPropΠ3 λ _ _ _ → isProp∼ _ _ _
 
  w .Elimℝ.rat-lim-B _ _ ε δ _ _ _ _ _ x _ =
-       subst∼ (sym $ lem--035 {fst ε} {fst δ}) $ 𝕣-lim _ _ _ _ _ (x _)
+       subst∼ (sym $ ℚ!) $ 𝕣-lim _ _ _ _ _ (x _)
  w .Elimℝ.lim-rat-B _ _ ε δ _ _ _ _ _ x₁ _ =
-   subst∼ (sym $ lem--035 {fst ε} {fst δ})
+   subst∼ (sym $ ℚ!)
     $ sym∼ _ _ _ (𝕣-lim _ _ _ _ _ (sym∼ _ _ _ $ x₁ _))
  w .Elimℝ.lim-lim-B _ _ _ _ _ _ _ _ _ _ _ _ _ x₁ _ =
    lim-lim _ _ _ _ _ _ _ _ (x₁ _)
@@ -486,7 +495,12 @@ record NonExpanding₂ (g : ℚ → ℚ → ℚ ) : Type where
               (λ δ ε → Elimℝ.go∼ w (y δ ε) (lim x' y')) ≡
             lim (λ q → fst (Elimℝ.go w (x (/2₊ q))) (x' (/2₊ q)))
                    λ δ ε →
-                     subst∼ (lem--045 ∙ cong₂ ℚ._+_ (ε/2+ε/2≡ε (fst δ))
+                   let uu : ∀ (/2₊δ /2₊ε : ℚ₊) →
+                              fst ((/2₊δ ℚ₊+ /2₊ε) ℚ₊+ (/2₊δ ℚ₊+ /2₊ε)) ≡
+                              fst /2₊δ ℚ.+ fst /2₊δ ℚ.+
+                              (fst /2₊ε ℚ.+ fst /2₊ε)
+                       uu _ _ = ℚ!
+                   in  subst∼ (uu (/2₊ δ) (/2₊ ε) ∙ cong₂ ℚ._+_ (ε/2+ε/2≡ε (fst δ))
                               (ε/2+ε/2≡ε (fst ε))) $
                        triangle∼
                         (go∼R (x (/2₊ δ))  (x' (/2₊ δ)) (x' (/2₊ ε))
@@ -494,33 +508,36 @@ record NonExpanding₂ (g : ℚ → ℚ → ℚ ) : Type where
                           (y' _ _))
                          (go∼L (x' (/2₊ ε))
                           (x (/2₊ δ)) (x (/2₊ ε)) _ (y _ _))
-       zz = eqℝ _ _ (λ ε →
+       zz = eqℝ (lim (λ q → fst (Elimℝ.go w (x q)) (lim x' y'))
+                 (λ δ ε → Elimℝ.go∼ w (y δ ε) (lim x' y')))
+                _
+              (λ ε →
                let ε/4 = /4₊ ε
-                   v = subst {x = fst ε ℚ.· ℚ.[ 3 / 8 ]} (0 ℚ.<_)
-                       (distℚ! (fst ε)
-                        ·[ ge[ ℚ.[ 3 / 8 ] ] ≡
-                          (ge1 +ge
-                        (neg-ge
-                        ((ge[ ℚ.[ pos 1 / 1+ 3 ] ]
-                          ·ge ge[ ℚ.[ pos 1 / 1+ 1 ] ])
-                           +ge ge[ ℚ.[ pos 1 / 1+ 3 ] ])))
-                           +ge
-                        (neg-ge ((ge[ ℚ.[ pos 1 / 4 ] ]
-                          ·ge ge[ ℚ.[ pos 1 / 2 ] ])
-                               +ge
-                               (ge[ ℚ.[ pos 1 / 4 ] ]
-                          ·ge ge[ ℚ.[ pos 1 / 2 ] ]))) ])
-                        (ℚ.0<ℚ₊ (ε ℚ₊· (ℚ.[ 3 / 8 ] , _)))
+                   v-lem : ∀ h2 h4 →
+                            fst ε ℚ.·
+                              (((1 ℚ.-
+                                 (((h4) ℚ.· h2) ℚ.+ (h4)))
+                                ℚ.- (((h4) ℚ.· h2) ℚ.+
+                                 ((h4) ℚ.· h2)))) ≡ ((fst ε ℚ.-
+                                 (((fst ε ℚ.· h4) ℚ.· h2) ℚ.+ (fst ε ℚ.· h4)))
+                                ℚ.- ((((fst ε) ℚ.· h4) ℚ.· h2) ℚ.+
+                                 ((fst ε ℚ.· h4) ℚ.· h2)))
+                   v-lem h2 h4 = ℚ!
+                   v =
+                       subst {x = fst ε ℚ.· ℚ.[ 3 / 8 ]} {y =
+                            (fst ε ℚ.- (fst ε ℚ.· [ 1 / 4 ] ℚ.· [ 1 / 2 ] ℚ.+ fst ε/4)) ℚ.-
+                                                               fst (/2₊ ε/4 ℚ₊+ /2₊ ε/4)} (0 ℚ.<_)
+                       ( cong (fst ε ℚ.·_) (ℚ.eqℚ refl) ∙ v-lem _ _)
+
+                         (ℚ.0<ℚ₊ (ε ℚ₊· (ℚ.[ 3 / 8 ] , tt)))
                in (lim-lim _ (λ q' → go (x (/2₊ q')) (x' (/2₊ q'))) ε
-                        (/2₊ ε/4) ε/4 _ _) (subst
-                         {y = fst ε ℚ.- (fst (/2₊ ε/4) ℚ.+ (fst ε/4))} (ℚ.0<_)
-                                   distℚ! (fst ε) ·[ ge[ ℚ.[ pos 5 / 8 ] ]
-                                     ≡ (ge1 +ge
-                        (neg-ge
-                        ((ge[ ℚ.[ pos 1 / 4 ] ]
-                          ·ge ge[ ℚ.[ pos 1 / 2 ] ])
-                           +ge ge[ ℚ.[ pos 1 / 4 ] ]))) ]
-                                    ((snd (ε ℚ₊· (ℚ.[ 5 / 8 ] , _)))))
+                        (/2₊ ε/4) ε/4 (λ δ ε₁ → Elimℝ.go∼ w (y δ ε₁) (lim x' y'))
+                          _) (subst {x = (fst ε) ℚ.· [ pos 5 / 1+ 7 ]}
+                         {y = fst ε ℚ.- (fst (/2₊ ε/4) ℚ.+ (fst (/4₊ ε)))} (ℚ.0<_)
+                              (ℚ.eqElim₊ (λ ε → (fst ε) ℚ.· [ pos 5 / 1+ 7 ]
+                                     , fst ε ℚ.- (fst (/2₊ (/4₊ ε)) ℚ.+ (fst (/4₊ ε))))
+                                  (ℚ.eqℚ ℤ!) ε)
+                          ((snd (ε ℚ₊· (ℚ.[ 5 / 8 ] , _)))))
                         ((go∼R ( x (/2₊ ε/4)) (lim x' y')
                           (x' (/2₊ ε/4)) _
                           ((∼-monotone< {ε = /2₊ ε/4 ℚ₊+ /2₊ ε/4}
@@ -625,7 +642,7 @@ module NonExpanding₂-Lemmas
          where
          w'' : Elimℝ-Prop _
          w'' .Elimℝ-Prop.ratA r ε = ≡→∼ (
-          gComm _ _ ∙∙ cong rat (gAssoc q p r)
+          gComm (NE.go (rat p) (rat r)) (rat q) ∙∙ cong rat (gAssoc q p r)
            ∙∙ λ i → NE.go (gComm (rat q) (rat p) i) (rat r))
          w'' .Elimℝ-Prop.limA x x' R ε =
            subst2 (_∼[ ε ]_)
