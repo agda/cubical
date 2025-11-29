@@ -60,6 +60,9 @@ isProp≤ {m} {n} (k , p) (l , q)
 zero-≤ : 0 ≤ n
 zero-≤ {n} = n , +-zero n
 
+zero-<-suc : 0 < suc n
+zero-<-suc {n} = n , +-comm n 1
+
 suc-≤-suc : m ≤ n → suc m ≤ suc n
 suc-≤-suc (k , p) = k , (+-suc k _) ∙ (cong suc p)
 
@@ -147,6 +150,15 @@ suc-< p = pred-≤-pred (≤-suc p)
            (d + m) · k   ≡⟨ cong (_· k) r ⟩
            n · k         ∎
 
+≤-k· : m ≤ n → k · m ≤ k · n
+≤-k· {m} {n} {k} p =
+  subst2 _≤_ (·-comm m k) (·-comm n k)
+    (≤-·k p)
+
+≤monotone· : ∀ {m n k l} → m ≤ n → k ≤ l → m · k ≤ n · l
+≤monotone· {m} {n} {k} {l} m≤n k≤l =
+  ≤-trans (≤-k· {k = m} k≤l) (≤-·k m≤n)
+
 <-k+-cancel : k + m < k + n → m < n
 <-k+-cancel {k} {m} {n} = ≤-k+-cancel ∘ subst (_≤ k + n) (sym (+-suc k m))
 
@@ -205,6 +217,10 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-+-≤ : m < n → k ≤ l → m + k < n + l
 <-+-≤ p q = <≤-trans (<-+k p) (≤-k+ q)
 
+
+≤-+-< : m ≤ n → k < l → m + k < n + l
+≤-+-< p q = ≤<-trans (≤-+k p) (<-k+ q)
+
 <-suc : {n : ℕ} → n < suc n
 <-suc = 0 , refl
 
@@ -237,6 +253,20 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
            d · suc k + suc m · suc k         ≡⟨ ·-distribʳ d (suc m) (suc k) ⟩
            (d + suc m) · suc k               ≡⟨ cong (_· suc k) r ⟩
            n · suc k                         ∎
+
+<-·sk' : 0 < k → m < n → m · k < n · k
+<-·sk' {zero} {m} {n} 0<0 = ⊥.rec (¬-<-zero 0<0)
+<-·sk' {suc k} {m} {n}  _ = <-·sk {m} {n} {k}
+
+<-·sk-cancel : ∀ {m n k} → m · suc k < n · suc k → m < n
+<-·sk-cancel {n = zero} x = ⊥.rec (¬-<-zero x)
+<-·sk-cancel {zero} {n = suc n} x = suc-≤-suc (zero-≤ {n})
+<-·sk-cancel {suc m} {n = suc n} {k} x =
+  suc-≤-suc {suc m} {n}
+    (<-·sk-cancel {m} {n} {k}
+     (≤-k+-cancel (subst (_≤ (k + n · suc k))
+       (sym (+-suc _ _)) (pred-≤-pred x))))
+
 
 ∸-≤ : ∀ m n → m ∸ n ≤ m
 ∸-≤ m zero = ≤-refl
@@ -276,6 +306,20 @@ min-≤-right : min m n ≤ n
 min-≤-right {zero} {n} = zero-≤
 min-≤-right {suc m} {zero} = ≤-refl
 min-≤-right {suc m} {suc n} = subst (_≤ _) (sym minSuc) $ suc-≤-suc $ min-≤-right {m} {n}
+
+maxLUB : ∀ {x} → m ≤ x → n ≤ x → max m n ≤ x
+maxLUB {zero}  {n}     _    n≤x  = n≤x
+maxLUB {suc m} {zero}  sm≤x _    = sm≤x
+maxLUB {suc m} {suc n} sm≤x sn≤x with m <ᵇ n
+... | false = sm≤x
+... | true  = sn≤x
+
+minGLB : ∀ {x} → x ≤ m → x ≤ n → x ≤ min m n
+minGLB {zero}  {n}     x≤0 _     = x≤0
+minGLB {suc m} {zero}  _   x≤0   = x≤0
+minGLB {suc m} {suc n} x≤sm x≤sn with m <ᵇ n
+... | false = x≤sn
+... | true  = x≤sm
 
 -- Boolean order relations and their conversions to/from ≤ and <
 
@@ -550,6 +594,12 @@ n∸l>0  zero   (suc l) r = ⊥.rec (¬-<-zero r)
 n∸l>0 (suc n)  zero   r = suc-≤-suc zero-≤
 n∸l>0 (suc n) (suc l) r = n∸l>0 n l (pred-≤-pred r)
 
+[n-m]+m : ∀ m n → m ≤ n → (n ∸ m) + m ≡ n
+[n-m]+m zero n _ = +-zero n
+[n-m]+m (suc m) zero p = ⊥.rec (¬-<-zero p)
+[n-m]+m (suc m) (suc n) p =
+  +-suc _ _ ∙ cong suc ([n-m]+m m n (pred-≤-pred p))
+
 -- automation
 
 ≤-solver-type : (m n : ℕ) → Trichotomy m n → Type
@@ -615,6 +665,151 @@ pattern s<s {m} {n} m<n = s≤s {m} {n} m<n
 ≤-∸-≥ n (suc l)  zero   r = ⊥.rec (¬-<-zero r)
 ≤-∸-≥  zero   (suc l) (suc k) r = ≤-refl
 ≤-∸-≥ (suc n) (suc l) (suc k) r = ≤-∸-≥ n l k (pred-≤-pred r)
+
+
+elimBy≤ : ∀ {ℓ} {A : ℕ → ℕ → Type ℓ}
+  → (∀ x y → A x y → A y x)
+  → (∀ x y → x ≤ y → A x y)
+  → ∀ x y → A x y
+elimBy≤ {A = A} s f n m = ≤CaseInduction {P = A}
+  (f _ _) (s _ _ ∘ f _ _ )
+
+elimBy≤+ : ∀ {ℓ} {A : ℕ → ℕ → Type ℓ}
+  → (∀ x y → A x y → A y x)
+  → (∀ x y → A x (y + x))
+  → ∀ x y → A x y
+elimBy≤+ {A = A} s f =
+ elimBy≤ s λ x y (y' , p) → subst (A x) p (f x y')
+
+module Minimal where
+  Least : ∀{ℓ} → (ℕ → Type ℓ) → (ℕ → Type ℓ)
+  Least P m = P m × (∀ n → n < m → ¬ P n)
+
+  isPropLeast : {P : ℕ → Type ℓ} → (∀ m → isProp (P m)) → ∀ m → isProp (Least P m)
+  isPropLeast pP m
+    = isPropΣ (pP m) (λ _ → isPropΠ3 λ _ _ _ → isProp⊥)
+
+<monotone· : ∀ {m n k l} → m < n → k < l → m · k < n · l
+<monotone· {n = zero} {l = l} m<n k<l = ⊥.rec (¬-<-zero m<n)
+<monotone· {n = suc n} {l = zero} m<n k<l = ⊥.rec (¬-<-zero k<l)
+<monotone· {zero} {n = suc n} {l = suc l} m<n k<l = zero-<-suc
+<monotone· {suc m} {n = suc n} {zero} {l = suc l} m<n k<l =
+  subst (_< suc n · suc l) (·-comm 0 m) zero-<-suc
+<monotone· {suc m} {n = suc n} {suc k} {l = suc l} m<n k<l =
+  suc-≤-suc (<-+-< (predℕ-≤-predℕ k<l) (<monotone· (predℕ-≤-predℕ m<n) k<l))
+
+monotone-^ : ∀ x y n → x < y → x ^ (suc n) < y ^ (suc n)
+monotone-^ x y zero x<y = subst2 _<_ (sym (·-identityʳ _)) (sym (·-identityʳ _)) x<y
+monotone-^ x y (suc n) x<y =
+  <monotone· x<y (monotone-^ x y n x<y)
+
+^-monotone' : ∀ x n m → x ^ (suc n) ≤ x ^ (suc (m + n))
+^-monotone' x n zero = ≤-refl
+^-monotone' zero n (suc m) = ≤-refl
+^-monotone' (suc x) n (suc m) =
+ ≤-trans (^-monotone' (suc x) n m)
+   (subst (_≤ ((suc x) · (suc x ^ suc (m + n)))) (·-identityˡ _)
+    (≤-·k {1} {suc x} {k = (suc x ^ suc (m + n))} (suc-≤-suc zero-≤)))
+
+
+^-monotone : ∀ x n m → n ≤ m → x ^ (suc n) ≤ x ^ (suc m)
+^-monotone x n m (k , p) =
+  subst (λ z → x ^ (suc n) ≤ x ^ suc z) p (^-monotone' x n k)
+
+sn<ssm^sn : ∀ n m → suc n < (suc (suc m)) ^ suc n
+sn<ssm^sn zero m = suc-≤-suc (suc-≤-suc zero-≤)
+sn<ssm^sn (suc n) m =
+ <-trans (suc-≤-suc (sn<ssm^sn n m))
+   (subst (suc (suc (suc m) ^ suc n) <_)
+     (  (λ i → +-comm (·-comm (suc m) (suc (suc m) ^ suc n) i) (suc (suc m) ^ suc n) i)
+         ∙ sym (·-suc (suc (suc m) ^ suc n) (suc m))
+       ∙ ·-comm (suc (suc m) ^ (suc n)) (suc (suc m)))
+       (<-+k {1} {(suc m) · (suc (suc m) ^ suc n)} {suc (suc m) ^ suc n}
+         (<≤-trans (suc-≤-suc (suc-≤-suc (zero-≤ {m})))
+           (≤-trans ((subst2 (_≤_)
+                 (cong (suc ∘ suc) (·-identityʳ _) )
+                  (sym (·-identityˡ _))
+                  (^-monotone (suc (suc m)) 0 n zero-≤)))
+             (≤-·k {1} {suc m} {(suc (suc m) ^ suc n)} (suc-≤-suc zero-≤))))))
+
+k+predℕₖ : k ≤ n → k + iter k predℕ n ≡ n
+k+predℕₖ {zero} x = refl
+k+predℕₖ {suc k} {zero} x = ⊥.rec (¬-<-zero x)
+k+predℕₖ {suc k} {suc n} x =
+ cong suc (cong (k +_) (w n k (predℕ-≤-predℕ x)) ∙ k+predℕₖ {k} {n} (predℕ-≤-predℕ x))
+
+ where
+ w : ∀ n k → k ≤ n → predℕ (iter k predℕ (suc n)) ≡ iter k predℕ n
+ w n zero x = refl
+ w zero (suc k) x = ⊥.rec (¬-<-zero x)
+ w (suc n) (suc k) x = cong predℕ (w (suc n) k (≤-trans ≤-predℕ x))
+
+infix 4 _≤ᵖ_ _<ᵖ_ _≤ᵉ_ _<ᵉ_ _≲_ _≺_ _≲ᵉ_ _≺ᵉ_
+
+_≤ᵖ_ : (ℕ → ℕ) → (ℕ → ℕ) → Type
+f ≤ᵖ g = ∀ n → f n ≤ g n
+
+_≤ᵉ_ : (ℕ → ℕ) → (ℕ → ℕ) → Type₀
+f ≤ᵉ g = Σ[ N ∈ ℕ ] (∀ m → N ≤ m → f m ≤ g m)
+
+_<ᵖ_ : (ℕ → ℕ) → (ℕ → ℕ) → Type₀
+f <ᵖ g = ∀ n → f n < g n
+
+_<ᵉ_ : (ℕ → ℕ) → (ℕ → ℕ) → Type₀
+f <ᵉ g = Σ[ N ∈ ℕ ] (∀ m → N ≤ m → f m < g m)
+
+_≲_ : (ℕ → ℕ) → (ℕ → ℕ) → Type₀
+a ≲ b = ∀ n → a (suc n) + b n ≤ b (suc n) + a n
+
+_≺_ : (ℕ → ℕ) → (ℕ → ℕ) → Type₀
+a ≺ b = ∀ n → a (suc n) + b n < b (suc  n) + a n
+
+_≲ᵉ_ : (ℕ → ℕ) → (ℕ → ℕ) → Type₀
+a ≲ᵉ b = Σ[ N ∈ ℕ ] (∀ n → N ≤ n → a (suc n) + b n ≤ b (suc n) + a n)
+
+_≺ᵉ_ : (ℕ → ℕ) → (ℕ → ℕ) → Type₀
+a ≺ᵉ b = Σ[ N ∈ ℕ ] (∀ n → N ≤ n → a (suc n) + b n < b (suc n) + a n)
+
+0<! : ∀ n → 0 < n !
+0<! zero = zero-<-suc
+0<! (suc n) = <monotone· (zero-<-suc {n}) (0<! n)
+
+StrictMonotone! : m < n → suc m ! < suc n !
+StrictMonotone! {m} {zero} = ⊥.rec ∘ ¬-<-zero
+StrictMonotone! {zero} {suc zero} _ = ≤-refl {2}
+StrictMonotone! {zero} {suc (suc n)} 0<ssn =
+ <monotone· (suc-≤-suc 0<ssn)
+   (StrictMonotone! {zero} {suc n} (zero-<-suc {n}))
+StrictMonotone! {suc m} {suc n} sm<sn =
+  <monotone· (suc-≤-suc sm<sn)
+    (StrictMonotone! {m} {n} (pred-≤-pred sm<sn))
+
+StrictMonotone!' : 0 < m → m < n → m ! < n !
+StrictMonotone!' {m} {zero} _ m<0 = ⊥.rec (¬-<-zero m<0)
+StrictMonotone!' {zero} {suc n} 0<0 _ = ⊥.rec (¬-<-zero 0<0)
+StrictMonotone!' {suc m} {suc n} _ m<n = StrictMonotone! (pred-≤-pred m<n)
+
+Monotone! : m ≤ n → m ! ≤ n !
+Monotone! {zero} {n} _ = 0<! n
+Monotone! {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
+Monotone! {suc m} {suc n} sm≤sn =
+  ≤monotone· (sm≤sn)
+    (Monotone! {m} {n} (pred-≤-pred sm≤sn))
+
+
+-- eventualGrowth⇒eventuallyLarger :
+--   ∀ {a b : ℕ → ℕ} →
+--   a ≺ᵉ b →
+--   Σ[ N ∈ ℕ ] (∀ n → N ≤ n → a n < b n)
+-- eventualGrowth⇒eventuallyLarger = {!!}
+
+--  -- where
+
+-- -- Σk-m<snᵏ : Σ[ k ∈ ℕ ] (m < (suc (suc n)) ^ k)
+-- -- Σk-m<snᵏ {zero} = 1 , zero-<-suc
+-- -- Σk-m<snᵏ {suc m} {n} = {!n!}
+-- --  -- {!!} , {!sn<ssm^sn m ?!}
+
 
 -- Some facts about increasing functions
 

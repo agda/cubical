@@ -17,8 +17,8 @@ open import Cubical.Data.Empty as ⊥
 
 open import Cubical.HITs.FreeAbGroup
 open import Cubical.HITs.FreeGroup as FG hiding (rec)
-open import Cubical.HITs.SetQuotients as SQ hiding (_/_ ; rec)
-
+import Cubical.HITs.SetQuotients as SQ
+open import Cubical.HITs.SetQuotients using ([_])
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.Pi
 open import Cubical.Algebra.AbGroup.Instances.Int
