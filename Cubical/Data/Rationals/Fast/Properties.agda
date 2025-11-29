@@ -455,12 +455,38 @@ maxAbsorbLMin = SetQuotient.elimProp2 (λ _ _ → isSetℚ _ _)
         ≡⟨ sym (ℤ.·DistR+ (ℕ₊₁→ℤ b) (c ℤ.· ℕ₊₁→ℤ f) (e ℤ.· ℕ₊₁→ℤ d)) ⟩
       ℕ₊₁→ℤ b ℤ.· (c ℤ.· ℕ₊₁→ℤ f ℤ.+ e ℤ.· ℕ₊₁→ℤ d) ∎
 
+_impl+_ : ℚ → ℚ → ℚ
+_impl+_ = OnCommonDenomSym.go +Rec
 
 _+_ : ℚ → ℚ → ℚ
-_+_ = OnCommonDenomSym.go +Rec
+[ a ] + [ a₁ ] = [ a ] impl+ [ a₁ ]
+[ a ] + eq/ a₁ b r i = [ a ] impl+ (eq/ a₁ b r i)
+[ a ] + _//_.squash/ x₁ x₂ p q i i₁ =
+  isSetℚ ([ a ] + x₁) ([ a ] + x₂) (λ i₁ → [ a ] + p i₁) (λ i₁ → [ a ] + q i₁)  i i₁
+eq/ a b r i + [ a₁ ] = (eq/ a b r i) impl+ [ a₁ ]
+eq/ a b r i + eq/ a₁ b₁ r₁ i₁ =
+ isSet→isSet' isSetℚ
+   (λ i₁ → [ a ] impl+ eq/ a₁ b₁ r₁ i₁) (λ i₁ → [ b ] impl+ eq/ a₁ b₁ r₁ i₁)
+   (λ i → eq/ a b r i impl+ [ a₁ ]) (λ i → eq/ a b r i impl+ [ b₁ ]) i i₁
+eq/ a b r i + _//_.squash/ x₁ x₂ p q i₁ i₂ =
+  isGroupoid→isGroupoid' (isSet→isGroupoid isSetℚ)
+    (λ i₁ i₂ → isSetℚ ([ a ] + x₁) ([ a ] + x₂) (λ i₃ → [ a ] + p i₃) (λ i₃ → [ a ] + q i₃) i₁ i₂)
+    (λ i₁ i₂ → isSetℚ ([ b ] + x₁) ([ b ] + x₂) (λ i₃ → [ b ] + p i₃) (λ i₃ → [ b ] + q i₃) i₁ i₂)
+    (λ i i₂ → eq/ a b r i + p i₂) (λ i i₂ → eq/ a b r i + q i₂)
+    (λ i i₁ → eq/ a b r i + x₁) (λ i i₁ → eq/ a b r i + x₂)
+    i i₁ i₂
+_//_.squash/ x x₁ p q i i₁ + z =
+  isSetℚ (x + z) (x₁ + z) (cong (_+ z) p) (cong (_+ z) q) i i₁
+
++-impl : ∀ x y → x + y ≡ x impl+ y
++-impl = SetQuotient.ElimProp2.go w
+ where
+ w : SetQuotient.ElimProp2 (λ z z₁ → z + z₁ ≡ (z impl+ z₁))
+ w .SetQuotient.ElimProp2.isPropB _ _ = isSetℚ _ _
+ w .SetQuotient.ElimProp2.f _ _ = refl
 
 +Comm : ∀ x y → x + y ≡ y + x
-+Comm = OnCommonDenomSym.go-comm +Rec
++Comm x y = +-impl x y ∙∙ OnCommonDenomSym.go-comm +Rec x y ∙∙ sym (+-impl y x)
 
 +IdL : ∀ x → 0 + x ≡ x
 +IdL = SetQuotient.elimProp (λ _ → isSetℚ _ _)
@@ -479,11 +505,39 @@ _+_ = OnCommonDenomSym.go +Rec
 ·Rec .OnCommonDenomSym.g-sym (a , _) (c , _) = ℤ.·Comm a c
 ·Rec .OnCommonDenomSym.g-eql (a , b) (c , d) (e , _) p = lem₁ a (ℕ₊₁→ℤ d) c (ℕ₊₁→ℤ b) e p
 
+_impl·_ : ℚ → ℚ → ℚ
+_impl·_ = OnCommonDenomSym.go ·Rec
+
 _·_ : ℚ → ℚ → ℚ
-_·_ = OnCommonDenomSym.go ·Rec
+[ a ] · [ a₁ ] = [ a ] impl· [ a₁ ]
+[ a ] · eq/ a₁ b r i = [ a ] impl· (eq/ a₁ b r i)
+[ a ] · _//_.squash/ x₁ x₂ p q i i₁ =
+  isSetℚ ([ a ] · x₁) ([ a ] · x₂) (λ i₁ → [ a ] · p i₁) (λ i₁ → [ a ] · q i₁)  i i₁
+eq/ a b r i · [ a₁ ] = (eq/ a b r i) impl· [ a₁ ]
+eq/ a b r i · eq/ a₁ b₁ r₁ i₁ =
+ isSet→isSet' isSetℚ
+   (λ i₁ → [ a ] impl· eq/ a₁ b₁ r₁ i₁) (λ i₁ → [ b ] impl· eq/ a₁ b₁ r₁ i₁)
+   (λ i → eq/ a b r i impl· [ a₁ ]) (λ i → eq/ a b r i impl· [ b₁ ]) i i₁
+eq/ a b r i · _//_.squash/ x₁ x₂ p q i₁ i₂ =
+  isGroupoid→isGroupoid' (isSet→isGroupoid isSetℚ)
+    (λ i₁ i₂ → isSetℚ ([ a ] · x₁) ([ a ] · x₂) (λ i₃ → [ a ] · p i₃) (λ i₃ → [ a ] · q i₃) i₁ i₂)
+    (λ i₁ i₂ → isSetℚ ([ b ] · x₁) ([ b ] · x₂) (λ i₃ → [ b ] · p i₃) (λ i₃ → [ b ] · q i₃) i₁ i₂)
+    (λ i i₂ → eq/ a b r i · p i₂) (λ i i₂ → eq/ a b r i · q i₂)
+    (λ i i₁ → eq/ a b r i · x₁) (λ i i₁ → eq/ a b r i · x₂)
+    i i₁ i₂
+_//_.squash/ x x₁ p q i i₁ · z =
+  isSetℚ (x · z) (x₁ · z) (cong (_· z) p) (cong (_· z) q) i i₁
+
+·-impl : ∀ x y → x · y ≡ x impl· y
+·-impl = SetQuotient.ElimProp2.go w
+ where
+ w : SetQuotient.ElimProp2 (λ z z₁ → z · z₁ ≡ (z impl· z₁))
+ w .SetQuotient.ElimProp2.isPropB _ _ = isSetℚ _ _
+ w .SetQuotient.ElimProp2.f _ _ = refl
 
 ·Comm : ∀ x y → x · y ≡ y · x
-·Comm = OnCommonDenomSym.go-comm ·Rec
+·Comm x y = ·-impl x y ∙∙ OnCommonDenomSym.go-comm ·Rec x y ∙∙ sym (·-impl y x)
+
 
 ·IdL : ∀ x → 1 · x ≡ x
 ·IdL = SetQuotient.elimProp (λ _ → isSetℚ _ _) λ (_ , _) → eq/ _ _ ℤ!
@@ -633,3 +687,25 @@ x+x≡2x x = cong₂ _+_
     (sym (·IdL x))
     (sym (·IdL x))
     ∙ sym (·DistR+ 1 1 x)
+
+
+eqElim : (lrhs : ℚ → ℚ × ℚ) →
+  (∀ {k m} → fst (lrhs ([ (k , 1+ m) ]))
+        ≡  snd (lrhs ([ (k , 1+ m) ])))
+    → ∀ (ε : ℚ) → fst (lrhs ε) ≡ snd (lrhs ε)
+eqElim lrhs p = SetQuotient.ElimProp.go w
+  where
+
+  w : SetQuotient.ElimProp (λ z → fst (lrhs z) ≡ snd (lrhs z))
+  w .SetQuotient.ElimProp.isPropB _ = isSetℚ _ _
+  w .SetQuotient.ElimProp.f (n , (1+ n₁)) = p {n} {n₁}
+
+eqElim₂ : (lrhs : ℚ → ℚ → ℚ × ℚ) →
+  (∀ {k m k' m'} → fst (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ])
+        ≡  snd (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ]))
+    → ∀ (x y : ℚ) → fst (lrhs x y) ≡ (snd (lrhs x y))
+eqElim₂ lrhs p = SetQuotient.ElimProp2.go w
+  where
+  w : SetQuotient.ElimProp2 (λ z z' → fst (lrhs z z') ≡ snd (lrhs z z'))
+  w .SetQuotient.ElimProp2.isPropB _ _ = isSetℚ _ _
+  w .SetQuotient.ElimProp2.f (n , (1+ n₁)) (m , (1+ m₁)) = p {n} {n₁} {m} {m₁}

@@ -92,6 +92,23 @@ private
         variableList (t ∷ ts)
           = varg (con (quote _∷vec_) (t v∷ (variableList ts) ∷ []))
 
+  normaliserCallAsTerm : Term → Arg Term → Term → Term
+  normaliserCallAsTerm R varList lhs =
+    def
+       (quote normaliseRing)
+       (R v∷ lhs v∷ varList ∷ [])
+
+
+  normaliserCallWithVars : ℕ → Vars → Term → Term → Term
+  normaliserCallWithVars n vars R lhs =
+      normaliserCallAsTerm R (variableList vars) lhs
+      where
+        variableList : Vars → Arg Term
+        variableList [] = varg (con (quote emptyVec) [])
+        variableList (t ∷ ts)
+          = varg (con (quote _∷vec_) (t v∷ (variableList ts) ∷ []))
+
+
 module pr (R : CommRing ℓ) {n : ℕ} where
   open CommRingStr (snd R)
 
@@ -221,6 +238,16 @@ module CommRingReflection (cring : Term) (names : RingNames) where
             ass n = indexOf n vars
         in (fst r1 ass , fst r2 ass , vars ))
 
+  toAlgebraExpressionLHS : Term → TC (Term × Vars)
+  toAlgebraExpressionLHS lhs = do
+      (e , vars) ← buildExpression lhs
+
+      returnTC (
+        let ass : VarAss
+            ass n = indexOf n vars
+        in (e ass , vars ))
+
+
 private
   checkIsRing : Term → TC Term
   checkIsRing ring = checkType ring (def (quote CommRing) (unknown v∷ []))
@@ -244,6 +271,32 @@ private
       let solution = solverCallWithVars (length vars) vars commRing lhs' rhs'
       unify hole solution
 
+  normalise!-macro : Term → TC Unit
+  normalise!-macro hole =
+      withReduceDefs
+          (false , ((quote ℚ._+_) ∷ (quote (ℚ.-_)) ∷ (quote ℚ._·_) ∷ []))
+    do
+      commRing ← checkIsRing (def (quote ℚCommRing) [])
+      goal ← inferType hole >>= normalise
+      names ← findRingNames commRing
+
+      -- wait-for-type goal
+      just (lhs , rhs) ← get-boundary goal
+        where
+          nothing
+            → typeError(strErr "The CommRingSolver failed to parse the goal "
+                               ∷ termErr goal ∷ [])
+
+      (lhs' , vars) ← CommRingReflection.toAlgebraExpressionLHS commRing names lhs
+
+      let solution = normaliserCallWithVars (length vars) vars commRing lhs'
+
+      unify hole solution
+
 macro
   ℚ! : Term → TC _
   ℚ! = solve!-macro
+
+
+  ℚ↓ : Term → TC _
+  ℚ↓ = normalise!-macro

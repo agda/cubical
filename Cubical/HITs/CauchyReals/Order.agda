@@ -91,7 +91,7 @@ opaque
 
 
 
- +ᵣ-impl : ∀ x y → x +ᵣ y ≡ NonExpanding₂.go sumR x y 
+ +ᵣ-impl : ∀ x y → x +ᵣ y ≡ NonExpanding₂.go sumR x y
  +ᵣ-impl _ _ = refl
 
  rat-+ᵣ-lim : ∀ r x y → rat r +ᵣ lim x y ≡ lim (λ ε → rat r +ᵣ x ε)
@@ -184,9 +184,9 @@ opaque
  maxᵣ : ℝ → ℝ → ℝ
  maxᵣ = NonExpanding₂.go maxR
 
- maxᵣ-impl : ∀ x y → maxᵣ x y ≡ NonExpanding₂.go maxR x y 
+ maxᵣ-impl : ∀ x y → maxᵣ x y ≡ NonExpanding₂.go maxR x y
  maxᵣ-impl _ _ = refl
- 
+
  minᵣ-rat : ∀ a b → minᵣ (rat a) (rat b) ≡ rat (ℚ.min a b)
  minᵣ-rat _ _ = refl
 
@@ -336,24 +336,21 @@ opaque
        x' = x ℚ.+ fst (/3₊ (y-x))
        y' = x' ℚ.+ fst (/3₊ (y-x))
    in ∣ (x' , y') ,
-           ≤ℚ→≤ᵣ x x' (
-              subst (ℚ._≤ x') (ℚ.+IdR x)
-                    (ℚ.≤-o+ 0 (fst (/3₊ (y-x))) x
-                     (ℚ.0≤ℚ₊ (/3₊ (y-x)))) )
-         , subst (ℚ._< y') (ℚ.+IdR x')
-                    (ℚ.<-o+ 0 (fst (/3₊ (y-x))) x'
-                     (ℚ.0<ℚ₊ (/3₊ (y-x))))
-         , ≤ℚ→≤ᵣ y' y
-             (subst2 {x = y' ℚ.+ 0} {y = y'} (ℚ._≤_) (ℚ.+IdR y')
-                ({!!}
-                  ∙∙
-                   cong {x = ℚ.[ 1 / 3 ] ℚ.+ ℚ.[ 1 / 3 ] ℚ.+ ℚ.[ 1 / 3 ]}
-                     {1} (λ a → x ℚ.+ a ℚ.· (y ℚ.- x))
-                    ℚ.decℚ?
-                   ∙∙ (cong (x ℚ.+_) (ℚ.·IdL (y ℚ.- x))
-                       ∙ ℚ!))
-               ((ℚ.≤-o+ 0 (fst (/3₊ (y-x))) y'
-                     (ℚ.0≤ℚ₊ (/3₊ (y-x))))))  ∣₁
+       (let p : ∀ x y → ((x ℚ.+ ((y ℚ.- x) ℚ.· [ 1 / 3 ]))
+                   ℚ.+ ((y ℚ.- x) ℚ.· [ 1 / 3 ])) ℚ.+ ((y ℚ.- x) ℚ.· [ 1 / 3 ]) ≡ y
+            p = ℚ.eqElim₂ _ (ℚ.eqℚ ℤ!)
+        in (≤ℚ→≤ᵣ x x' (
+                 subst (ℚ._≤ x') (ℚ.+IdR x)
+                       (ℚ.≤-o+ 0 (fst (/3₊ (y-x))) x
+                        (ℚ.0≤ℚ₊ (/3₊ (y-x)))) )
+            , subst (ℚ._< y') (ℚ.+IdR x')
+                       (ℚ.<-o+ 0 (fst (/3₊ (y-x))) x'
+                        (ℚ.0<ℚ₊ (/3₊ (y-x))))
+            , ≤ℚ→≤ᵣ y' y
+                (subst2 {x = y' ℚ.+ 0} {y = y'} (ℚ._≤_) (ℚ.+IdR y')
+                    (p x y)
+                  ((ℚ.≤-o+ 0 (fst (/3₊ (y-x))) y'
+                        (ℚ.0≤ℚ₊ (/3₊ (y-x))))))))  ∣₁
 
  <ᵣ→<ℚ : ∀ q r → rat q <ᵣ rat r → q ℚ.< r
  <ᵣ→<ℚ = ElimProp2.go w
@@ -465,7 +462,7 @@ opaque
 
  -ᵣ-impl : ∀ x → -ᵣ x ≡ fst (fromLipschitz (1 , _) ((rat ∘ ℚ.-_ ) , ℚ-isLip)) x
  -ᵣ-impl x = refl
- 
+
  -ᵣ-lip : Lipschitz-ℝ→ℝ 1 -ᵣ_
  -ᵣ-lip = snd -ᵣR
 
@@ -578,7 +575,7 @@ opaque
 
  absᵣ : ℝ → ℝ
  absᵣ = fst absᵣL
- 
+
  absᵣ0 : absᵣ 0 ≡ 0
  absᵣ0 = refl
 
@@ -675,7 +672,7 @@ opaque
  w .Elimℝ-Prop2Sym.rat-ratA r q = (cong -ᵣ_ (+ᵣ-rat _ _) ∙ -ᵣ-rat _) ∙ cong rat (ℚ.-Distr r q) ∙
    sym (+ᵣ-rat _ _) ∙
     cong₂ _+ᵣ_ (sym (-ᵣ-rat _)) (sym (-ᵣ-rat _))
- w .Elimℝ-Prop2Sym.rat-limA r x y x₁ =   
+ w .Elimℝ-Prop2Sym.rat-limA r x y x₁ =
    cong (-ᵣ_) (rat-+ᵣ-lim _ _ _)
     ∙  -ᵣ-lim' _ _
     ∙  (congLim _ _ _ _  λ q → x₁ q ∙ cong (_-ᵣ x q) (-ᵣ-rat r))
@@ -704,9 +701,32 @@ opaque
  minusComm-absᵣ : ∀ x y → absᵣ (x +ᵣ (-ᵣ y)) ≡ absᵣ (y +ᵣ (-ᵣ x))
  minusComm-absᵣ x y = -absᵣ _ ∙ cong absᵣ (-[x-y]≡y-x x y)
 
-
+opaque
+ unfolding _<ᵣ_
  denseℚinℝ : ∀ u v → u <ᵣ v → ∃[ q ∈ ℚ ] ((u <ᵣ rat q) × (rat q <ᵣ v))
- denseℚinℝ u v = {!!}
+ denseℚinℝ u v =
+  PT.map λ ((p , q) , u≤p , p<q , q≤v) →
+  let
+    m = (p ℚ.+ q) ℚ.· [ 1 / 2 ]
+    p<m = subst2 ℚ._<_ (
+      p ℚ.· [ 1 / 2 ] ℚ.+ p ℚ.· [ 1 / 2 ] ≡⟨ sym $ ℚ.·DistL+ p [ 1 / 2 ] [ 1 / 2 ] ⟩
+      p ℚ.· [ 4 / 4 ]                      ≡⟨ cong (p ℚ.·_) (ℚ.[n/n]≡[m/m] 3 0) ⟩
+      p ℚ.· [ 1 / 1 ]                      ≡⟨ ℚ.·IdR p ⟩
+      p                                    ∎)
+      (sym (ℚ.·DistR+ p q [ 1 / 2 ]))
+      (ℚ.<-o+ (p ℚ.· [ 1 / 2 ]) (q ℚ.· [ 1 / 2 ]) (p ℚ.· [ 1 / 2 ])
+        (ℚ.<-·o p q [ 1 / 2 ] (ℚ.0<pos 0 2) p<q))
+    m<q = subst2 ℚ._<_
+      (sym (ℚ.·DistR+ p q [ 1 / 2 ]))
+      (
+      q ℚ.· [ 1 / 2 ] ℚ.+ q ℚ.· [ 1 / 2 ] ≡⟨ sym $ ℚ.·DistL+ q [ 1 / 2 ] [ 1 / 2 ] ⟩
+      q ℚ.· [ 4 / 4 ]                      ≡⟨ cong (q ℚ.·_) (ℚ.[n/n]≡[m/m] 3 0) ⟩
+      q ℚ.· [ 1 / 1 ]                      ≡⟨ ℚ.·IdR q ⟩
+      q                                    ∎)
+      (ℚ.<-+o (p ℚ.· [ 1 / 2 ]) (q ℚ.· [ 1 / 2 ]) (q ℚ.· [ 1 / 2 ])
+        ((ℚ.<-·o p q [ 1 / 2 ] (ℚ.0<pos 0 2) p<q)))
+  in
+    m , ∣ (p , m) , u≤p , p<m , ≤ᵣ-refl _ ∣₁ , ∣ (m , q) , ≤ᵣ-refl _ , m<q , q≤v ∣₁
 
 
 
@@ -717,7 +737,7 @@ opaque
  w : Elimℝ-Prop (λ z → 0 ≤ᵣ absᵣ z)
  w .Elimℝ-Prop.ratA q = isTrans≤≡ᵣ _ _ _ (≤ℚ→≤ᵣ 0 (ℚ.abs' q)
    (subst (0 ℚ.≤_) (ℚ.abs'≡abs q) (ℚ.0≤abs q))) (sym (absᵣ-rat' _))
- w .Elimℝ-Prop.limA x p x₁ = 
+ w .Elimℝ-Prop.limA x p x₁ =
   let
 
       zz : _ ≡ _
@@ -726,12 +746,12 @@ opaque
                λ q → sym (≤ᵣ→≡ (x₁ q)) ∙ maxᵣ-impl _ _
               )
 
-      
+
   in ≡→≤ᵣ ((cong₂ maxᵣ refl (absᵣ-lim' _ _) ∙ maxᵣ-impl _ _)
        ∙ (snd (NonExpanding₂.β-rat-lim' {ℚ.max} maxR 0 (λ q → (absᵣ (x q)))
           λ _ _ → absᵣ-nonExpanding  _ _ _ (p _ _))
          ∙ zz) ∙ sym (absᵣ-lim' _ _))
-  
+
 
  w .Elimℝ-Prop.isPropA _ = isProp≤ᵣ _ _
 
