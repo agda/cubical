@@ -4,10 +4,13 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
+open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎ hiding (map)
 open import Cubical.Data.Unit
@@ -193,6 +196,14 @@ length-map : (f : A → B) → (as : List A)
 length-map f [] = refl
 length-map f (a ∷ as) = cong suc (length-map f as)
 
+intersperse : A → List A → List A
+intersperse _ [] = []
+intersperse a (x ∷ xs) = x ∷ a ∷ intersperse a xs
+
+join : List (List A) → List A
+join [] = []
+join (x ∷ xs) = x ++ join xs
+
 map++ : (f : A → B) → (as bs : List A)
    → map f as ++ map f bs ≡ map f (as ++ bs)
 map++ f [] bs = refl
@@ -301,9 +312,9 @@ split++ (x₁ ∷ xs') ys' (x₂ ∷ xs) ys x =
  in zs , ⊎.map (map-fst (λ q i → p    i  ∷ q i))
                (map-fst (λ q i → p (~ i) ∷ q i)) q
 
-rot : List A → List A
-rot [] = []
-rot (x ∷ xs) = xs ∷ʳ x
+zipWithIndex : List A → List (ℕ × A)
+zipWithIndex [] = []
+zipWithIndex (x ∷ xs) = (zero , x) ∷ map (map-fst suc) (zipWithIndex xs)
 
 take[] : ∀ n → take {A = A} n [] ≡ []
 take[] zero = refl
@@ -317,6 +328,26 @@ lookupAlways : A → List A → ℕ → A
 lookupAlways a [] _ = a
 lookupAlways _ (x ∷ _) zero = x
 lookupAlways a (x ∷ xs) (suc k) = lookupAlways a xs k
+
+rot : List A → List A
+rot [] = []
+rot (x ∷ xs) = xs ∷ʳ x
+
+rotN : ℕ → List A → List A
+rotN n = iter n rot
+
+module _ {A : Type ℓ} (_≟_ : Discrete A) where
+
+ private
+  fa : ℕ → (xs ys : List A) → Maybe (Σ _ λ k → xs ≡ rotN k ys)
+  fa zero _ _ = nothing
+  fa (suc k) xs ys =
+    decRec (just ∘ ((length xs ∸ k) ,_))
+     (λ _ → fa k xs ys) (discreteList _≟_ xs (rotN (length xs ∸ k) ys) )
+
+ findAligment : (xs ys : List A) → Maybe (Σ _ λ k → xs ≡ rotN k ys)
+ findAligment xs ys = fa (suc (length xs)) xs ys
+
 
 module List₂ where
  open import Cubical.HITs.SetTruncation renaming

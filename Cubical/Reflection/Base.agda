@@ -7,6 +7,7 @@ Some basic utilities for reflection
 module Cubical.Reflection.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Data.List.Base
 open import Cubical.Data.Nat.Base
 
@@ -18,6 +19,9 @@ _<|>_ = R.catchTC
 
 _>>_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → R.TC A → R.TC B → R.TC B
 f >> g = f >>= λ _ → g
+
+pure  : ∀ {ℓ} {A : Type ℓ} → A → R.TC A
+pure = R.returnTC
 
 infixl 4 _>>=_ _>>_ _<|>_
 
@@ -31,6 +35,8 @@ pattern varg t = R.arg (R.arg-info R.visible (R.modality R.relevant R.quantity-�
 pattern harg {q = q} t = R.arg (R.arg-info R.hidden (R.modality R.relevant q)) t
 pattern _v∷_ a l = varg a ∷ l
 pattern _h∷_ a l = harg a ∷ l
+
+pattern v[_] a = varg a ∷ []
 
 infixr 5 _v∷_ _h∷_
 
