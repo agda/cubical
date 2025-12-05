@@ -1,4 +1,4 @@
-module Cubical.Tactics.CommRingSolver.IntReflection where
+module Cubical.Tactics.CommRingSolverFast.Reflection where
 
 open import Cubical.Foundations.Prelude hiding (Type)
 
@@ -12,8 +12,8 @@ open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
 open import Cubical.Data.Nat.Literals
-open import Cubical.Data.Int.Base hiding (abs; _-_)
-open import Cubical.Data.Int using (fromNegℤ; fromNatℤ)
+open import Cubical.Data.Int.Fast.Base hiding (abs; _-_)
+open import Cubical.Data.Int.Fast using (fromNegℤ; fromNatℤ)
 open import Cubical.Data.Nat using (ℕ; discreteℕ) renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Bool
 open import Cubical.Data.Bool.SwitchStatement
@@ -23,19 +23,14 @@ open import Cubical.Relation.Nullary.Base
 
 open import Cubical.Algebra.CommRing
 
-open import Cubical.Tactics.CommRingSolver.AlgebraExpression
-open import Cubical.Tactics.CommRingSolver.RawAlgebra
-open import Cubical.Tactics.CommRingSolver.IntAsRawRing
-open import Cubical.Tactics.CommRingSolver.Solver renaming (solve to ringSolve)
+open import Cubical.Tactics.CommRingSolverFast.AlgebraExpression
+open import Cubical.Tactics.CommRingSolverFast.RawAlgebra
+open import Cubical.Tactics.CommRingSolverFast.IntAsRawRing
+open import Cubical.Tactics.CommRingSolverFast.Solver renaming (solve to ringSolve)
 
 open import Cubical.Tactics.Reflection
 open import Cubical.Tactics.Reflection.Variables
 open import Cubical.Tactics.Reflection.Utilities
-
-import Cubical.Data.Int.Fast as ℤ
-import Cubical.Data.Nat as ℕ
-
-import Cubical.Algebra.CommRing.Instances.Int.Fast as Fast
 
 private
   variable
@@ -92,28 +87,6 @@ private
         variableList (t ∷ ts)
           = varg (con (quote _∷vec_) (t v∷ (variableList ts) ∷ []))
 
-  normaliserCallAsTerm : Term → Arg Term → Term → Term
-  normaliserCallAsTerm R varList lhs =
-    def
-       (quote normaliseRing)
-       (R v∷ lhs v∷ varList ∷ [])
-
-  normaliserCallWithVars : ℕ → Vars → Term → Term → Term
-  normaliserCallWithVars n vars R lhs =
-      normaliserCallAsTerm R (variableList vars) lhs
-      where
-        variableList : Vars → Arg Term
-        variableList [] = varg (con (quote emptyVec) [])
-        variableList (t ∷ ts)
-          = varg (con (quote _∷vec_) (t v∷ (variableList ts) ∷ []))
-
-
-  printVars : Vars → TC _
-  printVars [] = returnTC tt
-  printVars (x ∷ xs) = do
-    debugPrint "intSolver" 20 [ termErr x ]
-    printVars xs
-
 module pr (R : CommRing ℓ) {n : ℕ} where
   open CommRingStr (snd R)
 
@@ -122,8 +95,6 @@ module pr (R : CommRing ℓ) {n : ℕ} where
 
   1' : Expr ℤAsRawRing (fst R) n
   1' = K 1
-
-
 
 module CommRingReflection (cring : Term) (names : RingNames) where
   open pr
@@ -173,58 +144,10 @@ module CommRingReflection (cring : Term) (names : RingNames) where
   `-_` (_ v∷ x v∷ []) = op1 (quote -'_) x
   `-_` ts = errorOut ts
 
-  trm1 : Term
-  trm1 = (con (quote ℤ.pos) (con (quote ℕ.suc) (con (quote ℕ.zero) [] v∷ [] ) v∷ []))
-
   polynomialVariable : Maybe ℕ → Term
   polynomialVariable n = con (quote ∣) (finiteNumberAsTerm n v∷ [])
 
-  buildExpressionFromNatLit : ℕ → TC (Template × Vars)
-  buildExpressionFromNatLit ℕ.zero = `0` []
-  buildExpressionFromNatLit (ℕ.suc ℕ.zero) = `1` []
-  buildExpressionFromNatLit (ℕ.suc (ℕ.suc k)) = do
-    (k' , _) ← buildExpressionFromNatLit (ℕ.suc k)
-    returnTC ((λ ass → con (quote _+'_) (def (quote 1') (cring v∷ []) v∷ k' ass v∷ [])) ,
-             [])
-
-  buildExpressionFromNat : Term → TC (Template × Vars)
-  buildExpressionFromNat (lit (nat x)) = buildExpressionFromNatLit x
-  buildExpressionFromNat (con (quote ℕ.zero) []) = `0` []
-  buildExpressionFromNat (con (quote ℕ.suc) (con (quote ℕ.zero) [] v∷ [] )) = `1` []
-  buildExpressionFromNat (con (quote ℕ.suc) (x v∷ [] )) =
-    do
-    debugPrint "intSolver" 20  (strErr "fromNat suc:" ∷ termErr x ∷ [])
-    r1 ← `1` []
-    r2 ← buildExpressionFromNat x
-    returnTC ((λ ass → con (quote _+'_) (fst r1 ass v∷ fst r2 ass v∷ [])) ,
-             appendWithoutRepetition (snd r1) (snd r2))
-  buildExpressionFromNat (def (quote ℕ._+_) (x v∷ y v∷ [])) =
-    do
-    debugPrint "intSolver" 20  (strErr "buildNateExpr ℕ._+_ :" ∷ termErr x ∷ [])
-    r1 ← buildExpressionFromNat x
-    r2 ← buildExpressionFromNat y
-    returnTC ((λ ass → con (quote _+'_) (fst r1 ass v∷ fst r2 ass v∷ [])) ,
-             appendWithoutRepetition (snd r1) (snd r2))
-  buildExpressionFromNat (def (quote ℕ._·_) (x v∷ y v∷ [])) =
-    do
-    r1 ← buildExpressionFromNat x
-    r2 ← buildExpressionFromNat y
-    returnTC ((λ ass → con (quote _·'_) (fst r1 ass v∷ fst r2 ass v∷ [])) ,
-             appendWithoutRepetition (snd r1) (snd r2))
-  buildExpressionFromNat (def (quote ℤ._ℕ-_) (x v∷ (con (quote ℕ.suc) (y v∷ [] )) v∷ [])) =
-    do
-    r1 ← buildExpressionFromNat x
-    r2 ← do y' ← do u1 ← `1` []
-                    u2 ← buildExpressionFromNat y
-                    returnTC {A = Template × Vars} ((λ ass → con (quote _+'_) (fst u1 ass v∷ fst u2 ass v∷ [])) ,
-                         appendWithoutRepetition (snd u1) (snd u2))
-            returnTC {A = Template × Vars} ((λ ass → con (quote -'_) (fst y' ass v∷ [])) , snd y')
-    returnTC ((λ ass → con (quote _+'_) (fst r1 ass v∷ fst r2 ass v∷ [])) ,
-             appendWithoutRepetition (snd r1) (snd r2))
-  buildExpressionFromNat t' =
-   let t = (con (quote ℤ.pos) (t' v∷ []))
-   in (returnTC ((λ ass → polynomialVariable (ass t)) , t ∷ []))
-
+  -- buildExpression : Term → Template × Vars
   buildExpression v@(var _ _) =
     returnTC ((λ ass → polynomialVariable (ass v)) ,
              v ∷ [])
@@ -236,17 +159,6 @@ module CommRingReflection (cring : Term) (names : RingNames) where
       case is+ ⇒ `_+_` xs       break
       case is- ⇒ `-_` xs        break
       default⇒ (returnTC ((λ ass → polynomialVariable (ass t)) , t ∷ []))
-
-  buildExpression t@(con (quote ℤ.pos) (x v∷ [])) = do
-    debugPrint "intSolver" 20  (strErr "buildExpr pos:" ∷ termErr x ∷ [])
-    buildExpressionFromNat x
-  buildExpression t@(con (quote ℤ.negsuc) (x v∷ [])) =
-   do debugPrint "intSolver" 20  (strErr "buildExpr negsuc:" ∷ termErr x ∷ [])
-      y ← do r1 ← `1` []
-             r2 ← buildExpressionFromNat x
-             returnTC {A = Template × Vars} ((λ ass → con (quote _+'_) (fst r1 ass v∷ fst r2 ass v∷ [])) ,
-                   appendWithoutRepetition (snd r1) (snd r2))
-      returnTC ((λ ass → con (quote -'_) (fst y ass v∷ [])) , snd y)
   buildExpression t@(con n xs) =
     switch (λ f → f n) cases
       case is0 ⇒ `0` xs         break
@@ -269,27 +181,14 @@ module CommRingReflection (cring : Term) (names : RingNames) where
             ass n = indexOf n vars
         in (fst r1 ass , fst r2 ass , vars ))
 
-  toAlgebraExpressionLHS : Term → TC (Term × Vars)
-  toAlgebraExpressionLHS lhs = do
-      (e , vars) ← buildExpression lhs
-
-      returnTC (
-        let ass : VarAss
-            ass n = indexOf n vars
-        in (e ass , vars ))
-
-
 private
   checkIsRing : Term → TC Term
   checkIsRing ring = checkType ring (def (quote CommRing) (unknown v∷ []))
 
-  solve!-macro : Term → TC Unit
-  solve!-macro hole =
-      withReduceDefs
-     (false , ((quote ℕ._·_) ∷
-        (quote ℕ._+_) ∷ (quote ℤ._+_) ∷ (quote (ℤ.-_)) ∷ (quote ℤ._·_) ∷ (quote ℤ._ℕ-_) ∷ []))
+  solve!-macro : Term → Term → TC Unit
+  solve!-macro uncheckedCommRing hole =
     do
-      commRing ← checkIsRing (def (quote Fast.ℤCommRing) [])
+      commRing ← checkIsRing uncheckedCommRing
       goal ← inferType hole >>= normalise
       names ← findRingNames commRing
 
@@ -301,36 +200,9 @@ private
                                ∷ termErr goal ∷ [])
 
       (lhs' , rhs' , vars) ← CommRingReflection.toAlgebraExpression commRing names (lhs , rhs)
-      printVars vars
       let solution = solverCallWithVars (length vars) vars commRing lhs' rhs'
       unify hole solution
 
-  normalise!-macro : Term → TC Unit
-  normalise!-macro hole =
-      withReduceDefs
-     (false , ((quote ℕ._·_) ∷
-        (quote ℕ._+_) ∷ (quote ℤ._+_) ∷ (quote (ℤ.-_)) ∷ (quote ℤ._·_) ∷ (quote ℤ._ℕ-_) ∷ []))
-    do
-      commRing ← checkIsRing (def (quote Fast.ℤCommRing) [])
-      goal ← inferType hole >>= normalise
-      names ← findRingNames commRing
-
-      -- wait-for-type goal
-      just (lhs , rhs) ← get-boundary goal
-        where
-          nothing
-            → typeError(strErr "The CommRingSolver failed to parse the goal "
-                               ∷ termErr goal ∷ [])
-
-      (lhs' , vars) ← CommRingReflection.toAlgebraExpressionLHS commRing names lhs
-      printVars vars
-      let solution = normaliserCallWithVars (length vars) vars commRing lhs'
-      unify hole solution
-
-
 macro
-  ℤ! : Term → TC _
-  ℤ! = solve!-macro
-
-  ℤ↓ : Term → TC _
-  ℤ↓ = normalise!-macro
+  solve! : Term → Term → TC _
+  solve! = solve!-macro

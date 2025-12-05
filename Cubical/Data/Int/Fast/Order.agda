@@ -25,7 +25,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
 
 open import Cubical.Algebra.CommRing.Instances.Int.Fast
-open import Cubical.Tactics.CommRingSolver.IntReflection
+open import Cubical.Tactics.CommRingSolverFast.IntReflection
 
 infix 4 _≤_ _<_ _≥_ _>_
 

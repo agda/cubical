@@ -12,6 +12,10 @@ infixl 6 _+_ _-_
 ℕ-hlp m-n@zero n-m = - (pos n-m)
 ℕ-hlp m-n@(suc _) n-m = pos m-n
 
+ℕ-hlp-0 : ∀ n → ℕ-hlp n 0 ≡ (pos n)
+ℕ-hlp-0 zero = refl
+ℕ-hlp-0 (suc n) = refl
+
 _ℕ-_ : ℕ → ℕ → ℤ
 m ℕ- n = ℕ-hlp (m ℕ.∸ n) (n ℕ.∸ m)
 

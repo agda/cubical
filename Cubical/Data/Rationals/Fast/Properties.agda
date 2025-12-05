@@ -14,7 +14,7 @@ open import Cubical.HITs.SetQuotients as SetQuotient using () renaming (_/_ to _
 
 open import Cubical.Data.Nat as ℕ using (ℕ; zero; suc) renaming
   (_+_ to _+ℕ_ ; _·_ to _·ℕ_)
-open import Cubical.Data.NatPlusOne
+open import Cubical.Data.NatPlusOne hiding (_+₁_)
 open import Cubical.Data.Sigma
 import Cubical.Data.Bool as 𝟚
 
@@ -26,7 +26,7 @@ open import Cubical.Data.Rationals.Fast.Base
 
 open import Cubical.Data.Nat.GCD
 open import Cubical.Data.Nat.Coprime
-open import Cubical.Tactics.CommRingSolver.IntReflection
+open import Cubical.Tactics.CommRingSolverFast.IntReflection
 
 ∼→sign≡sign : ∀ a a' b b' → (a , b) ∼ (a' , b') → ℤ.sign a ≡ ℤ.sign a'
 ∼→sign≡sign (ℤ.pos zero)    (ℤ.pos zero)    (1+ _) (1+ _) = λ _ → refl
@@ -689,9 +689,39 @@ x+x≡2x x = cong₂ _+_
     ∙ sym (·DistR+ 1 1 x)
 
 
-eqElim : (lrhs : ℚ → ℚ × ℚ) →
-  (∀ {k m} → fst (lrhs ([ (k , 1+ m) ]))
+eqElimTy : (lrhs : ℚ → ℚ × ℚ) → Type
+eqElimTy lrhs = (∀ {k m} → fst (lrhs ([ (k , 1+ m) ]))
         ≡  snd (lrhs ([ (k , 1+ m) ])))
+eqElim₂Ty : (lrhs : ℚ → ℚ → ℚ × ℚ) → Type
+eqElim₂Ty lrhs = (∀ {k m k' m'} → fst (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ])
+        ≡  snd (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ]))
+        
+eqElim₃Ty : (lrhs : ℚ → ℚ → ℚ → ℚ × ℚ) → Type
+eqElim₃Ty lrhs = (∀ {k m k' m' k'' m''} → fst (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ] [ (k'' , 1+ m'') ])
+        ≡  snd (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ] [ (k'' , 1+ m'') ]))
+
+eqElim₄Ty : (lrhs : ℚ → ℚ → ℚ → ℚ → ℚ × ℚ) → Type
+eqElim₄Ty lrhs = (∀ {k m k' m' k'' m'' k''' m'''} →
+  fst (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ] [ (k'' , 1+ m'') ] [ (k''' , 1+ m''') ])
+        ≡  snd (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ] [ (k'' , 1+ m'') ] [ (k''' , 1+ m''') ]))
+
+
+eqElim₅Ty : (lrhs : ℚ → ℚ → ℚ → ℚ → ℚ → ℚ × ℚ) → Type
+eqElim₅Ty lrhs = (∀ {k m k' m' k'' m'' k''' m'''  k'''' m''''} →
+  fst (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ] [ (k'' , 1+ m'') ] [ (k''' , 1+ m''') ] [ (k'''' , 1+ m'''') ])
+        ≡  snd (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ] [ (k'' , 1+ m'') ] [ (k''' , 1+ m''') ] [ (k'''' , 1+ m'''') ]))
+
+
+eqElim₆Ty : (lrhs : ℚ → ℚ → ℚ → ℚ → ℚ → ℚ → ℚ × ℚ) → Type
+eqElim₆Ty lrhs = (∀ {k m k' m' k'' m'' k''' m'''  k'''' m'''' k''''' m'''''} →
+  fst (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ] [ (k'' , 1+ m'') ] [ (k''' , 1+ m''') ] [ (k'''' , 1+ m'''') ]
+   [ (k''''' , 1+ m''''') ])
+        ≡  snd (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ] [ (k'' , 1+ m'') ] [ (k''' , 1+ m''') ]
+         [ (k'''' , 1+ m'''') ] [ (k''''' , 1+ m''''') ]))
+
+
+
+eqElim : (lrhs : ℚ → ℚ × ℚ) → eqElimTy lrhs
     → ∀ (ε : ℚ) → fst (lrhs ε) ≡ snd (lrhs ε)
 eqElim lrhs p = SetQuotient.ElimProp.go w
   where
@@ -700,12 +730,51 @@ eqElim lrhs p = SetQuotient.ElimProp.go w
   w .SetQuotient.ElimProp.isPropB _ = isSetℚ _ _
   w .SetQuotient.ElimProp.f (n , (1+ n₁)) = p {n} {n₁}
 
-eqElim₂ : (lrhs : ℚ → ℚ → ℚ × ℚ) →
-  (∀ {k m k' m'} → fst (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ])
-        ≡  snd (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ]))
+eqElim₂ : (lrhs : ℚ → ℚ → ℚ × ℚ) → eqElim₂Ty lrhs
     → ∀ (x y : ℚ) → fst (lrhs x y) ≡ (snd (lrhs x y))
 eqElim₂ lrhs p = SetQuotient.ElimProp2.go w
   where
   w : SetQuotient.ElimProp2 (λ z z' → fst (lrhs z z') ≡ snd (lrhs z z'))
   w .SetQuotient.ElimProp2.isPropB _ _ = isSetℚ _ _
   w .SetQuotient.ElimProp2.f (n , (1+ n₁)) (m , (1+ m₁)) = p {n} {n₁} {m} {m₁}
+
+eqElim₃ : (lrhs : ℚ → ℚ → ℚ → ℚ × ℚ) → eqElim₃Ty lrhs
+    → ∀ (x y z : ℚ) → fst (lrhs x y z) ≡ (snd (lrhs x y z))
+eqElim₃ lrhs p = SetQuotient.ElimProp3.go w
+  where
+  w : SetQuotient.ElimProp3 (λ z z' z'' → fst (lrhs z z' z'') ≡ snd (lrhs z z' z''))
+  w .SetQuotient.ElimProp3.isPropB _ _ _ = isSetℚ _ _
+  w .SetQuotient.ElimProp3.f (n , (1+ n₁)) (m , (1+ m₁)) (m' , (1+ m₁')) = p {n} {n₁} {m} {m₁} {m'} {m₁'}
+
+eqElim₄ : (lrhs : ℚ → ℚ → ℚ → ℚ → ℚ × ℚ) → eqElim₄Ty lrhs
+    → ∀ (x y z z' : ℚ) → fst (lrhs x y z z') ≡ (snd (lrhs x y z z'))
+eqElim₄ lrhs p = SetQuotient.ElimProp4.go w
+  where
+  w : SetQuotient.ElimProp4 (λ z z' z'' z''' → fst (lrhs z z' z'' z''') ≡ snd (lrhs z z' z'' z'''))
+  w .SetQuotient.ElimProp4.isPropB _ _ _ _ = isSetℚ _ _
+  w .SetQuotient.ElimProp4.f (n , (1+ n₁)) (m , (1+ m₁)) (m' , (1+ m₁')) (m'' , (1+ m₁'')) =
+   p {n} {n₁} {m} {m₁} {m'} {m₁'} {m''} {m₁''}
+   
+
+eqElim₅ : (lrhs : ℚ → ℚ → ℚ → ℚ → ℚ → ℚ × ℚ) → eqElim₅Ty lrhs
+    → ∀ (x y z z' z'' : ℚ) → fst (lrhs x y z z' z'') ≡ (snd (lrhs x y z z' z''))
+eqElim₅ lrhs p = SetQuotient.ElimProp5.go w
+  where
+  w : SetQuotient.ElimProp5 (λ z z' z'' z''' z'''' →
+    fst (lrhs z z' z'' z''' z'''') ≡ snd (lrhs z z' z'' z''' z''''))
+  w .SetQuotient.ElimProp5.isPropB _ _ _ _ _ = isSetℚ _ _
+  w .SetQuotient.ElimProp5.f (n , (1+ n₁)) (m , (1+ m₁)) (m' , (1+ m₁')) (m'' , (1+ m₁'')) (m''' , (1+ m₁''')) =
+   p {n} {n₁} {m} {m₁} {m'} {m₁'} {m''} {m₁''} {m'''} {m₁'''}
+
+
+eqElim₆ : (lrhs : ℚ → ℚ → ℚ → ℚ → ℚ → ℚ → ℚ × ℚ) → eqElim₆Ty lrhs
+    → ∀ (x y z z' z'' z''' : ℚ) → fst (lrhs x y z z' z'' z''') ≡ (snd (lrhs x y z z' z'' z'''))
+eqElim₆ lrhs p = SetQuotient.ElimProp6.go w
+  where
+  w : SetQuotient.ElimProp6 (λ z z' z'' z''' z'''' z''''' →
+    fst (lrhs z z' z'' z''' z'''' z''''') ≡ snd (lrhs z z' z'' z''' z'''' z'''''))
+  w .SetQuotient.ElimProp6.isPropB _ _ _ _ _ _ = isSetℚ _ _
+  w .SetQuotient.ElimProp6.f (n , (1+ n₁)) (m , (1+ m₁)) (m' , (1+ m₁')) (m'' , (1+ m₁''))
+   (m''' , (1+ m₁''')) (m'''' , (1+ m₁'''')) =
+   p {n} {n₁} {m} {m₁} {m'} {m₁'} {m''} {m₁''} {m'''} {m₁'''} {m''''} {m₁''''}
+   

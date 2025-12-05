@@ -12,8 +12,8 @@ open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
 open import Cubical.Data.Nat.Literals
-open import Cubical.Data.Int.Base hiding (abs; _-_)
-open import Cubical.Data.Int using (fromNegℤ; fromNatℤ)
+open import Cubical.Data.Int.Fast.Base hiding (abs; _-_)
+open import Cubical.Data.Int.Fast using (fromNegℤ; fromNatℤ)
 open import Cubical.Data.Nat using (ℕ; discreteℕ) renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Bool
 open import Cubical.Data.Bool.SwitchStatement
@@ -75,33 +75,33 @@ private
           is- = buildMatcher (quote (CommRingStr.-_)) (getName -altName)
         }
 
-  solverCallAsTerm : Term → Arg Term → Term → Term → Term
-  solverCallAsTerm R varList lhs rhs =
+  solverCallAsTerm : Term → Term → Arg Term → Term → Term → Term
+  solverCallAsTerm R homR varList lhs rhs =
     def
        (quote ringSolve)
-       (R v∷ lhs v∷ rhs
+       (R v∷ homR v∷ lhs v∷ rhs
          v∷ varList
          ∷ (def (quote refl) []) v∷ [])
 
-  solverCallWithVars : ℕ → Vars → Term → Term → Term → Term
-  solverCallWithVars n vars R lhs rhs =
-      solverCallAsTerm R (variableList vars) lhs rhs
+  solverCallWithVars : ℕ → Vars → Term → Term → Term → Term → Term
+  solverCallWithVars n vars R homR lhs rhs =
+      solverCallAsTerm R homR (variableList vars) lhs rhs
       where
         variableList : Vars → Arg Term
         variableList [] = varg (con (quote emptyVec) [])
         variableList (t ∷ ts)
           = varg (con (quote _∷vec_) (t v∷ (variableList ts) ∷ []))
 
-  normaliserCallAsTerm : Term → Arg Term → Term → Term
-  normaliserCallAsTerm R varList lhs =
+  normaliserCallAsTerm : Term → Term → Arg Term → Term → Term
+  normaliserCallAsTerm R homR varList lhs =
     def
        (quote normaliseRing)
-       (R v∷ lhs v∷ varList ∷ [])
+       (R v∷ homR v∷ lhs v∷ varList ∷ [])
 
 
-  normaliserCallWithVars : ℕ → Vars → Term → Term → Term
-  normaliserCallWithVars n vars R lhs =
-      normaliserCallAsTerm R (variableList vars) lhs
+  normaliserCallWithVars : ℕ → Vars → Term → Term → Term → Term
+  normaliserCallWithVars n vars R homR lhs =
+      normaliserCallAsTerm R homR (variableList vars) lhs
       where
         variableList : Vars → Arg Term
         variableList [] = varg (con (quote emptyVec) [])
@@ -189,6 +189,8 @@ module CommRingReflection (cring : Term) (names : RingNames) where
           v∷ (con (quote NatPlusOne.1+_) (lit (nat 0) v∷ [] )) v∷ []) ) v∷ [])) =
            `0` []
 
+
+
   buildExpression (con (quote SetQuotient.[_])
         (_ ∷ _ ∷ _ ∷ _ ∷ (con (quote _,_)
          (_ ∷ _ ∷ _ ∷ _ ∷
@@ -208,6 +210,25 @@ module CommRingReflection (cring : Term) (names : RingNames) where
 
             -- typeError (termErr t ∷ termErr t' ∷ [])
           -- typeError (map (λ _ → strErr " X ") xs)
+
+
+  buildExpression (con (quote SetQuotient.[_])
+        (_ ∷ _ ∷ _ ∷ _ ∷ (con (quote _,_)
+         (_ ∷ _ ∷ _ ∷ _ ∷
+          (con (quote ℤ.pos) (lit (nat k) v∷ []))
+          v∷ (con (quote NatPlusOne.1+_) (lit (nat 0) v∷ [] )) v∷ []) ) v∷ [])) =
+           typeError []
+
+
+
+  buildExpression (con (quote SetQuotient.[_])
+        (_ ∷ _ ∷ _ ∷ _ ∷ (con (quote _,_)
+         (_ ∷ _ ∷ _ ∷ _ ∷
+          (con (quote ℤ.pos) (lit (nat k) v∷ []))
+          v∷ (con (quote NatPlusOne.1+_) (con (quote ℕ.zero) [] v∷ [] )) v∷ []) ) v∷ [])) =
+           typeError []
+
+
   buildExpression t@(def n xs) =
     switch (λ f → f n) cases
       case is0 ⇒ `0` xs         break
@@ -252,11 +273,17 @@ private
   checkIsRing : Term → TC Term
   checkIsRing ring = checkType ring (def (quote CommRing) (unknown v∷ []))
 
+  -- checkIsRingHom : Term → TC Term
+  -- checkIsRingHom ring = checkType ring (def (quote CommRing) (unknown v∷ []))
+
+  homR = def (quote ℤ→ℚCommRingHom) []
+
   solve!-macro : Term → TC Unit
   solve!-macro hole = withReduceDefs
      (false , ((quote ℚ._+_) ∷ (quote (ℚ.-_)) ∷ (quote ℚ._·_) ∷ []))
     do
       commRing ← checkIsRing (def (quote ℚCommRing) [])
+      
       goal ← inferType hole >>= normalise
       names ← findRingNames commRing
 
@@ -268,7 +295,7 @@ private
                                ∷ termErr goal ∷ [])
 
       (lhs' , rhs' , vars) ← CommRingReflection.toAlgebraExpression commRing names (lhs , rhs)
-      let solution = solverCallWithVars (length vars) vars commRing lhs' rhs'
+      let solution = solverCallWithVars (length vars) vars commRing homR lhs' rhs'
       unify hole solution
 
   normalise!-macro : Term → TC Unit
@@ -277,6 +304,7 @@ private
           (false , ((quote ℚ._+_) ∷ (quote (ℚ.-_)) ∷ (quote ℚ._·_) ∷ []))
     do
       commRing ← checkIsRing (def (quote ℚCommRing) [])
+      
       goal ← inferType hole >>= normalise
       names ← findRingNames commRing
 
@@ -289,13 +317,13 @@ private
 
       (lhs' , vars) ← CommRingReflection.toAlgebraExpressionLHS commRing names lhs
 
-      let solution = normaliserCallWithVars (length vars) vars commRing lhs'
+      let solution = normaliserCallWithVars (length vars) vars commRing homR lhs'
 
       unify hole solution
 
 macro
-  ℚ! : Term → TC _
-  ℚ! = solve!-macro
+  Fℚ! : Term → TC _
+  Fℚ! = solve!-macro
 
 
   ℚ↓ : Term → TC _

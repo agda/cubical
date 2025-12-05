@@ -774,6 +774,68 @@ record ElimProp3 {A : Type ℓ} {R : A → A → Type ℓ'}
    w' .ElimProp.f = f x y
 
 
+
+
+record ElimProp4 {A : Type ℓ} {R : A → A → Type ℓ'}
+        (B : A / R → A / R → A / R → A / R →  Type ℓ'') :
+     Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')  where
+ no-eta-equality
+ field
+  isPropB : ∀ x y z z' → isProp (B x y z z')
+  f : ∀ x y z z' → B [ x ] [ y ] [ z ] [ z' ]
+
+ go : ∀ x y z z' → B x y z z'
+ go = ElimProp3.go w
+  where
+  w : ElimProp3 (λ z z₁ z₂ → (z₃ : A / R) → B z z₁ z₂ z₃)
+  w .ElimProp3.isPropB _ _ _ = isPropΠ λ _ → isPropB _ _ _ _
+  w .ElimProp3.f x y z = ElimProp.go w'
+   where
+   w' : ElimProp (λ z' → B [ x ] [ y ] [ z ] z')
+   w' .ElimProp.isPropB _ = isPropB _ _ _ _
+   w' .ElimProp.f = f x y z
+
+
+record ElimProp5 {A : Type ℓ} {R : A → A → Type ℓ'}
+        (B : A / R → A / R → A / R → A / R → A / R →  Type ℓ'') :
+     Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')  where
+ no-eta-equality
+ field
+  isPropB : ∀ x y z z' z'' → isProp (B x y z z' z'')
+  f : ∀ x y z z' z'' → B [ x ] [ y ] [ z ] [ z' ] [ z'' ]
+
+ go : ∀ x y z z' z'' → B x y z z' z''
+ go = ElimProp4.go w
+  where
+  w : ElimProp4 (λ z z₁ z₂ z₃ → (z₄ : A / R) → B z z₁ z₂ z₃ z₄)
+  w .ElimProp4.isPropB _ _ _ _ = isPropΠ λ _ → isPropB _ _ _ _ _
+  w .ElimProp4.f x y z z' = ElimProp.go w'
+   where
+   w' : ElimProp (λ z'' → B [ x ] [ y ] [ z ] [ z' ] z'')
+   w' .ElimProp.isPropB _ = isPropB _ _ _ _ _
+   w' .ElimProp.f = f x y z z'
+
+
+record ElimProp6 {A : Type ℓ} {R : A → A → Type ℓ'}
+        (B : A / R → A / R → A / R → A / R → A / R → A / R →  Type ℓ'') :
+     Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')  where
+ no-eta-equality
+ field
+  isPropB : ∀ x y z z' z'' z''' → isProp (B x y z z' z'' z''')
+  f : ∀ x y z z' z'' z''' → B [ x ] [ y ] [ z ] [ z' ] [ z'' ]  [ z''' ]
+
+ go : ∀ x y z z' z'' z''' → B x y z z' z'' z'''
+ go = ElimProp5.go w
+  where
+  w : ElimProp5 (λ z z₁ z₂ z₃ z₄ → (z₅ : A / R) → B z z₁ z₂ z₃ z₄ z₅)
+  w .ElimProp5.isPropB _ _ _ _ _ = isPropΠ λ _ → isPropB _ _ _ _ _ _
+  w .ElimProp5.f x y z z' z'' = ElimProp.go w'
+   where
+   w' : ElimProp (λ z''' → B [ x ] [ y ] [ z ] [ z' ] [ z'' ] z''')
+   w' .ElimProp.isPropB _ = isPropB _ _ _ _ _ _
+   w' .ElimProp.f = f x y z z' z''
+
+
 module _ {A : Type ℓ} {B : Type ℓ'} (R : A → A → Type ℓ'')
          (isom : Iso A B) where
  module 𝓘 = Iso isom

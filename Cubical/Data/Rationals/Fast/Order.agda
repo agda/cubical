@@ -16,6 +16,8 @@ open import Cubical.Data.Int.Fast.Divisibility as ℤ
 open import Cubical.Data.Rationals.Fast.Base as ℚ
 open import Cubical.Data.Rationals.Fast.Properties as ℚ
 open import Cubical.Data.Nat as ℕ
+open import Cubical.Data.List using (List;[];_∷_)
+open import Cubical.Data.Bool using (Bool;true;false;if_then_else_)
 open import Cubical.Data.Nat.Mod as ℕ
 open import Cubical.Data.NatPlusOne
 open import Cubical.Data.Sigma
@@ -26,7 +28,7 @@ open import Cubical.HITs.SetQuotients
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
-open import Cubical.Tactics.CommRingSolver.IntReflection
+open import Cubical.Tactics.CommRingSolverFast.IntReflection
 
 infix 4 _≤_ _<_ _≥_ _>_
 
@@ -975,3 +977,50 @@ eqElim₂₊ {lhs} {rhs} p {ε , 0<ε} {ε' , 0<ε'} = ElimProp2.go w ε ε' 0<�
   w : ElimProp2 (λ z z' → ∀ p p' →  lhs (z , p) (z' , p') ≡ rhs (z , p) (z' , p'))
   w .ElimProp2.isPropB _ _ = isPropΠ2 λ _ _ → isSetℚ _ _
   w .ElimProp2.f (ℤ.pos (suc n) , (1+ n₁)) (ℤ.pos (suc m) , (1+ m₁)) _ _ = p n n₁ m m₁
+
+
+module EqElims where
+ Signature : Type
+ Signature = List Bool
+
+ lrhsDom : Bool → Type
+ lrhsDom = if_then ℚ₊ else ℚ
+
+ lrhsDomFst : Bool → Type 
+ lrhsDomFst = if_then ℕ else ℤ
+ 
+ lrhsCtr : ∀ b → lrhsDomFst b → ℕ → (lrhsDom b)
+ lrhsCtr false k m = [ k , 1+ m ]
+ lrhsCtr true n m = [ ℤ.pos (suc n) , (1+ m) ] , _
+ 
+ LRhs : Signature → Type
+ LRhs [] = ℚ × ℚ
+ LRhs (x ∷ xs) = lrhsDom x → LRhs xs
+
+ LemType : ∀ s → LRhs s → Type
+ LemType [] (lhs , rhs) = lhs ≡ rhs
+ LemType (x ∷ xs) lrhs = (k : lrhsDomFst x) (m : ℕ) → LemType xs (lrhs (lrhsCtr x k m))
+
+
+ EqType : ∀ s → LRhs s → Type
+ EqType [] (lhs , rhs) = lhs ≡ rhs
+ EqType (x ∷ xs) lrhs = (q : lrhsDom x) → EqType xs (lrhs q) 
+
+ isPropEqType : ∀ s → (lrhs : LRhs s) → isProp (EqType s lrhs)
+ isPropEqType [] lrhs = isSetℚ _ _
+ isPropEqType (_ ∷ s) lrhs = isPropΠ $ isPropEqType s ∘ lrhs
+ 
+ EllimEqₛ : ∀ s → (lrhs : LRhs s) → LemType s lrhs → EqType s lrhs
+ EllimEqₛ [] lrhs e = e
+ EllimEqₛ (false ∷ xs) lrhs e = ElimProp.go w
+  where
+  w : ElimProp _
+  w .ElimProp.isPropB = isPropEqType xs ∘ lrhs
+  w .ElimProp.f (k , 1+ m) = EllimEqₛ xs (lrhs _) (e k m)
+  
+ EllimEqₛ (true ∷ xs) lrhs e = uncurry (ElimProp.go w)
+  where
+  w : ElimProp (λ z → ∀ p → EqType xs (lrhs (z , p)))
+  w .ElimProp.isPropB q = isPropΠ λ _ → isPropEqType xs (lrhs (q , _))
+  w .ElimProp.f (ℤ.pos (suc n) , (1+ m)) _ = EllimEqₛ xs (lrhs _) (e n m)
+

@@ -35,7 +35,7 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int.Fast
-open import Cubical.Tactics.CommRingSolver.IntReflection
+open import Cubical.Tactics.CommRingSolverFast.IntReflection
 
 
 private

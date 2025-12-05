@@ -22,6 +22,12 @@ finiteNumberAsTerm (just ℕ.zero) = con (quote fzero) []
 finiteNumberAsTerm (just (ℕ.suc n)) = con (quote fsuc) (finiteNumberAsTerm (just n) v∷ [])
 finiteNumberAsTerm _ = unknown
 
+natAsTerm : Maybe ℕ → Term
+natAsTerm (just ℕ.zero) = con (quote ℕ.zero) []
+natAsTerm (just (ℕ.suc n)) = con (quote ℕ.suc) (natAsTerm (just n) v∷ [])
+natAsTerm _ = unknown
+
+
 -- error message helper
 errorOut : List (Arg Term) → TC (Template × Vars)
 errorOut something = typeError (strErr "Don't know what to do with " ∷ map (λ {(arg _ t) → termErr t}) something)

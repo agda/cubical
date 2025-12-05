@@ -38,8 +38,8 @@ open import Cubical.Relation.Binary.Base
 open import Cubical.Data.Rationals.Fast.Order
 
 open import Cubical.Algebra.CommRing.Instances.Rationals.Fast
-open import Cubical.Tactics.CommRingSolver.IntReflection
-open import Cubical.Tactics.CommRingSolver.FastRationalsReflection
+open import Cubical.Tactics.CommRingSolverFast.IntReflection
+open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
 
 
 decℚ? : ∀ {x y} → {𝟚.True (discreteℚ x y)} →  (x ≡ y)
@@ -754,6 +754,10 @@ invℚ₊Dist· = uncurry (flip ∘ uncurry ∘ ElimProp2.go w)
 
 /3₊ : ℚ₊ → ℚ₊
 /3₊ = _ℚ₊· ([ 1 / 3 ] , tt)
+
+
+/4 : ℚ → ℚ
+/4 = _· [ 1 / 4 ]
 
 /4₊ : ℚ₊ → ℚ₊
 /4₊ = _ℚ₊· ([ 1 / 4 ] , tt)

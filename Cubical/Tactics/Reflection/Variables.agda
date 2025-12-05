@@ -20,6 +20,7 @@ open import Agda.Builtin.Nat using () renaming (_==_ to _=ℕ_)
 open import Cubical.Reflection.Base
 open import Cubical.Data.Bool
 open import Cubical.Data.List
+open import Cubical.Data.Unit
 open import Cubical.Data.Maybe
 open import Cubical.Data.Nat using (ℕ)
 
@@ -33,6 +34,13 @@ private
 Vars = List Term
 VarAss = Term → Maybe ℕ
 Template = VarAss → Term
+
+printVars : String → Vars → TC _
+printVars msg [] = returnTC tt
+printVars msg (x ∷ xs) = do
+  debugPrint msg 20 [ termErr x ]
+  printVars msg xs
+
 
 private
   _=N_ = primQNameEquality

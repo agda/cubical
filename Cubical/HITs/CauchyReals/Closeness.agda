@@ -18,6 +18,7 @@ open import Cubical.Relation.Binary.Properties
 open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.HITs.CauchyReals.Base
+open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
 open import Cubical.Tactics.CommRingSolver.FastRationalsReflection
 
 -- HoTT Lemma (11.3.8)

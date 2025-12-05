@@ -21,6 +21,11 @@ infixl 7 _·₊₁_
 _·₊₁_ : ℕ₊₁ → ℕ₊₁ → ℕ₊₁
 (1+ m) ·₊₁ (1+ n) = 1+ (n + m · (suc n))
 
+
+fromNatℕ₊₁+' : ∀ n m → fromNat (suc n) +'₁ fromNat (suc m) ≡ fromNat (suc n + suc m)
+fromNatℕ₊₁+' n m = refl
+
+
 private
   ℕ₊₁→ℕ-·₊₁-comm : ∀ m n → ℕ₊₁→ℕ (m ·₊₁ n) ≡ (ℕ₊₁→ℕ m) · (ℕ₊₁→ℕ n)
   ℕ₊₁→ℕ-·₊₁-comm (1+ m) (1+ n) = refl

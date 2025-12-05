@@ -5,7 +5,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat as ℕ using (discreteℕ)
-open import Cubical.Data.NatPlusOne
+open import Cubical.Data.NatPlusOne hiding (_+₁_)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int.Fast
 
@@ -19,6 +19,8 @@ open BinaryRelation
 ℕ₊₁→ℤ : ℕ₊₁ → ℤ
 ℕ₊₁→ℤ n = pos (ℕ₊₁→ℕ n)
 
+ℕ₊₁→ℤ· : ∀ n m → ℕ₊₁→ℤ ((1+ n) ·₊₁ ((1+ m))) ≡ ℕ₊₁→ℤ (1+ n) · ℕ₊₁→ℤ (1+ m)
+ℕ₊₁→ℤ· n m = refl
 
 -- ℚ as a set quotient of ℤ × ℕ₊₁ (as in the HoTT book)
 
