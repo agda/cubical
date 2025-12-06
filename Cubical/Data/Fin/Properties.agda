@@ -345,12 +345,12 @@ pigeonhole-special {suc n} f =
         g : Fin (suc n) → Fin n
         g k = punchOut
           {i = f (suc n , <ᵗsucm {n})}
-          {j = f (inject< ≤-refl k)}
+          {j = f (injectSuc k)}
           (λ p → h (k , Fin-fst-≡ {suc n} (sym (cong fst p))))
         i , j , i≢j , p = pigeonhole-special g
       in
-        inject< ≤-refl i
-      , inject< ≤-refl j
+        injectSuc i
+      , injectSuc j
       , (λ q → i≢j (Fin-fst-≡ {suc n} (cong fst q)))
       , punchOut-inj
           {i = f (suc n , <ᵗsucm {n})}
@@ -811,29 +811,29 @@ sumFinGenId {n = n} _+_ 0A f g p i = sumFinGen {n = n} _+_ 0A (p i)
 -- Stuff from Cubical.Data.Fin.Inductive.Properties
 ---------------------------------------------------
 
--- Fin≡ : {m : ℕ} (a b : Fin m) → fst a ≡ fst b → a ≡ b
--- Fin≡ {m} (a , Ha) (b , Hb) H i =
---   (H i , hcomp (λ j → λ { (i = i0) → Ha
---                         ; (i = i1) → isProp<ᵗ {b}{m} (transp (λ j → H j <ᵗ m) i0 Ha) Hb j })
---                (transp (λ j → H (i ∧ j) <ᵗ m) (~ i) Ha))
+Fin≡ : {m : ℕ} (a b : Fin m) → fst a ≡ fst b → a ≡ b
+Fin≡ {m} (a , Ha) (b , Hb) H i =
+  (H i , hcomp (λ j → λ { (i = i0) → Ha
+                        ; (i = i1) → isProp<ᵗ {b}{m} (transp (λ j → H j <ᵗ m) i0 Ha) Hb j })
+               (transp (λ j → H (i ∧ j) <ᵗ m) (~ i) Ha))
 
--- fsuc-injectSuc : {m : ℕ} (n : Fin m)
---   → injectSuc {n = suc m} (fsuc n) ≡ fsuc (injectSuc n)
--- fsuc-injectSuc {m = suc m} (x , p) = toℕ-injective {suc (suc (suc m))} refl
+fsuc-injectSuc : {m : ℕ} (n : Fin m)
+  → injectSuc {n = suc m} (fsuc n) ≡ fsuc (injectSuc n)
+fsuc-injectSuc {m = suc m} (x , p) = toℕ-injective {suc (suc (suc m))} refl
 
--- elimFin : ∀ {ℓ} {m : ℕ} {A : Fin (suc m) → Type ℓ}
---                  (max : A flast)
---                  (f : (x : Fin m) → A (injectSuc x))
---               → (x : _) → A x
--- elimFin {m = zero} {A = A} max f (zero , p) = max
--- elimFin {m = suc m} {A = A} max f (zero , p) = f (zero , tt)
--- elimFin {m = suc zero} {A = A} max f (suc zero , p) = max
--- elimFin {m = suc (suc m)} {A = A} max f (suc x , p) = 
---   elimFin {m = suc m} 
---           {A = λ x → A (fsuc x)} 
---           max 
---           (λ t → subst A (fsuc-injectSuc t) (f (fsuc t))) 
---           (x , p)
+elimFin : ∀ {ℓ} {m : ℕ} {A : Fin (suc m) → Type ℓ}
+                 (max : A flast)
+                 (f : (x : Fin m) → A (injectSuc x))
+              → (x : _) → A x
+elimFin {m = zero} {A = A} max f (zero , p) = max
+elimFin {m = suc m} {A = A} max f (zero , p) = f (zero , tt)
+elimFin {m = suc zero} {A = A} max f (suc zero , p) = max
+elimFin {m = suc (suc m)} {A = A} max f (suc x , p) = 
+  elimFin {m = suc m} 
+          {A = λ x → A (fsuc x)} 
+          max 
+          (λ t → subst A (fsuc-injectSuc t) (f (fsuc t))) 
+          (x , p)
 
 -- elimFin-alt : ∀ {ℓ} {m : ℕ} {A : Fin (suc m) → Type ℓ}
 --                  (max : A fzero)
