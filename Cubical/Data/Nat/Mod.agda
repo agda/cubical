@@ -1,6 +1,9 @@
 {-# OPTIONS --cubical #-}
 module Cubical.Data.Nat.Mod where
 
+open import Agda.Builtin.Nat using () renaming (
+  div-helper to hdiv ;
+  mod-helper to hmod)
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
@@ -185,6 +188,92 @@ quotient x / suc n =
           ∙∙ +-assoc (modInd n x) ((suc n) · +induction n _ _ _ x) (suc n)
           ∙∙ cong (_+ suc n) ind
            ∙ +-comm x (suc n)
+
+-- Alternative definitions of quotient_/_ and remainder_/_
+
+-- helper lemmas to prove some of their properties
+private
+  div-mod-lemma : ∀ accᵐ accᵈ d n →
+    accᵐ + accᵈ · suc (accᵐ + n) + d
+    ≡
+    hmod accᵐ (accᵐ + n) d n + hdiv accᵈ (accᵐ + n) d n · suc (accᵐ + n)
+  div-mod-lemma accᵐ accᵈ zero    n       = +-zero _
+  div-mod-lemma accᵐ accᵈ (suc d) zero    =
+    (accᵐ + accᵈ · suc (accᵐ + zero)) + suc d          ≡⟨ step0 ⟩
+    suc (accᵐ + accᵈ · suc (accᵐ + zero)) + d          ≡⟨⟩
+    ((suc accᵐ) + accᵈ · suc (accᵐ + zero)) + d        ≡⟨ step1 ⟩
+    ((suc accᵐ) + accᵈ · (suc accᵐ)) + d               ≡⟨⟩
+    0 + (suc accᵈ) · suc (0 + accᵐ) + d                ≡⟨ step2 ⟩
+    hmod 0 (0 + accᵐ) d accᵐ +
+    hdiv (suc accᵈ) (0 + accᵐ) d accᵐ · suc (0 + accᵐ) ≡⟨⟩
+    hmod 0 accᵐ d accᵐ +
+    hdiv (suc accᵈ) accᵐ d accᵐ · suc accᵐ             ≡⟨⟩
+    hmod accᵐ accᵐ (suc d) 0 +
+    hdiv accᵈ accᵐ (suc d) 0 · suc accᵐ                ≡⟨ step3 ⟩
+    hmod accᵐ (accᵐ + 0) (suc d) 0 +
+    hdiv accᵈ (accᵐ + 0) (suc d) 0 · suc (accᵐ + 0)    ∎
+      where
+        step0 = +-suc _ d
+        step1 = λ i → ((suc accᵐ) + accᵈ · suc (+-zero accᵐ i)) + d
+        step2 = div-mod-lemma 0 (suc accᵈ) d accᵐ
+        step3 = cong (λ p → hmod accᵐ p (suc d) 0 + hdiv accᵈ p (suc d) 0 · suc p)
+                     (sym (+-zero accᵐ))
+  div-mod-lemma accᵐ accᵈ (suc d) (suc n) =
+    (accᵐ + accᵈ · suc (accᵐ + suc n)) + suc d          ≡⟨ step0 ⟩
+    (suc (accᵐ + accᵈ · suc (accᵐ + suc n))) + d        ≡⟨⟩
+    ((suc accᵐ) + accᵈ · suc (accᵐ + suc n)) + d        ≡⟨ step1 ⟩
+    ((suc accᵐ) + accᵈ · suc ((suc accᵐ) + n)) + d      ≡⟨ step2 ⟩
+    hmod (suc accᵐ) (suc accᵐ + n) d n +
+    hdiv accᵈ (suc accᵐ + n) d n · suc (suc accᵐ + n)   ≡⟨ step3 ⟩
+    hmod (suc accᵐ) (accᵐ + suc n) d n +
+    hdiv accᵈ (accᵐ + suc n) d n · suc (accᵐ + suc n)   ≡⟨⟩
+    hmod accᵐ (accᵐ + suc n) (suc d) (suc n) +
+    hdiv accᵈ (accᵐ + suc n) (suc d) (suc n) · suc (accᵐ + suc n) ∎
+      where
+        step0 = +-suc _ d
+        step1 = λ i → ((suc accᵐ) + accᵈ · suc (+-suc accᵐ n i)) + d
+        step2 = div-mod-lemma (suc accᵐ) accᵈ d n
+        step3 = cong (λ p → hmod (suc accᵐ) p d n + hdiv accᵈ p d n · suc p)
+                     (sym (+-suc accᵐ n))
+
+  mod-lemma-≤ : ∀ acc d n → hmod acc (acc + n) d n ≤ acc + n
+  mod-lemma-≤ acc zero    n       = ≤SumLeft
+  mod-lemma-≤ acc (suc d) zero    = mod-lemma-≤ 0 d (acc + 0)
+  mod-lemma-≤ acc (suc d) (suc n) =
+    hmod acc (acc + suc n) (suc d) (suc n) ≡≤⟨ step0 ⟩
+    hmod acc (suc acc + n) (suc d) (suc n) ≡≤⟨ refl ⟩
+    hmod (suc acc) (suc acc + n) d n       ≤≡⟨ step1 ⟩
+    suc acc + n                            ≡⟨ step2 ⟩
+    acc + (suc n)                          ∎
+    where
+      open <-Reasoning
+      step0 = λ i → hmod acc (+-suc acc n i) (suc d) (suc n)
+      step1 = mod-lemma-≤ (suc acc) d n
+      step2 = sym (+-suc acc n)
+
+remainder'_/_ : (x n : ℕ) → ℕ
+remainder' x / zero = x
+remainder' x / suc n = hmod 0 n x n
+
+quotient'_/_ : (x n : ℕ) → ℕ
+quotient' x / zero = 0
+quotient' x / suc n = hdiv 0 n x n
+
+≡remainder'+quotient' : (n x : ℕ)
+  → (remainder' x / n) + n · (quotient' x / n) ≡ x
+≡remainder'+quotient' zero    x = +-zero x
+≡remainder'+quotient' (suc n) x =
+  remainder' x / suc n + suc n · (quotient' x / suc n)  ≡⟨ step0 ⟩
+  remainder' x / suc n + quotient' x / suc n · suc n    ≡⟨⟩
+  hmod 0 n x n + hdiv 0 n x n · suc n                   ≡⟨⟩
+  hmod 0 (0 + n) x n + hdiv 0 (0 + n) x n · suc (0 + n) ≡⟨ step1 ⟩
+  x                                                     ∎
+    where
+      step0 = cong (remainder' x / suc n +_) (·-comm (suc n) (quotient' x / suc n))
+      step1 = sym ( div-mod-lemma 0 0 x n )
+
+mod'< : ∀ n x → remainder' x / suc n < suc n
+mod'< n x = suc-≤-suc (mod-lemma-≤ 0 x n)
 
 private
   test₀ : 100 mod 81 ≡ 19
