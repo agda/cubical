@@ -22,8 +22,6 @@ open import Cubical.Relation.Nullary
 -- well with cubical Agda. This definition also has some more general
 -- attractive properties, of course, such as easy conversion back to
 -- ℕ.
--- Fin : ℕ → Type₀
--- Fin n = Σ[ k ∈ ℕ ] k < n
 Fin : ℕ → Type₀
 Fin n = Σ[ m ∈ ℕ ] (m <ᵗ n)
 
@@ -45,6 +43,9 @@ fzero≠fone p = znots (cong fst p)
 -- number as a number in the next largest finite type.
 fsuc : Fin k → Fin (suc k)
 fsuc (k , l) = (suc k , l)
+-- fsuc : {n : ℕ} → Fin n → Fin (suc n)
+-- fst (fsuc {n = n} (x , p)) = suc x
+-- snd (fsuc {n = suc n} (x , p)) = p
 
 -- finj : {n : ℕ} → Fin k → Fin (suc k)
 finj : {k : ℕ} → Fin k → Fin (suc k)
@@ -128,7 +129,6 @@ any? {n = suc n} {P = P} P? =
       }
     )
     (λ n h → n (helper h))
-    -- (P? fzero ⊎? any? (P? ∘ fsuc))
     (P? fzero ⊎? any? {n = n} (P? ∘ fsuc))
   where
     helper : Σ (Fin (suc n)) P → P fzero ⊎ Σ (Fin n) λ z → P (fsuc z)

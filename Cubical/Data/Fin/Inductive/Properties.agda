@@ -132,11 +132,11 @@ sumFinGenId : ∀ {ℓ} {A : Type ℓ} {n : ℕ} (_+_ : A → A → A) (0A : A)
 sumFinGenId _+_ 0A f g p i = sumFinGen _+_ 0A (p i)
 
 Iso-Fin-InductiveFin : (m : ℕ) → Iso (FinOld.Fin m) (Fin m)
-Iso.fun (Iso-Fin-InductiveFin m) (x , p) = x , <→<ᵗ p
-Iso.inv (Iso-Fin-InductiveFin m) (x , p) = x , <ᵗ→< p
+Iso.fun (Iso-Fin-InductiveFin m) (x , p) = x , p
+Iso.inv (Iso-Fin-InductiveFin m) (x , p) = x , p
 Iso.rightInv (Iso-Fin-InductiveFin m) (x , p) =
   Σ≡Prop (λ w → isProp<ᵗ {n = w} {m}) refl
-Iso.leftInv (Iso-Fin-InductiveFin m) _ = Σ≡Prop (λ _ → OrderOld.isProp≤) refl
+Iso.leftInv (Iso-Fin-InductiveFin m) _ = Σ≡Prop (λ _ → isProp<ᵗ) refl
 
 isSetFin : {n : ℕ} → isSet (Fin n)
 isSetFin {n = n} =
