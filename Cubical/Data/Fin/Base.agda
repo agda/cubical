@@ -86,7 +86,9 @@ inject< : ∀ {m n} (m<n : m < n) → Fin m → Fin n
 inject< {m} {n} m<n (k , k<m) = k , <ᵗ-trans {k} {m} {n} k<m (<→<ᵗ m<n)
 
 injectSuc : {n : ℕ} → Fin n → Fin (suc n)
-injectSuc {n = n} = inject< (0 , refl)
+-- injectSuc {n = n} = inject< (0 , refl)
+fst (injectSuc {n = n} (x , p)) = x
+snd (injectSuc {n = suc n} (x , p)) = <ᵗ-trans-suc {n = x} p
 
 flast : {k : ℕ} → Fin (suc k)
 flast {k = k} = (k , <ᵗsucm {k})

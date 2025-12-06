@@ -19,7 +19,7 @@ open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Fin.Base as FinOld
   hiding (Fin ; injectSuc ; fsuc ; fzero ; flast ; ¬Fin0 ; sumFinGen)
 open import Cubical.Data.Fin.Properties as FinOldProps
-  hiding (sumFinGen0 ; isSetFin ; sumFin-choose ; sumFinGenHom ; sumFinGenId)
+  hiding (sumFinGen0 ; isSetFin ; sumFin-choose ; sumFinGenHom ; sumFinGenId ; Fin≡ ; fsuc-injectSuc ; elimFin)
 
 open import Cubical.Relation.Nullary
 
