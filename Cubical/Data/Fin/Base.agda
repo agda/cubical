@@ -60,7 +60,7 @@ predFin m (suc n , w) = (n , w)
 toℕ : {k : ℕ} → Fin k → ℕ
 toℕ = fst
 
--- -- ... and injective.
+-- ... and injective.
 toℕ-injective 
   : {k : ℕ} {fj fk : Fin k} 
   → toℕ {k} fj ≡ toℕ {k} fk 
