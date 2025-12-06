@@ -472,9 +472,74 @@ Fin-inj n m p with n ≟ m
     ; (inr e) → Empty.rec (¬m<m (subst (λ m → m · suc k < n · suc k) e p))
     }
 
+factorEquiv : ∀ {n} {m} → Fin n × Fin m ≃ Fin (n · m)
+factorEquiv {zero} {m} = uninhabEquiv (¬Fin0 ∘ fst) ¬Fin0
+factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddingIntro , isSurjectionIntro) where
+  intro : Fin (suc n) × Fin m → Fin (suc n · m)
+  intro (nn , mm) = nm , nm<ᵗn·m where
+    nm : ℕ
+    nm = expand× {suc n} (nn , toℕ {m} mm)
+    nn< : toℕ {k = suc n} nn < suc n
+    nn< = <ᵗ→< (snd nn)
+    mm<m : toℕ {k = m} mm < m
+    mm<m = <ᵗ→< (snd mm)
+    nm<n·m : toℕ {k = m} mm · suc n + toℕ {k = suc n} nn < suc n · m
+    nm<n·m =
+      toℕ {k = m} mm · suc n + toℕ {k = suc n} nn   <≤⟨ <-k+ nn< ⟩
+      toℕ {k = m} mm · suc n + suc n                ≡≤⟨ +-comm (toℕ {k = m} mm · suc n) (suc n) ⟩
+      suc (toℕ {k = m} mm) · suc n                  ≤≡⟨ ≤-·k mm<m ⟩
+      m · suc n                                     ≡⟨ sym (·-comm (suc n) m) ⟩
+      suc n · m                                     ∎ where open <-Reasoning
+
+    nm<ᵗn·m : nm <ᵗ (suc n · m)
+    nm<ᵗn·m = <→<ᵗ (subst (λ k → k < suc n · m) (sym (expand≡ (suc n) (toℕ {k = suc n} nn) (toℕ {k = m} mm))) nm<n·m)
+
+  intro-injective : ∀ {o} {p} → intro o ≡ intro p → o ≡ p
+  intro-injective {o} {p} io≡ip = λ i → io′≡ip′ i .fst , sndFin i where
+      io′≡ip′ : (fst o , toℕ {k = m} (snd o)) ≡ (fst p , toℕ {k = m} (snd p))
+      io′≡ip′ = expand×Inj _ (cong fst io≡ip)
+
+      sndFin : Path (Fin m) (snd o) (snd p)
+      sndFin = toℕ-injective {k = m} (cong snd io′≡ip′)
+  isEmbeddingIntro : isEmbedding intro
+  isEmbeddingIntro = injEmbedding (isSetFin {k = suc n · m}) intro-injective
+  
+  elimF : (nm : Fin (suc n · m)) → fiber intro nm
+  elimF nm = 
+    ((nnFin , mmFin) , toℕ-injective {k = suc n · m} (expand≡ (suc n) nn mm ∙ nmmoddiv)) where 
+    k : ℕ
+    k = toℕ {k = suc n · m} nm
+    mm : ℕ
+    mm = k / suc n
+    nn : ℕ
+    nn = k % suc n
+
+    nmmoddiv : mm · suc n + nn ≡ k
+    nmmoddiv = moddiv k (suc n)
+
+    mm·sn<m·sn : mm · suc n < m · suc n
+    mm·sn<m·sn =
+      mm · suc n      ≤<⟨ nn , +-comm nn (mm · suc n) ⟩
+      mm · suc n + nn <≡⟨ subst (λ l → l < suc n · m) (sym nmmoddiv) (<ᵗ→< (snd nm)) ⟩
+      suc n · m       ≡⟨ ·-comm (suc n) m ⟩
+      m · suc n       ∎ where open <-Reasoning
+
+    mm<m : mm < m
+    mm<m = <-·sk-cancel mm·sn<m·sn
+    nnFin : Fin (suc n)
+    nnFin = nn , n%sk<sk k _
+    mmFin : Fin m
+    mmFin = mm , <→<ᵗ mm<m
+
+    eqNat : toℕ {k = suc n · m} (intro (nnFin , mmFin))
+          ≡ toℕ {k = suc n · m} nm
+    eqNat = expand≡ (suc n) nn mm ∙ nmmoddiv
+
+  isSurjectionIntro : isSurjection intro
+  isSurjectionIntro = ∣_∣₁ ∘ elimF
+
 -- factorEquiv : ∀ {n} {m} → Fin n × Fin m ≃ Fin (n · m)
 -- factorEquiv {zero} {m} = uninhabEquiv (¬Fin0 ∘ fst) ¬Fin0
--- factorEquiv {suc n} {m} = {!   !}
 -- factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddingIntro , isSurjectionIntro) where
 --   intro : Fin (suc n) × Fin m → Fin (suc n · m)
 --   intro (nn , mm) =  
@@ -602,7 +667,6 @@ Fin+≡Fin⊎Fin m n = isoToPath (Fin+≅Fin⊎Fin m n)
 
 -- Är inte detta fsuc från Fin?
 sucFin : {N : ℕ} → Fin N → Fin (suc N)
--- sucFin (k , n , p) = suc k , n , (+-suc _ _ ∙ cong suc p)
 sucFin (k , p) = (suc k) , p
 
 FinData→Fin : (N : ℕ) → FinData N → Fin N
