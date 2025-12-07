@@ -323,7 +323,7 @@ private
                                ∷ termErr goal ∷ [])
 
       (lhs' , vars) ← CommRingReflection.toAlgebraExpressionLHS commRing names lhs
-      printVars "intSolverVars" vars
+      -- printVars "intSolverVars" vars
       let solution = normaliserCallWithVars (length vars) vars lhs'
       unify hole solution
 

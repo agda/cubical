@@ -94,6 +94,8 @@ instance
  ToErrorPartErrorPart : ToErrorPart R.ErrorPart
  toErrorPart ToErrorPartErrorPart x = x
 
+map,ₑ : ∀ {ℓ} {A : Type ℓ} → {{ToErrorPart A}} → List A → List R.ErrorPart
+map,ₑ = join ∘ map ((_++ₑ [ ", " ]ₑ) ∘S [_]ₑ) 
 
 _∷nl_ :  ∀ {ℓ} {A : Type ℓ} → {{ToErrorPart A}} → A → List R.ErrorPart → List R.ErrorPart
 _∷nl_  x y = x ∷ₑ "\n" ∷ₑ y

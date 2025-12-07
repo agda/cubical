@@ -24,6 +24,10 @@ rec : B → (A → B) → Maybe A → B
 rec n j nothing = n
 rec n j (just a) = j a
 
+rec' : Maybe A → B → (A → B) → B
+rec' mb n j = rec n j mb
+
+
 elim : ∀ {A : Type ℓA} (B : Maybe A → Type ℓB) → B nothing → ((x : A) → B (just x)) → (mx : Maybe A) → B mx
 elim B n j nothing = n
 elim B n j (just a) = j a

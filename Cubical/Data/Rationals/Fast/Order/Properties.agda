@@ -38,9 +38,11 @@ open import Cubical.Relation.Binary.Base
 open import Cubical.Data.Rationals.Fast.Order
 
 open import Cubical.Algebra.CommRing.Instances.Rationals.Fast
-open import Cubical.Tactics.CommRingSolverFast.IntReflection
+open import Cubical.Tactics.CommRingSolverFast.IntPlusReflection
 open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
+open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
 
+open import Cubical.Foundations.Powerset
 
 decℚ? : ∀ {x y} → {𝟚.True (discreteℚ x y)} →  (x ≡ y)
 decℚ? {_} {_} {p} = 𝟚.toWitness p
@@ -455,9 +457,9 @@ sign·sign x y = h $ trichotomy0· x y
  h : Trichotomy0· x y → _ -- ·AnnihilL
  h (eqₘ₌₀ p p₁) =
   cong (_· sign y) (fst (snd x') (sym p))
-   ∙∙ ℚ! ∙∙ sym (fst (snd x·y') (sym p₁))
+   ∙∙ ℚ!! ∙∙ sym (fst (snd x·y') (sym p₁))
  h (eqₙ₌₀ p p₁) =   cong (sign x ·_) (fst (snd y') (sym p))
-   ∙∙ ℚ! ∙∙ sym (fst (snd x·y') (sym p₁))
+   ∙∙ ℚ!! ∙∙ sym (fst (snd x·y') (sym p₁))
  h (lt-lt p p₁ p₂) = cong₂ _·_ (snd (snd x') p) (snd (snd y') p₁)
   ∙ (sym $ fst x·y' p₂)
  h (lt-gt p p₁ p₂) = cong₂ _·_  (snd (snd x') p) (fst y' p₁)
@@ -641,7 +643,7 @@ sign·abs x with 0 ≟ x
  inl (0<→< _ (·0< q q' (<→0< q x) (<→0< q' x₁)))
 ·Monotone0# q q' (inl x) (inr x₁) =
   inr (minus-<' 0 (q · q')
-        (subst {x = q · - q'} {y = - (q · q')} (0 <_) ℚ!
+        (subst {x = q · - q'} {y = - (q · q')} (0 <_) ℚ!!
          (0<→< _ (·0< q (- q') (<→0< q x) (<→0< _ (minus-< q' 0 x₁)))) ))
 ·Monotone0# q q' (inr x) (inl x₁) =
   inr (minus-<' 0 (q · q')
@@ -665,14 +667,9 @@ sign·abs x with 0 ≟ x
       (Dichotomyℚ 0 q))
 
 
-
--- floor-fracℚ₊ : ∀ (x : ℚ₊) → Σ (ℕ × ℚ) λ (k , q) →
---                        (fromNat k + q ≡ fst x ) × (q < 1)
--- floor-fracℚ₊ = uncurry (SQ.Elim.go w)
-
 -- ceil-fracℚ₊ : ∀ (x : ℚ₊) → Σ (ℕ × ℚ) λ (k , q) →
 --                        (fromNat k + q ≡ fst x ) × (q < 1)
--- ceil-fracℚ₊ = uncurry (SQ.Elim.go w)
+-- ceil-fracℚ₊ = {!!}
 
 boundℕ : ∀ q → Σ[ k ∈ ℕ₊₁ ] (abs q < ([ ℕ₊₁→ℤ k , 1 ]))
 boundℕ q with ≤→≡⊎< 0 (abs q) (0≤abs q)
@@ -707,46 +704,6 @@ invℚ₊ = uncurry (Elim.go w)
        ∙∙ (sym p) ∙∙
         sym (ℤ.·Comm (pos (suc y')) (pos (suc n)))
 
-invℚ₊-invol : ∀ x → fst (invℚ₊ (invℚ₊ x)) ≡ fst  x
-invℚ₊-invol = uncurry (ElimProp.go w)
- where
- w : ElimProp _
- w .ElimProp.isPropB _ = isPropΠ λ _ → SQ.squash/ _ _
- w .ElimProp.f x y = eq/ _ _ (ww x y)
-  where
-  ww : ∀ x x₁ → (ℕ₊₁→ℤ (fst (ℤ.0<→ℕ₊₁ (x .fst) x₁)) , (1+ x .snd .ℕ₊₁.n)) ∼ x
-  ww (pos (suc n) , snd₁) x₁ = refl
-
-equivInvℚ₊ : ℚ₊ ≃ ℚ₊
-equivInvℚ₊ = involEquiv {f = invℚ₊} λ x → ℚ₊≡ (invℚ₊-invol x)
-
-
-x·invℚ₊[x] : ∀ x → fst x · fst (invℚ₊ x) ≡ 1
-x·invℚ₊[x] = uncurry (ElimProp.go w)
- where
- w : ElimProp _
- w .ElimProp.isPropB _ = isPropΠ λ _ → isSetℚ _ _
- w .ElimProp.f (pos (suc n) , 1+ y) u = eq/ _ _ ℤ!
-
-invℚ₊[x]·x : ∀ x →  fst (invℚ₊ x) · fst x ≡ 1
-invℚ₊[x]·x x = cong (fst (invℚ₊ x) ·_) (sym $ invℚ₊-invol x)
-  ∙ x·invℚ₊[x] (invℚ₊ x)
-
-[y·x]/y : ∀ y x → fst (invℚ₊ y) · (fst y · x) ≡ x
-[y·x]/y y x = ·Assoc (fst (invℚ₊ y)) (fst y) x
-     ∙∙ cong (_· x) (·Comm (fst (invℚ₊ y)) (fst y) ∙ x·invℚ₊[x] y)
-     ∙∙ ·IdL x
-
-y·[x/y] : ∀ y x →  fst y · (fst (invℚ₊ y) · x) ≡ x
-y·[x/y] y x = cong (_· (fst (invℚ₊ y) · x)) (sym (invℚ₊-invol y))
- ∙ [y·x]/y (invℚ₊ y) x
-
-invℚ₊Dist· : ∀ x y → (invℚ₊ x) ℚ₊· (invℚ₊ y) ≡ (invℚ₊ (x ℚ₊· y))
-invℚ₊Dist· = uncurry (flip ∘ uncurry ∘ ElimProp2.go w)
- where
- w : ElimProp2 _
- w .ElimProp2.isPropB _ _ = isPropΠ2 λ _ _ → isSetℚ₊ _ _
- w .ElimProp2.f (pos (suc n) , _) (pos (suc n₁) , _) _ _ = ℚ₊≡ (eq/ _ _ refl)
 
 
 /2₊ : ℚ₊ → ℚ₊
@@ -763,16 +720,62 @@ invℚ₊Dist· = uncurry (flip ∘ uncurry ∘ ElimProp2.go w)
 /4₊ = _ℚ₊· ([ 1 / 4 ] , tt)
 
 
+invℚ₊-invol : ∀ x → fst (invℚ₊ (invℚ₊ x)) ≡ fst  x
+invℚ₊-invol x = ℚ!
+
+
+
+x·invℚ₊[x] : ∀ x → fst x · fst (invℚ₊ x) ≡ 1
+x·invℚ₊[x] x = ℚ! 
+
+invℚ₊[x]·x : ∀ x →  fst (invℚ₊ x) · fst x ≡ 1
+invℚ₊[x]·x x = ℚ!
+
+[y·x]/y : ∀ y x → fst (invℚ₊ y) · (fst y · x) ≡ x
+[y·x]/y y x = ℚ!
+
+y·[x/y] : ∀ y x →  fst y · (fst (invℚ₊ y) · x) ≡ x
+y·[x/y] y x = ℚ!
+
+invℚ₊Dist· : ∀ x y → (invℚ₊ x) ℚ₊· (invℚ₊ y) ≡ (invℚ₊ (x ℚ₊· y))
+invℚ₊Dist· x y = ℚ₊≡ ℚ!
+
+
 /4₊+/4₊≡/2₊ : ∀ ε → (/4₊ ε) ℚ₊+ (/4₊ ε) ≡ /2₊ ε
-/4₊+/4₊≡/2₊ ε = ℚ₊≡ (sym (·DistL+ (fst ε) [ 1 / 4 ] [ 1 / 4 ])
-   ∙ cong (fst ε ·_) decℚ?)
+/4₊+/4₊≡/2₊ ε = ℚ₊≡ ℚ!!
 
 /4₊≡/2₊/2₊ : ∀ ε → fst (/4₊ ε) ≡ fst (/2₊ (/2₊ ε))
-/4₊≡/2₊/2₊ = uncurry (ElimProp.go w)
- where
- w : ElimProp _
- w .ElimProp.isPropB _ = isPropΠ λ _ → isSetℚ _ _
- w .ElimProp.f (pos (suc n) , _)  _ = eq/ _ _ ℤ!
+/4₊≡/2₊/2₊ ε = ℚ!!
+
+
+n/k+m/k : ∀ n m k → [ n / k ] + [ m / k ] ≡ [ n ℤ.+ m / k ]
+n/k+m/k n m k = ℚ!
+
+n/k-m/k : ∀ n m k → [ n / k ] - [ m / k ] ≡ [ n ℤ.- m / k ]
+n/k-m/k n m k = ℚ!
+
+k/k : ∀ k → [ ℕ₊₁→ℤ k / k ] ≡ 1
+k/k _ = ℚ!
+
+1/[k+1]+k/[k+1] : (k : ℕ₊₁) → [ 1 / suc₊₁ k ] + [ pos (ℕ₊₁→ℕ k) / suc₊₁ k ] ≡ 1
+1/[k+1]+k/[k+1] k = ℚ!
+
+
+ε/2+ε/2≡ε : ∀ ε → (ε · [ 1 / 2 ]) + (ε · [ 1 / 2 ]) ≡ ε
+ε/2+ε/2≡ε ε = ℚ!
+
+ε/3+ε/3+ε/3≡ε : ∀ ε → (ε · [ 1 / 3 ]) +
+                ((ε · [ 1 / 3 ]) + (ε · [ 1 / 3 ])) ≡ ε
+ε/3+ε/3+ε/3≡ε ε = ℚ!
+
+ε/6+ε/6≡ε/3 : ∀ ε → (ε · [ 1 / 6 ]) + (ε · [ 1 / 6 ]) ≡
+               (ε · [ 1 / 3 ])
+ε/6+ε/6≡ε/3 ε = ℚ!
+
+
+equivInvℚ₊ : ℚ₊ ≃ ℚ₊
+equivInvℚ₊ = involEquiv {f = invℚ₊} λ x → ℚ₊≡ (invℚ₊-invol x)
+
 
 weak0< : ∀ q (ε δ : ℚ₊)
              →  q < (fst ε - fst δ)
@@ -780,7 +783,7 @@ weak0< : ∀ q (ε δ : ℚ₊)
 weak0< q ε δ x =
   let z = <Monotone+ q (fst ε - fst δ) 0 (fst δ) x (0<→< (fst δ) (snd δ))
    in subst2 _<_
-       (+IdR q) ℚ! z
+       (+IdR q) ℚ!! z
 
 
 
@@ -791,25 +794,8 @@ weak0<' q ε δ x =
   let z = <Monotone+ (- (fst ε - fst δ)) q (- fst δ) 0 x
            (minus-< 0 (fst δ) ((0<→< (fst δ) (snd δ))))
   in (subst2 {x = (- (fst ε - fst δ)) + (- fst δ)}
-         {y = - (fst ε)} _<_ ℚ! ℚ! z)
+         {y = - (fst ε)} _<_ ℚ!! ℚ!! z)
 
-n/k+m/k : ∀ n m k → [ n / k ] + [ m / k ] ≡ [ n ℤ.+ m / k ]
-n/k+m/k n m k = let k' = pos (suc (k .ℕ₊₁.n)) in
-  eq/ _ _
-  (cong (ℤ._· k') (sym (ℤ.·DistL+ n m k') ) ∙∙
-    sym (ℤ.·Assoc (n ℤ.+ m) k' k') ∙∙
-     cong ((n ℤ.+ m) ℤ.·_) (sym (ℤ.pos·pos (ℕ₊₁→ℕ k) (ℕ₊₁→ℕ k))))
-
-
-n/k-m/k : ∀ n m k → [ n / k ] - [ m / k ] ≡ [ n ℤ.- m / k ]
-n/k-m/k n m k = eq/ _ _ ℤ!
-
-k/k : ∀ k → [ ℕ₊₁→ℤ k / k ] ≡ 1
-k/k (1+ k) = eq/ _ _ ℤ!
-
-1/[k+1]+k/[k+1] : (k : ℕ₊₁) →
-                    [ 1 / suc₊₁ k ] + [ pos (ℕ₊₁→ℕ k) / suc₊₁ k ] ≡ 1
-1/[k+1]+k/[k+1] k = eq/ _ _ ℤ!
 
 
 0</k : ∀ (q q' : ℚ₊) (k : ℕ₊₁) →
@@ -835,25 +821,6 @@ k/k (1+ k) = eq/ _ _ ℤ!
 -- x/k<x x k =
 --   let z = {!0</k k !}
 --   in {!!}
-
-ε/2+ε/2≡ε : ∀ ε → (ε · [ 1 / 2 ]) + (ε · [ 1 / 2 ]) ≡ ε
-ε/2+ε/2≡ε ε =
- sym (·DistL+ ε [ pos 1 / 1+ 1 ] [ pos 1 / 1+ 1 ]) ∙∙
-   cong (ε ·_) (1/[k+1]+k/[k+1] 1) ∙∙ ·IdR ε
-
-ε/3+ε/3+ε/3≡ε : ∀ ε → (ε · [ 1 / 3 ]) +
-                ((ε · [ 1 / 3 ]) + (ε · [ 1 / 3 ])) ≡ ε
-ε/3+ε/3+ε/3≡ε ε =
- (cong (ε · [ pos 1 / 1+ 2 ] +_)
-    (sym (·DistL+ ε [ pos 1 / 1+ 2 ] [ pos 1 / 1+ 2 ])
-      ∙ cong (ε ·_) decℚ?)
-   ∙ sym (·DistL+ ε [ pos 1 / 1+ 2 ] [ pos 2 / 1+ 2 ]))
-   ∙∙ cong (ε ·_) (decℚ?) ∙∙ ·IdR ε
-
-ε/6+ε/6≡ε/3 : ∀ ε → (ε · [ 1 / 6 ]) + (ε · [ 1 / 6 ]) ≡
-               (ε · [ 1 / 3 ])
-ε/6+ε/6≡ε/3 ε = sym (·DistL+ ε _ _)
-  ∙ cong (ε ·_) decℚ?
 
 
 x/2<x : (ε : ℚ₊)
@@ -919,15 +886,15 @@ getθ ε q (x , x') =
                                 {x = ((fst ε + q) + (fst ε - q))}
                                 {y = (fst ε + fst ε)}
                                 (_· [ pos 1 / 1+ 1 ])
-                                (ℚ!)
+                                (ℚ!!)
                                 ∙∙ ·DistR+ (fst ε) (fst ε) [ pos 1 / 1+ 1 ]
                                 ∙∙ ε/2+ε/2≡ε (fst ε))
                               zz
                  in -< (fst mm) (fst ε)  zz')
-           , (subst2 _<_ ℚ! ℚ!
+           , (subst2 _<_ ℚ!! ℚ!!
                       (<-o+ (fst mm)
                               (fst ε + q) (- fst ε) z'1)
-           , subst2 _<_ ℚ! ℚ!
+           , subst2 _<_ ℚ!! ℚ!!
                        (<-+o (fst mm)
                               (fst ε - q)
                                (q - fst mm)
@@ -942,24 +909,13 @@ strength-lem-01 ε q' a'' x =
                 (fst q') x (snd q')
     in subst  {x = ((fst ε + (- fst q') + (- fst a''))) +
                 fst q' }
-        {y = (fst ε - fst a'')} 0<_ ℚ! z
+        {y = (fst ε - fst a'')} 0<_ ℚ!! z
 
 
 x/2+[y-x]=y-x/2 : ∀ (x y : ℚ₊) →
    fst (/2₊ x) + (fst y - fst x) ≡
      fst y - fst (/2₊ x)
-x/2+[y-x]=y-x/2 x y =
-  cong (λ xx → fst (/2₊ x) + (fst y - xx)) (sym (ε/2+ε/2≡ε (fst x)))
-    ∙ zz x y --lem-05 (fst (/2₊ x)) (fst y)
-  where
-  zz : ∀ (x y : ℚ₊) → fst (/2₊ x) + (fst y - (fst x · [ 1 / 2 ] + fst x · [ 1 / 2 ])) ≡
-        (fst y - fst (/2₊ x))
-  zz = uncurry (flip ∘ uncurry ∘ ElimProp2.go w)
-    where
-    w : ElimProp2 _
-    w .ElimProp2.isPropB _ _ = isPropΠ2 λ _ _ → isSetℚ _ _
-    w .ElimProp2.f (pos (suc n) , _) (pos (suc n₁) , _) _ _ = (eq/ _ _ ℤ!)
-
+x/2+[y-x]=y-x/2 x y = ℚ!!
 
 
 elimBy≡⊎<' : ∀ {ℓ} {A : ℚ → ℚ → Type ℓ}
@@ -972,13 +928,13 @@ elimBy≡⊎<' {A = A} s r f' =
 
  where
  f : ∀ x y → x < y → A x y
- f x y v = subst (A x) ℚ! $ f' x (<→ℚ₊ x y v)
+ f x y v = subst (A x) ℚ!! $ f' x (<→ℚ₊ x y v)
 
 elim≤By+ : ∀ {ℓ} {A : ∀ x y → x < y →  Type ℓ}
   → (∀ x (ε : ℚ₊) x< → A x (x + fst ε) x<)
   → ∀ x y x<y → A x y x<y
 elim≤By+ {A = A} X x y v =
-  subst (uncurry (A x)) (Σ≡Prop (isProp< x) {x + (y - x) , _} {y , _} ℚ!) $
+  subst (uncurry (A x)) (Σ≡Prop (isProp< x) {x + (y - x) , _} {y , _} ℚ!!) $
    X x (<→ℚ₊ x y v) (<+ℚ₊' x x ((<→ℚ₊ x y v)) (isRefl≤ x))
 
 
@@ -1022,13 +978,13 @@ module HLP where
  ·mapGE ε (ge1) = ·IdR ε
 
 
- infixl 20 distℚ!_·[_≡_]
+ infixl 20 distℚ!!_·[_≡_]
 
 
- distℚ!_·[_≡_] : (ε : ℚ) → (lhs rhs : GExpr)
+ distℚ!!_·[_≡_] : (ε : ℚ) → (lhs rhs : GExpr)
     → {𝟚.True (discreteℚ (evGE lhs) (evGE rhs))}
      → (evGE (·GE ε lhs)) ≡ (evGE (·GE ε rhs))
- distℚ! ε ·[ lhs ≡ rhs ] {p} =
+ distℚ!! ε ·[ lhs ≡ rhs ] {p} =
    sym (·mapGE ε lhs) ∙∙ cong (ε ·_) (𝟚.toWitness p)  ∙∙
     ·mapGE ε rhs
 
@@ -1064,7 +1020,7 @@ open HLP public
 
 -<⁻¹ : ∀ q r → 0 < r - q → q < r
 -<⁻¹ q r x = subst2 (_<_)
- (+IdL q) ((sym (ℚ!))) (<-+o 0 (r - q) q x)
+ (+IdL q) ((sym (ℚ!!))) (<-+o 0 (r - q) q x)
 
 
 riseQandD : ∀ p q r → Path ℚ ([ p / q ]) ([ p ℤ.· ℕ₊₁→ℤ r / (q ·₊₁ r) ])
@@ -1075,7 +1031,7 @@ riseQandD p q r =
 
 +MaxDistrℚ : ∀ x y z → (max x y) + z ≡ max (x + z) (y + z)
 +MaxDistrℚ = SQ.elimProp3 (λ _ _ _ → isSetℚ _ _)
-  λ (a , a') (b , b') (c , c') →
+  $ uncurry λ a a' → uncurry λ b b' → uncurry λ c c' →
    let zzz' : ∀ a' b' c' →
             (ℤ.max (a ℤ.· b') (b ℤ.· a') ℤ.· (pos c') ℤ.+ c ℤ.· (a' ℤ.· b'))
                  ≡
@@ -1108,15 +1064,13 @@ riseQandD p q r =
                  ((b ℤ.· pos (suc (ℕ₊₁.n c')) ℤ.+ c ℤ.· ℕ₊₁→ℤ b') ℤ.· ℕ₊₁→ℤ a')
              (suc (ℕ₊₁.n c'))) ∙ cong₂
             ℤ.max ℤ! ℤ!)
-
-          (cong 1+_ (ℤ.injPos ℤ!))
-             )
+            (ℕ₊₁→ℕ-inj (ℤ.injPos ℤ!)))
 
 
 
 +MinDistrℚ : ∀ x y z → (min x y) + z ≡ min (x + z) (y + z)
 +MinDistrℚ = SQ.elimProp3 (λ _ _ _ → isSetℚ _ _)
-  λ (a , a') (b , b') (c , c') →
+  $ uncurry λ a a' → uncurry λ b b' → uncurry λ c c' →
    let z : ∀ a' b' c' →
               (ℤ.min (a ℤ.· pos b') (b ℤ.· pos a') ℤ.· pos c'
                  ℤ.+ c ℤ.· (pos a' ℤ.· pos b')) ℤ.· pos c'
@@ -1143,13 +1097,8 @@ riseQandD p q r =
                          c ℤ.· ℤ.pos·pos (ℕ₊₁→ℕ a') (ℕ₊₁→ℕ b') (i))
                         ℤ.· ℕ₊₁→ℤ c' )
                    ∙∙ z (suc (ℕ₊₁.n a')) (suc (ℕ₊₁.n b')) (suc (ℕ₊₁.n c'))
-                   ∙∙ λ i → ℤ.min ((a ℤ.· ℕ₊₁→ℤ c' ℤ.+ c ℤ.· ℕ₊₁→ℤ a')
-                    ℤ.· ℤ.pos·pos (ℕ₊₁→ℕ b') (ℕ₊₁→ℕ c') (~ i))
-                     ((b ℤ.· ℕ₊₁→ℤ c' ℤ.+ c ℤ.· ℕ₊₁→ℤ b')
-                       ℤ.· ℤ.pos·pos (ℕ₊₁→ℕ a') (ℕ₊₁→ℕ c') (~ i)))
-                 (cong (_·₊₁ c') (sym (·₊₁-assoc a' b' c')
-                     ∙∙ cong (a' ·₊₁_) (·₊₁-comm b' c') ∙∙ (·₊₁-assoc a' c' b'))
-                    ∙ sym (·₊₁-assoc (a' ·₊₁ c') b' c')))
+                   ∙∙ cong₂ ℤ.min ℤ! ℤ!)
+                 (ℕ₊₁→ℕ-inj (ℤ.injPos ℤ!)))
                     --
 
 
@@ -1174,9 +1123,9 @@ clampDelta : ∀ L L' x → clamp L L' x ≡
                (x + clamp (L - x) (L' - x) 0)
 clampDelta L L' x =
      cong₂ min
-       (cong₂ {x = L} {y = (L - x) + x} max (ℚ!) {x} {0 + x}
+       (cong₂ {x = L} {y = (L - x) + x} max (ℚ!!) {x} {0 + x}
          (sym $ +IdL x) ∙ sym (+MaxDistrℚ (L - x) 0 x))
-       (ℚ!)
+       (ℚ!!)
   ∙∙ sym (+MinDistrℚ (max (L - x) 0) (L' - x) x)
   ∙∙ +Comm (min (max (L - x) 0) (L' - x)) x
 
@@ -1186,7 +1135,7 @@ clampDiff : ∀ L L' x y → x ≤ y →
     clamp L L' y - clamp L L' x ≤ y - x
 clampDiff L L' x y z =
   (subst2 _≤_
-     ((sym ℚ!) ∙
+     ((sym ℚ!!) ∙
        cong₂ _-_ (sym $ clampDelta L L' y)
                    (sym $ clampDelta L L' x))
      (+IdR (y - x))
@@ -1285,14 +1234,6 @@ getPosRatio L₁ L₂ =
     wwww
   where
 
-   wwww' : ∀ a b' →  a ℤ.· ℕ₊₁→ℤ b' ℤ.· pos (suc n) ℤ.· pos (ℕ₊₁→ℕ c')
-              ≡ ((a ℤ.· c) ℤ.· ℕ₊₁→ℤ (b' ·₊₁ c'))
-   wwww' a b' =
-      cong (ℤ._· pos (ℕ₊₁→ℕ c')) (sym (ℤ.·Assoc a (pos (ℕ₊₁→ℕ b')) (pos (suc n))) ∙
-            (cong (a ℤ.·_) (ℤ.·Comm (pos (ℕ₊₁→ℕ b')) (pos (suc n)))) ∙ ℤ.·Assoc a (pos (suc n)) (pos (ℕ₊₁→ℕ b'))) ∙
-         sym (ℤ.·Assoc (a ℤ.· pos (suc n)) (pos (ℕ₊₁→ℕ b')) (pos (ℕ₊₁→ℕ c'))) ∙
-         cong ((a ℤ.· pos (suc n)) ℤ.·_) (sym (ℤ.pos·pos (ℕ₊₁→ℕ b') (ℕ₊₁→ℕ c')))
-
 
    wwww : ℤ.max (a ℤ.· ℕ₊₁→ℤ b') (b ℤ.· ℕ₊₁→ℤ a') ℤ.· c
             ℤ.· ℕ₊₁→ℤ (a' ·₊₁ c' ·₊₁ (b' ·₊₁ c'))
@@ -1311,8 +1252,7 @@ getPosRatio L₁ L₂ =
          ∙ ℤ.·DistPosLMax
               ((a ℤ.· ℕ₊₁→ℤ b') ℤ.· pos (suc n))
               ((b ℤ.· ℕ₊₁→ℤ a') ℤ.· pos (suc n)) (ℕ₊₁→ℕ c')
-          ∙ cong₂ ℤ.max
-          (wwww' a b') (wwww' b a'))
+          ∙ cong₂ ℤ.max ℤ! ℤ!)
            (cong ℕ₊₁→ℤ (·₊₁-assoc a' b' c'))
 
 
@@ -1342,7 +1282,7 @@ getPosRatio L₁ L₂ =
 <Monotone·-onPos x x' y y' x₁ x₂ x₃ x₄ =
    let zz = 0<-m·n (x' - x) (y' - y) (-< x x' x₁) (-< y y' x₂)
    in subst2 _<_ (+IdL _ ∙ +IdR _)
-          (ℚ!)
+          (ℚ!!)
         (<≤Monotone+ 0 ((x' - x) · (y' - y)) (x · y + 0)
              (x' · y + ((x · (y' - y)))) zz
                (≤Monotone+ (x · y) (x' · y) 0  (x · (y' - y))
@@ -1372,7 +1312,7 @@ invℚ₊≡invℚ q p = cong₂ _·_ (fst (<→sign (fst q)) (0<ℚ₊ q)
      absPos (fst q) ((0<ℚ₊ q))))) ∙ ·IdL (fst (invℚ₊ q))
 
 fromNat-invℚ : ∀ n p → invℚ [ pos (suc n) / (1+ zero) ] p ≡ [ (pos 1) / 1+ n ]
-fromNat-invℚ n p = invℚ₊≡invℚ ([ pos (suc n) , one ] , tt) p
+fromNat-invℚ n p = ℚ!
 
 
 invℚ-pos : ∀ x y → 0 < x → 0 < invℚ x y
@@ -1544,52 +1484,14 @@ maxWithPos ε q .snd = <→0< (max (fst ε) q)
 1/p+1/q : (p q : ℚ₊) → fst (invℚ₊ p) - fst (invℚ₊ q) ≡
                        fst (invℚ₊ (p ℚ₊· q))
                         · (fst q - fst p)
-1/p+1/q (p , p') (q , q') =
-  ElimProp2.go w p q p' q'
- where
-  w : ElimProp2 λ p q → ∀ p' q'
-           → fst (invℚ₊ (p , p')) - fst (invℚ₊ (q , q')) ≡
-                       fst (invℚ₊ ((p , p') ℚ₊· (q , q')))
-                        · (q - p)
-  w .ElimProp2.isPropB _ _ = isPropΠ2 λ _ _ → isSetℚ _ _
-  w .ElimProp2.f (pos (suc x) , 1+ x') (pos (suc y) , 1+ y') p' q' =
-    eq/ _ _
-      ((ℤ! ∙ cong₂ ℤ._·_
-           (λ i → ((pos (suc x') ℤ.· ℕ₊₁→ℤ (·₊₁-identityˡ (1+ y) i))
-           ℤ.+ (ℤ.negsuc·pos y' ( (suc x)) i)))
-           (((λ i → ℤ.pos·pos
-            (ℕ₊₁→ℕ $ fst
-           (ℤ.0<→ℕ₊₁ (pos (suc x) ℤ.· pos (suc y))
-            (·0< _//_.[ pos (suc x) , (1+ x') ]
-             _//_.[ pos (suc y) , (1+ y') ] p' q')))
-             (ℕ₊₁→ℕ ((1+ y') ·₊₁ (·₊₁-identityˡ (1+ x') i))) i) ∙
-               λ i → snd
-               (ℤ.0<→ℕ₊₁ (pos (suc x) ℤ.· pos (suc y))
-                (·0< _//_.[ pos (suc x) , (1+ x') ]
-                _//_.[ pos (suc y) , (1+ y') ] p' q')) (~ i)
-                 ℤ.· (pos (ℕ₊₁→ℕ ((1+ y') ·₊₁ (1+ x'))))) ∙
-                  ℤ.·Comm (snd
-                            (ℤ.0<→ℕ₊₁ (pos (suc x) ℤ.· pos (suc y))
-                             (·0< [ pos (suc x) , (1+ x') ] [ pos (suc y) , (1+ y') ] p' q'))
-                            (~ i1)) (pos (ℕ₊₁→ℕ ((1+ y') ·₊₁ (1+ x'))))) ∙
-              ℤ!
-               ∙ λ i → (ℕ₊₁→ℤ (fst (ℤ.0<→ℕ₊₁
-                (ℕ₊₁→ℤ ((1+ x') ·₊₁ (1+ y'))) tt))
-            ℤ.· ((pos (suc y) ℤ.· ℕ₊₁→ℤ (·₊₁-identityˡ (1+ x') (~ i)))
-                 ℤ.+ (ℤ.negsuc·pos x (suc y') (~ i))))
-          ℤ.· ℕ₊₁→ℤ ((1+ x) ·₊₁ (·₊₁-identityˡ (1+ y) (~ i)))) ∙ ℤ!)
+1/p+1/q _ _ = ℚ!
 
 invℚ₊≤invℚ₊ : ∀ x y
       → fst y ≤ fst x
       → fst (invℚ₊ x) ≤ fst (invℚ₊ y)
 invℚ₊≤invℚ₊ x y p =
   subst2 _≤_
-    ((sym (·Assoc (fst (invℚ₊ x)) (fst (invℚ₊ y)) (fst y)) ∙∙
-     cong (fst (invℚ₊ x) ·_) (invℚ₊[x]·x y)
-     ∙∙ ·IdR (fst (invℚ₊ x))))
-    (sym (·Assoc (fst (invℚ₊ y)) (fst (invℚ₊ x)) (fst x)) ∙∙
-     cong (fst (invℚ₊ y) ·_) (invℚ₊[x]·x x)
-     ∙∙ ·IdR (fst (invℚ₊ y)))
+    ℚ! ℚ!
      (≤Monotone·-onNonNeg (fst (invℚ₊ x) · fst (invℚ₊ y)) (fst (invℚ₊ y) · fst (invℚ₊ x)) (fst y) (fst x)
         (≡Weaken≤ _ _ (·Comm (fst (invℚ₊ x)) (fst (invℚ₊ y)) ))
         p
@@ -1693,3 +1595,34 @@ lowerBoundℕ⁻¹ q =
      (subst (0<_) (sym (absPos _ (0<ℚ₊ (invℚ₊ q))))
       (snd (invℚ₊ q)))}
     (absPos _ (0<ℚ₊ (invℚ₊ q)))) ∙ invℚ₊-invol q)  ∘S fst (invℚ₊-<-invℚ₊ _ _)) (boundℕ (fst (invℚ₊ q)))
+
+1/n<sucK : ∀ m n → ℚ.[ 1 / (suc₊₁ m) ] < ([ ℚ.ℕ₊₁→ℤ n / 1 ])
+1/n<sucK m n = inj (ℤ.suc-≤-suc {pos 1}  (ℤ.suc-≤-suc {0} (ℤ.zero-≤pos
+ {l = (m .ℕ₊₁.n ℕ.+ n .ℕ₊₁.n ℕ.· suc (suc (m .ℕ₊₁.n)))}) ))
+
+
+0<ℕ₊₁ : ∀ n m → 0 < ([ ℚ.ℕ₊₁→ℤ n / m ])
+0<ℕ₊₁ n m = 0<→< ([ ℚ.ℕ₊₁→ℤ n / m ]) tt
+
+
+<Δ : ∀ n → [ 1 / 4 ] < ([ pos (suc n) / 1 ])
+<Δ n = 1/n<sucK 3 (1+ n)
+
+  
+clam∈ℚintervalℙ : ∀ a b → (a ≤ b) → ∀ x → clamp a b x ∈ ℚintervalℙ a b
+clam∈ℚintervalℙ a b a≤b x = ≤clamp _ _ _ a≤b , (clamp≤ a _ x)
+
+∈ℚintervalℙ→clam≡ : ∀ a b → ∀ x →
+    x ∈ ℚintervalℙ a b → x ≡ clamp a b x
+∈ℚintervalℙ→clam≡ a b x = sym ∘ uncurry (inClamps a b x)
+
+
+clamp-contained-agree : ∀ (a b a' b' x : ℚ)
+  → a ≤ a'
+  → b' ≤ b
+  → x ∈ ℚintervalℙ a' b'
+  → clamp a b x ≡ clamp a' b' x
+clamp-contained-agree a b a' b' x a≤a' b'≤b x∈ =
+  sym (∈ℚintervalℙ→clam≡ a b x
+   ((isTrans≤ _ _ _ a≤a' (fst x∈)) ,
+    (isTrans≤ _ _ _ (snd x∈) b'≤b))) ∙ ∈ℚintervalℙ→clam≡ a' b' x x∈

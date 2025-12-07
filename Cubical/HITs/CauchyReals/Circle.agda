@@ -303,12 +303,6 @@ from-√½< x y x²+y²=1 √½<∣x∣ =
           (isTrans≤≡ᵣ _ _ _ decℚ≤ᵣ? (sym (cong fst (^ℤ-rat _ 2)))))))
 
 
-ointervalℙ⊆ointervalℙ : ∀ {a b a' b'}
-  → a' ≤ᵣ a → b ≤ᵣ b'
-  → ointervalℙ a b ⊆ ointervalℙ a' b'
-ointervalℙ⊆ointervalℙ a'≤a b≤b' _ (a<x , x<b) =
-    isTrans≤<ᵣ _ _ _ a'≤a a<x
-  , isTrans<≤ᵣ _ _ _ x<b b≤b'
 
 
 

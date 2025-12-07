@@ -320,9 +320,16 @@ invVar m = atVar λ where
     _ _ _ → nothing
 
 
+_∪∷_ : ℕ → List ℕ → List ℕ
+x ∪∷ [] = [ x ]
+x ∪∷ (y ∷ xs) =
+ if (x =ℕ y) then (y ∷ xs) else y ∷ (x ∪∷ xs) 
 
-
-
+freeVars : Term → List ℕ
+freeVars tm = snd $ runIdentity $ (unwrap (atVarM f tm) [])
+  where
+    f : ℕ → ℕ → List (Arg Term) → Maybe ([ State₀T (List ℕ) RMT IdentityF ] Term)
+    f n k args = just (wrap (pure ∘S ((var (n + k) args ,_)) ∘S (k ∪∷_)))
 
 hasVar : ℕ → Term → Bool
 hasVar k' tm = snd $ runIdentity $ (unwrap (atVarM f tm) false)
@@ -411,3 +418,8 @@ macro
  q[_] : Term → Term → TC Unit
  q[_] tm h =
    quoteTC tm >>= quoteTC >=> unify h
+
+atTargetLam : Term → (Term → TC Term) → TC Term
+atTargetLam (pi a@(arg (arg-info v _) _) (abs s b)) m =
+  lam v ∘ abs s <$> extendContext s a (atTargetLam b m)
+atTargetLam ty m = m ty

@@ -40,8 +40,10 @@ v n = R.var n []
 
 pattern varg t = R.arg (R.arg-info R.visible (R.modality R.relevant R.quantity-ω)) t
 pattern harg {q = q} t = R.arg (R.arg-info R.hidden (R.modality R.relevant q)) t
+pattern iarg {q = q} t = R.arg (R.arg-info R.instance′ (R.modality R.relevant q)) t
 pattern _v∷_ a l = varg a ∷ l
 pattern _h∷_ a l = harg a ∷ l
+pattern _i∷_ a l = iarg a ∷ l
 
 pattern v[_] a = varg a ∷ []
 

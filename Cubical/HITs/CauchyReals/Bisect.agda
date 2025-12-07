@@ -220,15 +220,6 @@ Invlipschitz-ℝ→ℝℙ K P f =
 
 
 
-openIintervalℙ : ∀ a b → ⟨ openPred (ointervalℙ a b)  ⟩
-openIintervalℙ a b = ∩-openPred _ _ (openPred< a) (openPred> b)
-
-
-isIncrasingℙ : (P : ℙ ℚ) → (∀ x → x ∈ P → ℚ) → Type₀
-isIncrasingℙ P f = ∀ x x∈ y y∈ → x ℚ.< y → f x x∈ ℚ.< f y y∈
-
-isNondecrasingℙ : (P : ℙ ℚ) → (∀ x → x ∈ P → ℚ) → Type₀
-isNondecrasingℙ P f = ∀ x x∈ y y∈ → x ℚ.≤ y → f x x∈ ℚ.≤ f y y∈
 
 isIncrasingℙ→injective : (P : ℙ ℚ) → (f : ∀ x → x ∈ P → ℚ) →
                           isIncrasingℙ P f →

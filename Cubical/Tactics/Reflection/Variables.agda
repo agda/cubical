@@ -119,4 +119,3 @@ mkNiceVar' v k = v <>
 
 mkNiceVar : ℕ → String
 mkNiceVar = mkNiceVar' "𝒙"
-

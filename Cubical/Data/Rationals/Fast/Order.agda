@@ -7,6 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Functions.Logic using (_⊔′_; ⇔toPath)
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Int.Fast.Base as ℤ using (ℤ)
@@ -980,20 +981,26 @@ eqElim₂₊ {lhs} {rhs} p {ε , 0<ε} {ε' , 0<ε'} = ElimProp2.go w ε ε' 0<�
 
 
 module EqElims where
- Signature : Type
- Signature = List Bool
+ data ℚTypes : Type where
+  [ℚ] [ℚ₊] : ℚTypes
 
- lrhsDom : Bool → Type
- lrhsDom = if_then ℚ₊ else ℚ
+ ℚSignature : Type
+ ℚSignature = List ℚTypes
 
- lrhsDomFst : Bool → Type 
- lrhsDomFst = if_then ℕ else ℤ
+ lrhsDom : ℚTypes → Type
+ lrhsDom [ℚ] = ℚ
+ lrhsDom [ℚ₊] = ℚ₊
+
+
+ lrhsDomFst : ℚTypes → Type 
+ lrhsDomFst [ℚ] = ℤ
+ lrhsDomFst [ℚ₊] = ℕ
  
  lrhsCtr : ∀ b → lrhsDomFst b → ℕ → (lrhsDom b)
- lrhsCtr false k m = [ k , 1+ m ]
- lrhsCtr true n m = [ ℤ.pos (suc n) , (1+ m) ] , _
+ lrhsCtr [ℚ] k m = [ k , 1+ m ]
+ lrhsCtr [ℚ₊] n m = [ ℤ.pos (suc n) , (1+ m) ] , _
  
- LRhs : Signature → Type
+ LRhs : ℚSignature → Type
  LRhs [] = ℚ × ℚ
  LRhs (x ∷ xs) = lrhsDom x → LRhs xs
 
@@ -1012,15 +1019,20 @@ module EqElims where
  
  EllimEqₛ : ∀ s → (lrhs : LRhs s) → LemType s lrhs → EqType s lrhs
  EllimEqₛ [] lrhs e = e
- EllimEqₛ (false ∷ xs) lrhs e = ElimProp.go w
+ EllimEqₛ ([ℚ] ∷ xs) lrhs e = ElimProp.go w
   where
   w : ElimProp _
   w .ElimProp.isPropB = isPropEqType xs ∘ lrhs
   w .ElimProp.f (k , 1+ m) = EllimEqₛ xs (lrhs _) (e k m)
   
- EllimEqₛ (true ∷ xs) lrhs e = uncurry (ElimProp.go w)
+ EllimEqₛ ([ℚ₊] ∷ xs) lrhs e = uncurry (ElimProp.go w)
   where
   w : ElimProp (λ z → ∀ p → EqType xs (lrhs (z , p)))
   w .ElimProp.isPropB q = isPropΠ λ _ → isPropEqType xs (lrhs (q , _))
   w .ElimProp.f (ℤ.pos (suc n) , (1+ m)) _ = EllimEqₛ xs (lrhs _) (e n m)
 
+
+
+ℚintervalℙ : ℚ → ℚ → ℙ ℚ
+ℚintervalℙ a b x = ((a ≤ x) × (x ≤ b)) ,
+  isProp× (isProp≤ _ _)  (isProp≤ _ _)

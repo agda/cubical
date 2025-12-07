@@ -327,6 +327,13 @@ repeat : ℕ → A → List A
 repeat zero _ = []
 repeat (suc k) x = x ∷ repeat k x
 
+rot : List A → List A
+rot [] = []
+rot (x ∷ xs) = xs ∷ʳ x
+
+rotN : ℕ → List A → List A
+rotN n = iter n rot
+
 take[] : ∀ n → take {A = A} n [] ≡ []
 take[] zero = refl
 take[] (suc n) = refl
@@ -342,13 +349,6 @@ lookupAlways a (x ∷ xs) (suc k) = lookupAlways a xs k
 
 lookupMb : List A → ℕ → Maybe A
 lookupMb = lookupAlways nothing ∘S map just
-
-rot : List A → List A
-rot [] = []
-rot (x ∷ xs) = xs ∷ʳ x
-
-rotN : ℕ → List A → List A
-rotN n = iter n rot
 
 offset : A → ℕ →  List A → List A
 offset a n xs = repeat (substLen n xs) a ++ xs

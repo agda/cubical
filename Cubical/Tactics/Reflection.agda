@@ -112,6 +112,35 @@ unapply-path tm = reduce tm >>= λ where
     returnTC (just (domain , x , y))
   _ → returnTC nothing
 
+unapply-pathLHS : Term → TC (Maybe (Term × Term))
+unapply-pathLHS red@(def (quote PathP) (l h∷ T v∷ x v∷ y v∷ [])) = do
+  domain ← newMeta (def (quote Type) (l v∷ []))
+  ty ← returnTC (def (quote Path) (domain v∷ x v∷ y v∷ []))
+  debugPrint "tactic" 50
+    (strErr "(no reduction) unapply-path: got a " ∷ termErr red
+    ∷ strErr " but I really want it to be " ∷ termErr ty ∷ [])
+  unify red ty
+  returnTC (just (domain , x))
+unapply-pathLHS tm = reduce tm >>= λ where
+  tm@(meta _ _) → do
+    dom ← newMeta (def (quote Type) [])
+    l ← newMeta dom
+    
+    unify tm (def (quote Type) (dom v∷ l v∷ []))
+    wait-for-type l
+    
+    returnTC (just (dom , l))
+  red@(def (quote PathP) (l h∷ T v∷ x v∷ y v∷ [])) → do
+    domain ← newMeta (def (quote Type) (l v∷ []))
+    ty ← returnTC (def (quote Path) (domain v∷ x v∷ y v∷ []))
+    debugPrint "tactic" 50
+      (strErr "unapply-path: got a " ∷ termErr red
+      ∷ strErr " but I really want it to be " ∷ termErr ty ∷ [])
+    unify red ty
+    returnTC (just (domain , x))
+  _ → returnTC nothing
+
+
 {-
   get-boundary maps a term 'x ≡ y' to the pair '(x,y)'
 -}
@@ -119,6 +148,12 @@ get-boundary : Term → TC (Maybe (Term × Term))
 get-boundary tm = unapply-path tm >>= λ where
   (just (_ , x , y)) → returnTC (just (x , y))
   nothing            → returnTC nothing
+
+get-boundaryLHS : Term → TC (Maybe Term)
+get-boundaryLHS tm = unapply-pathLHS tm >>= λ where
+  (just (_ , x)) → returnTC (just x)
+  nothing            → returnTC nothing
+
 
 get-boundaryWithDom : Term → TC (Maybe (Term × (Term × Term)))
 get-boundaryWithDom tm = unapply-path tm >>= λ where
