@@ -323,7 +323,7 @@ invVar m = atVar λ where
 _∪∷_ : ℕ → List ℕ → List ℕ
 x ∪∷ [] = [ x ]
 x ∪∷ (y ∷ xs) =
- if (x =ℕ y) then (y ∷ xs) else y ∷ (x ∪∷ xs) 
+ if (x =ℕ y) then (y ∷ xs) else y ∷ (x ∪∷ xs)
 
 freeVars : Term → List ℕ
 freeVars tm = snd $ runIdentity $ (unwrap (atVarM f tm) [])

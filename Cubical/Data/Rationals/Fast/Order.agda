@@ -992,14 +992,14 @@ module EqElims where
  lrhsDom [ℚ₊] = ℚ₊
 
 
- lrhsDomFst : ℚTypes → Type 
+ lrhsDomFst : ℚTypes → Type
  lrhsDomFst [ℚ] = ℤ
  lrhsDomFst [ℚ₊] = ℕ
- 
+
  lrhsCtr : ∀ b → lrhsDomFst b → ℕ → (lrhsDom b)
  lrhsCtr [ℚ] k m = [ k , 1+ m ]
  lrhsCtr [ℚ₊] n m = [ ℤ.pos (suc n) , (1+ m) ] , _
- 
+
  LRhs : ℚSignature → Type
  LRhs [] = ℚ × ℚ
  LRhs (x ∷ xs) = lrhsDom x → LRhs xs
@@ -1011,12 +1011,12 @@ module EqElims where
 
  EqType : ∀ s → LRhs s → Type
  EqType [] (lhs , rhs) = lhs ≡ rhs
- EqType (x ∷ xs) lrhs = (q : lrhsDom x) → EqType xs (lrhs q) 
+ EqType (x ∷ xs) lrhs = (q : lrhsDom x) → EqType xs (lrhs q)
 
  isPropEqType : ∀ s → (lrhs : LRhs s) → isProp (EqType s lrhs)
  isPropEqType [] lrhs = isSetℚ _ _
  isPropEqType (_ ∷ s) lrhs = isPropΠ $ isPropEqType s ∘ lrhs
- 
+
  EllimEqₛ : ∀ s → (lrhs : LRhs s) → LemType s lrhs → EqType s lrhs
  EllimEqₛ [] lrhs e = e
  EllimEqₛ ([ℚ] ∷ xs) lrhs e = ElimProp.go w
@@ -1024,7 +1024,7 @@ module EqElims where
   w : ElimProp _
   w .ElimProp.isPropB = isPropEqType xs ∘ lrhs
   w .ElimProp.f (k , 1+ m) = EllimEqₛ xs (lrhs _) (e k m)
-  
+
  EllimEqₛ ([ℚ₊] ∷ xs) lrhs e = uncurry (ElimProp.go w)
   where
   w : ElimProp (λ z → ∀ p → EqType xs (lrhs (z , p)))

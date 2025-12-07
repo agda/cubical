@@ -155,7 +155,7 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
     {n : ℕ} (P Q : IteratedHornerForms A n)
     → isZero A P ≡ true
     → isZero A (P ·ₕ Q) ≡ true
-  isZeroPresLeft·ₕ (const (pos ℕ.zero)) (const x) isZeroP = 
+  isZeroPresLeft·ₕ (const (pos ℕ.zero)) (const x) isZeroP =
     cong (λ x → isZero A (const x)) (·AnnihilL x)
   isZeroPresLeft·ₕ (const (pos (ℕ.suc n))) (const _) isZeroP = byBoolAbsurdity isZeroP
   isZeroPresLeft·ₕ (const (negsuc n)) (const _) isZeroP = byBoolAbsurdity isZeroP

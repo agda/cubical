@@ -48,7 +48,7 @@ module HomomorphismProperties (R : CommRing ℓ) (homFromℤ@(scalar , _) : Comm
   Eval1ₕ [] = pres1
   Eval1ₕ (x ∷ xs) =
     eval 1ₕ (x ∷ xs)                             ≡⟨ refl ⟩
-    eval (0H ·X+ 1ₕ) (x ∷ xs)                    ≡⟨ combineCasesEval 0H 1ₕ x xs ⟩ -- 
+    eval (0H ·X+ 1ₕ) (x ∷ xs)                    ≡⟨ combineCasesEval 0H 1ₕ x xs ⟩ --
     eval {A = νR} 0H (x ∷ xs) · x + eval 1ₕ xs   ≡⟨ cong (λ u → u · x + eval 1ₕ xs)
                                                                    (Eval0H (x ∷ xs)) ⟩
     0r · x + eval 1ₕ xs                          ≡⟨ cong (λ u → 0r · x + u)
@@ -152,7 +152,7 @@ module HomomorphismProperties (R : CommRing ℓ) (homFromℤ@(scalar , _) : Comm
   ·0LeftAnnihilates :
     {n : ℕ} (P : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
     → eval (0ₕ ·ₕ P) xs ≡ 0r
-  ·0LeftAnnihilates (const x) xs = (cong (λ x → eval (const x)) (ℤ.·AnnihilL x) ≡$ xs  ) ∙ Eval0H xs 
+  ·0LeftAnnihilates (const x) xs = (cong (λ x → eval (const x)) (ℤ.·AnnihilL x) ≡$ xs  ) ∙ Eval0H xs
   ·0LeftAnnihilates 0H xs = Eval0H xs
   ·0LeftAnnihilates (P ·X+ P₁) xs = Eval0H xs
 

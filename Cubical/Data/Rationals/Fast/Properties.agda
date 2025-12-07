@@ -695,7 +695,7 @@ x+x≡2x x = cong₂ _+_
 -- eqElim₂Ty : (lrhs : ℚ → ℚ → ℚ × ℚ) → Type
 -- eqElim₂Ty lrhs = (∀ {k m k' m'} → fst (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ])
 --         ≡  snd (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ]))
-        
+
 -- eqElim₃Ty : (lrhs : ℚ → ℚ → ℚ → ℚ × ℚ) → Type
 -- eqElim₃Ty lrhs = (∀ {k m k' m' k'' m''} → fst (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ] [ (k'' , 1+ m'') ])
 --         ≡  snd (lrhs [ (k , 1+ m) ] [ (k' , 1+ m') ] [ (k'' , 1+ m'') ]))
@@ -754,7 +754,7 @@ x+x≡2x x = cong₂ _+_
 --   w .SetQuotient.ElimProp4.isPropB _ _ _ _ = isSetℚ _ _
 --   w .SetQuotient.ElimProp4.f (n , (1+ n₁)) (m , (1+ m₁)) (m' , (1+ m₁')) (m'' , (1+ m₁'')) =
 --    p {n} {n₁} {m} {m₁} {m'} {m₁'} {m''} {m₁''}
-   
+
 
 -- eqElim₅ : (lrhs : ℚ → ℚ → ℚ → ℚ → ℚ → ℚ × ℚ) → eqElim₅Ty lrhs
 --     → ∀ (x y z z' z'' : ℚ) → fst (lrhs x y z z' z'') ≡ (snd (lrhs x y z z' z''))
@@ -777,4 +777,4 @@ x+x≡2x x = cong₂ _+_
 --   w .SetQuotient.ElimProp6.f (n , (1+ n₁)) (m , (1+ m₁)) (m' , (1+ m₁')) (m'' , (1+ m₁''))
 --    (m''' , (1+ m₁''')) (m'''' , (1+ m₁'''')) =
 --    p {n} {n₁} {m} {m₁} {m'} {m₁'} {m''} {m₁''} {m'''} {m₁'''} {m''''} {m₁''''}
-   
+

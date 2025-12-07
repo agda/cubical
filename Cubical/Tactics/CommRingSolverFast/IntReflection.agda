@@ -107,7 +107,7 @@ private
           = varg (con (quote _∷vec_) (t v∷ (variableList ts) ∷ []))
 
 
- 
+
 module pr (R : CommRing ℓ) {n : ℕ} where
   open CommRingStr (snd R)
 
@@ -316,7 +316,7 @@ private
 
       -- wait-for-type goal
       just (lhs , rhs) ← get-boundary goal
-      
+
         where
           nothing
             → typeError(strErr "The CommRingSolver failed to parse the goal "

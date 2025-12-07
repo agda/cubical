@@ -116,7 +116,7 @@ private
   buildExpression (def (quote ℚ._+_) xs) = `_+_` xs
   buildExpression (def (quote ℚ._·_) xs) = `_·_` xs
   buildExpression (def (quote ℚ.-_) xs) = `-_` xs
-  
+
   buildExpression t@(def _ _) = returnTC ((λ ass → polynomialVariable (ass t)) , t ∷ [])
   buildExpression t@(meta _ _) = returnTC ((λ ass → polynomialVariable (ass t)) , t ∷ [])
 
@@ -151,13 +151,13 @@ private
     p₂ ← mkIHR e₂ e₂'
     just (con (quote _,_) (p₁ v∷ v[ p₂ ]))
   mkIHR _ _ = nothing
-  
+
   solve!-macro : Term → TC Unit
-  solve!-macro hole = 
+  solve!-macro hole =
     do
-        
+
       goal ← wrdℚ $ inferType hole >>= normalise
-      
+
       wrdℚ $ wait-for-type goal
       just (lhs , rhs) ← wrdℚ $ get-boundary goal
         where
@@ -169,15 +169,15 @@ private
 
       lhs* ← normalize <$> unquoteTC {A = RExpr (length vars)} lhs'
       rhs* ← normalize <$> unquoteTC {A = RExpr (length vars)} rhs'
-      
+
       (just ihr) ← pure (mkIHR {length vars} lhs* rhs*)
         where nothing → do
              lhs*tm ← quoteTC lhs* >>= normalise
              rhs*tm ← quoteTC rhs* >>= normalise
              typeError ("normalised, not equal! :" ∷nl lhs*tm ∷nl rhs*tm ∷ₑ [])
-      
+
       let solution = solverCallAsTerm (variableList vars) lhs' rhs' ihr
-       
+
       unify hole solution
 
 macro

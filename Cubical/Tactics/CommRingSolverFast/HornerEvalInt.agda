@@ -37,7 +37,7 @@ eval {A = A} (P ·X+ Q) (x ∷ xs) =
 
 module _ where
   R = ℤCommRing
-  
+
   open CommRingStr (snd R)
   open RingTheory (CommRing→Ring R)
   open IteratedHornerOperations ℤasRawℤAlgebra

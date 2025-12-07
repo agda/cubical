@@ -283,7 +283,7 @@ private
      (false , ((quote ℚ._+_) ∷ (quote (ℚ.-_)) ∷ (quote ℚ._·_) ∷ []))
     do
       commRing ← checkIsRing (def (quote ℚCommRing) [])
-      
+
       goal ← inferType hole >>= normalise
       names ← findRingNames commRing
 
@@ -304,7 +304,7 @@ private
           (false , ((quote ℚ._+_) ∷ (quote (ℚ.-_)) ∷ (quote ℚ._·_) ∷ []))
     do
       commRing ← checkIsRing (def (quote ℚCommRing) [])
-      
+
       goal ← inferType hole >>= normalise
       names ← findRingNames commRing
 

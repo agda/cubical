@@ -16,7 +16,7 @@ open import Cubical.Tactics.CommRingSolverFast.HornerForms
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 
-open import Cubical.Algebra.CommRing.Instances.Int.Fast 
+open import Cubical.Algebra.CommRing.Instances.Int.Fast
 
 private
   variable

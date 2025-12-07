@@ -115,7 +115,7 @@ Seq⊆-<N .Seq⊆.𝕡⊆ n x x∈ =
    (<ℚ→<ᵣ _ _ (ℚ.<ℤ→<ℚ _ _ ℤ.isRefl≤))
 
 Seq⊆-abs<N : Seq⊆
-Seq⊆-abs<N .Seq⊆.𝕡 n = ointervalℙ (fromNeg (suc n)) (fromNat (suc n)) 
+Seq⊆-abs<N .Seq⊆.𝕡 n = ointervalℙ (fromNeg (suc n)) (fromNat (suc n))
 
 Seq⊆-abs<N .Seq⊆.𝕡⊆ n x (<x , x<) =
   isTrans<ᵣ _ _ _
@@ -125,7 +125,7 @@ Seq⊆-abs<N .Seq⊆.𝕡⊆ n x (<x , x<) =
 
 Seq⊆-[0,N⟩ : Seq⊆
 Seq⊆-[0,N⟩ .Seq⊆.𝕡 n = pred≤< 0 (fromNat (suc n))
-Seq⊆-[0,N⟩ .Seq⊆.𝕡⊆ n x (0≤x , x<sn) = 0≤x , 
+Seq⊆-[0,N⟩ .Seq⊆.𝕡⊆ n x (0≤x , x<sn) = 0≤x ,
   isTrans<ᵣ _ _ _ x<sn
    (<ℚ→<ᵣ _ _ (ℚ.<ℤ→<ℚ _ _ ℤ.isRefl≤))
 
@@ -316,7 +316,7 @@ sqSeq→ .Seq⊆→.fun x n _ = fst (clampedSq (suc n)) x
 sqSeq→ .Seq⊆→.fun⊆ x n m x∈ x∈' n<m =
   ≡ContinuousWithPred (ointervalℙ _ _) (ointervalℙ _ _)
     (openIintervalℙ _ _) (openIintervalℙ _ _)
-   (λ x _ → fst (clampedSq (suc n)) x) (λ x _ → fst (clampedSq (suc m)) x) 
+   (λ x _ → fst (clampedSq (suc n)) x) (λ x _ → fst (clampedSq (suc m)) x)
    (AsContinuousWithPred (ointervalℙ (fromNeg (suc n)) (fromNat (suc n)))
      _ ((Lipschitz→IsContinuous ((2 ℚ₊· fromNat (suc (suc n))))
      ((fst (clampedSq (suc n)))) ((snd (clampedSq (suc n)))))))
@@ -339,20 +339,20 @@ sqSeq→ .Seq⊆→.fun⊆ x n m x∈ x∈' n<m =
           (ointervalℙ⊆ointervalℙ
            (isTrans≤≡ᵣ _ _ _ (≤ℚ→≤ᵣ _ _ (ℚ.minus-≤ _ _ sn≤Q)) (cong rat ℚ!))
            (≤ℚ→≤ᵣ _ _ sn≤Q)
-           (rat r) r∈)))))) 
+           (rat r) r∈))))))
    x x∈ x∈'
-    
+
 
 infixl 7 _·ᵣ_
 
 opaque
 
  open Seq⊆→.FromIntersection sqSeq→ isSetℝ ℝU Seq⊆-abs<N-s⊇-⊤Pred
- 
+
  sqᵣ : ℝ → ℝ
  sqᵣ x = ∩$ x _
-  
-  
+
+
 
  IsContinuousSqᵣ : IsContinuous sqᵣ
  IsContinuousSqᵣ = contDropPred sqᵣ
@@ -360,8 +360,8 @@ opaque
     λ n → AsContinuousWithPred (ointervalℙ (fromNeg (suc n)) (fromNat (suc n)))
          (flip (λ x n₁ → fst (clampedSq (suc n₁)) x) n)
           (Lipschitz→IsContinuous (2 ℚ₊· fromNat (suc (suc n)))
-           (fst (clampedSq (suc n))) (snd (clampedSq (suc n))))) 
- 
+           (fst (clampedSq (suc n))) (snd (clampedSq (suc n)))))
+
 
 
 
@@ -420,7 +420,7 @@ opaque
  ·ᵣ-impl : ∀ u v → u ·ᵣ v ≡ /2ᵣ ((sqᵣ (u +ᵣ v)) +ᵣ (-ᵣ (sqᵣ u +ᵣ sqᵣ v)))
  ·ᵣ-impl _ _ = refl
 
-  
+
  rat·ᵣrat : ∀ r q → rat (r ℚ.· q) ≡ rat r ·ᵣ rat q
  rat·ᵣrat r q = cong rat ℚ!!
    ∙ cong /2ᵣ
@@ -551,7 +551,7 @@ x+x≡2x x = cong₂ _+ᵣ_
     ∙ cong (_·ᵣ x) (+ᵣ-rat _ _)
 
 opaque
- unfolding maxᵣ
+
  ·ᵣMaxDistrPos : ∀ x y z → 0 ℚ.≤ z →  (maxᵣ x y) ·ᵣ (rat z) ≡ maxᵣ (x ·ᵣ rat z) (y ·ᵣ rat z)
  ·ᵣMaxDistrPos x y z 0<z =
    ≡Continuous _ _
@@ -563,11 +563,11 @@ opaque
           (IsContinuous∘ _ _ (IsContinuous·ᵣR (rat z)) (IsContinuousMaxL (rat x')))
           ((IsContinuous∘ _ _ (IsContinuousMaxL (rat x' ·ᵣ (rat z)))
                                  (IsContinuous·ᵣR (rat z))))
-          (λ y' → sym (rat·ᵣrat _ _)
+          (λ y' → cong₂ _·ᵣ_ (maxᵣ-rat _ _) refl ∙ sym (rat·ᵣrat _ _)
               ∙∙ cong rat (ℚ.·MaxDistrℚ' x' y' z 0<z) ∙∙
-               (cong₂ maxᵣ (rat·ᵣrat x' z) (rat·ᵣrat y' z)))
+               sym (maxᵣ-rat _ _) ∙ (cong₂ maxᵣ (rat·ᵣrat x' z) (rat·ᵣrat y' z)))
           y) x
-      
+
 opaque
 
  unfolding _·ᵣ_ _+ᵣ_
@@ -576,11 +576,11 @@ opaque
    → (IsContinuousWithPred P f)
    → (IsContinuousWithPred P g)
    → IsContinuousWithPred P (λ x x∈ → f x x∈ ·ᵣ g x x∈)
- cont₂·ᵣWP P f g fC gC = 
+ cont₂·ᵣWP P f g fC gC =
    IsContinuousWP∘' P _
       (λ u x∈ → (sqᵣ (f u x∈ +ᵣ g u x∈)) +ᵣ
        (-ᵣ ((sqᵣ (f u x∈)) +ᵣ (sqᵣ (g u x∈)))))
-       IsContinuous/2ᵣ 
+       IsContinuous/2ᵣ
        (contDiagNE₂WP sumR P _ _
          ((IsContinuousWP∘' P _ _
             IsContinuousSqᵣ

@@ -34,21 +34,21 @@ record _isLiftOf_ (fℝ : ℝ → ℝ) (fℚ : ℚ → ℚ) : Type where
  constructor inj
  field
   prf : ∀ q → rat (fℚ q) ≡ fℝ (rat q)
-  
-record LiftedTo (fℝ : ℝ → ℝ) : Type where 
+
+record LiftedTo (fℝ : ℝ → ℝ) : Type where
  constructor inj
  field
   fℚ : _
   prf : fℝ isLiftOf fℚ
-  
+
  open _isLiftOf_ prf
- 
-record LiftedFrom (fℚ : ℚ → ℚ) : Type where 
+
+record LiftedFrom (fℚ : ℚ → ℚ) : Type where
  constructor inj
  field
   fℝ : _
   prf : fℝ isLiftOf fℚ
-  
+
  open _isLiftOf_ prf
 
 record _isLiftOf₂_ (fℝ : ℝ → ℝ → ℝ) (fℚ : ℚ → ℚ → ℚ) : Type where
@@ -58,15 +58,15 @@ record _isLiftOf₂_ (fℝ : ℝ → ℝ → ℝ) (fℚ : ℚ → ℚ → ℚ) :
 
 
 
-record LiftedTo₂ (fℝ : ℝ → ℝ → ℝ) : Type where 
+record LiftedTo₂ (fℝ : ℝ → ℝ → ℝ) : Type where
  constructor inj
  field
   fℚ : _
   prf : fℝ isLiftOf₂ fℚ
 
  open _isLiftOf₂_ prf
- 
-record LiftedFrom₂ (fℚ : ℚ → ℚ → ℚ) : Type where 
+
+record LiftedFrom₂ (fℚ : ℚ → ℚ → ℚ) : Type where
  constructor inj
  field
   fℝ : _
@@ -94,7 +94,7 @@ instance
 
 
 data ℚExpr : Type where
- 𝕢[_] : ℚ → ℚExpr 
+ 𝕢[_] : ℚ → ℚExpr
  _$𝕢[_] : ∀ fℚ → ⦃ lf : LiftedFrom fℚ ⦄ → ℚExpr → ℚExpr
  _$𝕢₂[_,_] : ∀ fℚ → ⦃ lf : LiftedFrom₂ fℚ ⦄ → ℚExpr → ℚExpr → ℚExpr
 
@@ -103,9 +103,9 @@ evalℚExpr (𝕢[ x ]) = x
 evalℚExpr (fℚ $𝕢[ x ]) = fℚ (evalℚExpr x)
 evalℚExpr (fℚ $𝕢₂[ x , x₁ ]) = fℚ (evalℚExpr x) (evalℚExpr x₁)
 
-module ℝExpr (ratFlag : Type) where 
+module ℝExpr (ratFlag : Type) where
  data ℝExpr : Type where
-  ratE : {ratFlag} → ℚExpr →  ℝExpr 
+  ratE : {ratFlag} → ℚExpr →  ℝExpr
   𝕣[_] : ℝ → ℝExpr
   _$𝕣[_] : ∀ fℝ → ⦃ lt : LiftedTo fℝ ⦄ → ℝExpr → ℝExpr
   _$𝕣₂[_,_] : ∀ fℝ → ⦃ lt : LiftedTo₂ fℝ ⦄ → ℝExpr → ℝExpr → ℝExpr
@@ -127,7 +127,7 @@ open ℝExpr hiding (ℝExpr) public
 ℚExpr→ℝExpr : ℚExpr → ℝExpr
 ℚExpr→ℝExpr 𝕢[ x ] = 𝕣[ rat x ]
 ℚExpr→ℝExpr (_$𝕢[_] fℚ ⦃ inj fℝ prf ⦄ x) = _$𝕣[_] fℝ ⦃ inj _ prf ⦄ (ℚExpr→ℝExpr x)
-ℚExpr→ℝExpr (_$𝕢₂[_,_] fℚ ⦃ inj fℝ prf ⦄ x x₁) = 
+ℚExpr→ℝExpr (_$𝕢₂[_,_] fℚ ⦃ inj fℝ prf ⦄ x x₁) =
  _$𝕣₂[_,_] fℝ ⦃ inj _ prf ⦄ (ℚExpr→ℝExpr x) (ℚExpr→ℝExpr x₁)
 
 ℚℝExpr→ℝExpr : ℚℝExpr → ℝExpr
@@ -154,7 +154,7 @@ evalℚℝExpr 𝕣[ x ] = x
 evalℚℝExpr (fℝ $𝕣[ x ]) = fℝ (evalℚℝExpr x)
 evalℚℝExpr (fℝ $𝕣₂[ x , x₁ ]) = fℝ (evalℚℝExpr x) (evalℚℝExpr x₁)
 evalℚℝExpr (rat-path q i) = rat q
-evalℚℝExpr (lift-path ⦃ lo = lo ⦄ {q} i) = _isLiftOf_.prf lo (evalℚExpr q) i 
+evalℚℝExpr (lift-path ⦃ lo = lo ⦄ {q} i) = _isLiftOf_.prf lo (evalℚExpr q) i
 evalℚℝExpr (lift-path₂ ⦃ lo = lo ⦄ {q} {q'} i) =
   _isLiftOf₂_.prf lo (evalℚExpr q) (evalℚExpr q') i
 evalℚℝExpr (isSetℝExpr x x₁ x₂ y i i₁) =
@@ -163,11 +163,11 @@ evalℚℝExpr (isSetℝExpr x x₁ x₂ y i i₁) =
 
 evalCohRat : ∀ e → rat (evalℚExpr e) ≡ evalℚℝExpr (ℚExpr→ℝExpr e)
 evalCohRat 𝕢[ x ] = refl
-evalCohRat (_$𝕢[_] fℚ ⦃ inj fℝ (inj prf) ⦄ e) = 
-   prf (evalℚExpr e) 
+evalCohRat (_$𝕢[_] fℚ ⦃ inj fℝ (inj prf) ⦄ e) =
+   prf (evalℚExpr e)
    ∙ cong fℝ (evalCohRat e)
 evalCohRat (_$𝕢₂[_,_] fℚ ⦃ inj fℝ (inj prf) ⦄ e e₁) =
-  prf (evalℚExpr e) (evalℚExpr e₁)  
+  prf (evalℚExpr e) (evalℚExpr e₁)
    ∙ cong₂ fℝ (evalCohRat e) (evalCohRat e₁)
 
 evalCoh : ∀ e → evalℚℝExpr e ≡ evalℚℝExpr (ℚℝExpr→ℝExpr e)
@@ -182,7 +182,7 @@ evalCoh (lift-path {fℝ} {fℚ} ⦃ lo = inj prf ⦄ {q} i) j =
     (λ j → fℝ (evalCohRat q j))
     (prf (evalℚExpr q))
     refl
-    i j 
+    i j
 
 evalCoh (lift-path₂ {fℝ} {fℚ} ⦃ lo = inj prf ⦄ {q} {q'} i) j =
    isSet→isSet' isSetℝ
@@ -191,7 +191,7 @@ evalCoh (lift-path₂ {fℝ} {fℚ} ⦃ lo = inj prf ⦄ {q} {q'} i) j =
    (λ j → fℝ (evalCohRat q j) (evalCohRat q' j))
    (prf (evalℚExpr q) (evalℚExpr q'))
    refl
-   i j 
+   i j
 
 evalCoh (isSetℝExpr e e₁ x y i i₁) j =
   isGroupoid→isGroupoid' (isSet→isGroupoid isSetℝ)
@@ -216,13 +216,13 @@ private
  ifHasInstanceℚ₂ nm = runSpeculative $ (_, false) <$> (do
   (meta m _) ← checkType
      unknown (def (quote _isLiftOf₂_) (unknown v∷ v[ (def nm []) ]))
-   where _ → typeError [ "imposible in liftingExpr macro!" ]ₑ  
+   where _ → typeError [ "imposible in liftingExpr macro!" ]ₑ
   [] ← getInstances m
    where (x ∷ _) → pure true
    -- ((solveInstanceConstraints >> pure true) <|> pure false)
-      
+
   pure false)
-  
+
  toExprℚ : Term → TC Term
  toExprℚ (def nm v[ q ]) = do
    e ← toExprℚ q
@@ -235,7 +235,7 @@ private
     then (pure (con (quote _$𝕢₂[_,_]) ((def nm []) v∷ e v∷ v[ e' ])))
     else (pure (con (quote 𝕢[_]) (v[ tm ])))
  toExprℚ tm = pure (con (quote 𝕢[_]) (v[ tm ]))
- 
+
 -- _$𝕣[_] fℝ ⦃ inj fℚ (inj prf) ⦄ (ℚExpr→ℝExpr q)
  toExprℝ : Term → TC Term
  toExprℝ (def nm v[ r ]) = do
@@ -250,7 +250,7 @@ private
    e ← toExprℚ q
    pure (con (quote ratE) (v[ e ]))
  toExprℝ tm = pure (con (quote 𝕣[_]) (v[ tm ]))
- 
+
  quoteℚℝ : Term → TC Term
  quoteℚℝ tm' = do
   tm ← checkType tm' (def (quote ℝ) [])
@@ -266,7 +266,7 @@ private
  ℚℝ!-macro hole = wrdℚ $
    do
      goal ← inferType hole >>= normalise
-    
+
 
      wait-for-type goal
      just (lhs , rhs) ← get-boundary goal
@@ -280,14 +280,14 @@ private
      let solution =
            def (quote _∙_)
             (def (quote evalCoh) v[ lhsE ] v∷ v[
-             def (quote evalCoh') v[ rhsE ] ])   
+             def (quote evalCoh') v[ rhsE ] ])
      unify hole solution
 
  ℚℝ!↘-macro : Term → TC Unit
  ℚℝ!↘-macro hole = wrdℚ $
    do
      goal ← inferType hole >>= normalise
-    
+
 
      wait-for-type goal
      just lhs ← get-boundaryLHS goal
@@ -296,7 +296,7 @@ private
            → typeError(strErr "The ℚℝ↘ failed to parse the goal "
                               ∷ termErr goal ∷ [])
      lhsE ← quoteℚℝ lhs
-     let solution = def (quote evalCoh) v[ lhsE ]   
+     let solution = def (quote evalCoh) v[ lhsE ]
      unify hole solution
 
 

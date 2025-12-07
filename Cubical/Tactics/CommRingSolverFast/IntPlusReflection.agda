@@ -137,7 +137,7 @@ module CommRingReflection (cring : Term) (names : RingNames) where
   `1` (fstcring v∷ xs) = `1` xs
   `1` (_ h∷ xs) = `1` xs
   `1` something = errorOut something
-  
+
   Fuel = ℕ
 
   buildExpression : Fuel → Term → TC (Template × Vars)
@@ -236,7 +236,7 @@ module CommRingReflection (cring : Term) (names : RingNames) where
       returnTC ((λ ass → con (quote _+'_) (fst r1 ass v∷ fst r2 ass v∷ [])) ,
                appendWithoutRepetition (snd r1) (snd r2))
 
-  buildExpressionFromNatPlus f (con (quote NPO.1+_) ((lit (nat x)) v∷ [])) = scalarℕ (ℕ.suc x) 
+  buildExpressionFromNatPlus f (con (quote NPO.1+_) ((lit (nat x)) v∷ [])) = scalarℕ (ℕ.suc x)
 
   buildExpressionFromNatPlus f (con (quote NPO.1+_) ((def (quote NPO.ℕ₊₁.n) (x v∷ []) ) v∷ [])) =
    do  debugPrint "intSolverVars" 20  (strErr "fromNatPlus t1:" ∷ termErr x ∷ [])
@@ -250,7 +250,7 @@ module CommRingReflection (cring : Term) (names : RingNames) where
       (def (quote ℕ._·_) (m v∷ sn v∷ [])) v∷ [])) v∷ [])) = do
     unify (con (quote ℕ.suc) (n v∷ [] )) sn
     debugPrint "intSolverVars" 20  (strErr "fromNatPlus t2:" ∷nl termErr n ∷nl termErr m ∷  [])
-       
+
     buildExpressionFromNatPlus f (def (quote NPO._·₊₁_)
      (con (quote NPO.1+_) (m v∷ []) v∷
       con (quote NPO.1+_) (n v∷ []) v∷
@@ -261,7 +261,7 @@ module CommRingReflection (cring : Term) (names : RingNames) where
 
   buildExpressionFromNatPlus f t =
    typeError (strErr "unexpected in buildExpressionFromNatPlus: \n " ∷ termErr t ∷ [])
-  
+
 -- (.fst (ℤ.0<→ℕ₊₁ (pos (suc k) ℤ.· pos (suc k₁)) tt))
 
 
@@ -309,7 +309,7 @@ module CommRingReflection (cring : Term) (names : RingNames) where
   buildExpression ℕ.zero _ = typeError [ strErr "outOfFuel" ]
   buildExpression f (def (quote ℚ.ℕ₊₁→ℤ) (x v∷ [])) =
    buildExpressionFromNatPlus f x
- 
+
   buildExpression f v@(var _ _) =
     returnTC ((λ ass → polynomialVariable (ass v)) ,
              v ∷ [])
@@ -381,7 +381,7 @@ private
 
 solve!-macro : Term → TC Unit
 solve!-macro hole =
-    
+
   do
     commRing ← wrdℕ $ checkIsRing (def (quote ℤCommRing) [])
     goal ← wrdℕ $ (inferType hole >>= normalise)

@@ -106,7 +106,7 @@ opaque
 
  +ᵣ-ne₂ : ∀ δ η {u v u' v'} → u ∼[ δ  ] v → u' ∼[ η ] v' → (u +ᵣ u') ∼[ δ ℚ.ℚ₊+ η ] (v +ᵣ v')
  +ᵣ-ne₂ = NonExpanding₂.go∼₂ sumR
- 
+
  rat-+ᵣ-lim : ∀ r x y → rat r +ᵣ lim x y ≡ lim (λ ε → rat r +ᵣ x ε)
                λ δ ε → +ᵣ-∼' (x δ) (x ε) (rat r) (δ ℚ₊+ ε) (y δ ε)
  rat-+ᵣ-lim r x y = NonExpanding₂.β-rat-lim sumR r x y λ δ ε → +ᵣ-∼' (x δ) (x ε) (rat r) (δ ℚ₊+ ε) (y δ ε)
@@ -607,7 +607,7 @@ opaque
  instance
   isLiftOfAbs : absᵣ isLiftOf ℚ.abs'
   isLiftOfAbs ._isLiftOf_.prf _ = refl
-  
+
  absᵣ0 : absᵣ 0 ≡ 0
  absᵣ0 = refl
 
@@ -740,7 +740,7 @@ opaque
   PT.map λ ((p , q) , u≤p , p<q , q≤v) →
   let
     m = (p ℚ.+ q) ℚ.· [ 1 / 2 ]
-    p<m = subst2 ℚ._<_ ℚ!! ℚ!!                 
+    p<m = subst2 ℚ._<_ ℚ!! ℚ!!
       (ℚ.<-o+ (p ℚ.· [ 1 / 2 ]) (q ℚ.· [ 1 / 2 ]) (p ℚ.· [ 1 / 2 ])
         (ℚ.<-·o p q [ 1 / 2 ] (ℚ.0<pos 0 2) p<q))
     m<q = subst2 ℚ._<_ ℚ!! ℚ!!
@@ -943,7 +943,7 @@ infimumℙ P f =
                                              δ<θ)) uu
                      in subst∼ ℚ!! z
 
-               in 
+               in
                  sym (eqℝ _ _ λ ε' →
                      let ε* = ℚ.min₊ (ℚ./2₊ ε') (ℚ./2₊ θ)
                          ε*<ε' = snd
@@ -1033,12 +1033,12 @@ opaque
   where
 
    w : Elimℝ-Prop (λ z → (ε : ℚ₊) → z ∼'[ ε ] 0 → absᵣ z <ᵣ rat (fst ε))
-   w .Elimℝ-Prop.ratA x ε (x₁ , x₂) = 
+   w .Elimℝ-Prop.ratA x ε (x₁ , x₂) =
       isTrans≡<ᵣ _ _ _ (absᵣ-rat x) $ <ℚ→<ᵣ (ℚ.abs x) (fst ε)
         ((ℚ.absFrom<×< (fst ε) x
             (subst ((ℚ.- fst ε) ℚ.<_) (ℚ.+IdR x) x₁)
              (subst (ℚ._< (fst ε)) ((ℚ.+IdR x)) x₂)))
-   w .Elimℝ-Prop.limA x p x₁ ε = 
+   w .Elimℝ-Prop.limA x p x₁ ε =
 
       PT.rec (isProp<ᵣ _ _)
        (uncurry
@@ -1087,14 +1087,14 @@ opaque
      rat-rat-fromAbs r q ε
       (<ᵣ→<ℚ _ _
         (isTrans≡<ᵣ _ _ _ (sym (cong absᵣ (-ᵣ-rat₂ _ _) ∙ absᵣ-rat _) ) z))
-   w .Elimℝ-Prop2Sym.rat-limA q x y R ε = 
+   w .Elimℝ-Prop2Sym.rat-limA q x y R ε =
      PT.rec (isProp∼ _ _ _) ( λ (θ , (xx , xx')) →
            let 0<θ = ℚ.<→0< _ (<ᵣ→<ℚ 0 θ
                         (isTrans≤<ᵣ 0 _ (rat θ)
                           (0≤absᵣ _) xx))
                ww : ∀ δ η → absᵣ (rat q +ᵣ (-ᵣ lim x y))
                            ∼[ δ ℚ₊+ η ] absᵣ (rat q +ᵣ (-ᵣ (x δ)))
-               ww δ η = 
+               ww δ η =
                  let uu : ⟨ NonExpandingₚ (absᵣ ∘S (rat q +ᵣ_) ∘S -ᵣ_) ⟩
                      uu = NonExpandingₚ∘ absᵣ ((rat q +ᵣ_) ∘S -ᵣ_)
                                absᵣ-nonExpanding
@@ -1111,10 +1111,10 @@ opaque
                wwwR = R δ ((θ , 0<θ) ℚ₊+ (δ ℚ₊+ δ)) www
 
            in subst∼ ℚ!!
-                (triangle∼ wwwR (𝕣-lim-self x y δ δ))) 
+                (triangle∼ wwwR (𝕣-lim-self x y δ δ)))
 
          ∘S    (denseℚinℝ (absᵣ (rat q +ᵣ (-ᵣ lim x y))) (rat (fst ε)))
-   w .Elimℝ-Prop2Sym.lim-limA x y x' y' R ε = 
+   w .Elimℝ-Prop2Sym.lim-limA x y x' y' R ε =
        PT.rec (isProp∼ _ _ _) ( λ (θ , (xx , xx')) →
          let 0<θ = ℚ.<→0< _ (<ᵣ→<ℚ 0 θ
                         (isTrans≤<ᵣ 0 _ (rat θ)
@@ -1235,5 +1235,5 @@ ontervalℙ⊂intervalℙ : ∀ {a b}
   → ointervalℙ a b ⊆ intervalℙ a b
 ontervalℙ⊂intervalℙ x (a<x , x<b) =
    <ᵣWeaken≤ᵣ _ _ a<x ,
-   <ᵣWeaken≤ᵣ _ _ x<b 
+   <ᵣWeaken≤ᵣ _ _ x<b
 

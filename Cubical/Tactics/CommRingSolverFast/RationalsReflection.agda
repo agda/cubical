@@ -32,9 +32,9 @@ import Cubical.Tactics.CommRingSolverFast.IntPlusReflection as IPR
 
 open ℚ.EqElims
 
-abstractℚandℚ₊ : Term → TC (List (ℕ × ℚTypes) × Term) 
+abstractℚandℚ₊ : Term → TC (List (ℕ × ℚTypes) × Term)
 abstractℚandℚ₊ tm = do
-  
+
   fv ← (zipWithIndex ∘ catMaybes) <$> (mapM mbℚVar (freeVars tm))
   -- quoteTC fv >>= normalise >>= (typeError ∘ [_]ₑ)
   let N = length fv
@@ -42,7 +42,7 @@ abstractℚandℚ₊ tm = do
   pure (rev (map snd fv) , absV fv tm')
  where
  mbℚVar : ℕ → TC (Maybe (ℕ × ℚTypes))
- mbℚVar v = 
+ mbℚVar v =
        ((quoteTC ℚ.ℚ₊ >>= checkType (var v [])) >> pure (just (v , [ℚ₊])))
    <|> ((quoteTC ℚ.ℚ >>= checkType (var v [])) >> pure (just (v , [ℚ])))
    <|> pure nothing
@@ -55,15 +55,15 @@ abstractℚandℚ₊ tm = do
  vNm : ℚTypes → String
  vNm [ℚ] = "q"
  vNm [ℚ₊] = "₊q"
- 
+
  absV : (List (ℕ × ℕ × ℚTypes)) → Term → Term
  absV [] tm = tm
  absV (x ∷ xs) tm = absV xs (vlam (vNm (snd (snd x))) tm)
 
 
--- abstractℚandℚ₊ : Term → TC (List (ℕ × ℚTypes) × Term) 
+-- abstractℚandℚ₊ : Term → TC (List (ℕ × ℚTypes) × Term)
 -- abstractℚandℚ₊ tm = do
-  
+
 --   fv ← (zipWithIndex ∘ catMaybes) <$> (mapM mbℚVar (freeVars tm))
 --   -- quoteTC fv >>= normalise >>= (typeError ∘ [_]ₑ)
 --   let N = length fv
@@ -71,7 +71,7 @@ abstractℚandℚ₊ tm = do
 --   pure (rev (map snd fv) , absV fv tm')
 --  where
 --  mbℚVar : ℕ → TC (Maybe (ℕ × ℚTypes))
---  mbℚVar v = 
+--  mbℚVar v =
 --        ((quoteTC ℚ.ℚ₊ >>= checkType (var v [])) >> pure (just (v , [ℚ₊])))
 --    <|> ((quoteTC ℚ.ℚ >>= checkType (var v [])) >> pure (just (v , [ℚ])))
 --    <|> pure nothing
@@ -84,7 +84,7 @@ abstractℚandℚ₊ tm = do
 --  vNm : ℚTypes → String
 --  vNm [ℚ] = "q"
 --  vNm [ℚ₊] = "₊q"
- 
+
 --  absV : (List (ℕ × ℕ × ℚTypes)) → Term → Term
 --  absV [] tm = tm
 --  absV (x ∷ xs) tm = absV xs (vlam (vNm (snd (snd x))) tm)
@@ -101,7 +101,7 @@ private
         (_ ∷ _ ∷ _ ∷ _ ∷ lhs v∷ [])) v∷
        (con (quote SetQuotient.[_])
         (_ ∷ _ ∷ _ ∷ _ ∷ rhs v∷ [])) v∷ [])) =
-    returnTC (def (quote ℚ._∼_) (lhs v∷ rhs v∷ [])) 
+    returnTC (def (quote ℚ._∼_) (lhs v∷ rhs v∷ []))
   extractNMs t = typeError (strErr "failToMatch in extractNMs :\n" ∷ termErr t ∷ [])
 
   wrdℕ : ∀ {a} {A : Type a} → TC A → TC A
@@ -120,28 +120,28 @@ private
   --   returnTC ((lam v (R.abs ai (lam v' (R.abs ai' s)))))
   -- stripLam x = do
   --  ty ← wrdℕ (inferType x >>= normalise)
-  --  typeError [ ty ]ₑ   
+  --  typeError [ ty ]ₑ
   --  -- ty2 ← wrdℕ (extractNMs ty >>= normalise)
 
    -- h2 ← wrdℕ (checkType unknown ty2)
    -- -- wrdℕ (debugPrint "ratSolverVars" 20 (termErr ty ∷ []))
    -- IPR.solve!-macro h2
    -- wrdℕ $ checkType (def (quote ℚ.eqℚ) (h2 v∷ [])) ty
-   
+
   wrdℚ : ∀ {a} {A : Type a} → TC A → TC A
   wrdℚ = withReduceDefs
      (false , ((quote ℚ._+_) ∷ (quote (ℚ.-_)) ∷ (quote ℚ._·_)
        -- ∷ []))
       ∷ (quote NPO._+₁_) ∷ (quote NPO._·₊₁_) ∷ (quote NPO.ℕ₊₁→ℕ) ∷ (quote ℚ.ℕ₊₁→ℤ) ∷ []))
 
-  
+
   solve!-macro : Term → TC Unit
-  solve!-macro hole = 
+  solve!-macro hole =
     do
-      
-      
+
+
       goal ← wrdℚ $ inferType hole >>= normalise
-      
+
 
       wrdℚ $ wait-for-type goal
       just (lhs , rhs) ← wrdℚ $ get-boundary goal
@@ -149,23 +149,23 @@ private
           nothing
             → typeError(strErr "The RationalReflecion CommRingSolver failed to parse the goal "
                                ∷ termErr goal ∷ [])
-      let lrhs₀ = def (quote _,ℚ_) (lhs v∷ v[ rhs ]) 
+      let lrhs₀ = def (quote _,ℚ_) (lhs v∷ v[ rhs ])
 
       (sigℚ , lrhs) ← abstractℚandℚ₊ lrhs₀
-      
+
       sigTm ← quoteTC (map snd sigℚ)
       lemType ← wrdℚ $  normalise (def (quote LemType) (sigTm v∷ lrhs v∷ []))
       -- sharedHole ← wrdℚ $ checkType unknown lemType
-      
+
       sbi ← atTargetLam lemType λ tgTy → do
-        tgTy2 ← wrdℕ $ normalise tgTy >>= extractNMs 
+        tgTy2 ← wrdℕ $ normalise tgTy >>= extractNMs
         h2 ← checkType unknown tgTy2
         IPR.solve!-macro h2
         pure (def (quote ℚ.eqℚ) (h2 v∷ []))
-      
+
       let solveℚTm = def (quote EllimEqₛ) ((sigTm v∷ lrhs v∷ v[ sbi ]) ++
                map (λ (i , _) → varg (var i []))  sigℚ)
-      
+
       unify hole solveℚTm
       -- -- typeError [] --(termErr sharedHole ∷ [])
 -- atTargetLam

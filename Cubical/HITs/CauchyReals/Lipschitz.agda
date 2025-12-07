@@ -39,7 +39,7 @@ opaque
           Σ (0< ε') (λ z → u ∼'[ ε' , z ] v)
  sΣℚ<' {u} {v} {ε} p x =
     subst (λ ε' → Σ (0< ε') (λ z → u ∼'[ ε' , z ] v)) p (snd ε , x)
-    
+
 -- 11.3.36
 𝕣-lim : ∀ r y ε δ p →
           r ∼[ ε ] ( y δ )
@@ -57,7 +57,7 @@ opaque
                   (sΣℚ< ℚ!! ∘
                     (triangle∼ (R (/4₊ θ) x (/2₊ θ)
                       (/4₊ θ) p (refl∼ _ _)))))) ∘ fst (rounded∼ _ _ _)
-     
+
  w .Elimℝ-Prop.isPropA _ = isPropΠ5 λ _ _ _ _ _ → isProp∼ _ _ _
 
 
@@ -474,7 +474,7 @@ record NonExpanding₂ (g : ℚ → ℚ → ℚ ) : Type where
                let ε/4 = /4₊ ε
 
 
-                         
+
                in (lim-lim _ (λ q' → go (x (/2₊ q')) (x' (/2₊ q'))) ε
                         (/2₊ ε/4) ε/4 (λ δ ε₁ → Elimℝ.go∼ w (y δ ε₁) (lim x' y'))
                           _) (subst {x = (fst ε) ℚ.· [ pos 5 / 1+ 7 ]}
@@ -482,7 +482,7 @@ record NonExpanding₂ (g : ℚ → ℚ → ℚ ) : Type where
                           ((snd (ε ℚ₊· (ℚ.[ 5 / 8 ] , _)))))
                         ((go∼R ( x (/2₊ ε/4)) (lim x' y')
                           (x' (/2₊ ε/4)) _
-                          ((∼-monotone< 
+                          ((∼-monotone<
                                 (((ℚ.-<⁻¹ _ _ (subst (0 ℚ.<_) ℚ!!
                                   (ℚ.0<ℚ₊ (ε ℚ₊· (ℚ.[ 3 / 8 ] , tt)))))))
                                    $ sym∼ _ _ _ (𝕣-lim-self x' y'
@@ -492,7 +492,7 @@ record NonExpanding₂ (g : ℚ → ℚ → ℚ ) : Type where
 
  isLiftOfNonExpanding₂ : go isLiftOf₂ g
  isLiftOfNonExpanding₂ ._isLiftOf₂_.prf _ _ = refl
- 
+
 NonExpanding₂-flip : ∀ g → NonExpanding₂ g → NonExpanding₂ (flip g)
 NonExpanding₂-flip g ne .NonExpanding₂.cL q r s =
    NonExpanding₂.cR ne s q r

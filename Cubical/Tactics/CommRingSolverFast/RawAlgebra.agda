@@ -191,5 +191,5 @@ module _ (R : CommRing ℓ) (homFromℤ : CommRingHom ℤCommRing R) where
 
 ℤasRawℤAlgebra : RawAlgebra ℤAsRawRing ℓ-zero
 ℤasRawℤAlgebra =
- let (R , commringstr 0r 1r _+_ _·_ -_ isCommRing)  = ℤCommRing 
- in rawalgebra ℤ (λ z → z) 0r 1r _+ℤ_ _·ℤ_ (-ℤ_) 
+ let (R , commringstr 0r 1r _+_ _·_ -_ isCommRing)  = ℤCommRing
+ in rawalgebra ℤ (λ z → z) 0r 1r _+ℤ_ _·ℤ_ (-ℤ_)

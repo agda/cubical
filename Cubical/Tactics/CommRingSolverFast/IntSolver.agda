@@ -147,7 +147,7 @@ solve : {n : ℕ} (e₁ e₂ : ℤExpr R n) (xs : Vec (fst R) n)
 solve = EqualityToNormalform.solve
 
 
-normaliseRing : 
+normaliseRing :
         {n : ℕ} (e₁ : ℤExpr R n) (xs : Vec (fst R) n)
 
         → _

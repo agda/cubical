@@ -726,7 +726,7 @@ invℚ₊-invol x = ℚ!
 
 
 x·invℚ₊[x] : ∀ x → fst x · fst (invℚ₊ x) ≡ 1
-x·invℚ₊[x] x = ℚ! 
+x·invℚ₊[x] x = ℚ!
 
 invℚ₊[x]·x : ∀ x →  fst (invℚ₊ x) · fst x ≡ 1
 invℚ₊[x]·x x = ℚ!
@@ -1608,7 +1608,7 @@ lowerBoundℕ⁻¹ q =
 <Δ : ∀ n → [ 1 / 4 ] < ([ pos (suc n) / 1 ])
 <Δ n = 1/n<sucK 3 (1+ n)
 
-  
+
 clam∈ℚintervalℙ : ∀ a b → (a ≤ b) → ∀ x → clamp a b x ∈ ℚintervalℙ a b
 clam∈ℚintervalℙ a b a≤b x = ≤clamp _ _ _ a≤b , (clamp≤ a _ x)
 

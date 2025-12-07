@@ -26,7 +26,7 @@ module HomomorphismProperties where
     νR = ℤasRawℤAlgebra
   scalar : ℤ → ℤ
   scalar x = x
-  
+
   open CommRingStr (snd R)
   open RingTheory (CommRing→Ring R)
   open IteratedHornerOperations νR
@@ -94,7 +94,7 @@ module HomomorphismProperties where
   +Homeval :
     {n : ℕ} (P Q : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
     → eval (P +ₕ Q) xs ≡ (eval P xs) + (eval Q xs)
-  +Homeval (const x) (const y) [] = refl 
+  +Homeval (const x) (const y) [] = refl
   +Homeval 0H Q xs =
     eval (0H +ₕ Q) xs            ≡⟨ refl ⟩
     eval Q xs                    ≡⟨ sym (+IdL _) ⟩

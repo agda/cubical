@@ -125,10 +125,10 @@ unapply-pathLHS tm = reduce tm >>= λ where
   tm@(meta _ _) → do
     dom ← newMeta (def (quote Type) [])
     l ← newMeta dom
-    
+
     unify tm (def (quote Type) (dom v∷ l v∷ []))
     wait-for-type l
-    
+
     returnTC (just (dom , l))
   red@(def (quote PathP) (l h∷ T v∷ x v∷ y v∷ [])) → do
     domain ← newMeta (def (quote Type) (l v∷ []))

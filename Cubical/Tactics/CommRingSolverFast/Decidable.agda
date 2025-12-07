@@ -80,7 +80,7 @@ module DecCommRingSolver (R@(⟨R⟩ , _) : CommRing ℓ) (_≟_ : Discrete ⟨R
  eval  (const r) [] = r
  eval 0H (_ ∷ _) = 0r
  eval (P ·X+ Q) (x ∷ xs) =
-      let 
+      let
           P' = (eval P (x ∷ xs))
           Q' = eval Q xs
       in if (isZero P)
@@ -89,7 +89,7 @@ module DecCommRingSolver (R@(⟨R⟩ , _) : CommRing ℓ) (_≟_ : Discrete ⟨R
 
 
  -- module IteratedHornerOperations where
-   
+
 
  private
    1H' : (n : ℕ) → IteratedHornerForms n
@@ -289,7 +289,7 @@ module DecCommRingSolver (R@(⟨R⟩ , _) : CommRing ℓ) (_≟_ : Discrete ⟨R
 
  EvalHom+0 : {n : ℕ} (P : IteratedHornerForms n) (xs : Vec ⟨R⟩ n)
      → eval (0ₕ +ₕ P) xs ≡ eval P xs
- EvalHom+0 {n = ℕ.zero} (const x) [] = +IdL x 
+ EvalHom+0 {n = ℕ.zero} (const x) [] = +IdL x
  EvalHom+0 {n = ℕ.suc _} P xs = refl
 
  Eval0H : {n : ℕ} (xs : Vec ⟨R⟩ n)
@@ -558,7 +558,7 @@ module DecCommRingSolver (R@(⟨R⟩ , _) : CommRing ℓ) (_≟_ : Discrete ⟨R
  -- -- normalizeIHF (const x) = {!!}
  -- -- normalizeIHF 0H = {!!}
  -- -- normalizeIHF (x ·X+ x₁) = {!!}
- 
+
  isEqualToNormalform :
       {n : ℕ} (e : RExpr n) (xs : Vec (fst R) n)
     → eval (normalize e) xs ≡ ⟦ e ⟧ xs
@@ -569,7 +569,7 @@ module DecCommRingSolver (R@(⟨R⟩ , _) : CommRing ℓ) (_≟_ : Discrete ⟨R
    where
    zz : ∀ rr → eval (decRec (λ _ → 0ₕ) (λ _ → 0ₕ ·X+ Constant n r) rr) (x ∷ xs) ≡ r
    zz (yes p) = sym p
-   zz (no ¬p) = 
+   zz (no ¬p) =
     eval (0ₕ ·X+ Constant n r) (x ∷ xs)           ≡⟨ combineCasesEval 0ₕ (Constant n r) x xs ⟩
     eval 0ₕ (x ∷ xs) · x + eval (Constant n r) xs ≡⟨ cong (λ u → u · x + eval (Constant n r) xs)
                                                             (Eval0H (x ∷ xs)) ⟩
@@ -648,7 +648,7 @@ module DecCommRingSolver (R@(⟨R⟩ , _) : CommRing ℓ) (_≟_ : Discrete ⟨R
        ⟦ e ⟧ (x ∷ xs) · ⟦ e₁ ⟧ (x ∷ xs) ∎
 
  _expr≟_ : ∀ {n} → ∀ (e₁ e₂ : RExpr n) → Maybe (e₁ ≡ e₂)
- _expr≟_ {n} (K x) (K x') = decRec (just ∘ cong K ) (λ _ → nothing) (x ≟ x') 
+ _expr≟_ {n} (K x) (K x') = decRec (just ∘ cong K ) (λ _ → nothing) (x ≟ x')
  _expr≟_ {n} (∣ x) (∣ x')  = decRec (just ∘ cong ∣ ) (λ _ → nothing) (discreteFin x x')
  _expr≟_ {n} (x +' x₁) (x' +' x₁') =
     do p ← (x expr≟ x')
@@ -663,9 +663,9 @@ module DecCommRingSolver (R@(⟨R⟩ , _) : CommRing ℓ) (_≟_ : Discrete ⟨R
 
 
  _ihr≟_ : ∀ {n} → ∀ (e₁ e₂ : IteratedHornerForms n) → Maybe (e₁ ≡ e₂)
- const x ihr≟ const x' = decRec (just ∘ cong const ) (λ _ → nothing) (x ≟ x') 
+ const x ihr≟ const x' = decRec (just ∘ cong const ) (λ _ → nothing) (x ≟ x')
  0H ihr≟ 0H = just refl
- (e₁ ·X+ e₂) ihr≟ (e₁' ·X+ e₂') = 
+ (e₁ ·X+ e₂) ihr≟ (e₁' ·X+ e₂') =
     do p ← (e₁ ihr≟ e₁')
        p₁ ← (e₂ ihr≟ e₂')
        just (cong₂ _·X+_ p p₁)
@@ -706,4 +706,3 @@ module DecCommRingSolver (R@(⟨R⟩ , _) : CommRing ℓ) (_≟_ : Discrete ⟨R
    eval (normalize e₂) xs ≡⟨ isEqualToNormalform e₂ xs ⟩
    ⟦ e₂ ⟧ xs ∎
 
- 

@@ -78,14 +78,14 @@ module _ (z z₁ : ℤ.ℤ) (n n₁ : ℕ) where
 --  -- open CommRingStr (ℚCommRing .snd)
 
 
---  _ : 5 · v 0 + 190 · v 1 +  6 · v 0 ≡ (v 1 · 100 + 11 · v 0 +  v 1 · 90) 
+--  _ : 5 · v 0 + 190 · v 1 +  6 · v 0 ≡ (v 1 · 100 + 11 · v 0 +  v 1 · 90)
 --  _ = ℚ!!
 
---  _ : [ 40 / 60 ] · v 0 + 190 · v 0 +  [ 50 / 30 ] · v 0 ≡ (v 0 · 100 + [ 70 / 30 ] · v 0 +  v 0 · 90) 
+--  _ : [ 40 / 60 ] · v 0 + 190 · v 0 +  [ 50 / 30 ] · v 0 ≡ (v 0 · 100 + [ 70 / 30 ] · v 0 +  v 0 · 90)
 --  _ = ℚ!!
 
 --  _ :  ([ 40 / 600000 ] · v 0 · 0 + 190 · v 1 · 0  +  [ 50 / 300000 ] · v 0 · 0)
---       ≡ (v 1 · 100 + [ 70 / 300000 ] · v 0 +  v 1 · 90) · 0 
+--       ≡ (v 1 · 100 + [ 70 / 300000 ] · v 0 +  v 1 · 90) · 0
 --  _ = ℚ!!
 
 
@@ -94,12 +94,12 @@ module _ (z z₁ : ℤ.ℤ) (n n₁ : ℕ) where
 -- -- --  -- test1 : ∀ {L} {_ : Unit} {_ : Unit} {δ₁} {ε₁} {r} {q : ℕ} →
 -- -- --  --      fst (L ℚ₊· ((δ₁) ℚ₊+ (ε₁))) + f q + r ≡
 -- -- --  --      fst ((L ℚ₊· δ₁) ℚ₊+ (L ℚ₊· ε₁))
--- -- --  -- test1 = ℚ!     
+-- -- --  -- test1 = ℚ!
 
 -- -- --  test1 : ∀ {L} {δ₁} {ε₁} →
 -- -- --       fst (L ℚ₊· ((invℚ₊ L ℚ₊· δ₁) ℚ₊+ (invℚ₊ L ℚ₊· ε₁))) ≡
 -- -- --       fst (δ₁ ℚ₊+ ε₁)
--- -- --  test1 = {!ℚ!!}     
+-- -- --  test1 = {!ℚ!!}
 -- -- -- -- -- {-
 -- -- -- -- --   the following is not possible yet: the ring solver normalises the goal
 -- -- -- -- --   and expands some of the definitions of the operations. A possible fix could be

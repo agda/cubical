@@ -34,7 +34,7 @@ private
 
 ℚasRawℚAlgebra : RawAlgebra ℚAsRawRing ℓ-zero
 ℚasRawℚAlgebra =
- let (R , commringstr 0r 1r _+_ _·_ -_ isCommRing)  = ℚCommRing 
+ let (R , commringstr 0r 1r _+_ _·_ -_ isCommRing)  = ℚCommRing
  in rawalgebra ℚ.ℚ (λ z → z) ℚ.[ ℤ.pos 0 / ℕ₊₁.1+ 0 ] ℚ.[ ℤ.pos 0 / ℕ₊₁.1+ 0 ] (ℚ._+_) (ℚ._·_) (λ k → ℚ.- k)
 
 
@@ -61,18 +61,18 @@ module EqualityToNormalform  where
 
   toEqSpecsFn : ∀ n → ((xs : Vec (fst R) n) → (⟨ νR ⟩ᵣ × ⟨ νR ⟩ᵣ)) → EqSpecsFnTy n
   toEqSpecsFn ℕ.zero f = f []
-  toEqSpecsFn (ℕ.suc n) f v = toEqSpecsFn n λ vs → f (v ∷ vs) 
+  toEqSpecsFn (ℕ.suc n) f v = toEqSpecsFn n λ vs → f (v ∷ vs)
 
 
 ℚExpr : (n : ℕ)
         → _
-ℚExpr = EqualityToNormalform.ℚExpr 
+ℚExpr = EqualityToNormalform.ℚExpr
 
 
-eqSpecs : 
+eqSpecs :
         (n : ℕ) (e₁ e₂ : ℚExpr n) →
-         EqualityToNormalform.EqSpecsFnTy n 
-   
+         EqualityToNormalform.EqSpecsFnTy n
+
 eqSpecs n e₁ e₂ =
  EqualityToNormalform.toEqSpecsFn n
    (EqualityToNormalform.eqSpecs  {n} e₁ e₂)

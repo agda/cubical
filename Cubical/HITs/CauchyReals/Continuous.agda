@@ -393,7 +393,7 @@ opaque
  unfolding maxᵣ
 
  ≤lim : ∀ r x y → (∀ δ → rat r ≤ᵣ x δ) → rat r ≤ᵣ lim x y
- ≤lim r x y p = ≡→≤ᵣ $ 
+ ≤lim r x y p = ≡→≤ᵣ $
    snd (NonExpanding₂.β-rat-lim' maxR r x y) ∙
         congLim _ _ _ _ (≤ᵣ→≡ ∘ p)
 
@@ -521,7 +521,7 @@ opaque
              (ℚ.<Weaken≤ _ _ (ℚ.x/2<x (ε))) )
       in zz))
         , ≤ℚ→≤ᵣ _ _ (ℚ.≤+ℚ₊ r r (/2₊ ε) (ℚ.isRefl≤ r)) ∣₁
-  w .Elimℝ-Prop.limA x y R ε = 
+  w .Elimℝ-Prop.limA x y R ε =
     let z = 𝕣-lim-dist x y (/4₊ ε)
     in PT.map (λ (q , z , z') →
          let (_ , Xzz' , Xzz) = from-abs< _ _ _
@@ -534,7 +534,7 @@ opaque
          in q ℚ.+ fst (/2₊ ε) ℚ.+ fst (/2₊ (/4₊ ε))  ,
                let zzz = (≤ᵣ-+o _ _ (rat (fst (/2₊ ε) ℚ.+ fst (/2₊ (/4₊ ε))))
                        (≤ᵣMonotone+ᵣ _ _ _ _ z zz))
-                   
+
                in subst2 _≤ᵣ_
                      (cong (_+ᵣ rat (fst (/2₊ ε) ℚ.+ fst (/2₊ (/4₊ ε))))
                       (sym (+ᵣAssoc (rat q) _ _)) ∙
@@ -543,7 +543,7 @@ opaque
                         (+ᵣComm _ _ ∙ +ᵣ-rat _ _ ∙ cong rat ℚ!!)
                          (cong₂ _+ᵣ_ refl (+ᵣComm _ _) ∙ +ᵣAssoc _ _ _  ∙
                           cong₂ _+ᵣ_ (+ᵣComm _ _ ∙ +-ᵣ _) refl ∙ +IdL _))
-                   
+
                      (_∙_ {x = rat (fst (/2₊ (/4₊ ε))) +ᵣ rat (fst (/4₊ ε)) +ᵣ
                                 rat (fst (/2₊ ε) ℚ.+ fst (/2₊ (/4₊ ε)))}
                                  {y = rat
@@ -560,7 +560,7 @@ opaque
                        cong (_+ᵣ (lim x y)) (+-ᵣ _) ∙ +IdL _)
                      (≤ᵣMonotone+ᵣ _ _ _ _ z' zz'))
                      (isTrans≡≤ᵣ _ _ _ (+ᵣ-rat _  _) $ ≤ℚ→≤ᵣ _ _
-                       
+
                        (subst (q ℚ.+ fst (/4₊ ε) ℚ.≤_)
                          ((ℚ.+Assoc q _ _))
                           (ℚ.≤-o+ _ _ q distℚ≤!
@@ -693,7 +693,7 @@ opaque
   Δ = ℚ.<→ℚ₊ m n m<n
 
 opaque
- unfolding _<ᵣ_ 
+ unfolding _<ᵣ_
  <ᵣ-+o : ∀ m n o →  m <ᵣ n → (m +ᵣ o) <ᵣ (n +ᵣ o)
  <ᵣ-+o m n o = PT.rec (isProp<ᵣ (m +ᵣ o) _)
    λ ((q , q') , x , x' , x'') →
@@ -874,14 +874,14 @@ opaque
 
 opaque
  unfolding _≤ᵣ_
- 
+
  ≤min-lem : ∀ x y y' → x ≤ᵣ y → x ≤ᵣ y' →  x ≤ᵣ minᵣ y y'
  ≤min-lem x y y' p p' =
     minDistMaxᵣ x y y' ∙ cong₂ minᵣ p p'
 
 
 opaque
- unfolding _<ᵣ_ 
+ unfolding _<ᵣ_
 
 
  <min-lem : ∀ x x' y → y <ᵣ x → y <ᵣ x' →  y <ᵣ minᵣ x x'
@@ -1140,7 +1140,7 @@ opaque
  --                 ≤ᵣ f₁ (rat u) (≤ℚ→≤ᵣ _ _ x₀<u) )
  --              → ∀ x x₀≤x → f₀ x x₀≤x ≤ᵣ f₁ x x₀≤x
  -- ≤ContPos'pred {x₀} {f₀} {f₁} f₀C f₁C X x 0≤x =
- --   subst (λ (x , x₀≤x) → f₀ x ?  ≤ᵣ f₁ x ?) -- ? x₀≤x 
+ --   subst (λ (x , x₀≤x) → f₀ x ?  ≤ᵣ f₁ x ?) -- ? x₀≤x
  --      (Σ≡Prop (λ _ → isSetℝ _ _) ?) -- ?
  --     (≤Cont
  --       (IsContinuousWithPred∘IsContinuous _ _ _
@@ -1501,5 +1501,4 @@ sym-intervalℙ⊆ointervalℙ : ∀ a b → a <ᵣ b →
   intervalℙ (-ᵣ a) a ⊆ ointervalℙ (-ᵣ b) b
 sym-intervalℙ⊆ointervalℙ a b a<b =
  intervalℙ⊆ointervalℙ _ _ _ _ (-ᵣ<ᵣ _ _ a<b) a<b
-
 
