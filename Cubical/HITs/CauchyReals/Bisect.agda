@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Bisect where
 
 open import Cubical.Foundations.Prelude
@@ -16,23 +14,22 @@ import Cubical.Data.Nat.Mod as ℕ
 import Cubical.Data.Nat.Order as ℕ
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as ⊎
-open import Cubical.Data.Int as ℤ using (pos)
-import Cubical.Data.Int.Order as ℤ
+open import Cubical.Data.Int.Fast as ℤ using (pos)
+import Cubical.Data.Int.Fast.Order as ℤ
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Data.NatPlusOne
 
-open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Order as ℚ using
+open import Cubical.Data.Rationals.Fast as ℚ using (ℚ ; [_/_])
+open import Cubical.Data.Rationals.Fast.Order as ℚ using
   ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
-open import Cubical.Data.Rationals.Order.Properties as ℚ
+open import Cubical.Data.Rationals.Fast.Order.Properties as ℚ
  using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
 
 
 open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Lems
 open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
 open import Cubical.HITs.CauchyReals.Order
@@ -42,6 +39,19 @@ open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
 
 
+
+open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
+open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
+open import Cubical.Tactics.CommRingSolverFast.IntReflection
+open import Cubical.HITs.CauchyReals.LiftingExpr
+open import Cubical.Tactics.CommRingSolverFast.RealsReflection
+
+import Cubical.Algebra.CommRing as CR
+import Cubical.Algebra.Ring as RP
+import Cubical.Algebra.CommRing.Instances.Rationals.Fast as ℚ
+module 𝐐' = RP.RingTheory (CR.CommRing→Ring ℚ.ℚCommRing)
+
+open import Cubical.Tactics.CommRingSolverFast.AlgebraExpression renaming (K to K')
 
 <^n : ∀ N n → N ℕ.< n →
         ([ 1 / 2 ] ℚ^ⁿ n) ℚ.< ([ 1 / 2 ] ℚ^ⁿ N)
@@ -72,7 +82,7 @@ Lipschitz-ℚ→ℝℙ<→Lipschitz-ℚ→ℝℙ L P f X = (flip ∘
   flip (ℚ.elimBy≡⊎<
     (λ x y X →
        λ x∈ y∈ ε u → isTrans≡<ᵣ _ _ _ (minusComm-absᵣ _ _)
-         (X y∈ x∈ ε (subst (ℚ._< (fst ε)) (ℚ.absComm- _ _) u)) )
+         (X y∈ x∈ ε (subst (ℚ._< (fst ε)) (ℚ.absComm- x y) u)) )
     (λ _ _ _ ε _ → isTrans≡<ᵣ _ _ _
       (cong absᵣ (𝐑'.+InvR' _ _
         (cong (f _) (∈-isProp P _ _ _))))
@@ -164,10 +174,9 @@ Invlipschitz-ℚ→ℚ→Invlipschitz-ℚ→ℚ' K f X q r =
        z = X q r ((invℚ₊ K) ℚ₊·
                      (_ , ℚ.<→0< _ (ℚ.isTrans≤< 0 _ _
                         (
-                         (subst2 (ℚ._≤_)
-                           (ℚ.·AnnihilR _)
-                         (cong (fst K ℚ.·_) (ℚ.abs'≡abs _)) -- (ℚ.abs'≡abs _)
-                          (ℚ.≤-o· _ _ (fst K) (ℚ.0≤ℚ₊ K) (ℚ.0≤abs _)))) x))) x*
+                         (subst2 (ℚ._≤_) ℚ!!
+                         (cong (fst K ℚ.·_) (ℚ.abs'≡abs (f q ℚ.- f r)))
+                          (ℚ.≤-o· _ _ (fst K) (ℚ.0≤ℚ₊ K) (ℚ.0≤abs (f q ℚ.- f r))))) x))) x*
    in ⊥.rec (ℚ.isIrrefl< (ℚ.abs' (q ℚ.- r))
          (subst (ℚ.abs' (q ℚ.- r) ℚ.<_) (ℚ.y·[x/y] K _) z))
 
@@ -197,7 +206,7 @@ Invlipschitz-ℚ→ℚℙ'<→Invlipschitz-ℚ→ℚℙ K P f X = flip ∘
       (cong ℚ.abs' (sym (ℚ.+InvR x))) (ℚ.0<ℚ₊ (K ℚ₊· ε)))
     λ x y x<y y∈  x∈ ε u →
       ℚ.isTrans≤< _ _ _
-        (ℚ.≡Weaken≤ _ _ (sym (ℚ.abs'≡abs _) ∙ ℚ.absPos _ (ℚ.-< _ _ x<y) ))
+        (ℚ.≡Weaken≤ _ _ (sym (ℚ.abs'≡abs (y ℚ.- x)) ∙ ℚ.absPos (y ℚ.- x) (ℚ.-< x y x<y) ))
        (ℚ.isTrans≤< _ _ _
         (X y y∈ x x∈  x<y) (ℚ.<-o· _ _ (fst K) (ℚ.0<ℚ₊ K) u)))
 
@@ -261,7 +270,7 @@ isIncrasingℙ→isNondecrasingℙ : ∀ P f
                → isIncrasingℙ P f
                → isNondecrasingℙ P f
 isIncrasingℙ→isNondecrasingℙ P f incF x x∈ y y∈ =
-  ⊎.rec (ℚ.≡Weaken≤ _ _ ∘ cong (uncurry f) ∘ Σ≡Prop (∈-isProp _))
+  ⊎.rec (ℚ.≡Weaken≤ _ _ ∘ cong (uncurry f) ∘ Σ≡Prop (∈-isProp P))
    (ℚ.<Weaken≤ _ _ ∘ incF _ _ _ _) ∘ ℚ.≤→≡⊎< _ _
 
 ℚisIncrasing : (ℚ → ℚ) → Type₀
@@ -269,9 +278,9 @@ isIncrasingℙ→isNondecrasingℙ P f incF x x∈ y y∈ =
 
 
 elimInClamps : ∀ {ℓ} {P : ℚ → Type ℓ} → ∀ L L' → L ℚ.≤ L' →
-     (∀ x → x ∈ ℚintervalℙ L L' → P x) →
+     (∀ x → x ∈ ℚ.ℚintervalℙ L L' → P x) →
      ∀ x → P (ℚ.clamp L L' x)
-elimInClamps L L' L≤L' X x = X _ (clam∈ℚintervalℙ L L' L≤L' x)
+elimInClamps L L' L≤L' X x = X _ (ℚ.clam∈ℚintervalℙ L L' L≤L' x)
 
 elimInClampsᵣ : ∀ {ℓ} {P : ℝ → Type ℓ} → ∀ L L' →
      (∀ x → P (clampᵣ L L' x)) →
@@ -289,10 +298,10 @@ elimFromClampsᵣ {P = P} L L' L≤L' X x =
 
 
 elimInClamps2 : ∀ {ℓ} {P : ℚ → ℚ → Type ℓ} → ∀ L L' → L ℚ.≤ L' →
-     (∀ x y → x ∈ ℚintervalℙ L L' → y ∈ ℚintervalℙ L L' → P x y) →
+     (∀ x y → x ∈ ℚ.ℚintervalℙ L L' → y ∈ ℚ.ℚintervalℙ L L' → P x y) →
      ∀ x y → P (ℚ.clamp L L' x) (ℚ.clamp L L' y)
 elimInClamps2 L L' L≤L' X x y =
-  X _ _ (clam∈ℚintervalℙ L L' L≤L' x) (clam∈ℚintervalℙ L L' L≤L' y)
+  X _ _ (ℚ.clam∈ℚintervalℙ L L' L≤L' x) (ℚ.clam∈ℚintervalℙ L L' L≤L' y)
 
 elimInClamps2ᵣ : ∀ {ℓ} {P : ℝ → ℝ → Type ℓ} → ∀ L L' → L ≤ᵣ L' →
      (∀ x y → x ∈ intervalℙ L L' → y ∈ intervalℙ L L' → P x y) →
@@ -320,7 +329,7 @@ opaque
             a b a≤b λ r → ∈ℚintervalℙ→clampᵣ≡ a' b' (f (rat r))
                   ∘S X r
                   ∘S ∈ℚintervalℙ→∈intervalℙ a b r  )
-          ) _)
+          ) x)
 
 
 
@@ -355,24 +364,24 @@ opaque
 -- -- --  -- ^ⁿ-Monotone⁻¹ n 0≤x 0<y z
 
 opaque
- unfolding absᵣ -ᵣ_
+ -- unfolding absᵣ -ᵣ_
  fromLipInvLip' : ∀ K L (f : ℚ → ℚ)
                   → (fl : Lipschitz-ℚ→ℝ L (rat ∘ f))
                   → Invlipschitz-ℚ→ℚ' K f
                   → Invlipschitz-ℝ→ℝ' K
                        (fst (fromLipschitz L ((rat ∘ f) , fl)))
  fromLipInvLip' K L f fl il =
-        ≤Cont₂ (cont∘₂ IsContinuousAbsᵣ
-                 (cont₂∘ (contNE₂ sumR)
-                  IsContinuousId IsContinuous-ᵣ ))
-                 (cont∘₂ (IsContinuous∘ _ _ (IsContinuous·ᵣL _)
-                    IsContinuousAbsᵣ)
-                  (cont₂∘ ((cont₂∘ (contNE₂ sumR)
-                  IsContinuousId IsContinuous-ᵣ ))
-                   cf cf))
+        ≤Cont₂ (cont∘₂ IsContinuousAbsᵣ IsContinuous-₂)
+
+              (cont₂·₂ᵣ (IsContinuous₂Const _)
+                  (cont∘₂ IsContinuousAbsᵣ
+                    (IsContinuous-₂∘  ((λ _ → IsContinuousConst _) , λ _ → cf)
+                     (( λ _ → cf) , (λ _ → IsContinuousConst _)))))
                  λ u u' →
-          isTrans≤≡ᵣ _ _ _ (≤ℚ→≤ᵣ _ _ (il u u'))
-           (rat·ᵣrat _ _)
+                  isTrans≤≡ᵣ _ _ _ (isTrans≡≤ᵣ _ _ _ ℚℝ! (≤ℚ→≤ᵣ _ _ (il u u')))
+                    (ℚℝ! ∙ (cong ((rat (fst K) ·ᵣ_) ∘ absᵣ)
+                      (cong₂ _-ᵣ_ (sym fromLipschitz-rat) (sym fromLipschitz-rat))))
+
   where
   cf : IsContinuous (fst ( (fromLipschitz L ((rat ∘ f) , fl))))
   cf = Lipschitz→IsContinuous L _
@@ -391,11 +400,11 @@ fromLipInvLip K L f fl =
   ∘S Invlipschitz-ℚ→ℚ→Invlipschitz-ℚ→ℚ' K f
 
 extend-Bilipshitz : ∀ L K → fst (invℚ₊ K) ℚ.≤ fst L → ∀ a b → (a ℚ.≤ b) →
-            (f : ∀ q → q ∈ ℚintervalℙ a b → ℚ) →
-             isIncrasingℙ _ f →
+            (f : ∀ q → q ∈ ℚ.ℚintervalℙ a b → ℚ) →
+             isIncrasingℙ (ℚ.ℚintervalℙ a b) f →
         Lipschitz-ℚ→ℝℙ L (intervalℙ (rat a) (rat b))
           ((λ x x₁ → rat (f x (∈intervalℙ→∈ℚintervalℙ a b x x₁)))) →
-        Invlipschitz-ℚ→ℚℙ K (ℚintervalℙ a b) f →
+        Invlipschitz-ℚ→ℚℙ K (ℚ.ℚintervalℙ a b) f →
         Σ[ f' ∈ (ℚ → ℚ) ]
           Lipschitz-ℚ→ℝ L (rat ∘ f')
            × Invlipschitz-ℚ→ℚ K f' × (∀ x x∈ → f' x ≡ f x x∈ )
@@ -411,17 +420,19 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
  α≤L = ℚ.isTrans≤ _ _ _ (ℚ.≤-·o _ _ [ 1 / 2 ]
          (ℚ.decℚ≤? {0} {[ 1 / 2 ]})
           (ℚ.≤-+o (fst (invℚ₊ K)) (fst L) (fst L) 1/K≤L))
-          (ℚ.≡Weaken≤ _ _ (
-            cong (ℚ._· [ 1 / 2 ])
-              (cong₂ ℚ._+_ (sym (ℚ.·IdL _)) (sym (ℚ.·IdL _))
-              ∙ sym (ℚ.·DistR+ 1 1 (fst L)))
-              ∙∙ ℚ.·Comm _ _ ∙∙ ℚ.[y·x]/y 2 (fst L)))
+          (ℚ.≡Weaken≤ _ _ ℚ!
+            --  (
+            -- cong (ℚ._· [ 1 / 2 ])
+            --   (cong₂ ℚ._+_ (sym (ℚ.·IdL _)) (sym (ℚ.·IdL _))
+            --   ∙ sym (ℚ.·DistR+ 1 1 (fst L)))
+            --   ∙∙ ℚ.·Comm _ _ ∙∙ ℚ.[y·x]/y 2 (fst L))
+              )
 
  1/K≤α : fst (ℚ.invℚ₊ K) ℚ.≤  fst α
  1/K≤α = ℚ.isTrans≤ _ _ _
-   (ℚ.≡Weaken≤ _ _ ((sym (ℚ.[y·x]/y 2 (fst (invℚ₊ K))) ∙ ℚ.·Comm _ _)
+   (ℚ.≡Weaken≤ _ _ ((sym (ℚ.[y·x]/y 2 (fst (invℚ₊ K))) ∙ ℚ.·Comm (fst (invℚ₊ 2)) (fst 2 ℚ.· fst (invℚ₊ K)))
      ∙ cong (ℚ._· [ 1 / 2 ]) ((ℚ.·DistR+ 1 1 (fst (invℚ₊ K))) ∙
-      cong₂ ℚ._+_ (ℚ.·IdL _) (ℚ.·IdL _) )))
+      cong₂ ℚ._+_ (ℚ.·IdL (fst (invℚ₊ K))) (ℚ.·IdL _) )))
     (ℚ.≤-·o _ _ [ 1 / 2 ] (ℚ.decℚ≤? {0} {[ 1 / 2 ]})
      ((ℚ.≤-o+ (fst (invℚ₊ K)) (fst L) (fst (invℚ₊ K)) 1/K≤L)))
 
@@ -430,7 +441,7 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
 
 
  f≡ : ∀ {x x' x∈ x'∈} → x ≡ x' → f x x∈ ≡ f x' x'∈
- f≡ p = (cong (uncurry f) (Σ≡Prop (∈-isProp (ℚintervalℙ a b))
+ f≡ p = (cong (uncurry f) (Σ≡Prop (∈-isProp (ℚ.ℚintervalℙ a b))
               (p)))
 
 
@@ -439,16 +450,15 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
    , f'=f
   where
    x' = ℚ.clamp a b x
-   x'∈ = clam∈ℚintervalℙ a b a≤b x
+   x'∈ = ℚ.clam∈ℚintervalℙ a b a≤b x
 
-   f'=f : (x∈ : x ∈ ℚintervalℙ a b) →
+   f'=f : (x∈ : x ∈ ℚ.ℚintervalℙ a b) →
             (g a x ℚ.- g a x') ℚ.+ f x' x'∈ ≡ f x x∈
    f'=f x∈ =
-    let p = ∈ℚintervalℙ→clam≡ a b x x∈
-    in cong₂ ℚ._+_ (cong ((ℚ._- (g a x')) ∘S g a) p ∙
-            ℚ.+InvR _)
-         (f≡ (sym p))
-         ∙ ℚ.+IdL _
+    let p = ℚ.∈ℚintervalℙ→clam≡ a b x x∈
+    in cong₂ {y = 0} ℚ._+_ (cong ((ℚ._- (g a x')) ∘S g a) p ∙ ℚ!!) -- ℚ!!
+         (f≡ {x'∈ = x∈} (sym p))
+         ∙ ℚ.+IdL (f x x∈)
 
 
  monF' : ℚisIncrasing (fst ∘ f')
@@ -456,7 +466,7 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
   where
   h : (x : ℚ) (ε : ℚ₊) (x< : x ℚ.< x ℚ.+ fst ε) → _
   h x ε x< = ℚ.<minus→< _ _ (subst (0 ℚ.<_)
-                  (sym (lem--069 {fst α} {δ = a}))
+                  ℚ!!
                     (h' (ℚ.≤→≡⊎< x' x+Δ' x'≤x+Δ')))
 
 
@@ -465,10 +475,10 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
 
    x<x+Δ = (ℚ.<+ℚ₊' x x ε (ℚ.isRefl≤ x))
    x' = ℚ.clamp a b x
-   x'∈ = clam∈ℚintervalℙ a b a≤b x
+   x'∈ = ℚ.clam∈ℚintervalℙ a b a≤b x
 
    x+Δ' = ℚ.clamp a b (x ℚ.+ fst ε)
-   x+Δ'∈ = clam∈ℚintervalℙ a b a≤b (x ℚ.+ fst ε)
+   x+Δ'∈ = ℚ.clam∈ℚintervalℙ a b a≤b (x ℚ.+ fst ε)
 
    x'≤x+Δ' : x' ℚ.≤ x+Δ'
    x'≤x+Δ' = ℚ.≤MonotoneClamp a b _ _ (ℚ.<Weaken≤ _ _ x<x+Δ)
@@ -481,6 +491,7 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
                      (cong (ℚ.-_) (𝐐'.+InvR' _ _ (sym x))))) ∙
                       sym (𝐐'.+IdR' _ _
                         (𝐐'.+InvR' _ _ (f≡ (sym x)))))
+
                  (ℚ.0<ℚ₊ (α ℚ₊· ε))
    h' (inr xx) = ℚ.≤<Monotone+ 0 _ 0
      (f x+Δ' x+Δ'∈  ℚ.- f x' x'∈)
@@ -488,9 +499,9 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
           (ℚ.·AnnihilR (fst α))
 
            (ℚ.≤-o· _ _ _ (ℚ.0≤ℚ₊ α)
-               (ℚ.-≤ _ _
+               (ℚ.-≤ _ (fst ε)
                  (subst ((x+Δ' ℚ.- x') ℚ.≤_)
-                    lem--063 (ℚ.clampDiff a b x (x ℚ.+ fst ε)
+                    ℚ!! (ℚ.clampDiff a b x (x ℚ.+ fst ε)
                      (ℚ.<Weaken≤ _ _ x<x+Δ ))))))
       ((ℚ.<→<minus (f x' x'∈) (f x+Δ' x+Δ'∈)
           (monF x' x'∈ x+Δ' x+Δ'∈ xx)))
@@ -505,7 +516,7 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
  li<' q Δ ε u v = isTrans≡<ᵣ _ _ _
    (absᵣPos _ (x<y→0<y-x _ _ (
      (<ℚ→<ᵣ _ _ (monF' _ _ q<q+Δ))))
-      ∙ -ᵣ-rat₂ _ _ ∙ cong rat (lem--069 {fst α})
+      ∙ -ᵣ-rat₂ _ _ ∙ cong rat ℚ!!
       )
    (isTrans≤<ᵣ (rat ((fst α ℚ.· (fst Δ ℚ.- (q+Δ' ℚ.- q'))) ℚ.+
              (((f q+Δ' q+Δ'∈) ℚ.- (f q' q'∈)))))
@@ -517,14 +528,14 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
   where
     Δ<ε : fst Δ ℚ.< fst ε
     Δ<ε = ℚ.minus-<' (fst ε) (fst Δ)
-            (subst ((ℚ.- (fst ε)) ℚ.<_) lem--072 u)
+            (subst ((ℚ.- (fst ε)) ℚ.<_) ℚ!! u)
 
     q<q+Δ = (ℚ.<+ℚ₊' q q Δ (ℚ.isRefl≤ q))
     q' = ℚ.clamp a b q
-    q'∈ = clam∈ℚintervalℙ a b a≤b q
+    q'∈ = ℚ.clam∈ℚintervalℙ a b a≤b q
 
     q+Δ' = ℚ.clamp a b (q ℚ.+ fst Δ)
-    q+Δ'∈ = clam∈ℚintervalℙ a b a≤b (q ℚ.+ fst Δ)
+    q+Δ'∈ = ℚ.clam∈ℚintervalℙ a b a≤b (q ℚ.+ fst Δ)
 
     q'≤q+Δ' : q' ℚ.≤ q+Δ'
     q'≤q+Δ' = ℚ.≤MonotoneClamp a b _ _ (ℚ.<Weaken≤ _ _ q<q+Δ)
@@ -534,19 +545,28 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
              ℚ.≤
              ((ℚ.abs' ((f q+Δ' _) ℚ.- (f q' _)))
                ℚ.+ (fst L ℚ.· (fst Δ ℚ.- (q+Δ' ℚ.- q'))))
-    zz = subst2 ℚ._≤_ (ℚ.+Comm _ _)
+    zz = subst2 ℚ._≤_ (ℚ.+Comm (f q+Δ' q+Δ'∈ ℚ.- f q' q'∈) (fst α ℚ.· (fst Δ ℚ.- (q+Δ' ℚ.- q'))))
           (cong (ℚ._+ (fst L ℚ.· (fst Δ ℚ.- (q+Δ' ℚ.- q'))))
              (sym (ℚ.absNonNeg _ (ℚ.≤→<minus _ _
-                  (((isIncrasingℙ→isNondecrasingℙ _ f monF)
+                  (((isIncrasingℙ→isNondecrasingℙ (ℚ.ℚintervalℙ a b) f monF)
                       _ q'∈ _ q+Δ'∈ q'≤q+Δ' ))
                   )) ∙
-                   cong ℚ.abs (cong₂ ℚ._-_ (f≡ refl) (f≡ refl))
-                     ∙ (ℚ.abs'≡abs _)))
-            (ℚ.≤-o+ _ _ _ (ℚ.≤-·o _ _ ((fst Δ ℚ.- (q+Δ' ℚ.- q')))
-              (ℚ.≤→<minus _ _
+                   cong ℚ.abs (cong₂ ℚ._-_
+                     (f≡ {x'∈ = ∈intervalℙ→∈ℚintervalℙ a b q+Δ'
+                                 (∈ℚintervalℙ→∈intervalℙ a b (ℚ.clamp a b (q ℚ.+ fst Δ)) q+Δ'∈)} refl) (f≡ {x'∈ = ∈intervalℙ→∈ℚintervalℙ a b q'
+                                                                                                                   (∈ℚintervalℙ→∈intervalℙ a b (ℚ.clamp a b q) q'∈)} refl))
+                     ∙ (ℚ.abs'≡abs (f (ℚ.clamp a b (q ℚ.+ fst Δ))
+                                     (∈intervalℙ→∈ℚintervalℙ a b q+Δ'
+                                      (∈ℚintervalℙ→∈intervalℙ a b (ℚ.clamp a b (q ℚ.+ fst Δ)) q+Δ'∈))
+                                     ℚ.-
+                                     f (ℚ.clamp a b q)
+                                     (∈intervalℙ→∈ℚintervalℙ a b q'
+                                      (∈ℚintervalℙ→∈intervalℙ a b (ℚ.clamp a b q) q'∈))))))
+            (ℚ.≤-o+ _ _ (f q+Δ' q+Δ'∈ ℚ.- f q' q'∈) (ℚ.≤-·o _ _ ((fst Δ ℚ.- (q+Δ' ℚ.- q')))
+              (ℚ.≤→<minus _ (fst Δ)
                 (ℚ.isTrans≤ _ _ _ (ℚ.clampDiff a b q (q ℚ.+ fst Δ)
                   (ℚ.<Weaken≤ _ _ q<q+Δ))
-                 (ℚ.≡Weaken≤ _ _ lem--063))) α≤L))
+                 (ℚ.≡Weaken≤ _ _ ℚ!!))) α≤L))
 
 
     h' = a<b-c⇒a+c<b _ (rat (fst L ℚ.· fst ε))
@@ -554,35 +574,34 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
           (li q+Δ' (∈ℚintervalℙ→∈intervalℙ _ _ _ q+Δ'∈)
             q' (∈ℚintervalℙ→∈intervalℙ _ _ _ q'∈)
             (fst ε ℚ.- (fst Δ ℚ.- (q+Δ' ℚ.- q')) ,
-               ℚ.<→0< _ (ℚ.-< _ _
-                 (ℚ.isTrans≤< _ _ _
+               ℚ.<→0< _ (ℚ.-< _ (fst ε)
+                 (ℚ.isTrans≤< _ ((q ℚ.+ fst Δ) ℚ.- q) _
                    (subst ((fst Δ ℚ.- (q+Δ' ℚ.- q')) ℚ.≤_)
-                     (ℚ.+IdR _ ∙ sym lem--063)
+                     (ℚ!!)
                       (ℚ.≤-o+ _ 0 (fst Δ)
                        (ℚ.minus-≤ 0 _ (ℚ.≤→<minus _ _ q'≤q+Δ'))))
                     ((ℚ.minus-<' _ _ (subst ((ℚ.- (fst ε)) ℚ.<_)
-                     (sym (ℚ.-[x-y]≡y-x _ _)) u))))))
+                     (sym (ℚ.-[x-y]≡y-x (q ℚ.+ fst Δ) q)) u))))))
                       (subst2 ℚ._<_ (ℚ.+IdL _ ∙
                         sym (ℚ.absNonNeg _ (ℚ.≤→<minus _ _
                          q'≤q+Δ')))
-                        (sym (ℚ.+Assoc _ _ _) ∙
-                         cong (fst ε ℚ.+_) (sym (ℚ.-Distr' _ _)))
+                         ℚ!!
                        (ℚ.<-+o 0 (fst ε ℚ.- fst Δ) (q+Δ' ℚ.- q')
-                        (ℚ.<→<minus _ _ Δ<ε)))
+                        (ℚ.<→<minus (fst Δ) (fst ε) Δ<ε)))
                    )
                    ((cong rat (ℚ.·DistL+ (fst L) (fst ε)
                   (ℚ.- (fst Δ ℚ.- (q+Δ' ℚ.- q')))) ∙
                  sym (+ᵣ-rat _ _) ∙ cong (rat (fst L ℚ.· fst ε) +ᵣ_)
-                  (cong rat (sym lem--070) ∙ sym (-ᵣ-rat _))))
+                  (cong rat ℚ!! ∙ sym (-ᵣ-rat _))))
 
                   )
 
  li' : Lipschitz-ℚ→ℝ L (rat ∘ (λ x → fst (f' x)))
  li' = ℚ.elimBy≡⊎<'
   (λ q r X ε u v → sym∼ _ _ _
-    (X ε (subst (ℚ.- fst ε ℚ.<_) (ℚ.-[x-y]≡y-x _ _) (ℚ.minus-< _ _ v))
-          (subst2 ℚ._<_ (ℚ.-[x-y]≡y-x _ _)
-            (ℚ.-Invol _) (ℚ.minus-< _ _ u))))
+    (X ε (subst (ℚ.- fst ε ℚ.<_) (ℚ.-[x-y]≡y-x r q) (ℚ.minus-< (r ℚ.- q) (fst ε) v))
+          (subst2 ℚ._<_ (ℚ.-[x-y]≡y-x r q)
+            (ℚ.-Invol _) (ℚ.minus-< (ℚ.- fst ε) (r ℚ.- q) u))))
   (λ q ε _ _ → refl∼ _ _)
   λ q Δ ε u v → sym∼ _ _ _ (invEq (∼≃abs<ε _ _ _)
     (li<' q Δ ε u v))
@@ -594,41 +613,42 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
    ℚ.isTrans≤ _ _ _
    (ℚ.isTrans≤ _ _ _ (ℚ.isTrans≤ _ _ _
      (ℚ.isTrans≤ _ _ _ (ℚ.≡Weaken≤ _ _ (sym (ℚ.+IdR (fst Δ))))
-       (ℚ.≤-o+ _ _ _ (ℚ.≤→<minus _ ((fst K) ℚ.· (f x+Δ' x+Δ'∈ ℚ.- f x' x'∈))
+       (ℚ.≤-o+ _ _ (fst Δ) (ℚ.≤→<minus _ ((fst K) ℚ.· (f x+Δ' x+Δ'∈ ℚ.- f x' x'∈))
         ((⊎.rec h≡ h< (ℚ.≤→≡⊎< x' x+Δ' x'≤x+Δ'))))))
       (ℚ.≡Weaken≤ _ _
-          (cong (fst Δ ℚ.+_) (ℚ.+Comm _ _) ∙ (ℚ.+Assoc _ _ _) ∙ (cong (ℚ._+
-             ((fst K) ℚ.· (f x+Δ' x+Δ'∈ ℚ.- f x' x'∈))) (sym (ℚ.y·[x/y] K _)))
-           ∙  sym (ℚ.·DistL+ (fst K) _ _)))
+
+            let zwzw : ∀ {f-x+Δ' f-x'} → fst Δ ℚ.+
+                     ((fst K ℚ.· (f-x+Δ' ℚ.- f-x')) ℚ.- (x+Δ' ℚ.- x'))
+                     ≡
+                     fst K ℚ.·
+                     (fst (invℚ₊ K) ℚ.· (fst Δ ℚ.- (x+Δ' ℚ.- x')) ℚ.+
+                      (f-x+Δ' ℚ.- f-x'))
+                zwzw = ℚ!
+            in zwzw {f x+Δ' x+Δ'∈} {f x' x'∈})
        )
       (ℚ.≤-o· _ _ (fst K) (ℚ.0≤ℚ₊ K)
          (ℚ.isTrans≤ _ _ _ (ℚ.≤-+o _ _
           (f x+Δ' x+Δ'∈ ℚ.- f x' x'∈) (ℚ.≤-·o _ _ (fst Δ ℚ.- (x+Δ' ℚ.- x'))
-          (ℚ.≤→<minus _ _
+          (ℚ.≤→<minus _ (fst Δ)
            (ℚ.isTrans≤ _ _ _
              (ℚ.clampDiff a b x (x ℚ.+ (fst Δ)) (ℚ.<Weaken≤ _ _ x<x+Δ))
-              (ℚ.≡Weaken≤ _ _ lem--063)))
+              (ℚ.≡Weaken≤ _ _ ℚ!!)))
             1/K≤α)) (ℚ.≤abs _))))
 
-   (ℚ.≡Weaken≤ _ _ (cong (fst K  ℚ.·_) (cong (ℚ.abs) (sym lem-f') ∙
-       ℚ.absComm- _ _ ∙ ℚ.abs'≡abs _)))
+     (ℚ.≡Weaken≤ _ _ (cong (fst K  ℚ.·_) (ℚ!! ∙
+       ℚ.absComm- (fst (f' (x ℚ.+ fst Δ))) (fst (f' x))
+         ∙ ℚ.abs'≡abs (fst (f' x) ℚ.- fst (f' (x ℚ.+ fst Δ))))))
   where
 
   x<x+Δ = (ℚ.<+ℚ₊' x x Δ (ℚ.isRefl≤ x))
   x' = ℚ.clamp a b x
-  x'∈ = clam∈ℚintervalℙ a b a≤b x
+  x'∈ = ℚ.clam∈ℚintervalℙ a b a≤b x
 
   x+Δ' = ℚ.clamp a b (x ℚ.+ fst Δ)
-  x+Δ'∈ = clam∈ℚintervalℙ a b a≤b (x ℚ.+ fst Δ)
+  x+Δ'∈ = ℚ.clam∈ℚintervalℙ a b a≤b (x ℚ.+ fst Δ)
 
   x'≤x+Δ' : x' ℚ.≤ x+Δ'
   x'≤x+Δ' = ℚ.≤MonotoneClamp a b _ _ (ℚ.<Weaken≤ _ _ x<x+Δ)
-
-
-  lem-f' : (fst (f' (x ℚ.+ fst Δ)) ℚ.- fst (f' x))
-        ≡ (fst α) ℚ.· (fst Δ ℚ.- (x+Δ' ℚ.- x'))
-            ℚ.+ (f x+Δ' x+Δ'∈ ℚ.- f x' x'∈)
-  lem-f' = lem--069 {fst α}
 
   from-il = il x+Δ' x+Δ'∈ x' x'∈
 
@@ -637,27 +657,31 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
     λ p' →
      let pp = from-il (invℚ₊ K ℚ₊· (ℚ.<→ℚ₊ _ _ p))
            (ℚ.isTrans≤< _ _ _
-              (ℚ.≡Weaken≤ _ _ ((sym (ℚ.abs'≡abs _) ∙ (ℚ.absPos _
-               (ℚ.<→<minus _ _  (monF _ x'∈ _ x+Δ'∈ p ))))
+              (ℚ.≡Weaken≤ _ _ ((sym (ℚ.abs'≡abs
+                (f (ℚ.clamp a b (x ℚ.+ fst Δ)) x+Δ'∈ ℚ.- f (ℚ.clamp a b x) x'∈)) ∙
+                 (ℚ.absPos (f (ℚ.clamp a b (x ℚ.+ fst Δ)) x+Δ'∈ ℚ.- f (ℚ.clamp a b x) x'∈)
+               (ℚ.<→<minus (f (ℚ.clamp a b x) x'∈) (f (ℚ.clamp a b (x ℚ.+ fst Δ)) x+Δ'∈)
+                 (monF _ x'∈ _ x+Δ'∈ p ))))
                ∙ sym (ℚ.[y·x]/y K _)))
                (ℚ.<-o· _ _ (fst (invℚ₊ K)) ((ℚ.0<ℚ₊ (invℚ₊ K))) p'))
      in ℚ.isIrrefl<  _ (ℚ.isTrans<≤ _ _ _ pp
          (ℚ.≡Weaken≤ _ _
            ((ℚ.y·[x/y] K _) ∙
-            (sym (ℚ.absPos _ (ℚ.<→<minus _ _ p)) ∙ ℚ.abs'≡abs _))))
+            (sym (ℚ.absPos _ (ℚ.<→<minus _ _ p)) ∙ ℚ.abs'≡abs (x+Δ' ℚ.- x')))))
 
   h≡ : x' ≡ x+Δ' → (x+Δ' ℚ.- x') ℚ.≤ fst K ℚ.· (f x+Δ' x+Δ'∈ ℚ.- f x' x'∈)
 
-  h≡ p = ℚ.≡Weaken≤ _ _ (𝐐'.+InvR' _ _ (sym p) ∙
-           sym (ℚ.·AnnihilR (fst K)) ∙
-            cong (fst K ℚ.·_) (sym (𝐐'.+InvR' _ _ (f≡ (sym p)))))
+  h≡ p = ℚ.≡Weaken≤ _ _ (
+        (cong (ℚ._-_ x+Δ' ) p ∙ ℚ!! ) ∙ cong (λ xx → fst K ℚ.· (f x+Δ' x+Δ'∈ ℚ.- xx))
+          (f≡ {x∈ = x+Δ'∈} {x'∈ = x'∈} (sym p)))
+
 
  ili' : Invlipschitz-ℚ→ℚ K (λ x → fst (f' x))
  ili' = ℚ.elimBy≡⊎<'
    (λ x y X ε u → ℚ.isTrans≤< _ _ _
-       (ℚ.≡Weaken≤ _ _ (ℚ.abs'Comm- _ _))
+       (ℚ.≡Weaken≤ _ _ (ℚ.abs'Comm- y x))
         (X ε (ℚ.isTrans≤< _ _ _
-       (ℚ.≡Weaken≤ _ _ (ℚ.abs'Comm- _ _)) u)) )
+       (ℚ.≡Weaken≤ _ _ (ℚ.abs'Comm- (fst (f' x)) (fst (f' y)))) u)) )
    (λ x ε _ →
        ℚ.isTrans≤< (ℚ.abs' (x ℚ.- x)) 0 _
        (ℚ.≡Weaken≤ _ _ (cong ℚ.abs' (ℚ.+InvR x))) (ℚ.0<ℚ₊ (K ℚ₊· ε))
@@ -667,17 +691,12 @@ extend-Bilipshitz L K 1/K≤L a b a≤b f monF li il =
      in ℚ.isTrans≤< (ℚ.abs' (x ℚ.- (x ℚ.+ fst Δ)))
            ((fst K) ℚ.· ℚ.abs' (fst (f' x) ℚ.- fst (f' (x ℚ.+ fst Δ))))
              _ (ℚ.isTrans≤ _ _ _
-               (ℚ.≡Weaken≤ _ _ (sym (ℚ.abs'≡abs _)  ∙
-                     ℚ.absComm- _ _
-                  ∙∙ cong ℚ.abs lem--063 ∙∙ -- (cong ℚ.abs' lem--072)
-                    ℚ.absPos _ (ℚ.0<ℚ₊ Δ) ) )
+               (ℚ.≡Weaken≤ _ _ (sym (ℚ.abs'≡abs (x ℚ.- (x ℚ.+ fst Δ)))  ∙
+                     ℚ.absComm- x (x ℚ.+ fst Δ)
+                  ∙∙ ℚ!! ∙∙ -- (cong ℚ.abs' lem--072)
+                    ℚ.absPos (fst Δ) (ℚ.0<ℚ₊ Δ) ) )
                z )
             (ℚ.<-o· _ _ (fst K) (ℚ.0<ℚ₊ K) (f'x-f'[x+Δ]<ε)) --ili'<
-
-<ᵣ-o+-cancel : ∀ m n o →  o +ᵣ m <ᵣ o +ᵣ n → m <ᵣ n
-<ᵣ-o+-cancel m n o p =
-     subst2 (_<ᵣ_) L𝐑.lem--04 L𝐑.lem--04
-     (<ᵣ-o+ _ _ (-ᵣ o) p)
 
 
 fromLip-Invlipschitz-ℚ→ℚ' : ∀ L K f
@@ -697,21 +716,20 @@ fromLip-Invlipschitz-ℚ→ℚ' L K f l il u v ε <ε =
 
 
      in PT.rec2 (isProp∼ _ _ _)
-          (λ (u' , u<u' , u'<u+δ/L⊔K)
-             (v' , v<v' , v'<v+δ/L⊔K) →
+          (λ (u' , u<u' , u'<u+δ/L⊔K) (v' , v<v' , v'<v+δ/L⊔K) →
                let L·δ/L⊔K≤δ : rat (fst (L ℚ₊· δ/L⊔K)) ≤ᵣ rat (fst δ)
                    L·δ/L⊔K≤δ =
                      isTrans≤≡ᵣ _ _ _
                         ((≤ℚ→≤ᵣ _ _
                             ((ℚ.≤-o· _ _ _
                              (ℚ.0≤ℚ₊ L)
-                               (ℚ.≤-·o _ _ _ ((ℚ.0≤ℚ₊ δ))
-                                 (ℚ.min≤' _ _))))))
+                               (ℚ.≤-·o _ (fst (invℚ₊ L)) _ ((ℚ.0≤ℚ₊ δ))
+                                 (ℚ.min≤' (K .fst) _))))))
                       (cong rat (ℚ.y·[x/y] L (fst δ)))
                    δ/L⊔K≤K·δ : rat (fst δ/L⊔K) ≤ᵣ rat (fst K ℚ.· fst δ)
                    δ/L⊔K≤K·δ = ≤ℚ→≤ᵣ _ _
                                   (ℚ.≤-·o (fst (ℚ.min₊ K (invℚ₊ L)))
-                                    _ _ ((ℚ.0≤ℚ₊ δ)) (ℚ.min≤ _ _))
+                                    (fst K) _ ((ℚ.0≤ℚ₊ δ)) (ℚ.min≤ _ (invℚ₊ L .fst)))
                    ∣'u-u∣<δ/L⊔K = (isTrans≡<ᵣ _ _ _
                                (absᵣPos _ (x<y→0<y-x _ _ u<u'))
                                (a<c+b⇒a-c<b _ _ _ u'<u+δ/L⊔K))
@@ -720,17 +738,22 @@ fromLip-Invlipschitz-ℚ→ℚ' L K f l il u v ε <ε =
                                (a<c+b⇒a-c<b _ _ _ v'<v+δ/L⊔K))
                    lU : absᵣ (rat (f u') -ᵣ f𝕣 u)
                            <ᵣ rat (fst δ)
-                   lU = isTrans<≤ᵣ _ _ _
+                   lU = isTrans<≤ᵣ _ _ _ (isTrans≡<ᵣ _ _ _
+                          (cong absᵣ (cong₂ _-ᵣ_ (sym fromLipschitz-rat) refl))
                           (fst (∼≃abs<ε _ _ _) $ lf (rat u') u δ/L⊔K
                          (invEq (∼≃abs<ε _ _ _)
-                            ∣'u-u∣<δ/L⊔K))
+                            ∣'u-u∣<δ/L⊔K)))
+
                                 L·δ/L⊔K≤δ
                    lV : absᵣ (f𝕣 v -ᵣ rat (f v'))
                            <ᵣ rat (fst δ)
                    lV = isTrans≡<ᵣ _ _ _ (minusComm-absᵣ _ _) (isTrans<≤ᵣ _ _ _
-                          (fst (∼≃abs<ε _ _ _) $ lf (rat v') v δ/L⊔K
+                            (isTrans≡<ᵣ _ _ _
+                          (cong absᵣ (cong₂ _-ᵣ_ (sym fromLipschitz-rat) refl))
+                           (fst (∼≃abs<ε _ _ _) $ lf (rat v') v δ/L⊔K
                          (invEq (∼≃abs<ε _ _ _)
-                            ∣'v-v∣<δ/L⊔K))
+                            ∣'v-v∣<δ/L⊔K)))
+
                                 L·δ/L⊔K≤δ)
                    z< : absᵣ (rat (f u') -ᵣ rat (f v'))
 
@@ -740,8 +763,13 @@ fromLip-Invlipschitz-ℚ→ℚ' L K f l il u v ε <ε =
                             (absᵣ-triangle-minus (rat (f u') -ᵣ rat (f v')) _)
                            (isTrans≤<ᵣ _ _ _
                            (isTrans≡≤ᵣ _ _ _
-                             (cong absᵣ (L𝐑.lem--067
-                                {rat (f u')} {rat (f v')}))
+                             (cong absᵣ
+                                let qzq : (∀ {fu fv} → rat (f u') -ᵣ rat (f v') -ᵣ
+                                               (fu +ᵣ
+                                                -ᵣ fv)
+                                               ≡ rat (f u') -ᵣ fu +ᵣ (fv -ᵣ rat (f v')))
+                                    qzq = ℝ!
+                                 in qzq)
                                (absᵣ-triangle _ _))
                              (<ᵣMonotone+ᵣ _ _ _ _ lU lV))))
                                (<ᵣ-o+ _ _ _ fu-fv<ε')
@@ -763,7 +791,7 @@ fromLip-Invlipschitz-ℚ→ℚ' L K f l il u v ε <ε =
                                ℚ.+ (fst K ℚ.· fst δ)))
                    zz = isTrans≤ᵣ _ _ _
                           (isTrans≡≤ᵣ _ _ _
-                            (cong absᵣ (L𝐑.lem--067 {u} {v} {rat u'} {rat v'} ))
+                            (cong absᵣ (ℝ!))
                              (absᵣ-triangle _ _))
                              (isTrans≤≡ᵣ _ _ _
                               (≤ᵣMonotone+ᵣ _ _ _ _
@@ -786,15 +814,7 @@ fromLip-Invlipschitz-ℚ→ℚ' L K f l il u v ε <ε =
                               (cong absᵣ (-ᵣ-rat₂ _ _) ∙  (absᵣ-rat' _)) (<ℚ→<ᵣ _ _ z)))
                               (+ᵣ-rat _ _)))
                       (cong rat
-                        (cong (ℚ._+ (fst K ℚ.· ((fst δ ℚ.+ fst δ) ℚ.+ ε')))
-                            (sym (ℚ.·DistL+ _ _ _)) ∙
-                           (sym (ℚ.·DistL+ _ _ _)) ∙
-                            cong (fst K ℚ.·_)
-                             (ℚ.+Assoc _ _ _ ∙
-                              cong (ℚ._+ ε')
-                               (cong₂ ℚ._+_ (cong fst (ℚ./4₊+/4₊≡/2₊ ε-ε'))
-                                 ((cong fst (ℚ./4₊+/4₊≡/2₊ ε-ε'))) ∙
-                                  ℚ.ε/2+ε/2≡ε _) ∙ lem--00)))))
+                        ℚ!!)))
           (denseℚinℝ u (u +ᵣ rat (fst (δ/L⊔K)))
             ( isTrans≡<ᵣ _ _ _ (sym (+IdR u))
                (<ᵣ-o+ _ _ u (<ℚ→<ᵣ 0 _ (ℚ.0<ℚ₊ δ/L⊔K)) )))
@@ -805,6 +825,8 @@ fromLip-Invlipschitz-ℚ→ℚ' L K f l il u v ε <ε =
 
 
  where
+
+
   lf = snd (fromLipschitz L ((rat ∘ f) , l))
 
   f𝕣 = fst (fromLipschitz L ((rat ∘ f) , l))
@@ -813,11 +835,11 @@ fromLip-Invlipschitz-ℚ→ℚ' L K f l il u v ε <ε =
 
 
 fromBilpschitz-ℚ→ℚℙ : ∀ L K → fst (invℚ₊ K) ℚ.≤ fst L →  ∀ a b → (a<b : a ℚ.< b) → ∀ f
-           → isIncrasingℙ _ f
+           → isIncrasingℙ (ℚ.ℚintervalℙ a b) f
            → (l : Lipschitz-ℚ→ℝℙ L (intervalℙ (rat a) (rat b))
               (λ x x₁ → rat (f x (∈intervalℙ→∈ℚintervalℙ a b x x₁))))
-           → Invlipschitz-ℚ→ℚℙ K (ℚintervalℙ a b) f
-           →  Σ[ g ∈ (∀ x → x ∈ _  → ℝ ) ]
+           → Invlipschitz-ℚ→ℚℙ K (ℚ.ℚintervalℙ a b) f
+           →  Σ[ g ∈ (∀ x → x ∈ intervalℙ (rat a) (rat b)  → ℝ ) ]
                  ((Lipschitz-ℝ→ℝℙ L (intervalℙ (rat a) (rat b))) g
                   × Invlipschitz-ℝ→ℝℙ K (intervalℙ (rat a) (rat b)) g
                    × (∀ x x∈ ratx∈ → g (rat x) ratx∈ ≡ rat (f x x∈)))
@@ -832,9 +854,8 @@ fromBilpschitz-ℚ→ℚℙ L K 1/K≤L a b a<b f incrF l il =
   in (λ x _ → f'' x) ,
        (λ u u∈ v v∈ ε x → f''-l u v ε x) ,
        (λ u u∈ v v∈ ε x → f''-il u v ε x) ,
-       λ x x∈ ratx∈ → cong rat (f≡f' _ _)
+       λ x x∈ ratx∈ → fromLipschitz-rat ∙ cong rat (f≡f' _ _)
 
-open ℚ.HLP
 
 
 
@@ -843,13 +864,13 @@ open ℚ.HLP
 
 record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
  field
-  incrF : isIncrasingℙ (ℚintervalℙ a b) f
+  incrF : isIncrasingℙ (ℚ.ℚintervalℙ a b) f
   L K : ℚ₊
   1/K≤L : fst (invℚ₊ K) ℚ.≤ fst L
 
   lipF : Lipschitz-ℚ→ℝℙ L (intervalℙ (rat a) (rat b))
               (λ x x₁ → rat (f x (∈intervalℙ→∈ℚintervalℙ a b x x₁)))
-  lip⁻¹F : Invlipschitz-ℚ→ℚℙ K (ℚintervalℙ a b) f
+  lip⁻¹F : Invlipschitz-ℚ→ℚℙ K (ℚ.ℚintervalℙ a b) f
 
  fa = f a (ℚ.isRefl≤ a , ℚ.<Weaken≤ a b a<b)
  fb = f b (ℚ.<Weaken≤ a b a<b , ℚ.isRefl≤ b)
@@ -871,17 +892,17 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
  fl-ebl = fromLipschitz L ((rat ∘ (fst ebl)) , fst (snd ebl))
 
  fl-ebl∈ : ∀ y →
-             y ∈ ℚintervalℙ a b →
+             y ∈ ℚ.ℚintervalℙ a b →
               fst fl-ebl ((rat y)) ∈ intervalℙ (rat fa) (rat fb)
  fl-ebl∈ y y∈ = isTrans≤≡ᵣ _ _ _ (≤ℚ→≤ᵣ _ _ z)
        (sym p) , isTrans≡≤ᵣ _ _ _ p  (≤ℚ→≤ᵣ _ _ z')
   where
-   p = (cong rat (ebl .snd .snd .snd y y∈))
-   z = (isIncrasingℙ→isNondecrasingℙ _ _ incrF)
+   p = fromLipschitz-rat ∙ (cong rat (ebl .snd .snd .snd y y∈))
+   z = (isIncrasingℙ→isNondecrasingℙ (ℚ.ℚintervalℙ a b) _ incrF)
           a ((ℚ.isRefl≤ _) , a≤b) y y∈ (fst y∈)
 
 
-   z' = (isIncrasingℙ→isNondecrasingℙ _ _ incrF)
+   z' = (isIncrasingℙ→isNondecrasingℙ (ℚ.ℚintervalℙ a b) _ incrF)
           y y∈ b (a≤b , (ℚ.isRefl≤ _)) (snd y∈)
 
  record Step (y Δ : ℚ) : Type where
@@ -889,8 +910,8 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
    a' b' : ℚ
    a'<b' : a' ℚ.< b'
    b'-a'≤Δ : b' ℚ.- a' ℚ.≤ Δ
-   a'∈ : a' ∈ ℚintervalℙ a b
-   b'∈ : b' ∈ ℚintervalℙ a b
+   a'∈ : a' ∈ ℚ.ℚintervalℙ a b
+   b'∈ : b' ∈ ℚ.ℚintervalℙ a b
    a'≤ : f a' a'∈ ℚ.≤ y
    ≤b' : y ℚ.≤ f b' b'∈
 
@@ -914,7 +935,7 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
     (ℚ.<-o+ _ _ (b' ℚ.· [ 1 / 2 ]) p)
     (ℚ.≡Weaken≤ _ _ (sym (ℚ.·DistL+ b' _ _) ∙ cong (b' ℚ.·_) ℚ.decℚ? ∙
       ℚ.·IdR b'))
-  mid∈ : mid ∈ ℚintervalℙ a b
+  mid∈ : mid ∈ ℚ.ℚintervalℙ a b
   mid∈ = ℚ.isTrans≤ _ _ _ (fst (a'∈)) (ℚ.<Weaken≤ _ _ a'<mid) ,
           ℚ.isTrans≤ _ _ _ (ℚ.<Weaken≤ _ _ mid<b') (snd b'∈)
 
@@ -948,14 +969,7 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
    a'-mid≤Δ/2 : (mid ℚ.- a') ℚ.≤ Δ ℚ.· [ 1 / 2 ]
    a'-mid≤Δ/2 =
      ℚ.isTrans≤ _ _ _
-      (ℚ.≡Weaken≤ (mid ℚ.- a') ((b' ℚ.- a') ℚ.· [ 1 / 2 ])
-        (sym (ℚ.+Assoc _ _ _) ∙
-         cong (b' ℚ.· [ 1 / 2 ] ℚ.+_)
-          (cong (a' ℚ.· [ 1 / 2 ] ℚ.+_) (ℚ.·Comm -1 a')
-           ∙ sym (ℚ.·DistL+ a' _ _) ∙
-            ℚ.·Comm _ _ ∙
-             sym (ℚ.·Assoc [ 1 / 2 ] -1 a') ∙  ℚ.·Comm [ 1 / 2 ] _)
-          ∙ sym (ℚ.·DistR+ _ _ _)))
+      (ℚ.≡Weaken≤ _ _ ℚ!!)
       (ℚ.≤-·o _ _ _ (ℚ.decℚ≤? {0} {[ 1 / 2 ]}) b'-a'≤Δ)
 
    w : (y ℚ.≤ fMid) ⊎ (fMid ℚ.< y) → Σ (Step y (Δ ℚ.· [ 1 / 2 ]))
@@ -977,14 +991,7 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
      ℚ.isTrans≤ _ _ _
         (ℚ.≡Weaken≤ (b' ℚ.- mid)
                     ((b' ℚ.- a') ℚ.· [ 1 / 2 ])
-                      ((cong (b' ℚ.+_) (ℚ.-Distr _ _ ) ∙
-                       ℚ.+Assoc _ _ _ ∙
-                        cong₂ ℚ._+_
-                        (cong₂ ℚ._+_ (sym (ℚ.·IdR b'))
-                         (ℚ.·Comm -1 _ ∙ sym (ℚ.·Assoc _ _ _))
-                         ∙ sym (ℚ.·DistL+ b' 1 [ -1 / 2 ]))
-                         (ℚ.·Assoc -1 _ _))
-                       ∙ sym (ℚ.·DistR+ _ _ _)))
+                      ℚ!!)
           (ℚ.≤-·o _ _ _ (ℚ.decℚ≤? {0} {[ 1 / 2 ]}) b'-a'≤Δ)
 
    w (inr x) .fst .Step.a'∈ = mid∈
@@ -999,7 +1006,7 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
 
   ww : ∀ n → Step y (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ n))
   ww zero = subst (Step y) (sym (ℚ.·IdR Δ₀)) step0
-  ww (suc n) = subst (Step y) (sym (ℚ.·Assoc _ _ _)) (stepS _ (ww n))
+  ww (suc n) = subst (Step y) ℚ!! (stepS (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ n)) (ww n))
 
   s : ℕ → ℚ
   s = Step.a' ∘ ww
@@ -1009,19 +1016,31 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
 
 
   ss≤-suc : ∀ n (z : Step y (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ n))) → Step.a' z ℚ.≤
-      Step.a' (subst (Step y) (sym (ℚ.·Assoc _ _ _)) (stepS
+      Step.a' (subst (Step y) (sym (ℚ.·Assoc Δ₀ ([ 1 / 2 ] ℚ^ⁿ n) [ 1 / 2 ])) (stepS
        (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ n)) z))
   ss≤-suc n z = ℚ.isTrans≤ _ _ _ (Step⊃Step.a'≤a'S (snd (stepS'
        (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ n)) z)))
          (ℚ.≡Weaken≤ _ _ (sym (transportRefl _)))
 
   ≤ss'-suc : ∀ n (z : Step y (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ n))) →
-       Step.b' (subst (Step y) (sym (ℚ.·Assoc _ _ _)) (stepS
+       Step.b' (subst (Step y) (sym (ℚ.·Assoc Δ₀ ([ 1 / 2 ] ℚ^ⁿ n) [ 1 / 2 ])) (stepS
        (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ n)) z))
       ℚ.≤
        Step.b' z
-  ≤ss'-suc n z =  ℚ.isTrans≤ _ _ _
-         (ℚ.≡Weaken≤ _ _  (transportRefl _))
+  ≤ss'-suc n z =  ℚ.isTrans≤
+          (Step.b'
+            (subst (Step y) (sym (ℚ.·Assoc Δ₀ ([ 1 / 2 ] ℚ^ⁿ n) [ 1 / 2 ]))
+             (stepS (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ n)) z)))
+          (Step.b' (stepS' (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ n)) z .fst))
+          (Step.b' z)
+         (ℚ.≡Weaken≤
+             (Step.b'
+               (subst (Step y)
+                (λ i → ℚ.·Assoc Δ₀ ([ 1 / 2 ] ℚ^ⁿ n) [ 1 / 2 ] (~ i))
+                (stepS (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ n)) z)))
+             (Step.b' (stepS' (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ n)) z .fst))
+             (transportRefl (Step.b' (stepS' (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ n)) z .fst)))
+             )
            ((Step⊃Step.bS≤b' (snd (stepS'
        (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ n)) z))))
   ss≤ : ∀ n m → s n ℚ.≤ s (m ℕ.+ n)
@@ -1046,30 +1065,34 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
          → Σ[ N ∈ ℕ ] (∀ m n → N ℕ.< n → N ℕ.< m →
               absᵣ (rat (s n) -ᵣ rat (s m)) <ᵣ rat (fst ε)   )
   www (N , P) .fst = N
-  www {ε} (N , P) .snd = ℕ.elimBy≤+
-    (λ n m X m< n< → subst (_<ᵣ (rat (fst ε)))
-      (minusComm-absᵣ (rat (s m)) (rat (s n))) (X n< m<))
-    λ n m p N<n →
-      let P' : Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ N) ℚ.< fst ε
-          P' = ℚ.isTrans<≤ _ _ (fst ε) (ℚ.<-o· _ _ _ (ℚ.-< a b a<b) P)
-                 (ℚ.≡Weaken≤ _ _
-                    ((cong (fst (ℚ.<→ℚ₊ a b a<b) ℚ.·_) (ℚ.·Comm _ _))
-                     ∙ ℚ.y·[x/y] (ℚ.<→ℚ₊ _ _ a<b) (fst ε)))
-          zz = ℚ.isTrans≤< _ _ _
-                  (ℚ.isTrans≤ _ ((s (m ℕ.+ n)) ℚ.- (s n)) _
-                    (ℚ.≡Weaken≤ _ _ (ℚ.absNonNeg (s (m ℕ.+ n) ℚ.- s n)
-                      (ℚ.-≤ (s n) (s (m ℕ.+ n)) (ss≤ n m))))
-                      (ww⊂ n m))
-                  (ℚ.isTrans< _ (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ (N))) _
-                    (ℚ.<-o· _ _ Δ₀ (ℚ.-< a b a<b) (<^n N n N<n)) P')
-      in isTrans≡<ᵣ _ _ _ (cong absᵣ (-ᵣ-rat₂ _ _) ∙ absᵣ-rat _ )
-           (<ℚ→<ᵣ _ _ zz)
+  www {ε} (N , P) .snd = wwwSnd
+   where
+    opaque
+     wwwSnd : (m n : ℕ) →
+       N ℕ.< n → N ℕ.< m → absᵣ (rat (s n) -ᵣ rat (s m)) <ᵣ rat (fst ε)
+     wwwSnd = ℕ.elimBy≤+
+       (λ n m X m< n< → subst (_<ᵣ (rat (fst ε)))
+          (minusComm-absᵣ (rat (s m)) (rat (s n))) (X n< m<))
+        λ n m p N<n →
+          let P' : Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ N) ℚ.< fst ε
+              P' = ℚ.isTrans<≤ _ _ (fst ε) (ℚ.<-o· _ _ _ (ℚ.-< a b a<b) P)
+                     (ℚ.≡Weaken≤ _ _
+                        ((cong (fst (ℚ.<→ℚ₊ a b a<b) ℚ.·_) (ℚ.·Comm (fst ε) (fst (invℚ₊ (ℚ.<→ℚ₊ a b a<b)))))
+                         ∙ ℚ.y·[x/y] (ℚ.<→ℚ₊ _ _ a<b) (fst ε)))
+              zz = ℚ.isTrans≤< _ _ _
+                      (ℚ.isTrans≤ _ ((s (m ℕ.+ n)) ℚ.- (s n)) _
+                        (ℚ.≡Weaken≤ _ _ (ℚ.absNonNeg (s (m ℕ.+ n) ℚ.- s n)
+                          (ℚ.-≤ (s n) (s (m ℕ.+ n)) (ss≤ n m))))
+                          (ww⊂ n m))
+                      (ℚ.isTrans< _ (Δ₀ ℚ.· ([ 1 / 2 ] ℚ^ⁿ (N))) _
+                        (ℚ.<-o· _ _ Δ₀ (ℚ.-< a b a<b) (<^n N n N<n)) P')
+          in isTrans≡<ᵣ _ _ _ (cong absᵣ (-ᵣ-rat₂ _ _) ∙ absᵣ-rat _ )
+               (<ℚ→<ᵣ _ _ zz)
+
 
   f⁻¹ : ℝ
   f⁻¹ = fromCauchySequence' (rat ∘ s)
         λ ε → www {ε} (1/2ⁿ<ε (ε ℚ₊· invℚ₊ (ℚ.<→ℚ₊ a b a<b)))
-
-  -- Approx-f⁻¹ :
 
 
   s~y : (ε : ℚ₊) →
@@ -1097,24 +1120,25 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
                             (<ℚ→<ᵣ _ _
                            (ℚ.isTrans≤< _ _ _
                               (Step.b'-a'≤Δ 𝒔)
-                                 (ℚ.<-o· _ _ Δ₀ (ℚ.0<ℚ₊ Δ₀₊) (<^n _ _ ℕ.≤-refl )))  )))
+                                 (ℚ.<-o· _ _ Δ₀ (ℚ.0<ℚ₊ Δ₀₊) (<^n n _ ℕ.≤-refl )))  )))
              in isTrans<ᵣ _ _ _ (isTrans≤<ᵣ _ _ _
                    (isTrans≡≤ᵣ _ _ _
                      (minusComm-absᵣ
                       ((fst fl-ebl ∘ (λ x → rat (s x))) (suc n))
                         (rat y) ∙
-                           cong absᵣ (-ᵣ-rat₂ _ _)
+                           cong (λ xx → absᵣ (rat y +ᵣ -ᵣ xx)) fromLipschitz-rat
+                             ∙ cong absᵣ (-ᵣ-rat₂ _ _)
                             ∙ absᵣNonNeg _
                            (≤ℚ→≤ᵣ _ _ (ℚ.≤→<minus _ _ (
                                (ℚ.isTrans≤ _ _ _
                                    (ℚ.≡Weaken≤ _ _
                                     ((snd (snd (snd ebl)) _ _)) )
                                     (Step.a'≤ 𝒔))))) ∙
-                                     sym (-ᵣ-rat₂ _ _)
+                                     sym (-ᵣ-rat₂ _ (ebl .fst (Step.a' 𝒔)))
 
                                     )
                       (isTrans≤≡ᵣ _ _ _
-                        (≤ᵣ-+o _ _ (-ᵣ fst fl-ebl (rat (s (suc n))))
+                        (≤ᵣ-+o _ _ _ --
                           (isTrans≤≡ᵣ _ _ _
                             (≤ℚ→≤ᵣ _ _ (Step.≤b' (ww (suc n))))
                             (cong rat (sym (snd (snd (snd ebl)) _ _)))))
@@ -1130,11 +1154,14 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
                                  (sym (-ᵣ-rat₂ _ _)))
 
                                ))
-                   q)
+                   (isTrans≡<ᵣ _ _ _ (cong absᵣ (cong₂ _-ᵣ_ (sym (fromLipschitz-rat))
+                     (sym (fromLipschitz-rat)))) q)) --q
 
                  (isTrans<ᵣ _ _ _
-
-                    (isTrans≡<ᵣ _ _ _ (cong rat (ℚ.·Assoc _ _ _)) (<ℚ→<ᵣ _ _
+                    (isTrans≡<ᵣ _ _ _
+                     (cong rat
+                       (ℚ.·Assoc (fst L) (fst Δ₀₊) ([ pos 1 / 1+ 1 ] ℚ^ⁿ n)))
+                         (<ℚ→<ᵣ _ _
                        ( ℚ.<-o· _ _ (fst (L ℚ₊· Δ₀₊))
                            ((ℚ.0<ℚ₊ (L ℚ₊· Δ₀₊)))
                             (<^n _ _ (ℕ.pred-≤-pred x)))))
@@ -1143,6 +1170,7 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
                        (ℚ.0<ℚ₊ (L ℚ₊· Δ₀₊) ) X))
                         (cong rat (ℚ.y·[x/y] (L ℚ₊· Δ₀₊) (fst ε))))
                      )}) ∣₁
+
 
   f⁻¹∈ : f⁻¹ ∈ intervalℙ (rat a) (rat b)
   f⁻¹∈ = ((≤lim _ _ _
@@ -1159,9 +1187,12 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
       L (rat ∘ s)
         (λ ε → www {ε} (1/2ⁿ<ε (ε ℚ₊· invℚ₊ (ℚ.<→ℚ₊ a b a<b))))
          ( fst fl-ebl) (snd fl-ebl)) ∙
-           fromCauchySequence'≡ _ _ _
+            fromCauchySequence'≡ _
+             ((map-fromCauchySequence' L (λ x → rat (s x))
+       (λ ε → www {ε} (1/2ⁿ<ε (ε ℚ₊· invℚ₊ (ℚ.<→ℚ₊ a b a<b)))) (fst fl-ebl)
+       (snd fl-ebl) .fst))
+       _
       s~y
-
 
 
  f⁻¹-L : Lipschitz-ℚ→ℝℙ K (intervalℙ
@@ -1192,21 +1223,21 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
  isCont𝒇⁻¹ = (Lipschitz→IsContinuous K (fst f⁻¹R-L) (snd f⁻¹R-L))
 
 
- opaque
-  unfolding maxᵣ
-  𝒇∘𝒇⁻¹' : ∀ y
-             → fst fl-ebl (fst f⁻¹R-L (clampᵣ (rat fa) (rat fb) y)) ≡
-                (clampᵣ (rat fa) (rat fb) y)
-  𝒇∘𝒇⁻¹' = ≡Continuous _ _ (IsContinuous∘ _ _
-         (IsContinuous∘ _ _
-           isCont𝒇
-           isCont𝒇⁻¹)
-        (IsContinuousClamp (rat fa) (rat fb)))
-   (IsContinuousClamp (rat fa) (rat fb))
-     λ r → (cong (fst fl-ebl) (snd (snd ext-f⁻¹) _
-           ((∈ℚintervalℙ→∈intervalℙ _ _ _ (clam∈ℚintervalℙ fa fb
-              (ℚ.<Weaken≤ _ _ fa<fb) r)))))
-          ∙ f∘f⁻¹ _ _
+ 𝒇∘𝒇⁻¹' : ∀ y
+            → fst fl-ebl (fst f⁻¹R-L (clampᵣ (rat fa) (rat fb) y)) ≡
+               (clampᵣ (rat fa) (rat fb) y)
+ 𝒇∘𝒇⁻¹' = ≡Continuous _ _ (IsContinuous∘ _ _
+        (IsContinuous∘ _ _
+          isCont𝒇
+          isCont𝒇⁻¹)
+       (IsContinuousClamp (rat fa) (rat fb)))
+  (IsContinuousClamp (rat fa) (rat fb))
+    λ r → (cong (fst fl-ebl) (congS (fst f⁻¹R-L) (clampᵣ-rat fa fb r ) ∙
+      fromLipschitz-rat
+     ∙ snd (snd ext-f⁻¹) _
+          ((∈ℚintervalℙ→∈intervalℙ _ _ _ (ℚ.clam∈ℚintervalℙ fa fb
+             (ℚ.<Weaken≤ _ _ fa<fb) r)))))
+         ∙ f∘f⁻¹ _ _ ∙ sym (clampᵣ-rat fa fb r)
 
 
  𝒇∘𝒇⁻¹ : ∀ y → y ∈ intervalℙ (rat fa) (rat fb)
@@ -1251,7 +1282,7 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
          fa fb (ℚ.<Weaken≤ fa fb fa<fb) (rat a) (rat b)
           (≤ℚ→≤ᵣ a b a≤b)
          λ r → subst-∈ (intervalℙ (rat a) (rat b))
-           (sym (snd (snd ext-f⁻¹) _ _))
+           (sym (snd (snd ext-f⁻¹) _ _) ∙ sym (fromLipschitz-rat))
                  ∘ f⁻¹∈ r
 
 
@@ -1264,7 +1295,7 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
              Step.a'∈
                (ww q q∈ (suc (1/2ⁿ<ε (ε ℚ₊· invℚ₊ (ℚ.<→ℚ₊ a b a<b)) .fst)))
        in ∈ℚintervalℙ→∈intervalℙ a b _ z)
-   , _ , λ q q∈ → sym (snd (snd ext-f⁻¹) q q∈)
+   , _ , λ q q∈ → sym (snd (snd ext-f⁻¹) q q∈) ∙ sym fromLipschitz-rat
 
 
  isoF : Iso (Σ _ (_∈ intervalℙ (rat a) (rat b)))

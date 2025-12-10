@@ -126,7 +126,6 @@ opaque
  lim-+ᵣ-lim x y x' y' = snd (NonExpanding₂.β-lim-lim/2 sumR x y x' y')
 
 
-
  instance
   isLiftOf+ : _+ᵣ_ isLiftOf₂ ℚ._+_
   isLiftOf+ = NonExpanding₂-Lemmas.NE.isLiftOfNonExpanding₂  _ sumR
@@ -475,7 +474,7 @@ opaque
               cong ((ℚ.- q) ℚ.+_) (sym $ ℚ.-Invol r))) x)))
 
  -ᵣR : Σ (ℝ → ℝ) (Lipschitz-ℝ→ℝ (1 , tt))
- -ᵣR = fromLipschitz (1 , _)
+ -ᵣR = fromLipschitzGo (1 , _)
    ((rat ∘ ℚ.-_ ) , ℚ-isLip)
 
  -ᵣ_ : ℝ → ℝ
@@ -489,7 +488,7 @@ opaque
  -ᵣ-rat : ∀ q → -ᵣ (rat q) ≡ rat (ℚ.- q)
  -ᵣ-rat q = refl
 
- -ᵣ-impl : ∀ x → -ᵣ x ≡ fst (fromLipschitz (1 , _) ((rat ∘ ℚ.-_ ) , ℚ-isLip)) x
+ -ᵣ-impl : ∀ x → -ᵣ x ≡ fst (fromLipschitzGo (1 , _) ((rat ∘ ℚ.-_ ) , ℚ-isLip)) x
  -ᵣ-impl x = refl
 
  -ᵣ-lip : Lipschitz-ℝ→ℝ 1 -ᵣ_
@@ -593,7 +592,7 @@ opaque
 
 
  absᵣL : Σ (ℝ → ℝ) (Lipschitz-ℝ→ℝ 1)
- absᵣL = fromLipschitz 1 (rat ∘ ℚ.abs' , h )
+ absᵣL = fromLipschitzGo 1 (rat ∘ ℚ.abs' , h )
   where
   h : Lipschitz-ℚ→ℝ 1 (λ x → rat (ℚ.abs' x))
   h q r ε x x₁ = subst∼ {ε = ε} (sym (ℚ.·IdL (fst ε)))

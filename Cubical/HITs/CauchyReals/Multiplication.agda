@@ -23,6 +23,7 @@ open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _//_)
 open import Cubical.Data.NatPlusOne
 
 import Cubical.Algebra.CommRing as CR
+import Cubical.Algebra.CommRing.Instances.Rationals.Fast as ℚ
 
 open import Cubical.Data.Rationals.Fast as ℚ using (ℚ ; [_/_])
 open import Cubical.Data.Rationals.Fast.Order as ℚ using
@@ -44,7 +45,6 @@ open import Cubical.Data.Sequence
 open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
 open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
 open import Cubical.Tactics.CommRingSolverFast.IntReflection
-
 open import Cubical.HITs.CauchyReals.LiftingExpr
 
 private
@@ -131,8 +131,8 @@ Seq⊆-[0,N⟩ .Seq⊆.𝕡⊆ n x (0≤x , x<sn) = 0≤x ,
 
 Seq⊆-abs<N-s⊇-⊤Pred : Seq⊆-abs<N Seq⊆.s⊇ ⊤Pred
 Seq⊆-abs<N-s⊇-⊤Pred x _ =     PT.map
-      (λ (1+ n , X) →
-        n , (isTrans≡<ᵣ _ _ _ (cong rat ℚ! ∙ sym (-ᵣ-rat _) ) $ isTrans<≤ᵣ _ _ _ (-ᵣ<ᵣ _ _ X)
+      (λ (n , X) →
+        ℕ₊₁.n n , (isTrans≡<ᵣ _ _ _ (cong rat ℚ! ∙ sym (-ᵣ-rat _) ) $ isTrans<≤ᵣ _ _ _ (-ᵣ<ᵣ _ _ X)
                   (isTrans≡≤ᵣ _ _ _ (cong -ᵣ_ (-absᵣ x) )
                     (isTrans≤≡ᵣ _ _ _ (-ᵣ≤ᵣ _ _ (≤absᵣ (-ᵣ x)))
                        (-ᵣInvol _))))
@@ -306,10 +306,11 @@ clampedSq : ∀ (n : ℕ) → Σ (ℝ → ℝ) (Lipschitz-ℝ→ℝ (2 ℚ₊· 
 clampedSq n =
   let ex = Lipschitz-ℚ→ℚ-extend _
              (((2 ℚ₊· fromNat (suc n)))) (λ x → x ℚ.· x) (ℚ.[ (1 , 4) ] , _) (ℚ.<Δ n) (restrSq n)
-  in fromLipschitz (((2 ℚ₊· fromNat (suc n)))) (_ , Lipschitz-rat∘ ((2 ℚ₊· fromNat (suc n)))
+  in fromLipschitzGo (((2 ℚ₊· fromNat (suc n)))) (_ , Lipschitz-rat∘ ((2 ℚ₊· fromNat (suc n)))
    (((λ x → x ℚ.· x) ∘
        ℚ.clamp (ℚ.- ([ pos (suc n) , 1 ] ℚ.- [ 1 , 4 ]))
        ([ pos (suc n) , 1 ] ℚ.- [ 1 , 4 ]))) ex)
+
 
 sqSeq→ : Seq⊆→ ℝ Seq⊆-abs<N
 sqSeq→ .Seq⊆→.fun x n _ = fst (clampedSq (suc n)) x
@@ -332,14 +333,14 @@ sqSeq→ .Seq⊆→.fun⊆ x n m x∈ x∈' n<m =
           sn≤Q : [ pos (suc n) / 1 ] ℚ.≤ Q
           sn≤Q = ℚ.inj (3 , ℤ!)
       in cong {x = ℚ.clamp (ℚ.- Q) Q r} {y = ℚ.clamp (ℚ.- Q') Q' r}
-        (λ x → rat (x ℚ.· x))
-      (sym (ℚ.clamp-contained-agree (ℚ.- Q') Q' (ℚ.- Q) Q
-        r (ℚ.minus-≤ _ _ Q'<Q) Q'<Q
-         (∈intervalℙ→∈ℚintervalℙ (ℚ.- Q) Q r (ontervalℙ⊂intervalℙ (rat r)
-          (ointervalℙ⊆ointervalℙ
-           (isTrans≤≡ᵣ _ _ _ (≤ℚ→≤ᵣ _ _ (ℚ.minus-≤ _ _ sn≤Q)) (cong rat ℚ!))
-           (≤ℚ→≤ᵣ _ _ sn≤Q)
-           (rat r) r∈))))))
+             (λ x → rat (x ℚ.· x))
+           (sym (ℚ.clamp-contained-agree (ℚ.- Q') Q' (ℚ.- Q) Q
+             r (ℚ.minus-≤ _ _ Q'<Q) Q'<Q
+              (∈intervalℙ→∈ℚintervalℙ (ℚ.- Q) Q r (ontervalℙ⊂intervalℙ (rat r)
+               (ointervalℙ⊆ointervalℙ
+                (isTrans≤≡ᵣ _ _ _ (≤ℚ→≤ᵣ _ _ (ℚ.minus-≤ _ _ sn≤Q)) (cong rat ℚ!))
+                (≤ℚ→≤ᵣ _ _ sn≤Q)
+                (rat r) r∈))))))
    x x∈ x∈'
 
 
@@ -373,7 +374,7 @@ opaque
 
 
  /2ᵣ-L : Σ (ℝ → ℝ) (Lipschitz-ℝ→ℝ ([ 1 / 2 ] , _))
- /2ᵣ-L = fromLipschitz ([ 1 / 2 ] , _)
+ /2ᵣ-L = fromLipschitzGo ([ 1 / 2 ] , _)
    (_ , Lipschitz-rat∘ ([ 1 / 2 ] , _) (ℚ._· [ 1 / 2 ])
     λ q r ε x →
       subst (ℚ._< ([ 1 / 2 ]) ℚ.· (fst ε))
@@ -543,6 +544,10 @@ IsCommRingℝ = CR.makeIsCommRing
   +ᵣAssoc +IdR +-ᵣ +ᵣComm ·ᵣAssoc
    ·IdR ·DistL+ ·ᵣComm
 
+ℝring : CR.CommRing ℓ-zero
+ℝring = (_ , CR.commringstr 0 1 _+ᵣ_ _·ᵣ_ -ᵣ_ IsCommRingℝ)
+
+
 x+x≡2x : ∀ x → x +ᵣ x ≡ 2 ·ᵣ x
 x+x≡2x x = cong₂ _+ᵣ_
     (sym (·IdL x))
@@ -647,5 +652,19 @@ opaque
                          cong rat (sym (ℚ.abs'·abs' x' y')) ∙∙ rat·ᵣrat _ _) x
 
 
+instance
+ isLiftOf· : _·ᵣ_ isLiftOf₂ ℚ._·_
+ isLiftOf· ._isLiftOf₂_.prf = rat·ᵣrat
+
+
 IsContinuous₂·ᵣ :  IsContinuous₂ _·ᵣ_
 IsContinuous₂·ᵣ = IsContinuous·ᵣL , IsContinuous·ᵣR
+
+
+ℚ→ℝHom : CR.CommRingHom ℚ.ℚCommRing ℝring
+ℚ→ℝHom .fst = rat
+ℚ→ℝHom .snd .CR.IsCommRingHom.pres0 = refl
+ℚ→ℝHom .snd .CR.IsCommRingHom.pres1 = refl
+ℚ→ℝHom .snd .CR.IsCommRingHom.pres+ x y = sym (+ᵣ-rat x y)
+ℚ→ℝHom .snd .CR.IsCommRingHom.pres· x y = rat·ᵣrat x y
+ℚ→ℝHom .snd .CR.IsCommRingHom.pres- x = sym (-ᵣ-rat x)

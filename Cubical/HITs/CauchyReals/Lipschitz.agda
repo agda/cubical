@@ -200,8 +200,11 @@ isPropLipschitz-ℝ→ℝ q f = isPropΠ4 λ _ _ _ _ → isProp∼ _ _ _
 
 
 -- HoTT Lemma (11.3.15)
-fromLipschitz : ∀ L → Σ _ (Lipschitz-ℚ→ℝ L) → Σ _ (Lipschitz-ℝ→ℝ L)
-fromLipschitz L (f , fL) = f' ,
+
+-- opaque
+
+fromLipschitzGo : ∀ L → Σ _ (Lipschitz-ℚ→ℝ L) → Σ _ (Lipschitz-ℝ→ℝ L)
+fromLipschitzGo L (f , fL) = f' ,
   λ u v ε x → Elimℝ.go∼ w x
  where
 
@@ -250,6 +253,19 @@ fromLipschitz L (f , fL) = f' ,
 
  f' : ℝ → ℝ
  f' = Elimℝ.go w
+
+opaque
+ fromLipschitz : ∀ L → Σ _ (Lipschitz-ℚ→ℝ L) → Σ _ (Lipschitz-ℝ→ℝ L)
+ fromLipschitz = fromLipschitzGo
+
+
+ fromLipschitz-rat : ∀ {L lf q} → fst (fromLipschitz L lf) (rat q) ≡ fst lf q
+ fromLipschitz-rat = refl
+
+ fromLipschitz-lim : ∀ {L lf x y y'}  → fst (fromLipschitz L lf) (lim x y) ≡
+                          lim ((fst (fromLipschitz L lf) ∘ x) ∘ (invℚ₊ L) ℚ₊·_) y'
+ fromLipschitz-lim {y = y} {y'} =
+   cong (lim _) (isPropΠ2 (λ _ _ → isProp∼ _ _ _) _ y')
 
 
 
@@ -324,6 +340,7 @@ congLim' x y x' p =
 -- HoTT Lemma (11.3.40)
 record NonExpanding₂ (g : ℚ → ℚ → ℚ ) : Type where
  -- no-eta-equality
+
  field
 
   cL : ∀ q r s →
@@ -336,7 +353,7 @@ record NonExpanding₂ (g : ℚ → ℚ → ℚ ) : Type where
 
 
  zz : (q : ℚ) → Σ (ℝ → ℝ) (Lipschitz-ℝ→ℝ (1 , tt))
- zz q = fromLipschitz (1 , tt) (rat ∘ g q ,
+ zz q = fromLipschitzGo (1 , tt) (rat ∘ g q ,
     λ q₁ r₁ ε x₀ x →
       let zz : ℚ.abs (g q q₁ ℚ.- g q r₁) ℚ.≤ ℚ.abs (q₁ ℚ.- r₁)
           zz = cR q q₁ r₁
@@ -619,18 +636,18 @@ module NonExpanding₂-Lemmas
     w .Elimℝ-Prop.isPropA _ = isPropΠ3 λ _ _ _ → isProp∼ _ _ _
 
 
-fromLipshitzNEβ : ∀ f (fl : Lipschitz-ℚ→ℝ 1 f) x y →
+fromLipshitzNEβ : ∀ f (fl : Lipschitz-ℚ→ℝ 1 f) x y {y'} →
   fst (fromLipschitz 1 (f , fl)) (lim x y) ≡
-    lim (λ x₁ → Elimℝ.go _ (x x₁))
-     _
-fromLipshitzNEβ f fl x y = congLim' _ _ _
- λ q → cong (Elimℝ.go _ ∘ x) (ℚ₊≡ $ ℚ.·IdL _)
+    lim (λ x₁ → ((fst (fromLipschitz 1 (f , fl)) ∘ x) ∘ _ℚ₊·_ (invℚ₊ 1)) x₁)
+     y'
+fromLipshitzNEβ f fl x y {y'} = fromLipschitz-lim {y' = y'}
 
-fromLipshitzβLim : ∀ L f (fl : Lipschitz-ℚ→ℝ L f) x y →
+
+fromLipshitzβLim : ∀ L f (fl : Lipschitz-ℚ→ℝ L f) x y {y'} →
   fst (fromLipschitz L (f , fl)) (lim x y) ≡
-    lim (λ x₁ → Elimℝ.go _ (x (invℚ₊ L ℚ₊· x₁)))
-     _
-fromLipshitzβLim L f fl x y = refl
+    lim (λ x₁ → fst (fromLipschitz L (f , fl)) (x (invℚ₊ L ℚ₊· x₁)))
+     y'
+fromLipshitzβLim L f fl x y = fromLipschitz-lim
 
 Lipschitz-ℝ→ℝℙ : ℚ₊ → (P : ℙ ℝ) → (∀ x → x ∈ P  → ℝ) → Type
 Lipschitz-ℝ→ℝℙ L P f =

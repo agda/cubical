@@ -122,21 +122,22 @@ isPropIsContinuous f = isPropΠ2 λ _ _ → squash₁
  w .Elimℝ-Prop.isPropA _ = isSetℝ _ _
 
 
-
-fromLipschitz' : ∀ f → ∃[ L ∈ ℚ₊ ] (Lipschitz-ℚ→ℝ L f)
-                     → Σ[ f' ∈ (ℝ → ℝ) ] ∃[ L ∈ ℚ₊ ] (Lipschitz-ℝ→ℝ L f')
-fromLipschitz' f = PT.elim→Set
-  (λ _ → isSetΣ (isSet→ isSetℝ)
-   λ _ → isProp→isSet squash₁)
-   (λ (L , lip) → map-snd (∣_∣₁ ∘ (L ,_)) $ fromLipschitz L (f , lip))
-   λ (L , lip) (L' , lip') →
-    Σ≡Prop (λ _ → squash₁)
-          (funExt (≡Continuous _ _
-            (Lipschitz→IsContinuous L _
-              (snd (fromLipschitz L (f , lip))))
-            (Lipschitz→IsContinuous L' _
-              ((snd (fromLipschitz L' (f , lip')))) )
-            λ _ → refl))
+opaque
+ unfolding fromLipschitz
+ fromLipschitz' : ∀ f → ∃[ L ∈ ℚ₊ ] (Lipschitz-ℚ→ℝ L f)
+                      → Σ[ f' ∈ (ℝ → ℝ) ] ∃[ L ∈ ℚ₊ ] (Lipschitz-ℝ→ℝ L f')
+ fromLipschitz' f = PT.elim→Set
+   (λ _ → isSetΣ (isSet→ isSetℝ)
+    λ _ → isProp→isSet squash₁)
+    (λ (L , lip) → map-snd (∣_∣₁ ∘ (L ,_)) $ fromLipschitz L (f , lip))
+    λ (L , lip) (L' , lip') →
+     Σ≡Prop (λ _ → squash₁)
+           (funExt (≡Continuous _ _
+             (Lipschitz→IsContinuous L _
+               (snd (fromLipschitz L (f , lip))))
+             (Lipschitz→IsContinuous L' _
+               ((snd (fromLipschitz L' (f , lip')))) )
+             λ _ → refl))
 
 
 openPred : (P : ℝ → hProp ℓ-zero) → hProp ℓ-zero
@@ -978,6 +979,9 @@ IsContinuous₂ : (ℝ → ℝ → ℝ) → Type
 IsContinuous₂ f =
  (∀ x → IsContinuous (f x)) × (∀ x → IsContinuous (flip f x))
 
+IsContinuous₂Const : ∀ x → IsContinuous₂ (λ _ _  → x)
+IsContinuous₂Const  x = (λ _ → IsContinuousConst _) , (λ _ → IsContinuousConst _)
+
 cont₂-fst : IsContinuous₂ (λ x _ → x)
 cont₂-fst = (λ _ → IsContinuousConst _) , (λ _ → IsContinuousId)
 
@@ -1071,12 +1075,26 @@ opaque
 
 opaque
  unfolding _+ᵣ_
+
+ IsContinuous+₂∘ : ∀ {f₀} {f₁} → IsContinuous₂ f₀ → IsContinuous₂ f₁ →
+      IsContinuous₂ λ a b → (f₀ a b) +ᵣ (f₁ a b)
+ IsContinuous+₂∘ =
+  contNE₂∘ sumR
+
+
+
  IsContinuous-₂∘ : ∀ {f₀} {f₁} → IsContinuous₂ f₀ → IsContinuous₂ f₁ →
       IsContinuous₂ λ a b → (f₀ a b) -ᵣ (f₁ a b)
  IsContinuous-₂∘ f₀C f₁C =
   contNE₂∘ sumR f₀C
     (cont∘₂ IsContinuous-ᵣ f₁C)
 
+
+ IsContinuous-₂ :
+      IsContinuous₂ _-ᵣ_
+ IsContinuous-₂ =
+  contNE₂∘ sumR (IsContinuousConst , (λ _ → IsContinuousId))
+    ((λ _ → IsContinuous-ᵣ) , IsContinuousConst ∘ -ᵣ_)
 
 
 

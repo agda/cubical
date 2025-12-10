@@ -827,6 +827,8 @@ max₊ (x , y) (x' , y') =
 -< : ∀ q r → q < r → 0 < r ℚ.- q
 -< q r x = subst (_< r ℚ.- q) (+InvR q) (<-+o q r (ℚ.- q) x)
 
+
+
 -≤ : ∀ q r → q ≤ r → 0 ≤ r ℚ.- q
 -≤ q r x = subst (_≤ r ℚ.- q) (+InvR q) (≤-+o q r (ℚ.- q) x)
 
@@ -994,11 +996,11 @@ module EqElims where
 
  lrhsDomFst : ℚTypes → Type
  lrhsDomFst [ℚ] = ℤ
- lrhsDomFst [ℚ₊] = ℕ
+ lrhsDomFst [ℚ₊] = ℕ₊₁
 
  lrhsCtr : ∀ b → lrhsDomFst b → ℕ → (lrhsDom b)
  lrhsCtr [ℚ] k m = [ k , 1+ m ]
- lrhsCtr [ℚ₊] n m = [ ℤ.pos (suc n) , (1+ m) ] , _
+ lrhsCtr [ℚ₊] n m = [ ℕ₊₁→ℤ n , (1+ m) ] , _
 
  LRhs : ℚSignature → Type
  LRhs [] = ℚ × ℚ
@@ -1029,7 +1031,7 @@ module EqElims where
   where
   w : ElimProp (λ z → ∀ p → EqType xs (lrhs (z , p)))
   w .ElimProp.isPropB q = isPropΠ λ _ → isPropEqType xs (lrhs (q , _))
-  w .ElimProp.f (ℤ.pos (suc n) , (1+ m)) _ = EllimEqₛ xs (lrhs _) (e n m)
+  w .ElimProp.f (ℤ.pos (suc n) , (1+ m)) _ = EllimEqₛ xs (lrhs _) (e (1+ n) m)
 
 
 

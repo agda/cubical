@@ -38,7 +38,7 @@ open import Cubical.Relation.Binary.Base
 
 open import Cubical.Data.Rationals.Order
 
-open import Cubical.HITs.CauchyReals.Lems
+-- open import Cubical.HITs.CauchyReals.Lems
 
 open import Cubical.Algebra.CommRing.Instances.Int
 

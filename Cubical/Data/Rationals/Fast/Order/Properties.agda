@@ -40,9 +40,19 @@ open import Cubical.Data.Rationals.Fast.Order
 open import Cubical.Algebra.CommRing.Instances.Rationals.Fast
 open import Cubical.Tactics.CommRingSolverFast.IntPlusReflection
 open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
-open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
+open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflectionPre
 
 open import Cubical.Foundations.Powerset
+
+
+<- : ∀ q r  → 0 < r - q → q < r
+<- q r x = subst2 _<_ (+IdL _) ℚ!!
+    (<-+o 0 (r - q) q x)
+
+≤- : ∀ q r  → 0 ≤ r - q → q ≤ r
+≤- q r x = subst2 _≤_ (+IdL _) ℚ!!
+    (≤-+o 0 (r - q) q x)
+
 
 decℚ? : ∀ {x y} → {𝟚.True (discreteℚ x y)} →  (x ≡ y)
 decℚ? {_} {_} {p} = 𝟚.toWitness p
@@ -1573,10 +1583,19 @@ invℚ₊-<-invℚ₊ (q , 0<q) (r , 0<r) = ElimProp2.go w q r 0<q 0<r
  w .ElimProp2.isPropB _ _ =
    isPropΠ2 λ _ _ → isOfHLevel≃ 1 (isProp< _ _) (isProp< _ _)
  w .ElimProp2.f (ℤ.pos (suc n) , 1+ m) (ℤ.pos (suc n') , 1+ m') _ _ =
-   propBiimpl→Equiv (isProp< _ _)  (isProp< _ _)
-    (inj ∘S subst2 {x = pos (suc n) ℤ.· ℕ₊₁→ℤ (1+ m')} {y = ℕ₊₁→ℤ (1+ m') ℤ.· ℕ₊₁→ℤ (fst (ℤ.0<→ℕ₊₁ (pos (suc n)) _))} {z = pos (suc n') ℤ.· ℕ₊₁→ℤ (1+ m)} {w = ℕ₊₁→ℤ (1+ m) ℤ.· ℕ₊₁→ℤ (fst (ℤ.0<→ℕ₊₁ (pos (suc n')) _))} ℤ._<_ ℤ! ℤ! ∘S _<_.prf)
-    (inj ∘S subst2 {x = ℕ₊₁→ℤ (1+ m') ℤ.· ℕ₊₁→ℤ (fst (ℤ.0<→ℕ₊₁ (pos (suc n)) _))} {y = pos (suc n) ℤ.· ℕ₊₁→ℤ (1+ m')} {z = ℕ₊₁→ℤ (1+ m) ℤ.· ℕ₊₁→ℤ (fst (ℤ.0<→ℕ₊₁ (pos (suc n')) _))} {w = pos (suc n') ℤ.· ℕ₊₁→ℤ (1+ m)} ℤ._<_ ℤ! ℤ! ∘S _<_.prf)
-
+  let w : ∀ (n n' : ℕ₊₁) →
+                     ([ ℕ₊₁→ℤ n , (1+ m) ] < [ ℕ₊₁→ℤ n' , (1+ m') ]) ≃
+            (fst (invℚ₊ ([ ℕ₊₁→ℤ n' , (1+ m') ] , tt)) <
+             fst (invℚ₊ ([ ℕ₊₁→ℤ n , (1+ m) ] , tt)))
+      w n n' = propBiimpl→Equiv (isProp< _ _)  (isProp< _ _)
+                      (inj ∘S subst2 {x = (ℕ₊₁→ℤ n) ℤ.· ℕ₊₁→ℤ (1+ m')} {y = ℕ₊₁→ℤ (1+ m') ℤ.·
+                       ℕ₊₁→ℤ (fst (ℤ.0<→ℕ₊₁ (ℕ₊₁→ℤ n) _))} {z = ℕ₊₁→ℤ n' ℤ.· ℕ₊₁→ℤ (1+ m)}
+                        {w = ℕ₊₁→ℤ (1+ m) ℤ.· ℕ₊₁→ℤ (fst (ℤ.0<→ℕ₊₁ (ℕ₊₁→ℤ n') _))} ℤ._<_ ℤ! ℤ! ∘S _<_.prf)
+                      (inj ∘S subst2 {x = ℕ₊₁→ℤ (1+ m') ℤ.· ℕ₊₁→ℤ (fst (ℤ.0<→ℕ₊₁ (ℕ₊₁→ℤ n) _))}
+                       {y = (ℕ₊₁→ℤ n) ℤ.· ℕ₊₁→ℤ (1+ m')} {z = ℕ₊₁→ℤ (1+ m) ℤ.·
+                        ℕ₊₁→ℤ (fst (ℤ.0<→ℕ₊₁ (ℕ₊₁→ℤ n') _))}
+                         {w = (ℕ₊₁→ℤ n') ℤ.· ℕ₊₁→ℤ (1+ m)} ℤ._<_ ℤ! ℤ! ∘S _<_.prf)
+  in w _ _
 invℚ₊-≤-invℚ₊ : ∀ q r → ((fst q) ≤ (fst r))
              ≃ (fst (invℚ₊ r) ≤ fst (invℚ₊ q))
 invℚ₊-≤-invℚ₊ q r =
