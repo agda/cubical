@@ -40,10 +40,10 @@ open WCat2 using (PointedCat)
 open WCat3 using (isMonoidalWildCat)
 
 -- Definition 4 (Symmetric Monoidal wild categories)
-open WCat3 using (SymmetricMonoidalPrecat)
+open WCat3 using (isSymmetricWildCat)
 
 --- 2.2 Smash Products
--- Definition 5 (Smash products -- note: defined as a coproduct in the
+-- Definition 5 (Smash products -- note: defined as a pushout in the
 -- library. E.g. the ⟨ x , y ⟩ constructor here is simply
 -- inr(x,y). Also note that pushₗ and pushᵣ are inverted with this
 -- definition.)
