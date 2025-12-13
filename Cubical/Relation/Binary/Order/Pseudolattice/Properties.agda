@@ -124,8 +124,6 @@ module MeetProperties (L≤ : Pseudolattice ℓ ℓ') where
   Pseudolattice→Semigroup∧ .snd .SemigroupStr.isSemigroup =
     issemigroup is-set (λ _ _ _ → ∧Assoc)
 
-open MeetProperties public
-
 module JoinProperties (L≤ : Pseudolattice ℓ ℓ') where
   open MeetProperties (DualPseudolattice L≤) public renaming (
       isMeet∧ to isJoin∨ ; ∧≤L to L≤∨ ; ∧≤R to R≤∨ ; isMeet→≡∧ to isJoin→≡∨
@@ -133,4 +131,6 @@ module JoinProperties (L≤ : Pseudolattice ℓ ℓ') where
     ; ≤≃∧ to ≤≃∨ ; ≤→∧ to ≤→∨ ; ≤→∧≡Left to ≥→∨≡Left ; ≥→∧≡Right to ≤→∨≡Right
     ; ∧GLB to ∨LUB ; Pseudolattice→Semigroup∧ to Pseudolattice→Semigroup∨)
 
-open JoinProperties public
+module PseudolatticeTheory (L≤ : Pseudolattice ℓ ℓ') where
+  open MeetProperties L≤ public
+  open JoinProperties L≤ public
