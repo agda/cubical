@@ -134,8 +134,3 @@ module JoinProperties (L≤ : Pseudolattice ℓ ℓ') where
 module PseudolatticeTheory (L≤ : Pseudolattice ℓ ℓ') where
   open MeetProperties L≤ public
   open JoinProperties L≤ public
-  private
-    L = L≤ .fst
-    open PseudolatticeStr (L≤ .snd)
-    variable
-      a b c x : L

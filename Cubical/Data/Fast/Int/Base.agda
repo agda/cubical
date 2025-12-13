@@ -1,4 +1,4 @@
-module Cubical.Data.Int.Fast.Base where
+module Cubical.Data.Fast.Int.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat as ℕ hiding (_+_ ; _·_)

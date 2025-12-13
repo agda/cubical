@@ -1,4 +1,4 @@
-module Cubical.Data.Int.Fast.Properties where
+module Cubical.Data.Fast.Int.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -32,7 +32,7 @@ open import Cubical.Data.Int.Properties as P public using (
   ; ind-assoc ; ind-comm ; sucPathℤ ; addEq ; predPathℤ ; subEq ; _+'_ ; isEquivAddℤ'
   ; abs→⊎ ; ⊎→abs ; abs≡0 ; ¬x≡0→¬abs≡0 ; abs- ; 0≢1-ℤ ; clamp)
 
-open import Cubical.Data.Int.Fast.Base
+open import Cubical.Data.Fast.Int.Base
 
 open MeetProperties ℕ≤Pseudolattice
 open JoinProperties ℕ≤Pseudolattice

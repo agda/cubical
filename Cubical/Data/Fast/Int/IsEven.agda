@@ -1,4 +1,4 @@
-module Cubical.Data.Int.Fast.IsEven where
+module Cubical.Data.Fast.Int.IsEven where
 
 open import Cubical.Foundations.Prelude
 
@@ -15,17 +15,15 @@ open import Cubical.Data.Nat
    isOdd  to isOddℕ)
 import Cubical.Data.Nat.IsEven as ℕeven
 
-open import Cubical.Data.Int.Base as ℤ
-  hiding (_+_ ; _·_ ; _-_ ; _ℕ-_ ; sumFinℤ ; sumFinℤId)
-open import Cubical.Data.Int.Fast.Base as ℤ
-open import Cubical.Data.Int.Fast.Properties
+open import Cubical.Data.Fast.Int.Base as ℤ
+open import Cubical.Data.Fast.Int.Properties
 open import Cubical.Data.Sum
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Bool
-open import Cubical.Algebra.Group.Instances.Int.Fast
+open import Cubical.Algebra.Group.Instances.Fast.Int
 
 open GroupStr (snd BoolGroup) using ()
   renaming ( _·_ to _+Bool_ )

@@ -3,7 +3,7 @@
 Base facts about that the ring ℤ is Bézout domain
 
 -}
-module Cubical.Data.Int.Fast.Divisibility where
+module Cubical.Data.Fast.Int.Divisibility where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -21,9 +21,9 @@ open import Cubical.Data.Nat.Mod renaming (
   quotient'_/_ to quotient_/_ ; remainder'_/_ to remainder_/_ ;
   ≡remainder'+quotient' to ≡remainder+quotient ; mod'< to mod<
   ) hiding (quotient_/_ ; remainder_/_ ; ≡remainder+quotient ; mod<)
-open import Cubical.Data.Int.Base as ℤ
+open import Cubical.Data.Fast.Int.Base as ℤ
   hiding   (_+_ ; _·_ ; _-_ ; -_)
-open import Cubical.Data.Int.Fast.Properties as ℤ
+open import Cubical.Data.Fast.Int.Properties as ℤ
   hiding (addEq ; ·Comm ; ·Assoc ; +Comm ; +Assoc ; ·DistL+)
 
 open import Cubical.Data.Empty as Empty
@@ -34,7 +34,7 @@ open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Int.Fast
+open import Cubical.Algebra.CommRing.Instances.Fast.Int
 open import Cubical.Tactics.CommRingSolver
 
 private
