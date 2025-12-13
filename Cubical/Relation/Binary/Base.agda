@@ -45,11 +45,6 @@ compPropRel R S .snd _ _ = squash₁
 graphRel : ∀ {ℓ} {A B : Type ℓ} → (A → B) → Rel A B ℓ
 graphRel f a b = f a ≡ b
 
-data Ordering : Type where
-  LT : Ordering
-  EQ : Ordering
-  GT : Ordering
-
 module HeterogenousRelation {ℓ ℓ' : Level} {A B : Type ℓ} (R : Rel A B ℓ') where
   isUniversalRel : Type (ℓ-max ℓ ℓ')
   isUniversalRel = (a : A) (b : B) → R a b
