@@ -8,29 +8,63 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary.Base
+open import Cubical.Relation.Binary.Order.Proset
 open import Cubical.Relation.Binary.Order.Poset renaming (isPseudolattice to pseudolattice)
+open import Cubical.Relation.Binary.Order.Quoset
 
 open import Cubical.Relation.Binary.Order.Pseudolattice.Base
 
-open import Cubical.Algebra.Semigroup
+open import Cubical.Relation.Nullary
 
-open BinaryRelation
+open import Cubical.Algebra.Semigroup
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
+
+module _
+  {A : Type ℓ}
+  {R : Rel A A ℓ'}
+  where
+
+  open BinaryRelation
+  open IsPseudolattice
+
+  isPseudolattice→isPoset : IsPseudolattice R → IsPoset R
+  isPseudolattice→isPoset = isPoset
+
+  isPseudolattice→isProset : IsPseudolattice R → IsProset R
+  isPseudolattice→isProset = isPoset→isProset ∘ isPoset
+
+  isPseudolatticeDecidable→Discrete : IsPseudolattice R → isDecidable R → Discrete A
+  isPseudolatticeDecidable→Discrete = isPosetDecidable→Discrete ∘ isPoset
+
+  isPseudolattice→isQuosetIrreflKernel : IsPseudolattice R → IsQuoset (IrreflKernel R)
+  isPseudolattice→isQuosetIrreflKernel = isPoset→isQuosetIrreflKernel ∘ isPoset
+
+  isPseudolatticeDecidable→isQuosetDecidable : IsPseudolattice R → isDecidable R → isDecidable (IrreflKernel R)
+  isPseudolatticeDecidable→isQuosetDecidable = isPosetDecidable→isQuosetDecidable ∘ isPoset
+
+  isPseudolatticeDual : IsPseudolattice R → IsPseudolattice (Dual R)
+  isPseudolatticeDual pl .isPoset = isPosetDual (isPoset pl)
+  isPseudolatticeDual pl .isPseudolattice .fst = pl .isPseudolattice .snd
+  isPseudolatticeDual pl .isPseudolattice .snd = pl .isPseudolattice .fst
+
+Pseudolattice→Proset : Pseudolattice ℓ ℓ' → Proset ℓ ℓ'
+Pseudolattice→Proset (_ , pl) = proset _ _ (isPoset→isProset isPoset)
+  where open PseudolatticeStr pl
+
+Pseudolattice→Poset : Pseudolattice ℓ ℓ' → Poset ℓ ℓ'
+Pseudolattice→Poset (_ , pl) = poset _ _ isPoset
+  where open PseudolatticeStr pl
+
+Pseudolattice→Quoset : Pseudolattice ℓ ℓ' → Quoset ℓ (ℓ-max ℓ ℓ')
+Pseudolattice→Quoset (_ , pl) = quoset _ _ (isPoset→isQuosetIrreflKernel isPoset)
+  where open PseudolatticeStr pl
 
 DualPseudolattice : Pseudolattice ℓ ℓ' → Pseudolattice ℓ ℓ'
-DualPseudolattice L .fst = L .fst
-DualPseudolattice L .snd .PseudolatticeStr._≤_ = Dual (L .snd .PseudolatticeStr._≤_)
-DualPseudolattice L .snd .PseudolatticeStr.is-pseudolattice = isPL
-  where
-    open module L≤ = PseudolatticeStr (L .snd)
-    open IsPseudolattice
-    isPL : IsPseudolattice _
-    isPL .isPoset              = isPosetDual L≤.isPoset
-    isPL .isPseudolattice .fst = L≤.isPseudolattice .snd
-    isPL .isPseudolattice .snd = L≤.isPseudolattice .fst
+DualPseudolattice (_ , pl) = _ , pseudolatticestr _ (isPseudolatticeDual is-pseudolattice)
+  where open PseudolatticeStr pl
 
 module MeetProperties (L≤ : Pseudolattice ℓ ℓ') where
   private
@@ -49,7 +83,7 @@ module MeetProperties (L≤ : Pseudolattice ℓ ℓ') where
   ∧≤R = equivFun isMeet∧ (is-refl _) .snd
 
   ∧GLB : ∀ {a b x} → x ≤ a → x ≤ b → x ≤ a ∧l b
-  ∧GLB {a} {b} {x} = curry (invEq isMeet∧)
+  ∧GLB = curry (invEq isMeet∧)
 
   isMeet→≡∧ : ∀ m
               → (∀ {x} → x ≤ m → x ≤ a)
@@ -76,7 +110,13 @@ module MeetProperties (L≤ : Pseudolattice ℓ ℓ') where
   ≤≃∧ = order≃meet isPoset _ _ _ λ _ → isMeet∧
 
   ≤→∧ : a ≤ b → a ≡ a ∧l b
-  ≤→∧ {a} {b} = equivFun ≤≃∧
+  ≤→∧ = equivFun ≤≃∧
+
+  ≤→∧≡Left : a ≤ b → a ∧l b ≡ a
+  ≤→∧≡Left = sym ∘ ≤→∧
+
+  ≥→∧≡Right : b ≤ a → a ∧l b ≡ b
+  ≥→∧≡Right = sym ∘ (_∙ ∧Comm) ∘ ≤→∧
 
   Pseudolattice→Semigroup∧ : Semigroup ℓ
   Pseudolattice→Semigroup∧ .fst = L
@@ -84,10 +124,18 @@ module MeetProperties (L≤ : Pseudolattice ℓ ℓ') where
   Pseudolattice→Semigroup∧ .snd .SemigroupStr.isSemigroup =
     issemigroup is-set (λ _ _ _ → ∧Assoc)
 
-open MeetProperties public
-
-module _ (L≤ : Pseudolattice ℓ ℓ') where
+module JoinProperties (L≤ : Pseudolattice ℓ ℓ') where
   open MeetProperties (DualPseudolattice L≤) public renaming (
-      isMeet∧ to isJoin∨ ; ∧≤L to L≤∨ ; ∧≤R to R≤∨ ; ∧GLB to ∨LUB
-    ; isMeet→≡∧ to isJoin→≡∨ ; ∧Comm to ∨Comm ; ∧Idem to ∨Idem ; ∧Assoc to ∨Assoc
-    ; ≤≃∧ to ≤≃∨ ; ≤→∧ to ≤→∨ ; Pseudolattice→Semigroup∧ to Pseudolattice→Semigroup∨)
+      isMeet∧ to isJoin∨ ; ∧≤L to L≤∨ ; ∧≤R to R≤∨ ; isMeet→≡∧ to isJoin→≡∨
+    ; ∧Comm to ∨Comm ; ∧Idem to ∨Idem ; ∧Assoc to ∨Assoc
+    ; ≤≃∧ to ≤≃∨ ; ≤→∧ to ≤→∨ ; ≤→∧≡Left to ≥→∨≡Left ; ≥→∧≡Right to ≤→∨≡Right
+    ; ∧GLB to ∨LUB ; Pseudolattice→Semigroup∧ to Pseudolattice→Semigroup∨)
+
+module PseudolatticeTheory (L≤ : Pseudolattice ℓ ℓ') where
+  open MeetProperties L≤ public
+  open JoinProperties L≤ public
+  private
+    L = L≤ .fst
+    open PseudolatticeStr (L≤ .snd)
+    variable
+      a b c x : L
