@@ -873,14 +873,6 @@ elimFin {m = suc (suc m)} {A = A} max f (suc x , p) =
 --              refl
             --  (elimFinβ {m = (suc m)} {A = λ x → A (fsuc x)} max _ .snd)
 
--- isPropFin1 : isProp (Fin 1)
--- isPropFin1 (zero , tt) (zero , tt) = refl
-
--- DiscreteFin : ∀ {n} → Discrete (Fin n)
--- DiscreteFin {k} x y with discreteℕ (fst x) (fst y)
--- ... | yes p = yes (Σ≡Prop (λ z → isProp<ᵗ {z} {k}) p)
--- ... | no ¬p = no λ q → ¬p (cong fst q)
-
 -- inhabitedFibres?Fin : ∀ {ℓ} {A : Type ℓ}
 --   (da : Discrete A) (n : ℕ) (f : Fin n → A)
 --   → inhabitedFibres? f
@@ -1084,5 +1076,3 @@ elimFin {m = suc (suc m)} {A = A} max f (suc x , p) =
 
 --   help : Iso (Fin 1 ⊎ Fin n) (Fin 1 ⊎ Fin m)
 --   help = compIso Iso-Fin1⊎Fin-FinSuc (compIso q^ (invIso Iso-Fin1⊎Fin-FinSuc))
-
-

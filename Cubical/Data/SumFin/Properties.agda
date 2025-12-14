@@ -271,12 +271,12 @@ isProp→Fin≤1 (suc (suc n)) p = ⊥.rec (fzero≠fone (p fzero (fsuc fzero)))
 
 -- automorphisms of SumFin
 
--- SumFin≃≃ : (n : ℕ) → (Fin n ≃ Fin n) ≃ Fin (n !)
--- SumFin≃≃ _ =
---     equivComp (SumFin≃Fin _) (SumFin≃Fin _)
---   ⋆ LehmerCode.lehmerEquiv
---   ⋆ LehmerCode.lehmerFinEquiv
---   ⋆ invEquiv (SumFin≃Fin _)
+SumFin≃≃ : (n : ℕ) → (Fin n ≃ Fin n) ≃ Fin (n !)
+SumFin≃≃ n =
+    equivComp (SumFin≃Fin n) (SumFin≃Fin n)
+  ⋆ LehmerCode.lehmerEquiv {n = n}
+  ⋆ LehmerCode.lehmerFinEquiv
+  ⋆ invEquiv (SumFin≃Fin (n !))
 
 -- Relate SumFin and FinData
 
