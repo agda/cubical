@@ -626,8 +626,8 @@ module _
     Prop.elim2 (λ _ _ → isPropPropTrunc {A = _ ≃ Fin _})
       (λ p1 p2
         → ∣ equivComp (p1 ⋆ pathToEquiv (cong Fin p) ⋆ SumFin≃Fin _) (p2 ⋆ SumFin≃Fin _)
-          ⋆ lehmerEquiv ⋆ lehmerFinEquiv
-          ⋆ invEquiv (SumFin≃Fin _) ∣₁)
+          ⋆ lehmerEquiv {card Y} ⋆ lehmerFinEquiv 
+          ⋆ invEquiv (SumFin≃Fin (card Y !)) ∣₁)
       (∣≃card∣ X) (∣≃card∣ Y)
   isFinSet≃Eff' (no ¬p) = 0 , ∣ uninhabEquiv (¬p ∘ cardEquiv X Y ∘ ∣_∣₁) (idfun _) ∣₁
 

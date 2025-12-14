@@ -248,8 +248,8 @@ moddiv n (suc k) = sym (expand≡ _ _ (n / suc k)) ∙ reduce k n .snd
 n%k≡n[modk] : ∀ n k → Σ[ o ∈ ℕ ] o · k + n % k ≡ n
 n%k≡n[modk] n k = (n / k) , moddiv n k
 
-n%sk<sk : (n k : ℕ) → (n % suc k) <ᵗ suc k
-n%sk<sk n k = extract (reduce k n) .snd
+n%sk<ᵗsk : (n k : ℕ) → (n % suc k) <ᵗ suc k
+n%sk<ᵗsk n k = extract (reduce k n) .snd
 
 fznotfs : ∀ {m : ℕ} {k : Fin m} → ¬ fzero ≡ fsuc k
 fznotfs {m} p = subst F p tt
@@ -442,8 +442,8 @@ Fin-inj n m p with n ≟ m
   r = d % suc k
   o = d / suc k
   resn·k : Residue (suc k) (n · suc k)
-  resn·k = ((r , n%sk<sk d k) , (o + m)) , reason where
-   reason = expand× ((r , n%sk<sk d k) , o + m) ≡⟨ expand≡ (suc k) r (o + m) ⟩
+  resn·k = ((r , n%sk<ᵗsk d k) , (o + m)) , reason where
+   reason = expand× ((r , n%sk<ᵗsk d k) , o + m) ≡⟨ expand≡ (suc k) r (o + m) ⟩
             (o + m) · suc k + r                 ≡[ i ]⟨ +-comm (·-distribʳ o m (suc k) (~ i)) r i ⟩
             r + (o · suc k + m · suc k)         ≡⟨ +-assoc r (o · suc k) (m · suc k) ⟩
             (r + o · suc k) + m · suc k         ≡⟨ cong (_+ m · suc k) (+-comm r (o · suc k) ∙ moddiv d (suc k)) ⟩
@@ -525,7 +525,7 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
     mm<m : mm < m
     mm<m = <-·sk-cancel mm·sn<m·sn
     nnFin : Fin (suc n)
-    nnFin = nn , n%sk<sk k _
+    nnFin = nn , n%sk<ᵗsk k _
     mmFin : Fin m
     mmFin = mm , <→<ᵗ mm<m
 
