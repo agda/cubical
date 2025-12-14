@@ -43,11 +43,7 @@ fzero≠fone p = znots (cong fst p)
 -- number as a number in the next largest finite type.
 fsuc : Fin k → Fin (suc k)
 fsuc (k , l) = (suc k , l)
--- fsuc : {n : ℕ} → Fin n → Fin (suc n)
--- fst (fsuc {n = n} (x , p)) = suc x
--- snd (fsuc {n = suc n} (x , p)) = p
 
--- finj : {n : ℕ} → Fin k → Fin (suc k)
 finj : {k : ℕ} → Fin k → Fin (suc k)
 finj (m , l) = (m , <ᵗ-trans-suc {n = m} l)
 
@@ -86,7 +82,6 @@ inject< : ∀ {m n} (m<n : m < n) → Fin m → Fin n
 inject< {m} {n} m<n (k , k<m) = k , <ᵗ-trans {k} {m} {n} k<m (<→<ᵗ m<n)
 
 injectSuc : {n : ℕ} → Fin n → Fin (suc n)
--- injectSuc {n = n} = inject< (0 , refl)
 fst (injectSuc {n = n} (x , p)) = x
 snd (injectSuc {n = suc n} (x , p)) = <ᵗ-trans-suc {n = x} p
 
@@ -98,17 +93,6 @@ flast {k = k} = (k , <ᵗsucm {k})
 ¬Fin0 (x , ())
 
 -- The full inductive family eliminator for finite types.
--- elim
---   : ∀(P : ∀{k} → Fin k → Type ℓ)
---   → (∀{k} → P {suc k} fzero)
---   → (∀{k} {fn : Fin k} → P fn → P (fsuc fn))
---   → {k : ℕ} → (fn : Fin k) → P fn
--- elim P fz fs {zero} = ⊥.rec ∘ ¬Fin0
--- elim P fz fs {suc k} fj
---   = case fsplit fj return (λ _ → P fj) of λ
---   { (inl p) → subst P p fz
---   ; (inr (fk , p)) → subst P p (fs (elim P fz fs fk))
---   }
 elim
   : ∀(P : ∀(k : ℕ) → Fin k → Type ℓ)
   → (∀{k} → P (suc k) fzero)
