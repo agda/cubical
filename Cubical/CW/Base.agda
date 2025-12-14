@@ -11,7 +11,7 @@ open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Base
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sequence
 open import Cubical.Data.FinSequence
