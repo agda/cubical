@@ -10,7 +10,7 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Fin
-open import Cubical.Data.Fin.Inductive.Properties hiding (¬Fin0)
+open import Cubical.Data.Fin.Properties
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.Sequence.Base

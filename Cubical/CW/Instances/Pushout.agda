@@ -22,7 +22,7 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Bool
 open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Fin
-open import Cubical.Data.Fin.Inductive.Properties hiding (¬Fin0)
+open import Cubical.Data.Fin.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sequence
 open import Cubical.Data.FinSequence
