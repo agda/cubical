@@ -8,6 +8,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Fin
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order.Inductive
+
+open import Cubical.Data.Sigma.Properties
 
 open import Cubical.HITs.Modulo.Base
 
@@ -19,13 +22,16 @@ module Reduction {k₀ : ℕ} where
     k = suc k₀
 
   fembed : Fin k → Modulo k
-  fembed = embed ∘ toℕ
+  fembed = embed ∘ (toℕ {k})
 
   ResiduePath : ℕ → Type₀
   ResiduePath n =  Σ[ f ∈ Fin k ] fembed f ≡ embed n
 
+  rbaseᵗ : ∀ n (n<ᵗk : n <ᵗ k) → ResiduePath n
+  rbaseᵗ n n<ᵗk = (n , n<ᵗk) , refl
+
   rbase : ∀ n (n<k : n < k) → ResiduePath n
-  rbase n n<k = (n , n<k) , refl
+  rbase n n<k = rbaseᵗ n (<→<ᵗ n<k)
 
   rstep : ∀ n → ResiduePath n → ResiduePath (k + n)
   rstep n (f , p) = f , p ∙ step n
@@ -64,7 +70,11 @@ module Reduction {k₀ : ℕ} where
   residue (step n i) = residueStep₁ n i
 
   sect : section residue fembed
-  sect (r , r<k) = cong fst (+inductionBase k₀ ResiduePath rbase rstep r r<k)
+  sect (r , r<ᵗk) = 
+    Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = k}) 
+           (cong fst 
+           (cong fst 
+           (+inductionBase k₀ ResiduePath rbase rstep r (<ᵗ→< r<ᵗk))))
 
   retr : retract residue fembed
   retr (embed n) = snd (residuePath n)
