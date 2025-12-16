@@ -15,13 +15,7 @@ open import Cubical.Data.Sum using (_⊎_; _⊎?_; inl; inr)
 
 open import Cubical.Relation.Nullary
 
--- Finite types.
---
--- Currently it is most convenient to define these as a subtype of the
--- natural numbers, because indexed inductive definitions don't behave
--- well with cubical Agda. This definition also has some more general
--- attractive properties, of course, such as easy conversion back to
--- ℕ.
+-- Finite types defined using <ᵗ
 Fin : ℕ → Type₀
 Fin n = Σ[ m ∈ ℕ ] (m <ᵗ n)
 
@@ -57,15 +51,12 @@ toℕ : {k : ℕ} → Fin k → ℕ
 toℕ = fst
 
 -- ... and injective.
-toℕ-injective 
-  : {k : ℕ} {fj fk : Fin k} 
-  → toℕ {k} fj ≡ toℕ {k} fk 
-  → fj ≡ fk
+toℕ-injective : {k : ℕ} {fj fk : Fin k}  → toℕ {k} fj ≡ toℕ {k} fk → fj ≡ fk
 toℕ-injective {k} {fj = fj} {fk} = Σ≡Prop (λ x → isProp<ᵗ {x} {k})
 
 -- Conversion from ℕ with a recursive definition of ≤
 fromℕ≤ : (m n : ℕ) → m ≤′ n → Fin (suc n)
-fromℕ≤ zero    _       _    = fzero
+fromℕ≤ zero _ _ = fzero
 fromℕ≤ (suc m) (suc n) m≤n = fsuc (fromℕ≤ m n m≤n)
 
 -- A case analysis helper for induction.
@@ -90,7 +81,7 @@ flast {k = k} = (k , <ᵗsucm {k})
 
 -- Fin 0 is empty
 ¬Fin0 : ¬ Fin 0
-¬Fin0 (x , ())
+¬Fin0 ()
 
 -- The full inductive family eliminator for finite types.
 elim

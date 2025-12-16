@@ -953,6 +953,6 @@ sumFinKComm : {n m : ℕ} (f : Fin n → S₊ m → coHomK m)
   → sumFinGroup (coHomGr m (S₊ m)) (λ x → ∣ f x ∣₂)
          ≡ ∣ (λ x → sumFinK {m = m} λ i → f i x) ∣₂
 sumFinKComm {n = zero} {m = m} f = refl
-sumFinKComm {n = suc n} {m = m} f = 
+sumFinKComm {n = suc n} {m = m} f =
   cong (λ y → ∣ f flast ∣₂ +[ m ]ₕ y)
     (sumFinKComm {n = n} (f ∘ injectSuc))

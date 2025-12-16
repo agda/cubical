@@ -33,16 +33,12 @@ private
 SumFin→Fin : Fin k → Fin.Fin k
 SumFin→Fin = SumFin.elim (λ {k} _ → Fin.Fin k) Fin.fzero Fin.fsuc
 
--- Fin→SumFin : Fin.Fin k → Fin k
--- Fin→SumFin = Fin.elim (λ k _ → Fin k) fzero fsuc
-
 Fin→SumFin : Fin.Fin k → Fin k
 Fin→SumFin {zero}    (m , p) = p
 Fin→SumFin {suc k}   (zero , p) = fzero
 Fin→SumFin {suc k}   (suc m , p) = fsuc (Fin→SumFin (m , p))
 
 Fin→SumFin-fsuc : (fk : Fin.Fin k) → Fin→SumFin (Fin.fsuc {k} fk) ≡ fsuc (Fin→SumFin fk)
--- Fin→SumFin-fsuc = Fin.elim-fsuc (λ k _ → Fin k) fzero fsuc
 Fin→SumFin-fsuc {zero} ()
 Fin→SumFin-fsuc {suc k} (m , p) = refl
 
@@ -64,11 +60,9 @@ SumFin≃Fin k = isoToEquiv (iso SumFin→Fin Fin→SumFin (Fin→SumFin→Fin {
 SumFin≡Fin : ∀ k → Fin k ≡ Fin.Fin k
 SumFin≡Fin k = ua (SumFin≃Fin k)
 
--- enum : (n : ℕ)(p : n < k) → Fin k
 enum : (n : ℕ)(p : n <ᵗ k) → Fin k
 enum n p = Fin→SumFin (n , p)
 
--- enumElim : (P : Fin k → Type ℓ) → ((n : ℕ)(p : n < k) → P (enum _ p)) → (i : Fin k) → P i
 enumElim : (P : Fin k → Type ℓ) → ((n : ℕ)(p : n <ᵗ k) → P (enum _ p)) → (i : Fin k) → P i
 enumElim P f i = subst P (SumFin→Fin→SumFin i) (f (SumFin→Fin i .fst) (SumFin→Fin i .snd))
 

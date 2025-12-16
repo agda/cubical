@@ -619,14 +619,10 @@ Fin+≡Fin⊎Fin m n = isoToPath (Fin+≅Fin⊎Fin m n)
 
 -- Equivalence between FinData and Fin
 
--- Är inte detta fsuc från Fin?
-sucFin : {N : ℕ} → Fin N → Fin (suc N)
-sucFin (k , p) = (suc k) , p
-
 FinData→Fin : (N : ℕ) → FinData N → Fin N
 FinData→Fin zero ()
 FinData→Fin (suc N) zero = zero , tt
-FinData→Fin (suc N) (suc k) = sucFin (FinData→Fin N k)
+FinData→Fin (suc N) (suc k) = fsuc (FinData→Fin N k)
 
 Fin→FinData : (N : ℕ) → Fin N → FinData N
 Fin→FinData zero (k , p) = Empty.rec p
@@ -825,10 +821,6 @@ sumFinGenId : {n : ℕ} (_+_ : A → A → A) (0A : A)
   (f g : Fin n → A) → f ≡ g → sumFinGen {n = n} _+_ 0A f ≡ sumFinGen {n = n} _+_ 0A g
 sumFinGenId {n = n} _+_ 0A f g p i = sumFinGen {n = n} _+_ 0A (p i)
 
----------------------------------------------------
--- Stuff from Cubical.Data.Fin.Inductive.Properties
----------------------------------------------------
-
 Fin≡ : {m : ℕ} (a b : Fin m) → fst a ≡ fst b → a ≡ b
 Fin≡ {m} (a , Ha) (b , Hb) H i =
   (H i , hcomp (λ j → λ { (i = i0) → Ha
@@ -869,7 +861,6 @@ elimFinβ {m = suc (suc m)} {A = A} max f =
   , elimFin-alt {m = (suc m)} {A = λ x → elimFin max f (injectSuc {n = suc (suc m)} x) ≡ f x}
              refl
              (elimFinβ {m = (suc m)} {A = λ x → A (fsuc x)} max _ .snd)
-  
 
 inhabitedFibres?Fin : ∀ {ℓ} {A : Type ℓ}
   (da : Discrete A) (n : ℕ) (f : Fin n → A)
