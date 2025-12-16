@@ -69,10 +69,10 @@ fromℕ≤ (suc m) (suc n) m≤n = fsuc (fromℕ≤ m n m≤n)
 fsplit
   : ∀(fj : Fin (suc k))
   → (fzero ≡ fj) ⊎ (Σ[ fk ∈ Fin k ] fsuc fk ≡ fj)
-fsplit {n} (0 , k<sn) 
+fsplit {n} (0 , k<sn)
   = inl (toℕ-injective {k = suc n} {fj = fzero} {fk = (0 , k<sn)} refl)
-fsplit {n} (suc k , k<sn) 
-  = inr ((k , k<sn) 
+fsplit {n} (suc k , k<sn)
+  = inr ((k , k<sn)
   , toℕ-injective {k  = suc n} {fj = fsuc (k , k<sn)} {fk = (suc k , k<sn)} refl)
 
 inject< : ∀ {m n} (m<n : m < n) → Fin m → Fin n
@@ -96,7 +96,7 @@ elim
   → (∀{k} {fn : Fin k} → P k fn → P (suc k) (fsuc fn))
   → {k : ℕ} → (fn : Fin k) → P k fn
 elim P fz fs {zero} fn = ⊥.rec (¬Fin0 fn)
-elim P fz fs {suc k} fj 
+elim P fz fs {suc k} fj
   = case fsplit fj return (λ _ → P (suc k) fj) of λ
   { (inl p)        → subst (λ z → P (suc k) z) p (fz {k})
   ; (inr (fk , p)) → subst (λ z → P (suc k) z) p (fs (elim P fz fs fk))
@@ -150,8 +150,8 @@ snd (prodFinFamily∙ (suc n) A) =
   snd (prodFinFamily∙ n (predFinFamily∙ A)) , snd (A flast)
 
 -- summation
-sumFinGen : ∀ {ℓ} {A : Type ℓ} {n : ℕ} 
+sumFinGen : ∀ {ℓ} {A : Type ℓ} {n : ℕ}
   (_+_ : A → A → A) (0A : A) (f : Fin n → A) → A
 sumFinGen {n = zero} _+_ 0A f = 0A
-sumFinGen {n = suc n} _+_ 0A f = 
+sumFinGen {n = suc n} _+_ 0A f =
   f flast + (sumFinGen {n = n}) _+_ 0A ((f ∘ injectSuc))

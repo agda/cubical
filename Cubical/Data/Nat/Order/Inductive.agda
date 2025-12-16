@@ -89,7 +89,7 @@ private
   acc-suc {n} (acc ih) = acc λ where
       zero    _  → acc (λ m p → ⊥.rec p)
       (suc m) p  → acc-suc (ih m p)
-  
+
 <ᵗ-wellfounded : WellFounded _<ᵗ_
 <ᵗ-wellfounded zero = acc λ _ → ⊥.rec
 <ᵗ-wellfounded (suc n) = acc-suc ((<ᵗ-wellfounded n))

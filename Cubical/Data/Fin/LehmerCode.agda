@@ -1,7 +1,5 @@
 {-
 This module develops Lehmer codes, i.e. an encoding of permutations as finite integers.
-
-
 -}
 module Cubical.Data.Fin.LehmerCode where
 
@@ -130,7 +128,7 @@ lehmerEquiv {zero} = isContr→Equiv contrFF isContrLehmerZero where
   contrFF : isContr (Fin zero ≃ Fin zero)
   contrFF = idEquiv _ , λ y → equivEq (funExt λ f → ⊥.rec (¬Fin0 f))
 
-lehmerEquiv {suc n} = 
+lehmerEquiv {suc n} =
   (Fin (suc n) ≃ Fin (suc n))                            ≃⟨ isoToEquiv i ⟩
   (Σ[ k ∈ Fin (suc n) ] (FinExcept {suc n} fzero ≃ FinExcept {suc n} k)) ≃⟨ Σ-cong-equiv-snd ii ⟩
   (Fin (suc n) × (Fin n ≃ Fin n))                        ≃⟨ Σ-cong-equiv-snd (λ _ → lehmerEquiv) ⟩
@@ -170,7 +168,7 @@ lehmerEquiv {suc n} =
             (Σ[ k ∈ Fin (suc n) ] (FinExcept {suc n} (fzero {k = n}) ≃ FinExcept {suc n} k))
     Iso.fun i f = equivFun f fzero , equivIn f
     Iso.inv i (k , f) = equivOut f
-    Iso.rightInv i (k , f) = ΣPathP (refl , equivEq 
+    Iso.rightInv i (k , f) = ΣPathP (refl , equivEq
       (funExt λ x → toℕExc-injective {suc n} (cong (toℕ {suc n}) (equivOutChar {f = f} x ))))
     Iso.leftInv i f = equivEq (funExt goal) where
       goal : ∀ x → equivFun (equivOut (equivIn f)) x ≡ equivFun f x
@@ -204,7 +202,7 @@ private
   -- 1 4 0 3 1 1 0
   exampleCode : LehmerCode 7
   exampleCode = (1 , _) ∷ (4 , _) ∷ (0 , _) ∷ (3 , _) ∷ (1 , _) ∷ (1 , _) ∷ (0 , _) ∷ []
-  
+
   example : Fin 7 ≃ Fin 7
   example = decode exampleCode
 

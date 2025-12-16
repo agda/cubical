@@ -15,9 +15,9 @@ infix 7 -ₘ_
 -- Addition, subtraction and multiplication
 _+ₘ_ : {n : ℕ} → Fin (suc n) → Fin (suc n) → Fin (suc n)
 fst (_+ₘ_ {n = n} x y) = ((fst x) + (fst y)) mod (suc n)
-snd (_+ₘ_ {n = n} x y) = <→<ᵗ 
-                         {n = ((fst x) + (fst y)) mod (suc n)} 
-                         {m = suc n} 
+snd (_+ₘ_ {n = n} x y) = <→<ᵗ
+                         {n = ((fst x) + (fst y)) mod (suc n)}
+                         {m = suc n}
                          (mod< n ((fst x) + (fst y)))
 
 -ₘ_ : {n : ℕ} → (x : Fin (suc n)) → Fin (suc n)

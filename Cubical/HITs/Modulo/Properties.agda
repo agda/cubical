@@ -1,4 +1,3 @@
-
 module Cubical.HITs.Modulo.Properties where
 
 open import Cubical.Data.Nat

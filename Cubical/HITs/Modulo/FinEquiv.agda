@@ -1,4 +1,3 @@
-
 module Cubical.HITs.Modulo.FinEquiv where
 
 open import Cubical.Foundations.Function
@@ -70,10 +69,10 @@ module Reduction {k₀ : ℕ} where
   residue (step n i) = residueStep₁ n i
 
   sect : section residue fembed
-  sect (r , r<ᵗk) = 
-    Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = k}) 
-           (cong fst 
-           (cong fst 
+  sect (r , r<ᵗk) =
+    Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = k})
+           (cong fst
+           (cong fst
            (+inductionBase k₀ ResiduePath rbase rstep r (<ᵗ→< r<ᵗk))))
 
   retr : retract residue fembed

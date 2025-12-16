@@ -341,7 +341,7 @@ pigeonhole-special {suc n} f =
       : Dec (Σ (Fin (suc n)) (λ z → f (injectSuc z) ≡ f (suc n , <ᵗsucm {n})))
       → Σ[ i ∈ Fin (suc (suc n)) ] Σ[ j ∈ Fin (suc (suc n)) ] (¬ i ≡ j) × (f i ≡ f j)
     proof (yes (i , prf)) = injectSuc i , (suc n , <ᵗsucm {n}) , inject<-ne i , prf
-    proof (no h) = 
+    proof (no h) =
       let
         g : Fin (suc n) → Fin n
         g k = punchOut
@@ -504,9 +504,9 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
       sndFin = toℕ-injective {k = m} (cong snd io′≡ip′)
   isEmbeddingIntro : isEmbedding intro
   isEmbeddingIntro = injEmbedding (isSetFin {k = suc n · m}) intro-injective
-  
+
   elimF : ∀ nm → fiber intro nm
-  elimF nm = ((nnFin , mmFin) , toℕ-injective {k = suc n · m} (expand≡ (suc n) nn mm ∙ nmmoddiv)) where 
+  elimF nm = ((nnFin , mmFin) , toℕ-injective {k = suc n · m} (expand≡ (suc n) nn mm ∙ nmmoddiv)) where
     k : ℕ
     k = toℕ {k = suc n · m} nm
     mm : ℕ
@@ -700,23 +700,23 @@ CharacΠFinIso : ∀ {ℓ} (n : ℕ) {B : Fin (suc n) → Type ℓ}
   → Iso ((x : _) → B x) (B fzero × ((x : _) → B (fsuc x)))
 Iso.fun (CharacΠFinIso n {B = B}) f = f fzero , f ∘ fsuc
 Iso.inv (CharacΠFinIso n {B = B}) (x , f) (zero , p) =
-  subst B (Fin-fst-≡ {suc n} 
-                     {i = fzero} 
-                     {j = zero , p} 
+  subst B (Fin-fst-≡ {suc n}
+                     {i = fzero}
+                     {j = zero , p}
                      refl) x
 Iso.inv (CharacΠFinIso n {B = B}) (x , f) (suc y , p) =
-  subst B (Fin-fst-≡ {n = suc n} 
-                     {i = fsuc (y , p)} 
-                     {j = (suc y , p)} 
-                     refl) 
+  subst B (Fin-fst-≡ {n = suc n}
+                     {i = fsuc (y , p)}
+                     {j = (suc y , p)}
+                     refl)
                      (f (y , p))
 Iso.rightInv (CharacΠFinIso n {B = B}) (x , f) =
   ΣPathP ((λ j →
-    transp (λ i → B (isSetFin {suc n} 
-                  fzero fzero (Fin-fst-≡ {n = suc n} 
-                                         {i = fzero} 
-                                         {j = fzero} 
-                                         (λ _ → zero)) 
+    transp (λ i → B (isSetFin {suc n}
+                  fzero fzero (Fin-fst-≡ {n = suc n}
+                                         {i = fzero}
+                                         {j = fzero}
+                                         (λ _ → zero))
                               refl j i)) j x)
   , funExt λ x → (λ j → subst B (pathid x j)
                            (f (fst x , x .snd)))
@@ -724,7 +724,7 @@ Iso.rightInv (CharacΠFinIso n {B = B}) (x , f) =
   where
   module _ (x : Fin n) where
     path₁ : _
-    path₁ = Fin-fst-≡ {n = suc n} 
+    path₁ = Fin-fst-≡ {n = suc n}
                       {i = (fsuc (fst x , x .snd))}
                       {j = fsuc x} refl
 
@@ -739,19 +739,19 @@ Iso.rightInv (CharacΠFinIso n {B = B}) (x , f) =
 
 Iso.leftInv (CharacΠFinIso n {B = B}) f =
   funExt λ { (zero , p) j
-    → transp (λ i → B (Fin-fst-≡ {n = suc n} 
-                                 {i = fzero} 
-                                 {j = zero , p} 
+    → transp (λ i → B (Fin-fst-≡ {n = suc n}
+                                 {i = fzero}
+                                 {j = zero , p}
                                  refl (i ∨ j)))
-              j (f (Fin-fst-≡ {n = suc n} 
-                              {i = fzero} 
-                              {j = zero , p} 
+              j (f (Fin-fst-≡ {n = suc n}
+                              {i = fzero}
+                              {j = zero , p}
                               refl j))
            ; (suc x , p) j → transp (λ i → B (q x p (i ∨ j))) j (f (q x p j))}
   where
   q : (x : _) (p : _) → _
-  q x p = Fin-fst-≡ {n = suc n} {i = (fsuc (x , p))} 
-                    {j = suc x , p} 
+  q x p = Fin-fst-≡ {n = suc n} {i = (fsuc (x , p))}
+                    {j = suc x , p}
                     refl
 
 -- properties of finite sums
@@ -837,7 +837,7 @@ elimFin : ∀ {ℓ} {m : ℕ} {A : Fin (suc m) → Type ℓ}
 elimFin {m = zero} {A = A} max f (zero , p) = max
 elimFin {m = suc m} {A = A} max f (zero , p) = f (zero , tt)
 elimFin {m = suc zero} {A = A} max f (suc zero , p) = max
-elimFin {m = suc (suc m)} {A = A} max f (suc x , p) = 
+elimFin {m = suc (suc m)} {A = A} max f (suc x , p) =
   elimFin {m = suc m} {A = λ x → A (fsuc x)} max (λ t → f (fsuc t)) (x , p)
 
 elimFin-alt : ∀ {ℓ} {m : ℕ} {A : Fin (suc m) → Type ℓ}
@@ -882,7 +882,7 @@ Iso.rightInv (Iso-Fin1⊎Fin-FinSuc {n = n}) =
 Iso.leftInv (Iso-Fin1⊎Fin-FinSuc {n = n}) (inl (zero , p)) =
   let β = elimFinβ {m = n} {A = λ _ → Fin 1 ⊎ Fin n} (inl flast) inr in
   (β .fst) ∙ cong inl (Fin≡ {m = 1} flast (zero , p) refl)
-Iso.leftInv (Iso-Fin1⊎Fin-FinSuc {n = n}) (inr x) = 
+Iso.leftInv (Iso-Fin1⊎Fin-FinSuc {n = n}) (inr x) =
   (elimFinβ {m = n} {A = λ _ → Fin 1 ⊎ Fin n} (inl flast) inr) .snd x
 
 Iso-Fin⊎Fin-Fin+ : {n m : ℕ} → Iso (Fin n ⊎ Fin m) (Fin (n + m))
