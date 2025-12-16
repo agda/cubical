@@ -15,7 +15,13 @@ open import Cubical.Data.Sum using (_⊎_; _⊎?_; inl; inr)
 
 open import Cubical.Relation.Nullary
 
--- Finite types defined using <ᵗ
+-- Finite types.
+--
+-- Currently it is most convenient to define these as a subtype of the
+-- natural numbers, because indexed inductive definitions don't behave
+-- well with cubical Agda. This definition also has some more general
+-- attractive properties, of course, such as easy conversion back to
+-- ℕ.
 Fin : ℕ → Type₀
 Fin n = Σ[ m ∈ ℕ ] (m <ᵗ n)
 

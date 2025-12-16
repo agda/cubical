@@ -505,9 +505,8 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
   isEmbeddingIntro : isEmbedding intro
   isEmbeddingIntro = injEmbedding (isSetFin {k = suc n · m}) intro-injective
   
-  elimF : (nm : Fin (suc n · m)) → fiber intro nm
-  elimF nm = 
-    ((nnFin , mmFin) , toℕ-injective {k = suc n · m} (expand≡ (suc n) nn mm ∙ nmmoddiv)) where 
+  elimF : ∀ nm → fiber intro nm
+  elimF nm = ((nnFin , mmFin) , toℕ-injective {k = suc n · m} (expand≡ (suc n) nn mm ∙ nmmoddiv)) where 
     k : ℕ
     k = toℕ {k = suc n · m} nm
     mm : ℕ
