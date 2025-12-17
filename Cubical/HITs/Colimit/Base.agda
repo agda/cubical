@@ -124,8 +124,8 @@ module _ {ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} where
   univ colimIsColimit ℓq Y
     = isoToIsEquiv record { fun = postcomp colimCone
                           ; inv = rec
-                          ; rightInv = λ C → refl
-                          ; leftInv  = λ h → funExt (eq h) }
+                          ; sec = λ C → refl
+                          ; ret  = λ h → funExt (eq h) }
     where eq : ∀ h (x : colim _) → rec (postcomp colimCone h) x ≡ h x
           eq h (colim-leg j A)   = refl
           eq h (colim-com f i A) = refl

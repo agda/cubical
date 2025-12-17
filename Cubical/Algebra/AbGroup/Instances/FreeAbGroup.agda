@@ -82,12 +82,12 @@ module _ {A : Type ℓ} where
     AbelienizeFreeGroup→FreeAbGroup .fst
   Iso.inv (fst GroupIso-AbelienizeFreeGroup→FreeAbGroup) =
     FreeAbGroup→AbelienizeFreeGroup .fst
-  Iso.rightInv (fst GroupIso-AbelienizeFreeGroup→FreeAbGroup) x i =
+  Iso.sec (fst GroupIso-AbelienizeFreeGroup→FreeAbGroup) x i =
     FAGAbGroupGroupHom≡
       (compGroupHom FreeAbGroup→AbelienizeFreeGroup
                     AbelienizeFreeGroup→FreeAbGroup)
       idGroupHom (λ _ → refl) i .fst x
-  Iso.leftInv (fst GroupIso-AbelienizeFreeGroup→FreeAbGroup) =
+  Iso.ret (fst GroupIso-AbelienizeFreeGroup→FreeAbGroup) =
     Abi.elimProp _ (λ _ → isset _ _)
     (funExt⁻ (cong fst (freeGroupHom≡
       {f = compGroupHom  freeGroup→freeAbGroup FreeAbGroup→AbelienizeFreeGroup}
@@ -387,8 +387,8 @@ Free→ℤFin→Free (suc n) =
 Iso-ℤFin-FreeAbGroup : (n : ℕ) → Iso (ℤ[Fin n ] .fst) (FAGAbGroup {A = Fin n} .fst)
 Iso.fun (Iso-ℤFin-FreeAbGroup n) = ℤFin→Free n
 Iso.inv (Iso-ℤFin-FreeAbGroup n) = Free→ℤFin n
-Iso.rightInv (Iso-ℤFin-FreeAbGroup n) = ℤFin→Free→ℤFin n
-Iso.leftInv (Iso-ℤFin-FreeAbGroup n) = Free→ℤFin→Free n
+Iso.sec (Iso-ℤFin-FreeAbGroup n) = ℤFin→Free→ℤFin n
+Iso.ret (Iso-ℤFin-FreeAbGroup n) = Free→ℤFin→Free n
 
 ℤFin≅FreeAbGroup : (n : ℕ) → AbGroupIso (ℤ[Fin n ]) (FAGAbGroup {A = Fin n})
 fst (ℤFin≅FreeAbGroup n) = Iso-ℤFin-FreeAbGroup n
@@ -404,7 +404,7 @@ elimPropℤFin : ∀ {ℓ} (n : ℕ)
   → ((f : _) → A f → A (-ℤ_ ∘ f))
   → (x : _) → A x
 elimPropℤFin n A pr z t s u w =
-  subst A (Iso.leftInv (Iso-ℤFin-FreeAbGroup n) w) (help (ℤFin→Free n w))
+  subst A (Iso.ret (Iso-ℤFin-FreeAbGroup n) w) (help (ℤFin→Free n w))
   where
   help : (x : _) → A (Free→ℤFin n x)
   help = ElimProp.f (pr _) t z

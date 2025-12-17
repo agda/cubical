@@ -234,8 +234,8 @@ isSetSetTrunc a b p q = squash₂ a b p q
 setTruncIdempotentIso : isSet A → Iso ∥ A ∥₂ A
 Iso.fun (setTruncIdempotentIso hA) = rec hA (idfun _)
 Iso.inv (setTruncIdempotentIso hA) x = ∣ x ∣₂
-Iso.rightInv (setTruncIdempotentIso hA) _ = refl
-Iso.leftInv (setTruncIdempotentIso hA) = elim (λ _ → isSet→isGroupoid isSetSetTrunc _ _) (λ _ → refl)
+Iso.sec (setTruncIdempotentIso hA) _ = refl
+Iso.ret (setTruncIdempotentIso hA) = elim (λ _ → isSet→isGroupoid isSetSetTrunc _ _) (λ _ → refl)
 
 setTruncIdempotent≃ : isSet A → ∥ A ∥₂ ≃ A
 setTruncIdempotent≃ {A = A} hA = isoToEquiv (setTruncIdempotentIso hA)
@@ -252,12 +252,12 @@ isContr→isContrSetTrunc contr = ∣ fst contr ∣₂
 setTruncIso : Iso A B → Iso ∥ A ∥₂ ∥ B ∥₂
 Iso.fun (setTruncIso is) = rec isSetSetTrunc (λ x → ∣ Iso.fun is x ∣₂)
 Iso.inv (setTruncIso is) = rec isSetSetTrunc (λ x → ∣ Iso.inv is x ∣₂)
-Iso.rightInv (setTruncIso is) =
+Iso.sec (setTruncIso is) =
   elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
-        λ a → cong ∣_∣₂ (Iso.rightInv is a)
-Iso.leftInv (setTruncIso is) =
+        λ a → cong ∣_∣₂ (Iso.sec is a)
+Iso.ret (setTruncIso is) =
   elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
-        λ a → cong ∣_∣₂ (Iso.leftInv is a)
+        λ a → cong ∣_∣₂ (Iso.ret is a)
 
 sigmaElim : {B : ∥ A ∥₂ → Type ℓ} {C : Σ ∥ A ∥₂ B  → Type ℓ'}
             (Bset : (x : Σ ∥ A ∥₂ B) → isSet (C x))
@@ -296,16 +296,16 @@ prodElim2 isset f = prodElim (λ _ → isSetΠ λ _ → isset _ _)
 setTruncOfProdIso :  Iso ∥ A × B ∥₂ (∥ A ∥₂ × ∥ B ∥₂)
 Iso.fun setTruncOfProdIso = rec (isSet× isSetSetTrunc isSetSetTrunc) λ (a , b) → ∣ a ∣₂ , ∣ b ∣₂
 Iso.inv setTruncOfProdIso = prodRec isSetSetTrunc λ a b → ∣ a , b ∣₂
-Iso.rightInv setTruncOfProdIso =
+Iso.sec setTruncOfProdIso =
   prodElim (λ _ → isOfHLevelPath 2 (isSet× isSetSetTrunc isSetSetTrunc) _ _) λ _ _ → refl
-Iso.leftInv setTruncOfProdIso =
+Iso.ret setTruncOfProdIso =
   elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _) λ {(a , b) → refl}
 
 IsoSetTruncateSndΣ : {A : Type ℓ} {B : A → Type ℓ'} → Iso ∥ Σ A B ∥₂ ∥ Σ A (λ x → ∥ B x ∥₂) ∥₂
 Iso.fun IsoSetTruncateSndΣ = map λ (a , b) → a , ∣ b ∣₂
 Iso.inv IsoSetTruncateSndΣ = rec isSetSetTrunc (uncurry λ a → map λ b → a , b)
-Iso.rightInv IsoSetTruncateSndΣ = elim (λ _ → isSetPathImplicit) (uncurry λ _ → elim (λ _ → isSetPathImplicit) λ _ → refl)
-Iso.leftInv IsoSetTruncateSndΣ = elim (λ _ → isSetPathImplicit) λ _ → refl
+Iso.sec IsoSetTruncateSndΣ = elim (λ _ → isSetPathImplicit) (uncurry λ _ → elim (λ _ → isSetPathImplicit) λ _ → refl)
+Iso.ret IsoSetTruncateSndΣ = elim (λ _ → isSetPathImplicit) λ _ → refl
 
 -- Deprecated. Use `IsoSetTruncateSndΣ` instead.
 setSigmaIso : {B : A → Type ℓ} → Iso ∥ Σ A B ∥₂ ∥ Σ A (λ x → ∥ B x ∥₂) ∥₂
@@ -317,8 +317,8 @@ Iso.fun (PathIdTrunc₀Iso {b = b}) p =
                         (λ a → ∥ a ≡ b ∥₁ , squash₁) (p (~ i)) .fst)
             ∣ refl ∣₁
 Iso.inv PathIdTrunc₀Iso = pRec (squash₂ _ _) (cong ∣_∣₂)
-Iso.rightInv PathIdTrunc₀Iso _ = squash₁ _ _
-Iso.leftInv PathIdTrunc₀Iso _ = squash₂ _ _ _ _
+Iso.sec PathIdTrunc₀Iso _ = squash₁ _ _
+Iso.ret PathIdTrunc₀Iso _ = squash₂ _ _ _ _
 
 mapFunctorial : {A B C : Type ℓ} (f : A → B) (g : B → C)
   → map g ∘ map f ≡ map (g ∘ f)

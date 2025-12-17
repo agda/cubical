@@ -59,8 +59,8 @@ groupoidTruncIdempotent≃ {A = A} hA = isoToEquiv f
   f : Iso ∥ A ∥₃ A
   Iso.fun f = rec hA (idfun A)
   Iso.inv f x = ∣ x ∣₃
-  Iso.rightInv f _ = refl
-  Iso.leftInv f = elim (λ _ → isGroupoid→is2Groupoid isGroupoidGroupoidTrunc _ _) (λ _ → refl)
+  Iso.sec f _ = refl
+  Iso.ret f = elim (λ _ → isGroupoid→is2Groupoid isGroupoidGroupoidTrunc _ _) (λ _ → refl)
 
 groupoidTruncIdempotent : isGroupoid A → ∥ A ∥₃ ≡ A
 groupoidTruncIdempotent hA = ua (groupoidTruncIdempotent≃ hA)

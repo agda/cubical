@@ -214,8 +214,8 @@ RP→Charac₀ : Iso (EM ℤ/2 1 → ℤ/2 .fst)
                   (ℤ/2 .fst)
 Iso.fun RP→Charac₀ f = f embase
 Iso.inv RP→Charac₀ a = λ _ → a
-Iso.rightInv RP→Charac₀ a = refl
-Iso.leftInv RP→Charac₀ f =
+Iso.sec RP→Charac₀ a = refl
+Iso.ret RP→Charac₀ f =
   funExt (EM→Prop _ 0 (λ _ → is-set (snd ℤ/2Ring) _ _) refl)
 
 RP→EM-ℤ/2-CharacIso : (n : ℕ)

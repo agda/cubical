@@ -57,8 +57,6 @@ module _
       fam : A → Type _
       fam a = Σ[ k ∈ ((b : B) → P (a , b) .fst) ] ((y : Y) → k (g y) ≡ sec (inr (a , y)))
 
-      open Iso
-
       fiberEquiv : (a : A)
         → fam a ≃ fiber (λ(s : (b : B) → P (a , b) .fst) → s ∘ g) (λ y → sec (inr (a , y)))
       fiberEquiv a =  isoToEquiv
@@ -76,8 +74,8 @@ module _
 
       map-iso = elim.isIsoPrecompose f _ (λ a → fam a , is-m-trunc-fam a) connf
 
-      k = map-iso .inv sec-fam
-      ϕ = map-iso .rightInv sec-fam
+      k = map-iso .Iso.inv sec-fam
+      ϕ = map-iso .Iso.sec sec-fam
 
     ext : (x : A × B) → P x .fst
     ext (a , b) = k a .fst b

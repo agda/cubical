@@ -46,8 +46,8 @@ module _ {C : Category ℓC ℓC'} (F : Functor C C) where
   isoRepAlgebraHom : (algA algB : Algebra) → AlgebraHom algA algB ≅ RepAlgebraHom algA algB
   fun (isoRepAlgebraHom algA algB) (algebraHom f isalgF) = f , isalgF
   inv (isoRepAlgebraHom algA algB) (f , isalgF) = algebraHom f isalgF
-  rightInv (isoRepAlgebraHom algA algB) (f , isalgF) = refl
-  leftInv (isoRepAlgebraHom algA algB) (algebraHom f isalgF)= refl
+  sec (isoRepAlgebraHom algA algB) (f , isalgF) = refl
+  ret (isoRepAlgebraHom algA algB) (algebraHom f isalgF)= refl
 
   pathRepAlgebraHom : (algA algB : Algebra) → AlgebraHom algA algB ≡ RepAlgebraHom algA algB
   pathRepAlgebraHom algA algB = ua (isoToEquiv (isoRepAlgebraHom algA algB))

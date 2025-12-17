@@ -24,5 +24,5 @@ module Coalgs (S : Type ℓ) (Q : S → Type ℓ') where
       isom : Iso (Σ[ s ∈ S ] (Q s → M S Q)) (M S Q)
       fun isom = uncurry sup-M
       inv isom m = shape m , pos m
-      rightInv isom m = ηEqM m
-      leftInv isom (s , f) = refl
+      sec isom m = ηEqM m
+      ret isom (s , f) = refl

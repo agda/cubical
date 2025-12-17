@@ -570,7 +570,7 @@ Iso.inv (Fin+≅Fin⊎Fin m n) = g
     g :  Fin m  ⊎  Fin n  →  Fin (m + n)
     g (inl (k , k<m)) = k     , o<m→o<m+n m n k k<m
     g (inr (k , k<n)) = m + k , <-k+ k<n
-Iso.rightInv (Fin+≅Fin⊎Fin m n) = sec-f-g
+Iso.sec (Fin+≅Fin⊎Fin m n) = sec-f-g
   where
     sec-f-g : _
     sec-f-g (inl (k , k<m)) with k ≤? m
@@ -582,7 +582,7 @@ Iso.rightInv (Fin+≅Fin⊎Fin m n) = sec-f-g
       where
         rem : (m + k) ∸ m ≡ k
         rem = subst (λ - → - ∸ m ≡ k) (+-comm k m) (m+n∸n=m m k)
-Iso.leftInv  (Fin+≅Fin⊎Fin m n) = ret-f-g
+Iso.ret  (Fin+≅Fin⊎Fin m n) = ret-f-g
   where
     ret-f-g : _
     ret-f-g (k , k<m+n) with k ≤? m
@@ -624,8 +624,8 @@ retFin (suc N) (suc k) = cong FinData.suc (cong (Fin→FinData N) (Fin-fst-≡ r
 FinDataIsoFin : (N : ℕ) → Iso (FinData N) (Fin N)
 Iso.fun (FinDataIsoFin N) = FinData→Fin N
 Iso.inv (FinDataIsoFin N) = Fin→FinData N
-Iso.rightInv (FinDataIsoFin N) = secFin N
-Iso.leftInv (FinDataIsoFin N) = retFin N
+Iso.sec (FinDataIsoFin N) = secFin N
+Iso.ret (FinDataIsoFin N) = retFin N
 
 FinData≃Fin : (N : ℕ) → FinData N ≃ Fin N
 FinData≃Fin N = isoToEquiv (FinDataIsoFin N)
@@ -686,7 +686,7 @@ Iso.inv (CharacΠFinIso n {B = B}) (x , f) (zero , p) =
   subst B (Fin-fst-≡ {i = fzero} {j = zero , p} refl) x
 Iso.inv (CharacΠFinIso n {B = B}) (x , f) (suc y , p) =
   subst B (Fin-fst-≡ refl) (f (y , pred-≤-pred p))
-Iso.rightInv (CharacΠFinIso n {B = B}) (x , f) =
+Iso.sec (CharacΠFinIso n {B = B}) (x , f) =
   ΣPathP ((λ j →
     transp (λ i → B (isSetFin fzero fzero (Fin-fst-≡ (λ _ → zero)) refl j i)) j x)
   , funExt λ x → (λ j → subst B (pathid x j)
@@ -707,7 +707,7 @@ Iso.rightInv (CharacΠFinIso n {B = B}) (x , f) =
     pathid : path₁ ≡ path₃
     pathid = isSetFin _ _ _ _
 
-Iso.leftInv (CharacΠFinIso n {B = B}) f =
+Iso.ret (CharacΠFinIso n {B = B}) f =
   funExt λ { (zero , p) j
     → transp (λ i → B (Fin-fst-≡ {i = fzero} {j = zero , p} refl (i ∨ j)))
               j (f (Fin-fst-≡ {i = fzero} {j = zero , p} refl j))

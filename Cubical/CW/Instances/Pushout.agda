@@ -191,12 +191,12 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
     → pushoutIso₀-inv (pushoutIso₀-fun x) ≡ x
   pushoutIso₀-leftInv (inl x) =
     (λ i → pushoutIso₀-helper
-             (Iso.leftInv (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero})
+             (Iso.ret (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero})
                (inl (CW₁-discrete C .fst x)) i))
     ∙ λ i → inl (retEq (CW₁-discrete C) x i)
   pushoutIso₀-leftInv (inr x) =
     (λ i → pushoutIso₀-helper
-             (Iso.leftInv (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero})
+             (Iso.ret (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero})
                (inr (CW₁-discrete D .fst x)) i))
     ∙ λ i → inr (retEq (CW₁-discrete D) x i)
   pushoutIso₀-leftInv (push a i) with (B .snd .snd .snd .fst a)
@@ -219,7 +219,7 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
   pushoutIso₀-rightInv (inr x) =
       pushoutIso₀-helper₁
         (Iso.inv (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero}) x)
-    ∙ λ i → inr (Iso.rightInv (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero}) x i)
+    ∙ λ i → inr (Iso.sec (Iso-Fin⊎Fin-Fin+ {card C zero} {card D zero}) x i)
 
   pushoutIso₀ : Iso (pushoutA (suc zero)) (Pushout pushoutMap₀ fst)
   pushoutIso₀ =
@@ -322,8 +322,8 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
   IsoModifiedPushout : (n : ℕ) → Iso (pushoutA (suc (suc n))) (modifiedPushout n)
   Iso.fun (IsoModifiedPushout n) = Pushout→modifiedPushout n
   Iso.inv (IsoModifiedPushout n) = modifiedPushout→Pushout n
-  Iso.rightInv (IsoModifiedPushout n) = modP→Pushout→modP n
-  Iso.leftInv (IsoModifiedPushout n) = Pushout→modP→Pushout n
+  Iso.sec (IsoModifiedPushout n) = modP→Pushout→modP n
+  Iso.ret (IsoModifiedPushout n) = Pushout→modP→Pushout n
 
   pushoutIsoₛ-filler0 : (n : ℕ) (b : A B n) (x : S⁻ n) → I → I → pushoutA (suc n)
   pushoutIsoₛ-filler0 n b x i j =
@@ -544,8 +544,8 @@ module CWPushout (ℓ : Level) (Bʷ Cʷ Dʷ : CWskel ℓ)
   pushoutIsoₛ : (n : ℕ) → Iso (modifiedPushout n) (Pushout (pushoutMapₛ n) fst)
   Iso.fun (pushoutIsoₛ n) = pushoutIsoₛ-fun n
   Iso.inv (pushoutIsoₛ n) = pushoutIsoₛ-inv n
-  Iso.rightInv (pushoutIsoₛ n) = pushoutIsoₛ-rightInv n
-  Iso.leftInv (pushoutIsoₛ n) = pushoutIsoₛ-leftInv n
+  Iso.sec (pushoutIsoₛ n) = pushoutIsoₛ-rightInv n
+  Iso.ret (pushoutIsoₛ n) = pushoutIsoₛ-leftInv n
 
   pushoutIsoₜ : (n : ℕ) → Iso (pushoutA (suc n)) (Pushout (pushoutMap n) fst)
   pushoutIsoₜ zero = pushoutIso₀

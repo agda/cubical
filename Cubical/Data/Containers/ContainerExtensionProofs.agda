@@ -61,11 +61,11 @@ module _ {C : Category ℓ ℓ'} where
           (funExt₂ λ X (s , h) → sym (funExt⁻ (nat h) (s , C .id)) ∙
                                  cong (λ Z → mors X (s , Z)) (C .⋆IdL h))
 
-        ret : ∀ X→Y → fib (⟦ X→Y ⟧-mor) ≡ X→Y
-        ret (u ◁ f) i = u ◁ λ s → C .⋆IdR (f s) i
+        ret' : ∀ X→Y → fib (⟦ X→Y ⟧-mor) ≡ X→Y
+        ret' (u ◁ f) i = u ◁ λ s → C .⋆IdR (f s) i
 
         unique : (y : fiber (⟦_⟧-mor) (natTrans mors nat)) → (fib (natTrans mors nat) , fib-pf) ≡ y
-        unique (m , m-eq) = Σ≡Prop (λ _ → isSetNatTrans _ _) (cong fib (sym m-eq) ∙ ret m)
+        unique (m , m-eq) = Σ≡Prop (λ _ → isSetNatTrans _ _) (cong fib (sym m-eq) ∙ ret' m)
 
     -- Proof 2 that the functor ⟦_⟧ is full and faithful
     -- Uses the Yoneda lemma

@@ -75,8 +75,8 @@ module IsModalToUnitIsEquiv (A : Type ℓ) (A-mod : isModal A) where
     η-iso : Iso A (◯ A)
     Iso.fun η-iso = η
     Iso.inv η-iso = inv
-    Iso.rightInv η-iso = η-section
-    Iso.leftInv η-iso = η-retract
+    Iso.sec η-iso = η-section
+    Iso.ret η-iso = η-retract
 
     η-is-equiv : isEquiv (η-at A)
     η-is-equiv = isoToIsEquiv η-iso

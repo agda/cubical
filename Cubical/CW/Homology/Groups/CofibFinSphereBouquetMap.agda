@@ -84,19 +84,19 @@ module _ {c1 c2 : ℕ} {n : ℕ} (α : FinSphereBouquetMap c1 c2 n) where
     HₙSphereBouquetⁿ/→ℤ[]/ImSphereMap-fun p q
   inv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre p q) =
     HₙSphereBouquetⁿ/→ℤ[]/ImSphereMap-inv p q
-  rightInv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (lt x) q) f =
+  sec (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (lt x) q) f =
     ⊥.rec (¬m<ᵗm x)
-  rightInv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (lt y)) f = refl
-  rightInv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (eq y)) f = refl
-  rightInv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (gt y)) f = refl
-  rightInv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (gt x) q) f =
+  sec (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (lt y)) f = refl
+  sec (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (eq y)) f = refl
+  sec (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (gt y)) f = refl
+  sec (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (gt x) q) f =
     ⊥.rec (¬m<ᵗm x)
-  leftInv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (lt x) q) f =
+  ret (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (lt x) q) f =
     ⊥.rec (¬m<ᵗm x)
-  leftInv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (lt y)) f = refl
-  leftInv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (eq y)) f = refl
-  leftInv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (gt y)) f = refl
-  leftInv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (gt x) q) f =
+  ret (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (lt y)) f = refl
+  ret (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (eq y)) f = refl
+  ret (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (gt y)) f = refl
+  ret (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (gt x) q) f =
     ⊥.rec (¬m<ᵗm x)
 
   HₙSphereBouquetⁿ/→ℤ[]/ImSphereMap-fun-hom :
@@ -311,14 +311,14 @@ module _ {c1 c2 : ℕ} {n : ℕ} (α : FinSphereBouquetMap c1 c2 n) where
     HₙSphereBouquetⁿ/→ℤ[]/ImSphereMap
   inv (fst GroupIso-Hₙ₊₁SphereBouquetⁿ/→ℤ[]/ImSphereMap) =
     ℤ[]/ImSphereMap→HₙSphereBouquetⁿ/
-  rightInv (fst GroupIso-Hₙ₊₁SphereBouquetⁿ/→ℤ[]/ImSphereMap) =
+  sec (fst GroupIso-Hₙ₊₁SphereBouquetⁿ/→ℤ[]/ImSphereMap) =
     SQ.elimProp (λ _ → squash/ _ _)
-      λ f → cong [_] (rightInv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre
+      λ f → cong [_] (sec (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre
                         (suc n ≟ᵗ suc n) (suc n ≟ᵗ suc (suc n))) f)
-  leftInv (fst GroupIso-Hₙ₊₁SphereBouquetⁿ/→ℤ[]/ImSphereMap) =
+  ret (fst GroupIso-Hₙ₊₁SphereBouquetⁿ/→ℤ[]/ImSphereMap) =
     SQ.elimProp (λ _ → squash/ _ _)
       λ f → cong [_] (Σ≡Prop (λ _ → isSetΠ (λ _ → isSetℤ) _ _)
-                      (leftInv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre
+                      (ret (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre
                         (suc n ≟ᵗ suc n) (suc n ≟ᵗ suc (suc n))) (fst f)))
   snd GroupIso-Hₙ₊₁SphereBouquetⁿ/→ℤ[]/ImSphereMap =
     makeIsGroupHom HₙSphereBouquetⁿ/→ℤ[]/ImSphereMap-hom

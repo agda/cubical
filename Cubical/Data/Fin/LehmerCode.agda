@@ -59,13 +59,13 @@ projectionEquiv {n = n} {i = i} = isoToEquiv goal where
   goal .Iso.fun (inl _) = i
   goal .Iso.fun (inr m) = fst m
   goal .Iso.inv m = case discreteFin i m of λ { (yes _) → inl tt ; (no n) → inr (m , n) }
-  goal .Iso.rightInv m with discreteFin i m
+  goal .Iso.sec m with discreteFin i m
   ... | (yes p) = p
   ... | (no _) = toℕ-injective refl
-  goal .Iso.leftInv (inl tt) with discreteFin i i
+  goal .Iso.ret (inl tt) with discreteFin i i
   ... | (yes _) = refl
   ... | (no ¬ii) = ⊥.rec (¬ii refl)
-  goal .Iso.leftInv (inr m) with discreteFin i (fst m)
+  goal .Iso.ret (inr m) with discreteFin i (fst m)
   ... | (yes p) = ⊥.rec (snd m p)
   ... | (no _) = cong inr (toℕExc-injective refl)
 
@@ -170,9 +170,9 @@ lehmerEquiv {suc n} =
             (Σ[ k ∈ Fin (suc n) ] (FinExcept (fzero {k = n}) ≃ FinExcept k))
     Iso.fun i f = equivFun f fzero , equivIn f
     Iso.inv i (k , f) = equivOut f
-    Iso.rightInv i (k , f) = ΣPathP (refl , equivEq (funExt λ x →
+    Iso.sec i (k , f) = ΣPathP (refl , equivEq (funExt λ x →
        toℕExc-injective (cong toℕ (equivOutChar {f = f} x))))
-    Iso.leftInv i f = equivEq (funExt goal) where
+    Iso.ret i f = equivEq (funExt goal) where
       goal : ∀ x → equivFun (equivOut (equivIn f)) x ≡ equivFun f x
       goal x = case fsplit x return (λ _ → equivFun (equivOut (equivIn f)) x ≡ equivFun f x) of λ
         { (inl xz) → subst (λ x → equivFun (equivOut (equivIn f)) x ≡ equivFun f x) xz refl

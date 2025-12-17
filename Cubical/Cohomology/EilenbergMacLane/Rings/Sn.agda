@@ -123,7 +123,7 @@ module _ {ℓ : Level} (G : CommRing ℓ) (n : ℕ) where
         λ p → cong (H¹S¹→G (Ring→AbGroup G))
                 (cong (_⌣_ {G'' = G} {n = 0} {1} ∣ (λ _ → g) ∣₂)
                   (cong (∣_∣₂ ∘ S¹Fun embase)
-                    (sym (Iso.rightInv (Iso-EM-ΩEM+1 0) p))))
+                    (sym (Iso.sec (Iso-EM-ΩEM+1 0) p))))
             ∙∙ help (ΩEM+1→EM 0 p)
             ∙∙ cong (RingStr._·_ (snd G) g) (λ _ → ΩEM+1→EM 0 p))
     where
@@ -132,7 +132,7 @@ module _ {ℓ : Level} (G : CommRing ℓ) (n : ℕ) where
           (_⌣_ {G'' = G} {n = 0} {1} ∣ (λ _ → g) ∣₂
                                      ∣ S¹Fun embase (emloop h) ∣₂)
         ≡ RingStr._·_ (snd G) g h
-    help h = Iso.leftInv (Iso-EM-ΩEM+1 0) (RingStr._·_ (snd G) g h)
+    help h = Iso.ret (Iso-EM-ΩEM+1 0) (RingStr._·_ (snd G) g h)
   Hⁿ[Sⁿ,G]≅G-pres⌣ (suc n) G g =
     ST.elim (λ _ → isOfHLevelPath 2 (RingStr.is-set (snd G)) _ _)
       (Sⁿ-connElim n (isConnectedSubtr 2 (suc n)

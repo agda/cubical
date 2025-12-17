@@ -475,8 +475,8 @@ hom-botᵣ {A = A} n f g =
   morphLemmas.isMorphInv ∙Π ∙Π (botᵣ⁻ {A = A} (suc n))
     (hom-botᵣ⁻' {A = A} n)
     (botᵣ {A = A} (suc n))
-    (leftInv (botᵣIso {A = A} (suc n)))
-    (rightInv (botᵣIso {A = A} (suc n)))
+    (ret (botᵣIso {A = A} (suc n)))
+    (sec (botᵣIso {A = A} (suc n)))
     f g
 
 isHom-IsoΩSphereMapᵣ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
@@ -523,7 +523,7 @@ private
                   (fun e (inv e (transportRefl p i)
                        +A inv e (transportRefl q i))) i)
       ∙∙ hom (inv e p) (inv e q)
-      ∙∙ cong₂ _+B_ (rightInv e p) (rightInv e q)))
+      ∙∙ cong₂ _+B_ (sec e p) (sec e q)))
 
   pₗ : ∀ {ℓ} (A : Pointed ℓ) (n : ℕ)
     → typ (Ω ((Ω^ n) A)) ≡ (S₊∙ (suc n) →∙ A)

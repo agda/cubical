@@ -66,11 +66,11 @@ record Modality ℓ : Type (ℓ-suc ℓ) where
     to-from : ∀ ◯b → ◯-map f (◯-map inv ◯b) ≡ ◯b
     to-from = ◯-elim
       (λ ◯b → ◯-=-isModal (◯-map f (◯-map inv ◯b)) ◯b)
-      (λ b → cong (◯-map f) (◯-map-β inv b) ∙ ◯-map-β f (inv b) ∙ cong η (rightInv b))
+      (λ b → cong (◯-map f) (◯-map-β inv b) ∙ ◯-map-β f (inv b) ∙ cong η (sec b))
     from-to : ∀ ◯a → ◯-map inv (◯-map f ◯a) ≡ ◯a
     from-to = ◯-elim
         (λ ◯a → ◯-=-isModal (◯-map inv (◯-map f ◯a)) ◯a)
-        (λ a → cong (◯-map inv) (◯-map-β f a) ∙ ◯-map-β inv (f a) ∙ cong η (leftInv a))
+        (λ a → cong (◯-map inv) (◯-map-β f a) ∙ ◯-map-β inv (f a) ∙ cong η (ret a))
 
 
   ◯-equiv : {A B : Type ℓ} → A ≃ B → ◯ A ≃ ◯ B
@@ -88,8 +88,8 @@ record Modality ℓ : Type (ℓ-suc ℓ) where
   isModalToIso : {A : Type ℓ} → isModal A → Iso A (◯ A)
   Iso.fun (isModalToIso _) = η
   Iso.inv (isModalToIso w) = ◯-rec w (idfun _)
-  Iso.rightInv (isModalToIso w) = ◯-elim (λ _ → ◯-=-isModal _ _) (λ a₀ → cong η (◯-rec-β w (idfun _) a₀))
-  Iso.leftInv (isModalToIso w) = ◯-rec-β w (idfun _)
+  Iso.sec (isModalToIso w) = ◯-elim (λ _ → ◯-=-isModal _ _) (λ a₀ → cong η (◯-rec-β w (idfun _) a₀))
+  Iso.ret (isModalToIso w) = ◯-rec-β w (idfun _)
 
   isModalToIsEquiv : {A : Type ℓ} → isModal A → isEquiv (η {A})
   isModalToIsEquiv {A} w = isoToIsEquiv (isModalToIso w)

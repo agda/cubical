@@ -218,7 +218,7 @@ cancel-H²S²→H²CP² f =
 H²CP²≅H²S² : GroupIso (coHomGr 2 CP²) (coHomGr 2 (S₊ 2))
 Iso.fun (fst H²CP²≅H²S²) = sMap (_∘ inr)
 Iso.inv (fst H²CP²≅H²S²) = H²S²→H²CP²
-Iso.rightInv (fst H²CP²≅H²S²) =
+Iso.sec (fst H²CP²≅H²S²) =
   sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
     λ f → trRec {B = Iso.fun (fst H²CP²≅H²S²) (Iso.inv (fst H²CP²≅H²S²) ∣ f ∣₂)
                    ≡ ∣ f ∣₂}
@@ -226,7 +226,7 @@ Iso.rightInv (fst H²CP²≅H²S²) =
     (λ p → cong ∣_∣₂ (funExt λ x → cong (λ y → (f x) -ₖ y) p ∙ rUnitₖ 2 (f x)))
     (Iso.fun (PathIdTruncIso _)
              (isContr→isProp (isConnectedKn 1) ∣ f north ∣ ∣ 0ₖ 2 ∣))
-Iso.leftInv (fst H²CP²≅H²S²) =
+Iso.ret (fst H²CP²≅H²S²) =
   sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
     λ f → pRec (squash₂ _ _) (cong ∣_∣₂) (cancel-H²S²→H²CP² f)
 snd H²CP²≅H²S² =
@@ -426,7 +426,7 @@ hopfMap≡HopfMap' : HopfMap ≡ (HopfMap' , refl)
 hopfMap≡HopfMap' =
   ΣPathP ((funExt (λ x →
             cong (λ x → JoinS¹S¹→TotalHopf x .fst)
-              (sym (Iso.rightInv IsoTotalHopf'
+              (sym (Iso.sec IsoTotalHopf'
                    (Iso.inv (IsoSphereJoin 1 1) x)))
              ∙ sym (lem (Iso.inv IsoTotalHopf'
                    (Iso.inv (IsoSphereJoin 1 1) x)))))
@@ -517,10 +517,10 @@ CP2≡CP²' =
     -ₕeq : ∀ {ℓ} {A : Type ℓ} (n : ℕ) → Iso (coHom n A) (coHom n A)
     Iso.fun (-ₕeq n) = -ₕ_
     Iso.inv (-ₕeq n) = -ₕ_
-    Iso.rightInv (-ₕeq n) =
+    Iso.sec (-ₕeq n) =
       sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
         λ f → cong ∣_∣₂ (funExt λ x → -ₖ^2 (f x))
-    Iso.leftInv (-ₕeq n) =
+    Iso.ret (-ₕeq n) =
       sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
         λ f → cong ∣_∣₂ (funExt λ x → -ₖ^2 (f x))
 

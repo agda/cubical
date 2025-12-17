@@ -46,15 +46,15 @@ open Iso
 lUnitGroupIso : {G : Group ℓ} → GroupIso (DirProd UnitGroup₀ G) G
 fun (fst lUnitGroupIso) = snd
 inv (fst lUnitGroupIso) g = tt , g
-rightInv (fst lUnitGroupIso) _ = refl
-leftInv (fst lUnitGroupIso) _ = refl
+sec (fst lUnitGroupIso) _ = refl
+ret (fst lUnitGroupIso) _ = refl
 snd lUnitGroupIso = makeIsGroupHom λ _ _ → refl
 
 rUnitGroupIso : {G : Group ℓ} → GroupIso (DirProd G UnitGroup₀) G
 fun (fst rUnitGroupIso) = fst
 inv (fst rUnitGroupIso) g = g , tt
-rightInv (fst rUnitGroupIso) _ = refl
-leftInv (fst rUnitGroupIso) _ = refl
+sec (fst rUnitGroupIso) _ = refl
+ret (fst rUnitGroupIso) _ = refl
 snd rUnitGroupIso = makeIsGroupHom λ _ _ → refl
 
 -- lifted version
@@ -62,16 +62,16 @@ lUnitGroupIso^ : ∀ {ℓ ℓ'} {G : Group ℓ'}
   → GroupIso (DirProd (UnitGroup {ℓ}) G) G
 fun (fst lUnitGroupIso^) = snd
 inv (fst lUnitGroupIso^) = tt* ,_
-rightInv (fst lUnitGroupIso^) g = refl
-leftInv (fst lUnitGroupIso^) (tt* , g) = refl
+sec (fst lUnitGroupIso^) g = refl
+ret (fst lUnitGroupIso^) (tt* , g) = refl
 snd lUnitGroupIso^ = makeIsGroupHom λ _ _ → refl
 
 rUnitGroupIso^ : ∀ {ℓ ℓ'} {G : Group ℓ'}
   → GroupIso (DirProd G (UnitGroup {ℓ})) G
 fun (fst rUnitGroupIso^) = fst
 inv (fst rUnitGroupIso^) = _, tt*
-rightInv (fst rUnitGroupIso^) g = refl
-leftInv (fst rUnitGroupIso^) (g , tt*) = refl
+sec (fst rUnitGroupIso^) g = refl
+ret (fst rUnitGroupIso^) (g , tt*) = refl
 snd rUnitGroupIso^ = makeIsGroupHom λ _ _ → refl
 
 lUnitGroupEquiv : {G : Group ℓ} → GroupEquiv (DirProd UnitGroup₀ G) G
@@ -83,8 +83,8 @@ rUnitGroupEquiv = GroupIso→GroupEquiv rUnitGroupIso
 contrGroupIsoUnit : {G : Group ℓ} → isContr ⟨ G ⟩ → GroupIso G UnitGroup₀
 fun (fst (contrGroupIsoUnit contr)) _ = tt
 inv (fst (contrGroupIsoUnit contr)) _ = fst contr
-rightInv (fst (contrGroupIsoUnit contr)) _ = refl
-leftInv (fst (contrGroupIsoUnit contr)) x = snd contr x
+sec (fst (contrGroupIsoUnit contr)) _ = refl
+ret (fst (contrGroupIsoUnit contr)) x = snd contr x
 snd (contrGroupIsoUnit contr) = makeIsGroupHom λ _ _ → refl
 
 contrGroupEquivUnit : {G : Group ℓ} → isContr ⟨ G ⟩ → GroupEquiv G UnitGroup₀
