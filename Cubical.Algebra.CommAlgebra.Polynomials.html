@@ -4,7 +4,7 @@
 <a id="55" class="Keyword">open</a> <a id="60" class="Keyword">import</a> <a id="67" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
 <a id="95" class="Keyword">open</a> <a id="100" class="Keyword">import</a> <a id="107" href="Cubical.Foundations.Function.html" class="Module">Cubical.Foundations.Function</a> <a id="136" class="Keyword">using</a> <a id="142" class="Symbol">(</a><a id="143" href="Cubical.Foundations.Function.html#767" class="Function Operator">_$_</a><a id="146" class="Symbol">;</a> <a id="148" href="Cubical.Foundations.Function.html#898" class="Function Operator">_∘_</a><a id="151" class="Symbol">)</a>
 <a id="153" class="Keyword">open</a> <a id="158" class="Keyword">import</a> <a id="165" href="Cubical.Foundations.Structure.html" class="Module">Cubical.Foundations.Structure</a> <a id="195" class="Keyword">using</a> <a id="201" class="Symbol">(</a><a id="202" href="Cubical.Foundations.Structure.html#841" class="Function">withOpaqueStr</a><a id="215" class="Symbol">)</a>
-<a id="217" class="Keyword">open</a> <a id="222" class="Keyword">import</a> <a id="229" href="Cubical.Foundations.Isomorphism.html" class="Module">Cubical.Foundations.Isomorphism</a> <a id="261" class="Keyword">using</a> <a id="267" class="Symbol">(</a><a id="268" href="Cubical.Foundations.Isomorphism.html#1049" class="Function">isoFunInjective</a><a id="283" class="Symbol">)</a>
+<a id="217" class="Keyword">open</a> <a id="222" class="Keyword">import</a> <a id="229" href="Cubical.Foundations.Isomorphism.html" class="Module">Cubical.Foundations.Isomorphism</a> <a id="261" class="Keyword">using</a> <a id="267" class="Symbol">(</a><a id="268" href="Cubical.Foundations.Isomorphism.html#1039" class="Function">isoFunInjective</a><a id="283" class="Symbol">)</a>
 
 <a id="286" class="Keyword">open</a> <a id="291" class="Keyword">import</a> <a id="298" href="Cubical.Data.Nat.html" class="Module">Cubical.Data.Nat</a>
 <a id="315" class="Keyword">open</a> <a id="320" class="Keyword">import</a> <a id="327" href="Cubical.Data.FinData.html" class="Module">Cubical.Data.FinData</a>
@@ -60,8 +60,8 @@ homMapIso : {R : CommRing ℓ} {I : Type ℓ&#39;&#39;} (A : CommAlgebra R ℓ&#
              → Iso (CommAlgebraHom (R [ I ]) A) (I → (fst A))
 Iso.fun (homMapIso A) = evaluateAt A
 Iso.inv (homMapIso A) = inducedHom A
-Iso.rightInv (homMapIso A) = λ ϕ → Theory.mapRetrievable A ϕ
-Iso.leftInv (homMapIso {R = R} {I = I} A) =
+Iso.sec (homMapIso A) = λ ϕ → Theory.mapRetrievable A ϕ
+Iso.ret (homMapIso {R = R} {I = I} A) =
   λ f → Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ I ]} {N = A} f)
                (Theory.homRetrievable A f)
 
@@ -126,7 +126,7 @@ module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ&#39;&#39;} where
   natIndHomR ψ ϕ = isoFunInjective (homMapIso B) _ _
                 (evaluateAt B (ψ ∘a (inducedHom A ϕ))        ≡⟨ refl ⟩
                  fst ψ ∘ evaluateAt A (inducedHom A ϕ)       ≡⟨ refl ⟩
-                 fst ψ ∘ ϕ                                   ≡⟨ Iso.rightInv (homMapIso B) _ ⟩
+                 fst ψ ∘ ϕ                                   ≡⟨ Iso.sec (homMapIso B) _ ⟩
                  evaluateAt B (inducedHom B (fst ψ ∘ ϕ))     ∎)
 
   {-
