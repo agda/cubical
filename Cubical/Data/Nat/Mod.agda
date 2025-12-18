@@ -8,6 +8,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sum as ⊎
 
 -- Defining x mod 0 to be 0. This way all the theorems below are true
 -- for n : ℕ instead of n : ℕ₊₁.
@@ -38,6 +40,10 @@ mod< n =
      λ x ind → fst ind
               , cong (λ x → fst ind + suc x)
                      (modIndStep n x) ∙ snd ind
+
+
+<→mod : (n x : ℕ) → x < (suc n) → x mod (suc n) ≡ x
+<→mod = modIndBase
 
 mod-rUnit : (n x : ℕ) → x mod n ≡ ((x + n) mod n)
 mod-rUnit zero x = refl
@@ -281,3 +287,113 @@ private
 
   test₁ : ((11 + (10 mod 3)) mod 3) ≡ 0
   test₁ = refl
+
+
+
+·mod : ∀ k n m → (k · n) mod (k · m)
+             ≡ k · (n mod m)
+·mod zero n m = refl
+·mod (suc k) n zero = cong ((n + k · n) mod_) (sym (0≡m·0 (suc k)))
+                  ∙ 0≡m·0 (suc k)
+·mod (suc k) n (suc m) = ·mod' n n ≤-refl (splitℕ-≤ (suc m) n)
+
+ where
+ ·mod' : ∀ N n → n ≤ N → ((suc m) ≤ n) ⊎ (n < suc m) →
+    ((suc k · n) mod (suc k · suc m)) ≡ suc k · (n mod suc m)
+ ·mod' _ zero x _ = cong (modInd (m + k · suc m)) (sym (0≡m·0 (suc k)))
+                  ∙ 0≡m·0 (suc k)
+ ·mod' zero (suc n) x _ = ⊥.rec (¬-<-zero x)
+ ·mod' (suc N) n@(suc n') x (inl (m' , p)) =
+  let z = ·mod' N m' (≤-trans (m
+               , +-comm m m' ∙ injSuc (sym (+-suc m' m) ∙ p))
+              (pred-≤-pred x)) (splitℕ-≤ _ _) ∙ cong ((suc k) ·_)
+            (sym (modIndStep m m') ∙
+             cong (_mod (suc m)) (+-comm (suc m) m' ∙ p))
+  in (cong (λ y → ((suc k · y) mod (suc k · suc m))) (sym p)
+       ∙ cong {x = (m' + suc m + k · (m' + suc m))}
+               {suc (m + k · suc m + (m' + k · m'))}
+            (modInd (m + k · suc m))
+              (cong (_+ k · (m' + suc m)) (+-suc m' m ∙ cong suc (+-comm m' m))
+                 ∙ cong suc
+                  (sym (+-assoc m m' _)
+                    ∙∙ cong (m +_)
+                       (((cong (m' +_) (sym (·-distribˡ k _ _)
+                         ∙ +-comm (k · m') _) ∙ +-assoc m' (k · suc m) (k · m'))
+                        ∙ cong (_+ k · m') (+-comm m' _))
+                        ∙ sym (+-assoc (k · suc m) m' (k · m')) )
+                    ∙∙ +-assoc m _ _))
+         ∙ modIndStep (m + k · suc m) (m' + k · m')) ∙ z
+ ·mod' (suc N) n x (inr x₁) =
+   modIndBase _ _ (
+     subst2 _<_ (·-comm n (suc k)) (·-comm _ (suc k))
+      (<-·sk {n} {suc m} {k = k} x₁) )
+    ∙ cong ((suc k) ·_) (sym (modIndBase _ _ x₁))
+
+2≤x→1<quotient[x/2] : ∀ n → 0 < quotient (2 + n) / 2
+2≤x→1<quotient[x/2] n =
+ let z : 0 < ((quotient (2 + n) / 2) · 2)
+     z = subst (0 <_) (·-comm 2 (quotient (2 + n) / 2))
+          (≤<-trans {m = n }
+             {n = 2 · (quotient (2 + n) / 2)} zero-≤
+            (<-k+-cancel (subst (_< 2 +
+             (2 · (quotient (2 + n) / 2)))
+           (≡remainder+quotient 2 (2 + n))
+             (<-+k {k = 2 · (quotient (2 + n) / 2)}
+              (mod< 1 (2 + n))))))
+ in <-·sk-cancel {0} {quotient (2 + n) / 2 } {k = 1} z
+
+
+
+2≤x→quotient[x/2]<x : ∀ n → quotient (2 + n) / 2 < (2 + n)
+2≤x→quotient[x/2]<x n =
+  subst ((quotient 2 + n / 2) <_)
+    (≡remainder+quotient 2 (2 + n))
+    (<≤-trans
+      ( subst ((quotient 2 + n / 2) <_)
+          ((cong ((quotient 2 + n / 2) +_)
+            (sym (+-zero (quotient 2 + n / 2)))))
+            (<-+k {k = (quotient 2 + n / 2)}
+             (2≤x→1<quotient[x/2] n)) )
+      (≤SumRight {_} {(remainder 2 + n / 2)}))
+
+open Minimal
+
+log2ℕ : ∀ n → Σ _ (Least (λ k → n < 2 ^ k))
+log2ℕ n = w n n ≤-refl
+ where
+
+  w : ∀ N n → n ≤ N
+          → Σ _ (Least (λ k → n < 2 ^ k))
+  w N zero x = 0 , (≤-refl , λ k' q → ⊥.rec (¬-<-zero q))
+  w N (suc zero) x = 1 , (≤-refl ,
+     λ { zero q → <-asym (suc-≤-suc ≤-refl)
+      ; (suc k') q → ⊥.rec (¬-<-zero (pred-≤-pred q))})
+  w zero (suc (suc n)) x = ⊥.rec (¬-<-zero x)
+  w (suc N) (suc (suc n)) x =
+   let (k , (X , Lst)) = w N
+          (quotient 2 + n / 2)
+          (≤-trans (pred-≤-pred (2≤x→quotient[x/2]<x n))
+             (pred-≤-pred x))
+       z = ≡remainder+quotient 2 (2 + n)
+       zz = <-+-≤ X X
+       zzz : suc (suc n) < (2 ^ suc k)
+       zzz = subst2 (_<_)
+           (+-comm (quotient 2 + n / 2) ((remainder 2 + n / 2) + (quotient 2 + n / 2))
+              ∙ sym (+-assoc ((remainder 2 + n / 2)) (quotient 2 + n / 2) (quotient 2 + n / 2))
+               ∙ cong ((remainder 2 + n / 2) +_)
+             ((cong ((quotient 2 + n / 2) +_)
+              (sym (+-zero (quotient 2 + n / 2)))))
+             ∙ z)
+           (cong ((2 ^ k) +_) (sym (+-zero (2 ^ k))))
+           (≤<-trans
+             (≤-k+ (≤-+k (pred-≤-pred (mod< 1 (2 + n))))) zz)
+   in (suc k)
+       , zzz
+        , λ { zero 0'<sk 2+n<2^0' →
+                ⊥.rec (¬-<-zero (pred-≤-pred 2+n<2^0'))
+            ; (suc k') k'<sk 2+n<2^k' →
+               Lst k' (pred-≤-pred k'<sk)
+                (<-·sk-cancel {k = 1}
+                    (subst2 _<_ (·-comm 2 (quotient 2 + n / 2)) (·-comm 2 (2 ^ k'))
+                      (≤<-trans  ((remainder 2 + n / 2) , z)
+                         2+n<2^k' )))}

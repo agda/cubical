@@ -807,6 +807,13 @@ module _ (isSet-A : isSet A) (isSet-A' : isSet A') where
       sec ww b = equivEq refl
       ret ww a = SetsIso≡ refl refl
 
+  SetsIso≡fun : ∀ {a b : Iso A A'}
+              → (Iso.fun a ≡ Iso.fun b)
+              → a ≡ b
+  SetsIso≡fun {a} {b} p =
+      SetsIso≡-ext (funExt⁻ p) λ x' →
+        sym (leftInv b _) ∙ cong (inv b)
+               (sym (p ≡$ (inv a x')) ∙ (rightInv a _))
 
   isSet→isEquiv-isoToPath : isEquiv isoToEquiv
   isSet→isEquiv-isoToPath = isoToIsEquiv isSet→Iso-Iso-≃

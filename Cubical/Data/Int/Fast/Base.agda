@@ -2,7 +2,8 @@ module Cubical.Data.Int.Fast.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat as ℕ hiding (_+_ ; _·_)
-open import Cubical.Data.Int.Base hiding (_ℕ-_ ; _+_ ; _-_ ; _·_) public
+open import Cubical.Data.Int.Base hiding (_ℕ-_ ; _+_ ; _-_ ; _·_ ; sumFinℤ ; sumFinℤId) public
+open import Cubical.Data.Fin.Inductive.Base
 
 infixl 7 _·_
 infixl 6 _+_ _-_
@@ -11,22 +12,33 @@ infixl 6 _+_ _-_
 ℕ-hlp m-n@zero n-m = - (pos n-m)
 ℕ-hlp m-n@(suc _) n-m = pos m-n
 
+ℕ-hlp-0 : ∀ n → ℕ-hlp n 0 ≡ (pos n)
+ℕ-hlp-0 zero = refl
+ℕ-hlp-0 (suc n) = refl
+
 _ℕ-_ : ℕ → ℕ → ℤ
 m ℕ- n = ℕ-hlp (m ℕ.∸ n) (n ℕ.∸ m)
 
 _+_ : ℤ → ℤ → ℤ
-pos n + pos n₁ = pos (n ℕ.+ n₁)
-negsuc n + negsuc n₁ = negsuc (suc (n ℕ.+ n₁))
-pos n + negsuc n₁ = n ℕ- (suc n₁)
-negsuc n + pos n₁ = n₁ ℕ- (suc n)
+pos m    + pos n    = pos (m ℕ.+ n)
+negsuc m + negsuc n = negsuc (suc (m ℕ.+ n))
+pos m    + negsuc n = m ℕ- (suc n)
+negsuc m + pos n    = n ℕ- (suc m)
 
 _-_ : ℤ → ℤ → ℤ
 m - n = m + (- n)
 
 _·_ : ℤ → ℤ → ℤ
-pos n · pos n₁ = pos (n ℕ.· n₁)
-pos zero · negsuc n₁ = pos zero
-pos (suc n) · negsuc n₁ = negsuc (predℕ (suc n ℕ.· suc n₁))
-negsuc n · pos zero = pos zero
-negsuc n · pos (suc n₁) = negsuc (predℕ (suc n ℕ.· suc n₁))
-negsuc n · negsuc n₁ = pos (suc n ℕ.· suc n₁)
+pos m       · pos n       = pos (m ℕ.· n)
+pos zero    · negsuc n    = pos zero
+pos (suc m) · negsuc n    = negsuc (n ℕ.+ m ℕ.· suc n)
+negsuc m    · pos zero    = pos zero
+negsuc m    · pos (suc n) = negsuc (n ℕ.+ m ℕ.· suc n)
+negsuc m    · negsuc n    = pos (suc m ℕ.· suc n)
+
+sumFinℤ : {n : ℕ} (f : Fin n → ℤ) → ℤ
+sumFinℤ {n = n} f = sumFinGen {n = n} _+_ 0 f
+
+sumFinℤId : (n : ℕ) {f g : Fin n → ℤ}
+  → ((x : _) → f x ≡ g x) → sumFinℤ {n = n} f ≡ sumFinℤ {n = n} g
+sumFinℤId n t i = sumFinℤ {n = n} λ x → t x i

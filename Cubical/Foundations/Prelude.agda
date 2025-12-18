@@ -506,6 +506,9 @@ infixl 0 _i0:>_UsingEqP
 
 -- Similar to `inspect`, but more convenient when `a` is not a function
 -- application, or when the applied function is not relevant
+-- Note: when defining a term with `UsingEq`, it's still possible to prove its properties
+-- using a with-abstraction without `UsingEq`, but not the other way around.
+-- See `min`/`max` and their properties in Data.Nat.Properties for examples of this.
 _UsingEq : (a : A) → singl a
 a UsingEq = isContrSingl a .fst
 
