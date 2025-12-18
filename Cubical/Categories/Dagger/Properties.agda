@@ -31,8 +31,8 @@ module _ (†C : †Category ℓ ℓ') where
     .Hom≡ → funExt λ x → funExt λ y → TypeIso.isoToPath λ where
       .TypeIso.fun → _†
       .TypeIso.inv → _†
-      .TypeIso.leftInv → †-invol
-      .TypeIso.rightInv → †-invol
+      .TypeIso.sec → †-invol
+      .TypeIso.ret → †-invol
     .id≡ → implicitFunExt (toPathP (transportRefl (id †) ∙ †-id))
     .⋆≡ → implicitFunExt $ implicitFunExt $ implicitFunExt $ toPathP $ funExt λ f → funExt λ g →
       transport refl ((transport refl f † ⋆ transport refl g †) †) ≡⟨ transportRefl _ ⟩
@@ -230,8 +230,8 @@ module †Morphisms (†C : †Category ℓ ℓ') where
       iso : TypeIso (x ≡ y) (†CatIso x y)
       iso .TypeIso.fun = pathTo†Iso
       iso .TypeIso.inv = †IsoToPath
-      iso .TypeIso.rightInv f = Σ≡Prop (λ _ → isPropAreInv _) (†IsoToPath-β f)
-      iso .TypeIso.leftInv = J (λ y p → †IsoToPath (pathTo†Iso p) ≡ p) (
+      iso .TypeIso.sec f = Σ≡Prop (λ _ → isPropAreInv _) (†IsoToPath-β f)
+      iso .TypeIso.ret = J (λ y p → †IsoToPath (pathTo†Iso p) ≡ p) (
           †IsoToPath (pathTo†Iso refl) ≡⟨ cong †IsoToPath pathTo†Iso-refl ⟩
           †IsoToPath id†Iso            ≡⟨ †IsoToPath-id ⟩
           refl                         ∎
