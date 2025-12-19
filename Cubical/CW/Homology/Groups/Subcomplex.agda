@@ -166,7 +166,7 @@ subComplexHomologyEquiv≡ C m n q =
            (funExt⁻ (CW↑GenComm C k (suc m) m (suc m ≟ᵗ suc k) q) x
       ∙ funExt⁻ (subComplex→map'Charac C m (suc m ≟ᵗ m) (m ≟ᵗ m))
               (CW↑Gen (subComplex C m) k (suc m) (suc m ≟ᵗ suc k) q x)
-      ∙ cong (CW↪ C m) (sym (Iso.leftInv ( (realiseSubComplex m C) ) _)
+      ∙ cong (CW↪ C m) (sym (Iso.ret ( (realiseSubComplex m C) ) _)
       ∙ cong (Iso.inv (realiseSubComplex m C))
         ((push _ ∙ cong (incl {n = suc m})
            (cong (CW↪ (subComplex C m) m)

@@ -148,12 +148,12 @@ module _ {ℓ} (C : CWskel ℓ) where
         iso-cancel-1 : suspFun (isoCofBouquetInv↑ n) ∘ suspFun (isoCofBouquet (suc n))
                        ≡ λ x → x
         iso-cancel-1 = sym (suspFunComp _ _)
-                       ∙∙ cong suspFun (λ i x → Iso.leftInv
+                       ∙∙ cong suspFun (λ i x → Iso.ret
                             (BouquetIso-gen (suc n) (An+1 n) (αn+1 n)
                                             (snd C .snd .snd .snd (suc n))) x i)
                        ∙∙ suspFunIdFun
         iso-cancel-2 : (isoSuspBouquetInv↑ n) ∘ (isoSuspBouquet (suc n)) ≡ λ x → x
-        iso-cancel-2 i x = Iso.leftInv sphereBouquetSuspIso x i
+        iso-cancel-2 i x = Iso.ret sphereBouquetSuspIso x i
 
     left-maps = (isoSuspBouquet↑ n) ∘ (suspFun (isoSuspBouquet n))
                 ∘ (suspFun (suspFun (isoCofBouquet n))) ∘ (suspFun (suspFun (to_cofibCW n C)))
@@ -232,7 +232,7 @@ module _ {ℓ} (C : CWskel ℓ) where
     opaque
       preϵpre∂≡0 : ∀ (x : SphereBouquet 1 (Fin (preboundary.An+1 0))) → (preϵ ∘ preboundary.pre∂ 0) x ≡ inl tt
       preϵpre∂≡0 x = cong (ε ∘ (suspFun isoCofBouquetInv))
-                          (Iso.leftInv sphereBouquetSuspIso
+                          (Iso.ret sphereBouquetSuspIso
                                        (((suspFun isoCofBouquet) ∘ (suspFun (to_cofibCW 0 C)) ∘ (δ 1 C) ∘ isoCofBouquetInv↑) x))
                    ∙ cong ε (aux (((suspFun (to_cofibCW 0 C)) ∘ (δ 1 C) ∘ isoCofBouquetInv↑) x))
                    ∙ εδ (isoCofBouquetInv↑ x)
@@ -241,7 +241,7 @@ module _ {ℓ} (C : CWskel ℓ) where
           aux : ∀ (x : Susp (cofibCW 0 C)) → (suspFun (isoCofBouquetInv) ∘ (suspFun isoCofBouquet)) x ≡ x
           aux north = refl
           aux south = refl
-          aux (merid a i) j = merid (Iso.leftInv (BouquetIso-gen 0 An αn (snd C .snd .snd .snd 0)) a j) i
+          aux (merid a i) j = merid (Iso.ret (BouquetIso-gen 0 An αn (snd C .snd .snd .snd 0)) a j) i
 
     ϵ : AbGroupHom (ℤ[A 0 ]) (ℤ[Fin 1 ])
     ϵ = bouquetDegree preϵ

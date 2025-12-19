@@ -98,7 +98,7 @@ opaque
          fun (fst (Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ-abs 1 1)) (fun (fst (H²-S²≅H⁴-S²×S²)) ∣ f ∣₂)
        ≡ fun (fst (Hⁿ-Sⁿ≅ℤ 1)) ∣ f ∣₂
     speedUp f i =
-      fun (fst (Hⁿ-Sⁿ≅ℤ 1)) (leftInv (fst H²-S²≅H⁴-S²×S²) ∣ f ∣₂ i)
+      fun (fst (Hⁿ-Sⁿ≅ℤ 1)) (ret (fst H²-S²≅H⁴-S²×S²) ∣ f ∣₂ i)
 
 -- Some abbreviations
 private
@@ -223,28 +223,28 @@ module BrunerieNumLem
        (α' ⌣ α' ≡ β' +ₕ β') ⊎ (α' ⌣ α' ≡ -ₕ (β' +ₕ β'))
     → (α ⌣ α ≡ β +ₕ β) ⊎ (α ⌣ α ≡ -ₕ (β +ₕ β))
   rewriteEquation (inl x) =
-    inl ((λ i → leftInv (fst (coHomCHopfIso 2)) α (~ i)
-               ⌣ leftInv (fst (coHomCHopfIso 2)) α (~ i))
+    inl ((λ i → ret (fst (coHomCHopfIso 2)) α (~ i)
+               ⌣ ret (fst (coHomCHopfIso 2)) α (~ i))
        ∙∙ cong (inv (fst (coHomCHopfIso 4))) x
-       ∙∙ leftInv (fst (coHomCHopfIso 4)) (β +ₕ β))
+       ∙∙ ret (fst (coHomCHopfIso 4)) (β +ₕ β))
   rewriteEquation (inr x) =
-    inr ((λ i → leftInv (fst (coHomCHopfIso 2)) α (~ i)
-               ⌣ leftInv (fst (coHomCHopfIso 2)) α (~ i))
+    inr ((λ i → ret (fst (coHomCHopfIso 2)) α (~ i)
+               ⌣ ret (fst (coHomCHopfIso 2)) α (~ i))
       ∙∙ cong (inv (fst (coHomCHopfIso 4))) x
-      ∙∙ leftInv (fst (coHomCHopfIso 4))
+      ∙∙ ret (fst (coHomCHopfIso 4))
            (-ₕ (β +ₕ β)))
 
   rewriteEquation2 : (qHom .fst β' ≡  x ⌣ y) ⊎ (qHom .fst β' ≡  -ₕ (x ⌣ y))
   rewriteEquation2 =
     ⊎rec
-      (λ p → inl (sym (leftInv (fst is) (qHom .fst β'))
+      (λ p → inl (sym (ret (fst is) (qHom .fst β'))
                 ∙∙ cong (inv (fst is)) (p ∙ sym isEq)
-                ∙∙ leftInv (fst is) (x ⌣ y)))
-      (λ p → inr (sym (leftInv (fst is) (qHom .fst β'))
+                ∙∙ ret (fst is) (x ⌣ y)))
+      (λ p → inr (sym (ret (fst is) (qHom .fst β'))
                ∙∙ cong (inv (fst is))
                     (p ∙ sym (cong (GroupStr.inv (snd ℤGroup)) isEq))
                ∙∙ (presinv (invGroupIso is .snd) (fun (fst is) (x ⌣ y))
-                 ∙ cong -ₕ_ (leftInv (fst is) (x ⌣ y)))))
+                 ∙ cong -ₕ_ (ret (fst is) (x ⌣ y)))))
       eqs
     where
     grIso : GroupEquiv (coHomGr 4 (HopfInvariantPush 0 fold∘W)) ℤGroup

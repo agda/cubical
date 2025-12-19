@@ -211,8 +211,8 @@ module AlgLocTwoSubsets (R' : CommRing ℓ)
   IsoS₁⁻¹RS₂⁻¹R : Iso S₁⁻¹R S₂⁻¹R
   Iso.fun IsoS₁⁻¹RS₂⁻¹R = fst χ₁
   Iso.inv IsoS₁⁻¹RS₂⁻¹R = fst χ₂
-  Iso.rightInv IsoS₁⁻¹RS₂⁻¹R = funExt⁻ (cong fst χ₁∘χ₂≡id)
-  Iso.leftInv IsoS₁⁻¹RS₂⁻¹R = funExt⁻ (cong fst χ₂∘χ₁≡id)
+  Iso.sec IsoS₁⁻¹RS₂⁻¹R = funExt⁻ (cong fst χ₁∘χ₂≡id)
+  Iso.ret IsoS₁⁻¹RS₂⁻¹R = funExt⁻ (cong fst χ₂∘χ₁≡id)
 
   isContrS₁⁻¹R≅S₂⁻¹R : isContr (CommAlgebraEquiv S₁⁻¹RAsCommAlg S₂⁻¹RAsCommAlg)
   isContrS₁⁻¹R≅S₂⁻¹R = center , uniqueness

@@ -159,8 +159,8 @@ isConnected⋁Sphere→ΠSphere {n = n} {k = suc k} =
   snd (Iso.fun (is1 n) (f , s) x) = funExt⁻ s x
   fst (Iso.inv (is1 n) f) y x = f x .fst y
   snd (Iso.inv (is1 n) f) i x = f x .snd i
-  Iso.rightInv (is1 n) f = refl
-  Iso.leftInv (is1 n) f = refl
+  Iso.sec (is1 n) f = refl
+  Iso.ret (is1 n) f = refl
 
   is2 : (n : ℕ)
     → Iso (π'Gr n ((Fin k → S₊ (suc n)) , (λ _ → ptSn (suc n))) .fst)
@@ -246,17 +246,17 @@ genπₙ⋁Sⁿ x = ∣ (λ s → inr (x , s)) , (sym (push x)) ∣₂
   → ϕ ≡ ψ
 πₙ⋁SⁿHomElim {n = n} {k} {k'} ϕ ψ ind =
   Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x
-    → cong (fst ϕ) (sym (Iso.leftInv (fst (πₙ⋁Sⁿ≅ℤ[] n k)) x))
+    → cong (fst ϕ) (sym (Iso.ret (fst (πₙ⋁Sⁿ≅ℤ[] n k)) x))
     ∙ funExt⁻ (cong fst lem) (Iso.fun (fst (πₙ⋁Sⁿ≅ℤ[] n k)) x)
-    ∙ cong (fst ψ) (Iso.leftInv (fst (πₙ⋁Sⁿ≅ℤ[] n k)) x))
+    ∙ cong (fst ψ) (Iso.ret (fst (πₙ⋁Sⁿ≅ℤ[] n k)) x))
   where
   lem : compGroupHom (GroupIso→GroupHom (invGroupIso (πₙ⋁Sⁿ≅ℤ[] n k))) ϕ
       ≡ compGroupHom (GroupIso→GroupHom (invGroupIso (πₙ⋁Sⁿ≅ℤ[] n k))) ψ
   lem = agreeOnℤFinGenerator→≡
     λ x → cong (fst ϕ) (cong (Iso.inv (fst (πₙ⋁Sⁿ≅ℤ[] n k)))
                               (sym (πₙ⋁Sⁿ≅ℤ[]Generator n k x))
-                      ∙ Iso.leftInv (fst (πₙ⋁Sⁿ≅ℤ[] n k)) (genπₙ⋁Sⁿ x))
+                      ∙ Iso.ret (fst (πₙ⋁Sⁿ≅ℤ[] n k)) (genπₙ⋁Sⁿ x))
         ∙ ind x
-        ∙ cong (fst ψ) (sym (Iso.leftInv (fst (πₙ⋁Sⁿ≅ℤ[] n k)) (genπₙ⋁Sⁿ x))
+        ∙ cong (fst ψ) (sym (Iso.ret (fst (πₙ⋁Sⁿ≅ℤ[] n k)) (genπₙ⋁Sⁿ x))
                       ∙ sym (cong (Iso.inv (fst (πₙ⋁Sⁿ≅ℤ[] n k)))
                                   (sym (πₙ⋁Sⁿ≅ℤ[]Generator n k x))))

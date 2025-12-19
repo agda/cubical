@@ -113,8 +113,8 @@ module πCofibFinSphereBouquetMap (n k m : ℕ)
               (fiber (fst inr') (inl tt))
     Iso.fun is1 ((tt , s) , p) = s , (sym p)
     Iso.inv is1 (s , p) = (tt , s) , sym p
-    Iso.rightInv is1 (s , p) = refl
-    Iso.leftInv is1 ((tt , s) , p) = refl
+    Iso.sec is1 (s , p) = refl
+    Iso.ret is1 ((tt , s) , p) = refl
 
     lem : isConnectedFun (suc (suc n +ℕ suc n)) (α∘inr .fst)
     lem = isConnectedComp _ _ _ (isEquiv→isConnected _ (isoToIsEquiv is1) _)

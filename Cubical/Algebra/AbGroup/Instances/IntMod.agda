@@ -45,8 +45,8 @@ Iso.inv (fst ℤ/2[2]≅ℤ/2) x = x , cong (x +ₘ_) (+ₘ-rUnit x) ∙ x+x x
   where
   x+x : (x : ℤ/2 .fst) → x +ₘ x ≡ fzero
   x+x = ℤ/2-elim refl refl
-Iso.rightInv (fst ℤ/2[2]≅ℤ/2) x = Σ≡Prop (λ z → isProp<ᵗ {z} {m = 2}) refl
-Iso.leftInv (fst ℤ/2[2]≅ℤ/2) x = Σ≡Prop (λ _ → isSetFin {k = 2} _ _) refl
+Iso.sec (fst ℤ/2[2]≅ℤ/2) x = Σ≡Prop (λ z → isProp<ᵗ {z} {m = 2}) refl
+Iso.ret (fst ℤ/2[2]≅ℤ/2) x = Σ≡Prop (λ _ → isSetFin {k = 2} _ _) refl
 snd ℤ/2[2]≅ℤ/2 = makeIsGroupHom λ _ _ → refl
 
 ℤ/2/2≅ℤ/2 : AbGroupIso (ℤ/2 /^ 2) ℤ/2
@@ -65,8 +65,8 @@ Iso.fun (fst ℤ/2/2≅ℤ/2) =
            λ p → ⊥.rec (snotz (sym (cong fst p))))))
           λ _ → refl)
 Iso.inv (fst ℤ/2/2≅ℤ/2) = [_]
-Iso.rightInv (fst ℤ/2/2≅ℤ/2) _ = refl
-Iso.leftInv (fst ℤ/2/2≅ℤ/2) =
+Iso.sec (fst ℤ/2/2≅ℤ/2) _ = refl
+Iso.ret (fst ℤ/2/2≅ℤ/2) =
   SQ.elimProp (λ _ → squash/ _ _) λ _ → refl
 snd ℤ/2/2≅ℤ/2 = makeIsGroupHom
   (SQ.elimProp (λ _ → isPropΠ λ _ → isSetFin {k = 2} _ _)

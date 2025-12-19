@@ -35,7 +35,7 @@ sectionDiscrete f g sect dA x y with dA (g x) (g y)
 ... | no ¬p = no (λ p → ¬p (cong g p))
 
 isoPresDiscrete : Iso A B → Discrete A → Discrete B
-isoPresDiscrete e = sectionDiscrete fun inv rightInv
+isoPresDiscrete e = sectionDiscrete fun inv sec
   where open Iso e
 
 EquivPresDiscrete : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → A ≃ B

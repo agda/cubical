@@ -153,8 +153,8 @@ module subComplexMapGen {ℓ : Level} (C : CWskel ℓ) where
     → Iso (fst C n) (SubComplexGen.subComplexFam C m n p)
   Iso.fun (subComplexIso m n ineq p) = subComplex←map' m n ineq p
   Iso.inv (subComplexIso m n ineq p) = subComplex→map' m n p
-  Iso.rightInv (subComplexIso m n ineq p) = retr-sect m n ineq p .fst
-  Iso.leftInv (subComplexIso m n ineq p) = retr-sect m n ineq p .snd
+  Iso.sec (subComplexIso m n ineq p) = retr-sect m n ineq p .fst
+  Iso.ret (subComplexIso m n ineq p) = retr-sect m n ineq p .snd
 
 subComplex→map : ∀ {ℓ} (C : CWskel ℓ) (m n : ℕ)
   → SubComplexGen.subComplexFam C m n (n ≟ᵗ m) → fst C n

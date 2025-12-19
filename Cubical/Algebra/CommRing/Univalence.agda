@@ -58,16 +58,16 @@ fst (fun (CommRingEquivIsoCommRingIso R S) e) = equivToIso (e .fst)
 snd (fun (CommRingEquivIsoCommRingIso R S) e) = e .snd
 fst (inv (CommRingEquivIsoCommRingIso R S) e) = isoToEquiv (e .fst)
 snd (inv (CommRingEquivIsoCommRingIso R S) e) = e .snd
-rightInv (CommRingEquivIsoCommRingIso R S) (e , he) =
+sec (CommRingEquivIsoCommRingIso R S) (e , he) =
   Σ≡Prop (λ e → isPropIsCommRingHom (snd R) (e .fun) (snd S))
          rem
   where
   rem : equivToIso (isoToEquiv e) ≡ e
   fun (rem i) x = fun e x
   inv (rem i) x = inv e x
-  rightInv (rem i) b j = CommRingStr.is-set (snd S) (fun e (inv e b)) b (rightInv e b) (rightInv e b) i j
-  leftInv (rem i) a j = CommRingStr.is-set (snd R) (inv e (fun e a)) a (retEq (isoToEquiv e) a) (leftInv e a) i j
-leftInv (CommRingEquivIsoCommRingIso R S) e =
+  sec (rem i) b j = CommRingStr.is-set (snd S) (fun e (inv e b)) b (sec e b) (sec e b) i j
+  ret (rem i) a j = CommRingStr.is-set (snd R) (inv e (fun e a)) a (retEq (isoToEquiv e) a) (ret e a) i j
+ret (CommRingEquivIsoCommRingIso R S) e =
   Σ≡Prop (λ e → isPropIsCommRingHom (snd R) (e .fst) (snd S))
          (equivEq refl)
 

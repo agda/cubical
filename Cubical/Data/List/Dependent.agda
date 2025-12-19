@@ -34,12 +34,12 @@ RepListP B (a ∷ as) = B a × RepListP B as
 isoRepListP : ∀ {ℓA ℓB} {A : Type ℓA} (B : A → Type ℓB) (as : List A) → ListP B as ≅ RepListP B as
 fun (isoRepListP B []) bs = lift tt
 inv (isoRepListP B []) u = []
-rightInv (isoRepListP B []) u = refl
-leftInv (isoRepListP B []) [] = refl
+sec (isoRepListP B []) u = refl
+ret (isoRepListP B []) [] = refl
 fun (isoRepListP B (a ∷ as)) (b ∷ bs) = b , fun (isoRepListP B as) bs
 inv (isoRepListP B (a ∷ as)) (b , br) = b ∷ inv (isoRepListP B as) br
-rightInv (isoRepListP B (a ∷ as)) (b , br) i = b , rightInv (isoRepListP B as) br i
-leftInv (isoRepListP B (a ∷ as)) (b ∷ bs) i = b ∷ leftInv (isoRepListP B as) bs i
+sec (isoRepListP B (a ∷ as)) (b , br) i = b , sec (isoRepListP B as) br i
+ret (isoRepListP B (a ∷ as)) (b ∷ bs) i = b ∷ ret (isoRepListP B as) bs i
 
 equivRepListP : ∀ {ℓA ℓB} {A : Type ℓA} (B : A → Type ℓB) (as : List A) → ListP B as ≃ RepListP B as
 equivRepListP B as = isoToEquiv (isoRepListP B as)

@@ -60,8 +60,8 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
       NatTransIsoΣ : Iso (NatTrans F G) NatTransΣ
       NatTransIsoΣ .fun (natTrans N-ob N-hom) = N-ob , N-hom
       NatTransIsoΣ .inv (N-ob , N-hom) = (natTrans N-ob N-hom)
-      NatTransIsoΣ .rightInv _ = refl
-      NatTransIsoΣ .leftInv _ = refl
+      NatTransIsoΣ .sec _ = refl
+      NatTransIsoΣ .ret _ = refl
 
       NatTrans≡Σ : NatTrans F G ≡ NatTransΣ
       NatTrans≡Σ = isoToPath NatTransIsoΣ
@@ -90,8 +90,8 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
                                   βHom))
       NTPathIsoPathΣ .fun p = (λ i → p i .N-ob) , (λ i → p i .N-hom)
       NTPathIsoPathΣ .inv (po , ph) i = record { N-ob = po i ; N-hom = ph i }
-      NTPathIsoPathΣ .rightInv pσ = refl
-      NTPathIsoPathΣ .leftInv p = refl
+      NTPathIsoPathΣ .sec pσ = refl
+      NTPathIsoPathΣ .ret p = refl
 
       NTPath≃PathΣ = isoToEquiv NTPathIsoPathΣ
 
@@ -102,7 +102,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
 
     isSetNatTrans : {F G : Functor C D} → isSet (NatTrans F G)
     isSetNatTrans =
-      isSetRetract (fun NatTransIsoΣ) (inv NatTransIsoΣ) (leftInv NatTransIsoΣ)
+      isSetRetract (fun NatTransIsoΣ) (inv NatTransIsoΣ) (ret NatTransIsoΣ)
                    (isSetΣSndProp (isSetΠ (λ _ → isSetHom D))
                                   (λ _ → isPropImplicitΠ2 (λ _ _ → isPropΠ (λ _ → isSetHom D _ _))))
 
@@ -180,8 +180,8 @@ module _ {B : Category ℓB ℓB'}{C : Category ℓC ℓC'}{D : Category ℓD �
 N-ob (fun ⇒^opFiso x) = N-ob x
 N-hom (fun ⇒^opFiso x) f = sym (N-hom x f)
 inv ⇒^opFiso = _
-rightInv ⇒^opFiso _ = refl
-leftInv ⇒^opFiso _ = refl
+sec ⇒^opFiso _ = refl
+ret ⇒^opFiso _ = refl
 
 congNatIso^opFiso : Iso (F ≅ᶜ F') (_^opF  {C = C} {D = D} F'  ≅ᶜ F ^opF )
 trans (fun congNatIso^opFiso x) = Iso.fun ⇒^opFiso (trans x)
@@ -189,6 +189,6 @@ inv (nIso (fun congNatIso^opFiso x) x₁) = _
 sec (nIso (fun congNatIso^opFiso x) x₁) = ret (nIso x x₁)
 ret (nIso (fun congNatIso^opFiso x) x₁) = sec (nIso x x₁)
 inv congNatIso^opFiso = _
-rightInv congNatIso^opFiso _ = refl
-leftInv congNatIso^opFiso _ = refl
+sec congNatIso^opFiso _ = refl
+ret congNatIso^opFiso _ = refl
 

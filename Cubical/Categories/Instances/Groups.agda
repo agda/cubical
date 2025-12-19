@@ -52,8 +52,8 @@ module _ {ℓ : Level} where
     →iso : ∀ {x} → isCatIso GroupCategory x → Iso _ _
     fun (→iso ici) = _
     inv (→iso ici) = fst (inv ici)
-    rightInv (→iso ici) b i = fst (sec ici i) b
-    leftInv (→iso ici) a i = fst (ret ici i) a
+    sec (→iso ici) b i = fst (sec ici i) b
+    ret (→iso ici) a i = fst (ret ici i) a
 
     →ciso : ∀ {x} → isEquiv (fst x) → isCatIso GroupCategory x
     fst (inv (→ciso is≃)) = _

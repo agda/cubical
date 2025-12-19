@@ -66,8 +66,8 @@ Iso.inv K²FunCharacIso (a , p1 , p2 , sq) point = a
 Iso.inv K²FunCharacIso (a , p1 , p2 , sq) (line1 i) = p1 i
 Iso.inv K²FunCharacIso (a , p1 , p2 , sq) (line2 i) = p2 i
 Iso.inv K²FunCharacIso (a , p1 , p2 , sq) (square i j) = sq i j
-Iso.rightInv K²FunCharacIso _ = refl
-Iso.leftInv K²FunCharacIso f =
+Iso.sec K²FunCharacIso _ = refl
+Iso.ret K²FunCharacIso f =
   funExt λ { point → refl ; (line1 i) → refl
           ; (line2 i) → refl ; (square i i₁) → refl}
 

@@ -81,8 +81,8 @@ module _ (n : ℕ) where
   ℤ≅HₙSⁿ : GroupIso ℤGroup (H̃ˢᵏᵉˡ (Sˢᵏᵉˡ (suc n)) (suc n))
   fun (fst ℤ≅HₙSⁿ) = ℤ→HₙSⁿ .fst
   inv (fst ℤ≅HₙSⁿ) = HₙSⁿ→ℤ
-  rightInv (fst ℤ≅HₙSⁿ) = HₙSⁿ→ℤ→HₙSⁿ
-  leftInv (fst ℤ≅HₙSⁿ) _ = refl
+  sec (fst ℤ≅HₙSⁿ) = HₙSⁿ→ℤ→HₙSⁿ
+  ret (fst ℤ≅HₙSⁿ) _ = refl
   snd ℤ≅HₙSⁿ = ℤ→HₙSⁿ .snd
 
   HₙSⁿ≅ℤ : GroupIso (H̃ˢᵏᵉˡ (Sˢᵏᵉˡ (suc n)) (suc n)) ℤGroup

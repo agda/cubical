@@ -121,9 +121,9 @@ fun (ΩFibreIso f) p = (cong fst p) ,
                       (cong snd p)
 fst (inv (ΩFibreIso f) (p , q) i) = p i
 snd (inv (ΩFibreIso f) (p , q) i) = ←∙∙lCancel (cong (fst f) p) (snd f) q i
-rightInv (ΩFibreIso f) (p , q) = ΣPathP (refl , →∙∙lCancel←∙∙lCancel _ _ q)
-fst (leftInv (ΩFibreIso f) p i j) = fst (p j)
-snd (leftInv (ΩFibreIso f) p i j) k =
+sec (ΩFibreIso f) (p , q) = ΣPathP (refl , →∙∙lCancel←∙∙lCancel _ _ q)
+fst (ret (ΩFibreIso f) p i j) = fst (p j)
+snd (ret (ΩFibreIso f) p i j) k =
   ←∙∙lCancel→∙∙lCancel _ _ (cong snd p) i j k
 
 {- Some homomorphism properties of the above iso -}
@@ -230,7 +230,7 @@ snd (leftInv (ΩFibreIso f) p i j) k =
 ΩFibreIso⁻∙ : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B)
            → Iso.inv (ΩFibreIso f) (refl , (∙∙lCancel (snd f))) ≡ refl
 ΩFibreIso⁻∙ f =
-  cong (Iso.inv (ΩFibreIso f)) (sym (ΩFibreIso∙ f)) ∙ leftInv (ΩFibreIso f) refl
+  cong (Iso.inv (ΩFibreIso f)) (sym (ΩFibreIso∙ f)) ∙ ret (ΩFibreIso f) refl
 
 {- Ωⁿ (fib f) ≃∙ fib (Ωⁿ f) -}
 Ω^Fibre≃∙ : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
@@ -275,7 +275,7 @@ isHomogeneousΩ^→fib n f =
   →∙Homogeneous≡ (isHomogeneousPath _ _)
     (funExt
       λ p → cong (fst (fst (Ω≃∙ (Ω^Fibre≃∙⁻ n f))))
-                   (leftInv (ΩFibreIso (Ω^→ n f))
+                   (ret (ΩFibreIso (Ω^→ n f))
                      ((fst (fst (Ω≃∙ (Ω^Fibre≃∙ n f))) p)))
           ∙ sym (Ω→∘ (≃∙map (Ω^Fibre≃∙⁻ n f))
                       (≃∙map (Ω^Fibre≃∙ n f)) p)
@@ -296,7 +296,7 @@ isHomogeneousΩ^→fib n f =
                (inv (ΩFibreIso (Ω^→ n f)) p)))
          ∙ (λ i → Ω→ (Ω^Fibre≃∙retr n f i) .fst (inv (ΩFibreIso (Ω^→ n f)) p))
          ∙ sym (rUnit (inv (ΩFibreIso (Ω^→ n f)) p)))
-        ∙ rightInv (ΩFibreIso (Ω^→ n f)) p))
+        ∙ sec (ΩFibreIso (Ω^→ n f)) p))
 
 Ω^Fibre≃∙' : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
      (n : ℕ) (f : A →∙ B)

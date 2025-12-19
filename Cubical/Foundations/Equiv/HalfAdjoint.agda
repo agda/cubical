@@ -40,8 +40,8 @@ record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type 
   isHAEquiv→Iso : Iso A B
   Iso.fun isHAEquiv→Iso = f
   Iso.inv isHAEquiv→Iso = g
-  Iso.rightInv isHAEquiv→Iso = rinv
-  Iso.leftInv isHAEquiv→Iso = linv
+  Iso.sec isHAEquiv→Iso = rinv
+  Iso.ret isHAEquiv→Iso = linv
 
   isHAEquiv→isEquiv : isEquiv f
   isHAEquiv→isEquiv .equiv-proof y = (g y , rinv y) , isCenter where
@@ -71,8 +71,8 @@ iso→HAEquiv e = f , isHAEquivf
   where
     f = Iso.fun e
     g = Iso.inv e
-    ε = Iso.rightInv e
-    η = Iso.leftInv e
+    ε = Iso.sec e
+    η = Iso.ret e
 
     Hfa≡fHa : (f : A → A) → (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
     Hfa≡fHa f H = J (λ f p → ∀ a → funExt⁻ (sym p) (f a) ≡ cong f (funExt⁻ (sym p) a))
@@ -108,18 +108,18 @@ congIso {x = x} {y} e = goal
   goal : Iso (x ≡ y) (Iso.fun e x ≡ Iso.fun e y)
   fun goal   = cong (iso→HAEquiv e .fst)
   inv goal p = sym (linv x) ∙∙ cong g p ∙∙ linv y
-  rightInv goal p i j =
+  sec goal p i j =
     hcomp (λ k → λ { (i = i0) → iso→HAEquiv e .fst
                                   (doubleCompPath-filler (sym (linv x)) (cong g p) (linv y) k j)
                    ; (i = i1) → rinv (p j) k
                    ; (j = i0) → com x i k
                    ; (j = i1) → com y i k })
           (iso→HAEquiv e .fst (g (p j)))
-  leftInv goal p i j =
+  ret goal p i j =
     hcomp (λ k → λ { (i = i1) → p j
-                   ; (j = i0) → Iso.leftInv e x (i ∨ k)
-                   ; (j = i1) → Iso.leftInv e y (i ∨ k) })
-          (Iso.leftInv e (p j) i)
+                   ; (j = i0) → Iso.ret e x (i ∨ k)
+                   ; (j = i1) → Iso.ret e y (i ∨ k) })
+          (Iso.ret e (p j) i)
 
 invCongFunct : {x : A} (e : Iso A B) (p : Iso.fun e x ≡ Iso.fun e x) (q : Iso.fun e x ≡ Iso.fun e x)
              → Iso.inv (congIso e) (p ∙ q) ≡ Iso.inv (congIso e) p ∙ Iso.inv (congIso e) q
@@ -134,4 +134,4 @@ invCongFunct {x = x} e p q = helper (Iso.inv e) _ _ _
              ∙ λ i → rUnit (cong f p) i ∙ rUnit (cong f q) i
 
 invCongRefl : {x : A} (e : Iso A B) → Iso.inv (congIso {x = x} {y = x} e) refl ≡ refl
-invCongRefl {x = x} e = (λ i → (λ j → Iso.leftInv e x (i ∨ ~ j)) ∙∙ refl ∙∙ (λ j → Iso.leftInv e x (i ∨ j))) ∙ sym (rUnit refl)
+invCongRefl {x = x} e = (λ i → (λ j → Iso.ret e x (i ∨ ~ j)) ∙∙ refl ∙∙ (λ j → Iso.ret e x (i ∨ j))) ∙ sym (rUnit refl)

@@ -107,8 +107,8 @@ module _
     Iso-∥fiber∥₂/R-fiber∥∥₂ : Iso (∥ fiber f y ∥₂ / fiberRel) (fiber ∥f∥₂ ∣ y ∣₂)
     Iso-∥fiber∥₂/R-fiber∥∥₂ .fun = ∥fiber∥₂/R→fiber∥∥₂
     Iso-∥fiber∥₂/R-fiber∥∥₂ .inv = fiber∥∥₂→∥fiber∥₂/R
-    Iso-∥fiber∥₂/R-fiber∥∥₂ .leftInv = ∥fiber∥₂/R→fiber∥∥₂→∥fiber∥₂/R
-    Iso-∥fiber∥₂/R-fiber∥∥₂ .rightInv = fiber∥∥₂→∥fiber∥₂/R→fiber∥∥₂
+    Iso-∥fiber∥₂/R-fiber∥∥₂ .ret = ∥fiber∥₂/R→fiber∥∥₂→∥fiber∥₂/R
+    Iso-∥fiber∥₂/R-fiber∥∥₂ .sec = fiber∥∥₂→∥fiber∥₂/R→fiber∥∥₂
 
     -- main results
 

@@ -267,8 +267,8 @@ module _
     is : Iso (A[x1,···,xn]/<x1,···,xn> Ar n) A
     fun is = PAI→A
     inv is = A→PAI
-    rightInv is = e-sect
-    leftInv is = e-retr
+    sec is = e-sect
+    ret is = e-retr
   snd Equiv-QuotientX-A = snd PAIr→Ar
 
 -- Warning this doesn't prove Z[X]/X ≅ ℤ because you get two definition,

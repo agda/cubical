@@ -52,5 +52,5 @@ module _ (A : hSet ℓ') where
     isom : Iso _ _
     isom .fun = _
     isom .inv = [_]
-    isom .rightInv _ = refl
-    isom .leftInv = elimProp (λ _ → squash/ _ _) (λ a → refl)
+    isom .sec _ = refl
+    isom .ret = elimProp (λ _ → squash/ _ _) (λ a → refl)

@@ -196,16 +196,16 @@ module Equiv-Coproduct-Properties
   e-sectX : (x : H* X) → H*-X⊎Y→H*-X×H*-Y (H*-X→H*-X⊎Y x) ≡ (x , 0H*Y)
   e-sectX = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*X×Y _ _)
             refl
-            (λ n a → ≡-× (cong (base n) (cong fst (rightInv (fst Equiv-Coproduct-CoHom) (a , 0ₕ n))))
-                          (cong (base n) (cong snd (rightInv (fst Equiv-Coproduct-CoHom) (a , 0ₕ n))))
+            (λ n a → ≡-× (cong (base n) (cong fst (sec (fst Equiv-Coproduct-CoHom) (a , 0ₕ n))))
+                          (cong (base n) (cong snd (sec (fst Equiv-Coproduct-CoHom) (a , 0ₕ n))))
                      ∙ ≡-× refl (base-neutral n))
             λ {U V} ind-U ind-V → cong₂ _+H*X×Y_ ind-U ind-V ∙ ≡-× refl (+H*YIdR _)
 
   e-sectY : (y : H* Y) → (H*-X⊎Y→H*-X×H*-Y (H*-Y→H*-X⊎Y y)) ≡ (0H*X , y)
   e-sectY = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*X×Y _ _)
             refl
-            (λ m b → ≡-× (cong (base m) (cong fst (rightInv (fst Equiv-Coproduct-CoHom) (0ₕ m , b))))
-                          (cong (base m) (cong snd (rightInv (fst Equiv-Coproduct-CoHom) (0ₕ m , b))))
+            (λ m b → ≡-× (cong (base m) (cong fst (sec (fst Equiv-Coproduct-CoHom) (0ₕ m , b))))
+                          (cong (base m) (cong snd (sec (fst Equiv-Coproduct-CoHom) (0ₕ m , b))))
                      ∙ ≡-× (base-neutral m) refl)
             λ {U V} ind-U ind-V → cong₂ _+H*X×Y_ ind-U ind-V ∙ ≡-× (+H*XIdR _) refl
 
@@ -229,7 +229,7 @@ module Equiv-Coproduct-Properties
                      base n (T⁻ ( fst (T a) , snd (T a)))
                            ≡⟨ cong (base n) (cong T⁻ (helper1 _ _ (T a))) ⟩
                      base n (T⁻ (T a))
-                           ≡⟨ cong (base n) (leftInv (fst Equiv-Coproduct-CoHom) a) ⟩
+                           ≡⟨ cong (base n) (ret (fst Equiv-Coproduct-CoHom) a) ⟩
                      base n a ∎)
            λ {U V} ind-U ind-V → (H*-X×H*-Y→H*-X⊎Y-pres+ _ _) ∙ (cong₂ _+H*X⊎Y_ ind-U ind-V)
 
@@ -304,8 +304,8 @@ module _
     is : Iso (H* (X ⊎ Y)) (H* X × H* Y)
     fun is = H*-X⊎Y→H*-X×H*-Y
     inv is = H*-X×H*-Y→H*-X⊎Y
-    rightInv is = e-sect
-    leftInv is = e-retr
+    sec is = e-sect
+    ret is = e-retr
   snd (CohomologyRing-Coproduct) = makeIsRingHom
                                    H*-X⊎Y→H*-X×H*-Y-pres1
                                    H*-X⊎Y→H*-X×H*-Y-pres+

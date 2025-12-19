@@ -79,8 +79,8 @@ module MaybePathP where
     isom : Iso _ _
     isom .Iso.fun = decode ox oy
     isom .Iso.inv = encode _ ox oy
-    isom .Iso.rightInv = decodeEncode ox oy
-    isom .Iso.leftInv = encodeDecode A ox oy
+    isom .Iso.sec = decodeEncode ox oy
+    isom .Iso.ret = encodeDecode A ox oy
 
 -- Structured isomorphisms
 

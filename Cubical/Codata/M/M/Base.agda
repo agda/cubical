@@ -44,8 +44,8 @@ lemma11-Iso :
          (X 0)
 fun (lemma11-Iso X l) (x , y) = x 0
 inv (lemma11-Iso {S = S} X l) x₀ = limit-collapse {S = S} X l x₀ , (λ n → refl {x = limit-collapse {S = S} X l x₀ (suc n)})
-rightInv (lemma11-Iso X l) _ = refl
-leftInv (lemma11-Iso {ℓ = ℓ} {S = S} X l) (x , y) i =
+sec (lemma11-Iso X l) _ = refl
+ret (lemma11-Iso {ℓ = ℓ} {S = S} X l) (x , y) i =
   let temp = χ-prop (x 0) (fst (inv (lemma11-Iso {S = S} X l) (fun (lemma11-Iso {S = S} X l) (x , y))) , refl , (λ n → refl {x = limit-collapse {S = S} X l (x 0) (suc n)})) (x , refl , y)
   in temp i .fst , proj₂ (temp i .snd)
   where
@@ -63,8 +63,8 @@ leftInv (lemma11-Iso {ℓ = ℓ} {S = S} X l) (x , y) i =
           (NatSection (X-fiber-over-ℕ x₀))
     fun (Z-is-Section x₀) (x , (z , y)) = record { section = x ; sec-comm-zero = z ; sec-comm-suc = y }
     inv (Z-is-Section x₀) x = NatSection.section x , (sec-comm-zero x , sec-comm-suc x)
-    rightInv (Z-is-Section x₀) _ = refl
-    leftInv (Z-is-Section x₀) (x , (z , y)) = refl
+    sec (Z-is-Section x₀) _ = refl
+    ret (Z-is-Section x₀) (x , (z , y)) = refl
 
     -- S≡T
     χ-prop' : (x₀ : X 0) → isProp (NatSection (X-fiber-over-ℕ x₀))
@@ -159,11 +159,11 @@ shift-iso S@(A , B) =
             (limit-of-chain (sequence S))
       fun α-iso-step-1-4-Iso-lem-12 (a , b) = (λ { 0 → lift tt ; (suc n) → (a .fst n) , (b .fst n)}) , λ { 0 → refl {x = lift tt} ; (suc m) i → a .snd m i , b .snd m i }
       inv α-iso-step-1-4-Iso-lem-12 x = ((λ n → (x .fst) (suc n) .fst) , λ n i → (x .snd) (suc n) i .fst) , (λ n → (x .fst) (suc n) .snd) , λ n i → (x .snd) (suc n) i .snd
-      fst (rightInv α-iso-step-1-4-Iso-lem-12 (b , c) i) 0 = lift tt
-      fst (rightInv α-iso-step-1-4-Iso-lem-12 (b , c) i) (suc n) = refl i
-      snd (rightInv α-iso-step-1-4-Iso-lem-12 (b , c) i) 0 = refl
-      snd (rightInv α-iso-step-1-4-Iso-lem-12 (b , c) i) (suc n) = c (suc n)
-      leftInv α-iso-step-1-4-Iso-lem-12 (a , b) = refl
+      fst (sec α-iso-step-1-4-Iso-lem-12 (b , c) i) 0 = lift tt
+      fst (sec α-iso-step-1-4-Iso-lem-12 (b , c) i) (suc n) = refl i
+      snd (sec α-iso-step-1-4-Iso-lem-12 (b , c) i) 0 = refl
+      snd (sec α-iso-step-1-4-Iso-lem-12 (b , c) i) (suc n) = c (suc n)
+      ret α-iso-step-1-4-Iso-lem-12 (a , b) = refl
 
 shift : ∀ {ℓ} (S : Container ℓ) -> P₀ S (M S) ≡ M S
 shift S = isoToPath (shift-iso S) -- lemma 13 & lemma 12

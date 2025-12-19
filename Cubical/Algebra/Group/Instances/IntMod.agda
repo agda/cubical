@@ -57,14 +57,14 @@ Iso.fun (fst Bool≅ℤGroup/2) true = 0
 Iso.inv (fst Bool≅ℤGroup/2) (zero , p) = true
 Iso.inv (fst Bool≅ℤGroup/2) (suc zero , p) = false
 Iso.inv (fst Bool≅ℤGroup/2) (suc (suc x) , p) = ⊥.rec p
-Iso.rightInv (fst Bool≅ℤGroup/2) (zero , p) =
+Iso.sec (fst Bool≅ℤGroup/2) (zero , p) =
   Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = suc (suc zero)}) refl
-Iso.rightInv (fst Bool≅ℤGroup/2) (suc zero , p) =
+Iso.sec (fst Bool≅ℤGroup/2) (suc zero , p) =
   Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = suc (suc zero)}) refl
-Iso.rightInv (fst Bool≅ℤGroup/2) (suc (suc x) , p) =
+Iso.sec (fst Bool≅ℤGroup/2) (suc (suc x) , p) =
   ⊥.rec p
-Iso.leftInv (fst Bool≅ℤGroup/2) false = refl
-Iso.leftInv (fst Bool≅ℤGroup/2) true = refl
+Iso.ret (fst Bool≅ℤGroup/2) false = refl
+Iso.ret (fst Bool≅ℤGroup/2) true = refl
 snd Bool≅ℤGroup/2 =
   makeIsGroupHom λ { false false → refl
                    ; false true → refl

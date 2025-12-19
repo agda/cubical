@@ -36,8 +36,8 @@ module Algs (S : Type ℓ)
       isom : Iso (Σ[ s ∈ S ] (Q s → W S Q)) (W S Q)
       fun isom = uncurry sup-W
       inv isom (sup-W s f) = s , f
-      rightInv isom (sup-W s f) = refl
-      leftInv isom (s , f) = refl
+      sec isom (sup-W s f) = refl
+      ret isom (s , f) = refl
 
   data Pos {Ind : Type ℓ'''} (P : Ind → S → Type ℓ'') (FP : ContFuncIso {ℓ}) (i : Ind) :
            carrier FP → Type (ℓ-max (ℓ-suc ℓ) (ℓ-max ℓ'' ℓ')) where

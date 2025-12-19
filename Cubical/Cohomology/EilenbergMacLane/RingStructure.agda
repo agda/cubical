@@ -108,8 +108,8 @@ module CohomologyRing-Equiv
     is : Iso (coHom n R-ab X) (coHom n R-ab Y)
     fun is = ST.rec squash₂ (λ f → ∣ (λ y → f (inv e y)) ∣₂)
     inv is = ST.rec squash₂ (λ g → ∣ (λ x → g (fun e x)) ∣₂)
-    rightInv is = ST.elim (λ _ → isProp→isSet (squash₂ _ _)) (λ f → cong ∣_∣₂ (funExt (λ y → cong f (rightInv e y))))
-    leftInv is = ST.elim (λ _ → isProp→isSet (squash₂ _ _)) (λ g → cong ∣_∣₂ (funExt (λ x → cong g (leftInv e x))))
+    sec is = ST.elim (λ _ → isProp→isSet (squash₂ _ _)) (λ f → cong ∣_∣₂ (funExt (λ y → cong f (sec e y))))
+    ret is = ST.elim (λ _ → isProp→isSet (squash₂ _ _)) (λ g → cong ∣_∣₂ (funExt (λ x → cong g (ret e x))))
   snd (coHomGr-Iso {n}) = makeIsGroupHom
                                         (ST.elim (λ _ → isProp→isSet λ u v i y → squash₂ _ _ (u y) (v y) i)
                                         (λ f → ST.elim (λ _ → isProp→isSet (squash₂ _ _))
@@ -140,13 +140,13 @@ module CohomologyRing-Equiv
   e-sect : (y : H* R Y) → H*-X→H*-Y (H*-Y→H*-X y) ≡ y
   e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*Y _ _)
            refl
-           (λ m a → cong (base m) (rightInv (fst coHomGr-Iso) a))
+           (λ m a → cong (base m) (sec (fst coHomGr-Iso) a))
            (λ {U V} ind-U ind-V → cong₂ _+H*Y_ ind-U ind-V)
 
   e-retr : (x : H* R X) → H*-Y→H*-X (H*-X→H*-Y x) ≡ x
   e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*X _ _)
            refl
-           (λ n a → cong (base n) (leftInv (fst coHomGr-Iso) a))
+           (λ n a → cong (base n) (ret (fst coHomGr-Iso) a))
            (λ {U V} ind-U ind-V → cong₂ _+H*X_ ind-U ind-V)
 
   H*-X→H*-Y-pres1 : H*-X→H*-Y 1H*X ≡ 1H*Y
@@ -181,7 +181,7 @@ module _
     is : Iso (H* R X) (H* R Y)
     fun is = H*-X→H*-Y
     inv is = H*-Y→H*-X
-    rightInv is = e-sect
-    leftInv is = e-retr
+    sec is = e-sect
+    ret is = e-retr
   snd CohomologyRing-Equiv =
     makeIsRingHom H*-X→H*-Y-pres1 H*-X→H*-Y-pres+ H*-X→H*-Y-pres·
