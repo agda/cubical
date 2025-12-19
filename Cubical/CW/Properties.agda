@@ -22,8 +22,8 @@ open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Unit
-open import Cubical.Data.Fin.Inductive.Base
-open import Cubical.Data.Fin.Inductive.Properties
+open import Cubical.Data.Fin.Base
+open import Cubical.Data.Fin.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sequence

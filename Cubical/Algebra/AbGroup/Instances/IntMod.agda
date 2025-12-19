@@ -17,6 +17,7 @@ open import Cubical.Algebra.Group.ZAction
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_)
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Int
   renaming (_+_ to _+ℤ_ ; _·_ to _·ℤ_ ; -_ to -ℤ_)
 open import Cubical.Data.Fin
@@ -44,21 +45,21 @@ Iso.inv (fst ℤ/2[2]≅ℤ/2) x = x , cong (x +ₘ_) (+ₘ-rUnit x) ∙ x+x x
   where
   x+x : (x : ℤ/2 .fst) → x +ₘ x ≡ fzero
   x+x = ℤ/2-elim refl refl
-Iso.sec (fst ℤ/2[2]≅ℤ/2) x = Σ≡Prop (λ _ → isProp≤) refl
-Iso.ret (fst ℤ/2[2]≅ℤ/2) x = Σ≡Prop (λ _ → isSetFin _ _) refl
+Iso.sec (fst ℤ/2[2]≅ℤ/2) x = Σ≡Prop (λ z → isProp<ᵗ {z} {m = 2}) refl
+Iso.ret (fst ℤ/2[2]≅ℤ/2) x = Σ≡Prop (λ _ → isSetFin {k = 2} _ _) refl
 snd ℤ/2[2]≅ℤ/2 = makeIsGroupHom λ _ _ → refl
 
 ℤ/2/2≅ℤ/2 : AbGroupIso (ℤ/2 /^ 2) ℤ/2
 Iso.fun (fst ℤ/2/2≅ℤ/2) =
-  SQ.rec isSetFin (λ x → x) lem
+  SQ.rec (isSetFin {k = 2}) (λ x → x) lem
   where
   lem : _
   lem = ℤ/2-elim (ℤ/2-elim (λ _ → refl)
-        (PT.rec (isSetFin  _ _)
+        (PT.rec (isSetFin {k = 2}  _ _)
           (uncurry (ℤ/2-elim
           (λ p → ⊥.rec (snotz (sym (cong fst p))))
            λ p → ⊥.rec (snotz (sym (cong fst p)))))))
-        (ℤ/2-elim (PT.rec (isSetFin  _ _)
+        (ℤ/2-elim (PT.rec (isSetFin {k = 2}  _ _)
           (uncurry (ℤ/2-elim
           (λ p → ⊥.rec (snotz (sym (cong fst p))))
            λ p → ⊥.rec (snotz (sym (cong fst p))))))
@@ -68,8 +69,8 @@ Iso.sec (fst ℤ/2/2≅ℤ/2) _ = refl
 Iso.ret (fst ℤ/2/2≅ℤ/2) =
   SQ.elimProp (λ _ → squash/ _ _) λ _ → refl
 snd ℤ/2/2≅ℤ/2 = makeIsGroupHom
-  (SQ.elimProp (λ _ → isPropΠ λ _ → isSetFin _ _)
-  λ a → SQ.elimProp (λ _ → isSetFin _ _) λ b → refl)
+  (SQ.elimProp (λ _ → isPropΠ λ _ → isSetFin {k = 2} _ _)
+  λ a → SQ.elimProp (λ _ → isSetFin {k = 2} _ _) λ b → refl)
 
 ℤTorsion : (n : ℕ) → isContr (fst (ℤAbGroup [ (suc n) ]ₜ))
 fst (ℤTorsion n) = AbGroupStr.0g (snd (ℤAbGroup [ (suc n) ]ₜ))

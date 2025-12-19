@@ -2,7 +2,7 @@ module Cubical.Data.FinSequence.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Base
 open import Cubical.Data.FinSequence.Base
 open import Cubical.Data.Sequence
 

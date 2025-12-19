@@ -17,6 +17,7 @@ open import Cubical.HITs.PropositionalTruncation as PropTrunc
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Nat.Mod renaming (
   quotient'_/_  to _/_ ; remainder'_/_ to _%_
   ; ≡remainder'+quotient' to ≡%+·/ ; mod'< to %< )
@@ -249,11 +250,14 @@ snd (stepGCD' ((d∣n , d∣m%n) , gr)) d' (d'∣m , d'∣n) = gr d' (d'∣n , P
 
 -- putting it all together using well-founded induction
 
-euclid'< : ∀ m n → n < m → GCD m n
-euclid'< = WFI.induction <-wellfounded λ {
+euclidᵗ : ∀ m n → n <ᵗ m → GCD m n
+euclidᵗ = WFI.induction <ᵗ-wellfounded λ {
   m rec zero    p → m , zeroGCD m ;
-  m rec (suc n) p → let d , dGCD = rec (suc n) p (m F.% suc n) (n%sk<sk m n)
+  m rec (suc n) p → let d , dGCD = rec (suc n) p (m F.% suc n) (n%sk<ᵗsk m n)
                      in d , stepGCD' dGCD }
+
+euclid'< : ∀ m n → n < m → GCD m n
+euclid'< m n p = euclidᵗ m n (<→<ᵗ p)
 
 euclid' : ∀ m n → GCD m n
 euclid' m n with n ≟ m

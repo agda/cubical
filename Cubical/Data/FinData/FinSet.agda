@@ -13,6 +13,7 @@ open import Cubical.Data.FinData
 open import Cubical.Data.Nat as Nat
   using (ℕ ; _+_)
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Sigma
 open import Cubical.Data.SumFin as SumFin
   using (fzero ; fsuc)
@@ -27,11 +28,11 @@ private
     m n : ℕ
 
 FinFinℕIso : Iso (Fin n) (Finℕ n)
-FinFinℕIso = iso
-  (λ k → toℕ k , toℕ<n k)
-  (uncurry (fromℕ' _))
-  (λ (k , k<n) → Σ≡Prop (λ _ → isProp≤) (toFromId' _ k k<n))
-  (λ k → fromToId' _ k (toℕ<n k))
+FinFinℕIso {n} = iso
+  (λ k → toℕ k , toℕ<ᵗn k)
+  (uncurry (fromℕᵗ _))
+  (λ (k , k<ᵗn) → Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = n}) (toFromIdᵗ _ k k<ᵗn))
+  (λ k → fromToIdᵗ _ k (toℕ<ᵗn k))
 
 Fin≃Finℕ : Fin n ≃ Finℕ n
 Fin≃Finℕ = isoToEquiv FinFinℕIso

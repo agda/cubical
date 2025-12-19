@@ -7,7 +7,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
-open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Fin
 open import Cubical.Data.Empty
 
 open import Cubical.HITs.Pushout

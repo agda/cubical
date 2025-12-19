@@ -5,8 +5,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Nat hiding (_·_)
-open import Cubical.Data.Fin.Inductive.Base
-open import Cubical.Data.Fin.Inductive.Properties
+open import Cubical.Data.Fin.Base
+open import Cubical.Data.Fin.Properties
 open import Cubical.Data.Empty as ⊥
 
 infixl 7 _·_

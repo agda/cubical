@@ -11,7 +11,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Base
 
 open import Cubical.HITs.Wedge.Base
 open import Cubical.HITs.Susp

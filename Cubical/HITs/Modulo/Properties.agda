@@ -1,4 +1,3 @@
-
 module Cubical.HITs.Modulo.Properties where
 
 open import Cubical.Data.Nat
@@ -75,5 +74,4 @@ stepOver m n o p = steps m o ∙ cong embed p
 -- evidence from either `ℕ` or `Fin k`.
 isSetModulo : isSet (Modulo k)
 isSetModulo {0} = isSetModulo0
-isSetModulo {suc k} = subst isSet (sym Modulo≡Fin) isSetFin
-
+isSetModulo {suc k} = subst isSet (sym Modulo≡Fin) (isSetFin {suc k})

@@ -7,7 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Data.Nat
 open import Cubical.Data.Sequence
 open import Cubical.Data.FinSequence
-open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Fin
 
 
 private

@@ -21,7 +21,8 @@ open import Cubical.Data.NatMinusOne
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Bool
 open import Cubical.Data.Sum as ⊎
-open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Fin
+open import Cubical.Data.Fin.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sequence
 open import Cubical.Data.FinSequence

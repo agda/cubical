@@ -12,7 +12,7 @@ open import Cubical.Data.Nat hiding (_·_) renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Int renaming (_·_ to _·ℤ_ ; -_ to -ℤ_)
-open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Fin hiding (_/_)
 open import Cubical.Data.Empty as ⊥
 
 open import Cubical.HITs.FreeAbGroup
@@ -287,7 +287,7 @@ sumFinℤFinGenerator≡1 (suc n) =
   elimFin (basec n)
           indstep
   where
-  basec : (n : ℕ) → sumFinGen _·_ ε (λ x → ·Free (ℤFinGenerator (flast {m = n}) x) x) ≡ ⟦ flast ⟧
+  basec : (n : ℕ) → sumFinGen _·_ ε (λ x → ·Free (ℤFinGenerator (flast {n}) x) x) ≡ ⟦ flast ⟧
   basec n with (n ≟ᵗ n)
   ... | lt x = ⊥.rec (¬m<ᵗm x)
   ... | eq x = ((λ i → identityᵣ ⟦ flast ⟧ i

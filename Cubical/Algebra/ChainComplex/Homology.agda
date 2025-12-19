@@ -9,7 +9,7 @@ open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Fin hiding (_/_)
 open import Cubical.Data.Nat.Order.Inductive
 
 open import Cubical.Algebra.Group

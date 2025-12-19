@@ -14,8 +14,8 @@ open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; _·_ to _·ℤ_)
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty renaming (rec to emptyrec)
-open import Cubical.Data.Fin.Inductive.Base
-open import Cubical.Data.Fin.Inductive.Properties
+open import Cubical.Data.Fin.Base
+open import Cubical.Data.Fin.Properties
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.S1

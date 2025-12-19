@@ -7,7 +7,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Int
   renaming (_+_ to _+ℤ_ ; _-_ to _-ℤ_; -_ to -ℤ_ ; _·_ to _·ℤ_)
 open import Cubical.Data.Nat using (ℕ ; zero ; suc)
-open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Base
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties

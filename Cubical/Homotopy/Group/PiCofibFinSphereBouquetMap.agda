@@ -14,7 +14,7 @@ open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_)
 open import Cubical.Data.Sigma
-open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Fin hiding (_/_)
 open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Int
