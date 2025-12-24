@@ -161,7 +161,7 @@ inv (compIsoIdR isom i) = inv isom
 sec (compIsoIdR isom i) b = rUnit (isom .sec b) (~ i)
 ret (compIsoIdR isom i) a = lUnit (isom .ret a) (~ i)
 
-LiftIso : Iso A (Lift {i = ℓ} {j = ℓ'} A)
+LiftIso : Iso A (Lift ℓ' A)
 fun LiftIso = lift
 inv LiftIso = lower
 sec LiftIso _ = refl

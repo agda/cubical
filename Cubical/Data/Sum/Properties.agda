@@ -32,10 +32,10 @@ private
 module ⊎Path {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
 
   Cover : A ⊎ B → A ⊎ B → Type (ℓ-max ℓ ℓ')
-  Cover (inl a) (inl a') = Lift {j = ℓ-max ℓ ℓ'} (a ≡ a')
-  Cover (inl _) (inr _) = Lift ⊥
-  Cover (inr _) (inl _) = Lift ⊥
-  Cover (inr b) (inr b') = Lift {j = ℓ-max ℓ ℓ'} (b ≡ b')
+  Cover (inl a) (inl a') = Lift ℓ' (a ≡ a')
+  Cover (inl _) (inr _) = ⊥*
+  Cover (inr _) (inl _) = ⊥*
+  Cover (inr b) (inr b') = Lift ℓ (b ≡ b')
 
   reflCode : (c : A ⊎ B) → Cover c c
   reflCode (inl a) = lift refl
@@ -178,13 +178,13 @@ inv ⊎-IdL-⊥-Iso x       = inr x
 sec ⊎-IdL-⊥-Iso _      = refl
 ret ⊎-IdL-⊥-Iso (inr _) = refl
 
-⊎-IdL-⊥*-Iso : ∀{ℓ} → Iso (⊥* {ℓ} ⊎ A) A
+⊎-IdL-⊥*-Iso : ∀ {ℓ} → Iso (⊥* {ℓ} ⊎ A) A
 fun ⊎-IdL-⊥*-Iso (inr x) = x
 inv ⊎-IdL-⊥*-Iso x       = inr x
 sec ⊎-IdL-⊥*-Iso _      = refl
 ret ⊎-IdL-⊥*-Iso (inr _) = refl
 
-⊎-IdR-⊥*-Iso : ∀{ℓ} → Iso (A ⊎ ⊥* {ℓ}) A
+⊎-IdR-⊥*-Iso : ∀ {ℓ} → Iso (A ⊎ ⊥* {ℓ}) A
 fun ⊎-IdR-⊥*-Iso (inl x) = x
 inv ⊎-IdR-⊥*-Iso x       = inl x
 sec ⊎-IdR-⊥*-Iso _      = refl
@@ -196,10 +196,10 @@ ret ⊎-IdR-⊥*-Iso (inl _) = refl
 ⊎-IdL-⊥-≃ : ⊥ ⊎ A ≃ A
 ⊎-IdL-⊥-≃ = isoToEquiv ⊎-IdL-⊥-Iso
 
-⊎-IdR-⊥*-≃ : ∀{ℓ} → A ⊎ ⊥* {ℓ} ≃ A
+⊎-IdR-⊥*-≃ : ∀ {ℓ} → A ⊎ ⊥* {ℓ} ≃ A
 ⊎-IdR-⊥*-≃ = isoToEquiv ⊎-IdR-⊥*-Iso
 
-⊎-IdL-⊥*-≃ : ∀{ℓ} → ⊥* {ℓ} ⊎ A ≃ A
+⊎-IdL-⊥*-≃ : ∀ {ℓ} → ⊥* {ℓ} ⊎ A ≃ A
 ⊎-IdL-⊥*-≃ = isoToEquiv ⊎-IdL-⊥*-Iso
 
 Π⊎Iso : Iso ((x : A ⊎ B) → E x) (((a : A) → E (inl a)) × ((b : B) → E (inr b)))
@@ -358,10 +358,10 @@ Iso⊎→Iso {A = A} {C = C} {B = B} {D = D} f e p = Iso'
   Iso.ret Iso' x = lem1 x (_ , refl) (_ , refl)
 
 Lift⊎Iso : ∀ (ℓ : Level)
-  → Iso (Lift {j = ℓ} A ⊎ Lift {j = ℓ} B)
-         (Lift {j = ℓ} (A ⊎ B))
-fun (Lift⊎Iso ℓD) (inl x) = liftFun inl x
-fun (Lift⊎Iso ℓD) (inr x) = liftFun inr x
+  → Iso (Lift ℓ A ⊎ Lift ℓ B)
+         (Lift ℓ (A ⊎ B))
+fun (Lift⊎Iso ℓD) (inl x) = liftMap inl x
+fun (Lift⊎Iso ℓD) (inr x) = liftMap inr x
 inv (Lift⊎Iso ℓD) (lift (inl x)) = inl (lift x)
 inv (Lift⊎Iso ℓD) (lift (inr x)) = inr (lift x)
 sec (Lift⊎Iso ℓD) (lift (inl x)) = refl

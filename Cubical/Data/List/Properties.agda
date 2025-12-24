@@ -66,9 +66,9 @@ module _ {ℓ} {A : Type ℓ} where
 module ListPath {ℓ} {A : Type ℓ} where
 
   Cover : List A → List A → Type ℓ
-  Cover [] [] = Lift Unit
-  Cover [] (_ ∷ _) = Lift ⊥
-  Cover (_ ∷ _) [] = Lift ⊥
+  Cover [] [] = Unit*
+  Cover [] (_ ∷ _) = ⊥*
+  Cover (_ ∷ _) [] = ⊥*
   Cover (x ∷ xs) (y ∷ ys) = (x ≡ y) × Cover xs ys
 
   reflCode : ∀ xs → Cover xs xs
@@ -124,17 +124,17 @@ private
     x y : A
     xs ys : List A
 
-  caseList : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (n c : B) → List A → B
-  caseList n _ []      = n
-  caseList _ c (_ ∷ _) = c
+caseList : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (n c : B) → List A → B
+caseList n _ []      = n
+caseList _ c (_ ∷ _) = c
 
-  safe-head : A → List A → A
-  safe-head x []      = x
-  safe-head _ (x ∷ _) = x
+safe-head : A → List A → A
+safe-head x []      = x
+safe-head _ (x ∷ _) = x
 
-  safe-tail : List A → List A
-  safe-tail []       = []
-  safe-tail (_ ∷ xs) = xs
+safe-tail : List A → List A
+safe-tail []       = []
+safe-tail (_ ∷ xs) = xs
 
 cons-inj₁ : x ∷ xs ≡ y ∷ ys → x ≡ y
 cons-inj₁ {x = x} p = cong (safe-head x) p
@@ -152,10 +152,10 @@ snoc-inj₁ {xs = xs} {ys = ys} p =
         ∙∙ rev-rev _
 
 ¬cons≡nil : ¬ (x ∷ xs ≡ [])
-¬cons≡nil {_} {A} p = lower (subst (caseList (Lift ⊥) (List A)) p [])
+¬cons≡nil p = lower (ListPath.encode _ _ p)
 
 ¬nil≡cons : ¬ ([] ≡ x ∷ xs)
-¬nil≡cons {_} {A} p = lower (subst (caseList (List A) (Lift ⊥)) p [])
+¬nil≡cons p = lower (ListPath.encode _ _ p)
 
 ¬snoc≡nil : ¬ (xs ∷ʳ x ≡ [])
 ¬snoc≡nil {xs = []} contra = ¬cons≡nil contra

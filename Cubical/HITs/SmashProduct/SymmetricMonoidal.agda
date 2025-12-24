@@ -236,12 +236,12 @@ Iso.ret (⋀lIdIso {A = A}) =
   ⋀-fun≡ _ _ (sym (push (inl false*))) h hₗ
     λ x → compPath-filler (sym (push (inl false*))) (push (inr x))
   where
-  h : (x : (Lift Bool) × fst A) →
+  h : (x : Bool* × fst A) →
       inr (false* , Bool⋀→ (inr x)) ≡ inr x
   h (lift false , a) = refl
   h (lift true , a) = sym (push (inl false*)) ∙ push (inr a)
 
-  hₗ : (x : Lift Bool) →
+  hₗ : (x : Bool*) →
       PathP
       (λ i → inr (false* , Bool⋀→ (push (inl x) i)) ≡ push (inl x) i)
       (λ i → push (inl false*) (~ i)) (h (x , pt A))
@@ -264,12 +264,12 @@ snd ⋀lIdEquiv∙ = refl
   , (sym (rUnit refl) ◁ (λ i j → snd f (~ i ∨ j))
     ▷ lUnit (snd f)))
   where
-  h : (x : Lift Bool) (a : fst A)
+  h : (x : Bool*) (a : fst A)
     → Bool⋀→ (inr (x , fst f a)) ≡ fst f (Bool⋀→ (inr (x , a)))
   h (lift false) a = refl
   h (lift true) a = sym (snd f)
 
-  hₗ : (x : Lift Bool)
+  hₗ : (x : Bool*)
     → PathP (λ i → Bool⋀→ ((idfun∙ Bool*∙ ⋀→ f) (push (inl x) i))
                    ≡ fst f (Bool⋀→ (push (inl x) i)))
              (sym (snd f)) (h x (pt A))
@@ -308,17 +308,17 @@ snd ⋀lIdEquiv∙ = refl
         , (sym (rUnit refl)
           ◁ flipSquare (sym (rUnit refl))))
   where
-  l₁ : (x : Lift Bool) → inl tt ≡ Bool⋀→ (inr (x , inl tt))
+  l₁ : (x : Bool*) → inl tt ≡ Bool⋀→ (inr (x , inl tt))
   l₁ (lift true) = refl
   l₁ (lift false) = refl
 
-  l₂ : (x : Lift Bool) (y : fst A × fst B)
+  l₂ : (x : Bool*) (y : fst A × fst B)
     → inr (Bool⋀→ (inr (x , fst y)) , snd y)
     ≡ Bool⋀→ (inr (x , inr y))
   l₂ (lift true) y = sym (push (inr (snd y)))
   l₂ (lift false) y = refl
 
-  l₁≡l₂-left : (x : Lift Bool) (y : fst A) →
+  l₁≡l₂-left : (x : Bool*) (y : fst A) →
     PathP (λ i → l₁ x i ≡ l₂ x (y , pt B) i)
           (push (inl (Bool⋀→ (inr (x , y)))))
           λ i → Bool⋀→ {ℓ} {A = A ⋀∙ B} (inr (x , push (inl y) i))
@@ -326,7 +326,7 @@ snd ⋀lIdEquiv∙ = refl
                    ◁ λ i j → push (inr (pt B)) (~ i ∧ j)
   l₁≡l₂-left (lift false) y = refl
 
-  l₁≡l₂-right : (x : Lift Bool) (y : fst B)
+  l₁≡l₂-right : (x : Bool*) (y : fst B)
     → PathP (λ i → l₁ x i ≡ l₂ x ((pt A) , y) i)
             (push (inr y) ∙ (λ i → inr (Bool⋀→ {A = A} (push (inl x) i) , y)))
             (λ i → Bool⋀→ {A = A ⋀∙ B} (inr (x , push (inr y) i)))
@@ -334,7 +334,7 @@ snd ⋀lIdEquiv∙ = refl
   l₁≡l₂-right (lift true) y = sym (rUnit (push (inr y)))
                    ◁ λ i j → push (inr y) (j ∧ ~ i)
 
-  mainᵣ : (x : Lift Bool) (y : A ⋀ B)
+  mainᵣ : (x : Bool*) (y : A ⋀ B)
     → (≃∙map ⋀lIdEquiv∙ ⋀→ idfun∙ B)
         (SmashAssocIso .Iso.fun (inr (x , y)))
      ≡ Bool⋀→ {ℓ} (inr (x , y))
@@ -353,7 +353,7 @@ snd ⋀lIdEquiv∙ = refl
                      refl
                    ◁ l₁≡l₂-right x y))
 
-  mainᵣ-pt-coh : (x : Lift Bool)
+  mainᵣ-pt-coh : (x : Bool*)
     → PathP (λ i → inl tt ≡ Bool⋀→ (push (inl x) i))
              refl (mainᵣ x (inl tt))
   mainᵣ-pt-coh (lift false) = refl
@@ -486,7 +486,7 @@ snd ⋀lIdEquiv∙ = refl
      ∙ (λ i → push (inr y) ∙ (λ j → inr (rUnit (λ _ → pt A) (~ i) j , y)))
      ∙ sym (rUnit _)))
 
-  Fₗ≡refl : (x : Lift Bool) (y : fst B) → Fₗ .fst (inr (x , y)) ≡ refl
+  Fₗ≡refl : (x : Bool*) (y : fst B) → Fₗ .fst (inr (x , y)) ≡ refl
   Fₗ≡refl (lift false) y =
      (λ i → Fₗ-false y i ∙∙ refl ∙∙ sym (rUnit (push (inr y)) (~ i)))
     ∙ ∙∙lCancel _
@@ -501,7 +501,7 @@ snd ⋀lIdEquiv∙ = refl
     ∙ cong (_∙ sym (push (inr (pt B)))) (sym (lUnit (push (inr (pt B)))))
     ∙ rCancel _
 
-  Fᵣ≡refl : (x : Lift Bool) (y : fst B) → Fᵣ .fst (inr (x , y)) ≡ refl
+  Fᵣ≡refl : (x : Bool*) (y : fst B) → Fᵣ .fst (inr (x , y)) ≡ refl
   Fᵣ≡refl x y =
     cong (push (inl (snd A)) ∙_)
       (sym (rUnit _) ∙ (λ i j → push (push tt (~ i)) (~ j)))

@@ -638,16 +638,16 @@ isPropSinglP = isContr→isProp (isContrSinglP _ _)
 
 -- Universe lifting
 
-record Lift {i j} (A : Type i) : Type (ℓ-max i j) where
+record Lift ℓ' (A : Type ℓ) : Type (ℓ-max ℓ ℓ') where
   constructor lift
   field
     lower : A
 
 open Lift public
 
-liftExt : ∀ {A : Type ℓ} {a b : Lift {ℓ} {ℓ'} A} → (lower a ≡ lower b) → a ≡ b
-liftExt x i = lift (x i)
+liftExt : ∀ {A : Type ℓ} {a b : Lift ℓ' A} → lower a ≡ lower b → a ≡ b
+liftExt p i = lift (p i)
 
-liftFun : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'}
-  (f : A → B) → Lift {j = ℓ''} A → Lift {j = ℓ'''} B
-liftFun f (lift a) = lift (f a)
+liftMap : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'}
+  (f : A → B) → Lift ℓ'' A → Lift ℓ''' B
+liftMap f (lift a) = lift (f a)

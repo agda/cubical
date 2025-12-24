@@ -48,7 +48,7 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
   PshHom : Type (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓp) ℓq)
   PshHom =
     PresheafCategory C (ℓ-max ℓp ℓq)
-      [ LiftF {ℓp}{ℓq} ∘F P , LiftF {ℓq}{ℓp} ∘F Q ∘F (F ^opF) ]
+      [ LiftF ℓq ∘F P , LiftF ℓp ∘F Q ∘F (F ^opF) ]
 
   module _ (h : PshHom) where
     -- This should define a functor on the category of elements

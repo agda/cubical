@@ -9,7 +9,7 @@ open import Cubical.Data.Empty.Base
 isProp⊥ : isProp ⊥
 isProp⊥ ()
 
-isProp⊥* : ∀ {ℓ} → isProp {ℓ} ⊥*
+isProp⊥* : ∀ {ℓ} → isProp (⊥* {ℓ})
 isProp⊥* _ ()
 
 isContr⊥→A : ∀ {ℓ} {A : Type ℓ} → isContr (⊥ → A)

@@ -57,7 +57,7 @@ module _ {G : Graph ℓv ℓe} where
 
     -- This is called ̂W (W-hat) in the paper
     PathWithLen : ℕ → Node G → Node G → Type (ℓ-max ℓv ℓe)
-    PathWithLen 0 v w = Lift {j = ℓe} (v ≡ w)
+    PathWithLen 0 v w = Lift ℓe (v ≡ w)
     PathWithLen (suc n) v w = Σ[ x ∈ Node G ] (Edge G v x × PathWithLen n x w)
 
     isSetPathWithLen : ∀ n v w → isSet (PathWithLen n v w)

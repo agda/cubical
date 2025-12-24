@@ -66,11 +66,11 @@ K-Bool
   : (P : {b : Bool} → b ≡ b → Type ℓ)
   → (∀{b} → P {b} refl)
   → ∀{b} → (q : b ≡ b) → P q
-K-Bool P Pr {false} = J (λ{ false q → P q ; true _ → Lift ⊥ }) Pr
-K-Bool P Pr {true}  = J (λ{ true q → P q ; false _ → Lift ⊥ }) Pr
+K-Bool P Pr {false} = J (λ{ false q → P q ; true _ → ⊥* }) Pr
+K-Bool P Pr {true}  = J (λ{ true q → P q ; false _ → ⊥* }) Pr
 
 isSetBool : isSet Bool
-isSetBool a b = J (λ _ p → ∀ q → p ≡ q) (K-Bool (refl ≡_) refl)
+isSetBool a = J> K-Bool (refl ≡_) refl
 
 true≢false : ¬ true ≡ false
 true≢false p = subst (λ b → if b then Bool else ⊥) p true

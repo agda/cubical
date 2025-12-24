@@ -38,12 +38,12 @@ isBinaryEl (un b c e i)
       (transp (λ j → ∥ Bool ≃ ua e (i ∨ ~ j) ∥₁) i (isBinaryEl c))
       i
 
-isBinaryEl' : ∀ ℓ b → isBinary (Lift {j = ℓ} (El b))
+isBinaryEl' : ∀ ℓ b → isBinary (Lift ℓ (El b))
 isBinaryEl' ℓ ℕ₂ = ∣ LiftEquiv ∣₁
 isBinaryEl' ℓ (un b c e i)
   = squash₁
-      (transp (λ j → ∥ Bool ≃ Lift {j = ℓ} (ua e (i ∧ j)) ∥₁) (~ i) (isBinaryEl' ℓ b))
-      (transp (λ j → ∥ Bool ≃ Lift {j = ℓ} (ua e (i ∨ ~ j)) ∥₁) i (isBinaryEl' ℓ c))
+      (transp (λ j → ∥ Bool ≃ Lift ℓ (ua e (i ∧ j)) ∥₁) (~ i) (isBinaryEl' ℓ b))
+      (transp (λ j → ∥ Bool ≃ Lift ℓ (ua e (i ∨ ~ j)) ∥₁) i (isBinaryEl' ℓ c))
       i
 
 isPropIsSetEl : isOfHLevelDep 1 (λ b → isSet (El b))
@@ -108,8 +108,8 @@ structureᵤ = λ where
   where
   open FS.BinStructure
 
-  path : Lift Binary ≡ FS.Binary _
+  path : Lift _ Binary ≡ FS.Binary _
   path = ua (compEquiv (invEquiv LiftEquiv) reflect)
 
-  bs : FS.BinStructure (Lift Binary)
+  bs : FS.BinStructure (Lift _ Binary)
   bs = subst⁻ FS.BinStructure path FS.structure₀

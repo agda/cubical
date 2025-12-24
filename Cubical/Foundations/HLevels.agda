@@ -601,10 +601,10 @@ isGroupoidHSet = isOfHLevelTypeOfHLevel 2
 
 -- h-level of lifted type
 
-isOfHLevelLift : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} → isOfHLevel n A → isOfHLevel n (Lift {j = ℓ'} A)
+isOfHLevelLift : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} → isOfHLevel n A → isOfHLevel n (Lift ℓ' A)
 isOfHLevelLift n = isOfHLevelRetract n lower lift λ _ → refl
 
-isOfHLevelLower : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} → isOfHLevel n (Lift {j = ℓ'} A) → isOfHLevel n A
+isOfHLevelLower : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} → isOfHLevel n (Lift ℓ' A) → isOfHLevel n A
 isOfHLevelLower n = isOfHLevelRetract n lift lower λ _ → refl
 
 ----------------------------
