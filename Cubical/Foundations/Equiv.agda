@@ -97,6 +97,19 @@ module _ {f : A → B} (equivF : isEquiv f) where
         })
       (commSqIsEq a i j)
 
+  commPathIsEq' : ∀ a → retIsEq (invIsEq a) ≡ cong invIsEq (secIsEq a)
+  commPathIsEq' a i j = hcomp (λ where
+      k (i = i0) → retIsEq (invIsEq (secIsEq a k)) j
+      k (i = i1) → invIsEq (secIsEq (secIsEq a k) j)
+      k (j = i0) → invIsEq (f (invIsEq (secIsEq a k)))
+      k (j = i1) → invIsEq (secIsEq a k)
+    ) (hcomp (λ where
+      k (i = i0) → retIsEq (retIsEq (invIsEq a) (~ k)) (j ∨ ~ k)
+      k (i = i1) → invIsEq (commSqIsEq (invIsEq a) (~ k) j)
+      k (j = i0) → retIsEq (retIsEq (invIsEq a) (~ k)) (~ k ∧ ~ i)
+      k (j = i1) → retIsEq (invIsEq a) (~ k ∧ ~ i)
+    ) (retIsEq (invIsEq a) (~ i)))
+
 module _ (w : A ≃ B) where
   invEq : B → A
   invEq = invIsEq (snd w)
