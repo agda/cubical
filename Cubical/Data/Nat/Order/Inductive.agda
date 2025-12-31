@@ -30,7 +30,7 @@ n >ᵗ m = m <ᵗ n
 _≥ᵗ_ : (n m : ℕ) → Type
 n ≥ᵗ m = m ≤ᵗ n
 
--- <ᵗ satisfies the following judgemental equalities,
+-- <ᵗ satisfies the following judgmental equalities,
 -- which give <ᵗ an "inductive" presentation, justifying the module name:
 private
   _ : ∀ {n} → n <ᵗ zero ≡ ⊥
