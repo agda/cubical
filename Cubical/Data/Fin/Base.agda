@@ -65,6 +65,10 @@ fromℕ≤ : (m n : ℕ) → m ≤′ n → Fin (suc n)
 fromℕ≤ zero _ _ = fzero
 fromℕ≤ (suc m) (suc n) m≤n = fsuc (fromℕ≤ m n m≤n)
 
+-- Conversion from ℕ with an inductive definition of ≤
+fromℕ≤ᵗ : (m n : ℕ) → m ≤ᵗ n → Fin (suc n)
+fromℕ≤ᵗ m n t = m , t
+
 -- A case analysis helper for induction.
 fsplit
   : ∀(fj : Fin (suc k))

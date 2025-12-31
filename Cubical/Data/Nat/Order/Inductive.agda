@@ -9,17 +9,44 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 
+open import Cubical.Data.Bool.Base hiding (_≟_)
+
 open import Cubical.Induction.WellFounded
 
 open import Cubical.Relation.Nullary
 
 -- TODO: unify with recursive.agda
 
--- inductive definition of <
+-- alternative definition of <
 _<ᵗ_ : (n m : ℕ) → Type
-n <ᵗ zero = ⊥
-zero <ᵗ suc m = Unit
-suc n <ᵗ suc m = n <ᵗ m
+n <ᵗ m = Bool→Type (n <ᵇ m)
+
+_≤ᵗ_ : (n m : ℕ) → Type
+n ≤ᵗ m = n <ᵗ suc m
+
+_>ᵗ_ : (n m : ℕ) → Type
+n >ᵗ m = m <ᵗ n
+
+_≥ᵗ_ : (n m : ℕ) → Type
+n ≥ᵗ m = m ≤ᵗ n
+
+-- <ᵗ satisfies the following judgemental equalities,
+-- which give <ᵗ an "inductive" presentation, justifying the module name:
+private
+  _ : ∀ {n} → n <ᵗ zero ≡ ⊥
+  _ = refl
+
+  _ : ∀ {m} → zero <ᵗ suc m ≡ Unit
+  _ = refl
+
+  _ : ∀ {n m} → suc n <ᵗ suc m ≡ n <ᵗ m
+  _ = refl
+
+  -- direct inductive definition (avoided for performance reasons):
+  -- _<ᵗ_ : (n m : ℕ) → Type
+  -- n <ᵗ zero = ⊥
+  -- zero <ᵗ suc m = Unit
+  -- suc n <ᵗ suc m = n <ᵗ m
 
 data Trichotomyᵗ (m n : ℕ) : Type₀ where
   lt : m <ᵗ n → Trichotomyᵗ m n

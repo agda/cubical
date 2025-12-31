@@ -380,8 +380,7 @@ finCWmap→CellMap n C D f =
     ... | inr n>m | inr n>sucm =
          cong (CW↪ D m)
            (funExt⁻ (cong (fmap ϕ) (ΣPathP (refl , (isProp<ᵗ _ _)))) x)
-       ∙ fcomm ϕ (m , <→<ᵗ n>m) x
-       ∙ funExt⁻ (cong (fmap ϕ) (ΣPathP (refl , (isProp<ᵗ _ _)))) _
+       ∙ fcomm ϕ (m , <ᵗ-trans (<→<ᵗ n>sucm) <ᵗsucm) x
 
     silly : (x : _) → smap ψ n x ≡ fmap ϕ (n , <ᵗsucm {n}) x
     silly x with (Dichotomyℕ n n)
