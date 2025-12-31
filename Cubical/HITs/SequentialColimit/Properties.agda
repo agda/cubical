@@ -20,7 +20,7 @@ open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sequence
-open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Fin hiding (elim)
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.SequentialColimit.Base

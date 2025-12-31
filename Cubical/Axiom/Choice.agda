@@ -19,9 +19,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Fin as FN
-open import Cubical.Data.Fin.Inductive as IndF
-open import Cubical.Data.Nat.Order
+open import Cubical.Data.Fin
+open import Cubical.Data.Nat.Order.Inductive
 
 open import Cubical.HITs.Truncation as TR
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -68,28 +67,28 @@ satAC₀ B =
   isoToIsEquiv (iso (λ _ _ → tt*) (λ _ → tt*) (λ _ → refl) λ _ → refl)
 
 -- Fin m satisfies AC for any level n.
-FinSatAC : (n m : ℕ) → ∀ {ℓ} → satAC ℓ n (FN.Fin m)
+FinSatAC : (n m : ℕ) → ∀ {ℓ} → satAC ℓ n (Fin m)
 FinSatAC n zero B =
   isoToIsEquiv (iso _
-    (λ f → ∣ (λ x → ⊥.rec (FN.¬Fin0 x)) ∣ₕ)
-    (λ f → funExt λ x → ⊥.rec (FN.¬Fin0 x))
+    (λ f → ∣ (λ x → ⊥.rec (¬Fin0 x)) ∣ₕ)
+    (λ f → funExt λ x → ⊥.rec (¬Fin0 x))
     (TR.elim (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _)
-      λ a → cong  ∣_∣ₕ (funExt λ x → ⊥.rec (FN.¬Fin0 x))))
+      λ a → cong  ∣_∣ₕ (funExt λ x → ⊥.rec (¬Fin0 x))))
 FinSatAC n (suc m) B =
   subst isEquiv (ac-eq n m {B} (FinSatAC n m))
     (isoToIsEquiv (ac-map' n m B (FinSatAC n m)))
   where
-  ac-map' : ∀ {ℓ} (n m : ℕ) (B : FN.Fin (suc m) → Type ℓ)
-    → (satAC ℓ n (FN.Fin m))
+  ac-map' : ∀ {ℓ} (n m : ℕ) (B : Fin (suc m) → Type ℓ)
+    → (satAC ℓ n (Fin m))
     → Iso (hLevelTrunc n ((x : _) → B x)) ((x : _) → hLevelTrunc n (B x))
   ac-map' n m B ise =
     compIso (mapCompIso (CharacΠFinIso m))
             (compIso (truncOfProdIso n)
               (compIso (Σ-cong-iso-snd λ _ → equivToIso
-                (_ , ise (λ x → B (FN.fsuc x))))
+                (_ , ise (λ x → B (fsuc x))))
                 (invIso (CharacΠFinIso m))))
 
-  ac-eq : (n m : ℕ) {B : _} → (eq : satAC ℓ n (FN.Fin m))
+  ac-eq : (n m : ℕ) {B : _} → (eq : satAC ℓ n (Fin m))
        → Iso.fun (ac-map' n m B eq) ≡ choiceMap {B = B} n
   ac-eq zero m {B = B} x = refl
   ac-eq (suc n) m {B = B} x =
@@ -102,21 +101,19 @@ FinSatAC n (suc m) B =
         ; (suc x , p) j
           → ∣ transp (λ i → B (lem₂ x p (j ∨ i))) j (F (lem₂ x p j)) ∣ₕ})
     where
-    lem₁ : (p : _ ) → FN.fzero ≡ (zero , p)
-    lem₁ p = Fin-fst-≡ refl
+    lem₁ : (p : _ ) → fzero ≡ (zero , p)
+    lem₁ p = Fin-fst-≡ {suc m} refl
 
-    lem₂ : (x : _) (p : suc x < suc m)
-      → Path (FN.Fin _) (FN.fsuc (x , pred-≤-pred p)) (suc x , p)
-    lem₂ x p = Fin-fst-≡ refl
+    lem₂ : (x : _) (p : suc x <ᵗ suc m)
+      → Path (Fin (suc m)) (fsuc (x , p)) (suc x , p)
+    lem₂ x p = Fin-fst-≡ {suc m} refl
 
 -- Key result for construction of cw-approx at lvl 0
-satAC∃Fin : (n : ℕ) → satAC∃ ℓ ℓ' (FN.Fin n)
+satAC∃Fin : (n : ℕ) → satAC∃ ℓ ℓ' (Fin n)
 satAC∃Fin n = satAC→satAC∃ (FinSatAC 1 n)
 
-InductiveFinSatAC : (n m : ℕ) → ∀ {ℓ} → satAC ℓ n (IndF.Fin m)
-InductiveFinSatAC n m {ℓ} =
-  subst (satAC ℓ n) (isoToPath (Iso-Fin-InductiveFin m)) (FinSatAC n m)
+InductiveFinSatAC : (n m : ℕ) → ∀ {ℓ} → satAC ℓ n (Fin m)
+InductiveFinSatAC n m {ℓ} = FinSatAC n m
 
-InductiveFinSatAC∃ : (n : ℕ) → satAC∃ ℓ ℓ' (IndF.Fin n)
-InductiveFinSatAC∃ {ℓ = ℓ} {ℓ'} n =
-  subst (satAC∃ ℓ ℓ') (isoToPath (Iso-Fin-InductiveFin n)) (satAC∃Fin n)
+InductiveFinSatAC∃ : (n : ℕ) → satAC∃ ℓ ℓ' (Fin n)
+InductiveFinSatAC∃ {ℓ = ℓ} {ℓ'} n = satAC∃Fin n

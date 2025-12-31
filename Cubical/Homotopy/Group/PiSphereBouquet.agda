@@ -20,7 +20,8 @@ open import Cubical.Algebra.Group.Instances.Pi
 open import Cubical.Axiom.Choice
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Fin
+open import Cubical.Data.Fin.Properties
 open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥

@@ -11,16 +11,18 @@ open import Cubical.Foundations.Transport
 open import Cubical.Functions.Embedding
 open import Cubical.Functions.Surjection
 
-open import Cubical.HITs.PropositionalTruncation renaming (rec to ∥∥rec)
+open import Cubical.HITs.PropositionalTruncation renaming (rec to ∥∥rec) hiding (elimFin)
 
 open import Cubical.Data.Fin.Base as Fin
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order.Inductive
+open import Cubical.Data.Bool hiding (_≤_ ; _≟_)
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Unit
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
-open import Cubical.Data.FinData.Base renaming (Fin to FinData) hiding (¬Fin0 ; toℕ)
+open import Cubical.Data.FinData.Base renaming (Fin to FinData) hiding (¬Fin0 ; toℕ ; predFin)
 
 open import Cubical.Relation.Nullary
 
@@ -38,12 +40,15 @@ private
 isPropFin0 : isProp (Fin 0)
 isPropFin0 = Empty.rec ∘ ¬Fin0
 
+isPropFin1 : isProp (Fin 1)
+isPropFin1 (zero , tt) (zero , tt) = refl
+
 -- Fin 1 has only one value.
 isContrFin1 : isContr (Fin 1)
 isContrFin1
   = fzero , λ
-  { (zero , _) → toℕ-injective refl
-  ; (suc k , sk<1) → Empty.rec (¬-<-zero (pred-≤-pred sk<1))
+  { (zero , _) → toℕ-injective {k = 1} refl
+  ; (suc k , sk<1) → Empty.rec sk<1
   }
 
 Unit≃Fin1 : Unit ≃ Fin 1
@@ -58,18 +63,18 @@ Unit≃Fin1 =
 
 -- Regardless of k, Fin k is a set.
 isSetFin : ∀{k} → isSet (Fin k)
-isSetFin {k} = isSetΣ isSetℕ (λ _ → isProp→isSet isProp≤)
+isSetFin {k} = isSetΣ isSetℕ (λ x → isProp→isSet (isProp<ᵗ {x} {k}))
 
 discreteFin : ∀ {n} → Discrete (Fin n)
 discreteFin {n} (x , hx) (y , hy) with discreteℕ x y
-... | yes prf = yes (Σ≡Prop (λ _ → isProp≤) prf)
+... | yes prf = yes (Σ≡Prop (λ z → isProp<ᵗ {z} {n}) prf)
 ... | no prf = no λ h → prf (cong fst h)
 
-inject<-ne : ∀ {n} (i : Fin n) → ¬ inject< ≤-refl i ≡ (n , ≤-refl)
-inject<-ne {n} (k , k<n) p = <→≢ k<n (cong fst p)
+inject<-ne : ∀ {n} (i : Fin n) → ¬ injectSuc i ≡ flast {k = n}
+inject<-ne {n} (k , k<nᵗ) p = <→≢ (<ᵗ→< k<nᵗ) (cong fst p)
 
 Fin-fst-≡ : ∀ {n} {i j : Fin n} → fst i ≡ fst j → i ≡ j
-Fin-fst-≡ = Σ≡Prop (λ _ → isProp≤)
+Fin-fst-≡ {n} = Σ≡Prop (λ x → isProp<ᵗ {x} {n})
 
 private
   subst-app : (B : A → Type b) (f : (x : A) → B x) {x y : A} (x≡y : x ≡ y) →
@@ -78,28 +83,28 @@ private
     J (λ y e → subst B e (f x) ≡ f y) (substRefl {B = B} (f x))
 
 -- Computation rules for the eliminator.
-module _ (P : ∀ {k} → Fin k → Type ℓ)
-         (fz : ∀ {k} → P {suc k} fzero)
-         (fs : ∀ {k} {fn : Fin k} → P fn → P (fsuc fn))
+module _ (P  : (k : ℕ) → Fin k → Type ℓ)
+         (fz : ∀ {k} → P (suc k) fzero)
+         (fs : ∀ {k} {fn : Fin k} → P k fn → P (suc k) (fsuc fn))
          {k : ℕ} where
-  elim-fzero : Fin.elim P fz fs {k = suc k} fzero ≡ fz
+
+  elim-fzero : Fin.elim P fz fs {k = suc k} fzero ≡ fz {k}
   elim-fzero =
-    subst P (toℕ-injective _) fz ≡⟨ cong (λ p → subst P p fz) (isSetFin _ _ _ _) ⟩
-    subst P refl fz              ≡⟨ substRefl {B = P} fz ⟩
-    fz                           ∎
+    let B = (λ z → P (suc k) z) in
+    subst B (toℕ-injective {suc k} refl) (fz {k})
+      ≡⟨ cong (λ p → subst B p (fz {k})) (isSetFin {suc k} _ _ _ _) ⟩
+    subst B refl (fz {k})
+      ≡⟨ substRefl {B = B} (fz {k}) ⟩
+    fz {k} ∎
 
   elim-fsuc : (fk : Fin k) → Fin.elim P fz fs (fsuc fk) ≡ fs (Fin.elim P fz fs fk)
   elim-fsuc fk =
-    subst P (toℕ-injective (λ _ → toℕ (fsuc fk′))) (fs (Fin.elim P fz fs fk′))
-      ≡⟨ cong (λ p → subst P p (fs (Fin.elim P fz fs fk′)) ) (isSetFin _ _ _ _) ⟩
-    subst P (cong fsuc fk′≡fk) (fs (Fin.elim P fz fs fk′))
-      ≡⟨ subst-app _ (λ fj → fs (Fin.elim P fz fs fj)) fk′≡fk ⟩
-    fs (Fin.elim P fz fs fk)
-      ∎
-    where
-    fk′ = fst fk , pred-≤-pred (snd (fsuc fk))
-    fk′≡fk : fk′ ≡ fk
-    fk′≡fk = toℕ-injective refl
+    let B = (λ z → P (suc k) z) in
+    subst B (toℕ-injective {suc k} refl) (fs (Fin.elim P fz fs fk))
+      ≡⟨ cong (λ p → subst B p (fs (Fin.elim P fz fs fk))) (isSetFin {suc k} _ _ _ _) ⟩
+    subst B refl (fs (Fin.elim P fz fs fk))
+      ≡⟨ substRefl {B = B} (fs (Fin.elim P fz fs fk)) ⟩
+    fs (Fin.elim P fz fs fk) ∎
 
 -- Helper function for the reduction procedure below.
 --
@@ -116,19 +121,19 @@ expand≡ k m (suc o)
 -- Expand a pair. This is useful because the whole function is
 -- injective.
 expand× : ∀{k} → (Fin k × ℕ) → ℕ
-expand× {k} (f , o) = expand o k (toℕ f)
+expand× {k} (f , o) = expand o k (toℕ {k} f)
 
 private
   lemma₀ : ∀{k m n r} → r ≡ n → k + m ≡ n → k ≤ r
   lemma₀ {k = k} {m} p q = m , +-comm m k ∙ q ∙ sym p
 
-  expand×Inj : ∀ k → {t1 t2 : Fin (suc k) × ℕ} → expand× t1 ≡ expand× t2 → t1 ≡ t2
+  expand×Inj : ∀ k → {t1 t2 : Fin (suc k) × ℕ} → expand× {suc k} t1 ≡ expand× {suc k} t2 → t1 ≡ t2
   expand×Inj k {f1 , zero} {f2 , zero} p i
-    = toℕ-injective {fj = f1} {f2} p i , zero
+    = toℕ-injective {suc k} {fj = f1} {f2} p i , zero
   expand×Inj k {f1 , suc o1} {(r , r<sk) , zero} p
-    = Empty.rec (<-asym r<sk (lemma₀ refl p))
+    = Empty.rec (<ᵗ-asym {r} {suc k} r<sk (lemma₀ refl p))
   expand×Inj k {(r , r<sk) , zero} {f2 , suc o2} p
-    = Empty.rec (<-asym r<sk (lemma₀ refl (sym p)))
+    = Empty.rec (<ᵗ-asym {r} {suc k} r<sk (lemma₀ refl (sym p)))
   expand×Inj k {f1 , suc o1} {f2 , suc o2}
     = cong (λ { (f , o) → (f , suc o) })
     ∘ expand×Inj k {f1 , o1} {f2 , o2}
@@ -142,7 +147,7 @@ private
 -- A Residue is a family of types representing evidence that a
 -- natural is congruent to a value of a finite type.
 Residue : ℕ → ℕ → Type₀
-Residue k n = Σ[ tup ∈ Fin k × ℕ ] expand× tup ≡ n
+Residue k n = Σ[ tup ∈ Fin k × ℕ ] expand× {k} tup ≡ n
 
 -- There is at most one canonical finite value congruent to each
 -- natural.
@@ -150,7 +155,7 @@ isPropResidue : ∀ k n → isProp (Residue k n)
 isPropResidue k = isEmbedding→hasPropFibers (expand×Emb k)
 
 -- A value of a finite type is its own residue.
-Fin→Residue : ∀{k} → (f : Fin k) → Residue k (toℕ f)
+Fin→Residue : ∀{k} → (f : Fin k) → Residue k (toℕ {k} f)
 Fin→Residue f = (f , 0) , refl
 
 -- Fibers of numbers that differ by k are equivalent in a more obvious
@@ -159,23 +164,23 @@ Residue+k : (k n : ℕ) → Residue k n → Residue k (k + n)
 Residue+k k n ((f , o) , p) = (f , suc o) , cong (k +_) p
 
 Residue-k : (k n : ℕ) → Residue k (k + n) → Residue k n
-Residue-k k n (((r , r<k) , zero) , p) = Empty.rec (<-asym r<k (lemma₀ p refl))
+Residue-k k n (((r , r<k) , zero) , p) = Empty.rec (<ᵗ-asym {r} {k} r<k (lemma₀ p refl))
 Residue-k k n ((f , suc o) , p) = ((f , o) , inj-m+ p)
 
 Residue+k-k
   : (k n : ℕ)
   → (R : Residue k (k + n))
   → Residue+k k n (Residue-k k n R) ≡ R
-Residue+k-k k n (((r , r<k) , zero) , p) = Empty.rec (<-asym r<k (lemma₀ p refl))
+Residue+k-k k n (((r , r<k) , zero) , p) = Empty.rec (<ᵗ-asym {r} {k} r<k (lemma₀ p refl))
 Residue+k-k k n ((f , suc o) , p)
-  = Σ≡Prop (λ tup → isSetℕ (expand× tup) (k + n)) refl
+  = Σ≡Prop (λ tup → isSetℕ (expand× {k} tup) (k + n)) refl
 
 Residue-k+k
   : (k n : ℕ)
   → (R : Residue k n)
   → Residue-k k n (Residue+k k n R) ≡ R
 Residue-k+k k n ((f , o) , p)
-  = Σ≡Prop (λ tup → isSetℕ (expand× tup) n) refl
+  = Σ≡Prop (λ tup → isSetℕ (expand× {k} tup) n) refl
 
 private
   Residue≃ : ∀ k n → Residue k n ≃ Residue k (k + n)
@@ -193,7 +198,7 @@ module Reduce (k₀ : ℕ) where
   k = suc k₀
 
   base : ∀ n (n<k : n < k) → Residue k n
-  base n n<k = Fin→Residue (n , n<k)
+  base n n<k = Fin→Residue (n , <→<ᵗ n<k)
 
   step : ∀ n → Residue k n → Residue k (k + n)
   step n = transport (Residue≡ k n)
@@ -233,7 +238,7 @@ isContrResidue {k} {n} = inhProp→isContr (reduce k n) (isPropResidue (suc k) n
 
 _%_ : ℕ → ℕ → ℕ
 n % zero = n
-n % (suc k) = toℕ (extract (reduce k n))
+n % (suc k) = toℕ {suc k} (extract (reduce k n))
 
 _/_ : ℕ → ℕ → ℕ
 n / zero = zero
@@ -246,8 +251,8 @@ moddiv n (suc k) = sym (expand≡ _ _ (n / suc k)) ∙ reduce k n .snd
 n%k≡n[modk] : ∀ n k → Σ[ o ∈ ℕ ] o · k + n % k ≡ n
 n%k≡n[modk] n k = (n / k) , moddiv n k
 
-n%sk<sk : (n k : ℕ) → (n % suc k) < suc k
-n%sk<sk n k = extract (reduce k n) .snd
+n%sk<ᵗsk : (n k : ℕ) → (n % suc k) <ᵗ suc k
+n%sk<ᵗsk n k = extract (reduce k n) .snd
 
 fznotfs : ∀ {m : ℕ} {k : Fin m} → ¬ fzero ≡ fsuc k
 fznotfs {m} p = subst F p tt
@@ -257,7 +262,7 @@ fznotfs {m} p = subst F p tt
     F (suc _ , _) = ⊥
 
 fsuc-inj : {fj fk : Fin n} → fsuc fj ≡ fsuc fk → fj ≡ fk
-fsuc-inj = toℕ-injective ∘ injSuc ∘ cong toℕ
+fsuc-inj {n} {fj} {fk} = toℕ-injective {n} {fj} {fk} ∘ injSuc ∘ cong (toℕ {k = suc n})
 
 punchOut : ∀ {m} {i j : Fin (suc m)} → (¬ i ≡ j) → Fin m
 punchOut {_} {i} {j} p with fsplit i | fsplit j
@@ -327,34 +332,34 @@ pigeonhole-special
   → Σ[ i ∈ Fin (suc n) ] Σ[ j ∈ Fin (suc n) ] (¬ i ≡ j) × (f i ≡ f j)
 pigeonhole-special {zero} f = Empty.rec (¬Fin0 (f fzero))
 pigeonhole-special {suc n} f =
-  proof (any?
+  proof (any? {n = suc n}
     (λ (i : Fin (suc n)) →
-      discreteFin (f (inject< ≤-refl i)) (f (suc n , ≤-refl))
+      discreteFin {suc n} (f (injectSuc i)) (f (suc n , <ᵗsucm {n}))
     ))
   where
     proof
-      : Dec (Σ (Fin (suc n)) (λ z → f (inject< ≤-refl z) ≡ f (suc n , ≤-refl)))
+      : Dec (Σ (Fin (suc n)) (λ z → f (injectSuc z) ≡ f (suc n , <ᵗsucm {n})))
       → Σ[ i ∈ Fin (suc (suc n)) ] Σ[ j ∈ Fin (suc (suc n)) ] (¬ i ≡ j) × (f i ≡ f j)
-    proof (yes (i , prf)) = inject< ≤-refl i , (suc n , ≤-refl) , inject<-ne i , prf
+    proof (yes (i , prf)) = injectSuc i , (suc n , <ᵗsucm {n}) , inject<-ne i , prf
     proof (no h) =
       let
         g : Fin (suc n) → Fin n
         g k = punchOut
-          {i = f (suc n , ≤-refl)}
-          {j = f (inject< ≤-refl k)}
-          (λ p → h (k , Fin-fst-≡ (sym (cong fst p))))
+          {i = f (suc n , <ᵗsucm {n})}
+          {j = f (injectSuc k)}
+          (λ p → h (k , Fin-fst-≡ {suc n} (sym (cong fst p))))
         i , j , i≢j , p = pigeonhole-special g
       in
-        inject< ≤-refl i
-      , inject< ≤-refl j
-      , (λ q → i≢j (Fin-fst-≡ (cong fst q)))
+        injectSuc i
+      , injectSuc j
+      , (λ q → i≢j (Fin-fst-≡ {suc n} (cong fst q)))
       , punchOut-inj
-          {i = f (suc n , ≤-refl)}
-          {j = f (inject< ≤-refl i)}
-          {k = f (inject< ≤-refl j)}
-          (λ q → h (i , Fin-fst-≡ (sym (cong fst q))))
-          (λ q → h (j , Fin-fst-≡ (sym (cong fst q))))
-          (Fin-fst-≡ (cong fst p))
+          {i = f (suc n , <ᵗsucm {n})}
+          {j = f (injectSuc i)}
+          {k = f (injectSuc j)}
+          (λ q → h (i , Fin-fst-≡ {suc n} (sym (cong fst q))))
+          (λ q → h (j , Fin-fst-≡ {suc n} (sym (cong fst q))))
+          (Fin-fst-≡ {n} (cong fst p))
 
 pigeonhole
   : ∀ {m n}
@@ -379,9 +384,9 @@ pigeonhole {m} {n} (zero , sm≡n) f =
 pigeonhole {m} {n} (suc k , prf) f =
   let
     g : Fin (suc n′) → Fin n′
-    g k = fst (f′ k) , <-trans (snd (f′ k)) m<n′
+    g k = fst (f′ k) , <ᵗ-trans {n = fst (f′ k)} {m = m} {k = n′} (snd (f′ k)) m<n′
     i , j , ¬q , r = pigeonhole-special g
-  in transport transport-prf (i , j , ¬q , Σ≡Prop (λ _ → isProp≤) (cong fst r))
+  in transport transport-prf (i , j , ¬q , Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = m}) (cong fst r))
   where
     n′ : ℕ
     n′ = k + suc m
@@ -392,8 +397,8 @@ pigeonhole {m} {n} (suc k , prf) f =
       suc (k + suc m) ≡⟨ refl ⟩
       suc n′ ∎
 
-    m<n′ : m < n′
-    m<n′ = k , injSuc (suc (k + suc m) ≡⟨ prf ⟩ n ≡⟨ n≡sn′ ⟩ suc n′ ∎)
+    m<n′ : m <ᵗ n′
+    m<n′ = subst (m <ᵗ_) (sym (+-suc k m)) (<ᵗ-+ {n = m} {k = k})
 
     f′ : Fin (suc n′) → Fin m
     f′ = subst (λ h → Fin h → Fin m) n≡sn′ f
@@ -440,8 +445,8 @@ Fin-inj n m p with n ≟ m
   r = d % suc k
   o = d / suc k
   resn·k : Residue (suc k) (n · suc k)
-  resn·k = ((r , n%sk<sk d k) , (o + m)) , reason where
-   reason = expand× ((r , n%sk<sk d k) , o + m) ≡⟨ expand≡ (suc k) r (o + m) ⟩
+  resn·k = ((r , n%sk<ᵗsk d k) , (o + m)) , reason where
+   reason = expand× ((r , n%sk<ᵗsk d k) , o + m) ≡⟨ expand≡ (suc k) r (o + m) ⟩
             (o + m) · suc k + r                 ≡[ i ]⟨ +-comm (·-distribʳ o m (suc k) (~ i)) r i ⟩
             r + (o · suc k + m · suc k)         ≡⟨ +-assoc r (o · suc k) (m · suc k) ⟩
             (r + o · suc k) + m · suc k         ≡⟨ cong (_+ m · suc k) (+-comm r (o · suc k) ∙ moddiv d (suc k)) ⟩
@@ -452,7 +457,7 @@ Fin-inj n m p with n ≟ m
   residuek·n _ _ = isContr→isProp isContrResidue _
 
   r≡0 : r ≡ 0
-  r≡0 = cong (toℕ ∘ extract) (sym (residuek·n k n resn·k))
+  r≡0 = cong (toℕ {suc k} ∘ extract) (sym (residuek·n k n resn·k))
   d≡o·sk : d ≡ o · suc k
   d≡o·sk = sym (moddiv d (suc k)) ∙∙ cong (o · suc k +_) r≡0 ∙∙ +-zero _
   goal : (o + m) · suc k ≡ n · suc k
@@ -472,44 +477,63 @@ factorEquiv : ∀ {n} {m} → Fin n × Fin m ≃ Fin (n · m)
 factorEquiv {zero} {m} = uninhabEquiv (¬Fin0 ∘ fst) ¬Fin0
 factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddingIntro , isSurjectionIntro) where
   intro : Fin (suc n) × Fin m → Fin (suc n · m)
-  intro (nn , mm) = nm , subst (λ nm₁ → nm₁ < suc n · m) (sym (expand≡ _ (toℕ nn) (toℕ mm))) nm<n·m where
+  intro (nn , mm) = nm , nm<ᵗn·m where
     nm : ℕ
-    nm = expand× (nn , toℕ mm)
-    nm<n·m : toℕ mm · suc n + toℕ nn < suc n · m
+    nm = expand× {suc n} (nn , toℕ {m} mm)
+    nn< : toℕ {k = suc n} nn < suc n
+    nn< = <ᵗ→< (snd nn)
+    mm<m : toℕ {k = m} mm < m
+    mm<m = <ᵗ→< (snd mm)
+    nm<n·m : toℕ {k = m} mm · suc n + toℕ {k = suc n} nn < suc n · m
     nm<n·m =
-      toℕ mm · suc n + toℕ nn <≤⟨ <-k+ (snd nn) ⟩
-      toℕ mm · suc n + suc n  ≡≤⟨ +-comm _ (suc n) ⟩
-      suc (toℕ mm) · suc n    ≤≡⟨ ≤-·k (snd mm) ⟩
-      m · suc n               ≡⟨ ·-comm _ (suc n) ⟩
-      suc n · m               ∎ where open <-Reasoning
+      toℕ {k = m} mm · suc n + toℕ {k = suc n} nn   <≤⟨ <-k+ nn< ⟩
+      toℕ {k = m} mm · suc n + suc n                ≡≤⟨ +-comm (toℕ {k = m} mm · suc n) (suc n) ⟩
+      suc (toℕ {k = m} mm) · suc n                  ≤≡⟨ ≤-·k mm<m ⟩
+      m · suc n                                     ≡⟨ sym (·-comm (suc n) m) ⟩
+      suc n · m                                     ∎ where open <-Reasoning
+
+    nm<ᵗn·m : nm <ᵗ (suc n · m)
+    nm<ᵗn·m = <→<ᵗ (subst (λ k → k < suc n · m) (sym (expand≡ (suc n) (toℕ {k = suc n} nn) (toℕ {k = m} mm))) nm<n·m)
 
   intro-injective : ∀ {o} {p} → intro o ≡ intro p → o ≡ p
-  intro-injective {o} {p} io≡ip = λ i → io′≡ip′ i .fst , toℕ-injective {fj = snd o} {fk = snd p} (cong snd io′≡ip′) i where
-    io′≡ip′ : (fst o , toℕ (snd o)) ≡ (fst p , toℕ (snd p))
-    io′≡ip′ = expand×Inj _ (cong fst io≡ip)
+  intro-injective {o} {p} io≡ip = λ i → io′≡ip′ i .fst , sndFin i where
+      io′≡ip′ : (fst o , toℕ {k = m} (snd o)) ≡ (fst p , toℕ {k = m} (snd p))
+      io′≡ip′ = expand×Inj _ (cong fst io≡ip)
+
+      sndFin : Path (Fin m) (snd o) (snd p)
+      sndFin = toℕ-injective {k = m} (cong snd io′≡ip′)
   isEmbeddingIntro : isEmbedding intro
-  isEmbeddingIntro = injEmbedding isSetFin intro-injective
+  isEmbeddingIntro = injEmbedding (isSetFin {k = suc n · m}) intro-injective
 
   elimF : ∀ nm → fiber intro nm
-  elimF nm = ((nn , nn<n) , (mm , mm<m)) , toℕ-injective (reduce n (toℕ nm) .snd) where
-    mm = toℕ nm / suc n
-    nn = toℕ nm % suc n
+  elimF nm = ((nnFin , mmFin) , toℕ-injective {k = suc n · m} (expand≡ (suc n) nn mm ∙ nmmoddiv)) where
+    k : ℕ
+    k = toℕ {k = suc n · m} nm
+    mm : ℕ
+    mm = k / suc n
+    nn : ℕ
+    nn = k % suc n
 
-    nmmoddiv : mm · suc n + nn ≡ toℕ nm
-    nmmoddiv = moddiv _ (suc n)
-    nn<n : nn < suc n
-    nn<n = n%sk<sk (toℕ nm) _
+    nmmoddiv : mm · suc n + nn ≡ k
+    nmmoddiv = moddiv k (suc n)
 
-    nmsnd : mm · suc n + nn < suc n · m
-    nmsnd = subst (λ l → l < suc n · m) (sym nmmoddiv) (snd nm)
     mm·sn<m·sn : mm · suc n < m · suc n
     mm·sn<m·sn =
       mm · suc n      ≤<⟨ nn , +-comm nn (mm · suc n) ⟩
-      mm · suc n + nn <≡⟨ nmsnd ⟩
+      mm · suc n + nn <≡⟨ subst (λ l → l < suc n · m) (sym nmmoddiv) (<ᵗ→< (snd nm)) ⟩
       suc n · m       ≡⟨ ·-comm (suc n) m ⟩
       m · suc n       ∎ where open <-Reasoning
+
     mm<m : mm < m
     mm<m = <-·sk-cancel mm·sn<m·sn
+    nnFin : Fin (suc n)
+    nnFin = nn , n%sk<ᵗsk k _
+    mmFin : Fin m
+    mmFin = mm , <→<ᵗ mm<m
+
+    eqNat : toℕ {k = suc n · m} (intro (nnFin , mmFin))
+          ≡ toℕ {k = suc n · m} nm
+    eqNat = expand≡ (suc n) nn mm ∙ nmmoddiv
 
   isSurjectionIntro : isSurjection intro
   isSurjectionIntro = ∣_∣₁ ∘ elimF
@@ -563,22 +587,22 @@ Iso.fun (Fin+≅Fin⊎Fin m n) = f
   where
     f : Fin (m + n) → Fin m ⊎ Fin n
     f (k , k<m+n) with k ≤? m
-    f (k , k<m+n) | inl k<m = inl (k , k<m)
-    f (k , k<m+n) | inr k≥m = inr (k ∸ m , ∸-<-lemma m n k k<m+n k≥m)
+    f (k , k<m+n) | inl k<m = inl (k , <→<ᵗ k<m) -- (k , k<m)
+    f (k , k<m+n) | inr k≥m = inr ((k ∸ m) , <→<ᵗ (∸-<-lemma m n k (<ᵗ→< k<m+n) k≥m))
 Iso.inv (Fin+≅Fin⊎Fin m n) = g
   where
     g :  Fin m  ⊎  Fin n  →  Fin (m + n)
-    g (inl (k , k<m)) = k     , o<m→o<m+n m n k k<m
-    g (inr (k , k<n)) = m + k , <-k+ k<n
+    g (inl (k , k<m)) = k     , <→<ᵗ (o<m→o<m+n m n k (<ᵗ→< k<m))
+    g (inr (k , k<n)) = m + k , <→<ᵗ (<-k+ {k = m} (<ᵗ→< k<n))
 Iso.sec (Fin+≅Fin⊎Fin m n) = sec-f-g
   where
     sec-f-g : _
     sec-f-g (inl (k , k<m)) with k ≤? m
-    sec-f-g (inl (k , k<m)) | inl _   = cong inl (Σ≡Prop (λ _ → isProp≤) refl)
-    sec-f-g (inl (k , k<m)) | inr m≤k = Empty.rec (¬-<-and-≥ k<m m≤k)
+    sec-f-g (inl (k , k<m)) | inl _   = cong inl (Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = m}) refl)
+    sec-f-g (inl (k , k<m)) | inr m≤k = Empty.rec (¬-<-and-≥ (<ᵗ→< k<m) m≤k)
     sec-f-g (inr (k , k<n)) with (m + k) ≤? m
     sec-f-g (inr (k , k<n)) | inl p   = Empty.rec (¬m+n<m {m} {k} p)
-    sec-f-g (inr (k , k<n)) | inr k≥m = cong inr (Σ≡Prop (λ _ → isProp≤) rem)
+    sec-f-g (inr (k , k<n)) | inr k≥m = cong inr (Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = n}) rem)
       where
         rem : (m + k) ∸ m ≡ k
         rem = subst (λ - → - ∸ m ≡ k) (+-comm k m) (m+n∸n=m m k)
@@ -586,40 +610,33 @@ Iso.ret  (Fin+≅Fin⊎Fin m n) = ret-f-g
   where
     ret-f-g : _
     ret-f-g (k , k<m+n) with k ≤? m
-    ret-f-g (k , k<m+n) | inl _   = Σ≡Prop (λ _ → isProp≤) refl
-    ret-f-g (k , k<m+n) | inr m≥k = Σ≡Prop (λ _ → isProp≤) (∸-lemma m≥k)
+    ret-f-g (k , k<m+n) | inl _   = Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = m + n}) refl
+    ret-f-g (k , k<m+n) | inr m≥k = Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = m + n}) (∸-lemma m≥k)
 
 Fin+≡Fin⊎Fin : (m n : ℕ) → Fin (m + n) ≡ Fin m ⊎ Fin n
 Fin+≡Fin⊎Fin m n = isoToPath (Fin+≅Fin⊎Fin m n)
 
 -- Equivalence between FinData and Fin
 
-sucFin : {N : ℕ} → Fin N → Fin (suc N)
-sucFin (k , n , p) = suc k , n , (+-suc _ _ ∙ cong suc p)
-
 FinData→Fin : (N : ℕ) → FinData N → Fin N
 FinData→Fin zero ()
-FinData→Fin (suc N) zero = 0 , suc-≤-suc zero-≤
-FinData→Fin (suc N) (suc k) = sucFin (FinData→Fin N k)
+FinData→Fin (suc N) zero = zero , tt
+FinData→Fin (suc N) (suc k) = fsuc (FinData→Fin N k)
 
 Fin→FinData : (N : ℕ) → Fin N → FinData N
-Fin→FinData zero (k , n , p) = Empty.rec (snotz (sym (+-suc n k) ∙ p))
-Fin→FinData (suc N) (0 , n , p) = zero
-Fin→FinData (suc N) ((suc k) , n , p) = suc (Fin→FinData N (k , n , p')) where
-  p' : n + suc k ≡ N
-  p' = injSuc (sym (+-suc n (suc k)) ∙ p)
+Fin→FinData zero (k , p) = Empty.rec p
+Fin→FinData (suc N) (0 , p) = zero
+Fin→FinData (suc N) ((suc k) , p) = suc (Fin→FinData N (k , p))
 
 secFin : (n : ℕ) → section (FinData→Fin n) (Fin→FinData n)
-secFin 0 (k , n , p) = Empty.rec (snotz (sym (+-suc n k) ∙ p))
-secFin (suc N) (0 , n , p) = Fin-fst-≡ refl
-secFin (suc N) (suc k , n , p) = Fin-fst-≡ (cong suc (cong fst (secFin N (k , n , p')))) where
-  p' : n + suc k ≡ N
-  p' = injSuc (sym (+-suc n (suc k)) ∙ p)
+secFin 0 (k , p) = Empty.rec p
+secFin (suc N) (0 , p) = Fin-fst-≡ {n = suc N} refl
+secFin (suc N) (suc k , p) = Fin-fst-≡ {n = suc N} (cong suc (cong fst (secFin N (k , p))))
 
 retFin : (n : ℕ) → retract (FinData→Fin n) (Fin→FinData n)
 retFin 0 ()
 retFin (suc N) zero = refl
-retFin (suc N) (suc k) = cong FinData.suc (cong (Fin→FinData N) (Fin-fst-≡ refl) ∙ retFin N k)
+retFin (suc N) (suc k) = cong FinData.suc (cong (Fin→FinData N) (Fin-fst-≡ {N} refl) ∙ retFin N k)
 
 FinDataIsoFin : (N : ℕ) → Iso (FinData N) (Fin N)
 Iso.fun (FinDataIsoFin N) = FinData→Fin N
@@ -683,38 +700,59 @@ CharacΠFinIso : ∀ {ℓ} (n : ℕ) {B : Fin (suc n) → Type ℓ}
   → Iso ((x : _) → B x) (B fzero × ((x : _) → B (fsuc x)))
 Iso.fun (CharacΠFinIso n {B = B}) f = f fzero , f ∘ fsuc
 Iso.inv (CharacΠFinIso n {B = B}) (x , f) (zero , p) =
-  subst B (Fin-fst-≡ {i = fzero} {j = zero , p} refl) x
+  subst B (Fin-fst-≡ {suc n}
+                     {i = fzero}
+                     {j = zero , p}
+                     refl) x
 Iso.inv (CharacΠFinIso n {B = B}) (x , f) (suc y , p) =
-  subst B (Fin-fst-≡ refl) (f (y , pred-≤-pred p))
+  subst B (Fin-fst-≡ {n = suc n}
+                     {i = fsuc (y , p)}
+                     {j = (suc y , p)}
+                     refl)
+                     (f (y , p))
 Iso.sec (CharacΠFinIso n {B = B}) (x , f) =
   ΣPathP ((λ j →
-    transp (λ i → B (isSetFin fzero fzero (Fin-fst-≡ (λ _ → zero)) refl j i)) j x)
+    transp (λ i → B (isSetFin {suc n}
+                  fzero fzero (Fin-fst-≡ {n = suc n}
+                                         {i = fzero}
+                                         {j = fzero}
+                                         (λ _ → zero))
+                              refl j i)) j x)
   , funExt λ x → (λ j → subst B (pathid x j)
-                           (f (fst x , pred-≤-pred (suc-≤-suc (snd x)))))
+                           (f (fst x , x .snd)))
                 ∙ (λ i → transp (λ j → B (path₃ x (i ∨ j))) i (f (path₂ x i))))
   where
   module _ (x : Fin n) where
     path₁ : _
-    path₁ = Fin-fst-≡ {i = (fsuc (fst x , pred-≤-pred (snd (fsuc x))))}
+    path₁ = Fin-fst-≡ {n = suc n}
+                      {i = (fsuc (fst x , x .snd))}
                       {j = fsuc x} refl
 
     path₂ : _
-    path₂ = Fin-fst-≡ refl
+    path₂ = Fin-fst-≡ {n = n} refl
 
     path₃ : _
     path₃ = cong fsuc path₂
 
     pathid : path₁ ≡ path₃
-    pathid = isSetFin _ _ _ _
+    pathid = isSetFin {suc n} _ _ _ _
 
 Iso.ret (CharacΠFinIso n {B = B}) f =
   funExt λ { (zero , p) j
-    → transp (λ i → B (Fin-fst-≡ {i = fzero} {j = zero , p} refl (i ∨ j)))
-              j (f (Fin-fst-≡ {i = fzero} {j = zero , p} refl j))
+    → transp (λ i → B (Fin-fst-≡ {n = suc n}
+                                 {i = fzero}
+                                 {j = zero , p}
+                                 refl (i ∨ j)))
+              j (f (Fin-fst-≡ {n = suc n}
+                              {i = fzero}
+                              {j = zero , p}
+                              refl j))
            ; (suc x , p) j → transp (λ i → B (q x p (i ∨ j))) j (f (q x p j))}
   where
   q : (x : _) (p : _) → _
-  q x p = Fin-fst-≡ {i = (fsuc (x , pred-≤-pred p))} {j = suc x , p} refl
+  q x p = Fin-fst-≡ {n = suc n} {i = (fsuc (x , p))}
+                    {j = suc x , p}
+                    refl
 
 -- properties of finite sums
 module _ (_+A_ : A → A → A) (0A : A)
@@ -722,7 +760,7 @@ module _ (_+A_ : A → A → A) (0A : A)
    where
   sumFinGen0 : (n : ℕ) (f : Fin n → A)
     → ((x : _) → f x ≡ 0A)
-    → sumFinGen _+A_ 0A f
+    → sumFinGen {n = n} _+A_ 0A f
     ≡ 0A
   sumFinGen0 zero f ind = refl
   sumFinGen0 (suc n) f ind =
@@ -744,40 +782,286 @@ module _ (_+A_ : A → A → A) (0A : A)
     sumFin-choose {zero} f a x p t = Empty.rec (¬Fin0 x)
     sumFin-choose {suc n} f a x p t with (n ≟ fst x)
     ... | lt x₁ =
-      Empty.rec (¬m<m {suc n} ((fst (snd x)) + fst x₁
-           , (sym (+-assoc (fst (snd x)) (fst x₁) (suc (suc n)))
-           ∙ (cong (fst (snd x) +_ ) (+-suc (fst x₁) (suc n))))
-           ∙ sym ((sym (snd x .snd))
-                ∙ cong (fst (snd x) +_) (sym (cong suc (x₁ .snd))))))
+      Empty.rec (¬m<m {suc n} ((fst (<ᵗ→< {n = x .fst} {suc n} (x .snd))) + fst x₁
+           , (sym (+-assoc (fst (<ᵗ→< {n = x .fst} {suc n} (x .snd))) (fst x₁) (suc (suc n)))
+           ∙ (cong (fst (<ᵗ→< {n = x .fst} {suc n} (x .snd)) +_ ) (+-suc (fst x₁) (suc n))))
+           ∙ sym ((sym (<ᵗ→< {n = x .fst} (x .snd) .snd))
+                ∙ cong (fst (<ᵗ→< {n = x .fst} {suc n} ((x .snd))) +_) (sym (cong suc (x₁ .snd))))))
     ... | eq x₁ =
       cong (f flast +A_) (sumFinGen0 n _
-        λ h → t _ λ q → ¬m<m (subst (_< n) (cong fst q ∙ sym x₁) (snd h)))
+        λ h → t _ λ q → ¬m<m (subst (_< n) (cong fst q ∙ sym x₁) (<ᵗ→< (h .snd))))
              ∙ rUnit _ ∙ sym (cong f x=flast) ∙ p
       where
       x=flast : x ≡ flast
-      x=flast = Σ≡Prop (λ _ → isProp≤) (sym x₁)
+      x=flast = Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = suc n}) (sym x₁)
     ... | gt x₁ =
       cong₂ _+A_
          (t flast (λ p → ¬m<m (subst (_< n) (sym (cong fst p)) x₁)))
          refl
       ∙ lUnitA _
-      ∙ sumFin-choose {n = n} (f ∘ injectSuc) a (fst x , x₁)
-          (cong f (Σ≡Prop (λ _ → isProp≤) refl) ∙ p)
-          λ a r → t (injectSuc a) λ d → r (Σ≡Prop (λ _ → isProp≤)
+      ∙ sumFin-choose {n = n} (f ∘ injectSuc) a (fst x , <→<ᵗ x₁)
+          (cong f (Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = suc n}) refl) ∙ p)
+          λ a r → t (injectSuc a) λ d → r (Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = n})
           (cong fst d))
 
     module _ (assocA : (x y z : A) → x +A (y +A z) ≡ (x +A y) +A z) where
       sumFinGenHom : (n : ℕ) (f g : Fin n → A)
-        → sumFinGen _+A_ 0A (λ x → f x +A g x)
-         ≡ (sumFinGen _+A_ 0A f +A sumFinGen _+A_ 0A g)
+        → sumFinGen {n = n} _+A_ 0A (λ x → f x +A g x)
+         ≡ (sumFinGen {n = n} _+A_ 0A f +A sumFinGen {n = n} _+A_ 0A g)
       sumFinGenHom zero f g = sym (rUnit 0A)
       sumFinGenHom (suc n) f g =
           cong ((f flast +A g flast) +A_) (sumFinGenHom n (f ∘ injectSuc) (g ∘ injectSuc))
         ∙ move4 (f flast) (g flast)
-                (sumFinGen _+A_ 0A (λ x → f (injectSuc x)))
-                (sumFinGen _+A_ 0A (λ x → g (injectSuc x)))
+                (sumFinGen {n = n} _+A_ 0A (λ x → f (injectSuc x)))
+                (sumFinGen {n = n} _+A_ 0A (λ x → g (injectSuc x)))
                 _+A_ assocA comm
 
 sumFinGenId : {n : ℕ} (_+_ : A → A → A) (0A : A)
-  (f g : Fin n → A) → f ≡ g → sumFinGen _+_ 0A f ≡ sumFinGen _+_ 0A g
-sumFinGenId _+_ 0A f g p i = sumFinGen _+_ 0A (p i)
+  (f g : Fin n → A) → f ≡ g → sumFinGen {n = n} _+_ 0A f ≡ sumFinGen {n = n} _+_ 0A g
+sumFinGenId {n = n} _+_ 0A f g p i = sumFinGen {n = n} _+_ 0A (p i)
+
+Fin≡ : {m : ℕ} (a b : Fin m) → fst a ≡ fst b → a ≡ b
+Fin≡ {m} (a , Ha) (b , Hb) H i =
+  (H i , hcomp (λ j → λ { (i = i0) → Ha
+                        ; (i = i1) → isProp<ᵗ {b}{m} (transp (λ j → H j <ᵗ m) i0 Ha) Hb j })
+               (transp (λ j → H (i ∧ j) <ᵗ m) (~ i) Ha))
+
+fsuc-injectSuc : {m : ℕ} (n : Fin m)
+  → injectSuc {n = suc m} (fsuc n) ≡ fsuc (injectSuc n)
+fsuc-injectSuc {m = suc m} (x , p) = toℕ-injective {suc (suc (suc m))} refl
+
+elimFin : ∀ {ℓ} {m : ℕ} {A : Fin (suc m) → Type ℓ}
+                 (max : A flast)
+                 (f : (x : Fin m) → A (injectSuc x))
+              → (x : _) → A x
+elimFin {m = zero} {A = A} max f (zero , p) = max
+elimFin {m = suc m} {A = A} max f (zero , p) = f (zero , tt)
+elimFin {m = suc zero} {A = A} max f (suc zero , p) = max
+elimFin {m = suc (suc m)} {A = A} max f (suc x , p) =
+  elimFin {m = suc m} {A = λ x → A (fsuc x)} max (λ t → f (fsuc t)) (x , p)
+
+elimFin-alt : ∀ {ℓ} {m : ℕ} {A : Fin (suc m) → Type ℓ}
+                 (max : A fzero)
+                 (f : (x : Fin m) → A (fsuc x))
+              → (x : _) → A x
+elimFin-alt {m = zero} max f (zero , p) = max
+elimFin-alt {m = suc m} max f (zero , p) = max
+elimFin-alt {m = suc m} max f (suc x , p) = f (x , p)
+
+elimFinβ : ∀ {ℓ} {m : ℕ} {A : Fin (suc m) → Type ℓ}
+                 (max : A flast)
+                 (f : (x : Fin m) → A (injectSuc x))
+              → ((elimFin {A = A} max f flast ≡ max))
+               × ((x : Fin m) → elimFin {A = A} max f (injectSuc x) ≡ f x)
+elimFinβ {m = zero} {A = A} max f = refl , λ {()}
+elimFinβ {m = suc zero} {A = A} max f = refl , λ {(zero , p) → refl}
+elimFinβ {m = suc (suc m)} {A = A} max f =
+  elimFinβ {m = (suc m)} {A = λ x → A (fsuc x)} max _ .fst
+  , elimFin-alt {m = (suc m)} {A = λ x → elimFin max f (injectSuc {n = suc (suc m)} x) ≡ f x}
+             refl
+             (elimFinβ {m = (suc m)} {A = λ x → A (fsuc x)} max _ .snd)
+
+inhabitedFibres?Fin : ∀ {ℓ} {A : Type ℓ}
+  (da : Discrete A) (n : ℕ) (f : Fin n → A)
+  → inhabitedFibres? f
+inhabitedFibres?Fin {A = A} da zero f y = inr λ x → Empty.rec (¬Fin0 x)
+inhabitedFibres?Fin {A = A} da (suc n) f y with da (f fzero) y
+... | yes p = inl (fzero , p)
+... | no ¬p with (inhabitedFibres?Fin da n (f ∘ fsuc) y)
+... | inl q = inl ((fsuc (fst q)) , snd q)
+... | inr q = inr (elimFin-alt ¬p q)
+
+-- Decompositions in terms of ⊎ and ×
+Iso-Fin1⊎Fin-FinSuc : {n : ℕ} → Iso (Fin 1 ⊎ Fin n) (Fin (suc n))
+Iso.fun (Iso-Fin1⊎Fin-FinSuc {n = n}) = ⊎.rec (λ _ → flast) injectSuc
+Iso.inv (Iso-Fin1⊎Fin-FinSuc {n = n}) = elimFin (inl flast) inr
+Iso.sec (Iso-Fin1⊎Fin-FinSuc {n = n}) =
+  let β = elimFinβ {m = n} {A = λ _ → Fin 1 ⊎ Fin n} (inl flast) inr in
+  elimFin (cong (⊎.rec (λ _ → flast) injectSuc) (β .fst))
+          (λ x → cong (⊎.rec (λ _ → flast) injectSuc) (β .snd x))
+Iso.ret (Iso-Fin1⊎Fin-FinSuc {n = n}) (inl (zero , p)) =
+  let β = elimFinβ {m = n} {A = λ _ → Fin 1 ⊎ Fin n} (inl flast) inr in
+  (β .fst) ∙ cong inl (Fin≡ {m = 1} flast (zero , p) refl)
+Iso.ret (Iso-Fin1⊎Fin-FinSuc {n = n}) (inr x) =
+  (elimFinβ {m = n} {A = λ _ → Fin 1 ⊎ Fin n} (inl flast) inr) .snd x
+
+Iso-Fin⊎Fin-Fin+ : {n m : ℕ} → Iso (Fin n ⊎ Fin m) (Fin (n + m))
+Iso.fun (Iso-Fin⊎Fin-Fin+ {n = zero} {m = m}) (inr x) = x
+Iso.inv (Iso-Fin⊎Fin-Fin+ {n = zero} {m = m}) x = inr x
+Iso.sec (Iso-Fin⊎Fin-Fin+ {n = zero} {m = m}) x = refl
+Iso.ret (Iso-Fin⊎Fin-Fin+ {n = zero} {m = m}) (inr x) = refl
+Iso-Fin⊎Fin-Fin+ {n = suc n} {m = m} =
+  compIso (⊎Iso (invIso Iso-Fin1⊎Fin-FinSuc) idIso)
+    (compIso ⊎-assoc-Iso
+      (compIso (⊎Iso idIso (Iso-Fin⊎Fin-Fin+ {n = n} {m = m}))
+        Iso-Fin1⊎Fin-FinSuc))
+
+Iso-Unit-Fin1 : Iso Unit (Fin 1)
+Iso.fun Iso-Unit-Fin1 tt = fzero
+Iso.inv Iso-Unit-Fin1 (x , p) = tt
+Iso.sec Iso-Unit-Fin1 (zero , p) = Σ≡Prop (λ z → isProp<ᵗ {z} {1}) refl
+Iso.ret Iso-Unit-Fin1 x = refl
+
+Iso-Bool-Fin2 : Iso Bool (Fin 2)
+Iso.fun Iso-Bool-Fin2 false = flast
+Iso.fun Iso-Bool-Fin2 true = fzero
+Iso.inv Iso-Bool-Fin2 (zero , p) = true
+Iso.inv Iso-Bool-Fin2 (suc x , p) = false
+Iso.sec Iso-Bool-Fin2 (zero , p) = refl
+Iso.sec Iso-Bool-Fin2 (suc zero , p) =
+  Σ≡Prop (λ z → isProp<ᵗ {z} {suc (suc zero)}) refl
+Iso.ret Iso-Bool-Fin2 false = refl
+Iso.ret Iso-Bool-Fin2 true = refl
+
+Iso-Fin×Fin-Fin· : {n m : ℕ} → Iso (Fin n × Fin m) (Fin (n · m))
+Iso-Fin×Fin-Fin· {n = zero} {m = m} =
+  iso (λ {()}) (λ{()}) (λ{()}) (λ{()})
+Iso-Fin×Fin-Fin· {n = suc n} {m = m} =
+  compIso
+    (compIso
+      (compIso (Σ-cong-iso-fst (invIso Iso-Fin1⊎Fin-FinSuc))
+        (compIso Σ-swap-Iso
+          (compIso ×DistR⊎Iso
+            (⊎Iso (compIso
+              (Σ-cong-iso-snd (λ _ → invIso Iso-Unit-Fin1)) rUnit×Iso)
+              Σ-swap-Iso))))
+      (⊎Iso idIso (Iso-Fin×Fin-Fin· {n})))
+    (Iso-Fin⊎Fin-Fin+ {n = m} {m = n · m})
+
+Iso-FinSuc→-Fin→× : ∀ {ℓ} (n : ℕ) {A : Fin (suc n) → Type ℓ}
+  → Iso ((x : Fin (suc n)) → A x)
+         (((x : _) → A (fsuc x)) × A fzero)
+fst (Iso.fun (Iso-FinSuc→-Fin→× n) f) x = f (fsuc x)
+snd (Iso.fun (Iso-FinSuc→-Fin→× n) f) = f fzero
+Iso.inv (Iso-FinSuc→-Fin→× n) (f , s) (zero , w) = s
+Iso.inv (Iso-FinSuc→-Fin→× (suc n)) (f , s) (suc t , w) = f (t , w)
+fst (Iso.sec (Iso-FinSuc→-Fin→× (suc n)) (f , s) i) (w , t) = f (w , t)
+snd (Iso.sec (Iso-FinSuc→-Fin→× n) (f , s) i) = s
+Iso.ret (Iso-FinSuc→-Fin→× n) f i (zero , tt) = f fzero
+Iso.ret (Iso-FinSuc→-Fin→× (suc n)) f i (suc s , t) = f (suc s , t)
+
+Iso-Fin×Bool-Fin : {n : ℕ} → Iso (Fin n × Bool) (Fin (2 · n))
+Iso-Fin×Bool-Fin {n} =
+  compIso (compIso Σ-swap-Iso
+    (Σ-cong-iso-fst Iso-Bool-Fin2)) (Iso-Fin×Fin-Fin· {n = 2} {m = n})
+
+module _ {m : ℕ} where
+  Fin→Unit⊎Fin : (x : Fin (suc m)) → Unit ⊎ Fin m
+  Fin→Unit⊎Fin = elimFin (inl tt) inr
+
+  Unit⊎Fin→Fin : Unit ⊎ Fin m → Fin (suc m)
+  Unit⊎Fin→Fin (inl x) = flast
+  Unit⊎Fin→Fin (inr x) = injectSuc x
+
+  Iso-Fin-Unit⊎Fin : Iso (Fin (suc m)) (Unit ⊎ Fin m)
+  Iso.fun Iso-Fin-Unit⊎Fin = Fin→Unit⊎Fin
+  Iso.inv Iso-Fin-Unit⊎Fin = Unit⊎Fin→Fin
+  Iso.sec Iso-Fin-Unit⊎Fin (inl x) = elimFinβ {m = m} {A = λ _ → Unit ⊎ Fin m} (inl tt) inr .fst
+  Iso.sec Iso-Fin-Unit⊎Fin (inr x) = elimFinβ {m = m} {A = λ _ → Unit ⊎ Fin m} (inl tt) inr .snd x
+  Iso.ret Iso-Fin-Unit⊎Fin =
+    elimFin {m = m} {A = λ x → Unit⊎Fin→Fin (Fin→Unit⊎Fin x) ≡ x}
+      (cong Unit⊎Fin→Fin (elimFinβ {m = m} {A = λ _ → Unit ⊎ Fin m} (inl tt) inr .fst))
+      (λ x → cong Unit⊎Fin→Fin (elimFinβ {m = m} {A = λ _ → Unit ⊎ Fin m} (inl tt) inr .snd x))
+
+
+-- Swapping two elements in Fin n
+module _ {n : ℕ} where
+  swapFin : (x y : Fin n) → Fin n → Fin n
+  swapFin (x , xp) (y , yp) (z , zp) with (discreteℕ z x) | (discreteℕ z y)
+  ... | yes p | yes p₁ = z , zp
+  ... | yes p | no ¬p = y , yp
+  ... | no ¬p | yes p = x , xp
+  ... | no ¬p | no ¬p₁ = (z , zp)
+
+  swapFinβₗ : (x y : Fin n) → swapFin x y x ≡ y
+  swapFinβₗ (x , xp) (y , yp) with (discreteℕ x x) | discreteℕ x y
+  ... | yes p | yes p₁ = Σ≡Prop (λ z → isProp<ᵗ {z} {n}) p₁
+  ... | yes p | no ¬p = refl
+  ... | no ¬p | q = Empty.rec (¬p refl)
+
+  swapFinβᵣ : (x y : Fin n) → swapFin x y y ≡ x
+  swapFinβᵣ (x , xp) (y , yp) with (discreteℕ y y) | discreteℕ y x
+  ... | yes p | yes p₁ = Σ≡Prop (λ z → isProp<ᵗ {z} {n}) p₁
+  ... | yes p | no ¬p = refl
+  ... | no ¬p | q = Empty.rec (¬p refl)
+
+  swapFin² : (x y z : Fin n) → swapFin x y (swapFin x y z) ≡ z
+  swapFin² (x , xp) (y , yp) (z , zp) with discreteℕ z x | discreteℕ z y
+  ... | yes p | yes p₁ = help
+    where
+    help : swapFin (x , xp) (y , yp) (z , zp) ≡ (z , zp)
+    help with discreteℕ z x | discreteℕ z y
+    ... | yes p | yes p₁ = refl
+    ... | yes p | no ¬p = Empty.rec (¬p p₁)
+    ... | no ¬p | r = Empty.rec (¬p p)
+  ... | yes p | no ¬q = help
+    where
+    help : swapFin (x , xp) (y , yp) (y , yp) ≡ (z , zp)
+    help with discreteℕ y x | discreteℕ y y
+    ... | yes p' | yes p₁ = Σ≡Prop (λ z → isProp<ᵗ {z} {n}) (p' ∙ sym p)
+    ... | no ¬p | yes p₁ = Σ≡Prop (λ z → isProp<ᵗ {z} {n})  (sym p)
+    ... | p | no ¬p = Empty.rec (¬p refl)
+  ... | no ¬p | yes p = help
+    where
+    help : swapFin (x , xp) (y , yp) (x , xp) ≡ (z , zp)
+    help with discreteℕ x y | discreteℕ x x
+    ... | yes p₁ | yes _ = Σ≡Prop (λ z → isProp<ᵗ {z} {n}) (p₁ ∙ sym p)
+    ... | no ¬p | yes _ = Σ≡Prop (λ z → isProp<ᵗ {z} {n})  (sym p)
+    ... | s | no ¬p = Empty.rec (¬p refl)
+  ... | no ¬p | no ¬q = help
+    where
+    help : swapFin (x , xp) (y , yp) (z , zp) ≡ (z , zp)
+    help with discreteℕ z x | discreteℕ z y
+    ... | yes p | yes p₁ = refl
+    ... | yes p | no ¬b = Empty.rec (¬p p)
+    ... | no ¬a | yes b = Empty.rec (¬q b)
+    ... | no ¬a | no ¬b = refl
+
+  swapFinIso : (x y : Fin n) → Iso (Fin n) (Fin n)
+  Iso.fun (swapFinIso x y) = swapFin x y
+  Iso.inv (swapFinIso x y) = swapFin x y
+  Iso.sec (swapFinIso x y) = swapFin² x y
+  Iso.ret (swapFinIso x y) = swapFin² x y
+
+module _ {ℓ : Level} {n : ℕ} {A : Fin n → Type ℓ} (x₀ : Fin n)
+  (pt : A x₀) (l : (x : Fin n) → ¬ x ≡ x₀ → A x) where
+  private
+    x = fst x₀
+    p = snd x₀
+  elimFinChoose : (x : _) → A x
+  elimFinChoose (x' , q) with (discreteℕ x x')
+  ... | yes p₁ = subst A (Σ≡Prop (λ z → isProp<ᵗ {z} {n}) p₁) pt
+  ... | no ¬p = l (x' , q) λ r → ¬p (sym (cong fst r))
+
+  elimFinChooseβ : (elimFinChoose x₀ ≡ pt)
+                × ((x : _) (q : ¬ x ≡ x₀) → elimFinChoose x ≡ l x q)
+  fst elimFinChooseβ with (discreteℕ x x)
+  ... | yes p₁ = (λ j → subst A (isSetFin {n} x₀ x₀ (Σ≡Prop (λ z → isProp<ᵗ {z} {n}) p₁) refl j) pt)
+                ∙ transportRefl pt
+  ... | no ¬p = Empty.rec (¬p refl)
+  snd elimFinChooseβ (x' , q) with (discreteℕ x x')
+  ... | yes p₁ = λ q → Empty.rec (q (Σ≡Prop (λ z → isProp<ᵗ {z} {n}) (sym p₁)))
+  ... | no ¬p = λ s → cong (l (x' , q)) (isPropΠ (λ _ → isProp⊥) _ _)
+
+containsTwoFin : {n : ℕ} (x : Fin (suc (suc n))) → Σ[ y ∈ Fin (suc (suc n)) ] ¬ x ≡ y
+containsTwoFin (zero , p) = (1 , p) , λ q → snotz (sym (cong fst q))
+containsTwoFin (suc x , p) = fzero , λ q → snotz (cong fst q)
+
+≠flast→<ᵗflast : {n : ℕ} → (x : Fin (suc n)) → ¬ x ≡ flast → fst x <ᵗ n
+≠flast→<ᵗflast = elimFin (λ p → Empty.rec (p refl)) λ p _ → snd p
+
+Fin≠Fin : {n m : ℕ} → ¬ (n ≡ m) → ¬ (Iso (Fin n) (Fin m))
+Fin≠Fin {n = zero} {m = zero} p = Empty.rec (p refl)
+Fin≠Fin {n = zero} {m = suc m} p q = Iso.inv q fzero .snd
+Fin≠Fin {n = suc n} {m = zero} p q = Iso.fun q fzero .snd
+Fin≠Fin {n = suc n} {m = suc m} p q =
+  Fin≠Fin {n = n} {m = m} (p ∘ cong suc)
+    (Iso⊎→Iso idIso help λ {(zero , tt)
+      → cong (Iso.inv (Iso-Fin1⊎Fin-FinSuc {n = m})) (swapFinβₗ (Iso.fun q flast) flast)
+       ∙ elimFinβ {m = m} (inl flast) inr .fst})
+  where
+  q^ : Iso (Fin (suc n)) (Fin (suc m))
+  q^ = compIso q (swapFinIso {suc m} (Iso.fun q flast) flast)
+
+  help : Iso (Fin 1 ⊎ Fin n) (Fin 1 ⊎ Fin m)
+  help = compIso Iso-Fin1⊎Fin-FinSuc (compIso q^ (invIso Iso-Fin1⊎Fin-FinSuc))

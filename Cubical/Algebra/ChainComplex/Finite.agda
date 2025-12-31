@@ -17,7 +17,7 @@ open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Base
 
 open import Cubical.Algebra.ChainComplex.Base
 open import Cubical.Algebra.Group.MorphismProperties
