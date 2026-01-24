@@ -141,16 +141,16 @@ module Equiv-Sn-Properties (n : ℕ) where
   ϕ₀str = snd e₀
   ϕ₀⁻¹ = inv (fst e₀)
   ϕ₀⁻¹str = snd (invGroupIso e₀)
-  ϕ₀-sect = rightInv (fst e₀)
-  ϕ₀-retr = leftInv (fst e₀)
+  ϕ₀-sect = sec (fst e₀)
+  ϕ₀-retr = ret (fst e₀)
 
   eₙ = invGroupIso (Hⁿ-Sⁿ≅ℤ n)
   ϕₙ = fun (fst eₙ)
   ϕₙstr = snd eₙ
   ϕₙ⁻¹ = inv (fst eₙ)
   ϕₙ⁻¹str = snd (invGroupIso eₙ)
-  ϕₙ-sect = rightInv (fst eₙ)
-  ϕₙ-retr = leftInv (fst eₙ)
+  ϕₙ-sect = sec (fst eₙ)
+  ϕₙ-retr = ret (fst eₙ)
 
 -----------------------------------------------------------------------------
 -- Partition of ℕ
@@ -404,8 +404,8 @@ module _ (n : ℕ) where
     is : Iso ℤ[x]/x² (H* (S₊ (suc n)))
     fun is = ℤ[x]/x²→H*-Sⁿ
     inv is = H*-Sⁿ→ℤ[x]/x²
-    rightInv is = e-sect
-    leftInv is = e-retr
+    sec is = e-sect
+    ret is = e-retr
   snd Sⁿ-CohomologyRing = snd ℤ[X]/X²→H*R-Sⁿ
 
   CohomologyRing-Sⁿ : RingEquiv (H*R (S₊ (suc n))) (CommRing→Ring ℤ[X]/X²)

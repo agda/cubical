@@ -416,6 +416,6 @@ module _
     is : Iso (⊕HIT ℕ G Gstr) (⊕Fun G Gstr)
     fun is = ⊕HIT→⊕Fun
     Iso.inv is = ⊕Fun→⊕HIT
-    rightInv is = e-sect
-    leftInv is = e-retr
+    sec is = e-sect
+    ret is = e-retr
   snd Equiv-DirectSum = makeIsGroupHom ⊕HIT→⊕Fun-pres+

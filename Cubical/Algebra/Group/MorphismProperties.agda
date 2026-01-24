@@ -257,10 +257,10 @@ fun (fst (GroupIsoDirProd iso1 iso2)) prod =
   fun (fst iso1) (fst prod) , fun (fst iso2) (snd prod)
 inv (fst (GroupIsoDirProd iso1 iso2)) prod =
   inv (fst iso1) (fst prod) , inv (fst iso2) (snd prod)
-rightInv (fst (GroupIsoDirProd iso1 iso2)) a =
-  ΣPathP (rightInv (fst iso1) (fst a) , (rightInv (fst iso2) (snd a)))
-leftInv (fst (GroupIsoDirProd iso1 iso2)) a =
-  ΣPathP (leftInv (fst iso1) (fst a) , (leftInv (fst iso2) (snd a)))
+sec (fst (GroupIsoDirProd iso1 iso2)) a =
+  ΣPathP (sec (fst iso1) (fst a) , (sec (fst iso2) (snd a)))
+ret (fst (GroupIsoDirProd iso1 iso2)) a =
+  ΣPathP (ret (fst iso1) (fst a) , (ret (fst iso2) (snd a)))
 snd (GroupIsoDirProd iso1 iso2) = makeIsGroupHom λ a b →
   ΣPathP (pres· (snd iso1) (fst a) (fst b) , pres· (snd iso2) (snd a) (snd b))
 
@@ -302,8 +302,8 @@ BijectionIso→GroupIso {G = G} {H = H} i = grIso
   grIso : GroupIso G H
   fun (fst grIso) = f
   inv (fst grIso) b = rec (helper b) (λ a → a) (surj i b) .fst
-  rightInv (fst grIso) b = rec (helper b) (λ a → a) (surj i b) .snd
-  leftInv (fst grIso) b j = rec (helper (f b)) (λ a → a)
+  sec (fst grIso) b = rec (helper b) (λ a → a) (surj i b) .snd
+  ret (fst grIso) b j = rec (helper (f b)) (λ a → a)
                                  (isPropPropTrunc (surj i (f b)) ∣ b , refl ∣₁ j) .fst
   snd grIso = snd (fun i)
 

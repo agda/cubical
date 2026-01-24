@@ -52,18 +52,18 @@ inv Susp-iso-joinBool (inr false) = south
 inv Susp-iso-joinBool (inl _) = north
 inv Susp-iso-joinBool (push a true  i) = north
 inv Susp-iso-joinBool (push a false i) = merid a i
-rightInv Susp-iso-joinBool (inr true ) = refl
-rightInv Susp-iso-joinBool (inr false) = refl
-rightInv Susp-iso-joinBool (inl a) = sym (push a true)
-rightInv Susp-iso-joinBool (push a true  i) j = push a true (i ∨ ~ j)
-rightInv Susp-iso-joinBool (push a false i) j
+sec Susp-iso-joinBool (inr true ) = refl
+sec Susp-iso-joinBool (inr false) = refl
+sec Susp-iso-joinBool (inl a) = sym (push a true)
+sec Susp-iso-joinBool (push a true  i) j = push a true (i ∨ ~ j)
+sec Susp-iso-joinBool (push a false i) j
   = hcomp (λ k → λ { (i = i0) → push a true (~ j)
                    ; (i = i1) → push a false k
                    ; (j = i1) → push a false (i ∧ k) })
           (push a true (~ i ∧ ~ j))
-leftInv Susp-iso-joinBool north = refl
-leftInv Susp-iso-joinBool south = refl
-leftInv (Susp-iso-joinBool {A = A}) (merid a i) j
+ret Susp-iso-joinBool north = refl
+ret Susp-iso-joinBool south = refl
+ret (Susp-iso-joinBool {A = A}) (merid a i) j
   = hcomp (λ k → λ { (i = i0) → transp (λ _ → Susp A) (k ∨ j) north
                    ; (i = i1) → transp (λ _ → Susp A) (k ∨ j) (merid a k)
                    ; (j = i1) → merid a (i ∧ k) })
@@ -119,12 +119,12 @@ Susp≡PushoutSusp* {ℓ} {ℓ'} {ℓ''} = ua
 congSuspIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso A B → Iso (Susp A) (Susp B)
 fun (congSuspIso is) = suspFun (fun is)
 inv (congSuspIso is) = suspFun (inv is)
-rightInv (congSuspIso is) north = refl
-rightInv (congSuspIso is) south = refl
-rightInv (congSuspIso is) (merid a i) j = merid (rightInv is a j) i
-leftInv (congSuspIso is) north = refl
-leftInv (congSuspIso is) south = refl
-leftInv (congSuspIso is) (merid a i) j = merid (leftInv is a j) i
+sec (congSuspIso is) north = refl
+sec (congSuspIso is) south = refl
+sec (congSuspIso is) (merid a i) j = merid (sec is a j) i
+ret (congSuspIso is) north = refl
+ret (congSuspIso is) south = refl
+ret (congSuspIso is) (merid a i) j = merid (ret is a j) i
 
 congSuspEquiv : ∀ {ℓ} {A B : Type ℓ} → A ≃ B → Susp A ≃ Susp B
 congSuspEquiv {ℓ} {A} {B} h = isoToEquiv (congSuspIso (equivToIso h))
@@ -184,10 +184,10 @@ Iso.fun funSpaceSuspIso (x , y , f) north = x
 Iso.fun funSpaceSuspIso (x , y , f) south = y
 Iso.fun funSpaceSuspIso (x , y , f) (merid a i) = f a i
 Iso.inv funSpaceSuspIso f = (f north) , (f south , (λ x → cong f (merid x)))
-Iso.rightInv funSpaceSuspIso f = funExt λ {north → refl
+Iso.sec funSpaceSuspIso f = funExt λ {north → refl
                                              ; south → refl
                                              ; (merid a i) → refl}
-Iso.leftInv funSpaceSuspIso _ = refl
+Iso.ret funSpaceSuspIso _ = refl
 
 toSusp : (A : Pointed ℓ) → typ A → typ (Ω (Susp∙ (typ A)))
 toSusp A x = merid x ∙ merid (pt A) ⁻¹
@@ -214,7 +214,7 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} where
   ΩSuspAdjointIso : Iso (A →∙ Ω B) (Susp∙ (typ A) →∙ B)
   fun ΩSuspAdjointIso = toΩ→fromSusp
   inv ΩSuspAdjointIso = fromSusp→toΩ
-  rightInv ΩSuspAdjointIso f =
+  sec ΩSuspAdjointIso f =
     ΣPathP (funExt
       (λ { north → sym (snd f)
          ; south → sym (snd f) ∙ cong (fst f) (merid (pt A))
@@ -226,7 +226,7 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} where
                            ; (j = i1) → fst f (merid a i)})
                  (fst f (compPath-filler (merid a) (sym (merid (pt A))) (~ j) i))})
          , λ i j → snd f (~ i ∨ j))
-  leftInv ΩSuspAdjointIso f =
+  ret ΩSuspAdjointIso f =
     →∙Homogeneous≡ (isHomogeneousPath _ _)
       (funExt λ x → sym (rUnit _)
              ∙ cong-∙ (fst (toΩ→fromSusp f)) (merid x) (sym (merid (pt A)))
@@ -250,8 +250,8 @@ invSusp² (merid a i) = refl
 invSuspIso : ∀ {ℓ} {A : Type ℓ} → Iso (Susp A) (Susp A)
 fun invSuspIso = invSusp
 inv invSuspIso = invSusp
-rightInv invSuspIso = invSusp²
-leftInv invSuspIso = invSusp²
+sec invSuspIso = invSusp²
+ret invSuspIso = invSusp²
 
 
 -- Explicit definition of the iso
@@ -381,8 +381,8 @@ module _ {A B : Pointed ℓ} where
     Iso (join (Susp (typ A)) (typ B)) (Susp (join (typ A) (typ B)))
   Iso.fun Iso-joinSusp-suspJoin = joinSusp→suspJoin
   Iso.inv Iso-joinSusp-suspJoin = suspJoin→joinSusp
-  Iso.rightInv Iso-joinSusp-suspJoin = suspJoin→joinSusp→suspJoin
-  Iso.leftInv Iso-joinSusp-suspJoin = joinSusp→suspJoin→joinSusp
+  Iso.sec Iso-joinSusp-suspJoin = suspJoin→joinSusp→suspJoin
+  Iso.ret Iso-joinSusp-suspJoin = joinSusp→suspJoin→joinSusp
 
 -- interaction between invSusp and toSusp
 toSusp-invSusp : (A : Pointed ℓ) (x : Susp (typ A))

@@ -180,8 +180,8 @@ private
       isom : Iso _ _
       isom .fun = fwd A B e
       isom .inv = bwd A B e
-      isom .rightInv = fwdBwd A B e
-      isom .leftInv = bwdFwd A B e
+      isom .sec = fwdBwd A B e
+      isom .ret = bwdFwd A B e
 
   ExplicitUnivalentDesc : ∀ ℓ {ℓ₁ ℓ₁'} → (d : M.Desc ℓ ℓ₁ ℓ₁') → Type _
   ExplicitUnivalentDesc _ d =

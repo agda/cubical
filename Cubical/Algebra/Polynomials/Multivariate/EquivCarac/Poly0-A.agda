@@ -86,6 +86,6 @@ module _ (A' : CommRing ℓ) where
     is : Iso (Poly A' 0) (A' .fst)
     Iso.fun is = Poly0→A
     Iso.inv is = A→Poly0
-    Iso.rightInv is = e-sect
-    Iso.leftInv is = e-retr
+    Iso.sec is = e-sect
+    Iso.ret is = e-retr
   snd CRE-Poly0-A = makeIsCommRingHom Poly0→A-pres1 Poly0→A-pres+ Poly0→A-pres·

@@ -12,7 +12,7 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
-open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Fin
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_·_ to _·ℤ_ ; -_ to -ℤ_)
 open import Cubical.Data.Empty as ⊥
@@ -327,7 +327,7 @@ bouquetDegreeSusp {n = suc n} {m = m} {k = k} f =
                      (sym (rUnit refl)) ∙ ΩKn+1→Kn-refl (suc n))
       ... | eq x = sym (cong (ΩKn+1→Kn (suc n))
                          (cong (cong ∣_∣ₕ) (sym (rUnit (σSn (suc n) y))))
-                 ∙ Iso.leftInv (Iso-Kn-ΩKn+1 (suc n)) ∣ y ∣)
+                 ∙ Iso.ret (Iso-Kn-ΩKn+1 (suc n)) ∣ y ∣)
       ... | gt x = sym (cong (ΩKn+1→Kn (suc n)) (sym (rUnit refl))
                       ∙ ΩKn+1→Kn-refl (suc n))
 
@@ -345,7 +345,7 @@ bouquetDegreeSusp {n = suc n} {m = m} {k = k} f =
                          (merid (pickPetal b (f (inr (z , a)))))
                          (sym (merid (ptSn (suc n)))) (~ r) i ∣ₕ
          ; (j = i1) → (cong (Kn→ΩKn+1 (suc n)) (f₁≡f₂ b (f (inr (z , a))))
-                     ∙ Iso.rightInv (Iso-Kn-ΩKn+1 (suc n))
+                     ∙ Iso.sec (Iso-Kn-ΩKn+1 (suc n))
                         (λ i → ∣ pickPetal b (bouquetSusp→ f
                                   (inr (z , merid a i))) ∣)) r i})
           (Kn→ΩKn+1 (suc n) ∣ pickPetal b (f (inr (z , a))) ∣ i)

@@ -9,15 +9,44 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 
+open import Cubical.Data.Bool.Base hiding (_≟_)
+
+open import Cubical.Induction.WellFounded
+
 open import Cubical.Relation.Nullary
 
 -- TODO: unify with recursive.agda
 
--- inductive definition of <
+-- alternative definition of <
 _<ᵗ_ : (n m : ℕ) → Type
-n <ᵗ zero = ⊥
-zero <ᵗ suc m = Unit
-suc n <ᵗ suc m = n <ᵗ m
+n <ᵗ m = Bool→Type (n <ᵇ m)
+
+_≤ᵗ_ : (n m : ℕ) → Type
+n ≤ᵗ m = n <ᵗ suc m
+
+_>ᵗ_ : (n m : ℕ) → Type
+n >ᵗ m = m <ᵗ n
+
+_≥ᵗ_ : (n m : ℕ) → Type
+n ≥ᵗ m = m ≤ᵗ n
+
+-- <ᵗ satisfies the following judgmental equalities,
+-- which give <ᵗ an "inductive" presentation, justifying the module name:
+private
+  _ : ∀ {n} → n <ᵗ zero ≡ ⊥
+  _ = refl
+
+  _ : ∀ {m} → zero <ᵗ suc m ≡ Unit
+  _ = refl
+
+  _ : ∀ {n m} → suc n <ᵗ suc m ≡ n <ᵗ m
+  _ = refl
+
+  -- direct inductive definition (avoided for performance reasons):
+  -- _<ᵗ_ : (n m : ℕ) → Type
+  -- n <ᵗ zero = ⊥
+  -- zero <ᵗ suc m = Unit
+  -- suc n <ᵗ suc m = n <ᵗ m
 
 data Trichotomyᵗ (m n : ℕ) : Type₀ where
   lt : m <ᵗ n → Trichotomyᵗ m n
@@ -78,6 +107,19 @@ isProp<ᵗ {n = suc n} {suc m} = isProp<ᵗ {n = n} {m = m}
 <→<ᵗ {n = suc n} {m = zero} x =
   snotz (sym (+-suc (fst x) (suc n)) ∙ snd x)
 <→<ᵗ {n = suc n} {m = suc m} p = <→<ᵗ {n = n} {m = m} (pred-≤-pred p)
+
+<ᵗ-asym : ∀ {m n} → m <ᵗ n → n ≤ m → ⊥
+<ᵗ-asym p = <-asym (<ᵗ→< p)
+
+private
+  acc-suc : ∀ {n} → Acc _<ᵗ_ n → Acc _<ᵗ_ (suc n)
+  acc-suc {n} (acc ih) = acc λ where
+      zero    _  → acc (λ m p → ⊥.rec p)
+      (suc m) p  → acc-suc (ih m p)
+
+<ᵗ-wellfounded : WellFounded _<ᵗ_
+<ᵗ-wellfounded zero = acc λ _ → ⊥.rec
+<ᵗ-wellfounded (suc n) = acc-suc ((<ᵗ-wellfounded n))
 
 module _ {n m : ℕ} where
   isPropTrichotomyᵗ : isProp (Trichotomyᵗ n m)

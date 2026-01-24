@@ -107,14 +107,14 @@ decodeℕ (suc n) (suc m) = λ r → cong suc (decodeℕ n m r)
   is : Iso (n ≡ m) (codeℕ n m)
   Iso.fun is = encodeℕ n m
   Iso.inv is = decodeℕ n m
-  Iso.rightInv is = sect n m
+  Iso.sec is = sect n m
     where
     sect : (n m : ℕ) → (r : codeℕ n m) → (encodeℕ n m (decodeℕ n m r) ≡ r)
     sect zero zero tt = refl
     sect zero (suc m) r = ⊥.rec r
     sect (suc n) zero r = ⊥.rec r
     sect (suc n) (suc m) r = sect n m r
-  Iso.leftInv is = retr n m
+  Iso.ret is = retr n m
     where
     reflRetr : (n : ℕ) → decodeℕ n n (encodeℕ n n refl) ≡ refl
     reflRetr zero = refl
@@ -130,12 +130,12 @@ decodeℕ (suc n) (suc m) = λ r → cong suc (decodeℕ n m r)
   is : Iso (n ≡ m) (codeℕ n m)
   Iso.fun is = compute-eqℕ n m
   Iso.inv is = decodeℕ n m
-  Iso.rightInv is = sect n m
+  Iso.sec is = sect n m
     where
     sect : (n m : ℕ) → (r : codeℕ n m) → compute-eqℕ n m (decodeℕ n m r) ≡ r
     sect zero zero tt = refl
     sect (suc n) (suc m) r = sect n m r
-  Iso.leftInv is = retr n m
+  Iso.ret is = retr n m
     where
     reflRetr : (n : ℕ) → decodeℕ n n (compute-eqℕ n n refl) ≡ refl
     reflRetr zero = refl

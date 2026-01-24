@@ -139,9 +139,9 @@ module _ {G' : Group ℓ} (H' : NormalSubgroup G')
   Iso.fun (fst trivialRelIso) g = [ g ]
   Iso.inv (fst trivialRelIso) =
     rec is-set (λ g → g) contrH
-  Iso.rightInv (fst trivialRelIso) =
+  Iso.sec (fst trivialRelIso) =
     elimProp (λ _ → squash/ _ _) λ _ → refl
-  Iso.leftInv (fst trivialRelIso) _ = refl
+  Iso.ret (fst trivialRelIso) _ = refl
   snd trivialRelIso =
     makeIsGroupHom λ _ _ → refl
 
@@ -169,10 +169,10 @@ Iso.fun (fst (Hom/Iso {G' = G'} {H' = H'} ϕ ϕ' ψ')) =
   fst (Hom/ {G' = G'} {H' = H'} (GroupIso→GroupHom ϕ) ϕ')
 Iso.inv (fst (Hom/Iso {G' = G'} {H' = H'} ϕ ϕ' ψ')) =
   fst (Hom/ {G' = H'} {H' = G'} (GroupIso→GroupHom (invGroupIso ϕ)) ψ')
-Iso.rightInv (fst (Hom/Iso ϕ ϕ' ψ')) =
-  elimProp (λ _ → squash/ _ _) λ a → cong [_] (Iso.rightInv (fst ϕ) a)
-Iso.leftInv (fst (Hom/Iso ϕ ϕ' ψ')) =
-  elimProp (λ _ → squash/ _ _) λ a → cong [_] (Iso.leftInv (fst ϕ) a)
+Iso.sec (fst (Hom/Iso ϕ ϕ' ψ')) =
+  elimProp (λ _ → squash/ _ _) λ a → cong [_] (Iso.sec (fst ϕ) a)
+Iso.ret (fst (Hom/Iso ϕ ϕ' ψ')) =
+  elimProp (λ _ → squash/ _ _) λ a → cong [_] (Iso.ret (fst ϕ) a)
 snd (Hom/Iso {G' = G'} {H' = H'} ϕ ϕ' ψ') =
   makeIsGroupHom λ x y
     → IsGroupHom.pres· (snd (Hom/ {G' = G'} {H' = H'}
@@ -206,6 +206,6 @@ Hom/ImIso {G = G} {H} ϕ {G'} {H'} ψ {ϕ'} {ψ'} eG eH e∼ =
         ∙ sym (IsGroupHom.pres· (snd (invGroupIso eH))
                                 a (GroupStr.inv (H' .snd) b))
         ∙ cong (Iso.inv (fst eH)) (sym p)
-        ∙ cong (Iso.inv (fst eH) ∘ fst ψ) (sym (Iso.rightInv (fst eG) x)))
+        ∙ cong (Iso.inv (fst eH) ∘ fst ψ) (sym (Iso.sec (fst eG) x)))
        ∙ cong (Iso.inv (fst eH)) (e∼ (Iso.inv (fst eG) x))
-       ∙ Iso.leftInv (fst eH) _)))
+       ∙ Iso.ret (fst eH) _)))

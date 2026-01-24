@@ -191,8 +191,8 @@ Abelianizeπ₁≅π₁ᵃᵇ : ∀ {ℓ} (A : Pointed ℓ)
   → AbGroupIso (AbelianizationAbGroup (πGr 0 A)) (π₁ᵃᵇAbGroup A)
 Iso.fun (fst (Abelianizeπ₁≅π₁ᵃᵇ A)) = fst Abelianizeπ₁→π₁ᵃᵇ
 Iso.inv (fst (Abelianizeπ₁≅π₁ᵃᵇ A)) = π₁ᵃᵇ→Abelianizeπ₁
-Iso.rightInv (fst (Abelianizeπ₁≅π₁ᵃᵇ A)) =
+Iso.sec (fst (Abelianizeπ₁≅π₁ᵃᵇ A)) =
   ST.elim (λ _ → isSetPathImplicit) (elimProp≡ᵃᵇ (λ _ → squash₂ _ _) λ p → refl)
-Iso.leftInv (fst (Abelianizeπ₁≅π₁ᵃᵇ A)) = Abi.elimProp _ (λ _ → isset _ _)
+Iso.ret (fst (Abelianizeπ₁≅π₁ᵃᵇ A)) = Abi.elimProp _ (λ _ → isset _ _)
   (ST.elim (λ _ → isOfHLevelPath 2 isset _ _) λ p → refl)
 snd (Abelianizeπ₁≅π₁ᵃᵇ A) = Abelianizeπ₁→π₁ᵃᵇ {A = A} .snd

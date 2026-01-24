@@ -18,6 +18,7 @@ open import Cubical.Data.Int as ℤ
 open import Cubical.Data.Nat renaming (_·_ to _·ℕ_ ; _+_ to _+ℕ_)
 open import Cubical.Data.Nat.Mod
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Sum renaming (rec to ⊎-rec)
 open import Cubical.Data.Unit
@@ -204,7 +205,7 @@ Iso-pres-gen₁ : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') (g : fst G)
   → gen₁-by H (fun (fst e) g)
 Iso-pres-gen₁ G H g genG is h =
     (fst (genG (inv (fst is) h)))
-  , (sym (rightInv (fst is) h)
+  , (sym (sec (fst is) h)
     ∙∙ cong (fun (fst is)) (snd (genG (inv (fst is) h)))
     ∙∙ (homPresℤ· (_ , snd is) g (fst (genG (inv (fst is) h)))))
 
@@ -213,7 +214,7 @@ Iso-pres-gen₂ : (G : Group ℓ) (H : Group ℓ') (g₁ g₂ : fst G)
   → gen₂-by H (fun (fst e) g₁) (fun (fst e) g₂)
 fst (Iso-pres-gen₂ G H g₁ g₂ genG is h) = genG (inv (fst is) h) .fst
 snd (Iso-pres-gen₂ G H g₁ g₂ genG is h) =
-     sym (rightInv (fst is) h)
+     sym (sec (fst is) h)
   ∙∙ cong (fun (fst is)) (snd (genG (inv (fst is) h)))
   ∙∙ (pres· (snd is) _ _
   ∙ cong₂ (_·_ (snd H))
@@ -516,13 +517,13 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
     where
     lem : (x : ℤ) → ℤ→Fin n (pos (suc n) * x) ≡ 0
     lem (pos x) = cong (ℤ→Fin n) (sym (pos· (suc n) x))
-                 ∙ Σ≡Prop (λ _ → isProp≤)
+                 ∙ Σ≡Prop (λ _ → isProp<ᵗ)
                     (cong (_mod (suc n)) (·-comm (suc n) x)
                     ∙ zero-charac-gen (suc n) x)
     lem (negsuc x) =
          cong (ℤ→Fin n) (pos·negsuc (suc n) x
                         ∙ cong -_ (sym (pos· (suc n) (suc x))))
-      ∙∙ cong -ₘ_ (Σ≡Prop (λ _ → isProp≤)
+      ∙∙ cong -ₘ_ (Σ≡Prop (λ _ → isProp<ᵗ)
                     (cong (_mod (suc n)) (·-comm (suc n) (suc x))
                     ∙ zero-charac-gen (suc n) (suc x)))
       ∙∙ GroupTheory.inv1g (ℤGroup/ (suc n))
@@ -548,14 +549,14 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
                           ∙∙ cong -_ (sym (pos· (suc n) (quotient suc x / (suc n)))
                                     ∙ (λ i → pos (fst ((sym (GroupTheory.invInv
                                                               (ℤGroup/ (suc n))
-                                                  ((suc x mod suc n) , mod< n (suc x)))
+                                                  ((suc x mod suc n) , <→<ᵗ (mod< n (suc x))))
                                                  ∙ cong -ₘ_ q
                                                  ∙ GroupTheory.inv1g (ℤGroup/ (suc n))) (~ i))
                                                  +ℕ suc n ·ℕ quotient (suc x) / suc n)))
                           ∙∙ cong -_ (cong pos (≡remainder+quotient (suc n) (suc x))))) ∣₁})
   BijectionIso.surj (ℤHom→ℤ/im≅ℤ/im1 n p) x =
       ∣ [ pos (fst x) ]
-    , (Σ≡Prop (λ _ → isProp≤) (modIndBase n (fst x) (snd x))) ∣₁
+    , (Σ≡Prop (λ _ → isProp<ᵗ) (modIndBase n (fst x) (<ᵗ→< (snd x)))) ∣₁
 
 -- main result
 ℤ/imIso : (f : GroupHom ℤGroup ℤGroup)

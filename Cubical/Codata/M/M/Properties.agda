@@ -32,14 +32,14 @@ in-inverse-out {S = S} = subst (λ inv → in-fun {S = S} ∘ inv ≡ idfun (M S
   -- substituting refl makes type-checking work a lot faster, but introduces a transport
   -- TODO (2020-05-23): revisit this at some point to see if it's still needed in future versions of agda
   def : (in-fun {S = S} ∘ inv (shift-iso S)) ≡ idfun (M S)
-  def = funExt (rightInv (shift-iso S))
+  def = funExt (sec (shift-iso S))
   idpath : inv (shift-iso S) ≡ out-fun {S = S}
   idpath = refl
 
 out-inverse-in : ∀ {ℓ} {S : Container ℓ} → (out-fun {S = S} ∘ in-fun {S = S}) ≡ idfun (P₀ S (M S))
 out-inverse-in {S = S} = subst (λ fun → out-fun {S = S} ∘ fun ≡ idfun (P₀ S (M S))) idpath def where
   def : (out-fun {S = S} ∘ fun (shift-iso S)) ≡ idfun (P₀ S (M S))
-  def = funExt (leftInv (shift-iso S))
+  def = funExt (ret (shift-iso S))
   idpath : fun (shift-iso S) ≡ in-fun {S = S}
   idpath = refl
 

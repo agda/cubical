@@ -83,14 +83,14 @@ open IsGroupHom
 
 1↦α : Iso.inv (fst H¹-RP²⋁S¹≅ℤ) 1 ≡ α
 1↦α = cong (Iso.inv (fst H¹-RP²⋁S¹≅ℤ)) (sym α↦1)
-       ∙ leftInv (fst H¹-RP²⋁S¹≅ℤ) α
+       ∙ ret (fst H¹-RP²⋁S¹≅ℤ) α
 
 -- computes !
 lem-α²≡0 : Iso.fun (fst H²-RP²⋁S¹≅Bool) (α ⌣ α) ≡ true
 lem-α²≡0 = refl
 
 α²≡0 : α ⌣ α ≡ 0ₕ 2
-α²≡0 = sym (leftInv (fst H²-RP²⋁S¹≅Bool) (α ⌣ α))
+α²≡0 = sym (ret (fst H²-RP²⋁S¹≅Bool) (α ⌣ α))
        ∙ cong (Iso.inv (fst H²-RP²⋁S¹≅Bool)) lem-α²≡0
        ∙ pres1 (snd (invGroupIso H²-RP²⋁S¹≅Bool))
 

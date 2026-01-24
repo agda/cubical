@@ -180,8 +180,8 @@ recordIsoΣClauses σ =
   funClauses (quote Iso.fun) R↔Σ ++
   funClauses (quote Iso.inv) Σ↔R ++
   -- Clauses for the forward and backward inverse conditions
-  pathClauses (quote Iso.rightInv) Σ↔R ++
-  pathClauses (quote Iso.leftInv) R↔Σ
+  pathClauses (quote Iso.sec) Σ↔R ++
+  pathClauses (quote Iso.ret) R↔Σ
   where
   R↔Σ = ΣFormat→RecordAssoc σ
   Σ↔R = flipRecordAssoc R↔Σ

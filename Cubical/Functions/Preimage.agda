@@ -53,5 +53,5 @@ PreimageOfImage {A = A} {B = B} f = isoToPath is
   where is : Iso (Preimage f (Image f , imageInclusion f)) A
         Iso.fun is = fst
         Iso.inv is a = a , ∣ ((f a) , ∣ a , refl ∣₁) , refl ∣₁
-        Iso.rightInv is x = refl
-        Iso.leftInv is  x = Σ≡Prop (isPropIsInPreimage f (Image f , imageInclusion f)) refl
+        Iso.sec is x = refl
+        Iso.ret is  x = Σ≡Prop (isPropIsInPreimage f (Image f , imageInclusion f)) refl

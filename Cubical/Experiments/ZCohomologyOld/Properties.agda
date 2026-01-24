@@ -211,47 +211,47 @@ Kn→ΩKn+10ₖ (suc (suc n)) i j = ∣ (rCancel (merid north) i j) ∣
 -0ₖ : {n : ℕ} → -[ n ]ₖ (0ₖ n) ≡ (0ₖ n)
 -0ₖ {n = n} = (λ i → ΩKn+1→Kn n (sym (Kn→ΩKn+10ₖ n i)))
            ∙∙ (λ i → ΩKn+1→Kn n (Kn→ΩKn+10ₖ n (~ i)))
-           ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 n) (0ₖ n)
+           ∙∙ Iso.ret (Iso-Kn-ΩKn+1 n) (0ₖ n)
 
 +ₖ→∙ : (n : ℕ) (a b : coHomK n) → Kn→ΩKn+1 n (a +[ n ]ₖ b) ≡ Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b
-+ₖ→∙ n a b = Iso.rightInv (Iso-Kn-ΩKn+1 n) (Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b)
++ₖ→∙ n a b = Iso.sec (Iso-Kn-ΩKn+1 n) (Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b)
 
 lUnitₖ : (n : ℕ) (x : coHomK n) → (0ₖ n) +[ n ]ₖ x ≡ x
-lUnitₖ 0 x = Iso.leftInv (Iso-Kn-ΩKn+1 zero) x
-lUnitₖ (suc zero) = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) λ x → Iso.leftInv (Iso-Kn-ΩKn+1 1) ∣ x ∣
+lUnitₖ 0 x = Iso.ret (Iso-Kn-ΩKn+1 zero) x
+lUnitₖ (suc zero) = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) λ x → Iso.ret (Iso-Kn-ΩKn+1 1) ∣ x ∣
 lUnitₖ (suc (suc n)) x =
   (λ i → ΩKn+1→Kn (2 + n) (Kn→ΩKn+10ₖ (2 + n) i ∙ Kn→ΩKn+1 (2 + n) x)) ∙∙
                        (cong (ΩKn+1→Kn (2 + n)) (sym (lUnit (Kn→ΩKn+1 (2 + n) x)))) ∙∙
-                       Iso.leftInv (Iso-Kn-ΩKn+1 (2 + n)) x
+                       Iso.ret (Iso-Kn-ΩKn+1 (2 + n)) x
 rUnitₖ : (n : ℕ) (x : coHomK n) → x +[ n ]ₖ (0ₖ n) ≡ x
-rUnitₖ 0 x = Iso.leftInv (Iso-Kn-ΩKn+1 zero) x
-rUnitₖ (suc zero) = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) λ x → Iso.leftInv (Iso-Kn-ΩKn+1 1) ∣ x ∣
+rUnitₖ 0 x = Iso.ret (Iso-Kn-ΩKn+1 zero) x
+rUnitₖ (suc zero) = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) λ x → Iso.ret (Iso-Kn-ΩKn+1 1) ∣ x ∣
 rUnitₖ (suc (suc n)) x =
     (λ i → ΩKn+1→Kn (2 + n) (Kn→ΩKn+1 (2 + n) x ∙ Kn→ΩKn+10ₖ (2 + n) i))
   ∙∙ (cong (ΩKn+1→Kn (2 + n)) (sym (rUnit (Kn→ΩKn+1 (2 + n) x))))
-  ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 (2 + n)) x
+  ∙∙ Iso.ret (Iso-Kn-ΩKn+1 (2 + n)) x
 
 rCancelₖ  : (n : ℕ) (x : coHomK n) → x +[ n ]ₖ (-[ n ]ₖ x) ≡ (0ₖ n)
-rCancelₖ zero x = (λ i → ΩKn+1→Kn 0 (Kn→ΩKn+1 zero x ∙ Iso.rightInv (Iso-Kn-ΩKn+1 zero) (sym (Kn→ΩKn+1 zero x)) i)) ∙
+rCancelₖ zero x = (λ i → ΩKn+1→Kn 0 (Kn→ΩKn+1 zero x ∙ Iso.sec (Iso-Kn-ΩKn+1 zero) (sym (Kn→ΩKn+1 zero x)) i)) ∙
                         cong (ΩKn+1→Kn 0) (rCancel (Kn→ΩKn+1 zero x))
-rCancelₖ (suc n) x = (λ i → ΩKn+1→Kn (suc n) (Kn→ΩKn+1 (1 + n) x ∙ Iso.rightInv (Iso-Kn-ΩKn+1 (1 + n)) (sym (Kn→ΩKn+1 (1 + n) x)) i)) ∙
+rCancelₖ (suc n) x = (λ i → ΩKn+1→Kn (suc n) (Kn→ΩKn+1 (1 + n) x ∙ Iso.sec (Iso-Kn-ΩKn+1 (1 + n)) (sym (Kn→ΩKn+1 (1 + n) x)) i)) ∙
                                cong (ΩKn+1→Kn (suc n)) (rCancel (Kn→ΩKn+1 (1 + n) x)) ∙
                                (λ i → ΩKn+1→Kn (suc n) (Kn→ΩKn+10ₖ (suc n) (~ i))) ∙
-                               Iso.leftInv (Iso-Kn-ΩKn+1 (suc n)) (0ₖ (suc n))
+                               Iso.ret (Iso-Kn-ΩKn+1 (suc n)) (0ₖ (suc n))
 
 lCancelₖ : (n : ℕ) (x : coHomK n) → (-[ n ]ₖ x) +[ n ]ₖ x  ≡ (0ₖ n)
-lCancelₖ 0 x = (λ i → ΩKn+1→Kn 0 (Iso.rightInv (Iso-Kn-ΩKn+1 zero) (sym (Kn→ΩKn+1 zero x)) i ∙ Kn→ΩKn+1 zero x)) ∙
+lCancelₖ 0 x = (λ i → ΩKn+1→Kn 0 (Iso.sec (Iso-Kn-ΩKn+1 zero) (sym (Kn→ΩKn+1 zero x)) i ∙ Kn→ΩKn+1 zero x)) ∙
                         cong (ΩKn+1→Kn 0) (lCancel (Kn→ΩKn+1 zero x))
-lCancelₖ (suc n) x = (λ i → ΩKn+1→Kn (suc n) (Iso.rightInv (Iso-Kn-ΩKn+1 (1 + n)) (sym (Kn→ΩKn+1 (1 + n) x)) i ∙ Kn→ΩKn+1 (1 + n) x)) ∙
+lCancelₖ (suc n) x = (λ i → ΩKn+1→Kn (suc n) (Iso.sec (Iso-Kn-ΩKn+1 (1 + n)) (sym (Kn→ΩKn+1 (1 + n) x)) i ∙ Kn→ΩKn+1 (1 + n) x)) ∙
                                cong (ΩKn+1→Kn (suc n)) (lCancel (Kn→ΩKn+1 (1 + n) x)) ∙
                                (λ i → (ΩKn+1→Kn (suc n)) (Kn→ΩKn+10ₖ (suc n) (~ i))) ∙
-                               Iso.leftInv (Iso-Kn-ΩKn+1 (suc n)) (0ₖ (suc n))
+                               Iso.ret (Iso-Kn-ΩKn+1 (suc n)) (0ₖ (suc n))
 
 assocₖ : (n : ℕ) (x y z : coHomK n) → ((x +[ n ]ₖ y) +[ n ]ₖ z) ≡ (x +[ n ]ₖ (y +[ n ]ₖ z))
 assocₖ n x y z = ((λ i → ΩKn+1→Kn n (Kn→ΩKn+1 n (ΩKn+1→Kn n (Kn→ΩKn+1 n x ∙ Kn→ΩKn+1 n y)) ∙ Kn→ΩKn+1 n z)) ∙∙
-                          (λ i → ΩKn+1→Kn n (Iso.rightInv (Iso-Kn-ΩKn+1 n) (Kn→ΩKn+1 n x ∙ Kn→ΩKn+1 n y) i ∙ Kn→ΩKn+1 n z)) ∙∙
+                          (λ i → ΩKn+1→Kn n (Iso.sec (Iso-Kn-ΩKn+1 n) (Kn→ΩKn+1 n x ∙ Kn→ΩKn+1 n y) i ∙ Kn→ΩKn+1 n z)) ∙∙
                           (λ i → ΩKn+1→Kn n (assoc (Kn→ΩKn+1 n x) (Kn→ΩKn+1 n y) (Kn→ΩKn+1 n z) (~ i)))) ∙
-                          (λ i → ΩKn+1→Kn n ((Kn→ΩKn+1 n x) ∙ Iso.rightInv (Iso-Kn-ΩKn+1 n) ((Kn→ΩKn+1 n y ∙ Kn→ΩKn+1 n z)) (~ i)))
+                          (λ i → ΩKn+1→Kn n ((Kn→ΩKn+1 n x) ∙ Iso.sec (Iso-Kn-ΩKn+1 n) ((Kn→ΩKn+1 n y ∙ Kn→ΩKn+1 n z)) (~ i)))
 
 cancelₖ : (n : ℕ) (x : coHomK n) → x -[ n ]ₖ x ≡ (0ₖ n)
 cancelₖ zero x = cong (ΩKn+1→Kn 0) (rCancel (Kn→ΩKn+1 zero x))
@@ -265,7 +265,7 @@ cancelₖ (suc (suc (suc (suc (suc n))))) x = cong (ΩKn+1→Kn (5 + n)) (rCance
 -rUnitₖ zero x = rUnitₖ zero x
 -rUnitₖ (suc n) x = cong (λ y → ΩKn+1→Kn (suc n) (Kn→ΩKn+1 (suc n) x ∙ sym y)) (Kn→ΩKn+10ₖ (suc n))
                  ∙∙ cong (ΩKn+1→Kn (suc n)) (sym (rUnit (Kn→ΩKn+1 (suc n) x)))
-                 ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 (suc n)) x
+                 ∙∙ Iso.ret (Iso-Kn-ΩKn+1 (suc n)) x
 
 open Iso renaming (inv to inv')
 abstract
@@ -300,9 +300,9 @@ rUnitₖ' n x = commₖ n x (0ₖ n) ∙ lUnitₖ n x
 
 -distrₖ : (n : ℕ) (x y : coHomK n) → -[ n ]ₖ (x +[ n ]ₖ y) ≡ (-[ n ]ₖ x) +[ n ]ₖ (-[ n ]ₖ y)
 -distrₖ n x y = ((λ i → ΩKn+1→Kn n (sym (Kn→ΩKn+1 n (ΩKn+1→Kn n (Kn→ΩKn+1 n x ∙ Kn→ΩKn+1 n y))))) ∙∙
-                      (λ i → ΩKn+1→Kn n (sym (Iso.rightInv (Iso-Kn-ΩKn+1 n) (Kn→ΩKn+1 n x ∙ Kn→ΩKn+1 n y) i))) ∙∙
+                      (λ i → ΩKn+1→Kn n (sym (Iso.sec (Iso-Kn-ΩKn+1 n) (Kn→ΩKn+1 n x ∙ Kn→ΩKn+1 n y) i))) ∙∙
                       (λ i → ΩKn+1→Kn n (symDistr (Kn→ΩKn+1 n x) (Kn→ΩKn+1 n y) i))) ∙∙
-                      (λ i → ΩKn+1→Kn n (Iso.rightInv (Iso-Kn-ΩKn+1 n) (sym (Kn→ΩKn+1 n y)) (~ i) ∙ (Iso.rightInv (Iso-Kn-ΩKn+1 n) (sym (Kn→ΩKn+1 n x)) (~ i)))) ∙∙
+                      (λ i → ΩKn+1→Kn n (Iso.sec (Iso-Kn-ΩKn+1 n) (sym (Kn→ΩKn+1 n y)) (~ i) ∙ (Iso.sec (Iso-Kn-ΩKn+1 n) (sym (Kn→ΩKn+1 n x)) (~ i)))) ∙∙
                       commₖ n (-[ n ]ₖ y) (-[ n ]ₖ x)
 
 private
@@ -320,17 +320,17 @@ private
                                   ∙∙ sym (assoc _ _ _)
                                   ∙∙ cong (Kn→ΩKn+1 n y ∙_) (rCancel _)))
                    ∙∙ rCancelLem n y
-                   ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 n) y
+                   ∙∙ Iso.ret (Iso-Kn-ΩKn+1 n) y
 
 -cancelLₖ : (n : ℕ) (x y : coHomK n) → (x +[ n ]ₖ y) -[ n ]ₖ x ≡ y
 -cancelLₖ n x y = cong (λ z → z -[ n ]ₖ x) (commₖ n x y) ∙ -cancelRₖ n x y
 
 -+cancelₖ : (n : ℕ) (x y : coHomK n) → (x -[ n ]ₖ y) +[ n ]ₖ y ≡ x
--+cancelₖ n x y = (cong (ΩKn+1→Kn n) ((cong (_∙ (Kn→ΩKn+1 n y)) (Iso.rightInv (Iso-Kn-ΩKn+1 n) (Kn→ΩKn+1 n x ∙ sym (Kn→ΩKn+1 n y))))
+-+cancelₖ n x y = (cong (ΩKn+1→Kn n) ((cong (_∙ (Kn→ΩKn+1 n y)) (Iso.sec (Iso-Kn-ΩKn+1 n) (Kn→ΩKn+1 n x ∙ sym (Kn→ΩKn+1 n y))))
                                   ∙∙ sym (assoc _ _ _)
                                   ∙∙ cong (Kn→ΩKn+1 n x ∙_) (lCancel _)))
                    ∙∙ rCancelLem n x
-                   ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 n) x
+                   ∙∙ Iso.ret (Iso-Kn-ΩKn+1 n) x
 
 ---- Group structure of cohomology groups ---
 
@@ -388,7 +388,7 @@ cancelₕ n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
                    λ a i → ∣ funExt (λ x → cancelₖ n (a x)) i ∣₂
 
 -ₖ-ₖ : (n : ℕ) (x : coHomK n) → (-[ n ]ₖ (-[ n ]ₖ x)) ≡ x
--ₖ-ₖ n x = cong ((ΩKn+1→Kn n) ∘ sym) (Iso.rightInv (Iso-Kn-ΩKn+1 n) (sym (Kn→ΩKn+1 n x))) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 n) x
+-ₖ-ₖ n x = cong ((ΩKn+1→Kn n) ∘ sym) (Iso.sec (Iso-Kn-ΩKn+1 n) (sym (Kn→ΩKn+1 n x))) ∙ Iso.ret (Iso-Kn-ΩKn+1 n) x
 
 -- Proof that rUnitₖ and lUnitₖ agree on 0ₖ. Needed for Mayer-Vietoris.
 private
@@ -396,23 +396,23 @@ private
                   (0A : A)
                   (0fun : fun e 0A ≡ refl)
                 → Path (inv' e (fun e 0A ∙ fun e 0A) ≡ 0A)
-                       (cong (inv' e) (cong (_∙ fun e 0A) 0fun) ∙∙ cong (inv' e) (sym (lUnit (fun e 0A))) ∙∙ Iso.leftInv e 0A)
-                       (cong (inv' e) (cong (fun e 0A ∙_) 0fun) ∙∙ cong (inv' e) (sym (rUnit (fun e 0A))) ∙∙ Iso.leftInv e 0A)
+                       (cong (inv' e) (cong (_∙ fun e 0A) 0fun) ∙∙ cong (inv' e) (sym (lUnit (fun e 0A))) ∙∙ Iso.ret e 0A)
+                       (cong (inv' e) (cong (fun e 0A ∙_) 0fun) ∙∙ cong (inv' e) (sym (rUnit (fun e 0A))) ∙∙ Iso.ret e 0A)
   rUnitlUnitGen e 0A 0fun =
-      (λ i → cong (inv' e) (cong (_∙ fun e 0A) 0fun) ∙∙ rUnit (cong (inv' e) (sym (lUnit (fun e 0A)))) i ∙∙ Iso.leftInv e 0A)
+      (λ i → cong (inv' e) (cong (_∙ fun e 0A) 0fun) ∙∙ rUnit (cong (inv' e) (sym (lUnit (fun e 0A)))) i ∙∙ Iso.ret e 0A)
     ∙ ((λ i → (λ j → inv' e (0fun (~ i ∧ j) ∙ 0fun (j ∧ i)))
             ∙∙ ((λ j → inv' e (0fun (~ i ∨ j) ∙ 0fun i))
             ∙∙ cong (inv' e) (sym (lUnit (0fun i)))
             ∙∙ λ j → inv' e (0fun (i ∧ (~ j))))
-            ∙∙ Iso.leftInv e 0A)
+            ∙∙ Iso.ret e 0A)
     ∙∙ (λ i → (λ j → inv' e (fun e 0A ∙ 0fun j))
             ∙∙ (λ j → inv' e (0fun (j ∧ ~ i) ∙ refl))
             ∙∙ cong (inv' e) (sym (rUnit (0fun (~ i))))
             ∙∙ (λ j → inv' e (0fun (~ i ∧ ~ j)))
-            ∙∙ Iso.leftInv e 0A)
+            ∙∙ Iso.ret e 0A)
     ∙∙ λ i → cong (inv' e) (cong (fun e 0A ∙_) 0fun)
            ∙∙ rUnit (cong (inv' e) (sym (rUnit (fun e 0A)))) (~ i)
-           ∙∙ Iso.leftInv e 0A)
+           ∙∙ Iso.ret e 0A)
 
 rUnitlUnit0 : (n : ℕ) → rUnitₖ n (0ₖ n) ≡ lUnitₖ n (0ₖ n)
 rUnitlUnit0 0 = refl
@@ -480,8 +480,8 @@ coHomFun n f = sRec § λ β → ∣ β ∘ f ∣₂
 addIso : (n : ℕ) (x : coHomK n) → Iso (coHomK n) (coHomK n)
 fun (addIso n x) y = y +[ n ]ₖ x
 inv' (addIso n x) y = y -[ n ]ₖ x
-rightInv (addIso n x) y = -+cancelₖ n y x
-leftInv (addIso n x) y = -cancelRₖ n x y
+sec (addIso n x) y = -+cancelₖ n y x
+ret (addIso n x) y = -cancelRₖ n x y
 
 isCommΩK-based : (n : ℕ) (x : coHomK n) → isComm∙ (coHomK n , x)
 isCommΩK-based zero x p q = isSetℤ _ _ (p ∙ q) (q ∙ p)
@@ -497,7 +497,7 @@ isCommΩK-based (suc (suc n)) x =
 addLemma : (a b : ℤ) → a +[ 0 ]ₖ b ≡ (a ℤ+ b)
 addLemma a b = (cong (ΩKn+1→Kn 0) (sym (congFunct ∣_∣ (intLoop a) (intLoop b))))
             ∙∙ (λ i → ΩKn+1→Kn 0 (cong ∣_∣ (intLoop-hom a b i)))
-            ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 0) (a ℤ+ b)
+            ∙∙ Iso.ret (Iso-Kn-ΩKn+1 0) (a ℤ+ b)
 
 ---
 -- hidden versions of cohom stuff using the "lock" hack. The locked versions can be used when proving things.

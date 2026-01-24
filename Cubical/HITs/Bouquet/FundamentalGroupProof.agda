@@ -25,7 +25,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Functions.Morphism
 
 open import Cubical.Data.Nat hiding (_·_ ; elim)
-open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Fin hiding (elim)
 
 open import Cubical.HITs.Bouquet.Discrete
 open import Cubical.HITs.FreeGroup as FG hiding (winding ; elimProp)
@@ -285,8 +285,8 @@ encodeDecodeT x g = elim sethood induction g where
 TruncatedFamiliesIso : (x : Bouquet A) → Iso ∥ base ≡ x ∥₂ ∥ code x ∥₂
 Iso.fun (TruncatedFamiliesIso x)      = encodeT x
 Iso.inv (TruncatedFamiliesIso x)      = decodeT x
-Iso.rightInv (TruncatedFamiliesIso x) = encodeDecodeT x
-Iso.leftInv (TruncatedFamiliesIso x)  = decodeEncodeT x
+Iso.sec (TruncatedFamiliesIso x) = encodeDecodeT x
+Iso.ret (TruncatedFamiliesIso x)  = decodeEncodeT x
 
 TruncatedFamiliesEquiv : (x : Bouquet A) → ∥ base ≡ x ∥₂ ≃ ∥ code x ∥₂
 TruncatedFamiliesEquiv x = isoToEquiv (TruncatedFamiliesIso x)
@@ -312,7 +312,7 @@ Iso-ΩFinBouquet-FreeGroup : {n : ℕ}
 Iso-ΩFinBouquet-FreeGroup {n = n} =
   compIso
     (compIso (invIso (setTruncIdempotentIso (isOfHLevelPath' 2
-      (isGroupoidBouquet (DiscreteFin {n} )) _ _)))
+      (isGroupoidBouquet (discreteFin {n} )) _ _)))
              (equivToIso (TruncatedFamiliesEquiv base)))
     (equivToIso (invEquiv freeGroupTruncIdempotent≃))
 
@@ -324,7 +324,7 @@ invIso-ΩFinBouquet-FreeGroupPresStr {n = n} x y =
   cong (F ∘ G) (lem1 x y) ∙ lem2 (H x) (H y)
   where
   F = Iso.fun (setTruncIdempotentIso
-                (isOfHLevelPath' 2 (isGroupoidBouquet DiscreteFin) _ _))
+                (isOfHLevelPath' 2 (isGroupoidBouquet discreteFin) _ _))
   G = invEq (TruncatedFamiliesEquiv base)
   H = fst freeGroupTruncIdempotent≃
 
@@ -332,7 +332,7 @@ invIso-ΩFinBouquet-FreeGroupPresStr {n = n} x y =
                     ≡ F (G x) ∙ F (G y)
   lem2 =
     ST.elim2 (λ _ _ → isOfHLevelPath 2
-             (isOfHLevelPath' 2 (isGroupoidBouquet (DiscreteFin {n})) _ _) _ _)
+             (isOfHLevelPath' 2 (isGroupoidBouquet (discreteFin {n})) _ _) _ _)
              λ _ _ → refl
 
   lem1 : (x t : _) → H (x FG.· t)

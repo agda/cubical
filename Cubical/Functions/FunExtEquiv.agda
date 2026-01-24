@@ -134,12 +134,12 @@ funExtDepEquiv {A = A} {B} {f} {g} = isoToEquiv isom
   isom : Iso _ _
   isom .fun = funExtDep
   isom .inv = funExtDep⁻
-  isom .rightInv q m i x =
+  isom .sec q m i x =
     transp
       (λ k → B i (coei→i A i x (k ∨ m)))
       (m ∨ i ∨ ~ i)
       (q i (coei→i A i x m))
-  isom .leftInv h m p i =
+  isom .ret h m p i =
     transp
       (λ k → B i (lemi→i m k))
       (m ∨ i ∨ ~ i)
@@ -177,8 +177,8 @@ funExtNonDepEquiv {A = A} = isoToEquiv isom
   isom : Iso _ _
   isom .fun = funExtNonDep
   isom .inv = funExtNonDep⁻
-  isom .rightInv q m i x = q i (coei→i A i x m)
-  isom .leftInv h m p i = h (λ j → lemi→j j m) i
+  isom .sec q m i x = q i (coei→i A i x m)
+  isom .ret h m p i = h (λ j → lemi→j j m) i
     where
     lemi→j : ∀ j → coei→j A i j (p i) ≡ p j
     lemi→j j k = coePath A (λ i → p i) i j k
@@ -194,13 +194,13 @@ heteroHomotopy≃Homotopy {A = A} {B} {f} {g} = isoToEquiv isom
   isom .fun h x₀ = h (isContrSinglP A x₀ .fst .snd)
   isom .inv k {x₀} {x₁} p =
     subst (λ fib → PathP B (f x₀) (g (fib .fst))) (isContrSinglP A x₀ .snd (x₁ , p)) (k x₀)
-  isom .rightInv k = funExt λ x₀ →
+  isom .sec k = funExt λ x₀ →
     cong (λ α → subst (λ fib → PathP B (f x₀) (g (fib .fst))) α (k x₀))
       (isProp→isSet isPropSinglP (isContrSinglP A x₀ .fst) _
         (isContrSinglP A x₀ .snd (isContrSinglP A x₀ .fst))
         refl)
     ∙ transportRefl (k x₀)
-  isom .leftInv h j {x₀} {x₁} p =
+  isom .ret h j {x₀} {x₁} p =
     transp
       (λ i → PathP B (f x₀) (g (isContrSinglP A x₀ .snd (x₁ , p) (i ∨ j) .fst)))
       j

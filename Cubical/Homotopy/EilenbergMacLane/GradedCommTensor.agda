@@ -517,7 +517,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
            where
            ind-lem₁ : (n : ℕ) (p : fst (Ω (EM∙ (H' ⨂ G') (suc (suc n)))))
                 → Σ[ x ∈ EM (H' ⨂ G') (suc n) ] EM→ΩEM+1 (suc n) x ≡ p
-           ind-lem₁ n p = _ , Iso.rightInv (Iso-EM-ΩEM+1 (suc n)) p
+           ind-lem₁ n p = _ , Iso.sec (Iso-EM-ΩEM+1 (suc n)) p
 
            ind-lem₂ : (n : ℕ) (p : fst (Ω (EM∙ (H' ⨂ G') (suc (suc n)))))
                  → Σ[ x ∈ EM (H' ⨂ G') (suc n) ] EM→ΩEM+1 (suc n) x ≡ p
@@ -862,7 +862,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
          →∙Homogeneous≡ (isHomogeneous→∙ (isHomogeneousEM _))
            (funExt λ x → →∙Homogeneous≡ (isHomogeneousEM _)
            (funExt λ y
-        → (((sym (Iso.leftInv (Iso→EMIso (⨂-comm {A = G'} {B = H'})
+        → (((sym (Iso.ret (Iso→EMIso (⨂-comm {A = G'} {B = H'})
                   (suc (suc n) +' 1)) (cp∙∙₂ (suc (suc n)) 1 .fst x .fst y))
           ∙ sym (comm⨂-EM≡comm⨂-EM' {G' = G'} {H' = H'} (suc (suc n) +' 1) _)
           ∙ cong (comm⨂-EM _) (sym (-ₖ^< suc (suc n) · 1 >²-swap _ p (inr tt) _))
@@ -943,7 +943,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
            → _⌣ₖ_ {n = suc m} {m = suc (suc n)} y x
            ≡ Fₗ p q (_⌣ₖ_ {n = suc (suc n)} {m = (suc m)} x y)
          improveₗ p q x y =
-           (sym (Iso.leftInv (Iso→EMIso ⨂-comm (suc m +' (suc (suc n)))) (y ⌣ₖ x))
+           (sym (Iso.ret (Iso→EMIso ⨂-comm (suc m +' (suc (suc n)))) (y ⌣ₖ x))
            ∙ cong (Iso.inv (Iso→EMIso ⨂-comm (suc m +' (suc (suc n)))))
                   (sym (-ₖ^< suc (suc n) · suc m >² _ p q _)
                  ∙ cong (-ₖ^< suc (suc n) · suc m > _ p q)
@@ -1114,7 +1114,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                    (cong (Iso.inv (Iso→EMIso ⨂-comm _))
                     (sym (-ₖ^< suc (suc n) · suc m >-Induced (suc (suc (m +ℕ n)))
                           p (evenOrOdd (suc m)) (GroupEquiv→GroupHom ⨂-comm) _))
-                 ∙ Iso.leftInv (Iso→EMIso ⨂-comm (suc (suc (m +ℕ n)))) _)
+                 ∙ Iso.ret (Iso→EMIso ⨂-comm (suc (suc (m +ℕ n)))) _)
 
           cong-Fₗ-expr₁ : expr₁ ≡ EM→ΩEM+1 (suc (m +ℕ suc n)) expr₂
           cong-Fₗ-expr₁ = cong (cong (Iso.inv (Iso→EMIso ⨂-comm _) ∘
@@ -1294,7 +1294,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
              (evenOrOdd (suc m))
              (comm⨂-EM (suc m) (_⌣ₖ_ {m = zero} y x)))
   ⌣ₖ-comm (suc n) zero x y =
-         sym (Iso.leftInv (Iso→EMIso ⨂-comm _)
+         sym (Iso.ret (Iso→EMIso ⨂-comm _)
               (_⌣ₖ_ {n = suc n} {m = zero} x y))
        ∙ sym (comm⨂-EM≡comm⨂-EM' (suc n) _)
        ∙ cong (comm⨂-EM (suc n)) (sym (⌣ₖ-comm₀ n y x))

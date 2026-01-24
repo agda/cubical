@@ -35,8 +35,8 @@ isEquivInvEquiv = isoToIsEquiv goal where
   goal : Iso (A ≃ B) (B ≃ A)
   goal .fun = invEquiv
   goal .inv = invEquiv
-  goal .rightInv g = equivEq refl
-  goal .leftInv f = equivEq refl
+  goal .sec g = equivEq refl
+  goal .ret f = equivEq refl
 
 invEquivEquiv : (A ≃ B) ≃ (B ≃ A)
 invEquivEquiv = _ , isEquivInvEquiv
@@ -263,10 +263,10 @@ module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {A' : Type ℓ'} {C : A → Type ℓ''}
   domIsoDep : Iso ((a : A) → C a) ((a : A') → C (Iso.fun is a))
   Iso.fun domIsoDep f x = f (Iso.fun is x)
   Iso.inv domIsoDep f x = subst C (isHAEquiv.rinv is* x) (f (Iso.inv is x))
-  Iso.rightInv domIsoDep f =
+  Iso.sec domIsoDep f =
     funExt λ x → (λ j → subst C (isHAEquiv.com is* x (~ j))
       (f (Iso.inv is (Iso.fun is x))))
       ∙ λ j → transp (λ i → C (Iso.fun is (isHAEquiv.linv is* x (i ∨ j)))) j
           (f (isHAEquiv.linv is* x j))
-  Iso.leftInv domIsoDep f j x =
+  Iso.ret domIsoDep f j x =
     transp (λ i → C (isHAEquiv.rinv is* x (i ∨ j))) j (f (isHAEquiv.rinv is* x j))

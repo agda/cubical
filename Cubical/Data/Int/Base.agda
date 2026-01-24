@@ -6,7 +6,7 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat hiding (_+_ ; _·_) renaming (isEven to isEvenℕ ; isOdd to isOddℕ)
-open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Base
 
 infix  8 -_
 infixl 7 _·_

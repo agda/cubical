@@ -20,8 +20,8 @@ open import Cubical.Data.Nat as ℕ hiding (
   renaming (_·_ to _·ℕ_; _+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order as ℕ using ()
 open import Cubical.Data.Sum
-open import Cubical.Data.Fin.Inductive.Base
-open import Cubical.Data.Fin.Inductive.Properties
+open import Cubical.Data.Fin.Base
+open import Cubical.Data.Fin.Properties
 
 open import Cubical.Data.Int.Base as ℤ
   hiding (_+_ ; _·_ ; _-_ ; _ℕ-_ ; sumFinℤ ; sumFinℤId)
