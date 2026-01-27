@@ -63,8 +63,8 @@ fun characFunSpaceCP² f = (f (inr tt)) , ((f ∘ inl ) , (λ a → cong f (push
 inv characFunSpaceCP² (a , f , p) (inl x) = f x
 inv characFunSpaceCP² (a , f , p) (inr x) = a
 inv characFunSpaceCP² (a , f , p) (push b i) = p b i
-rightInv characFunSpaceCP² _ = refl
-leftInv characFunSpaceCP² _ =
+sec characFunSpaceCP² _ = refl
+ret characFunSpaceCP² _ =
   funExt λ { (inl x) → refl
            ; (inr x) → refl
            ; (push a i) → refl}
@@ -97,9 +97,9 @@ H²CP²≅ℤ = compGroupIso (BijectionIso→GroupIso bij)
   trivIso : GroupIso (coHomGr 2 (Susp S¹)) (×coHomGr 2 (Susp S¹) Unit)
   fun (fst trivIso) x = x , 0ₕ _
   inv (fst trivIso) = fst
-  rightInv (fst trivIso) (x , p) =
+  sec (fst trivIso) (x , p) =
     ΣPathP (refl , isContr→isProp (isContrHⁿ-Unit 1) _ _)
-  leftInv (fst trivIso) x = refl
+  ret (fst trivIso) x = refl
   snd trivIso = makeIsGroupHom λ _ _ → refl
 
   bij : BijectionIso (coHomGr 2 CP²) (×coHomGr 2 (Susp S¹) Unit)
@@ -173,12 +173,12 @@ H¹-CP²≅0 =
              ∥ (Σ[ f ∈ (Susp S¹ → coHomK 1) ] ((y : TotalHopf) → f (fst y) ≡ 0ₖ 1)) ∥₂
   fun lem₂ = ST.map (uncurry λ x → uncurry λ f p → (λ y → (-ₖ x) +ₖ f y) , λ y → cong ((-ₖ x) +ₖ_) (p y) ∙ lCancelₖ _ x)
   inv lem₂ = ST.map λ p → 0ₖ _ , p
-  rightInv lem₂ =
+  sec lem₂ =
     ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
           λ {(f , p) → cong ∣_∣₂ (ΣPathP ((funExt (λ x → lUnitₖ _ (f x)))
           , (funExt (λ y → sym (rUnit (λ i → (-ₖ 0ₖ 1) +ₖ p y i)))
            ◁ λ j y i → lUnitₖ _ (p y i) j)))}
-  leftInv lem₂ =
+  ret lem₂ =
     ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
       (uncurry (coHomK-elim _ (λ _ → isPropΠ (λ _ → squash₂ _ _))
        (uncurry λ f p → cong ∣_∣₂ (ΣPathP (refl , (ΣPathP ((funExt (λ x → lUnitₖ _ (f x)))
@@ -319,9 +319,9 @@ CP²≡CP2 = compIso (equivToIso (symPushout fst (λ _ → tt))) (invIso CP²-is
 
 
   genId : Iso.fun (fst (coHomIso 2 CP²≡CP2)) genCP² ≡ gen'
-  genId = sym (Iso.leftInv (fst H²CP²≅ℤ) _)
+  genId = sym (Iso.ret (fst H²CP²≅ℤ) _)
      ∙∙ cong (Iso.inv (fst H²CP²≅ℤ)) lem
-     ∙∙ Iso.leftInv (fst H²CP²≅ℤ) _
+     ∙∙ Iso.ret (fst H²CP²≅ℤ) _
     where
     lem : Iso.fun (fst H²CP²≅ℤ) (Iso.fun (fst (coHomIso 2 CP²≡CP2)) genCP²)
         ≡ Iso.fun (fst H²CP²≅ℤ) gen'
@@ -353,7 +353,7 @@ CP²≡CP2 = compIso (equivToIso (symPushout fst (λ _ → tt))) (invIso CP²-is
          (idGroupEquiv , refl))
 
   lem : inv (fst H²CP²≅ℤ) (pos 1) ≡ gen'
-  lem = Iso.leftInv (fst H²CP²≅ℤ) gen'
+  lem = Iso.ret (fst H²CP²≅ℤ) gen'
 
   c = main isEquiv⌣gen' (GroupIso→GroupEquiv (invGroupIso H²CP²≅ℤ))
 

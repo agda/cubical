@@ -10,9 +10,10 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.Nat
 
-variable
-  ℓ : Level
-  A B : Type ℓ
+private
+  variable
+    ℓ : Level
+    A B : Type ℓ
 
 -- copy-paste from agda-stdlib
 lookup : ∀ (xs : List A) → Fin (length xs) → A
@@ -41,8 +42,8 @@ open Iso
 lookup-tabulate-iso : (A : Type ℓ) → Iso (List A) (Σ[ n ∈ ℕ ] (Fin n → A))
 fun (lookup-tabulate-iso A) xs = (length xs) , lookup xs
 inv (lookup-tabulate-iso A) (n , f) = tabulate n f
-leftInv (lookup-tabulate-iso A) = tabulate-lookup
-rightInv (lookup-tabulate-iso A) (n , f) =
+ret (lookup-tabulate-iso A) = tabulate-lookup
+sec (lookup-tabulate-iso A) (n , f) =
   ΣPathP ((length-tabulate n f) , lookup-tabulate n f)
 
 lookup-tabulate-equiv : (A : Type ℓ) → List A ≃ (Σ[ n ∈ ℕ ] (Fin n → A))

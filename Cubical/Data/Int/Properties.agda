@@ -15,8 +15,8 @@ open import Cubical.Data.Nat
   renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ;
             ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
 open import Cubical.Data.Sum
-open import Cubical.Data.Fin.Inductive.Base
-open import Cubical.Data.Fin.Inductive.Properties
+open import Cubical.Data.Fin.Base
+open import Cubical.Data.Fin.Properties
 
 
 open import Cubical.Data.Int.Base
@@ -1503,3 +1503,9 @@ sumFinℤ0 n = sumFinGen0 _+_ 0 (λ _ → refl) n (λ _ → 0) λ _ → refl
 sumFinℤHom : {n : ℕ} (f g : Fin n → ℤ)
   → sumFinℤ {n = n} (λ x → f x + g x) ≡ sumFinℤ {n = n} f + sumFinℤ {n = n} g
 sumFinℤHom {n = n} = sumFinGenHom _+_ 0 (λ _ → refl) +Comm +Assoc n
+
+{- clamp negative numbers to 0 -}
+
+clamp : ℤ → ℕ
+clamp (pos n) = n
+clamp (negsuc n) = zero

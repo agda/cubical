@@ -787,8 +787,8 @@ module BlakersMassey□ {ℓ ℓ' ℓ'' : Level}
   Totalfib×Iso : Iso (Σ (B × C) fib×) A
   fun Totalfib×Iso ((b , c) , a , p) = a
   inv Totalfib×Iso a = (f a , g a) , a , refl , refl
-  rightInv Totalfib×Iso _ = refl
-  leftInv Totalfib×Iso ((b , c) , a , (p , q)) i =
+  sec Totalfib×Iso _ = refl
+  ret Totalfib×Iso ((b , c) , a , (p , q)) i =
     ((p i) , (q i)) , (a , ((λ j → p (i ∧ j)) , (λ j → q (i ∧ j))))
 
   toPullback' : A → Σ (B × C) PushoutPath×

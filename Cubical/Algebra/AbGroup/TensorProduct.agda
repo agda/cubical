@@ -360,9 +360,9 @@ module UP (AGr : AbGroup ℓ) (BGr : AbGroup ℓ') where
                   (GroupHom (AGr *) (HomGroup (BGr *) C *))
     Iso.fun mainIso = _
     Iso.inv mainIso = invF
-    Iso.rightInv mainIso (f , p) = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+    Iso.sec mainIso (f , p) = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
                                    (funExt λ a → Σ≡Prop (λ _ → isPropIsGroupHom _ _) refl)
-    Iso.leftInv mainIso (f , p) =
+    Iso.ret mainIso (f , p) =
         Σ≡Prop (λ _ → isPropIsGroupHom _ _)
                 (funExt (⊗elimProp (λ _ → is-set (snd C) _ _)
                                    (λ _ _ → refl)
@@ -407,8 +407,8 @@ commFun²≡id = ⊗elimProp (λ _ → ⊗squash _ _)
           → GroupIso ((A ⨂ B) *) ((B ⨂ A) *)
 Iso.fun (fst ⨂-commIso) = commFun
 Iso.inv (fst ⨂-commIso) = commFun
-Iso.rightInv (fst ⨂-commIso) = commFun²≡id
-Iso.leftInv (fst ⨂-commIso) = commFun²≡id
+Iso.sec (fst ⨂-commIso) = commFun²≡id
+Iso.ret (fst ⨂-commIso) = commFun²≡id
 snd ⨂-commIso = makeIsGroupHom λ x y → refl
 
 ⨂-comm : ∀ {ℓ ℓ'} {A : AbGroup ℓ} {B : AbGroup ℓ'} → AbGroupEquiv (A ⨂ B) (B ⨂ A)
@@ -478,7 +478,7 @@ module _ {ℓ ℓ' ℓ'' : Level} {A : AbGroup ℓ} {B : AbGroup ℓ'} {C : AbGr
   ⨂assocIso : Iso (A ⨂₁ (B ⨂ C)) ((A ⨂ B) ⨂₁ C)
   Iso.fun ⨂assocIso = fst assocHom⁻
   Iso.inv ⨂assocIso = fst assocHom
-  Iso.rightInv ⨂assocIso =
+  Iso.sec ⨂assocIso =
     ⊗elimProp (λ _ → ⊗squash _ _)
                (⊗elimProp (λ _ → isPropΠ (λ _ → ⊗squash _ _))
                            (λ a b c → refl)
@@ -487,7 +487,7 @@ module _ {ℓ ℓ' ℓ'' : Level} {A : AbGroup ℓ} {B : AbGroup ℓ'} {C : AbGr
                 λ x y p q → cong (fst assocHom⁻) (IsGroupHom.pres· (snd assocHom) x y)
                              ∙∙ IsGroupHom.pres· (snd assocHom⁻) (fst assocHom x) (fst assocHom y)
                              ∙∙ cong₂ _+⊗_ p q
-  Iso.leftInv ⨂assocIso =
+  Iso.ret ⨂assocIso =
     ⊗elimProp (λ _ → ⊗squash _ _)
                (λ a → ⊗elimProp (λ _ → ⊗squash _ _)
                                   (λ b c → refl)

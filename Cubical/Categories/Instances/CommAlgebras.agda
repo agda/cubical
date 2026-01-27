@@ -674,10 +674,9 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
     assocDiagPath : Forgetful ∘F (universalPShf ∘F D) ≡ 𝓖 ∘F D
     assocDiagPath = F-assoc
 
-    conePathPCR : PathP (λ i → Cone (assocDiagPath i) (F-ob 𝓖 c))
+    conePathPCR : PathP (λ i → Cone {C = CommRingsCategory} (assocDiagPath i) (F-ob 𝓖 c))
                    (F-cone Forgetful (F-cone universalPShf cc)) (F-cone 𝓖 cc)
-    conePathPCR = conePathPDiag (λ v _ → 𝓖 .F-hom (cc .coneOut v))
-
+    conePathPCR = conePathPDiag {c = 𝓖 .F-ob c} {p = assocDiagPath} (λ v _ → 𝓖 .F-hom (cc .coneOut v))
 
    toLimCone : isLimCone _ _ (F-cone 𝓖 cc)
    toLimCone = transport (λ i → isLimCone _ _ (conePathPCR i))

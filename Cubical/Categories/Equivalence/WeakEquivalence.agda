@@ -159,7 +159,7 @@ module _
  IsoCategoryPath : Iso (WeakEquivalence C C') (CategoryPath C C')
  fun IsoCategoryPath = WeakEquivlance→CategoryPath ∘f isWeakEquiv
  inv IsoCategoryPath = ≡→WeakEquivlance ∘f mk≡
- rightInv IsoCategoryPath b = CategoryPath≡
+ sec IsoCategoryPath b = CategoryPath≡
    (WeakEquivlance→CategoryPath (isWeakEquiv (≡→WeakEquivlance (mk≡ b)))) b
    (λ i j → Glue (C' .Category.ob) {φ = ~ j ∨ j ∨ i}
          (λ _ → _ , equivPathP
@@ -176,7 +176,7 @@ module _
                 (λ _ _ → idIsEquiv _) j x y }
 
 
- leftInv IsoCategoryPath we = cong₂ weakEquivalence
+ ret IsoCategoryPath we = cong₂ weakEquivalence
    (Functor≡ (transportRefl ∘f (F-ob (func we)))
               λ {c} {c'} f → (λ j → transport
       (λ i → HomPathP (isWeakEquiv we) i

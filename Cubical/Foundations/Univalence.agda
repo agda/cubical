@@ -231,8 +231,8 @@ ua-pathToEquiv = uaη
 univalenceIso : {A B : Type ℓ} → Iso (A ≡ B) (A ≃ B)
 univalenceIso .Iso.fun = pathToEquiv
 univalenceIso .Iso.inv = ua
-univalenceIso .Iso.rightInv = pathToEquiv-ua
-univalenceIso .Iso.leftInv = ua-pathToEquiv
+univalenceIso .Iso.sec = pathToEquiv-ua
+univalenceIso .Iso.ret = ua-pathToEquiv
 
 isEquivPathToEquiv : {A B : Type ℓ} → isEquiv (pathToEquiv {A = A} {B = B})
 isEquivPathToEquiv = isoToIsEquiv univalenceIso
@@ -256,8 +256,8 @@ module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
   isoThm : ∀ {ℓ} {A B : Type ℓ} → Iso (A ≡ B) (A ≃ B)
   isoThm .Iso.fun = au
   isoThm .Iso.inv = ua
-  isoThm .Iso.rightInv = au-ua
-  isoThm .Iso.leftInv = ua-au
+  isoThm .Iso.sec = au-ua
+  isoThm .Iso.ret = ua-au
 
   thm : ∀ {ℓ} {A B : Type ℓ} → isEquiv au
   thm {A = A} {B = B} = isoToIsEquiv {B = A ≃ B} isoThm

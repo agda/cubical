@@ -145,7 +145,7 @@ module _ where
     inv (fst (suspMapIso (pos n))) = ST.map (toSusp-coHomRed n)
     inv (fst (suspMapIso (negsuc zero))) _ = 0ₕ∙ zero
     inv (fst (suspMapIso (negsuc (suc n)))) _ = tt*
-    rightInv (fst (suspMapIso (pos n) {A = A})) =
+    sec (fst (suspMapIso (pos n) {A = A})) =
       ST.elim (λ _ → isSetPathImplicit)
         λ f → cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousEM n)
           (funExt λ x → cong (ΩEM+1→EM n)
@@ -156,10 +156,10 @@ module _ where
                              (cong sym (cong (EM→ΩEM+1 n) (snd f)
                                       ∙ EM→ΩEM+1-0ₖ n))
                       ∙ sym (rUnit _))
-                     ∙ Iso.leftInv (Iso-EM-ΩEM+1 n) (fst f x)))
-    rightInv (fst (suspMapIso (negsuc zero))) tt* = refl
-    rightInv (fst (suspMapIso (negsuc (suc n)))) tt* = refl
-    leftInv (fst (suspMapIso (pos n) {A = A})) =
+                     ∙ Iso.ret (Iso-EM-ΩEM+1 n) (fst f x)))
+    sec (fst (suspMapIso (negsuc zero))) tt* = refl
+    sec (fst (suspMapIso (negsuc (suc n)))) tt* = refl
+    ret (fst (suspMapIso (pos n) {A = A})) =
       ST.elim (λ _ → isSetPathImplicit)
               λ f → cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousEM (suc n))
                 (funExt λ { north → sym (snd f)
@@ -172,7 +172,7 @@ module _ where
                                         ∙∙ cong (fst f) (toSusp A a)
                                         ∙∙ snd f)))
                  (cong (fst f) (merid a))
-      lem a f = Iso.rightInv (Iso-EM-ΩEM+1 n) _
+      lem a f = Iso.sec (Iso-EM-ΩEM+1 n) _
               ◁ λ i j → hcomp (λ k
                 → λ { (i = i1) → fst f (merid a j)
                      ; (j = i0) → snd f (~ i ∧ k)
@@ -180,13 +180,13 @@ module _ where
                                  (sym (snd f)) (cong (fst f) (merid (pt A))) k i})
                    (fst f (compPath-filler (merid a)
                            (sym (merid (pt A))) (~ i) j))
-    leftInv (fst (suspMapIso (negsuc zero) {A = A})) =
+    ret (fst (suspMapIso (negsuc zero) {A = A})) =
       ST.elim (λ _ → isSetPathImplicit)
               λ f → cong ∣_∣₂ (Σ≡Prop (λ _ → hLevelEM G 0 _ _)
                               (funExt (suspToPropElim (pt A)
                                 (λ _ → hLevelEM G 0 _ _)
                                 (sym (snd f)))))
-    leftInv (fst (suspMapIso (negsuc (suc n)))) tt* = refl
+    ret (fst (suspMapIso (negsuc (suc n)))) tt* = refl
     snd (suspMapIso n) = suspMap n .snd
 
   satisfies-ES : ∀ {ℓ ℓ'} (G : AbGroup ℓ) → coHomTheory {ℓ'} (coHomRedℤ G)
@@ -237,8 +237,8 @@ module _ where
                (Im (coHomHom∙ n (cfcod (fst f) , refl)))
     fun help (x , p) = x , To x p
     inv help (x , p) = x , From x p
-    rightInv help (x , p) = Σ≡Prop (λ _ → isPropIsInIm _ _) refl
-    leftInv help (x , p) = Σ≡Prop (λ _ → isPropIsInKer _ _) refl
+    sec help (x , p) = Σ≡Prop (λ _ → isPropIsInIm _ _) refl
+    ret help (x , p) = Σ≡Prop (λ _ → isPropIsInKer _ _) refl
   Exactness (satisfies-ES {ℓ} {ℓ'} G) {A = A} {B = B} f (negsuc n) =
     isoToPath help
     where
@@ -247,8 +247,8 @@ module _ where
                 (cfcod (fst f) , refl)))
     fun help (tt* , p) = tt* , ∣ tt* , refl ∣₁
     inv help (tt* , p) = tt* , refl
-    rightInv help (tt* , p) = Σ≡Prop (λ _ → isPropIsInIm _ _) refl
-    leftInv help (tt* , p) = Σ≡Prop (λ _ → isPropIsInKer _ _) refl
+    sec help (tt* , p) = Σ≡Prop (λ _ → isPropIsInIm _ _) refl
+    ret help (tt* , p) = Σ≡Prop (λ _ → isPropIsInKer _ _) refl
   Dimension (satisfies-ES G) (pos zero) p = ⊥.rec (p refl)
   fst (Dimension (satisfies-ES G) (pos (suc n)) _) = 0ₕ∙ (suc n)
   snd (Dimension (satisfies-ES G) (pos (suc n)) _) =
@@ -274,13 +274,13 @@ module _ where
                      ; (inr x) → fst g x
                      ; (push a i) → (snd f ∙ sym (snd g)) i})
                 , snd f ∣₂)
-    rightInv (fst main) =
+    sec (fst main) =
       uncurry
         (ST.elim2 (λ _ _ → isOfHLevelPath 2 (isSet× squash₂ squash₂) _ _)
         λ f g → ΣPathP
           ((cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousEM n) refl))
          , cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousEM n) refl)))
-    leftInv (fst main) =
+    ret (fst main) =
       ST.elim (λ _ → isSetPathImplicit)
        λ f → cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousEM n)
          (funExt λ { (inl x) → refl
@@ -325,9 +325,9 @@ Wedge (satisfies-ES-gen G) (pos n) {I = I} satAC {A = A} =
                                  ; (inr x) → f (fst x) .fst (snd x)
                                  ; (push a i) → f a .snd (~ i)})
                      , refl
-  rightInv mainIso = ST.elim (λ _ → isSetPathImplicit)
+  sec mainIso = ST.elim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (funExt (λ i → ΣPathP (refl , (sym (rUnit (snd (f i)))))))
-  leftInv mainIso = ST.elim (λ _ → isSetPathImplicit)
+  ret mainIso = ST.elim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (ΣPathP ((funExt
       (λ { (inl x) → sym (snd f)
          ; (inr x) → refl

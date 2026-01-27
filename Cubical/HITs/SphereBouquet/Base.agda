@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Fin
 
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Sn

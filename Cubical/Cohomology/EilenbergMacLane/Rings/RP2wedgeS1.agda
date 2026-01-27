@@ -138,7 +138,7 @@ private
   γ↦1' p q =
       H²[RP²,ℤ/2]→ℤ/2-Id p
     ∙ cong (Iso.fun Iso-Ω²K₂-ℤ/2) q
-    ∙ Iso.rightInv Iso-Ω²K₂-ℤ/2 1
+    ∙ Iso.sec Iso-Ω²K₂-ℤ/2 1
 
 private
   cp : EM ℤ/2 1 → EM ℤ/2 1 → EM (ℤ/2 ⨂ ℤ/2) 2
@@ -359,22 +359,22 @@ module Equiv-RP²∨S¹-Properties
   ϕ₀str = snd e₀
   ϕ₀⁻¹ = inv (fst e₀)
   ϕ₀⁻¹str = snd (invGroupIso e₀)
-  ϕ₀-sect = rightInv (fst e₀)
-  ϕ₀-retr = leftInv (fst e₀)
+  ϕ₀-sect = sec (fst e₀)
+  ϕ₀-retr = ret (fst e₀)
 
   ϕ₁ = fun (fst e₁)
   ϕ₁str = snd e₁
   ϕ₁⁻¹ = inv (fst e₁)
   ϕ₁⁻¹str = snd (invGroupIso e₁)
-  ϕ₁-sect = rightInv (fst e₁)
-  ϕ₁-retr = leftInv (fst e₁)
+  ϕ₁-sect = sec (fst e₁)
+  ϕ₁-retr = ret (fst e₁)
 
   ϕ₂ = fun (fst e₂)
   ϕ₂str = snd e₂
   ϕ₂⁻¹ = inv (fst e₂)
   ϕ₂⁻¹str = snd (invGroupIso e₂)
-  ϕ₂-sect = rightInv (fst e₂)
-  ϕ₂-retr = leftInv (fst e₂)
+  ϕ₂-sect = sec (fst e₂)
+  ϕ₂-retr = ret (fst e₂)
 
   ϕ₁left : fst ℤ/2 → coHom 1 ℤ/2 RP²∨S¹
   ϕ₁left a = ϕ₁ (a , 0ℤ/2)
@@ -793,6 +793,6 @@ module _ where
     is : Iso _ _
     fun is = ℤ/2[X,Y]/<Y³,XY,X²>→H*R-RP²∨S¹ .fst
     inv is = H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²>
-    rightInv is = e-sect
-    leftInv is = e-retr
+    sec is = e-sect
+    ret is = e-retr
   snd RP²∨S¹-CohomologyRing = ℤ/2[X,Y]/<Y³,XY,X²>→H*R-RP²∨S¹ .snd

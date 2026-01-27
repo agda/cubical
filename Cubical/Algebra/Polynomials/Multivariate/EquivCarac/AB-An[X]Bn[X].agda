@@ -84,11 +84,11 @@ module _
     is : Iso (fst PA) (fst PB)
     fun is = fst (makeCommRingHomPoly A' B' n (f , fstr))
     inv is = fst (makeCommRingHomPoly B' A' n (g , gstr))
-    rightInv is = DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
+    sec is = DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
                   refl
                   (λ v a → cong (base v) (secEq e a))
                   λ {U V} ind-U ind-V → cong₂ (_+_ (snd PB)) ind-U ind-V
-    leftInv is = DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
+    ret is = DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
                  refl
                  (λ v a → cong (base v) (retEq e a))
                  λ {U V} ind-U ind-V → cong₂ (_+_ (snd PA)) ind-U ind-V

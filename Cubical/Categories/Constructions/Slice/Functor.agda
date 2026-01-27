@@ -26,7 +26,6 @@ private
   variable
     ℓ ℓ' : Level
     C D : Category ℓ ℓ'
-    c d : C .ob
 
 infix 39 _F/_
 infix 40 ∑_
@@ -79,7 +78,7 @@ module _ (Pbs : Pullbacks C) where
  open _⊣₂_
 
 
- module _ (𝑓 : C [ c , d ]) where
+ module _ {c d}(𝑓 : C [ c , d ]) where
 
   open BaseChange 𝑓 hiding (_＊)
 
@@ -89,9 +88,9 @@ module _ (Pbs : Pullbacks C) where
    in slicehom _ (sym p)
   inv (adjIso ∑𝑓⊣𝑓＊) (slicehom h o) = slicehom _ $
     AssocCong₂⋆R C (sym (pbCommutes)) ∙ cong (_⋆ᶜ 𝑓) o
-  rightInv (adjIso ∑𝑓⊣𝑓＊) (slicehom h o) =
+  sec (adjIso ∑𝑓⊣𝑓＊) (slicehom h o) =
     SliceHom-≡-intro' _ _ (pullbackArrowUnique (sym o) refl)
-  leftInv (adjIso ∑𝑓⊣𝑓＊) (slicehom h o) =
+  ret (adjIso ∑𝑓⊣𝑓＊) (slicehom h o) =
    let ((_ , (_ , q)) , _) = univProp _ _ _
    in SliceHom-≡-intro' _ _ (sym q)
   adjNatInD ∑𝑓⊣𝑓＊ f k = SliceHom-≡-intro' _ _ $
@@ -130,8 +129,8 @@ module _ (Pbs : Pullbacks C) where
    inv (adjIso L/b⊣R/b) (slicehom _ p) =
      slicehom _ $ AssocCong₂⋆R D (sym (N-hom ε _))
          ∙ cong (_⋆ᵈ _) (sym (F-seq L _ _) ∙ cong (L ⟪_⟫) p)
-   rightInv (adjIso L/b⊣R/b) _ = SliceHom-≡-intro' _ _ $ aI.rightInv _
-   leftInv (adjIso L/b⊣R/b) _ = SliceHom-≡-intro' _ _ $ aI.leftInv _
+   sec (adjIso L/b⊣R/b) _ = SliceHom-≡-intro' _ _ $ aI.sec _
+   ret (adjIso L/b⊣R/b) _ = SliceHom-≡-intro' _ _ $ aI.ret _
    adjNatInD L/b⊣R/b _ _ = SliceHom-≡-intro' _ _ $
      cong (_ ⋆ᶜ_) (F-seq R _ _) ∙ sym (C .⋆Assoc _ _ _)
    adjNatInC L/b⊣R/b _ _ = SliceHom-≡-intro' _ _ $
@@ -164,7 +163,7 @@ module _ (Pbs : Pullbacks C) where
             ∙∙ sym (F-seq L _ _)
             ∙∙ cong (L ⟪_⟫) s)
 
-   rightInv (adjIso L/b⊣R/b) h = SliceHom-≡-intro' _ _ $
+   sec (adjIso L/b⊣R/b) h = SliceHom-≡-intro' _ _ $
     let p₂ : ∀ {x} → η ⟦ _ ⟧ ⋆ᶜ R ⟪ L ⟪ x ⟫ ⋆⟨ D ⟩ ε ⟦ _ ⟧ ⟫ ≡ x
         p₂ = cong (_ ⋆ᶜ_) (F-seq R _ _) ∙
                    AssocCong₂⋆L C (sym (N-hom η _))
@@ -173,9 +172,9 @@ module _ (Pbs : Pullbacks C) where
 
     in pullbackArrowUnique (sym (S-comm h)) p₂
 
-   leftInv (adjIso L/b⊣R/b) _ = SliceHom-≡-intro' _ _ $
+   ret (adjIso L/b⊣R/b) _ = SliceHom-≡-intro' _ _ $
        cong ((_⋆ᵈ _) ∘ L ⟪_⟫) (sym (snd (snd (fst (univProp _ _ _)))))
-       ∙ aI.leftInv _
+       ∙ aI.ret _
    adjNatInD L/b⊣R/b _ _ = SliceHom-≡-intro' _ _ $
     let (h , (u , v)) = univProp _ _ _ .fst
         (u' , v') = pbU _

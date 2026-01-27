@@ -95,8 +95,8 @@ A ⋀∙ B = (A ⋀ B) , (inl tt)
 ⋀CommIso : Iso (A ⋀ B) (B ⋀ A)
 Iso.fun ⋀CommIso = ⋀comm→
 Iso.inv ⋀CommIso = ⋀comm→
-Iso.rightInv ⋀CommIso = ⋀comm→²
-Iso.leftInv ⋀CommIso = ⋀comm→²
+Iso.sec ⋀CommIso = ⋀comm→²
+Iso.ret ⋀CommIso = ⋀comm→²
 
 ⋀comm→∙ : A ⋀∙ B →∙ B ⋀∙ A
 fst ⋀comm→∙ = ⋀comm→
@@ -119,8 +119,8 @@ SmashAdjIso {A = A} {B = B} {C = C} =
   snd (fst (Iso.inv is₁ (f , l , r , p)) x) = l x
   fst (snd (Iso.inv is₁ (f , l , r , p)) i) b = r b i
   snd (snd (Iso.inv is₁ (f , l , r , p)) i) j = p i j
-  Iso.rightInv is₁ _ = refl
-  Iso.leftInv is₁ _ = refl
+  Iso.sec is₁ _ = refl
+  Iso.ret is₁ _ = refl
 
   is₂ : Iso (A →∙ (B →∙ C ∙)) (
     (Σ[ f ∈ (fst A → fst B → fst C) ]
@@ -153,8 +153,8 @@ SmashAdjIso {A = A} {B = B} {C = C} =
   fst (Iso.inv is₃ (f , (c* , p) , l , r , q)) (push (inr x) i) = r x (~ i)
   fst (Iso.inv is₃ (f , (c* , p) , l , r , q)) (push (push a j) i) = q j (~ i)
   snd (Iso.inv is₃ (f , (c* , p) , l , r , q)) = sym p
-  Iso.rightInv is₃ _ = refl
-  Iso.leftInv is₃ f =
+  Iso.sec is₃ _ = refl
+  Iso.ret is₃ f =
     ΣPathP ((funExt (λ { (inl x) → refl
                        ; (inr x) → refl
                        ; (push (inl x) i) → refl
@@ -179,9 +179,9 @@ SmashAdjIso {A = A} {B = B} {C = C} =
   → ((x : fst A) (y : fst B) → fst f (inr (x , y)) ≡ fst g (inr (x , y)))
   → f ≡ g
 ⋀→∙Homogeneous≡ C {f = f} {g = g} p =
-     sym (Iso.leftInv SmashAdjIso f)
+     sym (Iso.ret SmashAdjIso f)
   ∙∙ cong (Iso.inv SmashAdjIso) main
-  ∙∙ Iso.leftInv SmashAdjIso g
+  ∙∙ Iso.ret SmashAdjIso g
   where
   main : Iso.fun SmashAdjIso f ≡ Iso.fun SmashAdjIso g
   main =
@@ -719,8 +719,8 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
   Iso-⋀-⋀×2 : Iso (A ⋀ (B ⋀∙ C)) ⋀×2
   Iso.fun Iso-⋀-⋀×2 = ⋀→⋀×2
   Iso.inv Iso-⋀-⋀×2 = ⋀×2→⋀
-  Iso.rightInv Iso-⋀-⋀×2 = ⋀×2→⋀→⋀×2
-  Iso.leftInv Iso-⋀-⋀×2 = ⋀→⋀×2→⋀
+  Iso.sec Iso-⋀-⋀×2 = ⋀×2→⋀→⋀×2
+  Iso.ret Iso-⋀-⋀×2 = ⋀→⋀×2→⋀
 
 module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Pointed ℓ'') where
   -- Step 2: show that ⋀×2 A B C ≃ ⋀×2 C A B
@@ -780,15 +780,15 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
   ⋀×2-permuteIso : Iso (⋀×2 A B C) (⋀×2 C A B)
   Iso.fun ⋀×2-permuteIso = ⋀×2-permuteFun
   Iso.inv ⋀×2-permuteIso = ⋀×2-permuteInv
-  Iso.rightInv ⋀×2-permuteIso base = refl
-  Iso.rightInv ⋀×2-permuteIso (proj x x₁ x₂) = refl
-  Iso.rightInv ⋀×2-permuteIso (gluel x y i) = refl
-  Iso.rightInv ⋀×2-permuteIso (gluem x z i) = refl
-  Iso.rightInv ⋀×2-permuteIso (gluer y z i) = refl
-  Iso.rightInv ⋀×2-permuteIso (gluel≡gluem a i i₁) = refl
-  Iso.rightInv ⋀×2-permuteIso (gluel≡gluer y x x₁) = refl
-  Iso.rightInv ⋀×2-permuteIso (gluem≡gluer z i i₁) = refl
-  Iso.rightInv ⋀×2-permuteIso (coh i j k) r =
+  Iso.sec ⋀×2-permuteIso base = refl
+  Iso.sec ⋀×2-permuteIso (proj x x₁ x₂) = refl
+  Iso.sec ⋀×2-permuteIso (gluel x y i) = refl
+  Iso.sec ⋀×2-permuteIso (gluem x z i) = refl
+  Iso.sec ⋀×2-permuteIso (gluer y z i) = refl
+  Iso.sec ⋀×2-permuteIso (gluel≡gluem a i i₁) = refl
+  Iso.sec ⋀×2-permuteIso (gluel≡gluer y x x₁) = refl
+  Iso.sec ⋀×2-permuteIso (gluem≡gluer z i i₁) = refl
+  Iso.sec ⋀×2-permuteIso (coh i j k) r =
     hcomp (λ l → λ { (i = i0) → gluel≡gluer (snd A) j k
                     ; (i = i1) → gluem≡gluer (snd B) (j ∧ (r ∨ l)) k
                     ; (j = i0) → gluel≡gluem (snd C) i k
@@ -806,15 +806,15 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                     ; (r = i0) → permute-fill→ (~ j) i k l
                     ; (r = i1) → coh i j k})
            (coh i j k))
-  Iso.leftInv ⋀×2-permuteIso base = refl
-  Iso.leftInv ⋀×2-permuteIso (proj x x₁ x₂) = refl
-  Iso.leftInv ⋀×2-permuteIso (gluel x y i) = refl
-  Iso.leftInv ⋀×2-permuteIso (gluem x z i) = refl
-  Iso.leftInv ⋀×2-permuteIso (gluer y z i) = refl
-  Iso.leftInv ⋀×2-permuteIso (gluel≡gluem a i i₁) = refl
-  Iso.leftInv ⋀×2-permuteIso (gluel≡gluer y x x₁) = refl
-  Iso.leftInv ⋀×2-permuteIso (gluem≡gluer z i i₁) = refl
-  Iso.leftInv ⋀×2-permuteIso (coh i j k) r =
+  Iso.ret ⋀×2-permuteIso base = refl
+  Iso.ret ⋀×2-permuteIso (proj x x₁ x₂) = refl
+  Iso.ret ⋀×2-permuteIso (gluel x y i) = refl
+  Iso.ret ⋀×2-permuteIso (gluem x z i) = refl
+  Iso.ret ⋀×2-permuteIso (gluer y z i) = refl
+  Iso.ret ⋀×2-permuteIso (gluel≡gluem a i i₁) = refl
+  Iso.ret ⋀×2-permuteIso (gluel≡gluer y x x₁) = refl
+  Iso.ret ⋀×2-permuteIso (gluem≡gluer z i i₁) = refl
+  Iso.ret ⋀×2-permuteIso (coh i j k) r =
     hcomp (λ l → λ { (i = i0) → gluel≡gluer (snd B) (j ∧ (l ∨ r)) k
                     ; (i = i1) → gluem≡gluer (snd C) j k
                     ; (j = i0) → gluel≡gluem (snd A) i k
@@ -1049,8 +1049,8 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} where
  SmashJoinIso : Iso (Susp (A ⋀ B)) (join (typ A) (typ B))
  Iso.fun SmashJoinIso = SuspSmash→Join
  Iso.inv SmashJoinIso = Join→SuspSmash
- Iso.rightInv SmashJoinIso = Join→SuspSmash→Join
- Iso.leftInv SmashJoinIso = SuspSmash→Join→SuspSmash
+ Iso.sec SmashJoinIso = Join→SuspSmash→Join
+ Iso.ret SmashJoinIso = SuspSmash→Join→SuspSmash
 
 -- Suspension commutes with smash products
 module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} where
@@ -1151,9 +1151,9 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} where
   SuspSmashCommIso : Iso (Susp∙ (typ A) ⋀ B) (Susp (A ⋀ B))
   Iso.fun SuspSmashCommIso = SuspL→Susp⋀
   Iso.inv SuspSmashCommIso = Susp⋀→SuspL
-  Iso.rightInv SuspSmashCommIso north = refl
-  Iso.rightInv SuspSmashCommIso south = merid (inl tt)
-  Iso.rightInv SuspSmashCommIso (merid a i) j =
+  Iso.sec SuspSmashCommIso north = refl
+  Iso.sec SuspSmashCommIso south = merid (inl tt)
+  Iso.sec SuspSmashCommIso (merid a i) j =
     hcomp (λ r → λ {(i = i0) → north
                    ; (i = i1) → merid (inl tt) (j ∧ r)
                    ; (j = i0) → f₁≡f₂ (~ r) .fst a i
@@ -1184,7 +1184,7 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} where
               (λ i → inr' (merid x i , y)) (λ i → inr' (merid (pt A) (~ i) , y))
            ∙ cong (merid (inr (x , y)) ∙_)
               λ j i → merid (push (inr y) (~ j)) (~ i) )
-  Iso.leftInv SuspSmashCommIso =
+  Iso.ret SuspSmashCommIso =
     ⋀-fun≡ _ _ refl
       (λ x → main (snd x) (fst x))
       (λ { north i j → sₙ i j i1

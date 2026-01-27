@@ -92,4 +92,4 @@ N-hom (trans (Braid ⋀Symm)) (f , g) = ⋀comm-sq f g
 isIs (Braid ⋀Symm) _ = makeIsIso-Pointed (isoToIsEquiv ⋀CommIso)
 isSymmetricWildCat.hexagon ⋀Symm a b c = hexagon∙
 symBraiding ⋀Symm X Y =
-  ΣPathP ((funExt (Iso.rightInv ⋀CommIso)) , (sym (rUnit refl)))
+  ΣPathP ((funExt (Iso.sec ⋀CommIso)) , (sym (rUnit refl)))

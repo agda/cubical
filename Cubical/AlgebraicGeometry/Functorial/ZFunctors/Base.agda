@@ -43,6 +43,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Site.Sheaf
 open import Cubical.Categories.Site.Instances.ZariskiCommRing
@@ -60,16 +61,19 @@ module _ {ℓ : Level} where
   open CommRingStr ⦃...⦄
   open IsCommRingHom
 
+  Aff : Category (ℓ-suc ℓ) ℓ
+  Aff = CommRingsCategory {ℓ = ℓ} ^op
 
   -- using the naming conventions of Demazure & Gabriel
-  ℤFunctor = Functor (CommRingsCategory {ℓ = ℓ}) (SET ℓ)
-  ℤFUNCTOR = FUNCTOR (CommRingsCategory {ℓ = ℓ}) (SET ℓ)
+  ℤFunctor = Presheaf Aff ℓ
+  ℤFUNCTOR = PresheafCategory Aff ℓ
 
   -- Yoneda in the notation of Demazure & Gabriel,
   -- uses that double op is original category definitionally
-  Sp : Functor (CommRingsCategory {ℓ = ℓ} ^op) ℤFUNCTOR
-  Sp = YO {C = (CommRingsCategory {ℓ = ℓ} ^op)}
+  Sp : Functor Aff ℤFUNCTOR
+  Sp = YO
 
+  -- TODO: should probably just be hasUniversalElement
   isAffine : (X : ℤFunctor) → Type (ℓ-suc ℓ)
   isAffine X = ∃[ A ∈ CommRing ℓ ] NatIso (Sp .F-ob A) X
   -- TODO: 𝔸¹ ≅ Sp ℤ[x] and 𝔾ₘ ≅ Sp ℤ[x,x⁻¹] ≅ D(x) ↪ 𝔸¹ as first examples of affine schemes
@@ -82,7 +86,7 @@ module _ {ℓ : Level} where
   -- aka the affine line
   -- (aka the representable of ℤ[x])
   𝔸¹ : ℤFunctor
-  𝔸¹ = ForgetfulCommRing→Set
+  𝔸¹ = ForgetfulCommRing→Set ∘F fromOpOp
 
   -- the global sections functor
   𝓞 : Functor ℤFUNCTOR (CommRingsCategory {ℓ = ℓ-suc ℓ} ^op)
@@ -214,8 +218,8 @@ module AdjBij {ℓ : Level} where
           → Iso (CommRingHom A (𝓞 .F-ob X)) (X ⇒ Sp .F-ob A)
   fun 𝓞⊣SpIso = _♭
   inv 𝓞⊣SpIso = _♯
-  rightInv 𝓞⊣SpIso = ♭♯Id
-  leftInv 𝓞⊣SpIso = ♯♭Id
+  sec 𝓞⊣SpIso = ♭♯Id
+  ret 𝓞⊣SpIso = ♯♭Id
 
   𝓞⊣SpNatℤFunctor : {A : CommRing ℓ} {X Y : ℤFunctor {ℓ}} (α : X ⇒ Sp .F-ob A) (β : Y ⇒ X)
                   → (β ●ᵛ α) ♯ ≡ (𝓞 .F-hom β) ∘cr (α ♯)
@@ -237,9 +241,9 @@ module AdjBij {ℓ : Level} where
     theIso : Iso (A .fst) ((𝓞 ∘F Sp) .F-ob A .fst)
     fun theIso = ε A .fst
     inv theIso = yonedaᴾ 𝔸¹ A .fun
-    rightInv theIso α = ℤFUNCTOR .⋆IdL _ ∙ yonedaᴾ 𝔸¹ A .leftInv α
-    leftInv theIso a = path -- I get yellow otherwise
+    sec theIso α = ℤFUNCTOR .⋆IdL _ ∙ yonedaᴾ 𝔸¹ A .ret α
+    ret theIso a = path -- I get yellow otherwise
       where
       path : yonedaᴾ 𝔸¹ A .fun ((idTrans (Sp .F-ob A)) ●ᵛ yonedaᴾ 𝔸¹ A .inv a) ≡ a
-      path = cong (yonedaᴾ 𝔸¹ A .fun) (ℤFUNCTOR .⋆IdL _) ∙ yonedaᴾ 𝔸¹ A .rightInv a
+      path = cong (yonedaᴾ 𝔸¹ A .fun) (ℤFUNCTOR .⋆IdL _) ∙ yonedaᴾ 𝔸¹ A .sec a
   snd (𝓞⊣SpCounitEquiv A) = ε A .snd

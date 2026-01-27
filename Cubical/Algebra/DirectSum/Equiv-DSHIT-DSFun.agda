@@ -386,7 +386,7 @@ module Equiv-Properties
   lemmakk zero a = cong (base 0) (transportRefl a)
   lemmakk (suc k) a with (discreteℕ (suc k) (suc k)) | (discreteℕ k k)
   ... | yes p | yes q = cong₂ _add_
-                             (sym (constSubstCommSlice G (⊕HIT ℕ G Gstr) base (cong suc q) a))
+                             (sym (constSubstCommSlice G (⊕HIT ℕ G Gstr) base p a))
                              (lemmaSkk (suc k) a k ≤-refl)
                         ∙ +⊕HIT-IdR _
   ... | yes p | no ¬q = ⊥.rec (¬q refl)
@@ -416,6 +416,6 @@ module _
     is : Iso (⊕HIT ℕ G Gstr) (⊕Fun G Gstr)
     fun is = ⊕HIT→⊕Fun
     Iso.inv is = ⊕Fun→⊕HIT
-    rightInv is = e-sect
-    leftInv is = e-retr
+    sec is = e-sect
+    ret is = e-retr
   snd Equiv-DirectSum = makeIsGroupHom ⊕HIT→⊕Fun-pres+

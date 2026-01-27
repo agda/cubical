@@ -120,13 +120,13 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
   inv (fst (Hⁿ-⋁ zero)) =
     uncurry (ST.elim2 (λ _ _ → isSetSetTrunc)
              λ f g → ∣ wedgeFun⁻ 0 f g ∣₂)
-  rightInv (fst (Hⁿ-⋁ zero)) =
+  sec (fst (Hⁿ-⋁ zero)) =
     uncurry
     (coHomPointedElim _ (pt A) (λ _ → isPropΠ λ _ → isSet× isSetSetTrunc isSetSetTrunc _ _)
       λ f fId → coHomPointedElim _ (pt B) (λ _ → isSet× isSetSetTrunc isSetSetTrunc _ _)
         λ g gId → ΣPathP ((cong ∣_∣₂ (funExt (λ x → cong (f x +ₖ_) gId ∙ rUnitₖ 1 (f x))))
                           , cong ∣_∣₂ (funExt (λ x → cong (_+ₖ g x) fId ∙ lUnitₖ 1 (g x)))))
-  leftInv (fst (Hⁿ-⋁ zero)) =
+  ret (fst (Hⁿ-⋁ zero)) =
     ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
       (λ f → PT.rec (isSetSetTrunc _ _)
                    (λ fId → cong ∣_∣₂ (sym fId))
@@ -168,13 +168,13 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
   inv (fst (Hⁿ-⋁ (suc n))) =
     uncurry (ST.elim2 (λ _ _ → isSetSetTrunc)
                      λ f g → ∣ wedgeFun⁻ (suc n) f g ∣₂)
-  rightInv (fst (Hⁿ-⋁ (suc n))) =
+  sec (fst (Hⁿ-⋁ (suc n))) =
    uncurry
     (coHomPointedElim _ (pt A) (λ _ → isPropΠ λ _ → isSet× isSetSetTrunc isSetSetTrunc _ _)
       λ f fId → coHomPointedElim _ (pt B) (λ _ → isSet× isSetSetTrunc isSetSetTrunc _ _)
         λ g gId → ΣPathP ((cong ∣_∣₂ (funExt (λ x → cong (f x +ₖ_) gId ∙ rUnitₖ (2 + n) (f x))))
                           , cong ∣_∣₂ (funExt (λ x → cong (_+ₖ g x) fId ∙ lUnitₖ (2 + n) (g x)))))
-  leftInv (fst (Hⁿ-⋁ (suc n))) =
+  ret (fst (Hⁿ-⋁ (suc n))) =
     ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
       (λ f → PT.rec (isSetSetTrunc _ _)
                    (λ fId → cong ∣_∣₂ (sym fId))
@@ -223,12 +223,12 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                                        ; (inr b) → g b
                                        ; (push tt i) → (p ∙ sym q) i})
                                        , p ∣₂})
-  rightInv (fst H⁰Red-⋁) =
+  sec (fst H⁰Red-⋁) =
     uncurry
       (ST.elim2 (λ _ _ → isOfHLevelPath 2 (isSet× isSetSetTrunc isSetSetTrunc) _ _)
         λ {(_ , _) (_ , _) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl)
                                     , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl))})
-  leftInv (fst H⁰Red-⋁) =
+  ret (fst H⁰Red-⋁) =
     ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
       λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _)
                                  (funExt λ {(inl a) → refl

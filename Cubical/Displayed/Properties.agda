@@ -72,7 +72,7 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
         where
           g : (b' : B a) → (b ≡ b') ≡ PathP (λ i → B (≅→≡ (ρ a) i)) b b'
           g b' = subst (λ r → (b ≡ b') ≡ PathP (λ i → B (r i)) b b')
-                       (sym (Iso.rightInv (uaIso a a) refl))
+                       (sym (Iso.sec (uaIso a a) refl))
                        refl
           uni' : (b' : B a) → b ≅ᴰ⟨ ρ a ⟩ b' ≃ PathP (λ i → B (≅→≡ (ρ a) i)) b b'
           uni' b' = compEquiv (uni b b') (pathToEquiv (g b'))

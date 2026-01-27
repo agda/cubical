@@ -94,8 +94,8 @@ windingℤLoop (negsuc (suc n)) = cong predℤ (windingℤLoop (negsuc n))
 ΩS¹Isoℤ : Iso ΩS¹ ℤ
 Iso.fun ΩS¹Isoℤ      = winding
 Iso.inv ΩS¹Isoℤ      = intLoop
-Iso.rightInv ΩS¹Isoℤ = windingℤLoop
-Iso.leftInv ΩS¹Isoℤ  = decodeEncode base
+Iso.sec ΩS¹Isoℤ = windingℤLoop
+Iso.ret ΩS¹Isoℤ  = decodeEncode base
 
 ΩS¹≡ℤ : ΩS¹ ≡ ℤ
 ΩS¹≡ℤ = isoToPath ΩS¹Isoℤ
@@ -332,8 +332,8 @@ basechange2-retr =
 Iso-basedΩS¹-ΩS¹ : (x : S¹) → Iso (basedΩS¹ x) ΩS¹
 Iso.fun (Iso-basedΩS¹-ΩS¹ x) = basechange2⁻ x
 Iso.inv (Iso-basedΩS¹-ΩS¹ x) = basechange2 x
-Iso.rightInv (Iso-basedΩS¹-ΩS¹ x) = basechange2-retr x
-Iso.leftInv (Iso-basedΩS¹-ΩS¹ x) = basechange2-sect x
+Iso.sec (Iso-basedΩS¹-ΩS¹ x) = basechange2-retr x
+Iso.ret (Iso-basedΩS¹-ΩS¹ x) = basechange2-sect x
 
 Iso-basedΩS¹-ℤ : (x : S¹) → Iso (basedΩS¹ x) ℤ
 Iso-basedΩS¹-ℤ x = compIso (Iso-basedΩS¹-ΩS¹ x) ΩS¹Isoℤ
@@ -375,8 +375,8 @@ invS¹Equiv = isoToEquiv theIso
   theIso : Iso S¹ S¹
   Iso.fun theIso = invLooper
   Iso.inv theIso = invLooper
-  Iso.rightInv theIso = invInvolutive
-  Iso.leftInv theIso = invInvolutive
+  Iso.sec theIso = invInvolutive
+  Iso.ret theIso = invInvolutive
 
 invS¹Path : S¹ ≡ S¹
 invS¹Path = ua invS¹Equiv

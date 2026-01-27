@@ -93,11 +93,11 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
   Iso-FUNCTORIso-NatIso : {F G : Functor C D} → Iso (CatIso FUNCTOR F G) (NatIso F G)
   Iso-FUNCTORIso-NatIso .fun = FUNCTORIso→NatIso
   Iso-FUNCTORIso-NatIso .inv = NatIso→FUNCTORIso
-  Iso-FUNCTORIso-NatIso .rightInv α i .trans = α .trans
-  Iso-FUNCTORIso-NatIso .rightInv α i .nIso =
+  Iso-FUNCTORIso-NatIso .sec α i .trans = α .trans
+  Iso-FUNCTORIso-NatIso .sec α i .nIso =
     isProp→PathP (λ i → isPropΠ (λ _ → isPropIsIso _)) (FUNCTORIso' (α .trans) (FUNCTORIso _ (α .nIso))) (α .nIso) i
-  Iso-FUNCTORIso-NatIso .leftInv α i .fst = α .fst
-  Iso-FUNCTORIso-NatIso .leftInv α i .snd =
+  Iso-FUNCTORIso-NatIso .ret α i .fst = α .fst
+  Iso-FUNCTORIso-NatIso .ret α i .snd =
     isProp→PathP (λ i → isPropIsIso _) (FUNCTORIso _ (FUNCTORIso' _ (α .snd))) (α .snd) i
 
   FUNCTORIso≃NatIso : {F G : Functor C D} → CatIso FUNCTOR F G ≃ NatIso F G
@@ -136,4 +136,3 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     β .N-ob e ∘⟨ D ⟩ (G .F-hom g ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f))
       ≡⟨ D .⋆Assoc _ _ _ ⟩
     (β .N-ob e ∘⟨ D ⟩ G .F-hom g) ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f) ∎
-

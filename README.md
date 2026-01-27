@@ -82,13 +82,14 @@ we should request a review, by one of the reviewers below.
 If that doesn't happen, you can also request a reviewer yourself (for reviewer expertise see below),
 to make us aware of the open PR. Feel free to use Discord to get in touch with a reviewer in case reviewing is taking a very long time.
 
-| Reviewer                                                                | github handle | Area of expertise                           |
-|-------------------------------------------------------------------------|---------------|---------------------------------------------|
-| [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/)            | [mortberg](https://github.com/mortberg) | *Most topics*  |
-| [Evan Cavallo](https://ecavallo.net/)                                   | [ecavallo](https://github.com/ecavallo) | *Most topics*  |
-| [Felix Cherubini](https://felix-cherubini.de)                           | [felixwellen](https://github.com/felixwellen) | *Mainly algebra related topics* |
-| [Max Zeuner](https://www.su.se/english/profiles/maze1512-1.450461)      | [mzeuner](https://github.com/mzeuner) | *Algebra related topics*                   |
-| [Axel Ljungström](https://aljungstrom.github.io)                        | [aljungstrom](https://github.com/aljungstrom) | *Synthetic homotopy theory and cohomology* |
-| [Andrea Vezzosi](http://saizan.github.io/)                              | [Saizan](https://github.com/Saizan)   | *Inactive*                                 |
+| Reviewer                                                           | github handle                                 | Area of expertise                          |
+|--------------------------------------------------------------------|-----------------------------------------------|--------------------------------------------|
+| [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/)       | [mortberg](https://github.com/mortberg)       | *Most topics*                              |
+| [Evan Cavallo](https://ecavallo.net/)                              | [ecavallo](https://github.com/ecavallo)       | *Most topics*                              |
+| [Felix Cherubini](https://felix-cherubini.de)                      | [felixwellen](https://github.com/felixwellen) | *Mainly algebra related topics*            |
+| [Max Zeuner](https://www.su.se/english/profiles/maze1512-1.450461) | [mzeuner](https://github.com/mzeuner)         | *Algebra related topics*                   |
+| [Axel Ljungström](https://aljungstrom.github.io)                   | [aljungstrom](https://github.com/aljungstrom) | *Synthetic homotopy theory and cohomology* |
+| [Max New](http://maxsnew.com)                                      | [maxsnew](https://github.com/maxsnew)         | *Category theory*                          |
+| [Andrea Vezzosi](http://saizan.github.io/)                         | [Saizan](https://github.com/Saizan)           | *Inactive*                                 |
 
 [Overview](https://github.com/agda/cubical/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-asc+draft%3Afalse) of the current open PRs, descending time since last action.

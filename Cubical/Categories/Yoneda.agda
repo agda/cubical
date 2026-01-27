@@ -56,8 +56,8 @@ module _ {C : Category ℓ ℓ'} where
       theIso : Iso natType setType
       theIso .fun = ϕ
       theIso .inv = Ψ
-      theIso .rightInv x i = F .F-id i x
-      theIso .leftInv α@(natTrans αo αh) =
+      theIso .sec x i = F .F-id i x
+      theIso .ret α@(natTrans αo αh) =
         NatTrans-≡-intro (sym αo≡βo) (symP αh≡βh)
         where
           β = Ψ (ϕ α)
@@ -178,8 +178,8 @@ yoneda* {ℓ}{ℓ'}{ℓ''}{C} F c =
   the-iso .fun α .N-hom g = α .N-hom (g .lower)
   the-iso .inv β .N-ob d f = β .N-ob d f
   the-iso .inv β .N-hom g = β .N-hom (lift g)
-  the-iso .rightInv β = refl
-  the-iso .leftInv α = refl
+  the-iso .sec β = refl
+  the-iso .ret α = refl
 
 yonedaᴾ* : {C : Category ℓ ℓ'}(F : Functor (C ^op) (SET ℓ''))
             → (c : Category.ob C)
@@ -204,8 +204,8 @@ yonedaᴾ* {ℓ}{ℓ'}{ℓ''}{C} F c =
   the-iso .fun α .N-hom = α .N-hom
   the-iso .inv β .N-ob = β .N-ob
   the-iso .inv β .N-hom = β .N-hom
-  the-iso .rightInv = λ b → refl
-  the-iso .leftInv = λ a → refl
+  the-iso .sec = λ b → refl
+  the-iso .ret = λ a → refl
 
 -- Yoneda embedding
 -- TODO: probably want to rename/refactor
@@ -236,8 +236,8 @@ module _ {C : Category ℓ ℓ'} where
     yoIso : Iso (NatTrans (yo x) F) (F .F-ob x .fst)
     yoIso .Iso.fun = yo-yo-yo
     yoIso .Iso.inv = no-no-no
-    yoIso .Iso.rightInv b i = F .F-id i b
-    yoIso .Iso.leftInv a = makeNatTransPath (funExt λ _ → funExt rem)
+    yoIso .Iso.sec b i = F .F-id i b
+    yoIso .Iso.ret a = makeNatTransPath (funExt λ _ → funExt rem)
       where
         rem : ∀ {z} (x₁ : C [ z , x ]) → F .F-hom x₁ (yo-yo-yo a) ≡ (a .N-ob z) x₁
         rem g =
@@ -253,7 +253,7 @@ module _ {C : Category ℓ ℓ'} where
 
 
   isFullYO : isFull YO
-  isFullYO x y F[f] = ∣ yo-yo-yo _ F[f] , yoIso {x} (yo y) .Iso.leftInv F[f] ∣₁
+  isFullYO x y F[f] = ∣ yo-yo-yo _ F[f] , yoIso {x} (yo y) .Iso.ret F[f] ∣₁
 
   isFaithfulYO : isFaithful YO
   isFaithfulYO x y f g p i =
