@@ -396,14 +396,7 @@ FibrationIP = FibrationIdentityPrinciple.FibrationIP
 Embedding : (B : Type ℓ') → (ℓ : Level) → Type (ℓ-max ℓ' (ℓ-suc ℓ))
 Embedding B ℓ = Σ[ A ∈ Type ℓ ] A ↪ B
 
-module EmbeddingIdentityPrinciple {B : Type ℓ} {ℓ'} (f g : Embedding B ℓ') where
-  open Σ f renaming (fst to F)
-  open Σ g renaming (fst to G)
-  open Σ (f .snd) renaming (fst to ffun; snd to isEmbF)
-  open Σ (g .snd) renaming (fst to gfun; snd to isEmbG)
-  f≃g : Type _
-  f≃g = (∀ b → fiber ffun b → fiber gfun b) ×
-         (∀ b → fiber gfun b → fiber ffun b)
+module EmbeddingIdentityPrinciple {B : Type ℓ} {ℓ'} where
   toFibr : Embedding B ℓ' → Fibration B ℓ'
   toFibr (A , (f , _)) = (A , f)
 
@@ -413,19 +406,27 @@ module EmbeddingIdentityPrinciple {B : Type ℓ} {ℓ'} (f g : Embedding B ℓ')
     fullEquiv : (w ≡ x) ≃ (toFibr w ≡ toFibr x)
     fullEquiv = compEquiv (congEquiv (invEquiv Σ-assoc-≃)) (invEquiv (Σ≡PropEquiv (λ _ → isPropIsEmbedding)))
 
-  EmbeddingIP : f≃g ≃ (f ≡ g)
-  EmbeddingIP =
-      f≃g
-    ≃⟨ strictIsoToEquiv (invIso toProdIso) ⟩
-      (∀ b → (fiber ffun b → fiber gfun b) × (fiber gfun b → fiber ffun b))
-    ≃⟨ equivΠCod (λ _ → isEquivPropBiimpl→Equiv (isEmbedding→hasPropFibers isEmbF _)
-                                                 (isEmbedding→hasPropFibers isEmbG _)) ⟩
-      (∀ b → (fiber (f .snd .fst) b) ≃ (fiber (g .snd .fst) b))
-    ≃⟨ FibrationIP (toFibr f) (toFibr g) ⟩
-      (toFibr f ≡ toFibr g)
-    ≃⟨ invEquiv (_ , isEmbeddingToFibr _ _) ⟩
-      f ≡ g
-    ■
+  module _ (f g : Embedding B ℓ') where
+    open Σ f renaming (fst to F)
+    open Σ g renaming (fst to G)
+    open Σ (f .snd) renaming (fst to ffun; snd to isEmbF)
+    open Σ (g .snd) renaming (fst to gfun; snd to isEmbG)
+    f≃g : Type _
+    f≃g = (∀ b → fiber ffun b → fiber gfun b) ×
+            (∀ b → fiber gfun b → fiber ffun b)
+    EmbeddingIP : f≃g ≃ (f ≡ g)
+    EmbeddingIP =
+        f≃g
+        ≃⟨ strictIsoToEquiv (invIso toProdIso) ⟩
+        (∀ b → (fiber ffun b → fiber gfun b) × (fiber gfun b → fiber ffun b))
+        ≃⟨ equivΠCod (λ _ → isEquivPropBiimpl→Equiv (isEmbedding→hasPropFibers isEmbF _)
+                                                    (isEmbedding→hasPropFibers isEmbG _)) ⟩
+        (∀ b → (fiber (f .snd .fst) b) ≃ (fiber (g .snd .fst) b))
+        ≃⟨ FibrationIP (toFibr f) (toFibr g) ⟩
+        (toFibr f ≡ toFibr g)
+        ≃⟨ invEquiv (_ , isEmbeddingToFibr _ _) ⟩
+        f ≡ g
+        ■
 
 _≃Emb_ : {B : Type ℓ} (f g : Embedding B ℓ') → Type _
 _≃Emb_ = EmbeddingIdentityPrinciple.f≃g
@@ -535,3 +536,15 @@ _∪ₑ_ {A = A} X Y = (Σ[ x ∈ A ] ∥ (x ∈ₑ X) ⊎ (x ∈ₑ Y) ∥₁) 
     → Embedding A (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
 ⋃ₑ_ {A = A} {I = I} P = (Σ[ x ∈ A ] (∃[ i ∈ I ] x ∈ₑ P i)) ,
                         EmbeddingΣProp λ _ → squash₁
+
+
+isEmbeddingSndΣProp : {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : A → Type ℓ'} {C : Type ℓ''}
+                    → ((x : A) → isProp (B x))
+                    → (f : C → Σ A B)
+                    → isEmbedding (fst ∘ f)
+                    → isEmbedding f
+isEmbeddingSndΣProp pB f emb =
+    hasPropFibers→isEmbedding
+        (λ z → isOfHLevelRespectEquiv 1
+            (Σ-cong-equiv-snd λ _ → Σ≡PropEquiv pB)
+            (isEmbedding→hasPropFibers emb (z .fst)))
