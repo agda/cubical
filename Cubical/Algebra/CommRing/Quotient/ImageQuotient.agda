@@ -151,7 +151,7 @@ opaque
   unfolding inducedHom
   evalInduce : {ℓ : Level} (R : CommRing ℓ) {X : Type ℓ} {f : X → ⟨ R ⟩}
        {S : CommRing ℓ} {g : CommRingHom R S}
-       {gfx=0 : ∀ (x : X) → g $cr (f x) ≡ CommRingStr.0r (snd S)} → 
+       {gfx=0 : ∀ (x : X) → g $cr (f x) ≡ CommRingStr.0r (snd S)} →
        inducedHom R f g gfx=0 ∘cr quotientImageHom R f ≡ g
   evalInduce R = CommRingHom≡ refl
 
