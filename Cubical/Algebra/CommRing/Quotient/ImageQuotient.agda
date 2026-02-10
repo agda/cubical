@@ -136,16 +136,22 @@ module _ {ℓ : Level} (R : CommRing ℓ) {X : Type ℓ} (f : X → ⟨ R ⟩) w
                              (λ x → isPropIsCommRingHom (str _/Im_) x (str S))
                              (inducedMapUnique (fst h) (cong fst p))
 
-module _ {ℓ : Level}  (R : CommRing ℓ) {X : Type ℓ} {f : X → ⟨ R ⟩}  where
+module _ {ℓ : Level}  (R : CommRing ℓ)
+         {X : Type ℓ} {f : X → ⟨ R ⟩}  where
   opaque
-    quotientImageMapEpi : {ℓ' : Level} → {S : Type ℓ'} → (Sset : isSet S) → {f' g' : ⟨ R /Im f ⟩ → S} →
-                          f' ∘ (quotientImageHom R f) .fst ≡ g' ∘ (quotientImageHom R f).fst → f' ≡ g'
-    quotientImageMapEpi {S = S} Sset {f'} {g'} = CQ.quotientHomEpi R (genIdeal R f) (S , Sset) f' g'
+    quotientImageMapEpi : {ℓ' : Level} → {S : Type ℓ'} →
+      (Sset : isSet S) → {f' g' : ⟨ R /Im f ⟩ → S} →
+      f' ∘ (quotientImageHom R f) .fst ≡ g' ∘ (quotientImageHom R f) .fst →
+      f' ≡ g'
+    quotientImageMapEpi {S = S} Sset {f'} {g'} =
+      CQ.quotientHomEpi R (genIdeal R f) (S , Sset) f' g'
 
   opaque
-    quotientImageHomEpi : {ℓ' : Level} → {S : CommRing ℓ'} → {f' g' : CommRingHom (R /Im f) S} →
-                          f' ∘cr (quotientImageHom R f) ≡ g' ∘cr (quotientImageHom R f) → f' ≡ g'
-    quotientImageHomEpi {S = S} p = CommRingHom≡ $ quotientImageMapEpi (CommRingStr.is-set (snd S)) (cong fst p)
+    quotientImageHomEpi : {ℓ' : Level} → {S : CommRing ℓ'} →
+      {f' g' : CommRingHom (R /Im f) S} →
+      f' ∘cr (quotientImageHom R f) ≡ g' ∘cr (quotientImageHom R f) → f' ≡ g'
+    quotientImageHomEpi {S = S} p = CommRingHom≡ $
+      quotientImageMapEpi (CommRingStr.is-set (snd S)) (cong fst p)
 
 opaque
   unfolding inducedHom
