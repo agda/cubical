@@ -121,8 +121,6 @@ module _ {ℓ : Level} (R : CommRing ℓ) {X : Type ℓ} (f : X → ⟨ R ⟩) w
     opaque
       inducedHom : CommRingHom _/Im_ S
       inducedHom = inducedMap , inducedMapPreservesRing
-      evalInduce : inducedHom ∘cr quotientImageHom ≡ g
-      evalInduce = CommRingHom≡ refl
 
     inducedMapUnique : (h : ⟨ _/Im_ ⟩ → ⟨ S ⟩) →
                        fst g ≡ h ∘ (fst quotientImageHom)  →
@@ -140,17 +138,20 @@ module _ {ℓ : Level} (R : CommRing ℓ) {X : Type ℓ} (f : X → ⟨ R ⟩) w
 
 module _ {ℓ : Level}  (R : CommRing ℓ) {X : Type ℓ} {f : X → ⟨ R ⟩}  where
   opaque
-    quotientImageMapEpi : {ℓ' : Level} → {S : Type ℓ'} → (Sset : isSet S) →
-                          {f' g' : ⟨ R /Im f ⟩ → S} →
-                          f' ∘ (quotientImageHom R f) .fst ≡ g' ∘ (quotientImageHom R f).fst
-                          → f' ≡ g'
-    quotientImageMapEpi {S = S} Sset {f'} {g'} =
-                          CQ.quotientHomEpi R (genIdeal R f) (S , Sset) f' g'
+    quotientImageMapEpi : {ℓ' : Level} → {S : Type ℓ'} → (Sset : isSet S) → {f' g' : ⟨ R /Im f ⟩ → S} →
+                          f' ∘ (quotientImageHom R f) .fst ≡ g' ∘ (quotientImageHom R f).fst → f' ≡ g'
+    quotientImageMapEpi {S = S} Sset {f'} {g'} = CQ.quotientHomEpi R (genIdeal R f) (S , Sset) f' g'
 
   opaque
-    quotientImageHomEpi : {ℓ' : Level} → {S : CommRing ℓ'} →
-      {f' g' : CommRingHom (R /Im f) S} →
-      f' ∘cr (quotientImageHom R f) ≡ g' ∘cr (quotientImageHom R f) → f' ≡ g'
-    quotientImageHomEpi {S = S} p =
-      CommRingHom≡ $ quotientImageMapEpi (CommRingStr.is-set (snd S)) (cong fst p)
+    quotientImageHomEpi : {ℓ' : Level} → {S : CommRing ℓ'} → {f' g' : CommRingHom (R /Im f) S} →
+                          f' ∘cr (quotientImageHom R f) ≡ g' ∘cr (quotientImageHom R f) → f' ≡ g'
+    quotientImageHomEpi {S = S} p = CommRingHom≡ $ quotientImageMapEpi (CommRingStr.is-set (snd S)) (cong fst p)
+
+opaque
+  unfolding inducedHom
+  evalInduce : {ℓ : Level} (R : CommRing ℓ) {X : Type ℓ} {f : X → ⟨ R ⟩}
+       {S : CommRing ℓ} {g : CommRingHom R S}
+       {gfx=0 : ∀ (x : X) → g $cr (f x) ≡ CommRingStr.0r (snd S)} →
+       inducedHom R f g gfx=0 ∘cr quotientImageHom R f ≡ g
+  evalInduce R = CommRingHom≡ refl
 
