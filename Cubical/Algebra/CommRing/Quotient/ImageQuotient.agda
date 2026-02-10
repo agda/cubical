@@ -4,6 +4,7 @@ module Cubical.Algebra.CommRing.Quotient.ImageQuotient where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma
 
@@ -61,38 +62,35 @@ module _ {ℓ : Level} (R : CommRing ℓ) {X : Type ℓ} (f : X → ⟨ R ⟩) w
     extendToIdeal .(0r) zero = pres0
     extendToIdeal .(r + s) (add {r} {s} r∈I s∈I) =
       g $cr (r + s )
-        ≡⟨ pres+ r s ⟩
+         ≡⟨ pres+ r s ⟩
       (g $cr r) + (g $cr s)
-        ≡⟨ cong (λ a → a + (g $cr s)) (extendToIdeal r r∈I) ⟩
+         ≡⟨ cong (λ a → a + (g $cr s)) (extendToIdeal r r∈I) ⟩
       0r + (g $cr s)
-        ≡⟨ cong (λ a → 0r + a) (extendToIdeal s s∈I) ⟩
+         ≡⟨ cong (λ a → 0r + a) (extendToIdeal s s∈I) ⟩
       0r + 0r
-        ≡⟨ +IdL 0r ⟩
+         ≡⟨ +IdL 0r ⟩
       0r ∎
     extendToIdeal .(r · s) (mul {r} {s} s∈I) =
       (g $cr (r · s))
-        ≡⟨ pres· r s ⟩
+         ≡⟨ pres· r s ⟩
       (g $cr r) · (g $cr s)
-        ≡⟨ cong (λ a → (g $cr r) · a) (extendToIdeal s s∈I) ⟩
+         ≡⟨ cong (λ a → (g $cr r) · a) (extendToIdeal s s∈I) ⟩
       (g $cr r) · 0r
-        ≡⟨ 0RightAnnihilates (CommRing→Ring S) (g $cr r) ⟩
+         ≡⟨ 0RightAnnihilates (CommRing→Ring S) (g $cr r) ⟩
       0r ∎
     extendToIdeal r (squash r∈I0 r∈I1 i) =
       is-set (g $cr r) 0r (extendToIdeal r r∈I0) (extendToIdeal r r∈I1) i
 
     inducedMap : ⟨ _/Im_ ⟩ → ⟨ S ⟩
     inducedMap = SQ.elim (λ x → is-set) (fst g)
-      λ { a b r → equalByDifference (CommRing→Ring S) _ _
-      (
+      λ a b r → equalByDifference (CommRing→Ring S) _ _ $
       (g $cr a - g $cr b)
-        ≡⟨ cong (λ b → g $cr a + b) (sym (pres- b)) ⟩
+         ≡⟨ cong (λ b → g $cr a + b) (sym (pres- b)) ⟩
       (g $cr a + g $cr (- b))
-        ≡⟨ sym (pres+ a (- b)) ⟩
+         ≡⟨ sym (pres+ a (- b)) ⟩
       g $cr (a - b)
-        ≡⟨ extendToIdeal _ r ⟩
-      (0r ∎)
-      )
-      }
+         ≡⟨ extendToIdeal _ r ⟩
+      0r ∎
 
     open IsCommRingHom
 
@@ -114,24 +112,52 @@ module _ {ℓ : Level} (R : CommRing ℓ) {X : Type ℓ} (f : X → ⟨ R ⟩) w
         ≡⟨ pres1 (snd g) ⟩
       1r ∎
     pres+ inducedMapPreservesRing =
-      SQ.elimProp2 (λ x y → is-set _ _ ) (pres+ (snd g))
+      SQ.elimProp2 (λ _ _ → is-set _ _ ) (pres+ (snd g))
     pres· inducedMapPreservesRing =
-      SQ.elimProp2 (λ x y → is-set _ _ ) (pres· (snd g))
+      SQ.elimProp2 (λ _ _ → is-set _ _ ) (pres· (snd g))
     pres- inducedMapPreservesRing =
-      SQ.elimProp  (λ x   → is-set _ _ ) (pres- (snd g))
+      SQ.elimProp  (λ _   → is-set _ _ ) (pres- (snd g))
 
-    inducedHom : CommRingHom _/Im_ S
-    inducedHom = inducedMap , inducedMapPreservesRing
+    opaque
+      inducedHom : CommRingHom _/Im_ S
+      inducedHom = inducedMap , inducedMapPreservesRing
 
     inducedMapUnique : (h : ⟨ _/Im_ ⟩ → ⟨ S ⟩) →
                        fst g ≡ h ∘ (fst quotientImageHom)  →
                        inducedMap ≡ h
-    inducedMapUnique _ = funExt ∘ SQ.elimProp (λ { x → is-set _ _ }) ∘ funExt⁻
+    inducedMapUnique _ = funExt ∘ SQ.elimProp (λ _ → is-set _ _) ∘ funExt⁻
 
-    inducedHomUnique : (h : CommRingHom (_/Im_) S) →
-                       (p : g ≡ (h ∘cr quotientImageHom)) →
-                       inducedHom ≡ h
-    inducedHomUnique h p = Σ≡Prop
-                           (λ { x → isPropIsCommRingHom (str _/Im_) x (str S) })
-                           (inducedMapUnique (fst h) (cong fst p))
+    opaque
+      unfolding inducedHom
+      inducedHomUnique : (h : CommRingHom (_/Im_) S) →
+                         (p : g ≡ (h ∘cr quotientImageHom)) →
+                         inducedHom ≡ h
+      inducedHomUnique h p = Σ≡Prop
+                             (λ x → isPropIsCommRingHom (str _/Im_) x (str S))
+                             (inducedMapUnique (fst h) (cong fst p))
+
+module _ {ℓ : Level}  (R : CommRing ℓ)
+         {X : Type ℓ} {f : X → ⟨ R ⟩}  where
+  opaque
+    quotientImageMapEpi : {ℓ' : Level} → {S : Type ℓ'} →
+      (Sset : isSet S) → {f' g' : ⟨ R /Im f ⟩ → S} →
+      f' ∘ (quotientImageHom R f) .fst ≡ g' ∘ (quotientImageHom R f) .fst →
+      f' ≡ g'
+    quotientImageMapEpi {S = S} Sset {f'} {g'} =
+      CQ.quotientHomEpi R (genIdeal R f) (S , Sset) f' g'
+
+  opaque
+    quotientImageHomEpi : {ℓ' : Level} → {S : CommRing ℓ'} →
+      {f' g' : CommRingHom (R /Im f) S} →
+      f' ∘cr (quotientImageHom R f) ≡ g' ∘cr (quotientImageHom R f) → f' ≡ g'
+    quotientImageHomEpi {S = S} p = CommRingHom≡ $
+      quotientImageMapEpi (CommRingStr.is-set (snd S)) (cong fst p)
+
+opaque
+  unfolding inducedHom
+  evalInduce : {ℓ : Level} (R : CommRing ℓ) {X : Type ℓ} {f : X → ⟨ R ⟩}
+       {S : CommRing ℓ} {g : CommRingHom R S}
+       {gfx=0 : ∀ (x : X) → g $cr (f x) ≡ CommRingStr.0r (snd S)} →
+       inducedHom R f g gfx=0 ∘cr quotientImageHom R f ≡ g
+  evalInduce R = CommRingHom≡ refl
 
