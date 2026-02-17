@@ -78,6 +78,35 @@ makeIsPseudolattice {_≤_ = _≤_} is-setL is-prop-valued is-refl is-trans is-a
     PS .IsPseudolattice.isPoset = isposet is-setL is-prop-valued is-refl is-trans is-antisym
     PS .IsPseudolattice.isPseudolattice = is-meet-semipseudolattice , is-join-semipseudolattice
 
+module _
+  (P : Poset ℓ ℓ') (_∧_ _∨_ : ⟨ P ⟩ → ⟨ P ⟩ → ⟨ P ⟩) where
+  open PosetStr (str P) renaming (_≤_ to infix 8 _≤_)
+  module _
+    (π₁ : ∀ {a b}   → a ∧ b ≤ a)
+    (π₂ : ∀ {a b}   → a ∧ b ≤ b)
+    (ϕ  : ∀ {a b x} → x ≤ a → x ≤ b → x ≤ a ∧ b)
+    (ι₁ : ∀ {a b}   → a ≤ a ∨ b)
+    (ι₂ : ∀ {a b}   → b ≤ a ∨ b)
+    (ψ  : ∀ {a b x} → a ≤ x → b ≤ x → a ∨ b ≤ x) where
+
+    makePseudolatticeFromPoset : Pseudolattice ℓ ℓ'
+    makePseudolatticeFromPoset .fst = ⟨ P ⟩
+    makePseudolatticeFromPoset .snd .PseudolatticeStr._≤_ = (str P) .PosetStr._≤_
+    makePseudolatticeFromPoset .snd .PseudolatticeStr.is-pseudolattice = isPL where
+      isPL : IsPseudolattice _≤_
+      isPL .IsPseudolattice.isPoset = isPoset
+      isPL .IsPseudolattice.isPseudolattice .fst a b .fst = a ∧ b
+      isPL .IsPseudolattice.isPseudolattice .fst a b .snd x = propBiimpl→Equiv
+        (is-prop-valued _ _)
+        (isProp× (is-prop-valued _ _) (is-prop-valued _ _))
+        (λ x≤a∧b → is-trans _ _ _ x≤a∧b π₁ , is-trans _ _ _ x≤a∧b π₂)
+        (uncurry ϕ)
+      isPL .IsPseudolattice.isPseudolattice .snd a b .fst = a ∨ b
+      isPL .IsPseudolattice.isPseudolattice .snd a b .snd x = propBiimpl→Equiv
+        (is-prop-valued _ _)
+        (isProp× (is-prop-valued _ _) (is-prop-valued _ _))
+        (λ a∨b≤x → is-trans _ _ _ ι₁ a∨b≤x , is-trans _ _ _ ι₂ a∨b≤x)
+        (uncurry ψ)
 
 record IsPseudolatticeEquiv {A : Type ℓ₀} {B : Type ℓ₁}
   (M : PseudolatticeStr ℓ₀' A) (e : A ≃ B) (N : PseudolatticeStr ℓ₁' B)
