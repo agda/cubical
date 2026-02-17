@@ -3,17 +3,25 @@ module Cubical.Foundations.Interpolate where
 
 open import Cubical.Foundations.Prelude
 
+private variable
+  ℓ : Level
+  A : Type ℓ
+  x y : A
+
 -- An "interpolation" operator on the De Morgan interval. Interpolates
 -- along t from i to j (see first two properties below.)
 interpolateI : I → I → I → I
 interpolateI t i j = (~ t ∧ i) ∨ (t ∧ j) ∨ (i ∧ j)
+
+pathSlice : ∀ (p : x ≡ y) i j → p i ≡ p j
+pathSlice p i j t = p (interpolateI t i j)
 
 -- I believe this is the simplest De Morgan function on three
 -- variables which satisfies all (or even most) of the nice properties
 -- below.
 
 module _
-  {A : Type} {p : I → A} {i j k l m : I}
+  {p : I → A} {i j k l m : I}
   where
   _ : p (interpolateI i0 i j) ≡ p i
   _ = refl

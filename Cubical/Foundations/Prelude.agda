@@ -15,8 +15,6 @@ This file proves a variety of basic results about paths:
 
 - Direct definitions of lower h-levels
 
-- Export natural numbers
-
 - Export universe lifting
 
 -}
@@ -485,18 +483,36 @@ is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
 singlP : (A : I → Type ℓ) (a : A i0) → Type _
 singlP A a = Σ[ x ∈ A i1 ] PathP A a x
 
+singlP' : (A : I → Type ℓ) (a : A i1) → Type _
+singlP' A a = Σ[ x ∈ A i0 ] PathP A x a
+
 singl : (a : A) → Type _
 singl {A = A} a = singlP (λ _ → A) a
 
+singl' : (a : A) → Type _
+singl' {A = A} a = singlP' (λ _ → A) a
+
 isContrSingl : (a : A) → isContr (singl a)
-isContrSingl a .fst = (a , refl)
-isContrSingl a .snd p i .fst = p .snd i
-isContrSingl a .snd p i .snd j = p .snd (i ∧ j)
+isContrSingl a .fst = _ , refl
+isContrSingl a .snd (x , p) i = _ , λ j → p (i ∧ j)
+
+isContrSingl' : (a : A) → isContr (singl' a)
+isContrSingl' a .fst = _ , refl
+isContrSingl' a .snd (x , p) i = _ , λ j → p (~ i ∨ j)
 
 isContrSinglP : (A : I → Type ℓ) (a : A i0) → isContr (singlP A a)
 isContrSinglP A a .fst = _ , transport-filler (λ i → A i) a
-isContrSinglP A a .snd (x , p) i =
-  _ , λ j → fill A (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
+isContrSinglP A a .snd (x , p) i = _ , λ k → fill A (λ j → λ where
+    (i = i0) → transport-filler (λ i → A i) a j
+    (i = i1) → p j
+  ) (inS a) k
+
+isContrSinglP' : (A : I → Type ℓ) (a : A i1) → isContr (singlP' A a)
+isContrSinglP' A a .fst = _ , symP (transport-filler (λ i → A (~ i)) a)
+isContrSinglP' A a .snd (x , p) i = _ , λ k → fill (λ i → A (~ i)) (λ j → λ where
+    (i = i0) → transport-filler (λ i → A (~ i)) a j
+    (i = i1) → p (~ j)
+  ) (inS a) (~ k)
 
 -- Helpers for carrying equalities into with-abstractions
 -- see `discreteℕ` in Data.Nat.Properties for an example of usage
@@ -524,6 +540,13 @@ SquareP :
   (a₋₀ : PathP (λ i → A i i0) a₀₀ a₁₀) (a₋₁ : PathP (λ i → A i i1) a₀₁ a₁₁)
   → Type ℓ
 SquareP A a₀₋ a₁₋ a₋₀ a₋₁ = PathP (λ i → PathP (λ j → A i j) (a₋₀ i) (a₋₁ i)) a₀₋ a₁₋
+
+-- This is the type of squares:
+-- a₀₀ =====> a₀₁
+-- ||         ||
+-- ||         ||
+-- \/         \/
+-- a₁₀ =====> a₁₁
 
 Square :
   {a₀₀ a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁)
@@ -604,31 +627,29 @@ isProp→PathP : ∀ {B : I → Type ℓ} → ((i : I) → isProp (B i))
                → PathP B b0 b1
 isProp→PathP hB b0 b1 = toPathP (hB _ _ _)
 
-isPropIsContr : isProp (isContr A)
-isPropIsContr (c0 , h0) (c1 , h1) j .fst = h0 c1 j
-isPropIsContr (c0 , h0) (c1 , h1) j .snd y i =
-   hcomp (λ k → λ { (i = i0) → h0 (h0 c1 j) k;
-                    (i = i1) → h0 y k;
-                    (j = i0) → h0 (h0 y i) k;
-                    (j = i1) → h0 (h1 y i) k})
-         c0
-
 isContr→isProp : isContr A → isProp A
-isContr→isProp (x , p) a b = sym (p a) ∙ p b
+isContr→isProp (c , h) a b = sym (h a) ∙ h b
+
+isContr→isSet' : isContr A → isSet' A
+isContr→isSet' (c , h) p q r s i j = hcomp (λ k → λ where
+    (i = i0) → h (p j) k
+    (i = i1) → h (q j) k
+    (j = i0) → h (r i) k
+    (j = i1) → h (s i) k
+  ) c
+
+isContr→isSet : isContr A → isSet A
+isContr→isSet c = isSet'→isSet (isContr→isSet' c)
+
+isPropIsContr : isProp (isContr A)
+isPropIsContr (c0 , h0) (c1 , h1) i .fst = h0 c1 i
+isPropIsContr (c0 , h0) (c1 , h1) i .snd y = isContr→isSet' (c0 , h0) (h0 y) (h1 y) (h0 c1) refl i
 
 isProp→isSet : isProp A → isSet A
-isProp→isSet h a b p q j i =
-  hcomp (λ k → λ { (i = i0) → h a a k
-                 ; (i = i1) → h a b k
-                 ; (j = i0) → h a (p i) k
-                 ; (j = i1) → h a (q i) k }) a
+isProp→isSet h a = isContr→isSet (a , h a) a
 
 isProp→isSet' : isProp A → isSet' A
-isProp→isSet' h {a} p q r s i j =
-  hcomp (λ k → λ { (i = i0) → h a (p j) k
-                 ; (i = i1) → h a (q j) k
-                 ; (j = i0) → h a (r i) k
-                 ; (j = i1) → h a (s i) k}) a
+isProp→isSet' h {a} = isContr→isSet' (a , h a)
 
 isPropIsProp : isProp (isProp A)
 isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
