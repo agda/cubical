@@ -736,20 +736,20 @@ module _ {A : Type ℓ}{B : Type ℓ'} where
     isProp→PathP (λ i → isPropC (push a b i)) (l a) (r b))
 
   isContrJoinL : isContr A → isContr (join A B)
-  isContrJoinL isContrA .proj₁ = inl (isContrA .proj₁)
-  isContrJoinL isContrA .proj₂ (inl a) = cong inl (isContrA .proj₂ a)
-  isContrJoinL isContrA .proj₂ (inr b) = push (isContrA .proj₁) b
-  isContrJoinL isContrA .proj₂ (push a b i) j = hcomp (λ where
-    k (i = i0) → inl (isContrA .proj₂ a (~ k ∨ j))
+  isContrJoinL isContrA .fst = inl (isContrA .fst)
+  isContrJoinL isContrA .snd (inl a) = cong inl (isContrA .snd a)
+  isContrJoinL isContrA .snd (inr b) = push (isContrA .fst) b
+  isContrJoinL isContrA .snd (push a b i) j = hcomp (λ where
+    k (i = i0) → inl (isContrA .snd a (~ k ∨ j))
     k (i = i1) → push (isContrA .snd a (~ k)) b j
-    k (j = i0) → inl (isContrA .proj₂ a (~ k))
+    k (j = i0) → inl (isContrA .snd a (~ k))
     k (j = i1) → push a b i)
     (push a b (i ∧ j))
 
   isContrJoinR : isContr B → isContr (join A B)
-  isContrJoinR isContrB .proj₁ = inr (isContrB .proj₁)
-  isContrJoinR isContrB .snd (inl a) = sym $ push a (isContrB .proj₁)
-  isContrJoinR isContrB .snd (inr b) = cong inr (isContrB .proj₂ b)
+  isContrJoinR isContrB .fst = inr (isContrB .fst)
+  isContrJoinR isContrB .snd (inl a) = sym $ push a (isContrB .fst)
+  isContrJoinR isContrB .snd (inr b) = cong inr (isContrB .snd b)
   isContrJoinR isContrB .snd (push a b i) j = hcomp (λ where
     k (i = i0) → push a (isContrB .snd b (~ k)) (~ j)
     k (i = i1) → inr (isContrB .snd b (~ k ∨ j))
