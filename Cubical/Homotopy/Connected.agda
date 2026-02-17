@@ -28,7 +28,7 @@ open import Cubical.HITs.Nullification hiding (elim)
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SmashProduct
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.Join
+open import Cubical.HITs.Join hiding (elim)
 open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1 hiding (elim)
 open import Cubical.HITs.Truncation as Trunc
