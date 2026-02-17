@@ -19,8 +19,8 @@ open import Cubical.Data.Nat.Properties
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Nat.Mod renaming (
-  quotient'_/_  to _/_ ; remainder'_/_ to _%_
-  ; ≡remainder'+quotient' to ≡%+·/ ; mod'< to %< )
+  quotient_/_  to _/_ ; remainder_/_ to _%_
+  ; ≡remainder+quotient to ≡%+·/ ; mod< to %< )
 open import Cubical.Data.Nat.Divisibility
 
 open import Cubical.Relation.Nullary
