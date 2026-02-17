@@ -13,6 +13,7 @@ open import Cubical.Data.Empty
 
 open import Cubical.Data.Bool as 𝟚
 open import Cubical.Data.Maybe
+open import Cubical.Data.Unit
 open import Cubical.Relation.Nullary
 
 open import Cubical.Reflection.Sugar
@@ -39,8 +40,6 @@ module EqualityToNormalform (R@(⟨R⟩ , _) : CommRing ℓ)
  open RingTheory (CommRing→Ring R)
 
 
- open HornerForms R _≟_ R' hom
- open IteratedHornerOperations
  open HomomorphismProperties R _≟_ R' hom
  open IsCommRingHom (snd hom)
 
@@ -149,14 +148,16 @@ module EqualityToNormalform (R@(⟨R⟩ , _) : CommRing ℓ)
      ≡⟨ cong (λ u → ⟦ e ⟧ (x ∷ xs) ·‵ u) (isEqualToNormalform e₁ (x ∷ xs)) ⟩
        ⟦ e ⟧ (x ∷ xs) ·‵ ⟦ e₁ ⟧ (x ∷ xs) ∎
 
- IHR? : ∀ {n} → ∀ (e₁ e₂ : IteratedHornerForms n) → (Σ (Type ℓ) λ X → X → e₁ ≡ e₂)
- IHR? (const x) (const x') = (x ≡ x') , cong const
- IHR? 0H 0H = ℕ.Unit* , λ _ → refl
+ IHR? : ∀ {n} → ∀ (e₁ e₂ : IteratedHornerForms n) → (Σ (Type ℓ) λ X → ((X → e₁ ≡ e₂) × Dec X))
+ IHR? (const x) (const x') = (x ≡ x') , cong const , (x ≟ x')
+ IHR? 0H 0H = ℕ.Unit* , (λ _ → refl) , yes _
  IHR? (e₁ ·X+ e₂) (e₁' ·X+ e₂') =
-   let X , f = IHR? e₁ e₁'
-       X' , f' = IHR? e₂ e₂'
-   in X × X' , λ (x , x') → cong₂ _·X+_ (f x) (f' x')
- IHR? _ _ = ⊥* , λ ()
+   let X , f , d = IHR? e₁ e₁'
+       X' , f' , d' = IHR? e₂ e₂'
+   in X × X'
+       , (λ (x , x') → cong₂ _·X+_ (f x) (f' x'))
+       , Dec× d d'
+ IHR? _ _ = ⊥* , (λ ()) , no λ ()
 
  IHR?-refl : ∀ {n} → ∀ (e : IteratedHornerForms n) → fst (IHR? e e)
  IHR?-refl (HornerForms.const x) = refl
@@ -167,15 +168,27 @@ module EqualityToNormalform (R@(⟨R⟩ , _) : CommRing ℓ)
  HF-refl e = IHR?-refl (normalize e)
 
 
+
  solve :
    {n : ℕ} (e₁ e₂ : RExpr n) (xs : Vec (fst R') n)
    → fst (IHR? (normalize e₁) (normalize e₂)) → ⟦ e₁ ⟧ xs ≡ ⟦ e₂ ⟧ xs
  solve e₁ e₂ xs z =
    ⟦ e₁ ⟧ xs                  ≡⟨ sym (isEqualToNormalform e₁ xs) ⟩
    eval (normalize e₁) xs ≡⟨
-    cong eval (snd (IHR? (normalize e₁) (normalize e₂)) z) ≡$ xs ⟩
+    cong eval (fst (snd (IHR? (normalize e₁) (normalize e₂))) z) ≡$ xs ⟩
    eval (normalize e₂) xs ≡⟨ isEqualToNormalform e₂ xs ⟩
    ⟦ e₂ ⟧ xs ∎
+
+
+ solveByDec :
+   {n : ℕ} (e₁ e₂ : RExpr n) (xs : Vec (fst R') n)
+   → 𝟚.True (snd (snd (IHR? (normalize e₁) (normalize e₂))))
+   → ⟦ e₁ ⟧ xs ≡ ⟦ e₂ ⟧ xs
+ solveByDec e₁ e₂ xs z = solve e₁ e₂ xs (𝟚.toWitness z)
+
+ HF-unit : ∀ {n : ℕ} (e : RExpr n) → Unit
+ HF-unit _ = _
+
 
  congSolve :
    {n : ℕ} (e₁ e₂ : RExpr n) → ∀ {xs xs' : Vec (fst R') n} → xs ≡ xs'
@@ -183,7 +196,7 @@ module EqualityToNormalform (R@(⟨R⟩ , _) : CommRing ℓ)
  congSolve e₁ e₂ {xs} {xs'} p z =
    ⟦ e₁ ⟧ xs                  ≡⟨ sym (isEqualToNormalform e₁ xs) ⟩
    eval (normalize e₁) xs ≡⟨
-    cong₂ eval (snd (IHR? (normalize e₁) (normalize e₂)) z) p ⟩
+    cong₂ eval (fst (snd (IHR? (normalize e₁) (normalize e₂))) z) p ⟩
    eval (normalize e₂) xs' ≡⟨ isEqualToNormalform e₂ xs' ⟩
    ⟦ e₂ ⟧ xs' ∎
 

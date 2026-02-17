@@ -12,6 +12,7 @@ open import Cubical.Tactics.CommRingSolver.Utility
 open import Cubical.Tactics.CommRingSolver.RawAlgebra
 open import Cubical.Tactics.CommRingSolver.HornerForms
 open import Cubical.Tactics.CommRingSolver.RawRing
+open import Cubical.Tactics.CommRingSolver.HornerEval
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
@@ -29,8 +30,8 @@ module HomomorphismProperties (R@(⟨R⟩ , _) : CommRing ℓ)
  open RingTheory (CommRing→Ring R)
 
 
- open HornerForms R _≟_ R' hom
- open IteratedHornerOperations
+ open HornerEval R _≟_ R' hom public
+
 
  open IsCommRingHom (snd hom)
 

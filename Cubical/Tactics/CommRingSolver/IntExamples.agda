@@ -1,10 +1,9 @@
 module Cubical.Tactics.CommRingSolver.IntExamples where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; _-_; -_)
-open import Cubical.Data.List
+
 open import Cubical.Data.Nat using (ℕ; suc; zero)
 
 open import Cubical.Algebra.CommRing
@@ -12,24 +11,11 @@ open import Cubical.Algebra.CommRing.Instances.Fast.Int
 open import Cubical.Algebra.CommAlgebra
 
 open import Cubical.Tactics.CommRingSolver.Reflection
--- open import Cubical.Tactics.CommRingSolverFast.RawAlgebra using (scalar)
+
 
 private
   variable
     ℓ ℓ' : Level
-
--- module TestErrors (R : CommRing ℓ) where
---   open CommRingStr (snd R)
-
---   {-
---     The following should give an type checking error,
---     making the user aware that the problem is, that 'Type₀'
---     is not a CommRing.
---   -}
---   {-
---   _ : 0r ≡ 0r
---   _ = solve Type₀
---   -}
 
 open FastℤRingSolver
 

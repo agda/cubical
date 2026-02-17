@@ -39,7 +39,7 @@ import Cubical.Algebra.CommRing.Instances.Fast.Int as Fastℤ'
 
 import Cubical.Data.Rationals as ℚ
 import Cubical.Algebra.CommRing.Instances.Rationals as ℚ'
-
+import Cubical.HITs.SetQuotients as SetQuotient
 
 private
  variable
@@ -62,6 +62,9 @@ module CommRingSolver
 
   Fuel = ℕ
 
+  fuelBudget : Fuel
+  fuelBudget = 10000000
+
   module _ (cring : Term) where
    module _ (matchTerm : (Term → TC (Template × Vars)) → Term → TC (Maybe (Template × Vars))) where
     open pr
@@ -69,8 +72,7 @@ module CommRingSolver
     buildExpression : Fuel → Term → TC (Template × Vars)
     buildExpression (ℕ.zero) t =
       typeError ("OutOfFuel in Cubical.Tactics.CommRingSolver.GenericCommRing" ∷nl [ t ]ₑ)
-    -- buildExpression 𝓕 v@(var _ _) =
-    --   returnTC ((λ ass → polynomialVariable (ass v)) , v ∷ [])
+
     buildExpression (ℕ.suc 𝓕) t = do
       (just x) ← matchTerm  (buildExpression 𝓕) t
         where nothing → returnTC ((λ ass → polynomialVariable (ass t)) , t ∷ [])
@@ -80,8 +82,8 @@ module CommRingSolver
    toAlgebraExpression (lhs , rhs) = do
 
        matchTerm ← mkMatchTermTC cring
-       r1 ← buildExpression matchTerm 10000 lhs
-       r2 ← buildExpression matchTerm 10000 rhs
+       r1 ← buildExpression matchTerm fuelBudget lhs
+       r2 ← buildExpression matchTerm fuelBudget rhs
        vars ← returnTC (appendWithoutRepetition (snd r1) (snd r2))
        returnTC (
          let ass : VarAss
@@ -231,91 +233,36 @@ module FastℤRingSolver where
        ((quote ℕ._·_) ∷ (quote ℕ._+_) ∷ (quote _+_) ∷ (quote (-_)) ∷ (quote _·_) ∷ (quote _ℕ-_) ∷ [])
        (quote ETNF.solve) (quote ETNF.HF-refl)
 
--- module ℚRingSolver where
---  open ℚ
---  open ℚ'
+module ℚRingSolver where
+ open ℚ
+ open ℚ'
 
---  ℚMatcher : RingReflectionMatcher
---  ℚMatcher .RingReflectionMatcher.mkMatchTermTC _ = returnTC matchTerm
+ ℚMatcher : RingReflectionMatcher
+ ℚMatcher .RingReflectionMatcher.mkMatchTermTC _ = returnTC matchTerm
 
---   where
+  where
 
---   scalarℕ : ℕ → TC (Template × Vars)
---   scalarℕ n = {!!}
---   -- returnTC (((λ _ →
---   --   con (quote K) (con (quote pos) (lit (nat n) v∷ []) v∷ [])) , []))
+  module _ (be : (Term → TC (Template × Vars))) where
+   open BE be
 
---   module _ (be : (Term → TC (Template × Vars))) where
---    open BE be
+   matchTerm : Term → TC (Maybe (Template × Vars))
 
+   matchTerm t@(con (quote SetQuotient.[_]) _) =
+      returnTC (just ((λ _ → con (quote K) v[ t ]) , []))
 
+   matchTerm t@(def (quote -_) xs) = just <$> `-_` xs
+   matchTerm t@(def (quote _+_) xs) = just <$> `_+_` xs
+   matchTerm t@(def (quote _·_) xs) = just <$> `_·_` xs
 
---    -- buildExpressionFromNat : Term → TC (Template × Vars)
---    -- buildExpressionFromNat (lit (nat x)) = scalarℕ x
---    -- buildExpressionFromNat (con (quote ℕ.zero) []) = `0` []
---    -- buildExpressionFromNat (con (quote ℕ.suc) (con (quote ℕ.zero) [] v∷ [] )) = `1` []
---    -- buildExpressionFromNat (con (quote ℕ.suc) (x v∷ [] )) =
---    --   do
---    --   -- debugPrint "intSolver" 20  (strErr "fromNat suc:" ∷ termErr x ∷ [])
---    --   r1 ← `1` []
---    --   r2 ← buildExpressionFromNat x
---    --   returnTC ((λ ass → con (quote _+'_) (fst r1 ass v∷ fst r2 ass v∷ [])) ,
---    --            appendWithoutRepetition (snd r1) (snd r2))
---    -- buildExpressionFromNat (def (quote ℕ._+_) (x v∷ y v∷ [])) =
---    --   do
---    --   -- debugPrint "intSolver" 20  (strErr "buildNateExpr ℕ._+_ :" ∷ termErr x ∷ [])
---    --   r1 ← buildExpressionFromNat x
---    --   r2 ← buildExpressionFromNat y
---    --   returnTC ((λ ass → con (quote _+'_) (fst r1 ass v∷ fst r2 ass v∷ [])) ,
---    --            appendWithoutRepetition (snd r1) (snd r2))
---    -- buildExpressionFromNat (def (quote ℕ._·_) (x v∷ y v∷ [])) =
---    --   do
---    --   r1 ← buildExpressionFromNat x
---    --   r2 ← buildExpressionFromNat y
---    --   returnTC ((λ ass → con (quote _·'_) (fst r1 ass v∷ fst r2 ass v∷ [])) ,
---    --            appendWithoutRepetition (snd r1) (snd r2))
---    -- buildExpressionFromNat (def (quote _ℕ-_) (x v∷ (con (quote ℕ.suc) (y v∷ [] )) v∷ [])) =
---    --   do
---    --   r1 ← buildExpressionFromNat x
---    --   r2 ← do y' ← do u1 ← `1` []
---    --                   u2 ← buildExpressionFromNat y
---    --                   returnTC {A = Template × Vars} ((λ ass → con (quote _+'_) (fst u1 ass v∷ fst u2 ass v∷ [])) ,
---    --                        appendWithoutRepetition (snd u1) (snd u2))
---    --           returnTC {A = Template × Vars} ((λ ass → con (quote -'_) (fst y' ass v∷ [])) , snd y')
---    --   returnTC ((λ ass → con (quote _+'_) (fst r1 ass v∷ fst r2 ass v∷ [])) ,
---    --            appendWithoutRepetition (snd r1) (snd r2))
---    -- buildExpressionFromNat t' =
---    --  let t = (con (quote ℤ.pos) (t' v∷ []))
---    --  in (returnTC ((λ ass → polynomialVariable (ass t)) , t ∷ []))
+   matchTerm _ = returnTC nothing
 
+ private
+  module _ (zring : CommRing ℓ-zero) where
+   module ETNF = EqualityToNormalform ℚCommRing discreteℚ ℚCommRing
+                  (idCommRingHom _)
 
-
---    matchTerm : Term → TC (Maybe (Template × Vars))
-
---    -- matchTerm t@(con (quote ℤ.pos) (x v∷ [])) = do
---    --  -- debugPrint "intSolver" 20  (strErr "buildExpr pos:" ∷ termErr x ∷ [])
---    --  just <$> buildExpressionFromNat x
---    -- matchTerm t@(con (quote ℤ.negsuc) (x v∷ [])) =
---    --  do --debugPrint "intSolver" 20  (strErr "buildExpr negsuc:" ∷ termErr x ∷ [])
---    --     y ← do r1 ← `1` []
---    --            r2 ← buildExpressionFromNat x
---    --            returnTC {A = Template × Vars} ((λ ass → con (quote _+'_) (fst r1 ass v∷ fst r2 ass v∷ [])) ,
---    --                 appendWithoutRepetition (snd r1) (snd r2))
---    --     just <$> returnTC ((λ ass → con (quote -'_) (fst y ass v∷ [])) , snd y)
-
---    matchTerm t@(def (quote -_) xs) = just <$> `-_` xs
---    matchTerm t@(def (quote _+_) xs) = just <$> `_+_` xs
---    matchTerm t@(def (quote _·_) xs) = just <$> `_·_` xs
-
---    matchTerm _ = returnTC nothing
-
---  private
---   module _ (zring : CommRing ℓ-zero) where
---    module ETNF = EqualityToNormalform ℚCommRing {!!} ℚCommRing
---                   (idCommRingHom _)
-
---  macro
---    ℚ! : Term → TC _
---    ℚ! = CommRingSolver.solve!-macro ℚCommRing ℚMatcher
---        ((quote ℕ._·_) ∷ (quote ℕ._+_) ∷ (quote _+_) ∷ (quote (-_)) ∷ (quote _·_) ∷ [])
---        (quote ETNF.solve) (quote ETNF.HF-refl)
+ macro
+   ℚ! : Term → TC _
+   ℚ! = CommRingSolver.solve!-macro ℚCommRing ℚMatcher
+       ((quote ℕ._·_) ∷ (quote ℕ._+_) ∷ (quote _+_) ∷ (quote (-_)) ∷ (quote _·_) ∷ [])
+       (quote ETNF.solveByDec) (quote ETNF.HF-unit)

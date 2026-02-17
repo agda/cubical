@@ -217,3 +217,8 @@ inhabitedFibres? : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'}
   (f : A → B) → Type (ℓ-max ℓ ℓ')
 inhabitedFibres? {A = A} {B = B} f =
   (y : B) → (Σ[ x ∈ A ] f x ≡ y) ⊎ ((x : A) → ¬ f x ≡ y)
+
+Dec× : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'} → Dec A → Dec B → Dec (A × B)
+Dec× (yes p) (yes p') = yes (p , p')
+Dec× _ (no ¬p) = no (¬p ∘ snd)
+Dec× (no ¬p) _ = no (¬p ∘ fst)
