@@ -178,3 +178,6 @@ module PseudolatticeReasoning (P' : Pseudolattice ℓ ℓ') where
 
  _◾ : (x : P) → x ≤ x
  x ◾ = is-pseudolattice .is-refl x
+
+ infixr 0 _≤⟨_⟩_
+ infix  1 _◾
