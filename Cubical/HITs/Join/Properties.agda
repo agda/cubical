@@ -745,6 +745,7 @@ module _ {A : Type ℓ}{B : Type ℓ'} where
     k (j = i0) → inl (isContrA .proj₂ a (~ k))
     k (j = i1) → push a b i)
     (push a b (i ∧ j))
+
   isContrJoinR : isContr B → isContr (join A B)
   isContrJoinR isContrB .proj₁ = inr (isContrB .proj₁)
   isContrJoinR isContrB .snd (inl a) = sym $ push a (isContrB .proj₁)
