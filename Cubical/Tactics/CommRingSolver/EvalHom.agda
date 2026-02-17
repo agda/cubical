@@ -25,13 +25,13 @@ module HomomorphismProperties (R@(⟨R⟩ , _) : CommRing ℓ)
                          (R'@(⟨R'⟩ , _) : CommRing ℓ')
                          (hom@(scalar‵ , _) : CommRingHom R R') where
  open CommRingStr (snd R)
- 
+
  open RingTheory (CommRing→Ring R)
- 
+
 
  open HornerForms R _≟_ R' hom
  open IteratedHornerOperations
- 
+
  open IsCommRingHom (snd hom)
 
  open CommRingStr (snd R') using () renaming

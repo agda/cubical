@@ -55,7 +55,7 @@ module Test (R : CommRing ℓ) (x y z : fst R) where
   open CommRingStr (snd R)
   open RingTheory (CommRing→Ring R) using () renaming (fromℤ to scalar)
 
-  
+
 
   _ : 0r ≡ 0r
   _ = solve! R

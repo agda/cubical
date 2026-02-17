@@ -43,7 +43,7 @@ module TestWithℤ (v : ℕ → ℤ) where
  _ = ℤ!
 
 
- ex13 : (x y : ℤ) → (x · y) · 1r ≡ (y · x) · 1r 
+ ex13 : (x y : ℤ) → (x · y) · 1r ≡ (y · x) · 1r
  ex13 x y = ℤ!
 
  ex0 : (a b : fst ℤCommRing) → a + b ≡ b + a

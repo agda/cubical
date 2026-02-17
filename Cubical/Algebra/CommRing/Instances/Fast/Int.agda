@@ -49,7 +49,7 @@ module CanonicalHomFromℤ (ring : CommRing ℓ) where
  fromℕ-pres-+ (suc zero) y = suc-fromℕ y
  fromℕ-pres-+ (suc (suc x)) y =  cong (R.1r R.+_) (fromℕ-pres-+ (suc x) y) ∙ R.+Assoc _ _ _
 
- 
+
  fromℤ-pres-minus : (x : ℤ) → R.fromℤ (-ℤ x) ≡ R.- R.fromℤ x
  fromℤ-pres-minus (pos zero) = sym R.0Selfinverse
  fromℤ-pres-minus (pos (suc n)) = refl
@@ -59,32 +59,32 @@ module CanonicalHomFromℤ (ring : CommRing ℓ) where
  suc-fromℤ : ∀ z → R.fromℤ (1 +ℤ z) ≡ R.1r R.+ R.fromℤ (z)
  suc-fromℤ (pos n) = suc-fromℕ n
  suc-fromℤ (negsuc zero) = sym (R.+InvR R.1r)
-   
+
  suc-fromℤ (negsuc (suc n)) =
       sym (R.+IdL' _ _ (R.+InvR _))
    ∙∙ sym (R.+Assoc _ _ _)
    ∙∙ cong (R.1r R.+_) (R.-Dist _ _)
-   
+
  fromℤ-pres-+' : (n n₁ : ℕ) →
       R.fromℤ (pos n +ℤ negsuc n₁) ≡
       R.fromℤ (pos n) R.+ R.fromℤ (negsuc n₁)
  fromℤ-pres-+' zero n₁ = sym (R.+IdL _)
- fromℤ-pres-+' (suc n) n₁ =  
+ fromℤ-pres-+' (suc n) n₁ =
     (cong R.fromℤ (sym (𝐙.+Assoc 1 (pos n) (negsuc n₁)))
      ∙ suc-fromℤ (pos n +ℤ negsuc n₁))
     ∙∙ cong (R.1r R.+_) (fromℤ-pres-+' n n₁)
     ∙∙ R.+Assoc _ _ _
     ∙ cong (R._+ R.fromℤ (negsuc n₁))
      (sym (suc-fromℕ n))
- 
+
  fromℤ-pres-+ : (x y : ℤ) → R.fromℤ (x +ℤ y) ≡ R.fromℤ x R.+ R.fromℤ y
  fromℤ-pres-+ (pos n) (pos n₁) = fromℕ-pres-+ n n₁
  fromℤ-pres-+ (pos n) (negsuc n₁) = fromℤ-pres-+' n n₁
- fromℤ-pres-+ (negsuc n) (pos n₁) = 
+ fromℤ-pres-+ (negsuc n) (pos n₁) =
        fromℤ-pres-+' n₁ n
      ∙ R.+Comm _ _
-    
- fromℤ-pres-+ (negsuc n) (negsuc n₁) = 
+
+ fromℤ-pres-+ (negsuc n) (negsuc n₁) =
     cong (R.-_)
        (cong (R.1r R.+_) (cong R.fromℕ (sym (ℕ.+-suc n n₁)))
         ∙ sym (suc-fromℕ (n ℕ.+ suc n₁))
@@ -94,9 +94,9 @@ module CanonicalHomFromℤ (ring : CommRing ℓ) where
 
  fromℕ-pres-· : (x y : ℕ) → R.fromℕ (x ℕ.· y) ≡ R.fromℕ x R.· R.fromℕ y
  fromℕ-pres-· zero y = sym (R.0LeftAnnihilates _)
- fromℕ-pres-· (suc x) y = 
+ fromℕ-pres-· (suc x) y =
     fromℕ-pres-+ y (x ℕ.· y)
-   ∙∙ cong₂ (R._+_) (sym (R.·IdL _)) (fromℕ-pres-· x y) 
+   ∙∙ cong₂ (R._+_) (sym (R.·IdL _)) (fromℕ-pres-· x y)
    ∙∙ sym (R.·DistL+ _ _ _)
    ∙ cong (R._· R.fromℕ y) (sym (suc-fromℕ x))
 
@@ -118,7 +118,7 @@ module CanonicalHomFromℤ (ring : CommRing ℓ) where
         fromℕ-pres-· (suc n) (suc n₁)
     ∙∙ cong₂ R._·_ (sym (R.-Idempotent _)) refl
     ∙∙ R.-Swap· _ _
- 
+
  isHomFromℤ : IsCommRingHom (ℤCommRing .snd) R.fromℤ (ring .snd)
  isHomFromℤ .IsCommRingHom.pres0 = refl
  isHomFromℤ .IsCommRingHom.pres1 = refl

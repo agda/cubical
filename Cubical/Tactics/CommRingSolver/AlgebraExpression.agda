@@ -36,7 +36,7 @@ data Expr' {ℓ} (R : Type ℓ) (A : Type ℓ') (n : ℕ) : Type ℓ where
   -'_ : Expr' R A n → Expr' R A n
 
 Expr : ∀ {ℓ} (R : RawRing ℓ) (A : Type ℓ') (n : ℕ) → Type ℓ
-Expr R = Expr' ⟨ R ⟩ 
+Expr R = Expr' ⟨ R ⟩
 
 module PrettyExpr {ℓ} (R : RawRing ℓ) (A : Type ℓ') (showScalar : ⟨ R ⟩ → TC String) where
 

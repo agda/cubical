@@ -35,7 +35,7 @@ polynomialVariable n = con (quote ∣) (finiteNumberAsTerm n v∷ [])
 
 
 module pr {R : Type ℓ} {n : ℕ} where
-  
+
 
   0' : Expr' ℤ R n
   0' = K 0
@@ -45,7 +45,7 @@ module pr {R : Type ℓ} {n : ℕ} where
 
 
 
-module BE (buildExpression : Term → TC (Template × Vars)) where 
+module BE (buildExpression : Term → TC (Template × Vars)) where
 
  open pr
 
@@ -93,7 +93,7 @@ module BE (buildExpression : Term → TC (Template × Vars)) where
  `-_` ts = errorOut ts
 
 
-record RingReflectionMatcher : Type where 
+record RingReflectionMatcher : Type where
  field
   mkMatchTermTC : Term → TC
     ((Term → TC (Template × Vars))
@@ -143,11 +143,11 @@ module GenericCommRingReflection where
 
   genericCommRingMatchTerm : RingReflectionMatcher
   genericCommRingMatchTerm .RingReflectionMatcher.mkMatchTermTC cring = do
-    matchTerm <$> findRingNames cring  
+    matchTerm <$> findRingNames cring
 
    where
-    
-   module _ (ringNames : RingNames) (be : (Term → TC (Template × Vars))) where 
+
+   module _ (ringNames : RingNames) (be : (Term → TC (Template × Vars))) where
     open BE be
     open RingNames ringNames
 
@@ -168,11 +168,11 @@ module GenericCommRingReflection where
     -- there should be cases for definitions (with arguments)
 
     matchTerm _ = returnTC nothing
-    
+
 --   open CommRingReflection ring genericCommRingMatchTerm public
-  
+
 -- -- module GenericCommReflection (ring : CommRing ℓ) where
- 
+
 
 -- --  module pr {n : ℕ} where
 -- --    open CommRingStr (snd ring)

@@ -49,7 +49,7 @@ private
 
 
 module CommRingSolver
-         (ring : CommRing ℓ)         
+         (ring : CommRing ℓ)
          (rrm : RingReflectionMatcher)
          (doNotUnfold : List Name)
          (solverName : Name)
@@ -69,7 +69,7 @@ module CommRingSolver
     buildExpression : Fuel → Term → TC (Template × Vars)
     buildExpression (ℕ.zero) t =
       typeError ("OutOfFuel in Cubical.Tactics.CommRingSolver.GenericCommRing" ∷nl [ t ]ₑ)
-    -- buildExpression 𝓕 v@(var _ _) = 
+    -- buildExpression 𝓕 v@(var _ _) =
     --   returnTC ((λ ass → polynomialVariable (ass v)) , v ∷ [])
     buildExpression (ℕ.suc 𝓕) t = do
       (just x) ← matchTerm  (buildExpression 𝓕) t
@@ -89,7 +89,7 @@ module CommRingSolver
          in (fst r1 ass , fst r2 ass , vars ))
 
 
- 
+
 
  solverCallWithVars : ℕ → Vars → Term → Term → Term → Term
  solverCallWithVars n vars R lhs rhs =
@@ -98,7 +98,7 @@ module CommRingSolver
            v∷ (variableList vars)
            ∷ (def solverPrfName  (R v∷ (harg {quantity-ω} (ℕAsTerm (length vars))) ∷ v[ lhs ]))
             v∷ [])
-     
+
      where
        variableList : Vars → Arg Term
        variableList [] = varg (con (quote emptyVec) [])
@@ -120,10 +120,10 @@ module CommRingSolver
          nothing
            → typeError(strErr "The CommRingSolver failed to parse the goal "
                               ∷ termErr goal ∷ [])
-     
+
      (lhs' , rhs' , vars) ← CommRingReflection.toAlgebraExpression commRing (lhs , rhs)
      -- typeError (map,ₑ vars ++ₑ map,ₑ (lhs ∷ rhs ∷ []))
-     
+
      let solution = solverCallWithVars (length vars) vars commRing lhs' rhs'
      unify hole solution <|> do
        solutionType ←
@@ -132,14 +132,14 @@ module CommRingSolver
        typeError (("solution type: " ∷nl [ solutionType ]ₑ) ++nl (map,ₑ vars ++nl map,ₑ (lhs' ∷ rhs' ∷ [])))
 
 module _ (ring : CommRing ℓ) where
- 
+
  private
   module ETNF =  EqualityToNormalform Fastℤ'.ℤCommRing Fastℤ.discreteℤ ring
                   (_ , Fastℤ'.CanonicalHomFromℤ.isHomFromℤ ring)
 
  macro
    solve! : Term → TC _
-   solve! = CommRingSolver.solve!-macro ring             
+   solve! = CommRingSolver.solve!-macro ring
     (GenericCommRingReflection.genericCommRingMatchTerm) [] (quote ETNF.solve) (quote ETNF.HF-refl)
 
 
@@ -156,13 +156,13 @@ module FastℤRingSolver where
   scalarℕ n = returnTC (((λ _ →
     con (quote K) (con (quote pos) (lit (nat n) v∷ []) v∷ [])) , []))
 
-  module _ (be : (Term → TC (Template × Vars))) where 
+  module _ (be : (Term → TC (Template × Vars))) where
    open BE be
-   
+
 
 
    buildExpressionFromNat : Term → TC (Template × Vars)
-   buildExpressionFromNat (lit (nat x)) = scalarℕ x 
+   buildExpressionFromNat (lit (nat x)) = scalarℕ x
    buildExpressionFromNat (con (quote ℕ.zero) []) = `0` []
    buildExpressionFromNat (con (quote ℕ.suc) (con (quote ℕ.zero) [] v∷ [] )) = `1` []
    buildExpressionFromNat (con (quote ℕ.suc) (x v∷ [] )) =
@@ -202,7 +202,7 @@ module FastℤRingSolver where
 
 
    matchTerm : Term → TC (Maybe (Template × Vars))
-   
+
    matchTerm t@(con (quote ℤ.pos) (x v∷ [])) = do
     -- debugPrint "intSolver" 20  (strErr "buildExpr pos:" ∷ termErr x ∷ [])
     just <$> buildExpressionFromNat x
@@ -217,13 +217,13 @@ module FastℤRingSolver where
    matchTerm t@(def (quote -_) xs) = just <$> `-_` xs
    matchTerm t@(def (quote _+_) xs) = just <$> `_+_` xs
    matchTerm t@(def (quote _·_) xs) = just <$> `_·_` xs
-   
+
    matchTerm _ = returnTC nothing
- 
+
  private
   module _ (zring : CommRing ℓ-zero) where
    module ETNF = EqualityToNormalform ℤCommRing discreteℤ ℤCommRing
-                  (idCommRingHom _) 
+                  (idCommRingHom _)
 
  macro
    ℤ! : Term → TC _
@@ -232,7 +232,7 @@ module FastℤRingSolver where
        (quote ETNF.solve) (quote ETNF.HF-refl)
 
 -- module ℚRingSolver where
---  open ℚ 
+--  open ℚ
 --  open ℚ'
 
 --  ℚMatcher : RingReflectionMatcher
@@ -245,13 +245,13 @@ module FastℤRingSolver where
 --   -- returnTC (((λ _ →
 --   --   con (quote K) (con (quote pos) (lit (nat n) v∷ []) v∷ [])) , []))
 
---   module _ (be : (Term → TC (Template × Vars))) where 
+--   module _ (be : (Term → TC (Template × Vars))) where
 --    open BE be
-   
+
 
 
 --    -- buildExpressionFromNat : Term → TC (Template × Vars)
---    -- buildExpressionFromNat (lit (nat x)) = scalarℕ x 
+--    -- buildExpressionFromNat (lit (nat x)) = scalarℕ x
 --    -- buildExpressionFromNat (con (quote ℕ.zero) []) = `0` []
 --    -- buildExpressionFromNat (con (quote ℕ.suc) (con (quote ℕ.zero) [] v∷ [] )) = `1` []
 --    -- buildExpressionFromNat (con (quote ℕ.suc) (x v∷ [] )) =
@@ -291,7 +291,7 @@ module FastℤRingSolver where
 
 
 --    matchTerm : Term → TC (Maybe (Template × Vars))
-   
+
 --    -- matchTerm t@(con (quote ℤ.pos) (x v∷ [])) = do
 --    --  -- debugPrint "intSolver" 20  (strErr "buildExpr pos:" ∷ termErr x ∷ [])
 --    --  just <$> buildExpressionFromNat x
@@ -306,13 +306,13 @@ module FastℤRingSolver where
 --    matchTerm t@(def (quote -_) xs) = just <$> `-_` xs
 --    matchTerm t@(def (quote _+_) xs) = just <$> `_+_` xs
 --    matchTerm t@(def (quote _·_) xs) = just <$> `_·_` xs
-   
+
 --    matchTerm _ = returnTC nothing
- 
+
 --  private
 --   module _ (zring : CommRing ℓ-zero) where
 --    module ETNF = EqualityToNormalform ℚCommRing {!!} ℚCommRing
---                   (idCommRingHom _) 
+--                   (idCommRingHom _)
 
 --  macro
 --    ℚ! : Term → TC _

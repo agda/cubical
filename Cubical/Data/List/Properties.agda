@@ -302,7 +302,7 @@ split++ (x₁ ∷ xs') ys' (x₂ ∷ xs) ys x =
      p = cons-inj₁ x
  in zs , ⊎.map (map-fst (λ q i → p    i  ∷ q i))
                (map-fst (λ q i → p (~ i) ∷ q i)) q
-               
+
 repeat : ℕ → A → List A
 repeat zero _ = []
 repeat (suc k) x = x ∷ repeat k x

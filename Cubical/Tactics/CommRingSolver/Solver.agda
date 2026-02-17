@@ -28,16 +28,16 @@ open import Cubical.Tactics.CommRingSolver.EvalHom
 private
   variable
     ℓ ℓ' : Level
-    
+
 module EqualityToNormalform (R@(⟨R⟩ , _) : CommRing ℓ)
                          (_≟_ : Discrete ⟨R⟩ )
                          (R'@(⟨R'⟩ , _) : CommRing ℓ')
                          (hom@(scalar‵ , _) : CommRingHom R R') where
 
  open CommRingStr (snd R)
- 
+
  open RingTheory (CommRing→Ring R)
- 
+
 
  open HornerForms R _≟_ R' hom
  open IteratedHornerOperations
@@ -190,7 +190,7 @@ module EqualityToNormalform (R@(⟨R⟩ , _) : CommRing ℓ)
  solveByPath :
    {n : ℕ} (e₁ e₂ : RExpr n) (xs : Vec (fst R') n)
    → eval (normalize e₁) xs ≡ eval (normalize e₂) xs → ⟦ e₁ ⟧ xs ≡ ⟦ e₂ ⟧ xs
- solveByPath e₁ e₂ xs p = 
+ solveByPath e₁ e₂ xs p =
     ⟦ e₁ ⟧ xs                  ≡⟨ sym (isEqualToNormalform e₁ xs) ⟩
     eval (normalize e₁) xs ≡⟨ p ⟩
     eval (normalize e₂) xs ≡⟨ isEqualToNormalform e₂ xs ⟩
