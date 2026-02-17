@@ -36,12 +36,12 @@ module _ {A : Type ℓ} (P : A → Type ℓ') (Q : A → Type ℓ'')
   -- Thm 4.7.7 (fiberwise equivalences)
   fiberEquiv : ([tf] : isEquiv total)
                → ∀ x → isEquiv (f x)
-  fiberEquiv [tf] x .equiv-proof y = isContrRetract (fibers-total .Iso.inv) (fibers-total .Iso.fun) (fibers-total .Iso.rightInv)
+  fiberEquiv [tf] x .equiv-proof y = isContrRetract (fibers-total .Iso.inv) (fibers-total .Iso.fun) (fibers-total .Iso.sec)
                                                     ([tf] .equiv-proof (x , y))
 
   totalEquiv : (fx-equiv : ∀ x → isEquiv (f x))
                → isEquiv total
-  totalEquiv fx-equiv .equiv-proof (x , v) = isContrRetract (fibers-total .Iso.fun) (fibers-total .Iso.inv) (fibers-total .Iso.leftInv)
+  totalEquiv fx-equiv .equiv-proof (x , v) = isContrRetract (fibers-total .Iso.fun) (fibers-total .Iso.inv) (fibers-total .Iso.ret)
                                                             (fx-equiv x .equiv-proof v)
 
 

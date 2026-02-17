@@ -65,8 +65,8 @@ module _ {A : Type ℓ} (conA : isConnected 2 A) (G : AbGroup ℓ') where
       is : Iso _ _
       Iso.fun is = G→H⁰
       Iso.inv is = H⁰→G
-      Iso.rightInv is = H⁰→G→H⁰
-      Iso.leftInv is = G→H⁰→G
+      Iso.sec is = H⁰→G→H⁰
+      Iso.ret is = G→H⁰→G
     snd H⁰conn' = makeIsGroupHom λ _ _ → refl
 
   H⁰conn : AbGroupEquiv (coHomGr zero G A) G

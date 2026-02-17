@@ -53,9 +53,9 @@ BinaryEmbedding w x = isoToIsEquiv theIso
   theIso .inv p i .fst = p i .fst
   theIso .inv p i .snd
     = ∥∥-isPropDep (Bool ≃_) (w .snd) (x .snd) (λ i → p i .fst) i
-  theIso .rightInv p
+  theIso .sec p
     = Σ≡Prop² (isOfHLevel→isOfHLevelDep 1 (λ _ → isPropIsSet)) _ p refl
-  theIso .leftInv p
+  theIso .ret p
     = Σ≡Prop² (∥∥-isPropDep (Bool ≃_)) _ p refl
 
 Base : Binary _

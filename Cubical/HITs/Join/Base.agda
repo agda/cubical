@@ -84,8 +84,8 @@ joinS¹S¹→S³→joinS¹S¹ (push (loop j) (loop k) i) l = border-contraction 
 S³IsojoinS¹S¹ : Iso S³ (join S¹ S¹)
 Iso.fun S³IsojoinS¹S¹ = S³→joinS¹S¹
 Iso.inv S³IsojoinS¹S¹ = joinS¹S¹→S³
-Iso.rightInv S³IsojoinS¹S¹ = joinS¹S¹→S³→joinS¹S¹
-Iso.leftInv S³IsojoinS¹S¹ = S³→joinS¹S¹→S³
+Iso.sec S³IsojoinS¹S¹ = joinS¹S¹→S³→joinS¹S¹
+Iso.ret S³IsojoinS¹S¹ = S³→joinS¹S¹→S³
 
 
 S³≡joinS¹S¹ : S³ ≡ join S¹ S¹

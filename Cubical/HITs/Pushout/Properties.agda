@@ -70,11 +70,11 @@ elimProp {f = f} {g = g} P isPropP PB PC (push a i) =
 -}
 pushoutSwitchEquiv : {f : A → B} {g : A → C}
   → Pushout f g ≃ Pushout g f
-pushoutSwitchEquiv = isoToEquiv (iso f inv leftInv rightInv)
+pushoutSwitchEquiv = isoToEquiv (iso f inv ret sec)
   where f = λ {(inr x) → inl x; (inl x) → inr x; (push a i) → push a (~ i)}
         inv = λ {(inr x) → inl x; (inl x) → inr x; (push a i) → push a (~ i)}
-        leftInv = λ {(inl x) → refl; (inr x) → refl; (push a i) → refl}
-        rightInv = λ {(inl x) → refl; (inr x) → refl; (push a i) → refl}
+        ret = λ {(inl x) → refl; (inr x) → refl; (push a i) → refl}
+        sec = λ {(inl x) → refl; (inr x) → refl; (push a i) → refl}
 
 
 {-
@@ -82,17 +82,17 @@ pushoutSwitchEquiv = isoToEquiv (iso f inv leftInv rightInv)
 -}
 pushoutIdfunEquiv : ∀ {ℓ ℓ'} {X : Type ℓ} {Y : Type ℓ'} (f : X → Y)
   → Y ≃ Pushout f (idfun X)
-pushoutIdfunEquiv f = isoToEquiv (iso inl inv leftInv λ _ → refl)
+pushoutIdfunEquiv f = isoToEquiv (iso inl inv ret λ _ → refl)
   where
     inv : Pushout f (idfun _) → _
     inv (inl y) = y
     inv (inr x) = f x
     inv (push x i) = f x
 
-    leftInv : section inl inv
-    leftInv (inl y) = refl
-    leftInv (inr x) = push x
-    leftInv (push a i) j = push a (i ∧ j)
+    ret : section inl inv
+    ret (inl y) = refl
+    ret (inr x) = push x
+    ret (push a i) j = push a (i ∧ j)
 
 pushoutIdfunEquiv' : ∀ {ℓ ℓ'} {X : Type ℓ} {Y : Type ℓ'} (f : X → Y)
   → Y ≃ Pushout (idfun X) f
@@ -404,8 +404,8 @@ record 3x3-span {ℓ₀₀ ℓ₀₂ ℓ₀₄ ℓ₂₀ ℓ₂₂ ℓ₂₄ ℓ
   3x3-Iso : Iso A□○ A○□
   Iso.fun 3x3-Iso = A□○→A○□
   Iso.inv 3x3-Iso = A○□→A□○
-  Iso.rightInv 3x3-Iso = A○□→A□○→A○□
-  Iso.leftInv 3x3-Iso = A□○→A○□→A□○
+  Iso.sec 3x3-Iso = A○□→A□○→A○□
+  Iso.ret 3x3-Iso = A□○→A○□→A□○
 
   -- the claimed result
   3x3-lemma : A□○ ≡ A○□
@@ -544,8 +544,8 @@ module _ {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
   pushoutIso' : Iso (Pushout f₁ g₁) (Pushout f₂ g₂)
   fun pushoutIso' = P.F
   inv pushoutIso' = P.G
-  rightInv pushoutIso' = fst l-r-cancel
-  leftInv pushoutIso' = snd l-r-cancel
+  sec pushoutIso' = fst l-r-cancel
+  ret pushoutIso' = snd l-r-cancel
 
   pushoutEquiv' : Pushout f₁ g₁ ≃ Pushout f₂ g₂
   pushoutEquiv' = isoToEquiv pushoutIso'
@@ -570,12 +570,12 @@ module _ {ℓ ℓ' ℓ'' : Level} (ℓ''' : Level)
   Iso.inv PushoutLiftIso (inl (lift x)) = inl x
   Iso.inv PushoutLiftIso (inr (lift x)) = inr x
   Iso.inv PushoutLiftIso (push (lift a) i) = push a i
-  Iso.rightInv PushoutLiftIso (inl (lift x)) = refl
-  Iso.rightInv PushoutLiftIso (inr (lift x)) = refl
-  Iso.rightInv PushoutLiftIso (push (lift a) i) = refl
-  Iso.leftInv PushoutLiftIso (inl x) = refl
-  Iso.leftInv PushoutLiftIso (inr x) = refl
-  Iso.leftInv PushoutLiftIso (push a i) = refl
+  Iso.sec PushoutLiftIso (inl (lift x)) = refl
+  Iso.sec PushoutLiftIso (inr (lift x)) = refl
+  Iso.sec PushoutLiftIso (push (lift a) i) = refl
+  Iso.ret PushoutLiftIso (inl x) = refl
+  Iso.ret PushoutLiftIso (inr x) = refl
+  Iso.ret PushoutLiftIso (push a i) = refl
 
 -- equivalence of pushouts with arbitrary univeses
 module _ {ℓA₁ ℓB₁ ℓC₁ ℓA₂ ℓB₂ ℓC₂}
@@ -618,10 +618,10 @@ module _ {ℓA₁ ℓB₁ ℓC₁ ℓA₂ ℓB₂ ℓC₂}
   pushoutIso : Iso (Pushout f₁ g₁) (Pushout f₂ g₂)
   fun pushoutIso = pushoutIso→
   inv pushoutIso = inv pushoutIso*
-  rightInv pushoutIso x =
-    sym (pushoutIso→≡ (inv pushoutIso* x)) ∙ rightInv pushoutIso* x
-  leftInv pushoutIso x =
-    cong (inv pushoutIso*) (sym (pushoutIso→≡ x)) ∙ leftInv pushoutIso* x
+  sec pushoutIso x =
+    sym (pushoutIso→≡ (inv pushoutIso* x)) ∙ sec pushoutIso* x
+  ret pushoutIso x =
+    cong (inv pushoutIso*) (sym (pushoutIso→≡ x)) ∙ ret pushoutIso* x
 
   pushoutEquiv : Pushout f₁ g₁ ≃ Pushout f₂ g₂
   pushoutEquiv = isoToEquiv pushoutIso
@@ -675,8 +675,8 @@ module _ {C : Type ℓ} {B : Type ℓ'} where
     → Iso (Pushout (fst e) f) B
   Iso.fun (PushoutAlongEquiv e f) = PushoutAlongEquiv→ e f
   Iso.inv (PushoutAlongEquiv e f) = inr
-  Iso.rightInv (PushoutAlongEquiv e f) x = refl
-  Iso.leftInv (PushoutAlongEquiv e f) = PushoutAlongEquiv→Cancel e f
+  Iso.sec (PushoutAlongEquiv e f) x = refl
+  Iso.ret (PushoutAlongEquiv e f) = PushoutAlongEquiv→Cancel e f
 
 module PushoutDistr {ℓ ℓ' ℓ'' ℓ''' : Level}
   {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
@@ -696,17 +696,17 @@ module PushoutDistr {ℓ ℓ' ℓ'' ℓ''' : Level}
   PushoutDistrIso : Iso (Pushout {C = Pushout g h} f inl) (Pushout (f ∘ g) h)
   fun PushoutDistrIso = PushoutDistrFun
   inv PushoutDistrIso = PushoutDistrInv
-  rightInv PushoutDistrIso (inl x) = refl
-  rightInv PushoutDistrIso (inr x) = refl
-  rightInv PushoutDistrIso (push a i) j =
+  sec PushoutDistrIso (inl x) = refl
+  sec PushoutDistrIso (inr x) = refl
+  sec PushoutDistrIso (push a i) j =
       (cong-∙ (fun PushoutDistrIso) (push (g a)) (λ j → inr (push a j))
     ∙ sym (lUnit _)) j i
-  leftInv PushoutDistrIso (inl x) = refl
-  leftInv PushoutDistrIso (inr (inl x)) = push x
-  leftInv PushoutDistrIso (inr (inr x)) = refl
-  leftInv PushoutDistrIso (inr (push a i)) j =
+  ret PushoutDistrIso (inl x) = refl
+  ret PushoutDistrIso (inr (inl x)) = push x
+  ret PushoutDistrIso (inr (inr x)) = refl
+  ret PushoutDistrIso (inr (push a i)) j =
     compPath-filler' (push (g a)) (λ j → inr (push a j)) (~ j) i
-  leftInv PushoutDistrIso (push a i) j = push a (i ∧ j)
+  ret PushoutDistrIso (push a i) j = push a (i ∧ j)
 
 PushoutEmptyFam : ¬ A → ¬ C
   → {f : A → B} {g : A → C}
@@ -716,13 +716,13 @@ inv (PushoutEmptyFam ¬A ¬C) (inl x) = x
 inv (PushoutEmptyFam ¬A ¬C) (inr x) = ⊥.rec (¬C x)
 inv (PushoutEmptyFam ¬A ¬C {f = f} {g = g}) (push a i) =
   ⊥.rec {A = f a ≡ ⊥.rec (¬C (g a))} (¬A a) i
-rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) (inl x) = refl
-rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) (inr x) = ⊥.rec (¬C x)
-rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C {f = f} {g = g}) (push a i) j =
+sec (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) (inl x) = refl
+sec (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) (inr x) = ⊥.rec (¬C x)
+sec (PushoutEmptyFam {A = A} {B = B} ¬A ¬C {f = f} {g = g}) (push a i) j =
   ⊥.rec {A = Square (λ i →  inl (⊥.rec {A = f a ≡ ⊥.rec (¬C (g a))} (¬A a) i))
                      (push a) (λ _ → inl (f a)) (⊥.rec (¬C (g a)))}
          (¬A a) j i
-leftInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) x = refl
+ret (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) x = refl
 
 PushoutEmptyDomainIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
   → Iso (Pushout {A = ⊥} {B = A} {C = B} (λ()) (λ())) (A ⊎ B)
@@ -730,10 +730,10 @@ Iso.fun PushoutEmptyDomainIso (inl x) = inl x
 Iso.fun PushoutEmptyDomainIso (inr x) = inr x
 Iso.inv PushoutEmptyDomainIso (inl x) = inl x
 Iso.inv PushoutEmptyDomainIso (inr x) = inr x
-Iso.rightInv PushoutEmptyDomainIso (inl x) = refl
-Iso.rightInv PushoutEmptyDomainIso (inr x) = refl
-Iso.leftInv PushoutEmptyDomainIso (inl x) = refl
-Iso.leftInv PushoutEmptyDomainIso (inr x) = refl
+Iso.sec PushoutEmptyDomainIso (inl x) = refl
+Iso.sec PushoutEmptyDomainIso (inr x) = refl
+Iso.ret PushoutEmptyDomainIso (inl x) = refl
+Iso.ret PushoutEmptyDomainIso (inr x) = refl
 
 PushoutCompEquivIso : ∀ {ℓA ℓA' ℓB ℓB' ℓC}
   {A : Type ℓA} {A' : Type ℓA'} {B : Type ℓB} {B' : Type ℓB'}
@@ -826,7 +826,7 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
                              (isoToEquiv A□0≅cofib-f)
                              refl (funExt λ x
                                → cong (A□0≅cofib-f .Iso.fun ∘ f□1 inst)
-                                       (sym (Iso.leftInv A□2≅B x))))
+                                       (sym (Iso.ret A□2≅B x))))
 
     A○□≅ : Iso (A○□ inst) (Susp (typ A))
     A○□≅ =
@@ -1023,9 +1023,9 @@ module PushoutPasteDown {ℓ₀ ℓ₂ ℓ₄ ℓP ℓA ℓB : Level}
     Iso-B'bot-Bbot : Iso B'bot (Pushout {C = P} f inlP)
     fun Iso-B'bot-Bbot = B'bot→BBot
     inv Iso-B'bot-Bbot = Bbot→B'bot
-    rightInv Iso-B'bot-Bbot (inl x) = refl
-    rightInv Iso-B'bot-Bbot (inr x) i = inr (isHAEquiv.rinv (P'≃P .snd) x i)
-    rightInv Iso-B'bot-Bbot (push a i) j = help j i
+    sec Iso-B'bot-Bbot (inl x) = refl
+    sec Iso-B'bot-Bbot (inr x) i = inr (isHAEquiv.rinv (P'≃P .snd) x i)
+    sec Iso-B'bot-Bbot (push a i) j = help j i
       where
       help : Square
                (cong B'bot→BBot
@@ -1036,9 +1036,9 @@ module PushoutPasteDown {ℓ₀ ℓ₂ ℓ₄ ℓP ℓA ℓB : Level}
       help = flipSquare ((λ i j → B'bot→BBot (compPath-filler (push a)
               (λ i → inr (isHAEquiv.linv (P'≃P .snd) (inl a) (~ i))) (~ j) i))
            ▷ λ j i → inr (isHAEquiv.com (P'≃P .snd) (inl a) j i))
-    leftInv Iso-B'bot-Bbot (inl x) = refl
-    leftInv Iso-B'bot-Bbot (inr x) i = inr (isHAEquiv.linv (P'≃P .snd) x i)
-    leftInv Iso-B'bot-Bbot (push a i) j =
+    ret Iso-B'bot-Bbot (inl x) = refl
+    ret Iso-B'bot-Bbot (inr x) i = inr (isHAEquiv.linv (P'≃P .snd) x i)
+    ret Iso-B'bot-Bbot (push a i) j =
       compPath-filler (push a)
         (λ i → inr (isHAEquiv.linv (P'≃P .snd) (inl a) (~ i))) (~ j) i
 
@@ -1060,17 +1060,17 @@ module PushoutPasteDown {ℓ₀ ℓ₂ ℓ₄ ℓP ℓA ℓB : Level}
     Iso-B'bot→B'tot : Iso B'bot B'tot
     Iso.fun Iso-B'bot→B'tot = B'bot→B'tot
     Iso.inv Iso-B'bot→B'tot = B'tot→B'bot
-    Iso.rightInv Iso-B'bot→B'tot (inl x) = refl
-    Iso.rightInv Iso-B'bot→B'tot (inr x) = refl
-    Iso.rightInv Iso-B'bot→B'tot (push a i) j =
+    Iso.sec Iso-B'bot→B'tot (inl x) = refl
+    Iso.sec Iso-B'bot→B'tot (inr x) = refl
+    Iso.sec Iso-B'bot→B'tot (push a i) j =
        (cong-∙ B'bot→B'tot (push (f1 a)) (λ i → inr (push a i))
       ∙ sym (lUnit _)) j i
-    Iso.leftInv Iso-B'bot→B'tot (inl x) = refl
-    Iso.leftInv Iso-B'bot→B'tot (inr (inl x)) = push x
-    Iso.leftInv Iso-B'bot→B'tot (inr (inr x)) = refl
-    Iso.leftInv Iso-B'bot→B'tot (inr (push a i)) j =
+    Iso.ret Iso-B'bot→B'tot (inl x) = refl
+    Iso.ret Iso-B'bot→B'tot (inr (inl x)) = push x
+    Iso.ret Iso-B'bot→B'tot (inr (inr x)) = refl
+    Iso.ret Iso-B'bot→B'tot (inr (push a i)) j =
       compPath-filler' (push (f1 a)) (λ i → inr (push a i)) (~ j) i
-    Iso.leftInv Iso-B'bot→B'tot (push a i) j = push a (i ∧ j)
+    Iso.ret Iso-B'bot→B'tot (push a i) j = push a (i ∧ j)
 
     main' : Iso (spanPushout (commSquare.sp bottomSquare)) B'tot
     main' = compIso (invIso Iso-B'bot-Bbot) (Iso-B'bot→B'tot)
@@ -1114,7 +1114,7 @@ module PushoutPasteDown {ℓ₀ ℓ₂ ℓ₄ ℓP ℓA ℓB : Level}
           main .fun x ≡ Pushout→commSquare bottomSquare x
     coh x = sym (secEq (_ , eq) (fun main x))
       ∙∙ sym (mainInv∘ (invEq (_ , eq) (Iso.fun main x)))
-      ∙∙ cong (Pushout→commSquare bottomSquare) (Iso.leftInv main x)
+      ∙∙ cong (Pushout→commSquare bottomSquare) (Iso.ret main x)
 
 -- Pushout pasting lemma, alternative version:
 {- Given a diagram consisting of two
@@ -1194,9 +1194,9 @@ fun (LiftPushoutIso ℓP) (push (lift a) i) = lift (push a i)
 inv (LiftPushoutIso ℓP) (lift (inl x)) = inl (lift x)
 inv (LiftPushoutIso ℓP) (lift (inr x)) = inr (lift x)
 inv (LiftPushoutIso ℓP) (lift (push a i)) = push (lift a) i
-rightInv (LiftPushoutIso ℓP) (lift (inl x)) = refl
-rightInv (LiftPushoutIso ℓP) (lift (inr x)) = refl
-rightInv (LiftPushoutIso ℓP) (lift (push a i)) = refl
-leftInv (LiftPushoutIso ℓP) (inl (lift x)) = refl
-leftInv (LiftPushoutIso ℓP) (inr (lift x)) = refl
-leftInv (LiftPushoutIso ℓP) (push (lift a) i) = refl
+sec (LiftPushoutIso ℓP) (lift (inl x)) = refl
+sec (LiftPushoutIso ℓP) (lift (inr x)) = refl
+sec (LiftPushoutIso ℓP) (lift (push a i)) = refl
+ret (LiftPushoutIso ℓP) (inl (lift x)) = refl
+ret (LiftPushoutIso ℓP) (inr (lift x)) = refl
+ret (LiftPushoutIso ℓP) (push (lift a) i) = refl

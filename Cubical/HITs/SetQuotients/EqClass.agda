@@ -71,13 +71,13 @@ module _
       Iso-∥Dec-∥ : Iso _∥Dec_ _∥_
       Iso-∥Dec-∥ .fun P = P .fst .fst , P .snd
       Iso-∥Dec-∥ .inv P = (P .fst , isDecEqClass P) , P .snd
-      Iso-∥Dec-∥ .rightInv P = refl
-      Iso-∥Dec-∥ .leftInv P i .fst .fst = P .fst .fst
-      Iso-∥Dec-∥ .leftInv P i .fst .snd x =
+      Iso-∥Dec-∥ .sec P = refl
+      Iso-∥Dec-∥ .ret P i .fst .fst = P .fst .fst
+      Iso-∥Dec-∥ .ret P i .fst .snd x =
         isProp→PathP {B = λ i → Dec (P .fst .fst x .fst)}
           (λ i → isPropDec (P .fst .fst x .snd))
           (isDecEqClass (Iso-∥Dec-∥ .fun P) x) (P .fst .snd x) i
-      Iso-∥Dec-∥ .leftInv P i .snd = P .snd
+      Iso-∥Dec-∥ .ret P i .snd = P .snd
 
       ∥Dec≃∥ : _∥Dec_ ≃ _∥_
       ∥Dec≃∥ = isoToEquiv Iso-∥Dec-∥
@@ -91,8 +91,8 @@ module _
   ∥Rx∥Iso : (x x' : X)(r : R x x') → (a : X) → Iso ∥ R a x ∥₁ ∥ R a x' ∥₁
   ∥Rx∥Iso x x' r a .fun = Prop.rec isPropPropTrunc (λ r' → ∣ h .transitive _ _ _ r' r ∣₁)
   ∥Rx∥Iso x x' r a .inv = Prop.rec isPropPropTrunc (λ r' → ∣ h .transitive _ _ _ r' (h .symmetric _ _ r) ∣₁)
-  ∥Rx∥Iso x x' r a .leftInv _ = isPropPropTrunc _ _
-  ∥Rx∥Iso x x' r a .rightInv _ = isPropPropTrunc _ _
+  ∥Rx∥Iso x x' r a .ret _ = isPropPropTrunc _ _
+  ∥Rx∥Iso x x' r a .sec _ = isPropPropTrunc _ _
 
   isEqClass∥Rx∥ : (x : X) → isEqClass X R (λ a → ∥ R a x ∥₁ , isPropPropTrunc)
   isEqClass∥Rx∥ x = ∣ x , (λ _ → idEquiv _) ∣₁

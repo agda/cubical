@@ -63,20 +63,20 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (e : BiInvEquiv A B) where
   biInvEquiv→Iso-right : Iso A B
   Iso.fun biInvEquiv→Iso-right      = fun
   Iso.inv biInvEquiv→Iso-right      = invr
-  Iso.rightInv biInvEquiv→Iso-right = invr-rightInv
-  Iso.leftInv biInvEquiv→Iso-right  = invr-leftInv
+  Iso.sec biInvEquiv→Iso-right = invr-rightInv
+  Iso.ret biInvEquiv→Iso-right  = invr-leftInv
 
   biInvEquiv→Iso-left : Iso A B
   Iso.fun biInvEquiv→Iso-left      = fun
   Iso.inv biInvEquiv→Iso-left      = invl
-  Iso.rightInv biInvEquiv→Iso-left = invl-rightInv
-  Iso.leftInv biInvEquiv→Iso-left  = invl-leftInv
+  Iso.sec biInvEquiv→Iso-left = invl-rightInv
+  Iso.ret biInvEquiv→Iso-left  = invl-leftInv
 
   biInvEquiv→Equiv-right biInvEquiv→Equiv-left : A ≃ B
   biInvEquiv→Equiv-right = fun , isoToIsEquiv biInvEquiv→Iso-right
   biInvEquiv→Equiv-left  = fun , isoToIsEquiv biInvEquiv→Iso-left
 
-  -- since Iso.rightInv ends up getting modified during iso→HAEquiv, in some sense biInvEquiv→Iso-left
+  -- since Iso.sec ends up getting modified during iso→HAEquiv, in some sense biInvEquiv→Iso-left
   --  is the most natural choice for forming a HAEquiv from a BiInvEquiv
   biInvEquiv→HAEquiv : HAEquiv A B
   biInvEquiv→HAEquiv = iso→HAEquiv biInvEquiv→Iso-left
@@ -88,9 +88,9 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (i : Iso A B) where
   iso→BiInvEquiv : BiInvEquiv A B
   BiInvEquiv.fun iso→BiInvEquiv           = fun
   BiInvEquiv.invr iso→BiInvEquiv          = inv
-  BiInvEquiv.invr-rightInv iso→BiInvEquiv = rightInv
+  BiInvEquiv.invr-rightInv iso→BiInvEquiv = sec
   BiInvEquiv.invl iso→BiInvEquiv          = inv
-  BiInvEquiv.invl-leftInv iso→BiInvEquiv  = leftInv
+  BiInvEquiv.invl-leftInv iso→BiInvEquiv  = ret
 
 
 -- composition of bi-invertible maps

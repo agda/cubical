@@ -226,11 +226,11 @@ isAntisym≼Equiv A B (f , simf) (g , simg)
   where is : Iso ⟨ A ⟩ ⟨ B ⟩
         Iso.fun is = f
         Iso.inv is = g
-        Iso.rightInv is b i
+        Iso.sec is b i
           = cong (_$_ ∘ fst)
             (isPropValued≼ B B (isTrans≼ B A B (g , simg) (f , simf))
               (isRefl≼ B)) i b
-        Iso.leftInv is a i
+        Iso.ret is a i
           = cong (_$_ ∘ fst)
             (isPropValued≼ A A (isTrans≼ A B A (f , simf) (g , simg))
               (isRefl≼ A)) i a
@@ -690,14 +690,14 @@ isWeaklyExtensional≺
           where is : Iso ⟨ A ⟩ ⟨ B ⟩
                 Iso.fun is a = equivFun (ex (A ↓ a)) (↓Decreasing A a) .fst
                 Iso.inv is b = invEq (ex (B ↓ b)) (↓Decreasing B b) .fst
-                Iso.rightInv is p = isEmbedding→Inj (isEmbedding↓ B) q p
+                Iso.sec is p = isEmbedding→Inj (isEmbedding↓ B) q p
                                     (equivFun (WosetPath (B ↓ q) (B ↓ p))
                                       (compWosetEquiv
                                         (equivFun (ex (A ↓ (Iso.inv is p)))
                                                   (↓Decreasing A (Iso.inv is p)) .snd)
                                         (invEq (ex (B ↓ p)) (↓Decreasing B p) .snd)))
                                       where q = Iso.fun is (Iso.inv is p)
-                Iso.leftInv  is p = isEmbedding→Inj (isEmbedding↓ A) q p
+                Iso.ret  is p = isEmbedding→Inj (isEmbedding↓ A) q p
                                     (equivFun (WosetPath (A ↓ q) (A ↓ p))
                                       (compWosetEquiv
                                         (invEq (ex (B ↓ (Iso.fun is p)))

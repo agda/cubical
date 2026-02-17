@@ -98,7 +98,7 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
               ≡ Iso.inv isoR (CommAlgebra→CommRing (R [ I ⊎ J ]) , baseRingHom)
       step1 i = Iso.inv isoR ((CommAlgebra→CommRing R[I⊎J]overR[I]) , ≡RingHoms i)
 
-      step2 = Iso.leftInv isoR (R [ I ⊎ J ])
+      step2 = Iso.ret isoR (R [ I ⊎ J ])
 
   fst≡R[I⊎J] : cong fst ≡R[I⊎J] ≡ refl
   fst≡R[I⊎J] =

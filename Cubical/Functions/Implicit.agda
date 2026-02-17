@@ -11,6 +11,6 @@ implicit≃Explicit = isoToEquiv isom
   isom : Iso _ _
   Iso.fun isom f a = f
   Iso.inv isom f = f _
-  Iso.rightInv isom f = funExt λ _ → refl
-  Iso.leftInv isom f = implicitFunExt refl
+  Iso.sec isom f = funExt λ _ → refl
+  Iso.ret isom f = implicitFunExt refl
 

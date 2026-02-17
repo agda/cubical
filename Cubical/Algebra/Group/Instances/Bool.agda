@@ -66,15 +66,15 @@ module _ {ℓ : Level} {A : Group ℓ} (e : Iso (fst A) Bool) where
 
     true→1 : Iso.fun IsoABool true ≡ 1g (snd A)
     true→1 with (Iso.fun e (1g (snd A))) ≟ true
-    ... | yes p = sym (cong (Iso.inv e) p) ∙ Iso.leftInv e _
+    ... | yes p = sym (cong (Iso.inv e) p) ∙ Iso.ret e _
     ... | no p = sym (cong (Iso.inv e) (¬true→false (Iso.fun e (1g (snd A))) p))
-               ∙ Iso.leftInv e (1g (snd A))
+               ∙ Iso.ret e (1g (snd A))
 
     decA : (x : typ A) → (x ≡ 1g (snd A)) ⊎ (x ≡ Iso.fun IsoABool false)
     decA x with (Iso.inv IsoABool x) ≟ false | discreteA x (1g (snd A))
     ... | yes p | yes q = inl q
-    ... | yes p | no q  = inr (sym (Iso.rightInv IsoABool x) ∙ cong (Iso.fun (IsoABool)) p)
-    ... | no p  | no q  = inr (⊥.rec (q (sym (Iso.rightInv IsoABool x)
+    ... | yes p | no q  = inr (sym (Iso.sec IsoABool x) ∙ cong (Iso.fun (IsoABool)) p)
+    ... | no p  | no q  = inr (⊥.rec (q (sym (Iso.sec IsoABool x)
                                    ∙∙ cong (Iso.fun IsoABool) (¬false→true _ p)
                                    ∙∙ true→1)))
     ... | no p  | yes q = inl q

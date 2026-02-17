@@ -131,8 +131,8 @@ module Equiv-S1-Properties where
   ϕ₀str = snd e₀
   ϕ₀⁻¹ = inv (fst e₀)
   ϕ₀⁻¹str = snd (invGroupIso e₀)
-  ϕ₀-sect = rightInv (fst e₀)
-  ϕ₀-retr = leftInv (fst e₀)
+  ϕ₀-sect = sec (fst e₀)
+  ϕ₀-retr = ret (fst e₀)
 
 
   e₁ = invGroupIso (Hⁿ-Sᵐ 1 1)
@@ -140,8 +140,8 @@ module Equiv-S1-Properties where
   ϕ₁str = snd e₁
   ϕ₁⁻¹ = inv (fst e₁)
   ϕ₁⁻¹str = snd (invGroupIso e₁)
-  ϕ₁-sect = rightInv (fst e₁)
-  ϕ₁-retr = leftInv (fst e₁)
+  ϕ₁-sect = sec (fst e₁)
+  ϕ₁-retr = ret (fst e₁)
 
 -----------------------------------------------------------------------------
 -- Direct Sens on ℤ[x]
@@ -331,8 +331,8 @@ module _ where
     is : Iso ℤ[x]/x² (H* (S₊ 1))
     fun is = ℤ[x]/x²→H*-S¹
     inv is = H*-S¹→ℤ[x]/x²
-    rightInv is = e-sect
-    leftInv is = e-retr
+    sec is = e-sect
+    ret is = e-retr
   snd S¹-CohomologyRing = snd ℤ[X]/X²→H*R-S¹
 
   CohomologyRing-S¹ : RingEquiv (H*R (S₊ 1)) (CommRing→Ring ℤ[X]/X²)

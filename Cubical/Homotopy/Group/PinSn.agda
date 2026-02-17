@@ -100,9 +100,9 @@ flipSquareIso : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
   → GroupIso (πGr (suc n) A) (πGr (suc n) A)
 fun (fst (flipSquareIso n)) = ST.map flipSquare
 inv (fst (flipSquareIso n)) = ST.map flipSquare
-rightInv (fst (flipSquareIso n)) =
+sec (fst (flipSquareIso n)) =
   ST.elim (λ _ → isSetPathImplicit) λ _ → refl
-leftInv (fst (flipSquareIso n)) =
+ret (fst (flipSquareIso n)) =
   ST.elim (λ _ → isSetPathImplicit) λ _ → refl
 snd (flipSquareIso n) =
   makeIsGroupHom
@@ -260,10 +260,10 @@ private
 
   π₂S²≅π₁S¹-stLoop : fun (fst π₂S²≅π₁S¹) stLoop₁ ≡ ∣ loop ∣₂
   π₂S²≅π₁S¹-stLoop =
-      sym (leftInv Isoπ₁S¹ℤ
+      sym (ret Isoπ₁S¹ℤ
           (fun (fst π₂S²≅π₁S¹) stLoop₁))
    ∙∙ cong (inv Isoπ₁S¹ℤ) compute
-   ∙∙ leftInv (compIso (setTruncIdempotentIso (isGroupoidS¹ _ _)) ΩS¹Isoℤ)
+   ∙∙ ret (compIso (setTruncIdempotentIso (isGroupoidS¹ _ _)) ΩS¹Isoℤ)
               ∣ loop ∣₂
     where
     compute : fun Isoπ₁S¹ℤ (fun (fst π₂S²≅π₁S¹) stLoop₁)
@@ -286,13 +286,13 @@ private
          cong (fun (fst π₂'S²≅π₁'S¹)) p
       ∙∙ (λ i → inv (fst (π'Gr≅πGr zero (S₊∙ (suc zero)))) (fun (fst π₂S²≅π₁S¹)
           (fun (fst (flipSquareIso zero))
-            (rightInv
+            (sec
               (fst (π'Gr≅πGr (suc zero) (S₊∙ (suc (suc zero)))))
               (inv (fst (flipSquareIso zero)) y) i)
           )))
       ∙∙ cong (inv (fst (π'Gr≅πGr zero (S₊∙ (suc zero)))))
               (cong (fun (fst π₂S²≅π₁S¹))
-                (rightInv (fst (flipSquareIso zero)) y))
+                (sec (fst (flipSquareIso zero)) y))
        ∙ q
 
     lem₂ : inv (fst (π'Gr≅πGr zero (S₊∙ 1))) ∣ loop ∣₂ ≡ ∣ idfun∙ _ ∣₂
@@ -315,7 +315,7 @@ private
   suspPresIdfun2 n =
       sym (cong (fun (fst (invGroupIso (SphereSuspGrIso n))))
           (cong ∣_∣₂ (suspPresIdfun (suc n))))
-    ∙ leftInv (SphereSuspIso n) ∣ idfun∙ _ ∣₂
+    ∙ ret (SphereSuspIso n) ∣ idfun∙ _ ∣₂
 
 -- We finally have our results
 πₙ'Sⁿ≅ℤ-idfun∙ : (n : ℕ)
@@ -335,7 +335,7 @@ private
 πₙ'Sⁿ-gen-by-idfun n =
   subst (gen₁-by (π'Gr n (S₊∙ (suc n))))
         (sym (cong (inv (fst (πₙ'Sⁿ≅ℤ n))) (πₙ'Sⁿ≅ℤ-idfun∙ n))
-        ∙ leftInv (fst (πₙ'Sⁿ≅ℤ n)) ∣ idfun∙ _ ∣₂)
+        ∙ ret (fst (πₙ'Sⁿ≅ℤ n)) ∣ idfun∙ _ ∣₂)
         (Iso-pres-gen₁ ℤGroup (π'Gr n (S₊∙ (suc n)))
           (pos (suc zero))
           (λ h → h , (sym (·Comm h (pos 1)) ∙ ℤ·≡· h (pos 1)))
@@ -392,8 +392,8 @@ snd (snd (isIso-πₙSⁿ-unpointIso (suc n))) =
 πₙSⁿ-unpointIso : (n : ℕ) → Iso ∥ (S₊∙ (suc n) →∙ S₊∙ (suc n)) ∥₂ ∥ (S₊ (suc n) → S₊ (suc n)) ∥₂
 Iso.fun (πₙSⁿ-unpointIso n) = πₙSⁿ-unpoint n
 Iso.inv (πₙSⁿ-unpointIso n) = isIso-πₙSⁿ-unpointIso n .fst
-Iso.rightInv (πₙSⁿ-unpointIso n) = isIso-πₙSⁿ-unpointIso n .snd .fst
-Iso.leftInv (πₙSⁿ-unpointIso n) = isIso-πₙSⁿ-unpointIso n .snd .snd
+Iso.sec (πₙSⁿ-unpointIso n) = isIso-πₙSⁿ-unpointIso n .snd .fst
+Iso.ret (πₙSⁿ-unpointIso n) = isIso-πₙSⁿ-unpointIso n .snd .snd
 
 
 
@@ -553,11 +553,11 @@ multπₙ-pres' : (n : ℕ) (f g : ∥ (S₊ (suc n) → S₊ (suc n)) ∥₂)
    ≡ multπₙ n (Iso.inv (πₙSⁿ-unpointIso n) f) (Iso.inv (πₙSⁿ-unpointIso n) g)
 multπₙ-pres' n f g =
     (λ i → isIso-πₙSⁿ-unpointIso n .fst
-             (multSⁿ↬ n (Iso.rightInv (πₙSⁿ-unpointIso n) f (~ i))
-                         (Iso.rightInv (πₙSⁿ-unpointIso n) g (~ i))))
+             (multSⁿ↬ n (Iso.sec (πₙSⁿ-unpointIso n) f (~ i))
+                         (Iso.sec (πₙSⁿ-unpointIso n) g (~ i))))
   ∙∙ sym (cong (Iso.inv (πₙSⁿ-unpointIso n))
        (multπₙ-pres n (Iso.inv (πₙSⁿ-unpointIso n) f) (Iso.inv (πₙSⁿ-unpointIso n) g)))
-  ∙∙ Iso.leftInv (πₙSⁿ-unpointIso n) _
+  ∙∙ Iso.ret (πₙSⁿ-unpointIso n) _
 
 multHⁿSⁿ-pres : (n : ℕ) (f g : π'Gr n (S₊∙ (suc n)) .fst)
   → πₙSⁿ→HⁿSⁿ-fun n (multπₙ n f g)

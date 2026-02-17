@@ -80,12 +80,12 @@ module _ (R : CommRing ℓ) where
         asIso : Iso ⟨ A ⟩ₐ ⟨ initialCAlg ⟩ₐ
         Iso.fun asIso = fst to
         Iso.inv asIso = fst from
-        Iso.rightInv asIso =
+        Iso.sec asIso =
           λ x i → cong
                     fst
                     (isContr→isProp (initialityContr initialCAlg) (to ∘ca from) (idCAlgHom initialCAlg))
                     i x
-        Iso.leftInv asIso =
+        Iso.ret asIso =
           λ x i → cong
                     fst
                     (isContr→isProp (isInitial A) (from ∘ca to) (idCAlgHom A))

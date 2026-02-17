@@ -112,8 +112,8 @@ open Iso
 equivToIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → A ≃ B → Iso A B
 fun (equivToIso e) = e .fst
 inv (equivToIso e) = invEq e
-rightInv (equivToIso e) = secEq e
-leftInv (equivToIso e)  = retEq e
+sec (equivToIso e) = secEq e
+ret (equivToIso e)  = retEq e
 
 -- TODO: there should be a direct proof of this that doesn't use equivToIso
 invEquiv : A ≃ B → B ≃ A
@@ -205,8 +205,8 @@ isEquivPropBiimpl→Equiv {A = A} {B = B} Aprop Bprop = isoToEquiv isom where
   isom : Iso (Σ (A → B) (λ _ → B → A)) (A ≃ B)
   isom .fun (f , g) = propBiimpl→Equiv Aprop Bprop f g
   isom .inv e = equivFun e , invEq e
-  isom .rightInv e = equivEq refl
-  isom .leftInv _ = refl
+  isom .sec e = equivEq refl
+  isom .ret _ = refl
 
 equivΠCod : ∀ {F : A → Type ℓ} {G : A → Type ℓ'}
         → ((x : A) → F x ≃ G x) → ((x : A) → F x) ≃ ((x : A) → G x)
@@ -231,8 +231,8 @@ equivImplicitΠCod k .snd .equiv-proof f .snd (g , p) i .snd j {x} =
 equiv→Iso : (A ≃ B) → (C ≃ D) → Iso (A → C) (B → D)
 equiv→Iso h k .Iso.fun f b = equivFun k (f (invEq h b))
 equiv→Iso h k .Iso.inv g a = invEq k (g (equivFun h a))
-equiv→Iso h k .Iso.rightInv g = funExt λ b → secEq k _ ∙ cong g (secEq h b)
-equiv→Iso h k .Iso.leftInv f = funExt λ a → retEq k _ ∙ cong f (retEq h a)
+equiv→Iso h k .Iso.sec g = funExt λ b → secEq k _ ∙ cong g (secEq h b)
+equiv→Iso h k .Iso.ret f = funExt λ a → retEq k _ ∙ cong f (retEq h a)
 
 equiv→ : (A ≃ B) → (C ≃ D) → (A → C) ≃ (B → D)
 equiv→ h k = isoToEquiv (equiv→Iso h k)
@@ -252,12 +252,12 @@ equivΠ' {B' = B'} eA eB = isoToEquiv isom
     eB (secEq eA a') .fst (f (invEq eA a'))
   isom .inv f' a =
     invEq (eB refl) (f' (eA .fst a))
-  isom .rightInv f' =
+  isom .sec f' =
     funExt λ a' →
     J (λ a'' p → eB p .fst (invEq (eB refl) (f' (p i0))) ≡ f' a'')
       (secEq (eB refl) (f' (eA .fst (invEq eA a'))))
       (secEq eA a')
-  isom .leftInv f =
+  isom .ret f =
     funExt λ a →
     subst
       (λ p → invEq (eB refl) (eB p .fst (f (invEq eA (eA .fst a)))) ≡ f a)
@@ -277,8 +277,8 @@ equivΠ {B = B} {B' = B'} eA eB = equivΠ' eA (λ {a = a} p → J (λ a' p → B
 equivCompIso : (A ≃ B) → (C ≃ D) → Iso (A ≃ C) (B ≃ D)
 equivCompIso h k .Iso.fun f = compEquiv (compEquiv (invEquiv h) f) k
 equivCompIso h k .Iso.inv g = compEquiv (compEquiv h g) (invEquiv k)
-equivCompIso h k .Iso.rightInv g = equivEq (equiv→Iso h k .Iso.rightInv (equivFun g))
-equivCompIso h k .Iso.leftInv f = equivEq (equiv→Iso h k .Iso.leftInv (equivFun f))
+equivCompIso h k .Iso.sec g = equivEq (equiv→Iso h k .Iso.sec (equivFun g))
+equivCompIso h k .Iso.ret f = equivEq (equiv→Iso h k .Iso.ret (equivFun f))
 
 equivComp : (A ≃ B) → (C ≃ D) → (A ≃ C) ≃ (B ≃ D)
 equivComp h k = isoToEquiv (equivCompIso h k)
@@ -315,8 +315,8 @@ precomposesToId→Equiv f g id iseqg =  subst isEquiv (sym f-≡-g⁻) (snd (inv
 isEquiv-isEquiv'-Iso : (f : A → B) → Iso (isEquiv f) (isEquiv' f)
 isEquiv-isEquiv'-Iso f .fun p = p .equiv-proof
 isEquiv-isEquiv'-Iso f .inv q .equiv-proof = q
-isEquiv-isEquiv'-Iso f .rightInv q = refl
-isEquiv-isEquiv'-Iso f .leftInv p i .equiv-proof = p .equiv-proof
+isEquiv-isEquiv'-Iso f .sec q = refl
+isEquiv-isEquiv'-Iso f .ret p i .equiv-proof = p .equiv-proof
 
 isEquiv≃isEquiv' : (f : A → B) → isEquiv f ≃ isEquiv' f
 isEquiv≃isEquiv' f = isoToEquiv (isEquiv-isEquiv'-Iso f)

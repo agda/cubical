@@ -34,8 +34,8 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Nat.Order.Inductive
-open import Cubical.Data.Fin.Inductive.Base
-open import Cubical.Data.Fin.Inductive.Properties as Ind
+open import Cubical.Data.Fin.Base
+open import Cubical.Data.Fin.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sequence
 open import Cubical.Data.Unit
@@ -48,7 +48,7 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SequentialColimit
 open import Cubical.HITs.SphereBouquet
-open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.PropositionalTruncation as PT hiding (elimFin)
 open import Cubical.HITs.Truncation as TR
 open import Cubical.HITs.Wedge
 
@@ -146,7 +146,7 @@ private
     with (dis (t fzero true) (t fzero false))
        | (allConst? {n = n} dis λ x p → t (fsuc x) p)
   ... | yes p | inl x =
-    inl (Ind.elimFin-alt (funExt
+    inl (elimFin-alt (funExt
           (λ { false → sym p ; true → refl})) x)
   ... | yes p | inr x = inr (_ , (snd x))
   ... | no ¬p | q = inr (_ , ¬p)
@@ -155,7 +155,7 @@ private
 isSurj-α₀ : (n m : ℕ) (f : Fin n × S₊ 0 → Fin (suc (suc m)))
   → isConnected 2 (Pushout f fst)
   → (y : _) → Σ[ x ∈ _ ] f x ≡ y
-isSurj-α₀ n m f c y with (inhabitedFibres?-Fin×S⁰ DiscreteFin n f y)
+isSurj-α₀ n m f c y with (inhabitedFibres?-Fin×S⁰ discreteFin n f y)
 ... | inl x = x
 isSurj-α₀ n m f c x₀ | inr q = ⊥.rec nope
   where
@@ -189,7 +189,7 @@ isSurj-α₀ n m f c x₀ | inr q = ⊥.rec nope
 notAllLoops-α₀ : (n m : ℕ) (f : Fin n × S₊ 0 → Fin (suc (suc m)))
   → isConnected 2 (Pushout f fst)
   → Σ[ x ∈ Fin n ] (¬ f (x , true) ≡ f (x , false))
-notAllLoops-α₀ n m f c with (allConst? DiscreteFin (λ x y → f (x , y)))
+notAllLoops-α₀ n m f c with (allConst? discreteFin (λ x y → f (x , y)))
 ... | inr x = x
 notAllLoops-α₀ n m f c | inl q =
   ⊥.rec (TR.rec isProp⊥ (λ p → subst T p tt)
@@ -198,7 +198,7 @@ notAllLoops-α₀ n m f c | inl q =
                ∣ inl flast ∣ ∣ inl fzero ∣)))
   where
   inrT : Fin n → Type
-  inrT x with (DiscreteFin (f (x , true)) fzero)
+  inrT x with (discreteFin (f (x , true)) fzero)
   ... | yes p = ⊥
   ... | no ¬p = Unit
 
@@ -207,7 +207,7 @@ notAllLoops-α₀ n m f c | inl q =
   inlT (suc x , p) = Unit
 
   inlrT-pre : (a : _) → inlT (f (a , true)) ≡ inrT a
-  inlrT-pre a with ((DiscreteFin (f (a , true)) fzero))
+  inlrT-pre a with ((discreteFin (f (a , true)) fzero))
   ... | yes p = cong inlT p
   inlrT-pre s | no ¬p with (f (s , true))
   ... | zero , tt = ⊥.rec (¬p refl)
@@ -364,8 +364,8 @@ module shrinkPushoutLemma (A : Type ℓ) (B : Type ℓ')
   Iso-PushoutF-Pushout-g∘f : Iso (Pushout F fst) (Pushout (g ∘ f) fst)
   Iso.fun Iso-PushoutF-Pushout-g∘f = PushoutF→Pushout-g∘f
   Iso.inv Iso-PushoutF-Pushout-g∘f = Pushout-g∘f-fst→Unit⊎A
-  Iso.rightInv Iso-PushoutF-Pushout-g∘f = PushoutF→Pushout-g∘f→PushoutF
-  Iso.leftInv Iso-PushoutF-Pushout-g∘f = Pushout-g∘f→PushoutF→Pushout-g∘f
+  Iso.sec Iso-PushoutF-Pushout-g∘f = PushoutF→Pushout-g∘f→PushoutF
+  Iso.ret Iso-PushoutF-Pushout-g∘f = Pushout-g∘f→PushoutF→Pushout-g∘f
 
 
 module CWLemmas-0Connected where
@@ -395,13 +395,13 @@ module CWLemmas-0Connected where
 
     help : (y : Unit ⊎ Fin (suc n)) (x : Bool)
       → Unit⊎Fin→Fin
-          (F (λ x₁ → Ind.elimFin (inl tt) inr (f (injectSuc (fst x₁) , snd x₁)))
+          (F (λ x₁ → elimFin (inl tt) inr (f (injectSuc (fst x₁) , snd x₁)))
           (f (flast , true) .fst , q) (y , x))
        ≡ f (Unit⊎Fin→Fin y , x)
     help (inl a) false = sym p
     help (inl b) true = Σ≡Prop (λ _ → isProp<ᵗ) refl
-    help (inr a) false = Iso.leftInv Iso-Fin-Unit⊎Fin _
-    help (inr a) true = Iso.leftInv Iso-Fin-Unit⊎Fin _
+    help (inr a) false = Iso.ret Iso-Fin-Unit⊎Fin _
+    help (inr a) true = Iso.ret Iso-Fin-Unit⊎Fin _
 
   -- If the domain of f is instead Fin 1 × S⁰, this must also be the
   -- codomain of f.
@@ -442,8 +442,8 @@ module CWLemmas-0Connected where
     mainIso : Iso (Fin 1 × S₊ 0) (Fin (suc (suc m)))
     Iso.fun mainIso = f
     Iso.inv mainIso x = isSurj-α₀ (suc zero) m f c x .fst
-    Iso.rightInv mainIso x = isSurj-α₀ 1 m f c x .snd
-    Iso.leftInv mainIso ((zero , tt) , x) =
+    Iso.sec mainIso x = isSurj-α₀ 1 m f c x .snd
+    Iso.ret mainIso ((zero , tt) , x) =
      (f-inj _ _ (isSurj-α₀ 1 m f c (f (fzero , x)) .snd))
 
   -- Strengthening of shrinkImageAttachingMapLem for domain of f of
@@ -506,9 +506,9 @@ module CWLemmas-0Connected where
 
     ¬f'≡flast : ¬ (f' (flast , true) ≡ flast)
     ¬f'≡flast p = xpath (cong f (ΣPathP (sym (swapFinβₗ flast x₀) , refl))
-                  ∙ sym (Iso.rightInv FinIso2 _)
+                  ∙ sym (Iso.sec FinIso2 _)
                   ∙ cong (Iso.inv FinIso2) (p ∙ sym f'≡flast)
-                  ∙ Iso.rightInv FinIso2 _
+                  ∙ Iso.sec FinIso2 _
                   ∙ cong f (ΣPathP (swapFinβₗ flast x₀ , refl)))
 
     f'-bound : fst (f' (flast , true)) <ᵗ suc m
@@ -522,7 +522,7 @@ module CWLemmas-0Connected where
       (isoToEquiv FinIso2)
       (isoToEquiv (swapFinIso flast x₀))
       (funExt (λ x → cong (FinIso2 .Iso.fun ∘ f)
-                      (sym (Iso.rightInv Fin×S⁰-swapIso x))))
+                      (sym (Iso.sec Fin×S⁰-swapIso x))))
       refl
 
   -- the main lemma: a pushout of f : Fin n × S⁰ → Fin m is equivalent

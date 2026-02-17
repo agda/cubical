@@ -60,8 +60,8 @@ is2Groupoid2GroupoidTrunc a b p q r s = squash₄ a b p q r s
   f : Iso ∥ A ∥₄ A
   Iso.fun f = rec hA (idfun A)
   Iso.inv f x = ∣ x ∣₄
-  Iso.rightInv f _ = refl
-  Iso.leftInv f = elim (λ _ → isOfHLevelSuc 4 is2Groupoid2GroupoidTrunc _ _) (λ _ → refl)
+  Iso.sec f _ = refl
+  Iso.ret f = elim (λ _ → isOfHLevelSuc 4 is2Groupoid2GroupoidTrunc _ _) (λ _ → refl)
 
 2GroupoidTruncIdempotent : is2Groupoid A → ∥ A ∥₄ ≡ A
 2GroupoidTruncIdempotent hA = ua (2GroupoidTruncIdempotent≃ hA)
