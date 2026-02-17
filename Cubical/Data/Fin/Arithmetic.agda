@@ -21,21 +21,8 @@ snd (_+ₘ_ {n = n} x y) = <→<ᵗ
                          (mod< n ((fst x) + (fst y)))
 
 -ₘ_ : {n : ℕ} → (x : Fin (suc n)) → Fin (suc n)
-fst (-ₘ_ {n = n} x) =
-  (+induction n _ (λ x _ → ((suc n) ∸ x) mod (suc n)) λ _ x → x) (fst x)
-snd (-ₘ_ {n = n} x) = <→<ᵗ (lem (fst x))
-  where
-  ≡<-trans : {x y z : ℕ} → x < y → x ≡ z → z < y
-  ≡<-trans (k , p) q = k , cong (λ x → k + suc x) (sym q) ∙ p
-
-  lem : {n : ℕ} (x : ℕ)
-     → (+induction n _ _ _) x < suc n
-  lem {n = n} =
-    +induction n _
-      (λ x p → ≡<-trans (mod< n (suc n ∸ x))
-                 (sym (+inductionBase n _ _ _ x p)))
-       λ x p → ≡<-trans p
-                 (sym (+inductionStep n _ _ _ x))
+fst (-ₘ_ {n = n} x) = (suc n ∸ fst x) mod suc n
+snd (-ₘ_ {n = n} x) = <→<ᵗ (mod< n (suc n ∸ fst x))
 
 _-ₘ_ : {n : ℕ} → (x y : Fin (suc n)) → Fin (suc n)
 _-ₘ_ x y = x +ₘ (-ₘ y)
@@ -63,27 +50,24 @@ snd (_·ₘ_ {n = n} x y) = <→<ᵗ (mod< n (fst x · fst y))
 +ₘ-lUnit : {n : ℕ} (x : Fin (suc n)) → 0 +ₘ x ≡ x
 +ₘ-lUnit {n = n} (x , p) =
   Σ≡Prop (λ z → isProp<ᵗ {n = z} {suc n})
-    (+inductionBase n _ _ _ x (<ᵗ→< p))
+    (<→mod≡id x (suc n) (<ᵗ→< p))
 
 +ₘ-rUnit : {n : ℕ} (x : Fin (suc n)) → x +ₘ 0 ≡ x
 +ₘ-rUnit x = +ₘ-comm x 0 ∙ (+ₘ-lUnit x)
 
 +ₘ-rCancel : {n : ℕ} (x : Fin (suc n)) → x -ₘ x ≡ 0
-+ₘ-rCancel {n = n} x =
-  Σ≡Prop (λ z → isProp<ᵗ {n = z} {suc n})
-      (cong (λ z → (fst x + z) mod (suc n))
-            (+inductionBase n _ _ _ (fst x) (<ᵗ→< (snd x)))
-    ∙∙ sym (mod-rCancel (suc n) (fst x) ((suc n) ∸ (fst x)))
-    ∙∙ cong (_mod (suc n)) (+-comm (fst x) ((suc n) ∸ (fst x)))
-    ∙∙ cong (_mod (suc n))
-            (≤-∸-+-cancel {m = fst x} {n = suc n}
-               (<-weaken (<ᵗ→< (snd x))))
-    ∙∙ zero-charac (suc n))
++ₘ-rCancel {n = n} (k , p) =
+  Σ≡Prop (λ z → isProp<ᵗ {n = z} {suc n}) (
+  (k + (suc n ∸ k)  mod suc n) mod suc n ≡⟨ sym (mod-rCancel (suc n) k _) ⟩
+  (k + (suc n ∸ k)) mod suc n            ≡⟨ cong (_mod suc n) (+-comm k _) ⟩
+  ((suc n ∸ k) + k) mod suc n            ≡⟨ cong (_mod suc n) (≤-∸-+-cancel (<-weaken {k} {suc n} (<ᵗ→< p))) ⟩
+  suc n mod suc n                        ≡⟨ zero-charac (suc n) ⟩
+  0                                      ∎)
 
 +ₘ-lCancel : {n : ℕ} (x : Fin (suc n)) → (-ₘ x) +ₘ x ≡ 0
 +ₘ-lCancel {n = n} x = +ₘ-comm (-ₘ x) x ∙ +ₘ-rCancel x
 
--- -- TODO : Ring laws
+-- TODO : Ring laws
 
 private
   test₁ : Path (Fin 11) (5 +ₘ 10) 4
@@ -91,3 +75,9 @@ private
 
   test₂ : Path (Fin 11) (-ₘ 7 +ₘ 5 +ₘ 10) 8
   test₂ = refl
+
+  test₃ : Path (Fin 1024) (1022 ·ₘ 1023) 2
+  test₃ = refl
+
+  test₄ : Path (Fin 8192) (-ₘ 32 ·ₘ 64 +ₘ 256) 6400
+  test₄ = refl
