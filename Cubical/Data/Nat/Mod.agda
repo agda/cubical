@@ -434,123 +434,6 @@ mod'< n =
               , cong (λ x → fst ind + suc x)
                      (modIndStep n x) ∙ snd ind
 
-mod'-rUnit : (n x : ℕ) → x mod' n ≡ ((x + n) mod' n)
-mod'-rUnit zero x = refl
-mod'-rUnit (suc n) x =
-    sym (modIndStep n x)
-  ∙ cong (modInd n) (+-comm (suc n) x)
-
-mod'-lUnit : (n x : ℕ) → x mod' n ≡ ((n + x) mod' n)
-mod'-lUnit zero _ = refl
-mod'-lUnit (suc n) x = sym (modIndStep n x)
-
-mod'+mod'≡mod' : (n x y : ℕ)
-  → (x + y) mod' n ≡ (((x mod' n) + (y mod' n)) mod' n)
-mod'+mod'≡mod' zero _ _ = refl
-mod'+mod'≡mod' (suc n) =
-  +induction n
-    (λ z → (x : ℕ)
-         → ((z + x) mod' (suc n))
-         ≡ (((z mod' (suc n)) + (x mod' (suc n))) mod' (suc n)))
-    (λ x p →
-      +induction n _
-        (λ y q → cong (modInd n)
-                       (sym (cong₂  _+_ (modIndBase n x p)
-                       (modIndBase n y q))))
-        λ y ind → cong (modInd n)
-                        (cong (x +_) (+-comm (suc n) y)
-                                   ∙ (+-assoc x y (suc n)))
-                     ∙∙ sym (mod'-rUnit (suc n) (x + y))
-                     ∙∙ ind
-                      ∙ cong (λ z → modInd n
-                                    ((modInd n x + z)))
-                             (mod'-rUnit (suc n) y
-                             ∙ cong (modInd n) (+-comm y (suc n))))
-    λ x p y →
-      cong (modInd n) (cong suc (sym (+-assoc n x y)))
-        ∙∙ sym (mod'-lUnit (suc n) (x + y))
-        ∙∙ p y
-         ∙ sym (cong (modInd n)
-                (cong (_+ modInd n y)
-                 (cong (modInd n)
-                  (+-comm (suc n) x) ∙ sym (mod'-rUnit (suc n) x))))
-
-mod'-idempotent : {n : ℕ} (x : ℕ) → (x mod' n) mod' n ≡ x mod' n
-mod'-idempotent {n = zero} _ = refl
-mod'-idempotent {n = suc n} =
-  +induction n (λ x → (x mod' suc n) mod' (suc n) ≡ x mod' (suc n))
-             (λ x p → cong (_mod' (suc n))
-                            (modIndBase n x p))
-              λ x p → cong (_mod' (suc n))
-                            (modIndStep n x)
-                          ∙∙ p
-                          ∙∙ mod'-rUnit (suc n) x
-                           ∙ (cong (_mod' (suc n)) (+-comm x (suc n)))
-
-zero-charac' : (n : ℕ) → n mod' n ≡ 0
-zero-charac' zero = refl
-zero-charac' (suc n) = cong (_mod' suc n) (+-comm 0 (suc n))
-                  ∙∙ modIndStep n 0
-                  ∙∙ modIndBase n 0 (n , (+-comm n 1))
-
-zero-charac-gen' : (n x : ℕ) → ((x · n) mod' n) ≡ 0
-zero-charac-gen' zero x = refl
-zero-charac-gen' (suc n) zero = refl
-zero-charac-gen' (suc n) (suc x) =
-  modIndStep n (x · (suc n)) ∙ zero-charac-gen' (suc n) x
-
-mod'·mod'≡mod' : (n x y : ℕ)
-  → (x · y) mod' n ≡ (((x mod' n) · (y mod' n)) mod' n)
-mod'·mod'≡mod' zero _ _ = refl
-mod'·mod'≡mod' (suc n) =
-  +induction n _
-    (λ x p → +induction n _
-      (λ y q
-        → cong (modInd n)
-            (cong₂ _·_ (sym (modIndBase n x p)) (sym (modIndBase n y q))))
-      λ y p →
-           cong (modInd n) (sym (·-distribˡ  x (suc n) y))
-        ∙∙ mod'+mod'≡mod' (suc n) (x · suc n) (x · y)
-        ∙∙ cong (λ z → modInd n (z + modInd n (x · y)))
-                (zero-charac-gen' (suc n) x)
-        ∙∙ mod'-idempotent (x · y)
-        ∙∙ p
-         ∙ cong (_mod' (suc n)) (cong (x mod' (suc n) ·_)
-                (sym (mod'-idempotent y)
-                ∙∙ (λ i → modInd n (mod'-rUnit (suc n) 0 i + modInd n y))
-                ∙∙ sym (mod'+mod'≡mod' (suc n) (suc n) y))))
-    λ x p y →
-         (sym (cong (_mod' (suc n)) (·-distribʳ (suc n) x y))
-       ∙∙ mod'+mod'≡mod' (suc n) (suc n · y) (x · y)
-       ∙∙ (λ i → modInd n ((cong (_mod' (suc n))
-             (·-comm (suc n) y) ∙ zero-charac-gen' (suc n) y) i
-             + modInd n (x · y)))
-        ∙ mod'-idempotent (x · y))
-      ∙∙ p y
-      ∙∙ cong (_mod' (suc n)) (cong (_· y mod' (suc n))
-              ((sym (mod'-idempotent x)
-              ∙ cong (λ z → (z + x mod' (suc n)) mod' (suc n))
-                     (mod'-rUnit (suc n) 0))
-              ∙ sym (mod'+mod'≡mod' (suc n) (suc n) x)))
-
-mod'-rCancel : (n x y : ℕ) → (x + y) mod' n ≡ (x + y mod' n) mod' n
-mod'-rCancel zero x y = refl
-mod'-rCancel (suc n) x =
-  +induction n _
-    (λ y p → cong (λ z → (x + z) mod' (suc n))
-                   (sym (modIndBase n y p)))
-     λ y p → cong (_mod' suc n) (+-assoc x (suc n) y
-                             ∙∙ (cong (_+ y) (+-comm x (suc n)))
-                             ∙∙ sym (+-assoc (suc n) x y))
-          ∙∙ sym (mod'-lUnit (suc n) (x + y))
-          ∙∙ (p ∙ cong (λ z → (x + z) mod' suc n) (mod'-lUnit (suc n) y))
-
-mod'-lCancel : (n x y : ℕ) → (x + y) mod' n ≡ (x mod' n + y) mod' n
-mod'-lCancel n x y =
-     cong (_mod' n) (+-comm x y)
-  ∙∙ mod'-rCancel n y x
-  ∙∙ cong (_mod' n) (+-comm y (x mod' n))
-
 remainder'_/_ : (x n : ℕ) → ℕ
 remainder' x / zero = x
 remainder' x / suc n = x mod' (suc n)
@@ -605,6 +488,10 @@ remainder≡remainder' : ∀ m n → remainder m / n ≡ remainder' m / n
 remainder≡remainder' m zero    = refl
 remainder≡remainder' m (suc n) =
   cong (QuotRemℕ.rem) (isPropQuotRemℕ m n (quotRemℕ m n) (quotRemℕ' m n))
+
+mod≡mod' : ∀ m n → m mod n ≡ m mod' n
+mod≡mod' m zero    = refl
+mod≡mod' m (suc n) = remainder≡remainder' m (suc n)
 
 isContrQuotRemℕ : ∀ m n → isContr (QuotRemℕ m n)
 isContrQuotRemℕ m n .fst = quotRemℕ m n
