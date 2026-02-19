@@ -42,6 +42,11 @@ abs : ℤ → ℕ
 abs (pos n) = n
 abs (negsuc n) = suc n
 
+sign : ℤ → ℤ
+sign (pos zero) = pos zero
+sign (pos (suc n)) = pos (suc zero)
+sign (negsuc n) = negsuc zero
+
 _ℕ-_ : ℕ → ℕ → ℤ
 a ℕ- 0 = pos a
 0 ℕ- suc b = negsuc b

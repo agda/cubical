@@ -8,7 +8,9 @@ open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
+open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
+open import Cubical.Data.Maybe
 open import Cubical.Data.Sum as ⊎ hiding (map)
 open import Cubical.Data.Unit
 open import Cubical.Data.List.Base as List
@@ -301,6 +303,10 @@ split++ (x₁ ∷ xs') ys' (x₂ ∷ xs) ys x =
  in zs , ⊎.map (map-fst (λ q i → p    i  ∷ q i))
                (map-fst (λ q i → p (~ i) ∷ q i)) q
 
+repeat : ℕ → A → List A
+repeat zero _ = []
+repeat (suc k) x = x ∷ repeat k x
+
 rot : List A → List A
 rot [] = []
 rot (x ∷ xs) = xs ∷ʳ x
@@ -317,6 +323,22 @@ lookupAlways : A → List A → ℕ → A
 lookupAlways a [] _ = a
 lookupAlways _ (x ∷ _) zero = x
 lookupAlways a (x ∷ xs) (suc k) = lookupAlways a xs k
+
+lookupMb : List A → ℕ → Maybe A
+lookupMb = lookupAlways nothing ∘S map just
+
+offset : A → ℕ →  List A → List A
+offset a n xs = repeat (substLen n xs) a ++ xs
+ where
+ substLen : ℕ → List A → ℕ
+ substLen zero _ = zero
+ substLen k@(suc _) [] = k
+ substLen (suc k) (_ ∷ xs) = substLen k xs
+
+offsetR : A → ℕ →  List A → List A
+offsetR a zero xs = xs
+offsetR a (suc n) [] = repeat (suc n) a
+offsetR a (suc n) (x ∷ xs) = x ∷ offsetR a n xs
 
 module List₂ where
  open import Cubical.HITs.SetTruncation renaming
@@ -346,3 +368,21 @@ module List₂ where
 
  List-comm-∥∥₂ : ∀ {ℓ} → List {ℓ} ∘ ∥_∥₂ ≡ ∥_∥₂ ∘ List
  List-comm-∥∥₂ = funExt λ A → isoToPath (Iso∥List∥₂List∥∥₂ {A = A})
+
+join : List (List A) → List A
+join [] = []
+join (x ∷ xs) = x ++ join xs
+
+cart : List  A → List B → List (A × B)
+cart la lb = join (map (λ b → map (_, b) la) lb)
+
+takeWhile : (A → Maybe B) → List A → List B
+takeWhile f [] = []
+takeWhile f (x ∷ xs) with f x
+... | nothing = []
+... | just y = y ∷ takeWhile f xs
+
+dropBy : (A → Bool) → List A → List A
+dropBy _ [] = []
+dropBy f (x ∷ xs) =
+  if f x then (dropBy f xs) else (x ∷ xs)

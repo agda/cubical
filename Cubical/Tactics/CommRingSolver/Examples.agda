@@ -8,11 +8,12 @@ open import Cubical.Data.List
 open import Cubical.Data.Nat using (ℕ; suc; zero)
 
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.CommRing.Instances.Int
 open import Cubical.Algebra.CommAlgebra
 
 open import Cubical.Tactics.CommRingSolver
-open import Cubical.Tactics.CommRingSolver.RawAlgebra using (scalar)
+import Cubical.Tactics.CommRingSolver.RawAlgebra as RA
 
 private
   variable
@@ -42,16 +43,26 @@ module TestWithℤ where
 
   ex13 : (x y : ℤ) → (x · y) · 1r ≡ 1r · (y · x)
   ex13 x y = solve! ℤCommRing
+
+
 -}
+
 
   ex0 : (a b : fst ℤCommRing) → a + b ≡ b + a
   ex0 a b = solve! ℤCommRing
 
 module Test (R : CommRing ℓ) (x y z : fst R) where
   open CommRingStr (snd R)
+  open RingTheory (CommRing→Ring R) using () renaming (fromℤ to scalar)
+
+
 
   _ : 0r ≡ 0r
   _ = solve! R
+
+  _ : 1r ≡ 1r
+  _ = solve! R
+
 
   _ :   1r · (1r + 0r)
       ≡ (1r · 0r) + 1r
@@ -73,6 +84,9 @@ module Test (R : CommRing ℓ) (x y z : fst R) where
   ex4 : y ≡ (y - x) + x
   ex4 = solve! R
 
+  -- xHole : fst R
+  -- xHole = {!!}
+
   ex5 : x ≡ (x - y) + y
   ex5 = solve! R
 
@@ -83,8 +97,8 @@ module Test (R : CommRing ℓ) (x y z : fst R) where
     A bigger example:
   -}
   ex7 : (x + y) · (x + y) · (x + y) · (x + y)
-                ≡ x · x · x · x + (scalar R 4) · x · x · x · y + (scalar R 6) · x · x · y · y
-                  + (scalar R 4) · x · y · y · y + y · y · y · y
+                ≡ x · x · x · x + (scalar 4) · x · x · x · y + (scalar 6) · x · x · y · y
+                  + (scalar 4) · x · y · y · y + y · y · y · y
   ex7 = solve! R
 
   {-
