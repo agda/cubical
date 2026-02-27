@@ -2,14 +2,15 @@
 
 module Cubical.Categories.Monoidal.Cartesian where
 
+open import Cubical.Foundations.Prelude
+
 open import Cubical.Categories.Category
+open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Limits.Terminal as Terminal using (Terminal)
 open import Cubical.Categories.Monoidal.Base
-open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Foundations.Prelude
 
 private
   variable
