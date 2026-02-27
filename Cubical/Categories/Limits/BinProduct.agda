@@ -34,9 +34,53 @@ module _ (C : Category ℓ ℓ') where
       binProdPr₂ : Hom[ binProdOb , y ]
       univProp : isBinProduct binProdPr₁ binProdPr₂
 
+    binProdArrow : {z : ob} -> Hom[ z , x ] -> Hom[ z , y ] -> Hom[ z , binProdOb ]
+    binProdArrow f g = univProp f g .fst .fst
+
+    binProdArrowUnique : {z : ob} {f : Hom[ z , x ]} {g : Hom[ z , y ]} {h : Hom[ z , binProdOb ]}
+      -> h ⋆ binProdPr₁ ≡ f -> h ⋆ binProdPr₂ ≡ g -> binProdArrow f g ≡ h
+    binProdArrowUnique {f = f} {g = g} {h = h} p q i = univProp f g .snd (h , p , q) i .fst
+
+    -- Beta rules for products:
+
+    binProdArrowPr₁ : {z : ob} {f : Hom[ z , x ]} {g : Hom[ z , y ]} -> binProdArrow f g ⋆ binProdPr₁ ≡ f
+    binProdArrowPr₁ {f = f} {g = g} = univProp f g .fst .snd .fst
+
+    binProdArrowPr₂ : {z : ob} {f : Hom[ z , x ]} {g : Hom[ z , y ]} -> binProdArrow f g ⋆ binProdPr₂ ≡ g
+    binProdArrowPr₂ {f = f} {g = g} = univProp f g .fst .snd .snd
+
 
   BinProducts : Type (ℓ-max ℓ ℓ')
   BinProducts = (x y : ob) → BinProduct x y
 
   hasBinProducts : Type (ℓ-max ℓ ℓ')
   hasBinProducts = ∥ BinProducts ∥₁
+
+  module BinProducts (prod : BinProducts) where
+    open module AllProductsExpl (x y : ob) = BinProduct (prod x y) public using (binProdOb; univProp)
+    open module AllProductsImpl {x y : ob} = BinProduct (prod x y) public hiding (binProdOb; univProp)
+
+    private
+      variable
+        x y z w x' y' : ob
+        f g h k : Hom[ x , y ]
+
+    binProdMap : Hom[ x , x' ] -> Hom[ y , y' ] -> Hom[ binProdOb x y , binProdOb x' y' ]
+    binProdMap f g = binProdArrow (binProdPr₁ ⋆ f) (binProdPr₂ ⋆ g)
+
+    binProdArrowCompLeft : h ⋆ binProdArrow f g ≡ binProdArrow (h ⋆ f) (h ⋆ g)
+    binProdArrowCompLeft = sym (binProdArrowUnique
+      (⋆Assoc _ _ _ ∙ ⟨ refl ⟩⋆⟨ binProdArrowPr₁ ⟩)
+      (⋆Assoc _ _ _ ∙ ⟨ refl ⟩⋆⟨ binProdArrowPr₂ ⟩))
+
+    binProdArrowCompRight : (binProdArrow f g) ⋆ (binProdMap h k) ≡ binProdArrow (f ⋆ h) (g ⋆ k)
+    binProdArrowCompRight = sym (binProdArrowUnique
+      ( ⋆Assoc _ _ _
+      ∙ cong (_ ⋆_) binProdArrowPr₁
+      ∙ sym (⋆Assoc _ _ _)
+      ∙ cong (_⋆ _) binProdArrowPr₁ )
+
+      ( ⋆Assoc _ _ _
+      ∙ cong (_ ⋆_) binProdArrowPr₂
+      ∙ sym (⋆Assoc _ _ _)
+      ∙ cong (_⋆ _) binProdArrowPr₂ ) )
