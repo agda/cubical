@@ -10,7 +10,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.Lift
+open import Cubical.Categories.Instances.Lift
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation

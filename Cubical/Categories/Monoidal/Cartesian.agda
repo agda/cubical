@@ -5,7 +5,7 @@ module Cubical.Categories.Monoidal.Cartesian where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Limits.Terminal as Terminal using (Terminal)
