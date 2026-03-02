@@ -78,17 +78,9 @@ Embedding-tilde x .snd = isEmbedding-tilde x
 V⁰↪V∞ : V⁰ {ℓ} ↪ V∞ {ℓ}
 V⁰↪V∞ = EmbeddingΣProp isPropIsIterativeSet
 
--- cor11 : V⁰ {ℓ} ↪ V∞ {ℓ}
--- cor11 = V⁰↪V∞
--- {-# WARNING_ON_USAGE cor11 "Deprecated: use V⁰↪V∞" #-}
-
 ≡V⁰-≃-≡V∞ : (x ≡ y) ≃ (x .fst ≡ y .fst)
 ≡V⁰-≃-≡V∞ .fst = cong fst
 ≡V⁰-≃-≡V∞ .snd = V⁰↪V∞ .snd _ _
-
--- cor11-1 : (x ≡ y) ≃ (x .fst ≡ y .fst)
--- cor11-1 = ≡V⁰-≃-≡V∞
--- {-# WARNING_ON_USAGE cor11-1 "Deprecated: use V⁰↪V∞" #-}
 
 _∈⁰_ : V⁰ {ℓ} → V⁰ {ℓ} → Type (ℓ-suc ℓ)
 x ∈⁰ y = fiber (tilde y) (x)
@@ -482,8 +474,8 @@ module _ {ℓ ℓ' ℓ'' : Level} {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''
     cong-f+g∘inr : {y y' : Y} → y ≡ y' → g y ≡ g y'
     cong-f+g∘inr {y = y} {y' = y'} = cong (f+g ∘ inr)
     
-    lem27 : isEmbedding f → isEmbedding g → ((x : X) (y : Y) → ¬ f x ≡ g y) → isEmbedding f+g
-    lem27 embf embg fx≢gy (inl x) (inl x') = second-in-isEquiv-comp→isEquiv (cong inl) (cong f+g) cong-f+g∘inl (isEmbedding-inl x x') (embf x x') refl
-    lem27 embf embg fx≢gy (inl x) (inr y') = uninhabIsEquiv (cong f+g) (SumInl≢Inr x y') (fx≢gy x y')
-    lem27 embf embg fx≢gy (inr y) (inl x') = uninhabIsEquiv (cong f+g) (λ eq → SumInl≢Inr x' y (sym eq)) λ eq → fx≢gy x' y (sym eq)
-    lem27 embf embg fx≢gy (inr y) (inr y') = second-in-isEquiv-comp→isEquiv (cong inr) (cong f+g) cong-f+g∘inr (isEmbedding-inr y y') (embg y y') refl
+    isEmbeddingPair : isEmbedding f → isEmbedding g → ((x : X) (y : Y) → ¬ f x ≡ g y) → isEmbedding f+g
+    isEmbeddingPair embf embg fx≢gy (inl x) (inl x') = second-in-isEquiv-comp→isEquiv (cong inl) (cong f+g) cong-f+g∘inl (isEmbedding-inl x x') (embf x x') refl
+    isEmbeddingPair embf embg fx≢gy (inl x) (inr y') = uninhabIsEquiv (cong f+g) (SumInl≢Inr x y') (fx≢gy x y')
+    isEmbeddingPair embf embg fx≢gy (inr y) (inl x') = uninhabIsEquiv (cong f+g) (λ eq → SumInl≢Inr x' y (sym eq)) λ eq → fx≢gy x' y (sym eq)
+    isEmbeddingPair embf embg fx≢gy (inr y) (inr y') = second-in-isEquiv-comp→isEquiv (cong inr) (cong f+g) cong-f+g∘inr (isEmbedding-inr y y') (embg y y') refl

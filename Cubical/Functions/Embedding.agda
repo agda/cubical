@@ -548,3 +548,7 @@ isEmbeddingSndΣProp pB f emb =
         (λ z → isOfHLevelRespectEquiv 1
             (Σ-cong-equiv-snd λ _ → Σ≡PropEquiv pB)
             (isEmbedding→hasPropFibers emb (z .fst)))
+
+isEmbedding-isProp→isSet : isProp A → isSet B → (f : A → B) → isEmbedding f
+isEmbedding-isProp→isSet pA sB f x y = propBiimpl→Equiv (isProp→isSet pA x y) (sB (f x) (f y)) (cong f) (λ _ → pA x y) .snd
+
