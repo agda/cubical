@@ -1,4 +1,4 @@
-module Cubical.Categories.Displayed.Constructions.TotalCategory where
+module Cubical.Categories.Displayed.Instances.TotalCategory where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

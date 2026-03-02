@@ -2,7 +2,7 @@
   Weaken a category to be a displayed category.
 -}
 --
-module Cubical.Categories.Displayed.Constructions.Weaken.Base where
+module Cubical.Categories.Displayed.Instances.Weaken.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

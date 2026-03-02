@@ -1,5 +1,5 @@
 -- | Structure displayed over a category.
-module Cubical.Categories.Displayed.Constructions.StructureOver.Properties where
+module Cubical.Categories.Displayed.Instances.StructureOver.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -11,7 +11,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Constructions.StructureOver.Base
+open import Cubical.Categories.Displayed.Instances.StructureOver.Base
 open import Cubical.Categories.Instances.TotalCategory
 
 private

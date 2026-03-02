@@ -1,5 +1,5 @@
 --
-module Cubical.Categories.Displayed.Constructions.LeftAdjointToReindex where
+module Cubical.Categories.Displayed.Instances.LeftAdjointToReindex where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Path
@@ -12,7 +12,7 @@ open import Cubical.Categories.Instances.Terminal
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Constructions.Weaken.Base
+open import Cubical.Categories.Displayed.Instances.Weaken.Base
 open import Cubical.Categories.Instances.TotalCategory
 
 private

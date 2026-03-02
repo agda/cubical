@@ -22,8 +22,8 @@ open import Cubical.Categories.Instances.BinProduct as BP
 open import Cubical.Categories.UnderlyingGraph hiding (Interp)
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Path
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
-open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
+open import Cubical.Categories.Displayed.Instances.Reindex.Base as Reindex
+open import Cubical.Categories.Displayed.Instances.Weaken.Base as Wk
 
 open import Cubical.Categories.Displayed.Section.Base as Cat
 
