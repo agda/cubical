@@ -1,5 +1,5 @@
 -- The category of elements of a functor to Set
-module Cubical.Categories.Constructions.Elements where
+module Cubical.Categories.Instances.Elements where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

@@ -4,7 +4,7 @@
 -- This differs from the implementation in Free.Category, which
 -- assumes the vertices of the input graph form a Set.
 
-module Cubical.Categories.Constructions.Free.Category.Base where
+module Cubical.Categories.Instances.Free.Category.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

@@ -1,9 +1,9 @@
-module Cubical.Categories.Constructions.Power where
+module Cubical.Categories.Instances.Power where
 
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.Product
+open import Cubical.Categories.Instances.Product
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 

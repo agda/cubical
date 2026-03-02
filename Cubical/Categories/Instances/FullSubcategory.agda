@@ -1,4 +1,4 @@
-module Cubical.Categories.Constructions.FullSubcategory where
+module Cubical.Categories.Instances.FullSubcategory where
 -- Full subcategory (not necessarily injective on objects)
 
 open import Cubical.Foundations.Prelude

@@ -65,7 +65,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Constructions.TotalCategory as TotalCat
+open import Cubical.Categories.Instances.TotalCategory as TotalCat
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Terminal
 

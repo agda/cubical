@@ -1,5 +1,5 @@
 
-module Cubical.Categories.Constructions.Slice.Functor where
+module Cubical.Categories.Instances.Slice.Functor where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -8,7 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Categories.Category
 open import Cubical.Categories.Category.Properties
 
-open import Cubical.Categories.Constructions.Slice.Base
+open import Cubical.Categories.Instances.Slice.Base
 
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Functor

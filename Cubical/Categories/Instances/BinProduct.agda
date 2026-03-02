@@ -1,6 +1,6 @@
 -- Product of two categories
 
-module Cubical.Categories.Constructions.BinProduct where
+module Cubical.Categories.Instances.BinProduct where
 
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude

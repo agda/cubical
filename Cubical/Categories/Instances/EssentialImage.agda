@@ -3,7 +3,7 @@
 The Essential Image of Functor
 
 -}
-module Cubical.Categories.Constructions.EssentialImage where
+module Cubical.Categories.Instances.EssentialImage where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
@@ -11,7 +11,7 @@ open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.FullSubcategory
+open import Cubical.Categories.Instances.FullSubcategory
 
 private
   variable

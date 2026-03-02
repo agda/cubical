@@ -2,13 +2,13 @@
   The vertical category over an object from a displayed
   category. Also sometimes called the "fiber"
 -}
-module Cubical.Categories.Constructions.Vertical where
+module Cubical.Categories.Instances.Vertical where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.Constructions.DisplayOverTerminal
+open import Cubical.Categories.Instances.DisplayOverTerminal
 open import Cubical.Categories.Instances.Terminal
 
 private

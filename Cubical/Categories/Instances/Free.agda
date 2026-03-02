@@ -1,6 +1,6 @@
 -- Free category over a directed graph/quiver
 
-module Cubical.Categories.Constructions.Free where
+module Cubical.Categories.Instances.Free where
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Data.Graph.Base

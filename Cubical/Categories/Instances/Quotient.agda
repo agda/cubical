@@ -1,6 +1,6 @@
 -- Quotient category
 
-module Cubical.Categories.Constructions.Quotient where
+module Cubical.Categories.Instances.Quotient where
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
