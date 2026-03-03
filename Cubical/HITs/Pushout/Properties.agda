@@ -560,8 +560,8 @@ module _ {ℓ ℓ' ℓ'' : Level} (ℓ''' : Level)
   PushoutLift = Pushout {A = Lift (ℓ-max ℓ' (ℓ-max ℓ'' ℓ''')) A}
                         {B = Lift (ℓ-max ℓ (ℓ-max ℓ'' ℓ''')) B}
                         {C = Lift (ℓ-max ℓ (ℓ-max ℓ' ℓ''')) C}
-                        (liftMap f)
-                        (liftMap g)
+                        (liftFun f)
+                        (liftFun g)
 
   PushoutLiftIso : Iso (Pushout f g) PushoutLift
   Iso.fun PushoutLiftIso (inl x) = inl (lift x)
@@ -744,7 +744,7 @@ PushoutCompEquivIso : ∀ {ℓA ℓA' ℓB ℓB' ℓC}
 PushoutCompEquivIso {ℓA = ℓA} {ℓA'} {ℓB} {ℓB'} {ℓC} e1 e2 f g =
   compIso (pushoutIso _ _ _ _ LiftEquiv LiftEquiv LiftEquiv refl refl)
     (compIso (PushoutCompEquivIso' {ℓ = ℓ*} {ℓ*} {ℓ*}
-      (liftEq ℓ* e1) (liftEq ℓ* e2) (liftMap f) (liftMap g))
+      (liftEq ℓ* e1) (liftEq ℓ* e2) (liftFun f) (liftFun g))
       (invIso (pushoutIso _ _ _ _
                LiftEquiv LiftEquiv (LiftEquiv {ℓ' = ℓ*}) refl refl)))
   where
@@ -1185,8 +1185,8 @@ module PushoutPasteLeft {ℓ₀ ℓ₂ ℓ₄ ℓP ℓA ℓB : Level}
     help = M.isPushoutTotSquare→isPushoutBottomSquare (rotatePushoutSquare (_ , e) .snd)
 
 LiftPushoutIso : (ℓP : Level) {f : A → B} {g : A → C}
-  → Iso (Pushout (liftMap f :> (Lift ℓP A → Lift ℓP B))
-                  (liftMap g :> (Lift ℓP A → Lift ℓP C)))
+  → Iso (Pushout (liftFun f :> (Lift ℓP A → Lift ℓP B))
+                  (liftFun g :> (Lift ℓP A → Lift ℓP C)))
          (Lift ℓP (Pushout f g))
 fun (LiftPushoutIso ℓP) (inl (lift x)) = lift (inl x)
 fun (LiftPushoutIso ℓP) (inr (lift x)) = lift (inr x)

@@ -360,8 +360,8 @@ Iso⊎→Iso {A = A} {C = C} {B = B} {D = D} f e p = Iso'
 Lift⊎Iso : ∀ (ℓ : Level)
   → Iso (Lift ℓ A ⊎ Lift ℓ B)
          (Lift ℓ (A ⊎ B))
-fun (Lift⊎Iso ℓD) (inl x) = liftMap inl x
-fun (Lift⊎Iso ℓD) (inr x) = liftMap inr x
+fun (Lift⊎Iso ℓD) (inl x) = liftFun inl x
+fun (Lift⊎Iso ℓD) (inr x) = liftFun inr x
 inv (Lift⊎Iso ℓD) (lift (inl x)) = inl (lift x)
 inv (Lift⊎Iso ℓD) (lift (inr x)) = inr (lift x)
 sec (Lift⊎Iso ℓD) (lift (inl x)) = refl

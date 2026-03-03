@@ -819,7 +819,7 @@ module _ {ℓ ℓ' : Level} (P : Type ℓ → Type ℓ') (P1 : P Unit*) (P0 : P 
               refl refl)
             (invEquiv (B .snd .snd .snd .snd n))))
        (Ppush _ _ _
-        (λ { (lift r) → CWskel-fields.α B n r}) (liftMap fst)
+        (λ { (lift r) → CWskel-fields.α B n r}) (liftFun fst)
         (PFin×S (CWskel-fields.card B n) n)
           (PCWskel B n) (PFin (CWskel-fields.card B n)))
 
