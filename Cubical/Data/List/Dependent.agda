@@ -28,7 +28,7 @@ infixr 5 _∷_
 
 -- Represent ListP via known operations in order to derive properties more easily.
 RepListP : ∀ {ℓA ℓB} {A : Type ℓA} (B : A → Type ℓB) (as : List A) → Type (ℓ-max ℓA ℓB)
-RepListP B [] = Lift Unit
+RepListP B [] = Unit*
 RepListP B (a ∷ as) = B a × RepListP B as
 
 isoRepListP : ∀ {ℓA ℓB} {A : Type ℓA} (B : A → Type ℓB) (as : List A) → ListP B as ≅ RepListP B as

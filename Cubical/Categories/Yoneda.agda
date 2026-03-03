@@ -153,27 +153,27 @@ module _ {C : Category ℓ ℓ'} where
 -- A more universe-polymorphic Yoneda lemma
 yoneda* : {C : Category ℓ ℓ'}(F : Functor C (SET ℓ''))
         → (c : Category.ob C)
-        → Iso ((FUNCTOR C (SET (ℓ-max ℓ' ℓ''))) [ LiftF {ℓ'}{ℓ''} ∘F (C [ c ,-])
-                                                , LiftF {ℓ''}{ℓ'} ∘F F ])
+        → Iso ((FUNCTOR C (SET (ℓ-max ℓ' ℓ''))) [ LiftF ℓ'' ∘F (C [ c ,-])
+                                                , LiftF ℓ'  ∘F F ])
               (fst (F ⟅ c ⟆))
 yoneda* {ℓ}{ℓ'}{ℓ''}{C} F c =
-  ((FUNCTOR C (SET (ℓ-max ℓ' ℓ''))) [ LiftF {ℓ'}{ℓ''} ∘F (C [ c ,-])
-                                    , LiftF {ℓ''}{ℓ'} ∘F F ])
+  ((FUNCTOR C (SET (ℓ-max ℓ' ℓ''))) [ LiftF ℓ'' ∘F (C [ c ,-])
+                                    , LiftF ℓ'  ∘F F ])
     Iso⟨ the-iso ⟩
   ((FUNCTOR (LiftHoms C ℓ'')
             (SET (ℓ-max ℓ' ℓ''))) [ (LiftHoms C ℓ'' [ c ,-])
-                                  , LiftF {ℓ''}{ℓ'} ∘F (F ∘F lowerHoms C ℓ'') ])
-    Iso⟨ yoneda (LiftF {ℓ''}{ℓ'} ∘F (F ∘F lowerHoms C ℓ'')) c ⟩
-  Lift {ℓ''}{ℓ'} (fst (F ⟅ c ⟆))
+                                  , LiftF ℓ' ∘F (F ∘F lowerHoms C ℓ'') ])
+    Iso⟨ yoneda (LiftF ℓ' ∘F (F ∘F lowerHoms C ℓ'')) c ⟩
+  Lift ℓ' (fst (F ⟅ c ⟆))
     Iso⟨ invIso LiftIso ⟩
   (fst (F ⟅ c ⟆)) ∎Iso where
 
   the-iso : Iso ((FUNCTOR C (SET (ℓ-max ℓ' ℓ'')))
-                  [ LiftF {ℓ'}{ℓ''} ∘F (C [ c ,-])
-                  , LiftF {ℓ''}{ℓ'} ∘F F ])
+                  [ LiftF ℓ'' ∘F (C [ c ,-])
+                  , LiftF ℓ' ∘F F ])
                 ((FUNCTOR (LiftHoms C ℓ'') (SET (ℓ-max ℓ' ℓ'')))
                   [ (LiftHoms C ℓ'' [ c ,-])
-                  , LiftF {ℓ''}{ℓ'} ∘F (F ∘F lowerHoms C ℓ'') ])
+                  , LiftF ℓ' ∘F (F ∘F lowerHoms C ℓ'') ])
   the-iso .fun α .N-ob d f = α .N-ob d f
   the-iso .fun α .N-hom g = α .N-hom (g .lower)
   the-iso .inv β .N-ob d f = β .N-ob d f
@@ -184,22 +184,22 @@ yoneda* {ℓ}{ℓ'}{ℓ''}{C} F c =
 yonedaᴾ* : {C : Category ℓ ℓ'}(F : Functor (C ^op) (SET ℓ''))
             → (c : Category.ob C)
             → Iso (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
-                    [ LiftF {ℓ'}{ℓ''} ∘F (C [-, c ])
-                    , LiftF {ℓ''}{ℓ'} ∘F F ])
+                    [ LiftF ℓ'' ∘F (C [-, c ])
+                    , LiftF ℓ'  ∘F F ])
                   (fst (F ⟅ c ⟆))
 yonedaᴾ* {ℓ}{ℓ'}{ℓ''}{C} F c =
   (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
-    [ LiftF {ℓ'}{ℓ''} ∘F (C [-, c ]) , LiftF {ℓ''}{ℓ'} ∘F F ]) Iso⟨ the-iso ⟩
+    [ LiftF ℓ'' ∘F (C [-, c ]) , LiftF ℓ' ∘F F ]) Iso⟨ the-iso ⟩
   (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
-    [ LiftF {ℓ'}{ℓ''} ∘F ((C ^op) [ c ,-])
-    , LiftF {ℓ''}{ℓ'} ∘F F ]) Iso⟨ yoneda* F c ⟩
+    [ LiftF ℓ'' ∘F ((C ^op) [ c ,-])
+    , LiftF  ℓ' ∘F F ]) Iso⟨ yoneda* F c ⟩
   fst (F ⟅ c ⟆) ∎Iso where
 
   the-iso :
     Iso (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
-          [ LiftF {ℓ'}{ℓ''} ∘F (C [-, c ]) , LiftF {ℓ''}{ℓ'} ∘F F ])
+          [ LiftF ℓ'' ∘F (C [-, c ]) , LiftF ℓ' ∘F F ])
         (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
-          [ LiftF {ℓ'}{ℓ''} ∘F ((C ^op) [ c ,-]) , LiftF {ℓ''}{ℓ'} ∘F F ])
+          [ LiftF ℓ'' ∘F ((C ^op) [ c ,-]) , LiftF ℓ' ∘F F ])
   the-iso .fun α .N-ob = α .N-ob
   the-iso .fun α .N-hom = α .N-hom
   the-iso .inv β .N-ob = β .N-ob

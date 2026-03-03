@@ -64,11 +64,11 @@ shift-chain = λ X,π -> ((λ x → X X,π (suc x)) ,, λ {n} → π X,π {suc n
 ------------------------------------------------------
 
 Wₙ : ∀ {ℓ} -> Container ℓ -> ℕ -> Type ℓ
-Wₙ S 0 = Lift Unit
+Wₙ S 0 = Unit*
 Wₙ S (suc n) = P₀ S (Wₙ S n)
 
 πₙ : ∀ {ℓ} -> (S : Container ℓ) -> {n : ℕ} -> Wₙ S (suc n) -> Wₙ S n
-πₙ {ℓ} S {0} _ = lift tt
+πₙ {ℓ} S {0} _ = tt*
 πₙ S {suc n} = P₁ (πₙ S {n})
 
 sequence : ∀ {ℓ} -> Container ℓ -> Chain ℓ

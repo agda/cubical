@@ -17,9 +17,9 @@ open import Cubical.HITs.Pushout
 module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} where
 
   PushoutDiag : (A → B) → (A → C) → Diag (ℓ-max ℓ (ℓ-max ℓ' ℓ'')) ⇐⇒
-  (PushoutDiag f g) $g fzero             = Lift {j = ℓ-max ℓ  ℓ'' } B
-  (PushoutDiag f g) $g fsuc fzero        = Lift {j = ℓ-max ℓ' ℓ'' } A
-  (PushoutDiag f g) $g fsuc (fsuc fzero) = Lift {j = ℓ-max ℓ  ℓ'  } C
+  (PushoutDiag f g) $g fzero             = Lift (ℓ-max ℓ  ℓ'') B
+  (PushoutDiag f g) $g fsuc fzero        = Lift (ℓ-max ℓ' ℓ'') A
+  (PushoutDiag f g) $g fsuc (fsuc fzero) = Lift (ℓ-max ℓ  ℓ' ) C
   _<$g>_ (PushoutDiag f g) {fsuc fzero} {fzero}             tt (lift a) = lift (f a)
   _<$g>_ (PushoutDiag f g) {fsuc fzero} {fsuc (fsuc fzero)} tt (lift a) = lift (g a)
 

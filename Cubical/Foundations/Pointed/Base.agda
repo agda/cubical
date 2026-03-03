@@ -22,9 +22,8 @@ pt = str
 
 Pointed₀ = Pointed ℓ-zero
 
-Lift∙ : ∀ {i j} → (A : Pointed i) → Pointed (ℓ-max i j)
-fst (Lift∙ {j = j} A) = Lift {j = j} (typ A)
-snd (Lift∙ A) = lift (pt A)
+Lift∙ : ∀ ℓ' → (A : Pointed ℓ) → Pointed (ℓ-max ℓ ℓ')
+Lift∙ ℓ' A = Lift ℓ' (typ A) , lift (pt A)
 
 {- Pointed functions -}
 _→∙_ : (A : Pointed ℓ) (B : Pointed ℓ') → Type (ℓ-max ℓ ℓ')
@@ -58,6 +57,10 @@ compEquiv∙ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Po
   → A ≃∙ B → B ≃∙ C → A ≃∙ C
 fst (compEquiv∙ e1 e2) = compEquiv (fst e1) (fst e2)
 snd (compEquiv∙ e1 e2) = cong (fst (fst e2)) (snd e1) ∙ snd e2
+
+Lift∙≃Lift∙ : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Pointed ℓ} {B : Pointed ℓ'}
+            → A ≃∙ B → Lift∙ ℓ'' A ≃∙ Lift∙ ℓ''' B
+Lift∙≃Lift∙ (e , p) = Lift≃Lift e , liftExt p
 
 Equiv∙J : {B : Pointed ℓ} (C : (A : Pointed ℓ) → A ≃∙ B → Type ℓ')
           → C B (idEquiv (fst B) , refl)

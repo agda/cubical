@@ -1249,7 +1249,7 @@ HurewiczTheorem n =
      Xᶜʷ = X , cw
      Xᶜʷ' = X , Xˢᵏᵉˡ' , (invEquiv (snd cw'))
 
-     liftLem : (A : CW ℓ-zero) (a : fst A) (e : isConnected 2 (Lift (fst A)))
+     liftLem : (A : CW ℓ-zero) (a : fst A) (e : isConnected 2 (Lift _ (fst A)))
        → Path (Σ[ A ∈ CW ℓ-zero ] (Σ[ a ∈ fst A ] isConnected 2 (fst A)))
               (A , a , subst (isConnected 2) (ua (invEquiv LiftEquiv)) e)
               ((CWLift ℓ-zero A) , (lift a , e))

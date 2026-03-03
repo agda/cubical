@@ -36,8 +36,7 @@ open import Cubical.Axiom.Choice
 
 record coHomTheory {ℓ ℓ' : Level} (H : (n : ℤ) → Pointed ℓ → AbGroup ℓ') : Type (ℓ-suc (ℓ-max ℓ ℓ'))
   where
-  Boolℓ : Pointed ℓ
-  Boolℓ = Lift Bool , lift true
+
   field
     Hmap : (n : ℤ) → {A B : Pointed ℓ} (f : A →∙ B) → AbGroupHom (H n B) (H n A)
     HMapComp : (n : ℤ) → {A B C : Pointed ℓ} (g : B →∙ C) (f : A →∙ B)
@@ -50,13 +49,12 @@ record coHomTheory {ℓ ℓ' : Level} (H : (n : ℤ) → Pointed ℓ → AbGroup
     Exactness : {A B : Pointed ℓ}  (f : A →∙ B) (n :  ℤ)
               → Ker (Hmap n f)
                ≡ Im (Hmap n {B = _ , inr (pt B)} (cfcod (fst f) , refl))
-    Dimension : (n : ℤ) → ¬ n ≡ 0 → isContr (fst (H n Boolℓ))
+    Dimension : (n : ℤ) → ¬ n ≡ 0 → isContr (fst (H n Bool*∙))
     BinaryWedge : (n : ℤ) {A B : Pointed ℓ} → AbGroupEquiv (H n (A ⋁ B , (inl (pt A)))) (dirProdAb (H n A) (H n B))
 
 record coHomTheoryGen {ℓ ℓ' : Level} (H : (n : ℤ) → Pointed ℓ → AbGroup ℓ') : Type (ℓ-suc (ℓ-max ℓ ℓ'))
   where
-  Boolℓ : Pointed ℓ
-  Boolℓ = Lift Bool , lift true
+
   field
     Hmap : (n : ℤ) → {A B : Pointed ℓ} (f : A →∙ B) → AbGroupHom (H n B) (H n A)
     HMapComp : (n : ℤ) → {A B C : Pointed ℓ} (g : B →∙ C) (f : A →∙ B)
@@ -70,7 +68,7 @@ record coHomTheoryGen {ℓ ℓ' : Level} (H : (n : ℤ) → Pointed ℓ → AbGr
     Exactness : {A B : Pointed ℓ}  (f : A →∙ B) (n :  ℤ)
               → Ker (Hmap n f)
                ≡ Im (Hmap n {B = _ , inr (pt B)} (cfcod (fst f) , refl))
-    Dimension : (n : ℤ) → ¬ n ≡ 0 → isContr (fst (H n Boolℓ))
+    Dimension : (n : ℤ) → ¬ n ≡ 0 → isContr (fst (H n Bool*∙))
     Wedge : (n : ℤ) {I : Type ℓ} (satAC : satAC (ℓ-max ℓ ℓ') 2 I) {A : I → Pointed ℓ}
       → isEquiv {A = H n (⋁gen∙ I A) .fst}
                  {B = ΠAbGroup (λ i → H n (A i)) .fst}

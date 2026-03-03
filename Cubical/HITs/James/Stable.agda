@@ -73,7 +73,7 @@ LoopSuspPushoutSquare : PushoutSquare
 LoopSuspPushoutSquare = (LoopSuspSquare , isContr→≃Unit* isContrPushout .snd)
 
 open PushoutPasteLeft LoopSuspPushoutSquare
-  (λ _ → lift {j = ℓ} tt) _ _ (funExt merid)
+  (λ _ → _ :> Unit* {ℓ}) _ _ (funExt merid)
 
 cofib-snd-James : cofib (λ (r : X × ΩΣX) → snd r) ≃ Susp ΩΣX
 cofib-snd-James = pushoutSwitchEquiv

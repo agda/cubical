@@ -111,9 +111,9 @@ module _ {ℓv ℓe ℓv' ℓe'} where
 
   _⊎Gr_ : ∀ (G : Graph ℓv ℓe) (G' : Graph ℓv' ℓe') → Graph (ℓ-max ℓv ℓv') (ℓ-max ℓe ℓe')
   Node (G ⊎Gr G') = Node G ⊎ Node G'
-  Edge (G ⊎Gr G') (inl x) (inl y) = Lift {j = ℓe'} (Edge G x y)
-  Edge (G ⊎Gr G') (inr x) (inr y) = Lift {j = ℓe } (Edge G' x y)
-  Edge (G ⊎Gr G') _ _ = Lift ⊥
+  Edge (G ⊎Gr G') (inl x) (inl y) = Lift ℓe' (Edge G x y)
+  Edge (G ⊎Gr G') (inr x) (inr y) = Lift ℓe (Edge G' x y)
+  Edge (G ⊎Gr G') _ _ = ⊥*
 
   record ⊎Diag ℓ (G : Graph ℓv ℓe) (G' : Graph ℓv' ℓe')
                : Type (ℓ-max (ℓ-suc ℓ) (ℓ-max (ℓ-max ℓv ℓv') (ℓ-max ℓe ℓe'))) where
@@ -140,9 +140,9 @@ module _ {ℓv ℓe ℓv' ℓe'} where
   Node (G ×Gr G') = Node (fst G) × Node (fst G')
   Edge (G ×Gr G') (x , x') (y , y') with snd G x y | snd G' x' y'
   ... | yes _ | yes _ = Edge (fst G) x y ⊎ Edge (fst G') x' y'
-  ... | yes _ | no  _ = Lift {j = ℓe } (Edge (fst G') x' y')
-  ... | no  _ | yes _ = Lift {j = ℓe'} (Edge (fst G) x y)
-  ... | no  _ | no  _ = Lift ⊥
+  ... | yes _ | no  _ = Lift ℓe (Edge (fst G') x' y')
+  ... | no  _ | yes _ = Lift ℓe' (Edge (fst G) x y)
+  ... | no  _ | no  _ = ⊥*
 
   record ×Diag ℓ (G : DecGraph ℓv ℓe) (G' : DecGraph ℓv' ℓe')
                : Type (ℓ-max (ℓ-suc ℓ) (ℓ-max (ℓ-max ℓv ℓv') (ℓ-max ℓe ℓe'))) where

@@ -318,8 +318,8 @@ universeEmbedding F liftingEquiv = hasPropFibersOfImage→isEmbedding propFibers
   propFibersF X = Embedding-into-isProp→isProp (Equiv→Embedding (fiberSingl X)) isPropSingl
 
 liftEmbedding : (ℓ ℓ' : Level)
-              → isEmbedding (Lift {i = ℓ} {j = ℓ'})
-liftEmbedding ℓ ℓ' = universeEmbedding (Lift {j = ℓ'}) (λ _ → invEquiv LiftEquiv)
+              → isEmbedding (Lift ℓ' :> (Type ℓ → Type (ℓ-max ℓ ℓ')))
+liftEmbedding ℓ ℓ' = universeEmbedding (Lift ℓ') (λ _ → invEquiv LiftEquiv)
 
 module FibrationIdentityPrinciple {B : Type ℓ} {ℓ'} where
   -- note that fibrationEquiv (for good reason) uses ℓ' = ℓ-max ℓ ℓ', so we have to work
@@ -344,8 +344,8 @@ module FibrationIdentityPrinciple {B : Type ℓ} {ℓ'} where
       ■
 
   -- Then embed into the above case by lifting the type
-  L : Type _ → Type _ -- local synonym fixing the levels of Lift
-  L = Lift {i = ℓ'} {j = ℓ}
+  L : Type ℓ' → Type _ -- local synonym fixing the levels of Lift
+  L = Lift ℓ
 
   liftFibration : Fibration B ℓ' → Fibration′
   liftFibration (A , f) = L A , f ∘ lower
@@ -367,10 +367,8 @@ module FibrationIdentityPrinciple {B : Type ℓ} {ℓ'} where
       ≃⟨ Σ-cong-equiv-snd (λ _ → Σ-cong-equiv-snd λ _ → pathToEquiv (PathP≡Path⁻ _ _ _)) ⟩
         (Σ[ (E , eq) ∈ fiber L A ] fiber (_∘ lower) (transport⁻ (λ i → eq i → B) f))
       ■ where
-      unquoteDecl boringSwap =
-        declStrictEquiv boringSwap
-          (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p)))
-          (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p)))
+      boringSwap = strictEquiv (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p)))
+                               (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p)))
 
   isEmbeddingLiftFibration : isEmbedding liftFibration
   isEmbeddingLiftFibration = hasPropFibers→isEmbedding hasPropFibersLiftFibration

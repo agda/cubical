@@ -37,5 +37,5 @@ realiseSequenceMap (sequencemap map comm) (push {n = n} x i) =
 
 LiftSequence : ∀ {ℓA} (ℓ↑ : Level) (S : Sequence ℓA) →
   Sequence (ℓ-max ℓA ℓ↑)
-obj (LiftSequence ℓ↑ S) n = Lift {j = ℓ↑} (obj S n)
+obj (LiftSequence ℓ↑ S) n = Lift ℓ↑ (obj S n)
 map (LiftSequence ℓ↑ S) = liftFun (map S)
