@@ -14,20 +14,23 @@ open import Cubical.Core.Primitives
 open import Agda.Builtin.Cubical.Glue public
   using ( isEquiv       -- ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ ⊔ ℓ')
 
-        ; equiv-proof   -- ∀ (y : B) → isContr (fiber f y)
+        ; equiv-proof   -- ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {f : A → B} → isEquiv f
+                        -- → (y : B) → isContr (fiber f y)
 
         ; _≃_           -- ∀ {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') → Type (ℓ ⊔ ℓ')
 
         ; equivFun      -- ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → A ≃ B → A → B
 
-        ; equivProof    -- ∀ {ℓ ℓ'} (T : Type ℓ) (A : Type ℓ') (w : T ≃ A) (a : A) φ →
-                        -- Partial φ (fiber (equivFun w) a) → fiber (equivFun w) a
+        ; equivProof    -- ∀ {ℓ ℓ'} (T : Type ℓ) (A : Type ℓ') (w : T ≃ A) (a : A) φ
+                        -- → Partial φ (fiber (equivFun w) a) → fiber (equivFun w) a
 
         ; primGlue      -- ∀ {ℓ ℓ'} (A : Type ℓ) {φ : I} (T : Partial φ (Type ℓ'))
                         -- → (e : PartialP φ (λ o → T o ≃ A)) → Type ℓ'
 
         ; prim^unglue   -- ∀ {ℓ ℓ'} {A : Type ℓ} {φ : I} {T : Partial φ (Type ℓ')}
                         -- → {e : PartialP φ (λ o → T o ≃ A)} → primGlue A T e → A
+
+        ; pathToEquiv   -- ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B
 
         -- The ∀ operation on I. This is commented out as it is not currently used for anything
         -- ; primFaceForall -- (I → I) → I
