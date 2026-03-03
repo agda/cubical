@@ -80,7 +80,9 @@ module _ {ℓ : Level} (R : CommRing ℓ) (idem : isIdemRing R) where
 BoolHom : {ℓ ℓ' : Level} → (A : BooleanRing ℓ) → (B : BooleanRing ℓ') → Type _
 BoolHom A B = CommRingHom (BooleanRing→CommRing A) (BooleanRing→CommRing B)
 
-module BooleanAlgebraStr (A : BooleanRing ℓ)  where
+module BooleanAlgebraStr {set : Type ℓ} (RingStr : BooleanRingStr set) where
+  A : BooleanRing ℓ
+  A = (set , RingStr)
   open BooleanRingStr (A . snd)
   _∨_ : ⟨ A ⟩ → ⟨ A ⟩ → ⟨ A ⟩
   a ∨ b = (a + b) + (a · b)
