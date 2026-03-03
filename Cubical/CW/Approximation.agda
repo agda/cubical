@@ -19,8 +19,8 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Fin.Inductive.Base
-open import Cubical.Data.Fin.Inductive.Properties
+open import Cubical.Data.Fin.Base
+open import Cubical.Data.Fin.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty as ⊥
@@ -280,7 +280,7 @@ finCWmap→CellMap n C D f =
   PT.map (λ {(ϕ , p) → ψ ϕ (funExt⁻ p)
   , funExt λ x
     → subst (λ x → realiseCellMap (ψ ϕ (funExt⁻ p)) x ≡ f x)
-            (Iso.rightInv (converges→ColimIso
+            (Iso.sec (converges→ColimIso
               {seq = realiseSeq (finCWskel→CWskel n C)} n (C .snd .snd)) x)
             (cong (incl {n = n})
               (silly ϕ (funExt⁻ p) _)
@@ -380,8 +380,7 @@ finCWmap→CellMap n C D f =
     ... | inr n>m | inr n>sucm =
          cong (CW↪ D m)
            (funExt⁻ (cong (fmap ϕ) (ΣPathP (refl , (isProp<ᵗ _ _)))) x)
-       ∙ fcomm ϕ (m , <→<ᵗ n>m) x
-       ∙ funExt⁻ (cong (fmap ϕ) (ΣPathP (refl , (isProp<ᵗ _ _)))) _
+       ∙ fcomm ϕ (m , <ᵗ-trans (<→<ᵗ n>sucm) <ᵗsucm) x
 
     silly : (x : _) → smap ψ n x ≡ fmap ϕ (n , <ᵗsucm {n}) x
     silly x with (Dichotomyℕ n n)

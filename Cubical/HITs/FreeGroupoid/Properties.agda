@@ -158,13 +158,13 @@ forgetfulHom⁻¹ = invf , isHom where
 
 
 freeGroupTruncIdempotentBiInvEquiv : BiInvEquiv (FreeGroup A) ∥ FreeGroupoid A ∥₂
-freeGroupTruncIdempotentBiInvEquiv = biInvEquiv f invf rightInv invf leftInv where
+freeGroupTruncIdempotentBiInvEquiv = biInvEquiv f invf sec invf ret where
   f : FreeGroup A → ∥ FreeGroupoid A ∥₂
   f = fst forgetfulHom
   invf : ∥ FreeGroupoid A ∥₂ → FreeGroup A
   invf = fst forgetfulHom⁻¹
-  rightInv : ∀ (x : ∥ FreeGroupoid A ∥₂) → f (invf x) ≡ x
-  rightInv x = elim (λ x → isProp→isSet (squash₂ (f (invf x)) x)) ind x where
+  sec : ∀ (x : ∥ FreeGroupoid A ∥₂) → f (invf x) ≡ x
+  sec x = elim (λ x → isProp→isSet (squash₂ (f (invf x)) x)) ind x where
     ind : ∀ (g : FreeGroupoid A) → f (invf ∣ g ∣₂) ≡ ∣ g ∣₂
     ind g = elimProp Bprop η-ind ·-ind ε-ind inv-ind g where
       Bprop : ∀ g → isProp (f (invf ∣ g ∣₂) ≡ ∣ g ∣₂)
@@ -197,8 +197,8 @@ freeGroupTruncIdempotentBiInvEquiv = biInvEquiv f invf rightInv invf leftInv whe
         ∣inv∣₂ ∣ g ∣₂
         ≡⟨ refl ⟩
         ∣ inv g ∣₂ ∎
-  leftInv : ∀ (g : FreeGroup A) → invf (f g) ≡ g
-  leftInv g = freeGroupElimProp Bprop η-ind ·-ind ε-ind inv-ind g where
+  ret : ∀ (g : FreeGroup A) → invf (f g) ≡ g
+  ret g = freeGroupElimProp Bprop η-ind ·-ind ε-ind inv-ind g where
       Bprop : ∀ g → isProp (invf (f g) ≡ g)
       Bprop g = freeGroupIsSet (invf (f g)) g
       η-ind : ∀ a → invf (f (η a)) ≡ (η a)

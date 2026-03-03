@@ -77,8 +77,8 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
                       (PathP (λ i → Σ (A i) (B i)) x y)
   fun ΣPathIsoPathΣ        = ΣPathP
   inv ΣPathIsoPathΣ        = PathPΣ
-  rightInv ΣPathIsoPathΣ _ = refl
-  leftInv ΣPathIsoPathΣ _  = refl
+  sec ΣPathIsoPathΣ _ = refl
+  ret ΣPathIsoPathΣ _  = refl
 
   unquoteDecl ΣPath≃PathΣ = declStrictIsoToEquiv ΣPath≃PathΣ ΣPathIsoPathΣ
 
@@ -110,8 +110,8 @@ module _ {A : I → Type ℓ} {B : (i : I) → (a : A i) → Type ℓ'}
   ΣPathPIsoPathPΣ .fun (p , q) i = p i , q i
   ΣPathPIsoPathPΣ .inv pq .fst i = pq i .fst
   ΣPathPIsoPathPΣ .inv pq .snd i = pq i .snd
-  ΣPathPIsoPathPΣ .rightInv _ = refl
-  ΣPathPIsoPathPΣ .leftInv _ = refl
+  ΣPathPIsoPathPΣ .sec _ = refl
+  ΣPathPIsoPathPΣ .ret _ = refl
 
   unquoteDecl ΣPathP≃PathPΣ = declStrictIsoToEquiv ΣPathP≃PathPΣ ΣPathPIsoPathPΣ
 
@@ -134,33 +134,33 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
 lUnit×Iso : Iso (Unit × A) A
 fun lUnit×Iso = snd
 inv lUnit×Iso = tt ,_
-rightInv lUnit×Iso _ = refl
-leftInv lUnit×Iso _ = refl
+sec lUnit×Iso _ = refl
+ret lUnit×Iso _ = refl
 
 lUnit*×Iso : Iso (Unit* {ℓ} × A) A
 fun lUnit*×Iso = snd
 inv lUnit*×Iso = tt* ,_
-rightInv lUnit*×Iso _ = refl
-leftInv lUnit*×Iso _ = refl
+sec lUnit*×Iso _ = refl
+ret lUnit*×Iso _ = refl
 
 rUnit×Iso : Iso (A × Unit) A
 fun rUnit×Iso = fst
 inv rUnit×Iso = _, tt
-rightInv rUnit×Iso _ = refl
-leftInv rUnit×Iso _ = refl
+sec rUnit×Iso _ = refl
+ret rUnit×Iso _ = refl
 
 rUnit*×Iso : Iso (A × Unit* {ℓ}) A
 fun rUnit*×Iso = fst
 inv rUnit*×Iso = _, tt*
-rightInv rUnit*×Iso _ = refl
-leftInv rUnit*×Iso _ = refl
+sec rUnit*×Iso _ = refl
+ret rUnit*×Iso _ = refl
 
 module _ {A : Type ℓ} {A' : Type ℓ'} where
   Σ-swap-Iso : Iso (A × A') (A' × A)
   fun Σ-swap-Iso (x , y) = (y , x)
   inv Σ-swap-Iso (x , y) = (y , x)
-  rightInv Σ-swap-Iso _ = refl
-  leftInv Σ-swap-Iso _  = refl
+  sec Σ-swap-Iso _ = refl
+  ret Σ-swap-Iso _  = refl
 
   unquoteDecl Σ-swap-≃ = declStrictIsoToEquiv Σ-swap-≃ Σ-swap-Iso
 
@@ -168,16 +168,16 @@ module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''}
   Σ-assoc-Iso : Iso (Σ[ a ∈ Σ A B ] C (fst a) (snd a)) (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
   fun Σ-assoc-Iso ((x , y) , z) = (x , (y , z))
   inv Σ-assoc-Iso (x , (y , z)) = ((x , y) , z)
-  rightInv Σ-assoc-Iso _ = refl
-  leftInv Σ-assoc-Iso _  = refl
+  sec Σ-assoc-Iso _ = refl
+  ret Σ-assoc-Iso _  = refl
 
   unquoteDecl Σ-assoc-≃ = declStrictIsoToEquiv Σ-assoc-≃ Σ-assoc-Iso
 
   Σ-Π-Iso : Iso ((a : A) → Σ[ b ∈ B a ] C a b) (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
   fun Σ-Π-Iso f         = (fst ∘ f , snd ∘ f)
   inv Σ-Π-Iso (f , g) x = (f x , g x)
-  rightInv Σ-Π-Iso _    = refl
-  leftInv Σ-Π-Iso _     = refl
+  sec Σ-Π-Iso _    = refl
+  ret Σ-Π-Iso _     = refl
 
   unquoteDecl Σ-Π-≃ = declStrictIsoToEquiv Σ-Π-≃ Σ-Π-Iso
 
@@ -185,8 +185,8 @@ module _ {A : Type ℓ} {B : A → Type ℓ'} {B' : ∀ a → Type ℓ''} where
   Σ-assoc-swap-Iso : Iso (Σ[ a ∈ Σ A B ] B' (fst a)) (Σ[ a ∈ Σ A B' ] B (fst a))
   fun Σ-assoc-swap-Iso ((x , y) , z) = ((x , z) , y)
   inv Σ-assoc-swap-Iso ((x , z) , y) = ((x , y) , z)
-  rightInv Σ-assoc-swap-Iso _ = refl
-  leftInv Σ-assoc-swap-Iso _  = refl
+  sec Σ-assoc-swap-Iso _ = refl
+  ret Σ-assoc-swap-Iso _  = refl
 
   unquoteDecl Σ-assoc-swap-≃ = declStrictIsoToEquiv Σ-assoc-swap-≃ Σ-assoc-swap-Iso
 
@@ -195,23 +195,23 @@ fun (Σ-cong-iso-fst isom) x = fun isom (x .fst) , x .snd
 inv (Σ-cong-iso-fst {B = B} isom) x = inv isom (x .fst) , subst B (sym (ε (x .fst))) (x .snd)
   where
   ε = isHAEquiv.rinv (snd (iso→HAEquiv isom))
-rightInv (Σ-cong-iso-fst {B = B} isom) (x , y) = ΣPathP (ε x , toPathP goal)
+sec (Σ-cong-iso-fst {B = B} isom) (x , y) = ΣPathP (ε x , toPathP goal)
   where
   ε = isHAEquiv.rinv (snd (iso→HAEquiv isom))
   goal : subst B (ε x) (subst B (sym (ε x)) y) ≡ y
   goal = sym (substComposite B (sym (ε x)) (ε x) y)
       ∙∙ cong (λ x → subst B x y) (lCancel (ε x))
       ∙∙ substRefl {B = B} y
-leftInv (Σ-cong-iso-fst {A = A} {B = B} isom) (x , y) = ΣPathP (leftInv isom x , toPathP goal)
+ret (Σ-cong-iso-fst {A = A} {B = B} isom) (x , y) = ΣPathP (ret isom x , toPathP goal)
   where
   ε = isHAEquiv.rinv (snd (iso→HAEquiv isom))
   γ = isHAEquiv.com (snd (iso→HAEquiv isom))
 
-  lem : (x : A) → sym (ε (fun isom x)) ∙ cong (fun isom) (leftInv isom x) ≡ refl
+  lem : (x : A) → sym (ε (fun isom x)) ∙ cong (fun isom) (ret isom x) ≡ refl
   lem x = cong (λ a → sym (ε (fun isom x)) ∙ a) (γ x) ∙ lCancel (ε (fun isom x))
 
-  goal : subst B (cong (fun isom) (leftInv isom x)) (subst B (sym (ε (fun isom x))) y) ≡ y
-  goal = sym (substComposite B (sym (ε (fun isom x))) (cong (fun isom) (leftInv isom x)) y)
+  goal : subst B (cong (fun isom) (ret isom x)) (subst B (sym (ε (fun isom x))) y) ≡ y
+  goal = sym (substComposite B (sym (ε (fun isom x))) (cong (fun isom) (ret isom x)) y)
       ∙∙ cong (λ a → subst B a y) (lem x)
       ∙∙ substRefl {B = B} y
 
@@ -260,8 +260,8 @@ leftInv (Σ-cong-iso-fst {A = A} {B = B} isom) (x , y) = ΣPathP (leftInv isom x
 Σ-cong-iso-snd : ((x : A) → Iso (B x) (B' x)) → Iso (Σ A B) (Σ A B')
 fun (Σ-cong-iso-snd isom) (x , y) = x , fun (isom x) y
 inv (Σ-cong-iso-snd isom) (x , y') = x , inv (isom x) y'
-rightInv (Σ-cong-iso-snd isom) (x , y) = ΣPathP (refl , rightInv (isom x) y)
-leftInv (Σ-cong-iso-snd isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
+sec (Σ-cong-iso-snd isom) (x , y) = ΣPathP (refl , sec (isom x) y)
+ret (Σ-cong-iso-snd isom) (x , y') = ΣPathP (refl , ret (isom x) y')
 
 Σ-cong-equiv-snd : (∀ a → B a ≃ B' a) → Σ A B ≃ Σ A B'
 Σ-cong-equiv-snd h = isoToEquiv (Σ-cong-iso-snd (equivToIso ∘ h))
@@ -317,10 +317,10 @@ PathΣ→ΣPathTransport a b = Iso.inv (IsoΣPathTransportPathΣ a b)
 Σ-contractFstIso : (c : isContr A) → Iso (Σ A B) (B (c .fst))
 fun (Σ-contractFstIso {B = B} c) p = subst B (sym (c .snd (fst p))) (snd p)
 inv (Σ-contractFstIso {B = B} c) b = _ , b
-rightInv (Σ-contractFstIso {B = B} c) b =
+sec (Σ-contractFstIso {B = B} c) b =
   cong (λ p → subst B p b) (isProp→isSet (isContr→isProp c) _ _ _ _) ∙ transportRefl _
-fst (leftInv (Σ-contractFstIso {B = B} c) p j) = c .snd (fst p) j
-snd (leftInv (Σ-contractFstIso {B = B} c) p j) =
+fst (ret (Σ-contractFstIso {B = B} c) p j) = c .snd (fst p) j
+snd (ret (Σ-contractFstIso {B = B} c) p j) =
   transp (λ i → B (c .snd (fst p) (~ i ∨ j))) j (snd p)
 
 Σ-contractFst : (c : isContr A) → Σ A B ≃ B (c .fst)
@@ -337,8 +337,8 @@ module _ (A : Unit → Type ℓ) where
   isom : Iso _ _
   isom .fun = fst
   isom .inv a = a , c a .fst
-  isom .rightInv _ = refl
-  isom .leftInv (a , b) = cong (a ,_) (c a .snd b)
+  isom .sec _ = refl
+  isom .ret (a , b) = cong (a ,_) (c a .snd b)
 
 isEmbeddingFstΣProp : ((x : A) → isProp (B x))
                     → {u v : Σ A B}
@@ -408,30 +408,30 @@ prodIso : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type �
        → Iso (A × B) (C × D)
 Iso.fun (prodIso iAC iBD) (a , b) = (Iso.fun iAC a) , Iso.fun iBD b
 Iso.inv (prodIso iAC iBD) (c , d) = (Iso.inv iAC c) , Iso.inv iBD d
-Iso.rightInv (prodIso iAC iBD) (c , d) = ΣPathP ((Iso.rightInv iAC c) , (Iso.rightInv iBD d))
-Iso.leftInv (prodIso iAC iBD) (a , b) = ΣPathP ((Iso.leftInv iAC a) , (Iso.leftInv iBD b))
+Iso.sec (prodIso iAC iBD) (c , d) = ΣPathP ((Iso.sec iAC c) , (Iso.sec iBD d))
+Iso.ret (prodIso iAC iBD) (a , b) = ΣPathP ((Iso.ret iAC a) , (Iso.ret iBD b))
 
 prodEquivToIso : ∀ {ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
   → (e : A ≃ C)(e' : B ≃ D)
   → prodIso (equivToIso e) (equivToIso e') ≡ equivToIso (≃-× e e')
 Iso.fun (prodEquivToIso e e' i) = Iso.fun (equivToIso (≃-× e e'))
 Iso.inv (prodEquivToIso e e' i) = Iso.inv (equivToIso (≃-× e e'))
-Iso.rightInv (prodEquivToIso e e' i) = Iso.rightInv (equivToIso (≃-× e e'))
-Iso.leftInv (prodEquivToIso e e' i) = Iso.leftInv (equivToIso (≃-× e e'))
+Iso.sec (prodEquivToIso e e' i) = Iso.sec (equivToIso (≃-× e e'))
+Iso.ret (prodEquivToIso e e' i) = Iso.ret (equivToIso (≃-× e e'))
 
 toProdIso : {B C : A → Type ℓ}
           → Iso ((a : A) → B a × C a) (((a : A) → B a) × ((a : A) → C a))
 Iso.fun toProdIso = λ f → (λ a → fst (f a)) , (λ a → snd (f a))
 Iso.inv toProdIso (f , g) = λ a → (f a) , (g a)
-Iso.rightInv toProdIso (f , g) = refl
-Iso.leftInv toProdIso b = refl
+Iso.sec toProdIso (f , g) = refl
+Iso.ret toProdIso b = refl
 
 module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''} where
   curryIso : Iso (((a , b) : Σ A B) → C a b) ((a : A) → (b : B a) → C a b)
   Iso.fun curryIso f a b = f (a , b)
   Iso.inv curryIso f a = f (fst a) (snd a)
-  Iso.rightInv curryIso a = refl
-  Iso.leftInv curryIso f = refl
+  Iso.sec curryIso a = refl
+  Iso.ret curryIso f = refl
 
   unquoteDecl curryEquiv = declStrictIsoToEquiv curryEquiv curryIso
 
@@ -472,10 +472,10 @@ module _
     fiberProjIso : Iso (B a) (fiber proj a)
     fiberProjIso .fun b = (a , b) , refl
     fiberProjIso .inv ((a' , b') , p) = subst B p b'
-    fiberProjIso .leftInv b i = substRefl {B = B} b i
-    fiberProjIso .rightInv (_ , p) i .fst .fst = p (~ i)
-    fiberProjIso .rightInv ((_ , b') , p) i .fst .snd = subst-filler B p b' (~ i)
-    fiberProjIso .rightInv (_ , p) i .snd j = p (~ i ∨ j)
+    fiberProjIso .ret b i = substRefl {B = B} b i
+    fiberProjIso .sec (_ , p) i .fst .fst = p (~ i)
+    fiberProjIso .sec ((_ , b') , p) i .fst .snd = subst-filler B p b' (~ i)
+    fiberProjIso .sec (_ , p) i .snd j = p (~ i ∨ j)
 
     fiberProjEquiv : B a ≃ fiber proj a
     fiberProjEquiv = isoToEquiv fiberProjIso

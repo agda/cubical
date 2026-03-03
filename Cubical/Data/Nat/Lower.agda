@@ -104,8 +104,8 @@ Lower∞≃ℕ : Lower ∞ ≃ ℕ
 Lower∞≃ℕ = isoToEquiv λ where
     .fun → fst
     .inv n → n , _
-    .rightInv _ → refl
-    .leftInv _ → refl
+    .sec _ → refl
+    .ret _ → refl
   where open Iso
 
 private
@@ -236,14 +236,14 @@ module Untangle
   iso- : Iso (Detached α) (Detached β)
   iso- .fun = f-
   iso- .inv = g-
-  iso- .rightInv = f-g-
-  iso- .leftInv = g-f-
+  iso- .sec = f-g-
+  iso- .ret = g-f-
 
 iso-pred
   : ∀{α β}
   → Iso (Detached (ms α)) (Detached (ms β))
   → Iso (Detached α) (Detached β)
-iso-pred i = Untangle.iso- fun inv rightInv leftInv
+iso-pred i = Untangle.iso- fun inv sec ret
   where open Iso i
 
 isInjectiveLower : Lower m ≡ Lower n → m ≡ n

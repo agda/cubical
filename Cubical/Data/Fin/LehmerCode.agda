@@ -1,7 +1,5 @@
 {-
 This module develops Lehmer codes, i.e. an encoding of permutations as finite integers.
-
-
 -}
 module Cubical.Data.Fin.LehmerCode where
 
@@ -32,50 +30,50 @@ private
   variable
     n : ℕ
 
-FinExcept : (i : Fin n) → Type₀
-FinExcept i = Σ[ j ∈ Fin _ ] ¬ (i ≡ j)
+FinExcept : ∀ {n} → (i : Fin n) → Type₀
+FinExcept {n} i = Σ[ j ∈ Fin n ] ¬ (i ≡ j)
 
-isSetFinExcept : {i : Fin n} → isSet (FinExcept i)
-isSetFinExcept = isOfHLevelΣ 2 isSetFin (λ _ → isProp→isSet (isPropΠ (λ _ → ⊥.isProp⊥)))
+isSetFinExcept : {i : Fin n} → isSet (FinExcept {n} i)
+isSetFinExcept {n} = isOfHLevelΣ 2 (isSetFin {n}) (λ _ → isProp→isSet (isPropΠ (λ _ → ⊥.isProp⊥)))
 
-fsucExc : {i : Fin n} → FinExcept i → FinExcept (fsuc i)
+fsucExc : {i : Fin n} → FinExcept {n} i → FinExcept {suc n} (fsuc i)
 fsucExc {i = i} j = fsuc (fst j) , snd j ∘ fsuc-inj
 
-toFinExc : {i : Fin n} → FinExcept i → Fin n
+toFinExc : {i : Fin n} → FinExcept {n} i → Fin n
 toFinExc = fst
 
-toFinExc-injective : {i : Fin n} → {j k : FinExcept i} → toFinExc j ≡ toFinExc k → j ≡ k
+toFinExc-injective : {i : Fin n} → {j k : FinExcept {n} i} → toFinExc {n} j ≡ toFinExc {n} k → j ≡ k
 toFinExc-injective = Σ≡Prop (λ _ → isPropΠ λ _ → ⊥.isProp⊥)
 
-toℕExc : {i : Fin n} → FinExcept i → ℕ
-toℕExc = toℕ ∘ toFinExc
+toℕExc : {i : Fin n} → FinExcept {n} i → ℕ
+toℕExc {n} = toℕ {n} ∘ toFinExc {n}
 
-toℕExc-injective : {i : Fin n} → {j k : FinExcept i} → toℕExc j ≡ toℕExc k → j ≡ k
-toℕExc-injective = toFinExc-injective ∘ toℕ-injective
+toℕExc-injective : {i : Fin n} → {j k : FinExcept {n} i} → toℕExc {n} j ≡ toℕExc {n} k → j ≡ k
+toℕExc-injective {n} = toFinExc-injective {n} ∘ toℕ-injective {n}
 
-projectionEquiv : {i : Fin n} → (Unit ⊎ FinExcept i) ≃ Fin n
+projectionEquiv : {i : Fin n} → (Unit ⊎ FinExcept {n} i) ≃ Fin n
 projectionEquiv {n = n} {i = i} = isoToEquiv goal where
-  goal : Iso (Unit ⊎ FinExcept i) (Fin n)
+  goal : Iso (Unit ⊎ FinExcept {n} i) (Fin n)
   goal .Iso.fun (inl _) = i
   goal .Iso.fun (inr m) = fst m
-  goal .Iso.inv m = case discreteFin i m of λ { (yes _) → inl tt ; (no n) → inr (m , n) }
-  goal .Iso.rightInv m with discreteFin i m
+  goal .Iso.inv m = case discreteFin {n} i m of λ { (yes _) → inl tt ; (no n) → inr (m , n) }
+  goal .Iso.sec m with discreteFin {n} i m
   ... | (yes p) = p
-  ... | (no _) = toℕ-injective refl
-  goal .Iso.leftInv (inl tt) with discreteFin i i
+  ... | (no _) = refl
+  goal .Iso.ret (inl tt) with discreteFin {n} i i
   ... | (yes _) = refl
   ... | (no ¬ii) = ⊥.rec (¬ii refl)
-  goal .Iso.leftInv (inr m) with discreteFin i (fst m)
+  goal .Iso.ret (inr m) with discreteFin {n} i (fst m)
   ... | (yes p) = ⊥.rec (snd m p)
-  ... | (no _) = cong inr (toℕExc-injective refl)
+  ... | (no _) = cong inr (toℕExc-injective {n} refl)
 
-punchOut : (i : Fin (suc n)) → FinExcept i → Fin n
+punchOut : (i : Fin (suc n)) → FinExcept {suc n} i → Fin n
 punchOut i ¬i = punchOutPrim (snd ¬i)
 
 punchOut-injective : (i : Fin (suc n)) → ∀ j k → punchOut i j ≡ punchOut i k → j ≡ k
-punchOut-injective i j k = toFinExc-injective ∘ punchOut-inj (snd j) (snd k)
+punchOut-injective {n} i j k = toFinExc-injective {suc n} ∘ punchOut-inj (snd j) (snd k)
 
-punchIn : (i : Fin (suc n)) → Fin n → FinExcept i
+punchIn : (i : Fin (suc n)) → Fin n → FinExcept {suc n} i
 punchIn {_} i j with fsplit i
 ...             | inl iz = fsuc j , fznotfs ∘ (iz ∙_)
 punchIn {n} i j | inr (i′ , is) with n
@@ -87,28 +85,28 @@ punchIn {n} i j | inr (i′ , is) with n
                             in fsuc k , ¬k≡i′ ∘ fsuc-inj ∘ (is ∙_)
 
 punchOut∘In :(i : Fin (suc n)) → ∀ j → punchOut i (punchIn i j) ≡ j
-punchOut∘In {_} i j with fsplit i
-...                 | inl iz = toℕ-injective refl
+punchOut∘In {n} i j with fsplit i
+...                 | inl iz = toℕ-injective {n} refl
 punchOut∘In {n} i j | inr (i′ , _) with n
 ...                     | zero = ⊥.rec (¬Fin0 j)
 ...                     | suc n′ with fsplit j
-...                         | inl jz = toℕ-injective (cong toℕ jz)
+...                         | inl jz = toℕ-injective {suc n′} (cong (toℕ {suc n′}) jz)
 ...                         | inr (j′ , prfj) =
                               -- the following uses a definitional equality of punchIn but I don't see
                               -- how to sidestep this while using with-abstractions
-                              fsuc (punchOut i′ _)               ≡⟨ cong (λ j → fsuc (punchOut i′ j)) (toℕExc-injective refl) ⟩
+                              fsuc (punchOut i′ _)               ≡⟨ cong (λ j → fsuc {n′} (punchOut i′ j)) (toℕExc-injective {suc n′} refl) ⟩
                               fsuc (punchOut i′ (punchIn i′ j′)) ≡⟨ cong fsuc (punchOut∘In i′ j′) ⟩
-                              fsuc j′                            ≡⟨ toℕ-injective (cong toℕ prfj) ⟩
+                              fsuc j′                            ≡⟨ toℕ-injective {suc n′} (cong (toℕ {suc n′}) prfj) ⟩
                               j                                  ∎
 
-isEquivPunchOut : {i : Fin (suc n)} → isEquiv (punchOut i)
-isEquivPunchOut {i = i} = isEmbedding×isSurjection→isEquiv (isEmbPunchOut , isSurPunchOut) where
+isEquivPunchOut : ∀ {n} {i : Fin (suc n)} → isEquiv (punchOut i)
+isEquivPunchOut {n} {i = i} = isEmbedding×isSurjection→isEquiv (isEmbPunchOut , isSurPunchOut) where
   isEmbPunchOut : isEmbedding (punchOut i)
-  isEmbPunchOut = injEmbedding isSetFin λ {_} {_} → punchOut-injective i _ _
+  isEmbPunchOut = injEmbedding (isSetFin {n}) λ {_} {_} → punchOut-injective i _ _
   isSurPunchOut : isSurjection (punchOut i)
   isSurPunchOut b = ∥_∥₁.∣ _ , (punchOut∘In i b) ∣₁
 
-punchOutEquiv : {i : Fin (suc n)} → FinExcept i ≃ Fin n
+punchOutEquiv : {i : Fin (suc n)} → FinExcept {suc n} i ≃ Fin n
 punchOutEquiv = _ , isEquivPunchOut
 
 infixr 4 _∷_
@@ -132,56 +130,56 @@ lehmerEquiv {zero} = isContr→Equiv contrFF isContrLehmerZero where
 
 lehmerEquiv {suc n} =
   (Fin (suc n) ≃ Fin (suc n))                            ≃⟨ isoToEquiv i ⟩
-  (Σ[ k ∈ Fin (suc n) ] (FinExcept fzero ≃ FinExcept k)) ≃⟨ Σ-cong-equiv-snd ii ⟩
+  (Σ[ k ∈ Fin (suc n) ] (FinExcept {suc n} fzero ≃ FinExcept {suc n} k)) ≃⟨ Σ-cong-equiv-snd ii ⟩
   (Fin (suc n) × (Fin n ≃ Fin n))                        ≃⟨ Σ-cong-equiv-snd (λ _ → lehmerEquiv) ⟩
   (Fin (suc n) × LehmerCode n)                           ≃⟨ lehmerSucEquiv ⟩
   LehmerCode (suc n) ■ where
     equivIn : (f : Fin (suc n) ≃ Fin (suc n))
-            → FinExcept fzero ≃ FinExcept (equivFun f fzero)
+            → FinExcept {suc n} fzero ≃ FinExcept {suc n} (equivFun f fzero)
     equivIn f =
-      FinExcept fzero
+      FinExcept {suc n} fzero
         ≃⟨ Σ-cong-equiv-snd (λ _ → preCompEquiv (invEquiv (congEquiv f))) ⟩
       (Σ[ x ∈ Fin (suc n) ] ¬ ffun fzero ≡ ffun x)
         ≃⟨ Σ-cong-equiv-fst f ⟩
-      FinExcept (ffun fzero)
+      FinExcept {suc n} (ffun fzero)
         ■ where ffun = equivFun f
 
---    equivInChar : ∀ {f} x → fst (equivFun (equivIn f) x) ≡ equivFun f (fst x)
---    equivInChar x = refl
+    -- equivInChar : ∀ {f} x → fst (equivFun (equivIn f) x) ≡ equivFun f (fst x)
+    -- equivInChar x = refl
 
-    equivOut : ∀ {k} → FinExcept (fzero {k = n}) ≃ FinExcept k
+    equivOut : ∀ {k} → FinExcept {suc n} (fzero {k = n}) ≃ FinExcept {suc n} k
              → Fin (suc n) ≃ Fin (suc n)
     equivOut {k = k} f =
       Fin (suc n)
-        ≃⟨ invEquiv projectionEquiv ⟩
-      Unit ⊎ FinExcept fzero
+        ≃⟨ invEquiv (projectionEquiv {suc n}) ⟩
+      Unit ⊎ FinExcept {suc n} fzero
         ≃⟨ isoToEquiv (Sum.⊎Iso idIso (equivToIso f)) ⟩
-      Unit ⊎ FinExcept k
-        ≃⟨ projectionEquiv ⟩
+      Unit ⊎ FinExcept {suc n} k
+        ≃⟨ projectionEquiv {suc n} ⟩
       Fin (suc n)
         ■
 
-    equivOutChar : ∀ {k} {f} (x : FinExcept fzero) → equivFun (equivOut {k = k} f) (fst x) ≡ fst (equivFun f x)
-    equivOutChar {f = f} x with discreteFin fzero (fst x)
+    equivOutChar : ∀ {k} {f} (x : FinExcept {suc n} fzero) → equivFun (equivOut {k = k} f) (fst x) ≡ fst (equivFun f x)
+    equivOutChar {f = f} x with discreteFin {n = suc n} fzero (fst x)
     ... | (yes y) = ⊥.rec (x .snd y)
-    ... | (no n) = cong (λ x′ → fst (equivFun f x′)) (toℕExc-injective refl)
+    ... | (no _) = cong (λ x′ → fst (equivFun f x′)) (toℕExc-injective {suc n} refl)
 
     i : Iso (Fin (suc n) ≃ Fin (suc n))
-            (Σ[ k ∈ Fin (suc n) ] (FinExcept (fzero {k = n}) ≃ FinExcept k))
+            (Σ[ k ∈ Fin (suc n) ] (FinExcept {suc n} (fzero {k = n}) ≃ FinExcept {suc n} k))
     Iso.fun i f = equivFun f fzero , equivIn f
     Iso.inv i (k , f) = equivOut f
-    Iso.rightInv i (k , f) = ΣPathP (refl , equivEq (funExt λ x →
-       toℕExc-injective (cong toℕ (equivOutChar {f = f} x))))
-    Iso.leftInv i f = equivEq (funExt goal) where
+    Iso.sec i (k , f) = ΣPathP (refl , equivEq
+      (funExt λ x → toℕExc-injective {suc n} (cong (toℕ {suc n}) (equivOutChar {f = f} x ))))
+    Iso.ret i f = equivEq (funExt goal) where
       goal : ∀ x → equivFun (equivOut (equivIn f)) x ≡ equivFun f x
       goal x = case fsplit x return (λ _ → equivFun (equivOut (equivIn f)) x ≡ equivFun f x) of λ
         { (inl xz) → subst (λ x → equivFun (equivOut (equivIn f)) x ≡ equivFun f x) xz refl
         ; (inr (_ , xn)) → equivOutChar {f = equivIn f} (x , fznotfs ∘ (_∙ sym xn))
         }
 
-    ii : ∀ k → (FinExcept fzero ≃ FinExcept k) ≃ (Fin n ≃ Fin n)
-    ii k = (FinExcept fzero ≃ FinExcept k) ≃⟨ cong≃ (λ R → FinExcept fzero ≃ R) punchOutEquiv ⟩
-           (FinExcept fzero ≃ Fin n)       ≃⟨ cong≃ (λ L → L ≃ Fin n) punchOutEquiv  ⟩
+    ii : ∀ k → (FinExcept {suc n} fzero ≃ FinExcept {suc n} k) ≃ (Fin n ≃ Fin n)
+    ii k = (FinExcept {suc n} fzero ≃ FinExcept {suc n} k) ≃⟨ cong≃ (λ R → FinExcept {suc n} fzero ≃ R) punchOutEquiv ⟩
+           (FinExcept {suc n} fzero ≃ Fin n)       ≃⟨ cong≃ (λ L → L ≃ Fin n) punchOutEquiv  ⟩
            (Fin n ≃ Fin n)                 ■
 
 encode : (Fin n ≃ Fin n) → LehmerCode n
@@ -194,7 +192,7 @@ lehmerFinEquiv : LehmerCode n ≃ Fin (n !)
 lehmerFinEquiv {zero} = isContr→Equiv isContrLehmerZero isContrFin1
 lehmerFinEquiv {suc n} = _ ≃⟨ invEquiv lehmerSucEquiv ⟩
                          _ ≃⟨ ≃-× (idEquiv _) lehmerFinEquiv ⟩
-                         _ ≃⟨ factorEquiv ⟩
+                         _ ≃⟨ factorEquiv {suc n} {n !} ⟩
                          _ ■
 
 private
@@ -203,14 +201,14 @@ private
   -- given by the corresponding Lehmer code of
   -- 1 4 0 3 1 1 0
   exampleCode : LehmerCode 7
-  exampleCode = (1 , (5 , refl)) ∷ (4 , (1 , refl)) ∷ (0 , (4 , refl)) ∷ (3 , (0 , refl)) ∷ (1 , (1 , refl)) ∷ (1 , (0 , refl)) ∷ (0 , (0 , refl)) ∷ []
+  exampleCode = (1 , _) ∷ (4 , _) ∷ (0 , _) ∷ (3 , _) ∷ (1 , _) ∷ (1 , _) ∷ (0 , _) ∷ []
 
   example : Fin 7 ≃ Fin 7
   example = decode exampleCode
 
   -- C should decode to G
-  computation : fst (equivFun example (3 , (3 , refl))) ≡ 6
+  computation : fst (equivFun example (3 , _)) ≡ 6
   computation = refl
 
-  _ : toℕ (equivFun lehmerFinEquiv exampleCode) ≡ 4019
+  _ : toℕ {5040} (equivFun lehmerFinEquiv exampleCode) ≡ 4019
   _ = refl

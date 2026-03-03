@@ -23,7 +23,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Site.Coverage
 open import Cubical.Categories.Site.Sheaf
-open import Cubical.Categories.Constructions.Slice
+open import Cubical.Categories.Instances.Slice
 open import Cubical.Categories.Yoneda
 
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -208,7 +208,7 @@ isSubcanonicalZariskiCoverage A R (unimodvec n f isUniModF) = isoToIsEquiv theIs
                (CompatibleFamily (yo A) (str (covers zariskiCoverage R) um))
   fun theIso = elementToCompatibleFamily _ _
   inv theIso fam = inducedHom f isUniModF fam
-  rightInv theIso fam = CompatibleFamily≡ _ _ _ _
+  sec theIso fam = CompatibleFamily≡ _ _ _ _
                           λ i → CommRingHom≡ (funExt
                             λ a → applyEqualizerLemma f isUniModF fam a .fst .snd i)
-  leftInv theIso φ = inducedHomUnique _ _ _ _ λ _ _ → refl
+  ret theIso φ = inducedHomUnique _ _ _ _ λ _ _ → refl

@@ -8,7 +8,7 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Instances.Terminal
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Constructions.PropertyOver
+open import Cubical.Categories.Displayed.Instances.PropertyOver
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Section.Base
 

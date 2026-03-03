@@ -139,8 +139,8 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
  CommAlgIso : Iso (CommAlgebra R ℓ') CommRingWithHom
  fun CommAlgIso = fromCommAlg
  inv CommAlgIso = toCommAlg
- rightInv CommAlgIso = CommRingWithHomRoundTrip
- leftInv CommAlgIso = CommAlgRoundTrip
+ sec CommAlgIso = CommRingWithHomRoundTrip
+ ret CommAlgIso = CommAlgRoundTrip
 
  open IsCommRingHom
 
@@ -301,8 +301,8 @@ contrCommAlgebraHom→contrCommAlgebraEquiv σ contrHom x y = σEquiv ,
   σIso : Iso ⟨ σ x ⟩ ⟨ σ y ⟩
   fun σIso = fst χ₁
   inv σIso = fst χ₂
-  rightInv σIso = funExt⁻ (cong fst χ₁∘χ₂≡id)
-  leftInv σIso = funExt⁻ (cong fst χ₂∘χ₁≡id)
+  sec σIso = funExt⁻ (cong fst χ₁∘χ₂≡id)
+  ret σIso = funExt⁻ (cong fst χ₂∘χ₁≡id)
 
   σEquiv : CommAlgebraEquiv (σ x) (σ y)
   fst σEquiv = isoToEquiv σIso

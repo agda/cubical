@@ -63,8 +63,8 @@ module _ {ℓ ℓ' : Level} where
                    (Lift ℓ' (X .fst) → Lift ℓ' (Y .fst))
     fun LiftFIso = LiftF ℓ' .F-hom {X} {Y}
     inv LiftFIso = λ f x → f (lift x) .lower
-    rightInv LiftFIso = λ _ → funExt λ _ → refl
-    leftInv LiftFIso = λ _ → funExt λ _ → refl
+    sec LiftFIso = λ _ → funExt λ _ → refl
+    ret LiftFIso = λ _ → funExt λ _ → refl
 
 module _ {C : Category ℓ ℓ'} {F : Functor C (SET ℓ')} where
   open NatTrans
@@ -94,25 +94,25 @@ module _ {A B : (SET ℓ) .ob } where
              → CatIso (SET ℓ) A B
   Iso→CatIso is .fst = is .fun
   Iso→CatIso is .snd .cInv = is .inv
-  Iso→CatIso is .snd .sec = funExt λ b → is .rightInv b -- is .rightInv
-  Iso→CatIso is .snd .ret = funExt λ b → is .leftInv b -- is .rightInv
+  Iso→CatIso is .snd .sec = funExt λ b → is .sec b -- is .sec
+  Iso→CatIso is .snd .ret = funExt λ b → is .ret b -- is .sec
 
   CatIso→Iso : CatIso (SET ℓ) A B
              → Iso (fst A) (fst B)
   CatIso→Iso cis .fun = cis .fst
   CatIso→Iso cis .inv = cis .snd .cInv
-  CatIso→Iso cis .rightInv = funExt⁻ λ b → cis .snd .sec b
-  CatIso→Iso cis .leftInv  = funExt⁻ λ b → cis .snd .ret b
+  CatIso→Iso cis .sec = funExt⁻ λ b → cis .snd .sec b
+  CatIso→Iso cis .ret  = funExt⁻ λ b → cis .snd .ret b
 
 
   Iso-Iso-CatIso : Iso (Iso (fst A) (fst B)) (CatIso (SET ℓ) A B)
   fun Iso-Iso-CatIso = Iso→CatIso
   inv Iso-Iso-CatIso = CatIso→Iso
-  rightInv Iso-Iso-CatIso b = refl
-  fun (leftInv Iso-Iso-CatIso a i) = fun a
-  inv (leftInv Iso-Iso-CatIso a i) = inv a
-  rightInv (leftInv Iso-Iso-CatIso a i) = rightInv a
-  leftInv (leftInv Iso-Iso-CatIso a i) = leftInv a
+  sec Iso-Iso-CatIso b = refl
+  fun (ret Iso-Iso-CatIso a i) = fun a
+  inv (ret Iso-Iso-CatIso a i) = inv a
+  sec (ret Iso-Iso-CatIso a i) = sec a
+  ret (ret Iso-Iso-CatIso a i) = ret a
 
   Iso-CatIso-≡ : Iso (CatIso (SET ℓ) A B) (A ≡ B)
   Iso-CatIso-≡ = compIso (invIso Iso-Iso-CatIso) (hSet-Iso-Iso-≡ _ _)

@@ -127,7 +127,7 @@ module Example where
   open import Cubical.Data.Nat
 
   ListC : GenContainer (SET ℓ-zero)
-  ListC = ℕ ◁ (λ n → Fin n , isSetFin) & isSetℕ
+  ListC = ℕ ◁ (λ n → Fin n , isSetFin {n}) & isSetℕ
 
   ListF : Functor (SET ℓ-zero) (SET ℓ-zero)
   ListF = ⟦ ListC ⟧-obj

@@ -173,8 +173,8 @@ private
                      (Σ (Unit × S₊ 2) PushoutPath×)
   fun fiberinr'Iso (x , p) = (tt , x) , (sym p)
   inv fiberinr'Iso ((tt , x) , p) = x , (sym p)
-  rightInv fiberinr'Iso _ = refl
-  leftInv fiberinr'Iso _ = refl
+  sec fiberinr'Iso _ = refl
+  ret fiberinr'Iso _ = refl
 
   P : Pointed₀
   P = (fiber inr' (inl tt) , north , (sym (push north)))
@@ -435,7 +435,7 @@ BrunerieIsoAbstract =
      ≡ [ ∣ idfun∙ (S₊∙ 2) ∣₂ ∣ ∣ idfun∙ (S₊∙ 2) ∣₂ ]π'
   mainPath = cong (fst (π'∘∙Hom 2 (fold∘W , refl)))
            (cong (Iso.inv (fst (πₙ'Sⁿ≅ℤ 2))) (sym (πₙ'Sⁿ≅ℤ-idfun∙ 2))
-           ∙ (Iso.leftInv (fst (πₙ'Sⁿ≅ℤ 2)) ∣ idfun∙ (S₊∙ 3) ∣₂))
+           ∙ (Iso.ret (fst (πₙ'Sⁿ≅ℤ 2)) ∣ idfun∙ (S₊∙ 3) ∣₂))
            ∙ fold∘W≡Whitehead
 
   main : _ ≡ Brunerie

@@ -155,8 +155,8 @@ propTruncIdempotent≃ {A = A} hA = isoToEquiv f
   f : Iso ∥ A ∥₁ A
   Iso.fun f        = rec hA (idfun A)
   Iso.inv f x      = ∣ x ∣₁
-  Iso.rightInv f _ = refl
-  Iso.leftInv f    = elim (λ _ → isProp→isSet isPropPropTrunc _ _) (λ _ → refl)
+  Iso.sec f _ = refl
+  Iso.ret f    = elim (λ _ → isProp→isSet isPropPropTrunc _ _) (λ _ → refl)
 
 propTruncIdempotent : isProp A → ∥ A ∥₁ ≡ A
 propTruncIdempotent hA = ua (propTruncIdempotent≃ hA)
@@ -491,8 +491,8 @@ RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
           where lem : A ⊎ A′ → ∥ A ∥₁ ⊎ A′
                 lem (inl x) = inl ∣ x ∣₁
                 lem (inr x) = inr x
-        Iso.rightInv ∥∥-IdempotentL-⊎-Iso x = squash₁ (Iso.fun ∥∥-IdempotentL-⊎-Iso (Iso.inv ∥∥-IdempotentL-⊎-Iso x)) x
-        Iso.leftInv ∥∥-IdempotentL-⊎-Iso x  = squash₁ (Iso.inv ∥∥-IdempotentL-⊎-Iso (Iso.fun ∥∥-IdempotentL-⊎-Iso x)) x
+        Iso.sec ∥∥-IdempotentL-⊎-Iso x = squash₁ (Iso.fun ∥∥-IdempotentL-⊎-Iso (Iso.inv ∥∥-IdempotentL-⊎-Iso x)) x
+        Iso.ret ∥∥-IdempotentL-⊎-Iso x  = squash₁ (Iso.inv ∥∥-IdempotentL-⊎-Iso (Iso.fun ∥∥-IdempotentL-⊎-Iso x)) x
 
 ∥∥-IdempotentL-⊎ : ∥ ∥ A ∥₁ ⊎ A′ ∥₁ ≡ ∥ A ⊎ A′ ∥₁
 ∥∥-IdempotentL-⊎ = ua ∥∥-IdempotentL-⊎-≃
@@ -508,8 +508,8 @@ RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
           where lem : A ⊎ A′ → A ⊎ ∥ A′ ∥₁
                 lem (inl x) = inl x
                 lem (inr x) = inr ∣ x ∣₁
-        Iso.rightInv ∥∥-IdempotentR-⊎-Iso x = squash₁ (Iso.fun ∥∥-IdempotentR-⊎-Iso (Iso.inv ∥∥-IdempotentR-⊎-Iso x)) x
-        Iso.leftInv ∥∥-IdempotentR-⊎-Iso x  = squash₁ (Iso.inv ∥∥-IdempotentR-⊎-Iso (Iso.fun ∥∥-IdempotentR-⊎-Iso x)) x
+        Iso.sec ∥∥-IdempotentR-⊎-Iso x = squash₁ (Iso.fun ∥∥-IdempotentR-⊎-Iso (Iso.inv ∥∥-IdempotentR-⊎-Iso x)) x
+        Iso.ret ∥∥-IdempotentR-⊎-Iso x  = squash₁ (Iso.inv ∥∥-IdempotentR-⊎-Iso (Iso.fun ∥∥-IdempotentR-⊎-Iso x)) x
 
 ∥∥-IdempotentR-⊎ : ∥ A ⊎ ∥ A′ ∥₁ ∥₁ ≡ ∥ A ⊎ A′ ∥₁
 ∥∥-IdempotentR-⊎ = ua ∥∥-IdempotentR-⊎-≃
@@ -528,8 +528,8 @@ RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
         Iso.inv ∥∥-IdempotentL-×-Iso x = map lem x
           where lem : A × A′ → ∥ A ∥₁ × A′
                 lem (a , a′) = ∣ a ∣₁ , a′
-        Iso.rightInv ∥∥-IdempotentL-×-Iso x = squash₁ (Iso.fun ∥∥-IdempotentL-×-Iso (Iso.inv ∥∥-IdempotentL-×-Iso x)) x
-        Iso.leftInv ∥∥-IdempotentL-×-Iso x  = squash₁ (Iso.inv ∥∥-IdempotentL-×-Iso (Iso.fun ∥∥-IdempotentL-×-Iso x)) x
+        Iso.sec ∥∥-IdempotentL-×-Iso x = squash₁ (Iso.fun ∥∥-IdempotentL-×-Iso (Iso.inv ∥∥-IdempotentL-×-Iso x)) x
+        Iso.ret ∥∥-IdempotentL-×-Iso x  = squash₁ (Iso.inv ∥∥-IdempotentL-×-Iso (Iso.fun ∥∥-IdempotentL-×-Iso x)) x
 
 ∥∥-IdempotentL-× : ∥ ∥ A ∥₁ × A′ ∥₁ ≡ ∥ A × A′ ∥₁
 ∥∥-IdempotentL-× = ua ∥∥-IdempotentL-×-≃
@@ -543,8 +543,8 @@ RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
         Iso.inv ∥∥-IdempotentR-×-Iso x = map lem x
           where lem : A × A′ → A × ∥ A′ ∥₁
                 lem (a , a′) = a , ∣ a′ ∣₁
-        Iso.rightInv ∥∥-IdempotentR-×-Iso x = squash₁ (Iso.fun ∥∥-IdempotentR-×-Iso (Iso.inv ∥∥-IdempotentR-×-Iso x)) x
-        Iso.leftInv ∥∥-IdempotentR-×-Iso x  = squash₁ (Iso.inv ∥∥-IdempotentR-×-Iso (Iso.fun ∥∥-IdempotentR-×-Iso x)) x
+        Iso.sec ∥∥-IdempotentR-×-Iso x = squash₁ (Iso.fun ∥∥-IdempotentR-×-Iso (Iso.inv ∥∥-IdempotentR-×-Iso x)) x
+        Iso.ret ∥∥-IdempotentR-×-Iso x  = squash₁ (Iso.inv ∥∥-IdempotentR-×-Iso (Iso.fun ∥∥-IdempotentR-×-Iso x)) x
 
 ∥∥-IdempotentR-× : ∥ A × ∥ A′ ∥₁ ∥₁ ≡ ∥ A × A′ ∥₁
 ∥∥-IdempotentR-× = ua ∥∥-IdempotentR-×-≃

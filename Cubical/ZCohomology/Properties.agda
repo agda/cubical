@@ -196,12 +196,12 @@ coHomRed+1Equiv (suc (suc n)) A i = ∥ coHomRed+1.helpLemma A i {C = (coHomK (2
 Iso-coHom-coHomRed : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → Iso (coHomRed (suc n) A) (coHom (suc n) (typ A))
 fun (Iso-coHom-coHomRed {A = A , a} n) = ST.map fst
 inv' (Iso-coHom-coHomRed {A = A , a} n) = ST.map λ f → (λ x → f x -ₖ f a) , rCancelₖ _ _
-rightInv (Iso-coHom-coHomRed {A = A , a} n) =
+sec (Iso-coHom-coHomRed {A = A , a} n) =
   ST.elim (λ _ → isOfHLevelPath 2 § _ _)
          λ f → T.rec (isProp→isOfHLevelSuc _ (§ _ _))
                       (λ p → cong ∣_∣₂ (funExt λ x → cong (λ y → f x +ₖ y) (cong -ₖ_ p ∙ -0ₖ) ∙ rUnitₖ _ (f x)))
                       (Iso.fun (PathIdTruncIso (suc n)) (isContr→isProp (isConnectedKn n) ∣ f a ∣ ∣ 0ₖ _ ∣))
-leftInv (Iso-coHom-coHomRed {A = A , a} n) =
+ret (Iso-coHom-coHomRed {A = A , a} n) =
   ST.elim (λ _ → isOfHLevelPath 2 § _ _)
         λ {(f , p) → cong ∣_∣₂ (ΣPathP (((funExt λ x → (cong (λ y → f x -ₖ y) p
                                                     ∙∙ cong (λ y → f x +ₖ y) -0ₖ
@@ -234,7 +234,7 @@ private
            ≡ Iso.inv (Iso-coHom-coHomRed n) x +ₕ∙ Iso.inv (Iso-coHom-coHomRed n) y
   homhelp n A = morphLemmas.isMorphInv _+ₕ∙_ _+ₕ_
                 (Iso.fun (Iso-coHom-coHomRed n)) (+∙≡+ n) _
-                (Iso.rightInv (Iso-coHom-coHomRed n)) (Iso.leftInv (Iso-coHom-coHomRed n))
+                (Iso.sec (Iso-coHom-coHomRed n)) (Iso.ret (Iso-coHom-coHomRed n))
 
 coHomGr≅coHomRedGr : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
                   → GroupEquiv (coHomRedGrDir (suc n) A) (coHomGr (suc n) (typ A))
@@ -421,8 +421,8 @@ private
 stabSpheres : (n : ℕ) → Iso (coHomK (suc n)) (typ (Ω (coHomK-ptd (2 + n))))
 fun (stabSpheres n) = decode _
 inv' (stabSpheres n) = encode
-rightInv (stabSpheres n) p = decode-encode p
-leftInv (stabSpheres n) =
+sec (stabSpheres n) p = decode-encode p
+ret (stabSpheres n) =
   T.elim (λ _ → isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _)
     λ a → cong encode (congFunct ∣_∣ (merid a) (sym (merid (ptSn (suc n)))))
         ∙∙ (λ i → transport (congFunct (Code n) (cong ∣_∣ (merid a))
@@ -503,12 +503,12 @@ open IsGroupHom
 coHom≅coHomΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → GroupIso (coHomGr n A) (coHomGrΩ n A)
 fun (fst (coHom≅coHomΩ n A)) = ST.map λ f a → Kn→ΩKn+1 n (f a)
 inv' (fst (coHom≅coHomΩ n A)) = ST.map λ f a → ΩKn+1→Kn n (f a)
-rightInv (fst (coHom≅coHomΩ n A)) =
+sec (fst (coHom≅coHomΩ n A)) =
   ST.elim (λ _ → isOfHLevelPath 2 § _ _)
-        λ f → cong ∣_∣₂ (funExt λ x → rightInv (Iso-Kn-ΩKn+1 n) (f x))
-leftInv (fst (coHom≅coHomΩ n A)) =
+        λ f → cong ∣_∣₂ (funExt λ x → sec (Iso-Kn-ΩKn+1 n) (f x))
+ret (fst (coHom≅coHomΩ n A)) =
   ST.elim (λ _ → isOfHLevelPath 2 § _ _)
-        λ f → cong ∣_∣₂ (funExt λ x → leftInv (Iso-Kn-ΩKn+1 n) (f x))
+        λ f → cong ∣_∣₂ (funExt λ x → ret (Iso-Kn-ΩKn+1 n) (f x))
 snd (coHom≅coHomΩ n A) =
   makeIsGroupHom
     (ST.elim2 (λ _ _ → isOfHLevelPath 2 § _ _)
@@ -525,13 +525,13 @@ module lockedKnIso (key : Unit') where
   ΩKn+1→Kn→ΩKn+1 n x = pm key
     where
     pm : (key : Unit') → lock key (Iso.fun (Iso-Kn-ΩKn+1 n)) (lock key (Iso.inv (Iso-Kn-ΩKn+1 n)) x) ≡ x
-    pm unlock = Iso.rightInv (Iso-Kn-ΩKn+1 n) x
+    pm unlock = Iso.sec (Iso-Kn-ΩKn+1 n) x
 
   Kn→ΩKn+1→Kn : (n : ℕ) → (x : coHomK n) → ΩKn+1→Kn' n (Kn→ΩKn+1' n x) ≡ x
   Kn→ΩKn+1→Kn n x = pm key
     where
     pm : (key : Unit') → lock key (Iso.inv (Iso-Kn-ΩKn+1 n)) (lock key (Iso.fun (Iso-Kn-ΩKn+1 n)) x) ≡ x
-    pm unlock = Iso.leftInv (Iso-Kn-ΩKn+1 n) x
+    pm unlock = Iso.ret (Iso-Kn-ΩKn+1 n) x
 
 -distrLemma : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : ℕ) (f : GroupHom (coHomGr n A) (coHomGr m B))
               (x y : coHom n A)
@@ -666,9 +666,9 @@ transportCohomIso :  {A : Type ℓ} {n m : ℕ}
                   → GroupIso (coHomGr n A) (coHomGr m A)
 Iso.fun (fst (transportCohomIso {A = A} p)) = subst (λ n → coHom n A) p
 Iso.inv (fst (transportCohomIso {A = A} p)) = subst (λ n → coHom n A) (sym p)
-Iso.rightInv (fst (transportCohomIso p)) =
+Iso.sec (fst (transportCohomIso p)) =
   transportTransport⁻ (cong (\ n → coHomGr n _ .fst) p)
-Iso.leftInv (fst (transportCohomIso p)) =
+Iso.ret (fst (transportCohomIso p)) =
   transportTransport⁻ (cong (\ n → coHomGr n _ .fst) (sym p))
 snd (transportCohomIso {A = A} {n = n} {m = m} p) =
   makeIsGroupHom (λ x y → help x y p)

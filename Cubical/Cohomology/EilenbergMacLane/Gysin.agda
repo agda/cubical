@@ -107,8 +107,8 @@ module ⌣Eq (R' : CommRing ℓ'') where
   -ₖ^-iso : ∀ {ℓ} {G : AbGroup ℓ} {k : ℕ} (n m : ℕ) → Iso (EM G k) (EM G k)
   Iso.fun (-ₖ^-iso n m) = -ₖ^[ n · m ]
   Iso.inv (-ₖ^-iso n m) = -ₖ^[ n · m ]
-  Iso.rightInv (-ₖ^-iso n m) = -ₖ^< n · m >² _ _ _
-  Iso.leftInv (-ₖ^-iso n m) = -ₖ^< n · m >² _ _ _
+  Iso.sec (-ₖ^-iso n m) = -ₖ^< n · m >² _ _ _
+  Iso.ret (-ₖ^-iso n m) = -ₖ^< n · m >² _ _ _
 
   g-cute' : (n i : ℕ) → EMR i → S₊∙ n →∙ EMR∙ (n +' i)
   g-cute' n i =
@@ -185,16 +185,16 @@ module ⌣Eq (R' : CommRing ℓ'') where
            , flipSquare ((λ j → EM→ΩEM+1-gen (i + n) (snd f j) (snd st j))
                        ▷ (EM→ΩEM+1-gen-0ₖ (i + n) _
                        ∙ EM→ΩEM+1-0ₖ (i + n))))
-  Iso.rightInv (ΩFunIso n i f) st =
+  Iso.sec (ΩFunIso n i f) st =
     →∙Homogeneous≡ (isHomogeneousEM _)
       (funExt λ x
-        → Iso.leftInv (Iso-EM-ΩEM+1-gen (i + n) (fst f x)) (st .fst x))
-  Iso.leftInv (ΩFunIso n i f) st =
+        → Iso.ret (Iso-EM-ΩEM+1-gen (i + n) (fst f x)) (st .fst x))
+  Iso.ret (ΩFunIso n i f) st =
     →∙HomogeneousSquare (isHomogeneousEM _)
       refl refl (Iso.inv (ΩFunIso n i f)
       (Iso.fun (ΩFunIso n i f) st)) st
       (cong funExt (funExt
-        λ x → Iso.rightInv
+        λ x → Iso.sec
           (Iso-EM-ΩEM+1-gen (i + n) (fst f x)) λ i → st i .fst x))
 
   g-cute-ind : (n i : ℕ)
@@ -209,7 +209,7 @@ module ⌣Eq (R' : CommRing ℓ'') where
                (λ i → transportRefl (_⌣ₖ_ {n = 1} {m = 0}
                        (EM→ΩEM+1 0 x i)
                        (gen-HⁿSⁿ-raw R zero .fst y)) j))
-             ∙ Iso.leftInv (Iso-EM-ΩEM+1 0)
+             ∙ Iso.ret (Iso-EM-ΩEM+1 0)
                 (_⌣ₖ_ {n = 0} {m = 0} x (gen-HⁿSⁿ-raw R zero .fst y))))
   g-cute-ind zero (suc i) =
     funExt λ x → →∙Homogeneous≡ (isHomogeneousEM _)
@@ -224,7 +224,7 @@ module ⌣Eq (R' : CommRing ℓ'') where
                     (EM→ΩEM+1 (suc i) (_⌣ₖ_ {n = suc i} {m = zero}
                       x (gen-HⁿSⁿ-raw R zero .fst y)) k)))
     ∙∙ cong (subst EMR (λ i₁ → suc (+-zero i (~ i₁))))
-        (Iso.leftInv (Iso-EM-ΩEM+1 (suc i)) _)))
+        (Iso.ret (Iso-EM-ΩEM+1 (suc i)) _)))
   g-cute-ind (suc n) zero = funExt λ x → →∙Homogeneous≡ (isHomogeneousEM _)
       (funExt λ y
       → transportRefl _
@@ -243,7 +243,7 @@ module ⌣Eq (R' : CommRing ℓ'') where
                   (EM→ΩEM+1 (suc n)
                     (x ⌣[ R , 0 , (suc n) ]ₖ gen-HⁿSⁿ-raw R (suc n) .fst y)))
       ∙ transportRefl _)
-     ∙ Iso.leftInv (Iso-EM-ΩEM+1 (suc n)) _))
+     ∙ Iso.ret (Iso-EM-ΩEM+1 (suc n)) _))
   g-cute-ind (suc n) (suc i) =
     funExt λ x → →∙Homogeneous≡ (isHomogeneousEM _)
       (funExt λ y
@@ -256,7 +256,7 @@ module ⌣Eq (R' : CommRing ℓ'') where
                       j (EM→ΩEM+1 (suc (suc (i + n)))
                        (x ⌣ₖ gen-HⁿSⁿ-raw R (suc n) .fst y) k)))))
            ∙ cong (subst EMR (λ i₁ → suc (+-suc i n (~ i₁))))
-              (Iso.leftInv (Iso-EM-ΩEM+1 (suc i +' suc n))
+              (Iso.ret (Iso-EM-ΩEM+1 (suc i +' suc n))
                 (x ⌣ₖ gen-HⁿSⁿ-raw R (suc n) .fst y))))
 
   g-ind-main : (n i : ℕ)
@@ -285,9 +285,9 @@ module ⌣Eq (R' : CommRing ℓ'') where
          ≡ myEq .fst
     help = funExt
       (λ p → sym
-        (Iso.leftInv (ΩFunIso n i (g-cute n (suc i) (0ₖ (suc i)))) _
+        (Iso.ret (ΩFunIso n i (g-cute n (suc i) (0ₖ (suc i)))) _
                         ∙ cong (cong (g-cute n (suc i)))
-                           (Iso.rightInv (Iso-EM-ΩEM+1 i) _)))
+                           (Iso.sec (Iso-EM-ΩEM+1 i) _)))
          ∙ sym (cong
             (λ f → Iso.inv (ΩFunIso n i (g-cute n (suc i) (0ₖ (suc i))))
                      ∘ f ∘ ΩEM+1→EM i)
@@ -422,8 +422,8 @@ module preThom
     → Iso (fst B → EMR i) ((b : fst B) → Q b →∙ EMR∙ (i +' n))
   Iso.fun (pre-ϕIso i) = pre-ϕ i
   Iso.inv (pre-ϕIso i) r b = invEq (g-equiv i b) (r b)
-  Iso.rightInv (pre-ϕIso i) t j b = secEq (g-equiv i b) (t b) j
-  Iso.leftInv (pre-ϕIso i) t j b = retEq (g-equiv i b) (t b) j
+  Iso.sec (pre-ϕIso i) t j b = secEq (g-equiv i b) (t b) j
+  Iso.ret (pre-ϕIso i) t j b = retEq (g-equiv i b) (t b) j
 
   pre-ϕ-pres+ : (i : ℕ) → (f g : fst B → EMR i)
     → pre-ϕ i (λ b → f b +ₖ g b) ≡ λ b → pre-ϕ i f b +ₖ∙ pre-ϕ i g b
@@ -531,10 +531,10 @@ module Thom (B : Pointed ℓ)
   Iso.fun (EP-contr c) (inr x) = x
   Iso.fun (EP-contr c) (push a i) = πE (isContr→isProp c (* , P*) a i)
   Iso.inv (EP-contr c) = inr
-  Iso.rightInv (EP-contr c) = λ _ → refl
-  Iso.leftInv (EP-contr c) (inl x) = sym (push (* , P*))
-  Iso.leftInv (EP-contr c) (inr x) = refl
-  Iso.leftInv (EP-contr c) (push a i) j =
+  Iso.sec (EP-contr c) = λ _ → refl
+  Iso.ret (EP-contr c) (inl x) = sym (push (* , P*))
+  Iso.ret (EP-contr c) (inr x) = refl
+  Iso.ret (EP-contr c) (push a i) j =
     hcomp (λ k → λ {(i = i0) → push (* , P*) (~ j)
                    ; (i = i1) → push a (~ j ∨ k)
                    ; (j = i0) → inr (πE (isContr→isProp c (* , P*) a i))
@@ -576,15 +576,15 @@ module Thom (B : Pointed ℓ)
   Iso-EP-FP : Iso EP FP
   Iso.fun Iso-EP-FP = EP→FP
   Iso.inv Iso-EP-FP = FP→EP
-  Iso.rightInv Iso-EP-FP (inl x) = refl
-  Iso.rightInv Iso-EP-FP (inr (x , north)) = push x
-  Iso.rightInv Iso-EP-FP (inr (x , south)) = refl
-  Iso.rightInv Iso-EP-FP (inr (x , merid a i)) j =
+  Iso.sec Iso-EP-FP (inl x) = refl
+  Iso.sec Iso-EP-FP (inr (x , north)) = push x
+  Iso.sec Iso-EP-FP (inr (x , south)) = refl
+  Iso.sec Iso-EP-FP (inr (x , merid a i)) j =
     compPath-filler' (push x) (λ j₁ → inr (x , merid a j₁)) (~ j) i
-  Iso.rightInv Iso-EP-FP (push a i) j = push a (i ∧ j)
-  Iso.leftInv Iso-EP-FP (inl x) = refl
-  Iso.leftInv Iso-EP-FP (inr x) = refl
-  Iso.leftInv Iso-EP-FP (push (b , p) i) j =
+  Iso.sec Iso-EP-FP (push a i) j = push a (i ∧ j)
+  Iso.ret Iso-EP-FP (inl x) = refl
+  Iso.ret Iso-EP-FP (inr x) = refl
+  Iso.ret Iso-EP-FP (push (b , p) i) j =
      (cong-∙ FP→EP (push b) (λ j → inr (b , merid p j))
     ∙ sym (lUnit (push (b , p)))) j i
 
@@ -605,8 +605,8 @@ module Thom (B : Pointed ℓ)
   fst (Iso.inv (mapIso isHom) r) (inr (b , p)) = r b .fst p
   fst (Iso.inv (mapIso isHom) r) (push a i) = r a .snd (~ i)
   snd (Iso.inv (mapIso isHom) r) = r (pt B) .snd
-  Iso.rightInv (mapIso isHom) r = funExt λ b → →∙Homogeneous≡ isHom refl
-  Iso.leftInv (mapIso isHom) r =
+  Iso.sec (mapIso isHom) r = funExt λ b → →∙Homogeneous≡ isHom refl
+  Iso.ret (mapIso isHom) r =
     →∙Homogeneous≡ isHom
       (funExt λ { (inl x) → sym (snd r) ∙ cong (fst r) (sym (push (pt B)))
                 ; (inr x) → refl
@@ -655,7 +655,7 @@ module Thom (B : Pointed ℓ)
   ι-pres+ k = morphLemmas.isMorphInv _+ₖ∙_ (λ f g b → f b +ₖ∙ g b)
               (Iso.inv (ι k)) (ι⁻-pres+ k)
               (Iso.fun (ι k))
-              (Iso.leftInv (ι k)) (Iso.rightInv (ι k))
+              (Iso.ret (ι k)) (Iso.sec (ι k))
 
   -- We combine it with the generalised thom iso, in order to get the
   -- usual Thom isomorphism
@@ -823,10 +823,10 @@ module Thom (B : Pointed ℓ)
                    (rUnit _ ∙∙ sym (Square→compPath
                    ((cong (funExt⁻ (cong fst r)) (push (* , P*)))
                  ▷ λ i j → r j .snd i)) ∙∙ sym (rUnit _))))
-               (Iso.leftInv (Iso-EM-ΩEM+1 i) (f (x , p))))
+               (Iso.ret (Iso-EM-ΩEM+1 i) (f (x , p))))
          ∙ cong₂ _+ₖ_ (cong₂ _+ₖ_ (cong (ΩEM+1→EM i)
                        (sym (EM→ΩEM+1-sym i (f (* , P*))))
-                      ∙ Iso.leftInv (Iso-EM-ΩEM+1 i) (-ₖ (f (* , P*)))) refl
+                      ∙ Iso.ret (Iso-EM-ΩEM+1 i) (-ₖ (f (* , P*)))) refl
                     ∙ commₖ i (-ₖ f (* , P*)) (f (x , p)))
                     refl
          ∙ sym (assocₖ i (f (x , p)) (-ₖ (f (* , P*))) (f (* , P*)))
@@ -874,7 +874,7 @@ module Thom (B : Pointed ℓ)
             (sym (snd f) ∙ cong (fst f) (sym (push (* , P*))))
             (sym (p (fst a)))
     main a f p =
-      flipSquare (Iso.rightInv (Iso-EM-ΩEM+1 i) (pth a f p)
+      flipSquare (Iso.sec (Iso-EM-ΩEM+1 i) (pth a f p)
                ◁ λ j i → doubleCompPath-filler
                     (sym (snd f) ∙ cong (fst f) (sym (push (* , P*))))
                     (cong (fst f) (push a))

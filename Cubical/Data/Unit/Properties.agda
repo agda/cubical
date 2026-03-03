@@ -49,8 +49,8 @@ module _ (A : Unit → Type ℓ) where
   ΠUnitIso : Iso ((x : Unit) → A x) (A tt)
   fun ΠUnitIso f = f tt
   inv ΠUnitIso a tt = a
-  rightInv ΠUnitIso a = refl
-  leftInv ΠUnitIso f = refl
+  sec ΠUnitIso a = refl
+  ret ΠUnitIso f = refl
 
   ΠUnit : ((x : Unit) → A x) ≃ A tt
   ΠUnit = isoToEquiv ΠUnitIso
@@ -62,8 +62,8 @@ module _ (A : Unit* {ℓ} → Type ℓ') where
   ΠUnit*Iso : Iso ((x : Unit*) → A x) (A tt*)
   fun ΠUnit*Iso f = f tt*
   inv ΠUnit*Iso a tt* = a
-  rightInv ΠUnit*Iso a = refl
-  leftInv ΠUnit*Iso f = refl
+  sec ΠUnit*Iso a = refl
+  ret ΠUnit*Iso f = refl
 
   ΠUnit* : ((x : Unit*) → A x) ≃ A tt*
   ΠUnit* = isoToEquiv ΠUnit*Iso
@@ -71,14 +71,14 @@ module _ (A : Unit* {ℓ} → Type ℓ') where
 fiberUnitIso : {A : Type ℓ} → Iso (fiber (λ (a : A) → tt) tt) A
 fun fiberUnitIso = fst
 inv fiberUnitIso a = a , refl
-rightInv fiberUnitIso _ = refl
-leftInv fiberUnitIso _ = refl
+sec fiberUnitIso _ = refl
+ret fiberUnitIso _ = refl
 
 isContr→Iso2 : {A : Type ℓ} {B : Type ℓ'} → isContr A → Iso (A → B) B
 fun (isContr→Iso2 iscontr) f = f (fst iscontr)
 inv (isContr→Iso2 iscontr) b _ = b
-rightInv (isContr→Iso2 iscontr) _ = refl
-leftInv (isContr→Iso2 iscontr) f = funExt λ x → cong f (snd iscontr x)
+sec (isContr→Iso2 iscontr) _ = refl
+ret (isContr→Iso2 iscontr) f = funExt λ x → cong f (snd iscontr x)
 
 diagonal-unit : Unit ≡ Unit × Unit
 diagonal-unit = isoToPath (iso (λ x → tt , tt) (λ x → tt) (λ {(tt , tt) i → tt , tt}) λ {tt i → tt})

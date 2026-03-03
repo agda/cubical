@@ -36,24 +36,24 @@ record Iso {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') w
   field
     fun : A → B
     inv : B → A
-    rightInv : section fun inv
-    leftInv  : retract fun inv
+    sec : section fun inv
+    ret : retract fun inv
 
 isIso : (A → B) → Type _
 isIso {A = A} {B = B} f = Σ[ g ∈ (B → A) ] Σ[ _ ∈ section f g ] retract f g
 
 isoFunInjective : (f : Iso A B) → (x y : A) → Iso.fun f x ≡ Iso.fun f y → x ≡ y
-isoFunInjective f x y h = sym (Iso.leftInv f x) ∙∙ cong (Iso.inv f) h ∙∙ Iso.leftInv f y
+isoFunInjective f x y h = sym (Iso.ret f x) ∙∙ cong (Iso.inv f) h ∙∙ Iso.ret f y
 
 isoInvInjective : (f : Iso A B) → (x y : B) → Iso.inv f x ≡ Iso.inv f y → x ≡ y
-isoInvInjective f x y h = sym (Iso.rightInv f x) ∙∙ cong (Iso.fun f) h ∙∙ Iso.rightInv f y
+isoInvInjective f x y h = sym (Iso.sec f x) ∙∙ cong (Iso.fun f) h ∙∙ Iso.sec f y
 
 -- Any iso is an equivalence
 module _ (i : Iso A B) where
   open Iso i renaming ( fun to f
                       ; inv to g
-                      ; rightInv to s
-                      ; leftInv to t)
+                      ; sec to s
+                      ; ret to t)
 
   private
     module _ (y : B) (x0 x1 : A) (p0 : f x0 ≡ y) (p1 : f x1 ≡ y) where
@@ -105,14 +105,14 @@ isoToEquiv i .snd = isoToIsEquiv i
 
 IsoToIsIso : (f : Iso A B) → isIso (f .Iso.fun)
 IsoToIsIso f .fst = f .Iso.inv
-IsoToIsIso f .snd .fst = f .Iso.rightInv
-IsoToIsIso f .snd .snd = f .Iso.leftInv
+IsoToIsIso f .snd .fst = f .Iso.sec
+IsoToIsIso f .snd .snd = f .Iso.ret
 
 isIsoToIso : {f : A → B} → isIso f → Iso A B
 isIsoToIso {f = f} fIsIso .Iso.fun = f
 isIsoToIso fIsIso .Iso.inv = fIsIso .fst
-isIsoToIso fIsIso .Iso.rightInv = fIsIso .snd .fst
-isIsoToIso fIsIso .Iso.leftInv = fIsIso .snd .snd
+isIsoToIso fIsIso .Iso.sec = fIsIso .snd .fst
+isIsoToIso fIsIso .Iso.ret = fIsIso .snd .snd
 
 isIsoToIsEquiv : {f : A → B} → isIso f → isEquiv f
 isIsoToIsEquiv fIsIso = isoToIsEquiv (isIsoToIso fIsIso)
@@ -127,69 +127,69 @@ open Iso
 invIso : Iso A B → Iso B A
 fun (invIso f) = inv f
 inv (invIso f) = fun f
-rightInv (invIso f) = leftInv f
-leftInv (invIso f)  = rightInv f
+sec (invIso f) = ret f
+ret (invIso f)  = sec f
 
 compIso : Iso A B → Iso B C → Iso A C
 fun (compIso i j)       = fun j ∘ fun i
 inv (compIso i j) = inv i ∘ inv j
-rightInv (compIso i j) b = cong (fun j) (rightInv i (inv j b)) ∙ rightInv j b
-leftInv (compIso i j) a = cong (inv i) (leftInv j (fun i a)) ∙ leftInv i a
+sec (compIso i j) b = cong (fun j) (sec i (inv j b)) ∙ sec j b
+ret (compIso i j) a = cong (inv i) (ret j (fun i a)) ∙ ret i a
 
 composesToId→Iso : (G : Iso A B) (g : B → A) → G .fun ∘ g ≡ idfun B → Iso B A
 fun (composesToId→Iso _ g _)             = g
 inv (composesToId→Iso j _ _) = fun j
-rightInv (composesToId→Iso i g path) b =
-  sym (leftInv i (g (fun i b))) ∙∙ cong (λ g → inv i (g (fun i b))) path ∙∙ leftInv i b
-leftInv (composesToId→Iso _ _ path) b i = path i b
+sec (composesToId→Iso i g path) b =
+  sym (ret i (g (fun i b))) ∙∙ cong (λ g → inv i (g (fun i b))) path ∙∙ ret i b
+ret (composesToId→Iso _ _ path) b i = path i b
 
 idIso : Iso A A
 fun idIso = idfun _
 inv idIso = idfun _
-rightInv idIso _ = refl
-leftInv idIso _  = refl
+sec idIso _ = refl
+ret idIso _  = refl
 
 compIsoIdL : (isom : Iso A B) → compIso idIso isom ≡ isom
 fun (compIsoIdL isom i) = fun isom
 inv (compIsoIdL isom i) = inv isom
-rightInv (compIsoIdL isom i) b = lUnit (isom .rightInv b) (~ i)
-leftInv (compIsoIdL isom i) a = rUnit (isom .leftInv a) (~ i)
+sec (compIsoIdL isom i) b = lUnit (isom .sec b) (~ i)
+ret (compIsoIdL isom i) a = rUnit (isom .ret a) (~ i)
 
 compIsoIdR : (isom : Iso A B) → compIso isom idIso ≡ isom
 fun (compIsoIdR isom i) = fun isom
 inv (compIsoIdR isom i) = inv isom
-rightInv (compIsoIdR isom i) b = rUnit (isom .rightInv b) (~ i)
-leftInv (compIsoIdR isom i) a = lUnit (isom .leftInv a) (~ i)
+sec (compIsoIdR isom i) b = rUnit (isom .sec b) (~ i)
+ret (compIsoIdR isom i) a = lUnit (isom .ret a) (~ i)
 
 LiftIso : Iso A (Lift ℓ' A)
 fun LiftIso = lift
 inv LiftIso = lower
-rightInv LiftIso _ = refl
-leftInv LiftIso _  = refl
+sec LiftIso _ = refl
+ret LiftIso _  = refl
 
 isContr→Iso : isContr A → isContr B → Iso A B
 fun (isContr→Iso _ Bctr) _ = Bctr .fst
 inv (isContr→Iso Actr _) _ = Actr .fst
-rightInv (isContr→Iso _ Bctr) = Bctr .snd
-leftInv (isContr→Iso Actr _)  = Actr .snd
+sec (isContr→Iso _ Bctr) = Bctr .snd
+ret (isContr→Iso Actr _)  = Actr .snd
 
 isContr→Iso' : isContr A → isContr B → (A → B) → Iso A B
 fun (isContr→Iso' _ Bctr f) = f
 inv (isContr→Iso' Actr _ _) _ = Actr .fst
-rightInv (isContr→Iso' _ Bctr f) = isContr→isProp Bctr _
-leftInv (isContr→Iso' Actr _ _)  = Actr .snd
+sec (isContr→Iso' _ Bctr f) = isContr→isProp Bctr _
+ret (isContr→Iso' Actr _ _)  = Actr .snd
 
 isProp→Iso :  (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → Iso A B
 fun (isProp→Iso _ _ f _) = f
 inv (isProp→Iso _ _ _ g) = g
-rightInv (isProp→Iso _ Bprop f g) b = Bprop (f (g b)) b
-leftInv (isProp→Iso Aprop _ f g) a  = Aprop (g (f a)) a
+sec (isProp→Iso _ Bprop f g) b = Bprop (f (g b)) b
+ret (isProp→Iso Aprop _ f g) a  = Aprop (g (f a)) a
 
 domIso : ∀ {ℓ} {C : Type ℓ} → Iso A B → Iso (A → C) (B → C)
 fun (domIso e) f b = f (inv e b)
 inv (domIso e) f a = f (fun e a)
-rightInv (domIso e) f i x = f (rightInv e x i)
-leftInv (domIso e) f i x = f (leftInv e x i)
+sec (domIso e) f i x = f (sec e x i)
+ret (domIso e) f i x = f (ret e x i)
 
 -- Helpful notation
 _Iso⟨_⟩_ : ∀ {ℓ ℓ' ℓ''} {B : Type ℓ'} {C : Type ℓ''} (X : Type ℓ) → Iso X B → Iso B C → Iso X C
@@ -206,8 +206,8 @@ codomainIsoDep : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : A → Type ℓ'} {C : 
                  → Iso ((a : A) → B a) ((a : A) → C a)
 fun (codomainIsoDep is) f a = fun (is a) (f a)
 inv (codomainIsoDep is) f a = inv (is a) (f a)
-rightInv (codomainIsoDep is) f = funExt λ a → rightInv (is a) (f a)
-leftInv (codomainIsoDep is) f = funExt λ a → leftInv (is a) (f a)
+sec (codomainIsoDep is) f = funExt λ a → sec (is a) (f a)
+ret (codomainIsoDep is) f = funExt λ a → ret (is a) (f a)
 
 codomainIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
            → Iso B C
@@ -226,10 +226,10 @@ Iso≡Set : isSet A → isSet B → (f g : Iso A B)
         → f ≡ g
 fun (Iso≡Set hA hB f g hfun hinv i) x = hfun x i
 inv (Iso≡Set hA hB f g hfun hinv i) x = hinv x i
-rightInv (Iso≡Set hA hB f g hfun hinv i) x j =
-  isSet→isSet' hB (rightInv f x) (rightInv g x) (λ i → hfun (hinv x i) i) refl i j
-leftInv (Iso≡Set hA hB f g hfun hinv i) x j =
-  isSet→isSet' hA (leftInv f x) (leftInv g x) (λ i → hinv (hfun x i) i) refl i j
+sec (Iso≡Set hA hB f g hfun hinv i) x j =
+  isSet→isSet' hB (sec f x) (sec g x) (λ i → hfun (hinv x i) i) refl i j
+ret (Iso≡Set hA hB f g hfun hinv i) x j =
+  isSet→isSet' hA (ret f x) (ret g x) (λ i → hinv (hfun x i) i) refl i j
 
 transportIsoToPath : (f : Iso A B) (x : A) → transport (isoToPath f) x ≡ f .fun x
 transportIsoToPath f x = transportRefl _

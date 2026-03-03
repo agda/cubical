@@ -12,8 +12,8 @@ open import Cubical.Data.Equality renaming (refl to reflEq)
   hiding (_∙_; sym; transport)
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.Free.Functor
-open import Cubical.Categories.Constructions.Power
+open import Cubical.Categories.Instances.Free.Functor
+open import Cubical.Categories.Instances.Power
 open import Cubical.Categories.Functor renaming (Id to IdF)
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.NaturalTransformation

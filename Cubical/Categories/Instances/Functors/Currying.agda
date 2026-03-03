@@ -6,7 +6,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Foundations.Function renaming (_∘_ to _∘→_)
@@ -94,11 +94,11 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     isoλF : Iso (Functor (E ×C C) D) (Functor E (FUNCTOR C D))
     fun isoλF = λF
     inv isoλF = λF⁻
-    rightInv isoλF b = Functor≡ (λ _ → Functor≡ (λ _ → refl)
+    sec isoλF b = Functor≡ (λ _ → Functor≡ (λ _ → refl)
       λ _ → cong (seq' D _) (congS (flip N-ob _) (F-id b)) ∙ D .⋆IdR _)
       λ _ → makeNatTransPathP _ _
         (funExt λ _ → cong (comp' D _) (F-id (F-ob b _)) ∙ D .⋆IdL _)
-    leftInv isoλF a = Functor≡ (λ _ → refl) λ _ → sym (F-seq a _ _)
+    ret isoλF a = Functor≡ (λ _ → refl) λ _ → sym (F-seq a _ _)
           ∙ cong (F-hom a) (cong₂ _,_ (E .⋆IdL _) (C .⋆IdR _))
 
     open AdjointEquivalence

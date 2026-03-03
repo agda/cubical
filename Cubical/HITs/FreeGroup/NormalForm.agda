@@ -102,9 +102,9 @@ module _ {A : Type ℓ} where
   GroupIso-FG-L/↘↙ : GroupIso (freeGroupGroup A) (List/↘↙group)
   Iso.fun (fst GroupIso-FG-L/↘↙) = fst FG→L/↘↙
   Iso.inv (fst GroupIso-FG-L/↘↙) = fromL/
-  Iso.rightInv (fst GroupIso-FG-L/↘↙) =
+  Iso.sec (fst GroupIso-FG-L/↘↙) =
      elimProp/ (λ _ → squash/ _ _) section-FG-L/↘↙
-  Iso.leftInv (fst GroupIso-FG-L/↘↙) =
+  Iso.ret (fst GroupIso-FG-L/↘↙) =
     funExt⁻ (congS fst (freeGroupHom≡
         {f = compGroupHom FG→L/↘↙ (fromL/ , isGroupHomFromL/)}
         {g = idGroupHom} (sym ∘ idr ∘ η )))
@@ -170,7 +170,7 @@ module _ {A : Type ℓ} where
      ΠNF⇒DiscreteA λ _≟_ g →
        let e = compIso (fst (GroupIso-FG-L/↘↙)) (invIso (Discrete.IsoNF _≟_))
            (g' , n) = Iso.fun e g
-       in g' nf Iso.leftInv e g , n
+       in g' nf Iso.ret e g , n
 
   ≟→normalForm : Discrete A → (∀ g → NF g)
   ≟→normalForm _≟_ = invEq (NF⇔DiscreteA (Discrete→isSet _≟_)) _≟_

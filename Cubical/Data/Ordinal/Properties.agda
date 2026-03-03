@@ -247,10 +247,10 @@ suc≺ α = (inr tt*) , (eq , makeIsWosetEquiv eq eqsucα eqαsuc)
     is : Iso ⟨ (α + γ) ↓ inr g ⟩ ⟨ α + β ⟩
     Iso.fun is = fun
     Iso.inv is = inv
-    Iso.rightInv is (inl x) = refl
-    Iso.rightInv is (inr x) = cong inr (secEq γ↓g≃β x)
-    Iso.leftInv  is (inl x , _) = ΣPathP (refl , (isPropUnit* _ _))
-    Iso.leftInv  is (inr x , x≺g)
+    Iso.sec is (inl x) = refl
+    Iso.sec is (inr x) = cong inr (secEq γ↓g≃β x)
+    Iso.ret  is (inl x , _) = ΣPathP (refl , (isPropUnit* _ _))
+    Iso.ret  is (inr x , x≺g)
       = ΣPathP (cong inr (PathPΣ (retEq γ↓g≃β (x , x≺g)) .fst)
                         , PathPΣ (retEq γ↓g≃β (x , x≺g)) .snd)
 

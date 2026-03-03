@@ -142,7 +142,7 @@ module _
         d = pInv d'
 
         p[d]≡t[c'] : p .fun .fst d ≡ t .fst c'
-        p[d]≡t[c'] = Iso.rightInv pIso d'
+        p[d]≡t[c'] = Iso.sec pIso d'
 
         u[p[d]] : ⟨ E' ⟩
         u[p[d]] = u .fst (p .fun .fst d)
@@ -227,7 +227,7 @@ module _
             b = mInv b'
 
             m[b]≡b' : m .fun .fst b ≡ b'
-            m[b]≡b' = Iso.rightInv mIso b'
+            m[b]≡b' = Iso.sec mIso b'
 
             s[m[b]]≡s[b'] : s .fst (m .fun .fst b) ≡ s .fst b'
             s[m[b]]≡s[b'] = cong (s .fst) m[b]≡b'

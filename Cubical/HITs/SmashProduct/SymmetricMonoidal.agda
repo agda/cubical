@@ -217,7 +217,7 @@ private
    ∙ cong (λ w → ⋀comm→∙ ∘∙ w) (⋀comm-sq f g)
   where
   lem : ⋀comm→∙ ∘∙ ⋀comm→∙ ≡ idfun∙ _
-  lem = ΣPathP ((funExt (Iso.rightInv ⋀CommIso)) , (sym (rUnit refl)))
+  lem = ΣPathP ((funExt (Iso.sec ⋀CommIso)) , (sym (rUnit refl)))
 
 Bool⋀→ : Bool*∙ {ℓ} ⋀ A → typ A
 Bool⋀→ {A = A} (inl x) = pt A
@@ -231,8 +231,8 @@ Bool⋀→ {A = A} (push (push a i₁) i) = pt A
 ⋀lIdIso : Iso (Bool*∙ {ℓ} ⋀ A) (typ A)
 Iso.fun ⋀lIdIso = Bool⋀→
 Iso.inv ⋀lIdIso a = inr (false* , a)
-Iso.rightInv ⋀lIdIso a = refl
-Iso.leftInv (⋀lIdIso {A = A}) =
+Iso.sec ⋀lIdIso a = refl
+Iso.ret (⋀lIdIso {A = A}) =
   ⋀-fun≡ _ _ (sym (push (inl false*))) h hₗ
     λ x → compPath-filler (sym (push (inl false*))) (push (inr x))
   where

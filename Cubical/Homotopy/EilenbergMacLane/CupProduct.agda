@@ -175,15 +175,15 @@ module _ {G'' : Ring ℓ} where
     → _⌣ₖ_ {n = zero} {m = n} x (ΩEM+1→EM n y)
      ≡ ΩEM+1→EM-gen n _ λ i → _⌣ₖ_ {n = zero} {suc n} x (y i)
   ΩEM+1→EM-distr⌣ₖ0n zero x y =
-    sym (Iso.leftInv (Iso-EM-ΩEM+1 0) _)
+    sym (Iso.ret (Iso-EM-ΩEM+1 0) _)
     ∙ cong (ΩEM+1→EM 0)
-      λ j i → _⌣ₖ_ {n = zero} {1} x (Iso.rightInv (Iso-EM-ΩEM+1 0) y j i)
+      λ j i → _⌣ₖ_ {n = zero} {1} x (Iso.sec (Iso-EM-ΩEM+1 0) y j i)
   ΩEM+1→EM-distr⌣ₖ0n (suc n) x y =
-    sym (Iso.leftInv (Iso-EM-ΩEM+1 (suc n)) _)
+    sym (Iso.ret (Iso-EM-ΩEM+1 (suc n)) _)
     ∙ cong (ΩEM+1→EM (suc n)) (EM→ΩEM+1-distr⌣ₖ0n n x (ΩEM+1→EM (suc n) y))
     ∙ cong (ΩEM+1→EM (suc n)) (help n (ΩEM+1→EM (suc n) y)
       ∙ cong (cong (_⌣ₖ_ {n = zero} {suc (suc n)} x))
-        (Iso.rightInv (Iso-EM-ΩEM+1 (suc n)) y))
+        (Iso.sec (Iso-EM-ΩEM+1 (suc n)) y))
     where
     help : (n : ℕ) (y : EM G' (suc n))
       → (λ i → _⌣ₖ_ {n = suc zero} {suc n} (EM→ΩEM+1 0 x i) y)

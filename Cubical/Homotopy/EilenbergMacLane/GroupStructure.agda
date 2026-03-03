@@ -405,11 +405,11 @@ module _ {G : AbGroup ℓ} where
   addIso : (n : ℕ) (x : EM G n) → Iso (EM G n) (EM G n)
   Iso.fun (addIso n x) y = y +[ n ]ₖ x
   Iso.inv (addIso n x) y = y -[ n ]ₖ x
-  Iso.rightInv (addIso n x) y =
+  Iso.sec (addIso n x) y =
        sym (assocₖ n y (-[ n ]ₖ x) x)
     ∙∙ cong (λ x → y +[ n ]ₖ x) (lCancelₖ n x)
     ∙∙ rUnitₖ n y
-  Iso.leftInv (addIso n x) y =
+  Iso.ret (addIso n x) y =
     sym (assocₖ n y x (-[ n ]ₖ x))
     ∙∙ cong (λ x → y +[ n ]ₖ x) (rCancelₖ n x)
     ∙∙ rUnitₖ n y

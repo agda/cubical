@@ -174,14 +174,14 @@ module AlgebraEquivs where
       isoOnHoms : Iso (AlgebraHom B C) (AlgebraHom A C)
       fun isoOnHoms g = g ∘a AlgebraEquiv→AlgebraHom f
       inv isoOnHoms h = h ∘a AlgebraEquiv→AlgebraHom f⁻¹
-      rightInv isoOnHoms h =
+      sec isoOnHoms h =
         Σ≡Prop
           (λ h → isPropIsAlgebraHom _ (A .snd) h (C .snd))
-          (isoOnTypes .rightInv (h .fst))
-      leftInv isoOnHoms g =
+          (isoOnTypes .sec (h .fst))
+      ret isoOnHoms g =
         Σ≡Prop
           (λ g → isPropIsAlgebraHom _ (B .snd) g (C .snd))
-          (isoOnTypes .leftInv (g .fst))
+          (isoOnTypes .ret (g .fst))
 
 isSetAlgebraStr : (A : Type ℓ') → isSet (AlgebraStr R A)
 isSetAlgebraStr A =

@@ -6,13 +6,13 @@ open import Agda.Builtin.Nat
 open import Agda.Builtin.FromNat
   renaming (Number to HasFromNat)
 open import Cubical.Data.Fin.Base
-  using (Fin; fromℕ≤)
-open import Cubical.Data.Nat.Order.Recursive
-  using (_≤_)
+  using (Fin; fromℕ≤ᵗ)
+open import Cubical.Data.Nat.Order.Inductive
+  using (_≤ᵗ_)
 
 instance
   fromNatFin : {n : _} → HasFromNat (Fin (suc n))
   fromNatFin {n} = record
-    { Constraint = λ m → m ≤ n
-    ; fromNat    = λ m ⦃ m≤n ⦄ → fromℕ≤ m n m≤n
+    { Constraint = λ m → m ≤ᵗ n
+    ; fromNat    = λ m ⦃ m≤n ⦄ → fromℕ≤ᵗ m n m≤n
     }

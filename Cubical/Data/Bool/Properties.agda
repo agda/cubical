@@ -41,8 +41,8 @@ notnot false = refl
 notIso : Iso Bool Bool
 Iso.fun notIso = not
 Iso.inv notIso = not
-Iso.rightInv notIso = notnot
-Iso.leftInv notIso = notnot
+Iso.sec notIso = notnot
+Iso.ret notIso = notnot
 
 notIsEquiv : isEquiv not
 notIsEquiv = involIsEquiv {f = not} notnot
@@ -234,8 +234,8 @@ module BoolReflection where
   reflectIso : Iso Bool (Bool ≡ Bool)
   reflectIso .fun = ⊕-Path
   reflectIso .inv P = transport P false
-  reflectIso .leftInv = ⊕-identityʳ
-  reflectIso .rightInv P = sym (⊕-complete P)
+  reflectIso .ret = ⊕-identityʳ
+  reflectIso .sec P = sym (⊕-complete P)
 
   reflectEquiv : Bool ≃ (Bool ≡ Bool)
   reflectEquiv = isoToEquiv reflectIso
@@ -272,8 +272,8 @@ Iso.fun IsoBool→∙ f = fst f false
 fst (Iso.inv IsoBool→∙ a) false = a
 fst (Iso.inv (IsoBool→∙ {A = A}) a) true = pt A
 snd (Iso.inv IsoBool→∙ a) = refl
-Iso.rightInv IsoBool→∙ a = refl
-Iso.leftInv IsoBool→∙ (f , p) =
+Iso.sec IsoBool→∙ a = refl
+Iso.ret IsoBool→∙ (f , p) =
   ΣPathP ((funExt (λ { false → refl ; true → sym p}))
         , λ i j → p (~ i ∨ j))
 
@@ -399,10 +399,10 @@ Iso-⊤⊎⊤-Bool .fun (inl tt) = true
 Iso-⊤⊎⊤-Bool .fun (inr tt) = false
 Iso-⊤⊎⊤-Bool .inv true = inl tt
 Iso-⊤⊎⊤-Bool .inv false = inr tt
-Iso-⊤⊎⊤-Bool .leftInv (inl tt) = refl
-Iso-⊤⊎⊤-Bool .leftInv (inr tt) = refl
-Iso-⊤⊎⊤-Bool .rightInv true = refl
-Iso-⊤⊎⊤-Bool .rightInv false = refl
+Iso-⊤⊎⊤-Bool .ret (inl tt) = refl
+Iso-⊤⊎⊤-Bool .ret (inr tt) = refl
+Iso-⊤⊎⊤-Bool .sec true = refl
+Iso-⊤⊎⊤-Bool .sec false = refl
 
 separatedBool : Separated Bool
 separatedBool = Discrete→Separated _≟_
@@ -415,9 +415,9 @@ Bool→Bool→∙Bool true = const∙ _ _
 Iso-Bool→∙Bool-Bool : Iso ((Bool , true) →∙ (Bool , true)) Bool
 Iso.fun Iso-Bool→∙Bool-Bool f = fst f false
 Iso.inv Iso-Bool→∙Bool-Bool = Bool→Bool→∙Bool
-Iso.rightInv Iso-Bool→∙Bool-Bool false = refl
-Iso.rightInv Iso-Bool→∙Bool-Bool true = refl
-Iso.leftInv Iso-Bool→∙Bool-Bool f = Σ≡Prop (λ _ → isSetBool _ _) (help _ refl)
+Iso.sec Iso-Bool→∙Bool-Bool false = refl
+Iso.sec Iso-Bool→∙Bool-Bool true = refl
+Iso.ret Iso-Bool→∙Bool-Bool f = Σ≡Prop (λ _ → isSetBool _ _) (help _ refl)
   where
   help : (x : Bool) → fst f false ≡ x
     → Bool→Bool→∙Bool (fst f false) .fst ≡ f .fst
@@ -436,8 +436,8 @@ Iso.leftInv Iso-Bool→∙Bool-Bool f = Σ≡Prop (λ _ → isSetBool _ _) (help
 
 Iso.fun (ΣBoolΣIso {true}) x = tt , x
 Iso.inv (ΣBoolΣIso {true}) x = snd x
-Iso.leftInv (ΣBoolΣIso {true}) _ = refl
-Iso.rightInv (ΣBoolΣIso {true}) _ = refl
+Iso.ret (ΣBoolΣIso {true}) _ = refl
+Iso.sec (ΣBoolΣIso {true}) _ = refl
 
 ΣBool≃Σ : {b : Bool} {c : (Bool→Type b) → Bool} →
   (Bool→Type (ΣBool b c)) ≃ (Σ[ z ∈ Bool→Type b ] Bool→Type (c z))

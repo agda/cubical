@@ -98,8 +98,8 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
   isoThm1 : GroupIso imϕ (G / kerNormalSubgroup)
   fun (fst isoThm1) = f1
   inv (fst isoThm1) = f2
-  rightInv (fst isoThm1) = f12
-  leftInv (fst isoThm1) = f21
+  sec (fst isoThm1) = f12
+  ret (fst isoThm1) = f21
   snd isoThm1 = makeIsGroupHom f1-isHom
 
   -- The SIP lets us turn the isomorphism theorem into a path

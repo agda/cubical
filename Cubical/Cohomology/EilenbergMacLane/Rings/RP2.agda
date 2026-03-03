@@ -85,7 +85,7 @@ private
     γ↦1'' p q =
         H²[RP²,ℤ/2]→ℤ/2-Id p
       ∙ cong (Iso.fun Iso-Ω²K₂-ℤ/2) q
-      ∙ Iso.rightInv Iso-Ω²K₂-ℤ/2 1
+      ∙ Iso.sec Iso-Ω²K₂-ℤ/2 1
 
   cp : EM ℤ/2 1 → EM ℤ/2 1 → EM (ℤ/2 ⨂ ℤ/2) 2
   cp = _⌣ₖ⊗_ {G' = ℤ/2} {H' = ℤ/2} {n = 1} {m = 1}

@@ -115,11 +115,11 @@ module _ (Ĝ : Group ℓ) where
     isom : Iso G G
     isom .Iso.fun = _· g
     isom .Iso.inv = _· inv g
-    isom .Iso.rightInv h =
+    isom .Iso.sec h =
       (h · inv g) · g ≡⟨ (·Assoc h (inv g) g) ⁻¹ ⟩
         h · inv g · g ≡⟨ cong (h ·_) (·InvL g) ⟩
              h · 1g ≡⟨ ·IdR h ⟩ h ∎
-    isom .Iso.leftInv h =
+    isom .Iso.ret h =
       (h · g) · inv g ≡⟨ (·Assoc h g (inv g)) ⁻¹ ⟩
         h · g · inv g ≡⟨ cong (h ·_) (·InvR g) ⟩
              h · 1g ≡⟨ ·IdR h ⟩ h ∎
@@ -174,8 +174,8 @@ module _ (Ĝ : Group ℓ) where
   ΩEM₁Iso : Iso (Path (EM₁ Ĝ) embase embase) G
   Iso.fun ΩEM₁Iso = encode embase
   Iso.inv ΩEM₁Iso = emloop
-  Iso.rightInv ΩEM₁Iso = encode-decode embase
-  Iso.leftInv ΩEM₁Iso = decode-encode embase
+  Iso.sec ΩEM₁Iso = encode-decode embase
+  Iso.ret ΩEM₁Iso = decode-encode embase
 
   ΩEM₁≡ : (Path (EM₁ Ĝ) embase embase) ≡ G
   ΩEM₁≡ = isoToPath ΩEM₁Iso
@@ -292,8 +292,8 @@ module _ {G : AbGroup ℓ} where
   Iso-EM-ΩEM+1 zero = invIso (ΩEM₁Iso (AbGroup→Group G))
   Iso.fun (Iso-EM-ΩEM+1 (suc n)) = decode' n (0ₖ (2 + n))
   Iso.inv (Iso-EM-ΩEM+1 (suc n)) = encode' n ∣ north ∣
-  Iso.rightInv (Iso-EM-ΩEM+1 (suc n)) = decode'-encode' _ _
-  Iso.leftInv (Iso-EM-ΩEM+1 (suc n)) = encode'-decode' _
+  Iso.sec (Iso-EM-ΩEM+1 (suc n)) = decode'-encode' _ _
+  Iso.ret (Iso-EM-ΩEM+1 (suc n)) = encode'-decode' _
 
   EM≃ΩEM+1 : (n : ℕ) → EM G n ≃ typ (Ω (EM∙ G (suc n)))
   EM≃ΩEM+1 n = isoToEquiv (Iso-EM-ΩEM+1 n)
@@ -329,15 +329,15 @@ module _ {G : AbGroup ℓ} where
   ΩEM+1→EM-sym : (n : ℕ) (p : typ (Ω (EM∙ G (suc n))))
     → ΩEM+1→EM n (sym p) ≡ -ₖ (ΩEM+1→EM n p)
   ΩEM+1→EM-sym n p = sym (cong (ΩEM+1→EM n) (EM→ΩEM+1-sym n (ΩEM+1→EM n p)
-                    ∙ cong sym (Iso.rightInv (Iso-EM-ΩEM+1 n) p)))
-                    ∙ Iso.leftInv (Iso-EM-ΩEM+1 n) (-ₖ ΩEM+1→EM n p)
+                    ∙ cong sym (Iso.sec (Iso-EM-ΩEM+1 n) p)))
+                    ∙ Iso.ret (Iso-EM-ΩEM+1 n) (-ₖ ΩEM+1→EM n p)
 
   ΩEM+1→EM-hom : (n : ℕ) → (p q : typ (Ω (EM∙ G (suc n))))
     → ΩEM+1→EM n (p ∙ q) ≡ (ΩEM+1→EM n p) +[ n ]ₖ (ΩEM+1→EM n q)
   ΩEM+1→EM-hom n =
     morphLemmas.isMorphInv (λ x y → x +[ n ]ₖ y) (_∙_) (EM→ΩEM+1 n)
       (EM→ΩEM+1-hom n) (ΩEM+1→EM n)
-      (Iso.rightInv (Iso-EM-ΩEM+1 n)) (Iso.leftInv (Iso-EM-ΩEM+1 n))
+      (Iso.sec (Iso-EM-ΩEM+1 n)) (Iso.ret (Iso-EM-ΩEM+1 n))
 
   ΩEM+1→EM-refl : (n : ℕ) → ΩEM+1→EM n refl ≡ 0ₖ n
   ΩEM+1→EM-refl zero = transportRefl 0g
@@ -472,7 +472,7 @@ module _ {G : AbGroup ℓ} where
                      (EM→ΩEM+1-gen n p y))
               (EM-raw'→EM∙ G (suc n))
             ∙ (λ i → ΩEM+1-gen→EM-0ₖ n (EM→ΩEM+1-gen-0ₖ n y i) i)
-            ∙ Iso.leftInv (Iso-EM-ΩEM+1 n) y)
+            ∙ Iso.ret (Iso-EM-ΩEM+1 n) y)
 
   ΩEM+1→EM→ΩEM+1-gen : (n : ℕ) (x : EM G (suc n))
     → (y : x ≡ x) → EM→ΩEM+1-gen n x (ΩEM+1→EM-gen n x y) ≡ y
@@ -488,14 +488,14 @@ module _ {G : AbGroup ℓ} where
        → EM→ΩEM+1-gen n p (ΩEM+1→EM-gen n p y) ≡ y)
        (sym (EM-raw'→EM∙ _ (suc n)))
        λ p → (λ i → EM→ΩEM+1-gen-0ₖ n (ΩEM+1-gen→EM-0ₖ n p i) i)
-            ∙ Iso.rightInv (Iso-EM-ΩEM+1 n) p))
+            ∙ Iso.sec (Iso-EM-ΩEM+1 n) p))
 
   Iso-EM-ΩEM+1-gen : (n : ℕ) (x : EM G (suc n))
     → Iso (EM G n) (x ≡ x)
   Iso.fun (Iso-EM-ΩEM+1-gen n x) = EM→ΩEM+1-gen n x
   Iso.inv (Iso-EM-ΩEM+1-gen n x) = ΩEM+1→EM-gen n x
-  Iso.rightInv (Iso-EM-ΩEM+1-gen n x) = ΩEM+1→EM→ΩEM+1-gen n x
-  Iso.leftInv (Iso-EM-ΩEM+1-gen n x) = EM→ΩEM+1→EM-gen n x
+  Iso.sec (Iso-EM-ΩEM+1-gen n x) = ΩEM+1→EM→ΩEM+1-gen n x
+  Iso.ret (Iso-EM-ΩEM+1-gen n x) = EM→ΩEM+1→EM-gen n x
 
   ΩEM+1→EM-gen-refl : (n : ℕ) (x : EM G (suc n))
     → ΩEM+1→EM-gen n x refl ≡ 0ₖ n
@@ -594,8 +594,8 @@ module _ where
   fst (Iso.inv (EM₁→∙Iso m) f) embase-raw = 0ₖ (suc m)
   fst (Iso.inv (EM₁→∙Iso m) f) (emloop-raw g i) = f g i
   snd (Iso.inv (EM₁→∙Iso m) f) = refl
-  Iso.rightInv (EM₁→∙Iso m) f = funExt λ x → sym (rUnit _)
-  Iso.leftInv (EM₁→∙Iso m) (f , p) =
+  Iso.sec (EM₁→∙Iso m) f = funExt λ x → sym (rUnit _)
+  Iso.ret (EM₁→∙Iso m) (f , p) =
     →∙Homogeneous≡ (isHomogeneousEM _)
       (funExt λ { embase-raw → sym p
                 ; (emloop-raw g i) j
@@ -1006,7 +1006,7 @@ inducedFun-EM-rawIso : {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
                      → ∀ n → Iso (EM-raw G' n) (EM-raw H' n)
 Iso.fun (inducedFun-EM-rawIso e n) = inducedFun-EM-raw (_ , (snd e)) n
 Iso.inv (inducedFun-EM-rawIso e n) = inducedFun-EM-raw (_ , isGroupHomInv e) n
-Iso.rightInv (inducedFun-EM-rawIso e n) = h n
+Iso.sec (inducedFun-EM-rawIso e n) = h n
   where
   h : (n : ℕ) → section (inducedFun-EM-raw (fst e .fst , snd e) n)
       (inducedFun-EM-raw (invEq (fst e) , isGroupHomInv e) n)
@@ -1020,7 +1020,7 @@ Iso.rightInv (inducedFun-EM-rawIso e n) = h n
     λ n p → λ { north → refl
                ; south → refl
                ; (merid a i) k → merid (p a k) i}
-Iso.leftInv (inducedFun-EM-rawIso e n) = h n
+Iso.ret (inducedFun-EM-rawIso e n) = h n
   where
   h : (n : ℕ) → retract (Iso.fun (inducedFun-EM-rawIso e n))
                           (Iso.inv (inducedFun-EM-rawIso e n))
@@ -1037,8 +1037,8 @@ Iso.leftInv (inducedFun-EM-rawIso e n) = h n
 Iso→EM₁Iso : {G : Group ℓ} {H : Group ℓ'} → GroupIso G H → Iso (EM₁ G) (EM₁ H)
 Iso→EM₁Iso e .Iso.fun = inducedFun-EM₁ (GroupIso→GroupHom e)
 Iso→EM₁Iso e .Iso.inv = inducedFun-EM₁ (GroupIso→GroupHom (invGroupIso e))
-Iso→EM₁Iso e .Iso.rightInv = elimSet _ (λ _ → emsquash _ _) refl λ x i j → emloop (e .fst .Iso.rightInv x j) i
-Iso→EM₁Iso e .Iso.leftInv = elimSet _ (λ _ → emsquash _ _) refl λ x i j → emloop (e .fst .Iso.leftInv x j) i
+Iso→EM₁Iso e .Iso.sec = elimSet _ (λ _ → emsquash _ _) refl λ x i j → emloop (e .fst .Iso.sec x j) i
+Iso→EM₁Iso e .Iso.ret = elimSet _ (λ _ → emsquash _ _) refl λ x i j → emloop (e .fst .Iso.ret x j) i
 
 Equiv→EM₁Equiv : {G : Group ℓ} {H : Group ℓ'} → GroupEquiv G H → EM₁ G ≃ EM₁ H
 Equiv→EM₁Equiv e = isoToEquiv (Iso→EM₁Iso (GroupEquiv→GroupIso e))
@@ -1047,17 +1047,17 @@ module _ {G : AbGroup ℓ} {H : AbGroup ℓ'} (e : AbGroupEquiv G H) where
   Iso→EMIso : ∀ n → Iso (EM G n) (EM H n)
   Iso.fun (Iso→EMIso n) = inducedFun-EM (GroupEquiv→GroupHom e) n
   Iso.inv (Iso→EMIso n) = inducedFun-EM (GroupEquiv→GroupHom (invGroupEquiv e)) n
-  Iso.rightInv (Iso→EMIso zero) = Iso.rightInv (inducedFun-EM-rawIso e zero)
-  Iso.rightInv (Iso→EMIso (suc zero)) =
-    Iso.rightInv (inducedFun-EM-rawIso e (suc zero))
-  Iso.rightInv (Iso→EMIso (suc (suc n))) =
-    Iso.rightInv (mapCompIso (inducedFun-EM-rawIso e (suc (suc n))))
-  Iso.leftInv (Iso→EMIso zero) =
-    Iso.leftInv (inducedFun-EM-rawIso e zero)
-  Iso.leftInv (Iso→EMIso (suc zero)) =
-    Iso.leftInv (inducedFun-EM-rawIso e (suc zero))
-  Iso.leftInv (Iso→EMIso (suc (suc n))) =
-    Iso.leftInv (mapCompIso (inducedFun-EM-rawIso e (suc (suc n))))
+  Iso.sec (Iso→EMIso zero) = Iso.sec (inducedFun-EM-rawIso e zero)
+  Iso.sec (Iso→EMIso (suc zero)) =
+    Iso.sec (inducedFun-EM-rawIso e (suc zero))
+  Iso.sec (Iso→EMIso (suc (suc n))) =
+    Iso.sec (mapCompIso (inducedFun-EM-rawIso e (suc (suc n))))
+  Iso.ret (Iso→EMIso zero) =
+    Iso.ret (inducedFun-EM-rawIso e zero)
+  Iso.ret (Iso→EMIso (suc zero)) =
+    Iso.ret (inducedFun-EM-rawIso e (suc zero))
+  Iso.ret (Iso→EMIso (suc (suc n))) =
+    Iso.ret (mapCompIso (inducedFun-EM-rawIso e (suc (suc n))))
 
   Iso→EMIso∙ : ∀ n → Iso.fun (Iso→EMIso n) (EM∙ G n .snd) ≡ EM∙ H n .snd
   Iso→EMIso∙ zero = IsGroupHom.pres1 (e .snd)

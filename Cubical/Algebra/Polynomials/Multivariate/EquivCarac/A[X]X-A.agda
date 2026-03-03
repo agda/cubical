@@ -241,8 +241,8 @@ module _
     is : Iso (A[x1,···,xn]/<xkʲ> Ar 1 0 1) A
     fun is = A[x]/x→A
     inv is = A→A[x]/x
-    rightInv is = e-sect
-    leftInv is = e-retr
+    sec is = e-sect
+    ret is = e-retr
   snd Equiv-A[X]/X-A = snd A[X]/X→A
 
 Equiv-ℤ[X]/X-ℤ : RingEquiv (CommRing→Ring ℤ[X]/X) (CommRing→Ring ℤCR)

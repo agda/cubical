@@ -299,6 +299,7 @@ isEmbedding→hasPropFibers′ : isEmbedding f → hasPropFibers f
 isEmbedding→hasPropFibers′ {f = f} iE z =
   Embedding-into-isProp→isProp (isEmbedding→embedsFibersIntoSingl iE z) isPropSingl
 
+-- Inspired by https://martinescardo.github.io/TypeTopology/UF.UniverseEmbedding.html
 universeEmbedding :
   ∀ {ℓ ℓ' : Level}
   → (F : Type ℓ → Type ℓ')

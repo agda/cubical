@@ -113,12 +113,12 @@ module _ {C C' : Category ℓ ℓ'} where
  CategoryPathIso : Iso (CategoryPath C C') (C ≡ C')
  Iso.fun CategoryPathIso = CategoryPath.mk≡
  Iso.inv CategoryPathIso = ≡→CategoryPath
- Iso.rightInv CategoryPathIso = CategoryPathIsoRightInv
+ Iso.sec CategoryPathIso = CategoryPathIsoRightInv
 
- ob≡ (Iso.leftInv CategoryPathIso a i) = ob≡ a
- Hom≡ (Iso.leftInv CategoryPathIso a i) = Hom≡ a
- id≡ (Iso.leftInv CategoryPathIso a i) = id≡ a
- ⋆≡ (Iso.leftInv CategoryPathIso a i) = ⋆≡ a
+ ob≡ (Iso.ret CategoryPathIso a i) = ob≡ a
+ Hom≡ (Iso.ret CategoryPathIso a i) = Hom≡ a
+ id≡ (Iso.ret CategoryPathIso a i) = id≡ a
+ ⋆≡ (Iso.ret CategoryPathIso a i) = ⋆≡ a
 
  CategoryPath≡ : (cp cp' : CategoryPath C C') →
      (p≡ : ob≡ cp ≡ ob≡ cp') →

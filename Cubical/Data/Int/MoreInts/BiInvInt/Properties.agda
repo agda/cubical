@@ -56,15 +56,15 @@ BiInvℤ-rec {A = A} z e = φ
   φ zero = z
   φ (suc n) = Iso.fun e-Iso (φ n)
   φ (predr n) = Iso.inv e-Iso (φ n)
-  φ (suc-predr n i) = Iso.rightInv e-Iso (φ n) i
+  φ (suc-predr n i) = Iso.sec e-Iso (φ n) i
   φ (predl n) = Iso.inv e-Iso (φ n)
-  φ (predl-suc n i) = Iso.leftInv e-Iso (φ n) i
+  φ (predl-suc n i) = Iso.ret e-Iso (φ n) i
 
 sucIso : Iso BiInvℤ BiInvℤ
 Iso.fun sucIso = suc
 Iso.inv sucIso = pred
-Iso.rightInv sucIso = suc-predl
-Iso.leftInv sucIso = predl-suc
+Iso.sec sucIso = suc-predl
+Iso.ret sucIso = predl-suc
 
 sucEquiv : BiInvℤ ≃ BiInvℤ
 sucEquiv = isoToEquiv sucIso
@@ -160,8 +160,8 @@ abs n = ℤ.abs (bwd n)
 Iso-n+ : (n : BiInvℤ) → Iso BiInvℤ BiInvℤ
 Iso.fun (Iso-n+ n) = n +_
 Iso.inv (Iso-n+ n) = - n +_
-Iso.rightInv (Iso-n+ n) m = +-assoc n (- n) m ∙ cong (_+ m) (+-invʳ n)
-Iso.leftInv (Iso-n+ n) m = +-assoc (- n) n m ∙ cong (_+ m) (+-invˡ n)
+Iso.sec (Iso-n+ n) m = +-assoc n (- n) m ∙ cong (_+ m) (+-invʳ n)
+Iso.ret (Iso-n+ n) m = +-assoc (- n) n m ∙ cong (_+ m) (+-invˡ n)
 
 isEquiv-n+ : ∀ n → isEquiv (n +_)
 isEquiv-n+ n = isoToIsEquiv (Iso-n+ n)

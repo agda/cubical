@@ -85,15 +85,15 @@ HSpace.μₗ (Iso.inv (HSpace-Π∙-Iso A) s) x i = fst (snd s i) x
 HSpace.μᵣ (Iso.inv (HSpace-Π∙-Iso A) s) x = snd (fst s x)
 HSpace.μₗᵣ (Iso.inv (HSpace-Π∙-Iso A) s) = flipSquare
   (equivFun slideSquareEquiv (λ i j → snd (snd s i) j))
-fst (fst (Iso.rightInv (HSpace-Π∙-Iso A) s k) x) = fst (fst s x)
-snd (fst (Iso.rightInv (HSpace-Π∙-Iso A) s k) x) = snd (fst s x)
-fst (snd (Iso.rightInv (HSpace-Π∙-Iso A) s k) i) x = fst (snd s i) x
-snd (snd (Iso.rightInv (HSpace-Π∙-Iso A) s k) i) j = retEq slideSquareEquiv
+fst (fst (Iso.sec (HSpace-Π∙-Iso A) s k) x) = fst (fst s x)
+snd (fst (Iso.sec (HSpace-Π∙-Iso A) s k) x) = snd (fst s x)
+fst (snd (Iso.sec (HSpace-Π∙-Iso A) s k) i) x = fst (snd s i) x
+snd (snd (Iso.sec (HSpace-Π∙-Iso A) s k) i) j = retEq slideSquareEquiv
   (λ i' j' → snd (snd s i') j') k i j
-HSpace.μ (Iso.leftInv (HSpace-Π∙-Iso A) e k) x = HSpace.μ e x
-HSpace.μₗ (Iso.leftInv (HSpace-Π∙-Iso A) e k) x = HSpace.μₗ e x
-HSpace.μᵣ (Iso.leftInv (HSpace-Π∙-Iso A) e k) x = HSpace.μᵣ e x
-HSpace.μₗᵣ (Iso.leftInv (HSpace-Π∙-Iso A) e k) = flipSquare
+HSpace.μ (Iso.ret (HSpace-Π∙-Iso A) e k) x = HSpace.μ e x
+HSpace.μₗ (Iso.ret (HSpace-Π∙-Iso A) e k) x = HSpace.μₗ e x
+HSpace.μᵣ (Iso.ret (HSpace-Π∙-Iso A) e k) x = HSpace.μᵣ e x
+HSpace.μₗᵣ (Iso.ret (HSpace-Π∙-Iso A) e k) = flipSquare
   (secEq slideSquareEquiv (flipSquare (HSpace.μₗᵣ e)) k)
 
 HSpace-Π∙-Equiv : (A : Pointed ℓ) → HSpace A ≃

@@ -261,7 +261,7 @@ module cupTrivial
      where
 
      cancelElement : (x : coHom (n +' n) X) → x ≡ (-ₕ x) → x ≡ 0ₕ (n +' n)
-     cancelElement x q = sym (leftInv (fst e) x)
+     cancelElement x q = sym (ret (fst e) x)
                          ∙ cong (inv (fst e)) (-Cancel'' (fun (fst e) x) (cong (fun (fst e)) q ∙ presinv (snd e) x))
                          ∙ pres1 (snd (invGroupIso e))
 

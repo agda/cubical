@@ -48,15 +48,15 @@ module _ {ℓ} {A : Type ℓ} where
   Iso-SphereBouquet-Bouquet : Iso (SphereBouquet 1 A) (Bouquet A)
   Iso.fun Iso-SphereBouquet-Bouquet = SphereBouquet→Bouquet
   Iso.inv Iso-SphereBouquet-Bouquet = Bouquet→SphereBouquet
-  Iso.rightInv Iso-SphereBouquet-Bouquet base = refl
-  Iso.rightInv Iso-SphereBouquet-Bouquet (loop x i) j =
+  Iso.sec Iso-SphereBouquet-Bouquet base = refl
+  Iso.sec Iso-SphereBouquet-Bouquet (loop x i) j =
     SphereBouquet→Bouquet
       (doubleCompPath-filler (push x) (λ i → inr (x , loop i)) (sym (push x)) (~ j) i)
-  Iso.leftInv Iso-SphereBouquet-Bouquet (inl x) = refl
-  Iso.leftInv Iso-SphereBouquet-Bouquet (inr (s , base)) = push s
-  Iso.leftInv Iso-SphereBouquet-Bouquet (inr (s , loop i)) j =
+  Iso.ret Iso-SphereBouquet-Bouquet (inl x) = refl
+  Iso.ret Iso-SphereBouquet-Bouquet (inr (s , base)) = push s
+  Iso.ret Iso-SphereBouquet-Bouquet (inr (s , loop i)) j =
     doubleCompPath-filler (push s) (λ i → inr (s , loop i)) (sym (push s)) (~ j) i
-  Iso.leftInv Iso-SphereBouquet-Bouquet (push a i) j = push a (i ∧ j)
+  Iso.ret Iso-SphereBouquet-Bouquet (push a i) j = push a (i ∧ j)
 
   Bouquet≃∙SphereBouquet : SphereBouquet∙ 1 A ≃∙ Bouquet A , base
   fst Bouquet≃∙SphereBouquet = isoToEquiv (Iso-SphereBouquet-Bouquet)
@@ -74,9 +74,9 @@ module _ {ℓ ℓ'} {A : Type ℓ} (B : Pointed ℓ') where
   CharacBouquet∙Iso : Iso (Bouquet∙ A →∙ B) (A → Ω B .fst)
   Iso.fun CharacBouquet∙Iso = BouquetFun∙→Ω
   Iso.inv CharacBouquet∙Iso = Ω→BouquetFun∙
-  Iso.rightInv CharacBouquet∙Iso h i x j =
+  Iso.sec CharacBouquet∙Iso h i x j =
     compPath-filler (h x) refl (~ i) j
-  fst (Iso.leftInv CharacBouquet∙Iso h i) base = snd h (~ i)
-  fst (Iso.leftInv CharacBouquet∙Iso h i) (loop x j) =
+  fst (Iso.ret CharacBouquet∙Iso h i) base = snd h (~ i)
+  fst (Iso.ret CharacBouquet∙Iso h i) (loop x j) =
     doubleCompPath-filler (sym (snd h)) (cong (fst h) (loop x)) (snd h) (~ i) j
-  snd (Iso.leftInv CharacBouquet∙Iso h i) j = snd h (~ i ∨ j)
+  snd (Iso.ret CharacBouquet∙Iso h i) j = snd h (~ i ∨ j)

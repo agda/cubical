@@ -48,8 +48,8 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   toIso : (f : A → B) → isPathSplitEquiv f → Iso A B
   fun (toIso f _) = f
   inv (toIso _ p) = p .sec .fst
-  rightInv (toIso _ p)  = p .sec .snd
-  leftInv (toIso f p) x = p .secCong (p .sec .fst (f x)) x .fst (p .sec .snd (f x))
+  sec (toIso _ p)  = p .sec .snd
+  ret (toIso f p) x = p .secCong (p .sec .fst (f x)) x .fst (p .sec .snd (f x))
 
   toIsEquiv : (f : A → B) → isPathSplitEquiv f → isEquiv f
   toIsEquiv f p = isoToIsEquiv (toIso f p)

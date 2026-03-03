@@ -118,7 +118,7 @@ pre∘∙equiv : ∀ {ℓA ℓB ℓC} {A : Pointed ℓA} {B : Pointed ℓB} {C :
  → (B ≃∙ C) → Iso (A →∙ B) (A →∙ C)
 Iso.fun (pre∘∙equiv {A = A} {B = B} {C = C} e) = toEq' B C A e
 Iso.inv (pre∘∙equiv {A = A} {B = B} {C = C} e) = fromEq' B C A e
-Iso.rightInv (pre∘∙equiv {A = A} {B = B} {C = C} e) =
+Iso.sec (pre∘∙equiv {A = A} {B = B} {C = C} e) =
   J (λ ptC p → section (toEq' B (fst C , ptC) A (fst e , p))
                          (fromEq' B (fst C , ptC) A (fst e , p)))
      (uncurry (λ f p → ΣPathP (funExt (λ x → isHAEquiv.rinv (HAe .snd) (f x))
@@ -146,7 +146,7 @@ Iso.rightInv (pre∘∙equiv {A = A} {B = B} {C = C} e) =
                    ; (i = i1) → q (j ∨ k)
                    ; (j = i1) → l i})
           (P i j)
-Iso.leftInv (pre∘∙equiv {A = A} {B = B} {C = C} e) =
+Iso.ret (pre∘∙equiv {A = A} {B = B} {C = C} e) =
   J (λ pt p → retract (toEq' B (fst C , pt) A (fst e , p))
                        (fromEq' B (fst C , pt) A (fst e , p)))
     (uncurry (λ f →
@@ -168,7 +168,7 @@ post∘∙equiv : ∀ {ℓA ℓB ℓC} {A : Pointed ℓA} {B : Pointed ℓB} {C 
   → (A ≃∙ B) → Iso (A →∙ C) (B →∙ C)
 Iso.fun (post∘∙equiv {A = A} {B = B} {C = C} e) = toEq A B C e
 Iso.inv (post∘∙equiv {A = A} {B = B} {C = C} e) = fromEq A B C e
-Iso.rightInv (post∘∙equiv {A = A}{B = B , ptB} {C = C} e) =
+Iso.sec (post∘∙equiv {A = A}{B = B , ptB} {C = C} e) =
   J (λ pt p → section (toEq A (B , pt) C (fst e , p))
                         (fromEq A (B , pt) C (fst e , p)))
      (uncurry (λ f →
@@ -186,7 +186,7 @@ Iso.rightInv (post∘∙equiv {A = A}{B = B , ptB} {C = C} e) =
      (snd e)
   where
   HAe = equiv→HAEquiv (fst e)
-Iso.leftInv (post∘∙equiv {A = A} {B = B , ptB} {C = C} e) =
+Iso.ret (post∘∙equiv {A = A} {B = B , ptB} {C = C} e) =
   J (λ pt p → retract (toEq A (B , pt) C (fst e , p))
                         (fromEq A (B , pt) C (fst e , p)))
      (uncurry (λ f → J (λ ptC y →
@@ -213,8 +213,8 @@ flip→∙∙Iso : {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓA}
   → Iso (A →∙ (B →∙ C ∙)) (B →∙ (A →∙ C ∙))
 Iso.fun flip→∙∙Iso = flip→∙∙
 Iso.inv flip→∙∙Iso = flip→∙∙
-Iso.rightInv flip→∙∙Iso _ = refl
-Iso.leftInv flip→∙∙Iso _ = refl
+Iso.sec flip→∙∙Iso _ = refl
+Iso.ret flip→∙∙Iso _ = refl
 
 ≃∙→ret/sec∙ : ∀ {ℓ} {A B : Pointed ℓ}
   (f : A ≃∙ B) → ((≃∙map (invEquiv∙ f) ∘∙ ≃∙map f) ≡ idfun∙ A)
@@ -231,8 +231,8 @@ pointedSecIso : ∀ {ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} (Q : fst A → 
            ((a : fst A) → F (a , pt (Q a)) ≡ pt B))
 Iso.fun (pointedSecIso Q) F = (λ x → F (fst x) .fst (snd x)) , (λ x → F x .snd)
 Iso.inv (pointedSecIso Q) F a = (fst F ∘ (a ,_)) , snd F a
-Iso.rightInv (pointedSecIso Q) F = refl
-Iso.leftInv (pointedSecIso Q) F = refl
+Iso.sec (pointedSecIso Q) F = refl
+Iso.ret (pointedSecIso Q) F = refl
 
 compPathrEquiv∙ : {A : Type ℓ} {a b c : A} {q : a ≡ b} (p : b ≡ c)
     → ((a ≡ b) , q) ≃∙ ((a ≡ c) , q ∙ p)

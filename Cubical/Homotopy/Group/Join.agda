@@ -221,13 +221,13 @@ private
       λ g → cong ∣_∣₂
         (cong (fun (Iso-JoinMap-SphereMap n m)) (sym (·Π≡+* f g))
         ∙ ∘∙-assoc _ _ _
-        ∙ cong (∙Π f g ∘∙_) ret
+        ∙ cong (∙Π f g ∘∙_) ret'
         ∙ ∘∙-idˡ (∙Π f g)
         ∙ cong₂ ∙Π
-              ((sym (∘∙-idˡ f) ∙ cong (f ∘∙_) (sym ret)) ∙ sym (∘∙-assoc _ _ _))
-              (sym (∘∙-idˡ g) ∙ cong (g ∘∙_) (sym ret) ∙ sym (∘∙-assoc _ _ _))))
+              ((sym (∘∙-idˡ f) ∙ cong (f ∘∙_) (sym ret')) ∙ sym (∘∙-assoc _ _ _))
+              (sym (∘∙-idˡ g) ∙ cong (g ∘∙_) (sym ret') ∙ sym (∘∙-assoc _ _ _))))
   where
-  ret = ≃∙→ret/sec∙ {B = _ , ptSn (suc (n + m))}
+  ret' = ≃∙→ret/sec∙ {B = _ , ptSn (suc (n + m))}
           (joinSphereEquiv∙ n m) .snd
 
 -π*≡-π' : ∀ {ℓ} {A : Pointed ℓ} {n m : ℕ}
@@ -241,11 +241,11 @@ private
       (cong (_∘∙ (≃∙map (invEquiv∙ (joinSphereEquiv∙ n m))))
             (sym (-Π≡-* f))
     ∙ ∘∙-assoc _ _ _
-    ∙ cong (-Π f ∘∙_) ret
+    ∙ cong (-Π f ∘∙_) ret'
     ∙ ∘∙-idˡ (-Π f)
-    ∙ cong -Π (sym (∘∙-assoc _ _ _ ∙ cong (f ∘∙_) ret ∙ ∘∙-idˡ f))))
+    ∙ cong -Π (sym (∘∙-assoc _ _ _ ∙ cong (f ∘∙_) ret' ∙ ∘∙-idˡ f))))
   where
-  ret = ≃∙→ret/sec∙ {B = _ , ptSn (suc (n + m))}
+  ret' = ≃∙→ret/sec∙ {B = _ , ptSn (suc (n + m))}
           (joinSphereEquiv∙ n m) .snd
 
 -- Homotopy groups in terms of joins
@@ -269,8 +269,8 @@ isGroup (snd (π*Gr n m A)) =
     → funExt λ g → transportRefl _
     ∙ π*≡π' _ _
     ∙ cong₂ (·π' (n + m))
-            (Iso.rightInv (Iso-π*-π' n m) _ ∙ transportRefl f)
-            (Iso.rightInv (Iso-π*-π' n m) _ ∙ transportRefl g))
+            (Iso.sec (Iso-π*-π' n m) _ ∙ transportRefl f)
+            (Iso.sec (Iso-π*-π' n m) _ ∙ transportRefl g))
 
   p3 : PathP (λ i → isoToPath (Iso-π*-π' {A = A} n m) i
                    → isoToPath (Iso-π*-π' {A = A} n m) i)
@@ -278,7 +278,7 @@ isGroup (snd (π*Gr n m A)) =
   p3 = toPathP (funExt λ f → transportRefl _
     ∙ -π*≡-π' _
     ∙ cong (-π' (n + m))
-           (Iso.rightInv (Iso-π*-π' n m) _ ∙ transportRefl f))
+           (Iso.sec (Iso-π*-π' n m) _ ∙ transportRefl f))
 
 -- Homotopy groups in terms of joins agrees with usual definition
 π*Gr≅π'Gr : ∀ {ℓ} (n m : ℕ) (A : Pointed ℓ)

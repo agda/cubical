@@ -45,8 +45,8 @@ nAryOp≃VecFun {n = n} = isoToEquiv f
   f : Iso (nAryOp n A B) (Vec A n → B)
   Iso.fun f      = _$ⁿ_
   Iso.inv f      = curryⁿ
-  Iso.rightInv f = $ⁿ-curryⁿ
-  Iso.leftInv f  = curryⁿ-$ⁿ {n = n}
+  Iso.sec f = $ⁿ-curryⁿ
+  Iso.ret f  = curryⁿ-$ⁿ {n = n}
 
 -- In order to apply ua to nAryOp≃VecFun we probably need to change
 -- the base-case of nAryLevel to "ℓ-max ℓ₁ ℓ₂". This will make it

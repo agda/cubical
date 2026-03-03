@@ -51,5 +51,5 @@ pointedPositiveRel .quo R = isoToIsEquiv isom
   isom : Iso _ _
   isom .fun = _
   isom .inv q = q
-  isom .rightInv = elimProp (λ _ → squash/ _ _) (λ _ → refl)
-  isom .leftInv = elimProp (λ _ → squash/ _ _) (λ _ → refl)
+  isom .sec = elimProp (λ _ → squash/ _ _) (λ _ → refl)
+  isom .ret = elimProp (λ _ → squash/ _ _) (λ _ → refl)

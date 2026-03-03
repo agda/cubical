@@ -12,7 +12,7 @@ open import Cubical.Categories.Functor renaming (𝟙⟨_⟩ to funcId)
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.Monad.Base
 open import Cubical.Categories.Instances.FunctorAlgebras
-open import Cubical.Categories.Constructions.FullSubcategory
+open import Cubical.Categories.Instances.FullSubcategory
 open import Cubical.Categories.Adjoint
 
 private
@@ -110,7 +110,7 @@ module _ {C : Category ℓC ℓC'} (monadM : Monad C) where
     ((F-hom M (F-hom M f) C.⋆ F-hom M β) C.⋆ β)
       ≡⟨ cong (C._⋆ β) (sym (F-seq M _ _)) ⟩
     (F-hom M (F-hom M f C.⋆ β) C.⋆ β) ∎
-  rightInv (emBijection a (algebra b β , isEMB)) f =
+  sec (emBijection a (algebra b β , isEMB)) f =
     (N-ob η a C.⋆ (F-hom M f C.⋆ β))
       ≡⟨ sym (C.⋆Assoc _ _ _) ⟩
     ((N-ob η a C.⋆ F-hom M f) C.⋆ β)
@@ -122,7 +122,7 @@ module _ {C : Category ℓC ℓC'} (monadM : Monad C) where
     (f C.⋆ C.id)
       ≡⟨ C.⋆IdR _ ⟩
     f ∎
-  leftInv (emBijection a (algebra b β , isEMB)) (algebraHom f isalgF) = AlgebraHom≡ M (
+  ret (emBijection a (algebra b β , isEMB)) (algebraHom f isalgF) = AlgebraHom≡ M (
     (F-hom M (N-ob η a C.⋆ f) C.⋆ β)
       ≡⟨ cong (C._⋆ β) (F-seq M _ _) ⟩
     ((F-hom M (N-ob η a) C.⋆ F-hom M f) C.⋆ β)

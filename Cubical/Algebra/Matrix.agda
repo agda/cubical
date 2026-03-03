@@ -70,8 +70,8 @@ VecMatrix→FinMatrix→VecMatrix {m = suc m} (M ∷ MS) i =
 FinMatrixIsoVecMatrix : (A : Type ℓ) (m n : ℕ) → Iso (FinMatrix A m n) (VecMatrix A m n)
 fun (FinMatrixIsoVecMatrix A m n)      = FinMatrix→VecMatrix
 inv (FinMatrixIsoVecMatrix A m n)      = VecMatrix→FinMatrix
-rightInv (FinMatrixIsoVecMatrix A m n) = VecMatrix→FinMatrix→VecMatrix
-leftInv (FinMatrixIsoVecMatrix A m n)  = FinMatrix→VecMatrix→FinMatrix
+sec (FinMatrixIsoVecMatrix A m n) = VecMatrix→FinMatrix→VecMatrix
+ret (FinMatrixIsoVecMatrix A m n)  = FinMatrix→VecMatrix→FinMatrix
 
 FinMatrix≃VecMatrix : {m n : ℕ} → FinMatrix A m n ≃ VecMatrix A m n
 FinMatrix≃VecMatrix {_} {A} {m} {n} = isoToEquiv (FinMatrixIsoVecMatrix A m n)

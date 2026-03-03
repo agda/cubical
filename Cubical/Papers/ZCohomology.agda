@@ -144,7 +144,7 @@ truncPathElim : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (n : ℕ)
               → (q : _) → B q
 truncPathElim zero hlev ind q = hlev q .fst
 truncPathElim (suc n) {B = B} hlev ind q =
-  subst B (Iso.leftInv (Trunc.PathIdTruncIso _) q)
+  subst B (Iso.ret (Trunc.PathIdTruncIso _) q)
     (help (ΩTrunc.encode-fun ∣ _ ∣ ∣ _ ∣ q))
   where
   help : (q : _) → B (ΩTrunc.decode-fun ∣ _ ∣ ∣ _ ∣ q)
@@ -459,9 +459,9 @@ n=m=1 (loop i) (loop j) k = -- This hcomp is just a simple rewriting to get path
   computation = refl
 
   main : p₁ ≡ p₂
-  main = p₁                         ≡⟨ sym (Iso.leftInv t p₁) ⟩
+  main = p₁                         ≡⟨ sym (Iso.ret t p₁) ⟩
         (Iso.inv t (Iso.fun t p₁))  ≡⟨ cong (Iso.inv t) computation ⟩
-        Iso.inv t (Iso.fun t p₂)    ≡⟨ Iso.leftInv t p₂ ⟩
+        Iso.inv t (Iso.fun t p₂)    ≡⟨ Iso.ret t p₂ ⟩
         p₂ ∎
 -}
 

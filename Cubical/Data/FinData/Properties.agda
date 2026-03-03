@@ -18,6 +18,7 @@ open import Cubical.Data.FinData.Base as Fin
 open import Cubical.Data.Nat renaming (zero to ℕzero ; suc to ℕsuc
                                       ;znots to ℕznots ; snotz to  ℕsnotz)
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Maybe
 
@@ -34,6 +35,11 @@ private
 toℕ<n : ∀ {n} (i : Fin n) → toℕ i < n
 toℕ<n {n = ℕsuc n} zero = n , +-comm n 1
 toℕ<n {n = ℕsuc n} (suc i) = toℕ<n i .fst , +-suc _ _ ∙ cong ℕsuc (toℕ<n i .snd)
+
+toℕ<ᵗn : ∀ {n} (i : Fin n) → toℕ i <ᵗ n
+toℕ<ᵗn {ℕzero} ()
+toℕ<ᵗn {ℕsuc n} zero = tt
+toℕ<ᵗn {ℕsuc n} (suc i) = toℕ<ᵗn {n} i
 
 znots : ∀{k} {m : Fin k} → ¬ (zero ≡ (suc m))
 znots {k} {m} x = subst (Fin.rec (Fin k) ⊥) x m
@@ -55,14 +61,28 @@ fromℕ' ℕzero k infkn = ⊥.rec (¬-<-zero infkn)
 fromℕ' (ℕsuc n) ℕzero infkn = zero
 fromℕ' (ℕsuc n) (ℕsuc k) infkn = suc (fromℕ' n k (pred-≤-pred infkn))
 
+fromℕᵗ : (n : ℕ) → (k : ℕ) → (k <ᵗ n) → Fin n
+fromℕᵗ ℕzero k infkn = ⊥.rec infkn
+fromℕᵗ (ℕsuc n) ℕzero infkn = zero
+fromℕᵗ (ℕsuc n) (ℕsuc k) infkn = suc  (fromℕᵗ n k infkn)
+
 toFromId' : (n : ℕ) → (k : ℕ) → (infkn : k < n) → toℕ (fromℕ' n k infkn) ≡ k
 toFromId' ℕzero k infkn = ⊥.rec (¬-<-zero infkn)
 toFromId' (ℕsuc n) ℕzero infkn = refl
 toFromId' (ℕsuc n) (ℕsuc k) infkn = cong ℕsuc (toFromId' n k (pred-≤-pred infkn))
 
+toFromIdᵗ : (n : ℕ) → (k : ℕ) → (infkn : k <ᵗ n) → toℕ {n} (fromℕᵗ n k infkn) ≡ k
+toFromIdᵗ ℕzero k infkn = ⊥.rec infkn
+toFromIdᵗ (ℕsuc n) ℕzero infkn = refl
+toFromIdᵗ (ℕsuc n) (ℕsuc k) infkn = cong ℕsuc (toFromIdᵗ n k infkn)
+
 fromToId' : (n : ℕ) → (k : Fin n ) → (r : toℕ k < n) → fromℕ' n (toℕ k) r ≡ k
 fromToId' (ℕsuc n) zero r = refl
 fromToId' (ℕsuc n) (suc k) r = cong suc (fromToId' n k (pred-≤-pred r))
+
+fromToIdᵗ : (n : ℕ) → (k : Fin n ) → (r : toℕ k <ᵗ n) → fromℕᵗ n (toℕ {n} k) r ≡ k
+fromToIdᵗ (ℕsuc n) zero r = refl
+fromToIdᵗ (ℕsuc n) (suc k) r = cong suc (fromToIdᵗ n k r)
 
 inj-toℕ : {n : ℕ} → {k l : Fin n} → (toℕ k ≡ toℕ l) → k ≡ l
 inj-toℕ {ℕsuc n}  {zero} {zero}   x = refl
@@ -260,10 +280,10 @@ Iso.fun finSucMaybeIso zero = nothing
 Iso.fun finSucMaybeIso (suc i) = just i
 Iso.inv finSucMaybeIso nothing = zero
 Iso.inv finSucMaybeIso (just i) = suc i
-Iso.rightInv finSucMaybeIso nothing = refl
-Iso.rightInv finSucMaybeIso (just i) = refl
-Iso.leftInv finSucMaybeIso zero = refl
-Iso.leftInv finSucMaybeIso (suc i) = refl
+Iso.sec finSucMaybeIso nothing = refl
+Iso.sec finSucMaybeIso (just i) = refl
+Iso.ret finSucMaybeIso zero = refl
+Iso.ret finSucMaybeIso (suc i) = refl
 
 finSuc≡Maybe : Fin (ℕ.suc n) ≡ Maybe (Fin n)
 finSuc≡Maybe = isoToPath finSucMaybeIso
@@ -327,10 +347,10 @@ module FinProdChar where
  fun (sucProdToSumIso n m) (suc i , j) = inr (i , j)
  inv (sucProdToSumIso n m) (inl j) = zero , j
  inv (sucProdToSumIso n m) (inr (i , j)) = suc i , j
- rightInv (sucProdToSumIso n m) (inl j) = refl
- rightInv (sucProdToSumIso n m) (inr (i , j)) = refl
- leftInv (sucProdToSumIso n m) (zero , j) = refl
- leftInv (sucProdToSumIso n m) (suc i , j) = refl
+ sec (sucProdToSumIso n m) (inl j) = refl
+ sec (sucProdToSumIso n m) (inr (i , j)) = refl
+ ret (sucProdToSumIso n m) (zero , j) = refl
+ ret (sucProdToSumIso n m) (suc i , j) = refl
 
  Equiv : (n m : ℕ) → (Fin n × Fin m) ≃ Fin (n · m)
  Equiv ℕzero m = uninhabEquiv (λ x → ¬Fin0 (fst x)) ¬Fin0

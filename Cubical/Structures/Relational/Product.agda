@@ -123,11 +123,11 @@ productPositiveRel {S₁ = S₁} {ρ₁} {θ₁} {S₂} {ρ₂} {θ₂} σ₁ σ
   isom : Iso _ _
   isom .fun = fwd
   isom .inv = uncurry bwd
-  isom .rightInv =
+  isom .sec =
     uncurry
       (elimProp (λ _ → isPropΠ λ _ → isSet× squash/ squash/ _ _)
         (λ _ → elimProp (λ _ → isSet× squash/ squash/ _ _) (λ _ → refl)))
-  isom .leftInv = elimProp (λ _ → squash/ _ _) (λ _ → refl)
+  isom .ret = elimProp (λ _ → squash/ _ _) (λ _ → refl)
 
 productRelMatchesTransp :
   {S₁ : Type ℓ → Type ℓ₁} (ρ₁ : StrRel S₁ ℓ₁') (α₁ : EquivAction S₁)

@@ -141,7 +141,7 @@ module MV {ℓ ℓ' ℓ'' ℓ'''} (G : AbGroup ℓ''')
         where
         help : Square (EM→ΩEM+1 n (F c)) (cong a (push c))
                       (sym (l (f c))) (sym (r (g c)))
-        help = Iso.rightInv (Iso-EM-ΩEM+1 n) _
+        help = Iso.sec (Iso-EM-ΩEM+1 n) _
              ◁ symP (doubleCompPath-filler
                     (sym (l (f c))) (cong a (push c)) (r (g c)))
 
@@ -211,7 +211,7 @@ module MV {ℓ ℓ' ℓ'' ℓ'''} (G : AbGroup ℓ''')
              , cong ∣_∣₂ (funExt λ c → distrHelper n (λ i₁ → p i₁ (inl (f c)))
                                                      (λ i₁ → p i₁ (inr (g c)))
                                     ∙ cong (ΩEM+1→EM n) (help h p c)
-                                    ∙ Iso.leftInv (Iso-EM-ΩEM+1 n) (h c)))
+                                    ∙ Iso.ret (Iso-EM-ΩEM+1 n) (h c)))
                (Iso.fun (PathIdTrunc₀Iso) p)
     where
     help : (h : _) (p : d-pre n h ≡ (λ _ → 0ₖ (suc n))) (c : C)

@@ -28,7 +28,7 @@ open import Cubical.HITs.Nullification hiding (elim)
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SmashProduct
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.Join
+open import Cubical.HITs.Join hiding (elim)
 open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1 hiding (elim)
 open import Cubical.HITs.Truncation as Trunc
@@ -82,8 +82,8 @@ private
   typeToFiberIso : ∀ {ℓ} (A : Type ℓ) → Iso A (fiber (λ (x : A) → tt) tt)
   Iso.fun (typeToFiberIso A) x = x , refl
   Iso.inv (typeToFiberIso A) = fst
-  Iso.rightInv (typeToFiberIso A) b i = fst b , (isOfHLevelSuc 1 (isPropUnit) tt tt (snd b) refl) i
-  Iso.leftInv (typeToFiberIso A) a = refl
+  Iso.sec (typeToFiberIso A) b i = fst b , (isOfHLevelSuc 1 (isPropUnit) tt tt (snd b) refl) i
+  Iso.ret (typeToFiberIso A) a = refl
 
   typeToFiber : ∀ {ℓ} (A : Type ℓ) → A ≡ fiber (λ (x : A) → tt) tt
   typeToFiber A = isoToPath (typeToFiberIso A)
@@ -121,15 +121,15 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) wher
   Iso.fun (isIsoPrecompose _ P fConn) = _∘ f
   Iso.inv (isIsoPrecompose zero P fConn) =
     Iso.inv (isContr→Iso' (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd) (_∘ f))
-  Iso.rightInv (isIsoPrecompose zero P fConn) =
-    Iso.rightInv (isContr→Iso' (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd) (_∘ f))
-  Iso.leftInv (isIsoPrecompose zero P fConn) =
-    Iso.leftInv (isContr→Iso' (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd) (_∘ f))
+  Iso.sec (isIsoPrecompose zero P fConn) =
+    Iso.sec (isContr→Iso' (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd) (_∘ f))
+  Iso.ret (isIsoPrecompose zero P fConn) =
+    Iso.ret (isContr→Iso' (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd) (_∘ f))
   Iso.inv (isIsoPrecompose (suc n) P fConn) t b = inv n P t b (fConn b .fst)
-  Iso.rightInv (isIsoPrecompose (suc n) P fConn) t =
+  Iso.sec (isIsoPrecompose (suc n) P fConn) t =
     funExt λ a → cong (inv n P t (f a)) (fConn (f a) .snd ∣ a , refl ∣)
                ∙ substRefl {B = fst ∘ P} (t a)
-  Iso.leftInv (isIsoPrecompose (suc n) P fConn) s =
+  Iso.ret (isIsoPrecompose (suc n) P fConn) s =
     funExt λ b →
           Trunc.elim
             {B = λ d → inv n P (s ∘ f) b d ≡ s b}
@@ -155,8 +155,8 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) wher
     theIso : Iso ((b : B) → P b .fst) ((a : A) → P (f a) .fst)
     Iso.fun theIso = λ(s : (b : B) → P b .fst) → s ∘ f
     Iso.inv theIso = λ _ b → P b .snd .fst
-    Iso.rightInv theIso g = funExt λ x → P (f x) .snd .snd (g x)
-    Iso.leftInv theIso g = funExt λ x → P x .snd .snd (g x)
+    Iso.sec theIso g = funExt λ x → P (f x) .snd .snd (g x)
+    Iso.ret theIso g = funExt λ x → P x .snd .snd (g x)
   isEquivPrecompose (suc n) P fConn = isoToIsEquiv (isIsoPrecompose (suc n) P fConn)
 
   isConnectedPrecompose : (n : ℕ) → ((P : B → TypeOfHLevel (ℓ-max ℓ ℓ') n)
@@ -436,7 +436,7 @@ isConnectedRetractFromIso n e =
   isConnectedRetract n
     (Iso.fun e)
     (Iso.inv e)
-    (Iso.leftInv e)
+    (Iso.ret e)
 
 isConnectedPoint : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isConnected (suc n) A
@@ -460,8 +460,8 @@ isConnectedPoint2 n {A = A} a connMap = indMapEquiv→conType _ λ B → isoToIs
     theIso : Iso (fst B) (A → fst B)
     Iso.fun theIso b a = b
     Iso.inv theIso f = f a
-    Iso.rightInv theIso f = funExt λ y → sym (helper f y)
-    Iso.leftInv theIso _ = refl
+    Iso.sec theIso f = funExt λ y → sym (helper f y)
+    Iso.ret theIso _ = refl
 
 module isConnectedPoint {ℓ ℓ'} (n : HLevel) {A : Type ℓ}
      {B : A → Type ℓ'}
@@ -511,9 +511,9 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
   g : Iso (hLevelTrunc (suc n) A) (hLevelTrunc (suc n) B)
   Iso.fun g = map f
   Iso.inv g = Trunc.rec (isOfHLevelTrunc _) back
-  Iso.leftInv g = Trunc.elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc _) _ _)
+  Iso.ret g = Trunc.elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc _) _ _)
                                λ a → cong (map fst) (con (f a) .snd  ∣ a , refl ∣)
-  Iso.rightInv g = Trunc.elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc _) _ _)
+  Iso.sec g = Trunc.elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc _) _ _)
                               backSection
 
 connectedTruncIso2 : ∀ {ℓ} {A B : Type ℓ} (n m : HLevel) (f : A → B)
@@ -868,7 +868,7 @@ module _ {ℓ' ℓ'' : Level}
       f' = Iso.inv H f
 
       hf' : (a : A) → f' (v a) ≡ f a
-      hf' = funExt⁻ (Iso.rightInv H f)
+      hf' = funExt⁻ (Iso.sec H f)
 
       k' : (x : join A' B) → P x .fst
       k' (inl a') = f' a' .fst
@@ -917,10 +917,10 @@ module _ {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : A → Type ℓ'} {C : A �
            (Σ[ y ∈ B (fst x) ] f (fst x) y ≡ snd x)
   fun (Iso-fibTotalFun-fibFun x) = fibTotalFun→fibFun x
   inv (Iso-fibTotalFun-fibFun x) = fibFun→fibTotalFun x
-  rightInv (Iso-fibTotalFun-fibFun x) (r , y) j =
+  sec (Iso-fibTotalFun-fibFun x) (r , y) j =
     transp (λ i → Σ[ b ∈ B (fst x) ] (f (fst x) b ≡ y (i ∨ j))) j
            (r , λ i → y (i ∧ j))
-  leftInv (Iso-fibTotalFun-fibFun x) =
+  ret (Iso-fibTotalFun-fibFun x) =
     uncurry λ r
       → J (λ x y → inv (Iso-fibTotalFun-fibFun x)
                       (fun (Iso-fibTotalFun-fibFun x) (r , y))

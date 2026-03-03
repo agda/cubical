@@ -260,14 +260,14 @@ coHom≅coHomRed n G A =
   Iso.fun (fst main) = ST.map fst
   Iso.inv (fst main) = ST.map λ f → (λ x → f x -ₖ f (pt A))
                             , rCancelₖ (suc n) (f (pt A))
-  Iso.rightInv (fst main) =
+  Iso.sec (fst main) =
     ST.elim (λ _ → isSetPathImplicit)
       λ f → PT.rec (squash₂ _ _)
         (λ p → cong ∣_∣₂
           (funExt λ x → cong (λ z → f x +ₖ z)
             (cong -ₖ_ p ∙ -0ₖ (suc n)) ∙ rUnitₖ (suc n) (f x)))
         (con-lem n (f (pt A)))
-  Iso.leftInv (fst main) =
+  Iso.ret (fst main) =
     ST.elim (λ _ → isSetPathImplicit)
       λ f → cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousEM (suc n))
              (funExt λ x → cong (fst f x +ₖ_) (cong -ₖ_ (snd f) ∙ -0ₖ (suc n))
@@ -286,13 +286,13 @@ fst (coHom⁰≅coHomRed⁰ G A) = isoToEquiv is
   Iso.inv is = ST.rec (isSet× squash₂ (is-set (snd G)))
     λ f → ∣ (λ x → AbGroupStr._-_ (snd G) (f x) (f (pt A)))
           , +InvR (snd G) (f (pt A)) ∣₂ , f (pt A)
-  Iso.rightInv is = ST.elim (λ _ → isSetPathImplicit)
+  Iso.sec is = ST.elim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (funExt λ x
       → sym (+Assoc (snd G) _ _ _)
       ∙∙ cong (AbGroupStr._+_ (snd G) (f x))
               (+InvL (snd G) (f (pt A)))
       ∙∙ +IdR (snd G) (f x))
-  Iso.leftInv is =
+  Iso.ret is =
     uncurry (ST.elim
       (λ _ → isSetΠ (λ _ → isOfHLevelPath 2
         (isSet× squash₂ (is-set (snd G))) _ _))
@@ -350,12 +350,12 @@ fst (coHomEquiv n f) = isoToEquiv is
   is : Iso _ _
   Iso.fun is = coHomFun n (Iso.fun f)
   Iso.inv is = coHomFun n (Iso.inv f)
-  Iso.rightInv is =
+  Iso.sec is =
     ST.elim (λ _ → isSetPathImplicit)
-      λ g → cong ∣_∣₂ (funExt λ x → cong g (Iso.leftInv f x))
-  Iso.leftInv is =
+      λ g → cong ∣_∣₂ (funExt λ x → cong g (Iso.ret f x))
+  Iso.ret is =
     ST.elim (λ _ → isSetPathImplicit)
-      λ g → cong ∣_∣₂ (funExt λ x → cong g (Iso.rightInv f x))
+      λ g → cong ∣_∣₂ (funExt λ x → cong g (Iso.sec f x))
 snd (coHomEquiv n f) = snd (coHomHom n (Iso.fun f))
 
 coHomFun∙ : ∀ {ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {G : AbGroup ℓ''}
@@ -441,14 +441,14 @@ EM→-charac : ∀ {ℓ ℓ'} {A : Pointed ℓ} {G : AbGroup ℓ'} (n : ℕ)
 Iso.fun (EM→-charac {A = A} n) f =
   ((λ x → f x -ₖ f (pt A)) , rCancelₖ n (f (pt A))) , f (pt A)
 Iso.inv (EM→-charac n) (f , a) x = fst f x +ₖ a
-Iso.rightInv (EM→-charac {A = A} n) ((f , p) , a) =
+Iso.sec (EM→-charac {A = A} n) ((f , p) , a) =
   ΣPathP (→∙Homogeneous≡ (isHomogeneousEM _)
     (funExt (λ x → (λ i → (f x +ₖ a) -ₖ (cong (_+ₖ a) p ∙ lUnitₖ n a) i)
                   ∙ sym (assocₖ n (f x) a (-ₖ a))
                   ∙ cong (f x +ₖ_) (rCancelₖ n a)
                   ∙ rUnitₖ n (f x)))
   , cong (_+ₖ a) p ∙ lUnitₖ n a)
-Iso.leftInv (EM→-charac {A = A} n) f =
+Iso.ret (EM→-charac {A = A} n) f =
   funExt λ x → sym (assocₖ n (f x) (-ₖ f (pt A)) (f (pt A)))
     ∙∙ cong (f x +ₖ_) (lCancelₖ n (f (pt A)))
     ∙∙ rUnitₖ n (f x)

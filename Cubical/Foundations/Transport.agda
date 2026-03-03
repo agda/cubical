@@ -91,8 +91,8 @@ uaTransportη = uaη
 pathToIso : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → Iso A B
 Iso.fun (pathToIso x) = transport x
 Iso.inv (pathToIso x) = transport⁻ x
-Iso.rightInv (pathToIso x) = transportTransport⁻ x
-Iso.leftInv (pathToIso x) = transport⁻Transport x
+Iso.sec (pathToIso x) = transportTransport⁻ x
+Iso.ret (pathToIso x) = transport⁻Transport x
 
 substIso : ∀ {ℓ ℓ'} {A : Type ℓ} (B : A → Type ℓ') {x y : A} (p : x ≡ y) → Iso (B x) (B y)
 substIso B p = pathToIso (cong B p)

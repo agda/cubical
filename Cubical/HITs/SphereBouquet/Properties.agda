@@ -12,7 +12,7 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
-open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Fin
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
 
@@ -86,14 +86,14 @@ Iso.inv sphereBouquetSuspIso₀ (inl x) = inl x
 Iso.inv sphereBouquetSuspIso₀ (inr (a , b)) =
   inr (a , Iso.fun (IsoSucSphereSusp 0) b)
 Iso.inv sphereBouquetSuspIso₀ (push a i) = push a i
-Iso.rightInv sphereBouquetSuspIso₀ (inl x) = refl
-Iso.rightInv sphereBouquetSuspIso₀ (inr (a , y)) i =
-  inr (a , Iso.leftInv (IsoSucSphereSusp 0) y i)
-Iso.rightInv sphereBouquetSuspIso₀ (push a i) = refl
-Iso.leftInv sphereBouquetSuspIso₀ (inl x) = refl
-Iso.leftInv sphereBouquetSuspIso₀ (inr (a , y)) i =
-  inr (a , Iso.rightInv (IsoSucSphereSusp 0) y i)
-Iso.leftInv sphereBouquetSuspIso₀ (push a i) = refl
+Iso.sec sphereBouquetSuspIso₀ (inl x) = refl
+Iso.sec sphereBouquetSuspIso₀ (inr (a , y)) i =
+  inr (a , Iso.ret (IsoSucSphereSusp 0) y i)
+Iso.sec sphereBouquetSuspIso₀ (push a i) = refl
+Iso.ret sphereBouquetSuspIso₀ (inl x) = refl
+Iso.ret sphereBouquetSuspIso₀ (inr (a , y)) i =
+  inr (a , Iso.sec (IsoSucSphereSusp 0) y i)
+Iso.ret sphereBouquetSuspIso₀ (push a i) = refl
 
 SphereBouquet₀Iso : (n : ℕ)
   → Iso (SphereBouquet zero (Fin n))
@@ -104,12 +104,12 @@ Iso.fun (SphereBouquet₀Iso n) (inr ((x , p) , true)) = fzero
 Iso.fun (SphereBouquet₀Iso n) (push a i) = fzero
 Iso.inv (SphereBouquet₀Iso n) (zero , p) = inl tt
 Iso.inv (SphereBouquet₀Iso n) (suc x , p) = inr ((x , p) , false)
-Iso.rightInv (SphereBouquet₀Iso n) (zero , p) = refl
-Iso.rightInv (SphereBouquet₀Iso n) (suc x , p) = refl
-Iso.leftInv (SphereBouquet₀Iso n) (inl x) = refl
-Iso.leftInv (SphereBouquet₀Iso n) (inr (x , false)) = refl
-Iso.leftInv (SphereBouquet₀Iso n) (inr (x , true)) = push x
-Iso.leftInv (SphereBouquet₀Iso n) (push a i) j = push a (i ∧ j)
+Iso.sec (SphereBouquet₀Iso n) (zero , p) = refl
+Iso.sec (SphereBouquet₀Iso n) (suc x , p) = refl
+Iso.ret (SphereBouquet₀Iso n) (inl x) = refl
+Iso.ret (SphereBouquet₀Iso n) (inr (x , false)) = refl
+Iso.ret (SphereBouquet₀Iso n) (inr (x , true)) = push x
+Iso.ret (SphereBouquet₀Iso n) (push a i) j = push a (i ∧ j)
 
 --a sphere bouquet is the wedge sum of A n-dimensional spheres
 sphereBouquetSuspIso : {A : Type ℓ} {n : ℕ}
@@ -145,7 +145,7 @@ bouquetSusp→∘ : {n : ℕ} {A B C : Type ℓ}
   → bouquetSusp→ g ∘ bouquetSusp→ f ≡ bouquetSusp→ (g ∘ f)
 bouquetSusp→∘ f g i =
   sphereBouquetSuspFun
-    ∘ ((λ i → suspFun g ∘ (λ x → Iso.leftInv sphereBouquetSuspIso x i) ∘ suspFun f)
+    ∘ ((λ i → suspFun g ∘ (λ x → Iso.ret sphereBouquetSuspIso x i) ∘ suspFun f)
      ∙ sym (suspFunComp g f)) i
     ∘ sphereBouquetSuspInvFun
 
@@ -383,8 +383,8 @@ module _ {Cₙ Cₙ₊₁ : Type ℓ} (n mₙ : ℕ)
   BouquetIso-gen : Iso (cofib (invEq e ∘ inl)) (SphereBouquet n (Fin mₙ))
   Iso.fun BouquetIso-gen = CTB
   Iso.inv BouquetIso-gen = BTC
-  Iso.rightInv BouquetIso-gen = CTB-BTC-cancel n mₙ αₙ e .fst
-  Iso.leftInv BouquetIso-gen = CTB-BTC-cancel n mₙ αₙ e .snd
+  Iso.sec BouquetIso-gen = CTB-BTC-cancel n mₙ αₙ e .fst
+  Iso.ret BouquetIso-gen = CTB-BTC-cancel n mₙ αₙ e .snd
 
   Bouquet≃-gen : cofib (invEq e ∘ inl) ≃ SphereBouquet n (Fin mₙ)
   Bouquet≃-gen = isoToEquiv BouquetIso-gen

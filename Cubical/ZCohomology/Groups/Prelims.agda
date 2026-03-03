@@ -104,9 +104,9 @@ Iso.fun S¹→S¹≡S¹×ℤ f = S¹map (f base)
                  , winding (basechange2⁻ (S¹map (f base)) λ i → S¹map (f (loop i)))
 Iso.inv S¹→S¹≡S¹×ℤ (s , int) base = ∣ s ∣
 Iso.inv S¹→S¹≡S¹×ℤ (s , int) (loop i) = ∣ basechange2 s (intLoop int) i ∣
-Iso.rightInv S¹→S¹≡S¹×ℤ (s , int) = ΣPathP (refl , ((λ i → winding (basechange2-retr s (λ i → intLoop int i) i))
+Iso.sec S¹→S¹≡S¹×ℤ (s , int) = ΣPathP (refl , ((λ i → winding (basechange2-retr s (λ i → intLoop int i) i))
                                                       ∙ windingℤLoop int))
-Iso.leftInv S¹→S¹≡S¹×ℤ f = funExt λ { base → S¹map-id (f base)
+Iso.ret S¹→S¹≡S¹×ℤ f = funExt λ { base → S¹map-id (f base)
                                       ; (loop i) j → helper j i}
   where
   helper : PathP (λ i → S¹map-id (f base) i ≡ S¹map-id (f base) i)
@@ -165,14 +165,14 @@ module _ (key : Unit') where
     invmap : (∥ Susp S¹ ∥ 4) × (∥ S¹ ∥ 3) → S¹ → ∥ Susp S¹ ∥ 4
     invmap (a , b) base = a +K 0₂
     invmap (a , b) (loop i) = a +K Kn→ΩKn+1 1 b i
-  Iso.rightInv S1→K2≡K2×K1' (a , b) = ΣPathP ((P.rUnitK 2 a)
+  Iso.sec S1→K2≡K2×K1' (a , b) = ΣPathP ((P.rUnitK 2 a)
                                            , (cong (ΩKn+1→Kn 1) (doubleCompPath-elim' (sym (P.rCancelK 2 (a +K 0₂)))
                                              (λ i → (a +K Kn→ΩKn+1 1 b i) -K (a +K 0₂))
                                              (P.rCancelK 2 (a +K 0₂)))
                                           ∙∙ cong (ΩKn+1→Kn 1) (congHelper2 (Kn→ΩKn+1 1 b) (λ x → (a +K x) -K (a +K 0₂))
                                                                (funExt (λ x → sym (cancelHelper a x)))
                                                                (P.rCancelK 2 (a +K 0₂)))
-                                          ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 1) b))
+                                          ∙∙ Iso.ret (Iso-Kn-ΩKn+1 1) b))
 
       module _ where
       cancelHelper : (a b : coHomK 2) → (a +K b) -K (a +K 0₂) ≡ b
@@ -190,8 +190,8 @@ module _ (key : Unit') where
       conghelper3 x p f = J (λ f _ → (q : (f x) ≡ x) → (sym q) ∙ cong f p ∙ q ≡ p)
                             λ q → (cong (sym q ∙_) (isCommΩK-based 2 x p _) ∙∙ assoc _ _ _ ∙∙ cong (_∙ p) (lCancel q))
                                       ∙  sym (lUnit p)
-  Iso.leftInv S1→K2≡K2×K1' a i base = P.rUnitK _ (a base) i
-  Iso.leftInv S1→K2≡K2×K1' a i (loop j) = loop-helper i j
+  Iso.ret S1→K2≡K2×K1' a i base = P.rUnitK _ (a base) i
+  Iso.ret S1→K2≡K2×K1' a i (loop j) = loop-helper i j
     where
     loop-helper : PathP (λ i → P.rUnitK _ (a base) i ≡ P.rUnitK _ (a base) i)
                      (cong (a base +K_) (Kn→ΩKn+1 1 (ΩKn+1→Kn 1 ((sym (P.rCancelK 2 (a base))
@@ -218,7 +218,7 @@ module _ (key : Unit') where
 
        lem : (x : coHomK 2) (p : x ≡ x) (q : 0₂ ≡ x)
            → Kn→ΩKn+1 1 (ΩKn+1→Kn 1 (q ∙ p ∙ sym q)) ≡ q ∙ p ∙ sym q
-       lem x p q = Iso.rightInv (Iso-Kn-ΩKn+1 1) (q ∙ p ∙ sym q)
+       lem x p q = Iso.sec (Iso-Kn-ΩKn+1 1) (q ∙ p ∙ sym q)
 
        subtr-lem : (a b : hLevelTrunc 4 (S₊ 2)) → a +K (b -K a) ≡ b
        subtr-lem a b = P.commK 2 a (b -K a) ∙ P.-+cancelK 2 b a

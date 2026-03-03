@@ -218,8 +218,8 @@ module AdjBij {ℓ : Level} where
           → Iso (CommRingHom A (𝓞 .F-ob X)) (X ⇒ Sp .F-ob A)
   fun 𝓞⊣SpIso = _♭
   inv 𝓞⊣SpIso = _♯
-  rightInv 𝓞⊣SpIso = ♭♯Id
-  leftInv 𝓞⊣SpIso = ♯♭Id
+  sec 𝓞⊣SpIso = ♭♯Id
+  ret 𝓞⊣SpIso = ♯♭Id
 
   𝓞⊣SpNatℤFunctor : {A : CommRing ℓ} {X Y : ℤFunctor {ℓ}} (α : X ⇒ Sp .F-ob A) (β : Y ⇒ X)
                   → (β ●ᵛ α) ♯ ≡ (𝓞 .F-hom β) ∘cr (α ♯)
@@ -241,9 +241,9 @@ module AdjBij {ℓ : Level} where
     theIso : Iso (A .fst) ((𝓞 ∘F Sp) .F-ob A .fst)
     fun theIso = ε A .fst
     inv theIso = yonedaᴾ 𝔸¹ A .fun
-    rightInv theIso α = ℤFUNCTOR .⋆IdL _ ∙ yonedaᴾ 𝔸¹ A .leftInv α
-    leftInv theIso a = path -- I get yellow otherwise
+    sec theIso α = ℤFUNCTOR .⋆IdL _ ∙ yonedaᴾ 𝔸¹ A .ret α
+    ret theIso a = path -- I get yellow otherwise
       where
       path : yonedaᴾ 𝔸¹ A .fun ((idTrans (Sp .F-ob A)) ●ᵛ yonedaᴾ 𝔸¹ A .inv a) ≡ a
-      path = cong (yonedaᴾ 𝔸¹ A .fun) (ℤFUNCTOR .⋆IdL _) ∙ yonedaᴾ 𝔸¹ A .rightInv a
+      path = cong (yonedaᴾ 𝔸¹ A .fun) (ℤFUNCTOR .⋆IdL _) ∙ yonedaᴾ 𝔸¹ A .sec a
   snd (𝓞⊣SpCounitEquiv A) = ε A .snd

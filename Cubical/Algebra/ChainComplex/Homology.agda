@@ -9,7 +9,7 @@ open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Fin hiding (_/_)
 open import Cubical.Data.Nat.Order.Inductive
 
 open import Cubical.Algebra.Group
@@ -136,7 +136,7 @@ module _ where
     finChainComplexMap→HomologyMap m f n .fst
   Iso.inv (fst (finChainComplexEquiv→HomoglogyIso m f n)) =
     finChainComplexMap→HomologyMap m (invFinChainMap f) n .fst
-  Iso.rightInv (fst (finChainComplexEquiv→HomoglogyIso m (f , eqs) n)) =
+  Iso.sec (fst (finChainComplexEquiv→HomoglogyIso m (f , eqs) n)) =
     funExt⁻ (cong fst (sym (finChainComplexMap→HomologyMapComp
                              (invFinChainMap (f , eqs)) f n))
            ∙∙  cong (λ f → fst (finChainComplexMap→HomologyMap m f n))
@@ -144,7 +144,7 @@ module _ where
                    →  Σ≡Prop (λ _ → isPropIsGroupHom _ _)
                                (funExt (secEq (_ , eqs r))))
            ∙∙ cong fst (finChainComplexMap→HomologyMapId n))
-  Iso.leftInv (fst (finChainComplexEquiv→HomoglogyIso m (f , eqs) n)) =
+  Iso.ret (fst (finChainComplexEquiv→HomoglogyIso m (f , eqs) n)) =
     funExt⁻ (cong fst (sym (finChainComplexMap→HomologyMapComp f
                             (invFinChainMap (f , eqs)) n))
           ∙∙ cong (λ f → fst (finChainComplexMap→HomologyMap m f n))
@@ -264,7 +264,7 @@ module _ where
     chainComplexMap→HomologyMap f n .fst
   Iso.inv (fst (chainComplexEquiv→HomoglogyIso (f , eqs) n)) =
     chainComplexMap→HomologyMap (invChainMap (f , eqs)) n .fst
-  Iso.rightInv (fst (chainComplexEquiv→HomoglogyIso (f , eqs) n)) =
+  Iso.sec (fst (chainComplexEquiv→HomoglogyIso (f , eqs) n)) =
     funExt⁻ (cong fst (sym (chainComplexMap→HomologyMapComp
                              (invChainMap (f , eqs)) f n))
            ∙∙  cong (λ f → fst (chainComplexMap→HomologyMap f n))
@@ -273,7 +273,7 @@ module _ where
                                (funExt (secEq (_ , eqs r))))
            ∙∙ cong fst (chainComplexMap→HomologyMapId n))
 
-  Iso.leftInv (fst (chainComplexEquiv→HomoglogyIso (f , eqs) n)) =
+  Iso.ret (fst (chainComplexEquiv→HomoglogyIso (f , eqs) n)) =
     funExt⁻ (cong fst (sym (chainComplexMap→HomologyMapComp f
                             (invChainMap (f , eqs)) n))
           ∙∙ cong (λ f → fst (chainComplexMap→HomologyMap f n))
@@ -323,10 +323,10 @@ homologyIso n C D chEq₂ chEq₁ chEq₀ eq1 eq2 = main-iso
       (PT.map (λ {(s , t)
       → (Iso.inv (chEq₂ .fst) s)
        , Σ≡Prop (λ _ → AbGroupStr.is-set (snd (chain C n)) _ _)
-           (sym (Iso.leftInv (chEq₁ .fst) _)
+           (sym (Iso.ret (chEq₁ .fst) _)
           ∙ cong (Iso.inv (chEq₁ .fst)) (funExt⁻ eq2 (Iso.inv (chEq₂ .fst) s))
           ∙ cong (Iso.inv (chEq₁ .fst) ∘ bdry D (suc n) .fst)
-                 (Iso.rightInv (chEq₂ .fst) s)
+                 (Iso.sec (chEq₂ .fst) s)
           ∙ cong (Iso.inv (chEq₁ .fst)) (cong fst t)
           ∙ IsGroupHom.pres· (invGroupIso chEq₁ .snd) _ _
           ∙ cong₂ (snd (chain C (suc n) ) .AbGroupStr._+_)
@@ -335,10 +335,10 @@ homologyIso n C D chEq₂ chEq₁ chEq₀ eq1 eq2 = main-iso
     where
     g : _ → homology n C .fst
     g (a , b) = [ Iso.inv (fst chEq₁) a
-                , sym (Iso.leftInv (chEq₀ .fst) _)
+                , sym (Iso.ret (chEq₀ .fst) _)
                 ∙ cong (Iso.inv (chEq₀ .fst)) (funExt⁻ eq1 (Iso.inv (chEq₁ .fst) a))
                 ∙ cong (Iso.inv (chEq₀ .fst) ∘ bdry D n  .fst)
-                       (Iso.rightInv (chEq₁ .fst) a)
+                       (Iso.sec (chEq₁ .fst) a)
                 ∙ cong (Iso.inv (chEq₀ .fst)) b
                 ∙ IsGroupHom.pres1 (invGroupIso chEq₀ .snd) ]
 
@@ -354,16 +354,16 @@ homologyIso n C D chEq₂ chEq₁ chEq₀ eq1 eq2 = main-iso
   main-iso : GroupIso (homology n C) (homology n D)
   Iso.fun (fst main-iso) = F
   Iso.inv (fst main-iso) = G
-  Iso.rightInv (fst main-iso) =
+  Iso.sec (fst main-iso) =
     elimProp (λ _ → GroupStr.is-set (homology n D .snd) _ _)
       λ{(a , b)
       → cong [_] (Σ≡Prop (λ _
         → AbGroupStr.is-set (snd (chain D n)) _ _)
-                  (Iso.rightInv (fst chEq₁) a))}
-  Iso.leftInv (fst main-iso) =
+                  (Iso.sec (fst chEq₁) a))}
+  Iso.ret (fst main-iso) =
     elimProp (λ _ → GroupStr.is-set (homology n C .snd) _ _)
       λ{(a , b)
       → cong [_] (Σ≡Prop (λ _
         → AbGroupStr.is-set (snd (chain C n)) _ _)
-                  (Iso.leftInv (fst chEq₁) a))}
+                  (Iso.ret (fst chEq₁) a))}
   snd main-iso = F-hom

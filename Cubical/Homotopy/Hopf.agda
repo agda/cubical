@@ -125,8 +125,8 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
     theIso : Iso TotalSpaceHopfPush (join (typ A) (typ A))
     fun theIso = F
     inv theIso = G
-    rightInv theIso = s
-    leftInv theIso = r
+    sec theIso = s
+    ret theIso = r
 
   isEquivTotalSpaceHopfPush→TotalSpace :
     isEquiv TotalSpaceHopfPush→TotalSpace
@@ -188,8 +188,8 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
     theIso : Iso TotalSpaceHopfPush (Σ (Susp (typ A)) Hopf)
     fun theIso = TotalSpaceHopfPush→TotalSpace
     inv theIso = inv'
-    rightInv theIso = sect
-    leftInv theIso = retr
+    sec theIso = sect
+    ret theIso = retr
 
   IsoTotalSpaceJoin : Iso (Σ[ x ∈ Susp (typ A) ] Hopf x) (join (typ A) (typ A))
   IsoTotalSpaceJoin =
@@ -290,12 +290,12 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
     inv iso₁ (inl x) = inl (tt , x)
     inv iso₁ (inr x) = inr x
     inv iso₁ (push a i) = push (snd a , fst a) i
-    rightInv iso₁ (inl x) = refl
-    rightInv iso₁ (inr x) = refl
-    rightInv iso₁ (push a i) = refl
-    leftInv iso₁ (inl x) = refl
-    leftInv iso₁ (inr x) = refl
-    leftInv iso₁ (push a i) = refl
+    sec iso₁ (inl x) = refl
+    sec iso₁ (inr x) = refl
+    sec iso₁ (push a i) = refl
+    ret iso₁ (inl x) = refl
+    ret iso₁ (inr x) = refl
+    ret iso₁ (push a i) = refl
 
     iso₂ : Iso TotalSpacePush² (Σ (Pushout (λ _ → tt) induced) fl.E)
     fun iso₂ (inl x , y) = inl x , y
@@ -304,12 +304,12 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
     inv iso₂ (inl x , y) = inl x , y
     inv iso₂ (inr x , y) = inr x , y
     inv iso₂ (push a i , y) = push a i , y
-    rightInv iso₂ (inl x , snd₁) = refl
-    rightInv iso₂ (inr x , snd₁) = refl
-    rightInv iso₂ (push a i , snd₁) = refl
-    leftInv iso₂ (inl x , snd₁) = refl
-    leftInv iso₂ (inr x , snd₁) = refl
-    leftInv iso₂ (push a i , snd₁) = refl
+    sec iso₂ (inl x , snd₁) = refl
+    sec iso₂ (inr x , snd₁) = refl
+    sec iso₂ (push a i , snd₁) = refl
+    ret iso₂ (inl x , snd₁) = refl
+    ret iso₂ (inr x , snd₁) = refl
+    ret iso₂ (push a i , snd₁) = refl
 
   F : TotalSpacePush²'
      → (Pushout {A = typ A × Σ (Susp (typ A)) Hopf} fst snd)
@@ -331,9 +331,9 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
            (Pushout {A = typ A × Σ (Susp (typ A)) Hopf} fst snd)
   fun IsoTotalSpacePush²'ΣPush = F
   inv IsoTotalSpacePush²'ΣPush = G
-  rightInv IsoTotalSpacePush²'ΣPush (inl x) = refl
-  rightInv IsoTotalSpacePush²'ΣPush (inr x) = refl
-  rightInv IsoTotalSpacePush²'ΣPush (push (x , y) i) j =
+  sec IsoTotalSpacePush²'ΣPush (inl x) = refl
+  sec IsoTotalSpacePush²'ΣPush (inr x) = refl
+  sec IsoTotalSpacePush²'ΣPush (push (x , y) i) j =
     hcomp (λ k → λ { (i = i0) → inl x
                     ; (i = i1)
                      → inr (secEq (_ , Push→TotalSpaceHopf-equiv x) y k)
@@ -351,9 +351,9 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
                            , (secEq (_
                             , Push→TotalSpaceHopf-equiv x) y k)) i})
           (push (x , (secEq (_ , Push→TotalSpaceHopf-equiv x) y i0)) i)
-  leftInv IsoTotalSpacePush²'ΣPush (inl x) = refl
-  leftInv IsoTotalSpacePush²'ΣPush (inr x) = refl
-  leftInv IsoTotalSpacePush²'ΣPush (push (x , y) i) j =
+  ret IsoTotalSpacePush²'ΣPush (inl x) = refl
+  ret IsoTotalSpacePush²'ΣPush (inr x) = refl
+  ret IsoTotalSpacePush²'ΣPush (push (x , y) i) j =
     hcomp (λ k → λ { (i = i0) → inl x
                     ; (i = i1) → inr (secEq (Push→TotalSpaceHopf x
                                            , Push→TotalSpaceHopf-equiv x)
@@ -690,14 +690,14 @@ module S¹Hopf where
   IsoS³TotalHopf : Iso (S₊ 3) TotalHopf
   fun IsoS³TotalHopf x = JoinS¹S¹→TotalHopf (S³→joinS¹S¹ (inv IsoS³S3 x))
   inv IsoS³TotalHopf x = fun IsoS³S3 (joinS¹S¹→S³ (TotalHopf→JoinS¹S¹ x))
-  rightInv IsoS³TotalHopf x =
+  sec IsoS³TotalHopf x =
        cong (JoinS¹S¹→TotalHopf ∘ S³→joinS¹S¹)
-            (leftInv IsoS³S3 (joinS¹S¹→S³ (TotalHopf→JoinS¹S¹ x)))
+            (ret IsoS³S3 (joinS¹S¹→S³ (TotalHopf→JoinS¹S¹ x)))
     ∙∙ cong JoinS¹S¹→TotalHopf
             (joinS¹S¹→S³→joinS¹S¹ (TotalHopf→JoinS¹S¹ x))
     ∙∙ TotalHopf→JoinS¹S¹→TotalHopf x
-  leftInv IsoS³TotalHopf x =
+  ret IsoS³TotalHopf x =
        cong (fun IsoS³S3 ∘ joinS¹S¹→S³)
             (JoinS¹S¹→TotalHopf→JoinS¹S¹ (S³→joinS¹S¹ (inv IsoS³S3 x)))
     ∙∙ cong (fun IsoS³S3) (S³→joinS¹S¹→S³ (inv IsoS³S3 x))
-    ∙∙ Iso.rightInv IsoS³S3 x
+    ∙∙ Iso.sec IsoS³S3 x

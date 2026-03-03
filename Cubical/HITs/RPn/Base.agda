@@ -32,7 +32,7 @@ open import Cubical.Data.Sum as ⊎ hiding (elim)
 open import Cubical.HITs.PropositionalTruncation as PropTrunc hiding (elim)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Join
+open import Cubical.HITs.Join hiding (elim)
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Pushout.Flattening
 
@@ -358,6 +358,6 @@ Iso.fun RP²FunCharacIso f = f point , cong f line , cong (cong f) square
 Iso.inv RP²FunCharacIso (x , p , q) point = x
 Iso.inv RP²FunCharacIso (x , p , q) (line i) = p i
 Iso.inv RP²FunCharacIso (x , p , q) (square i j) = q i j
-Iso.rightInv RP²FunCharacIso _ = refl
-Iso.leftInv RP²FunCharacIso f =
+Iso.sec RP²FunCharacIso _ = refl
+Iso.ret RP²FunCharacIso f =
   funExt λ { point → refl ; (line i) → refl ; (square i i₁) → refl}

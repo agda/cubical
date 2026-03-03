@@ -30,7 +30,7 @@ data IsoInt : Type₀ where
 
 
 suc-iso : Iso IsoInt IsoInt
-suc-iso = record { fun = suc ; inv = pred ; rightInv = suc-pred ; leftInv = pred-suc }
+suc-iso = record { fun = suc ; inv = pred ; sec = suc-pred ; ret = pred-suc }
 
 
 -- this submodule is adapted from Section 5 of

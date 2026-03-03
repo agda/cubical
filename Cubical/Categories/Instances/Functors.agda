@@ -17,7 +17,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.NaturalTransformation.Base
@@ -93,11 +93,11 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
   Iso-FUNCTORIso-NatIso : {F G : Functor C D} → Iso (CatIso FUNCTOR F G) (NatIso F G)
   Iso-FUNCTORIso-NatIso .fun = FUNCTORIso→NatIso
   Iso-FUNCTORIso-NatIso .inv = NatIso→FUNCTORIso
-  Iso-FUNCTORIso-NatIso .rightInv α i .trans = α .trans
-  Iso-FUNCTORIso-NatIso .rightInv α i .nIso =
+  Iso-FUNCTORIso-NatIso .sec α i .trans = α .trans
+  Iso-FUNCTORIso-NatIso .sec α i .nIso =
     isProp→PathP (λ i → isPropΠ (λ _ → isPropIsIso _)) (FUNCTORIso' (α .trans) (FUNCTORIso _ (α .nIso))) (α .nIso) i
-  Iso-FUNCTORIso-NatIso .leftInv α i .fst = α .fst
-  Iso-FUNCTORIso-NatIso .leftInv α i .snd =
+  Iso-FUNCTORIso-NatIso .ret α i .fst = α .fst
+  Iso-FUNCTORIso-NatIso .ret α i .snd =
     isProp→PathP (λ i → isPropIsIso _) (FUNCTORIso _ (FUNCTORIso' _ (α .snd))) (α .snd) i
 
   FUNCTORIso≃NatIso : {F G : Functor C D} → CatIso FUNCTOR F G ≃ NatIso F G

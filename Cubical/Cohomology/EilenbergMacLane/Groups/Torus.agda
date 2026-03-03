@@ -156,7 +156,7 @@ H¹[T²,G]≅G×G G =
     λ f → ∣ (λ x → f (x , base)) ∣₂ ,  ∣ (λ x → f (base , x)) ∣₂
   Iso.inv typIso = uncurry (ST.rec2 squash₂
     λ f g → ∣ (λ x → f (fst x) +1 g (snd x)) ∣₂)
-  Iso.rightInv typIso =
+  Iso.sec typIso =
     uncurry (ST.elim2 (λ _ _ → isOfHLevelPath 2 (isSet× squash₂ squash₂) _ _)
       (S¹-connElim (isConnectedEM {G' = G} 1)
                    (λ _ → isPropΠ λ _ → isSet× squash₂ squash₂ _ _)
@@ -166,7 +166,7 @@ H¹[T²,G]≅G×G G =
                 (0ₖ {G = G} 1)
                 λ q i → ∣ (λ l → rUnitₖ {G = G} 1 (S¹fun (0ₖ {G = G} 1) p l) i) ∣₂
                         , ∣ S¹fun (0ₖ {G = G} 1) q ∣₂))
-  Iso.leftInv typIso = coHomPointedElimT² {G = G} 0 (λ _ → squash₂ _ _)
+  Iso.ret typIso = coHomPointedElimT² {G = G} 0 (λ _ → squash₂ _ _)
     λ p q r → cong ∣_∣₂
       (funExt (uncurry (S¹elim _ (λ _ → refl)
         (funExt (toPropElim (λ _ → isOfHLevelPathP' 1 (hLevelEM G 1 _ _) _ _ )

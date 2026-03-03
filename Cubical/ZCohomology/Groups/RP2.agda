@@ -51,10 +51,10 @@ Iso.fun funSpaceIso-RP² f = f point , (cong f line , λ i j → f (square i j))
 Iso.inv funSpaceIso-RP² (x , p , P) point = x
 Iso.inv funSpaceIso-RP² (x , p , P) (line i) = p i
 Iso.inv funSpaceIso-RP² (x , p , P) (square i j) = P i j
-Iso.rightInv funSpaceIso-RP² (x , p , P) i = x , p , P
-Iso.leftInv funSpaceIso-RP² f _ point = f point
-Iso.leftInv funSpaceIso-RP² f _ (line i) = f (line i)
-Iso.leftInv funSpaceIso-RP² f _ (square i j) = f (square i j)
+Iso.sec funSpaceIso-RP² (x , p , P) i = x , p , P
+Iso.ret funSpaceIso-RP² f _ point = f point
+Iso.ret funSpaceIso-RP² f _ (line i) = f (line i)
+Iso.ret funSpaceIso-RP² f _ (square i j) = f (square i j)
 
 private
   pathIso : {x : A} {p : x ≡ x} → Iso (p ≡ sym p) (p ∙ p ≡ refl)
@@ -96,7 +96,7 @@ snd isContr-H¹-RP²-helper =
                                        ∙∙ cong (Kn→ΩKn+1 0) (sym (nilpotent→≡0 (ΩKn+1→Kn 0 p)
                                                                                  (sym (ΩKn+1→Kn-hom 0 p p)
                                                                                 ∙ cong (ΩKn+1→Kn 0) nilp)))
-                                       ∙∙ Iso.rightInv (Iso-Kn-ΩKn+1 0) p)))})))
+                                       ∙∙ Iso.sec (Iso-Kn-ΩKn+1 0) p)))})))
 
 H¹-RP²≅0 : GroupIso (coHomGr 1 RP²) UnitGroup₀
 H¹-RP²≅0 =
@@ -117,9 +117,9 @@ Iso.fun Iso-H²-RP²₁ =
         (sphereElim _ (λ _ → isSetΠ (λ _ → isSetSetTrunc))
           λ p → ∣ fst p , snd p ∣₂)))
 Iso.inv Iso-H²-RP²₁ = ST.map λ p → (0ₖ 2) , p
-Iso.rightInv Iso-H²-RP²₁ = ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+Iso.sec Iso-H²-RP²₁ = ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
                            λ _ → refl
-Iso.leftInv Iso-H²-RP²₁ =
+Iso.ret Iso-H²-RP²₁ =
   ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
     (uncurry (T.elim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 1} 3 (isSetSetTrunc _ _))
       (sphereToPropElim _ (λ _ → isPropΠ (λ _ → isSetSetTrunc _ _))

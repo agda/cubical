@@ -92,6 +92,6 @@ open Iso
 open IsGroupHom
 
 null-H² : (a b : ℤ) → (inv (fst H²-S²⋁S⁴≅ℤ) a) ⌣ (inv (fst H²-S²⋁S⁴≅ℤ) b) ≡ 0ₕ 4
-null-H² a b = sym (leftInv (fst H⁴-S²⋁S⁴≅ℤ) _)
+null-H² a b = sym (ret (fst H⁴-S²⋁S⁴≅ℤ) _)
               ∙ cong (inv (fst H⁴-S²⋁S⁴≅ℤ)) refl
               ∙ pres1 (snd (invGroupIso H⁴-S²⋁S⁴≅ℤ))

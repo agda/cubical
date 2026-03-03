@@ -171,8 +171,8 @@ open Iso
 Iso^opF : Iso (Functor C D) (Functor (C ^op) (D ^op))
 Iso^opF .fun = _^opF
 Iso^opF .inv = _^opF⁻
-Iso^opF .rightInv F = Functor≡ (λ _ → refl) (λ _ → refl)
-Iso^opF .leftInv F = Functor≡ (λ _ → refl) (λ _ → refl)
+Iso^opF .sec F = Functor≡ (λ _ → refl) (λ _ → refl)
+Iso^opF .ret F = Functor≡ (λ _ → refl) (λ _ → refl)
 
 ^opFEquiv : Functor C D ≃ Functor (C ^op) (D ^op)
 ^opFEquiv = isoToEquiv Iso^opF

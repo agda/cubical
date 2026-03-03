@@ -24,7 +24,7 @@ open import Cubical.HITs.GroupoidQuotients as GQ using (_//_; [_]; eq//; comp//;
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Equivalence.WeakEquivalence
-open import Cubical.Categories.Constructions.EssentialImage
+open import Cubical.Categories.Instances.EssentialImage
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Isomorphism
@@ -219,15 +219,15 @@ module RezkByHIT (C : Category ℓ ℓ') where
     H-inc-ua f = TypeOfHLevel≡ 2 $ isoToPath λ where
       .Iso.fun → C._⋆ f .fst
       .Iso.inv → C._⋆ f .snd .inv
-      .Iso.rightInv _ → C.⋆Assoc _ _ _ ∙∙ congR C._⋆_ (f .snd .sec) ∙∙ C.⋆IdR _
-      .Iso.leftInv  _ → C.⋆Assoc _ _ _ ∙∙ congR C._⋆_ (f .snd .ret) ∙∙ C.⋆IdR _
+      .Iso.sec _ → C.⋆Assoc _ _ _ ∙∙ congR C._⋆_ (f .snd .sec) ∙∙ C.⋆IdR _
+      .Iso.ret  _ → C.⋆Assoc _ _ _ ∙∙ congR C._⋆_ (f .snd .ret) ∙∙ C.⋆IdR _
 
     H-ua-inc : ∀ {x y z} → IsoC x y → H-inc x z ≡ H-inc y z
     H-ua-inc f = TypeOfHLevel≡ 2 $ isoToPath λ where
       .Iso.fun → f .snd .inv C.⋆_
       .Iso.inv → f .fst C.⋆_
-      .Iso.rightInv _ → sym (C.⋆Assoc _ _ _) ∙∙ congL C._⋆_ (f .snd .sec) ∙∙ C.⋆IdL _
-      .Iso.leftInv  _ → sym (C.⋆Assoc _ _ _) ∙∙ congL C._⋆_ (f .snd .ret) ∙∙ C.⋆IdL _
+      .Iso.sec _ → sym (C.⋆Assoc _ _ _) ∙∙ congL C._⋆_ (f .snd .sec) ∙∙ C.⋆IdL _
+      .Iso.ret  _ → sym (C.⋆Assoc _ _ _) ∙∙ congL C._⋆_ (f .snd .ret) ∙∙ C.⋆IdL _
 
     typeSquare : ∀ {A B C D : Type ℓ''} {P : A ≡ B} {Q : C ≡ D} {R S}
                → (∀ x → transport S (transport P x) ≡ transport Q (transport R x))

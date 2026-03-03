@@ -70,24 +70,24 @@ module _ (n : ℕ) where
   degree∥₂≡ : degree∥₂ ≡ Iso.fun degreeIso
   degree∥₂≡ = funExt (λ f
     → cong degree∥₂
-        (sym (Iso.rightInv (πₙSⁿ-unpointIso n) f))
+        (sym (Iso.sec (πₙSⁿ-unpointIso n) f))
         ∙∙ help (Iso.inv (πₙSⁿ-unpointIso n) f)
-        ∙∙ cong (Iso.fun degreeIso) (Iso.rightInv (πₙSⁿ-unpointIso n) f))
+        ∙∙ cong (Iso.fun degreeIso) (Iso.sec (πₙSⁿ-unpointIso n) f))
     where
     help : (g : _) → degree∥₂ (Iso.fun (πₙSⁿ-unpointIso n) g)
                     ≡ Iso.fun degreeIso (Iso.fun (πₙSⁿ-unpointIso n) g)
     help = ST.elim (λ _ → isOfHLevelPath 2 isSetℤ _ _)
            λ g → cong (Iso.fun (compIso (equivToIso (πₙSⁿ≅HⁿSⁿ n .fst))
                                          (fst (Hⁿ-Sⁿ≅ℤ n))))
-                   (sym (Iso.leftInv (πₙSⁿ-unpointIso n) ∣ g ∣₂))
+                   (sym (Iso.ret (πₙSⁿ-unpointIso n) ∣ g ∣₂))
 
   degree∥₂Iso : Iso ∥ (S₊ (suc n) → S₊ (suc n)) ∥₂ ℤ
   Iso.fun degree∥₂Iso = degree∥₂
   Iso.inv degree∥₂Iso = Iso.inv degreeIso
-  Iso.rightInv degree∥₂Iso p =
-    funExt⁻ degree∥₂≡ (Iso.inv degreeIso p) ∙ Iso.rightInv degreeIso p
-  Iso.leftInv degree∥₂Iso p =
-    cong (Iso.inv degreeIso) (funExt⁻ degree∥₂≡ p) ∙ Iso.leftInv degreeIso p
+  Iso.sec degree∥₂Iso p =
+    funExt⁻ degree∥₂≡ (Iso.inv degreeIso p) ∙ Iso.sec degreeIso p
+  Iso.ret degree∥₂Iso p =
+    cong (Iso.inv degreeIso) (funExt⁻ degree∥₂≡ p) ∙ Iso.ret degreeIso p
 
 πₙSⁿ : (n : ℕ) → Group₀
 πₙSⁿ n = π'Gr n (S₊∙ (suc n))
@@ -135,10 +135,10 @@ degreeComp' n f g = degreeComp n f g ∙ ·Comm (degree n f) (degree n g)
 πₙSⁿCompComm : (n : ℕ) (f g : (S₊ (suc n) → S₊ (suc n))) → ∥ f ∘ g ≡ g ∘ f ∥₁
 πₙSⁿCompComm n f g =
   PT.map (idfun _) (Iso.fun PathIdTrunc₀Iso
-  (sym (Iso.leftInv (degree∥₂Iso n) (∣ f ∘ g ∣₂))
+  (sym (Iso.ret (degree∥₂Iso n) (∣ f ∘ g ∣₂))
   ∙ cong (Iso.inv (degreeIso n))
      (degreeComp (suc n) f g ∙ sym (degreeComp' (suc n) g f))
-  ∙ Iso.leftInv (degree∥₂Iso n) (∣ g ∘ f ∣₂)))
+  ∙ Iso.ret (degree∥₂Iso n) (∣ g ∘ f ∣₂)))
 
 degreeSusp : (n : ℕ) (f : S₊ n → S₊ n)
             → degree n f ≡ degree (suc n) (suspFunS∙ f .fst)
@@ -148,7 +148,7 @@ degreeSusp zero f with (f true) | (f false)
 ... | true | false = refl
 ... | true | true = refl
 degreeSusp (suc n) f = cong (Iso.fun (Hⁿ-Sⁿ≅ℤ n .fst))
-    (sym (Iso.rightInv (fst (suspensionAx-Sn n n)) _)
+    (sym (Iso.sec (fst (suspensionAx-Sn n n)) _)
     ∙ cong (Iso.fun (suspensionAx-Sn n n .fst)) lem)
   where
   lem : Iso.inv (suspensionAx-Sn n n .fst) ∣ ∣_∣ₕ ∘ f ∣₂
@@ -172,12 +172,12 @@ degreeHom : {n : ℕ} (f g : S₊∙ (suc n) →∙ S₊∙ (suc n))
 degreeHom {n = n} f g =
    cong (Iso.fun (Hⁿ-Sⁿ≅ℤ n .fst)) (cong ∣_∣₂ (funExt
      λ x → cong ∣_∣ₕ (cong₂ (λ f g → ∙Π f g .fst x)
-                     (sym (Iso.rightInv (sphereFunIso n) f))
-                     (sym (Iso.rightInv (sphereFunIso n) g)))
+                     (sym (Iso.sec (sphereFunIso n) f))
+                     (sym (Iso.sec (sphereFunIso n) g)))
          ∙∙ help n _ _ x
          ∙∙ cong₂ (λ x y → ∣ x ∣ₕ +[ suc n ]ₖ ∣ y ∣ₕ)
-                  (funExt⁻ (cong fst (Iso.rightInv (sphereFunIso n) f)) x)
-                  (funExt⁻ (cong fst (Iso.rightInv (sphereFunIso n) g)) x)))
+                  (funExt⁻ (cong fst (Iso.sec (sphereFunIso n) f)) x)
+                  (funExt⁻ (cong fst (Iso.sec (sphereFunIso n) g)) x)))
   ∙ IsGroupHom.pres· (Hⁿ-Sⁿ≅ℤ n .snd) _ _
   where
   help : (n : ℕ) (f g : S₊∙ n →∙ Ω (S₊∙ (suc n))) (x : S₊ (suc n))
@@ -209,10 +209,10 @@ degreeHom {n = n} f g =
                 (fst f a) (fst g a)
     lem = cong-∙ ∣_∣ₕ _ _
       ∙ cong₂ _∙_ (cong (cong ∣_∣ₕ)
-                    (funExt⁻ (cong fst (Iso.leftInv ΩSuspAdjointIso f)) a)
+                    (funExt⁻ (cong fst (Iso.ret ΩSuspAdjointIso f)) a)
                   ∙ λ j i → rUnitₖ (suc (suc n)) ∣ fst f a i ∣ₕ (~ j))
                   (cong (cong ∣_∣ₕ)
-                    (funExt⁻ (cong fst (Iso.leftInv ΩSuspAdjointIso g)) a)
+                    (funExt⁻ (cong fst (Iso.ret ΩSuspAdjointIso g)) a)
                   ∙ (λ j i → lUnitₖ (suc (suc n)) ∣ fst g a i ∣ₕ (~ j)))
       ∙ sym (cong₂Funct (λ x y → ∣ x ∣ₕ +[ suc (suc n) ]ₖ ∣ y ∣ₕ)
               (fst f a) (fst g a))

@@ -139,17 +139,17 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
       p : _
       p i =
         comp
-        (λ j → D [ iso-ob .rightInv x (~ j) , iso-ob .rightInv x (~ j) ])
+        (λ j → D [ iso-ob .sec x (~ j) , iso-ob .sec x (~ j) ])
         (λ j → λ
           { (i = i0) → iso-hom .rightInv _ (D .id {x = x}) (~ j)
-          ; (i = i1) → D .id {x = iso-ob .rightInv x (~ j)} })
+          ; (i = i1) → D .id {x = iso-ob .sec x (~ j)} })
         (D .id {x = x})
     w-inv .F-seq {x = x} {z = z} f g = isFullyFaithful→Faithful {F = F} fullfaith _ _ _ _ (p ∙ sym (F .F-seq _ _))
       where
       p : _
       p i =
         comp
-        (λ j → D [ iso-ob .rightInv x (~ j) , iso-ob .rightInv z (~ j) ])
+        (λ j → D [ iso-ob .sec x (~ j) , iso-ob .sec z (~ j) ])
         (λ j → λ
           { (i = i0) → iso-hom .rightInv _ (f ⋆⟨ D ⟩ g) (~ j)
           ; (i = i1) → iso-hom .rightInv _ f (~ j) ⋆⟨ D ⟩ iso-hom .rightInv _ g (~ j) })

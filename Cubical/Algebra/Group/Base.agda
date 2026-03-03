@@ -8,7 +8,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat using (ℕ)
-open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Base
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
 

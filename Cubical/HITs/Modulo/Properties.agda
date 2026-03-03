@@ -1,4 +1,3 @@
-
 module Cubical.HITs.Modulo.Properties where
 
 open import Cubical.Data.Nat
@@ -29,8 +28,8 @@ Modulo0≡ℕ = isoToPath lemma
  lemma : Iso (Modulo 0) ℕ
  fun lemma (embed n) = n
  inv lemma = embed
- rightInv lemma n = refl
- leftInv lemma (embed n) = refl
+ sec lemma n = refl
+ ret lemma (embed n) = refl
 
 isSetModulo0 : isSet (Modulo 0)
 isSetModulo0 = subst isSet (sym Modulo0≡ℕ) isSetℕ
@@ -75,5 +74,4 @@ stepOver m n o p = steps m o ∙ cong embed p
 -- evidence from either `ℕ` or `Fin k`.
 isSetModulo : isSet (Modulo k)
 isSetModulo {0} = isSetModulo0
-isSetModulo {suc k} = subst isSet (sym Modulo≡Fin) isSetFin
-
+isSetModulo {suc k} = subst isSet (sym Modulo≡Fin) (isSetFin {suc k})

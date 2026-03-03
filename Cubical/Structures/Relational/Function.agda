@@ -180,11 +180,11 @@ functionRelMatchesEquiv+ ρ₁ α₁ ρ₂ ι₂ μ₁ μ₂ (X , f) (Y , g) e =
     (FunctionEquivStr+ α₁ ι₂ (X , f) (Y , g) e)
   isom .fun h s = h refl
   isom .inv k {x} = J (λ y _ → ι₂ (X , f x) (Y , g y) e) (k x)
-  isom .rightInv k i x = JRefl (λ y _ → ι₂ (X , f x) (Y , g y) e) (k x) i
-  isom .leftInv h =
+  isom .sec k i x = JRefl (λ y _ → ι₂ (X , f x) (Y , g y) e) (k x) i
+  isom .ret h =
     implicitFunExt λ {x} →
     implicitFunExt λ {y} →
     funExt λ p →
     J (λ y p → isom .inv (isom .fun h) p ≡ h p)
-      (funExt⁻ (isom .rightInv (isom .fun h)) x)
+      (funExt⁻ (isom .sec (isom .fun h)) x)
       p

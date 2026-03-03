@@ -117,7 +117,7 @@ module BINARY where
     open Iso
     eqn : r ⊕ p ≡ q
     eqn = transport (λ i →
-              reflectIso .leftInv (r ⊕ p) i ≡ reflectIso .leftInv q i)
+              reflectIso .ret (r ⊕ p) i ≡ reflectIso .ret q i)
             (cong (reflectIso .inv) rcmp)
 
   loop²?

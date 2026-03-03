@@ -91,8 +91,8 @@ record IsoOver {ℓ ℓ'} {A : Type ℓ}{B : Type ℓ'}
   field
     fun : mapOver (isom .fun) P Q
     inv : mapOver (isom .inv) Q P
-    rightInv : sectionOver (isom .rightInv) fun inv
-    leftInv  : retractOver (isom .leftInv ) fun inv
+    rightInv : sectionOver (isom .sec) fun inv
+    leftInv  : retractOver (isom .ret) fun inv
 
 record isIsoOver {ℓ ℓ'} {A : Type ℓ}{B : Type ℓ'}
   (isom : Iso A B)(P : A → Type ℓ'')(Q : B → Type ℓ''')
@@ -102,8 +102,8 @@ record isIsoOver {ℓ ℓ'} {A : Type ℓ}{B : Type ℓ'}
   constructor isisoover
   field
     inv : mapOver (isom .inv) Q P
-    rightInv : sectionOver (isom .rightInv) fun inv
-    leftInv  : retractOver (isom .leftInv ) fun inv
+    rightInv : sectionOver (isom .sec) fun inv
+    leftInv  : retractOver (isom .ret) fun inv
 
 open IsoOver
 open isIsoOver
@@ -147,14 +147,14 @@ compIsoOver {A = A} {B} {C} {P} {Q} {R} {isom₁} {isom₂} isoover₁ isoover�
   w .inv _ = isoover₁ .inv _ ∘ isoover₂ .inv _
   w .rightInv b q i =
     comp
-    (λ j → R (compPath-filler (cong (isom₂ .fun) (isom₁ .rightInv _)) (isom₂ .rightInv b) j i))
+    (λ j → R (compPath-filler (cong (isom₂ .fun) (isom₁ .sec _)) (isom₂ .sec b) j i))
     (λ j → λ
       { (i = i0) → w .fun _ (w .inv _ q)
       ; (i = i1) → isoover₂ .rightInv _ q j })
     (isoover₂ .fun _ (isoover₁ .rightInv _ (isoover₂ .inv _ q) i))
   w .leftInv a p i =
     comp
-    (λ j → P (compPath-filler (cong (isom₁ .inv) (isom₂ .leftInv _)) (isom₁ .leftInv a) j i))
+    (λ j → P (compPath-filler (cong (isom₁ .inv) (isom₂ .ret _)) (isom₁ .ret a) j i))
     (λ j → λ
       { (i = i0) → w .inv _ (w .fun _ p)
       ; (i = i1) → isoover₁ .leftInv _ p j })
@@ -171,8 +171,8 @@ fiberIso→IsoOver :
   → IsoOver idIso P Q
 fiberIso→IsoOver isom .fun a = isom a .fun
 fiberIso→IsoOver isom .inv b = isom b .inv
-fiberIso→IsoOver isom .rightInv b = isom b .rightInv
-fiberIso→IsoOver isom .leftInv  a = isom a .leftInv
+fiberIso→IsoOver isom .rightInv b = isom b .sec
+fiberIso→IsoOver isom .leftInv  a = isom a .ret
 
 -- Only half-adjoint equivalence can be lifted.
 -- This is another clue that HAE is more natural than isomorphism.
@@ -192,8 +192,8 @@ pullbackIsoOver {A = A} {B} {P} f hae = w
 
   w : IsoOver _ _ _
   w .fun a = idfun _
-  w .inv b = subst P (sym (isom .rightInv b))
-  w .rightInv b p i = subst-filler P (sym (isom .rightInv b)) p (~ i)
+  w .inv b = subst P (sym (isom .sec b))
+  w .rightInv b p i = subst-filler P (sym (isom .sec b)) p (~ i)
   w .leftInv  a p i =
     comp
     (λ j → P (hae .com a (~ j) i))
@@ -250,9 +250,9 @@ isoToEquivOver {A = A} {P} {Q = Q} f hae isom' a = isoToEquiv (fibiso a) .snd
 
   fibiso : (a : A) → Iso (P a) (Q (f a))
   fibiso a .fun = isom' .fun a
-  fibiso a .inv x = transport (λ i → P (isom .leftInv a i)) (isom' .inv (f a) x)
-  fibiso a .leftInv  x = fromPathP (isom' .leftInv _ _)
-  fibiso a .rightInv x =
+  fibiso a .inv x = transport (λ i → P (isom .ret a i)) (isom' .inv (f a) x)
+  fibiso a .ret  x = fromPathP (isom' .leftInv _ _)
+  fibiso a .sec x =
     sym (substCommSlice _ _ (isom' .fun) _ _)
     ∙ cong (λ p → subst Q p (isom' .fun _ (isom' .inv _ x))) (hae .com a)
     ∙ fromPathP (isom' .rightInv _ _)
@@ -299,8 +299,8 @@ IsoOver→HAEquivOver {A = A} {P = P} {Q = Q} {isom = isom} isom' = w
   where
   f = isom .fun
   g = isom .inv
-  ε = isom .rightInv
-  η = isom .leftInv
+  ε = isom .sec
+  η = isom .ret
 
   f' = isom' .fun
   g' = isom' .inv

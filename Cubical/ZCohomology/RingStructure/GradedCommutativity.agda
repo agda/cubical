@@ -178,8 +178,8 @@ private
        → Iso (coHomK k) (coHomK k)
 Iso.fun (-ₖ'-genIso {k = k} n m p q) = -ₖ'-gen n m p q
 Iso.inv (-ₖ'-genIso {k = k} n m p q) = -ₖ'-gen n m p q
-Iso.rightInv (-ₖ'-genIso {k = k} n m p q) = -ₖ'-gen² n m p q
-Iso.leftInv (-ₖ'-genIso {k = k} n m p q) = -ₖ'-gen² n m p q
+Iso.sec (-ₖ'-genIso {k = k} n m p q) = -ₖ'-gen² n m p q
+Iso.ret (-ₖ'-genIso {k = k} n m p q) = -ₖ'-gen² n m p q
 
 -- action of cong on -ₖ'ⁿ̇*ᵐ
 cong-ₖ'-gen-inr : {k : ℕ} (n m : ℕ)  (p : _) (q : _) (P : Path (coHomK (2 + k)) (0ₖ _) (0ₖ _))

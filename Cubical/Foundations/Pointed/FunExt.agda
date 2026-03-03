@@ -28,8 +28,8 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
   funExt∙PIso : (f g : Π∙ A B ptB) → Iso (f ∙∼P g) (f ≡ g)
   Iso.fun (funExt∙PIso f g)  = funExt∙P {f = f} {g = g}
   Iso.inv (funExt∙PIso f g) = funExt∙P⁻ {f = f} {g = g}
-  Iso.rightInv (funExt∙PIso f g) p i j = p j
-  Iso.leftInv (funExt∙PIso f g) h _ = h
+  Iso.sec (funExt∙PIso f g) p i j = p j
+  Iso.ret (funExt∙PIso f g) h _ = h
 
   -- transformed to equivalence
   funExt∙P≃ : (f g : Π∙ A B ptB) → (f ∙∼P g) ≃ (f ≡ g)

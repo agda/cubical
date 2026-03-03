@@ -177,22 +177,22 @@ module Equiv-RP²⋁S¹-Properties
   ϕ₀str = snd e₀
   ϕ₀⁻¹ = inv (fst e₀)
   ϕ₀⁻¹str = snd (invGroupIso e₀)
-  ϕ₀-sect = rightInv (fst e₀)
-  ϕ₀-retr = leftInv (fst e₀)
+  ϕ₀-sect = sec (fst e₀)
+  ϕ₀-retr = ret (fst e₀)
 
   ϕ₁ = fun (fst e₁)
   ϕ₁str = snd e₁
   ϕ₁⁻¹ = inv (fst e₁)
   ϕ₁⁻¹str = snd (invGroupIso e₁)
-  ϕ₁-sect = rightInv (fst e₁)
-  ϕ₁-retr = leftInv (fst e₁)
+  ϕ₁-sect = sec (fst e₁)
+  ϕ₁-retr = ret (fst e₁)
 
   ϕ₂ = fun (fst e₂)
   ϕ₂str = snd e₂
   ϕ₂⁻¹ = inv (fst e₂)
   ϕ₂⁻¹str = snd (invGroupIso e₂)
-  ϕ₂-sect = rightInv (fst e₂)
-  ϕ₂-retr = leftInv (fst e₂)
+  ϕ₂-sect = sec (fst e₂)
+  ϕ₂-retr = ret (fst e₂)
 
   module PblComp
     (null-H¹  : (a b : ℤ) → (ϕ₁ a) ⌣  (ϕ₁ b) ≡ 0ₕ 2)
@@ -565,8 +565,8 @@ module _ where
     is : Iso ℤ[x,y]/<2y,y²,xy,x²> (H* RP²⋁S¹)
     fun is = ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹
     inv is = H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²>
-    rightInv is = e-sect
-    leftInv is = e-retr
+    sec is = e-sect
+    ret is = e-retr
   snd RP²⋁S¹-CohomologyRing = snd ℤ[X,Y]/<2Y,Y²,XY,X²>→H*R-RP²⋁S¹
 
   CohomologyRing-RP²⋁S¹ : RingEquiv (H*R RP²⋁S¹) (CommRing→Ring ℤ[X,Y]/<2Y,Y²,XY,X²>)

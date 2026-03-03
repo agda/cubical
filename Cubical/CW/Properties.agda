@@ -22,8 +22,8 @@ open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Unit
-open import Cubical.Data.Fin.Inductive.Base
-open import Cubical.Data.Fin.Inductive.Properties
+open import Cubical.Data.Fin.Base
+open import Cubical.Data.Fin.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sequence
@@ -63,9 +63,9 @@ CW₁-discrete C = compEquiv (snd C .snd .snd .snd 0) (isoToEquiv main)
   Iso.fun main (inl x) = ⊥.rec (CW₀-empty C x)
   Iso.fun main (inr x) = x
   Iso.inv main = inr
-  Iso.rightInv main x = refl
-  Iso.leftInv main (inl x) = ⊥.rec (CW₀-empty C x)
-  Iso.leftInv main (inr x) = refl
+  Iso.sec main x = refl
+  Iso.ret main (inl x) = ⊥.rec (CW₀-empty C x)
+  Iso.ret main (inr x) = refl
 
 -- elimination from Cₙ into prop
 CWskel→Prop : (C : CWskel ℓ) {A : (n : ℕ) → fst C n → Type ℓ'}
@@ -205,7 +205,7 @@ satAC-CW₁ n C A =
     (λ _ → isOfHLevelPath (suc n)
       (isOfHLevelΠ (suc n) (λ _ → isOfHLevelTrunc (suc n))) _ _)
     λ f → funExt λ a → cong ∣_∣
-      (funExt⁻ ((Iso.leftInv (domIsoDep (equivToIso fin→))) f) a))
+      (funExt⁻ ((Iso.ret (domIsoDep (equivToIso fin→))) f) a))
 
 satAC∃Fin-C0 : (C : CWskel ℓ) → satAC∃ ℓ' ℓ'' (fst C 1)
 satAC∃Fin-C0 C =

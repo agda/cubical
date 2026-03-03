@@ -109,12 +109,12 @@ module _ (G : AbGroup ℓ) where
     is : Iso _ _
     Iso.fun is = H¹S¹→G
     Iso.inv is = G→H¹S¹
-    Iso.rightInv is = Iso.leftInv (Iso-EM-ΩEM+1 0)
-    Iso.leftInv is =
+    Iso.sec is = Iso.ret (Iso-EM-ΩEM+1 0)
+    Iso.ret is =
       ST.elim (λ _ → isSetPathImplicit)
         (S¹-connElim (isConnectedEM 1) (λ _ → squash₂ _ _)
           embase
-          λ p → cong ∣_∣₂ (cong (S¹fun embase) (Iso.rightInv (Iso-EM-ΩEM+1 0) p)))
+          λ p → cong ∣_∣₂ (cong (S¹fun embase) (Iso.sec (Iso-EM-ΩEM+1 0) p)))
   snd H¹[S¹,G]≅G =
     isGroupHomInv ((invEquiv (fst H¹[S¹,G]≅G))
      , makeIsGroupHom λ x y → cong ∣_∣₂
@@ -143,7 +143,7 @@ module _ (G : AbGroup ℓ) where
     is : Iso _ _
     Iso.fun is = HⁿSⁿ↑ n
     Iso.inv is = HⁿSⁿ↓ n
-    Iso.rightInv is =
+    Iso.sec is =
       ST.elim (λ _ → isSetPathImplicit)
         (Sⁿ-connElim n (isConnectedSubtr 2 (suc n)
           (subst (λ x → isConnected x (EM G (suc (suc n))))
@@ -159,12 +159,12 @@ module _ (G : AbGroup ℓ) where
                                     (merid x) (sym (merid (ptSn (suc n))))
                             ∙ cong (p x ∙_) (cong sym q)
                             ∙ sym (rUnit (p x)))
-                      ∙ Iso.rightInv (Iso-EM-ΩEM+1 (suc n)) (p x)))))
+                      ∙ Iso.sec (Iso-EM-ΩEM+1 (suc n)) (p x)))))
                       (isConnectedPath (suc n)
                         (isConnectedPath (suc (suc n))
                           (isConnectedEM (suc (suc n))) _ _)
                            (p (ptSn _)) refl .fst))
-    Iso.leftInv is = ST.elim (λ _ → isSetPathImplicit)
+    Iso.ret is = ST.elim (λ _ → isSetPathImplicit)
         λ f → TR.rec (isProp→isOfHLevelSuc n (squash₂ _ _))
           (λ q → cong ∣_∣₂ (funExt λ x
           → cong (ΩEM+1→EM (suc n))
@@ -173,7 +173,7 @@ module _ (G : AbGroup ℓ) where
                         (cong sym (cong (EM→ΩEM+1 (suc n)) q
                                 ∙ EM→ΩEM+1-0ₖ (suc n)))
                  ∙ sym (rUnit _))
-                 ∙ Iso.leftInv (Iso-EM-ΩEM+1 (suc n)) (f x)))
+                 ∙ Iso.ret (Iso-EM-ΩEM+1 (suc n)) (f x)))
                  (isConnectedPath (suc n)
                    (isConnectedEM (suc n))
                    (f (ptSn (suc n))) (0ₖ (suc n)) .fst)
@@ -413,11 +413,11 @@ gen-HⁿSⁿ-raw↦1 R (suc (suc n)) =
                (merid x) (sym (merid (ptSn (suc n)))))
         ∙ ΩEM+1→EM-hom (suc n) _ _)
         ∙ cong₂ _+ₖ_
-           (Iso.leftInv (Iso-EM-ΩEM+1 (suc n))
+           (Iso.ret (Iso-EM-ΩEM+1 (suc n))
            (gen-HⁿSⁿ-raw R (suc n) .fst x))
             (((λ i → ΩEM+1→EM-sym (suc n)
               (EM→ΩEM+1 (suc n) (snd (gen-HⁿSⁿ-raw R (suc n)) i)) i)
-            ∙ cong -ₖ_ (Iso.leftInv (Iso-EM-ΩEM+1 (suc n)) (0ₖ (suc n)))
+            ∙ cong -ₖ_ (Iso.ret (Iso-EM-ΩEM+1 (suc n)) (0ₖ (suc n)))
             ∙ -0ₖ (suc n)))
         ∙ rUnitₖ (suc n) _))
   ∙ gen-HⁿSⁿ-raw↦1 R (suc n)
@@ -457,7 +457,7 @@ HⁿSⁿ-raw≃G-inv-isInv R (suc (suc n)) r =
             (isHomogeneousEM _)
             (funExt λ z →
               cong (ΩEM+1→EM (suc n)) (lem z)
-            ∙ Iso-EM-ΩEM+1 (suc n) .Iso.leftInv (subst (EM (Ring→AbGroup R))
+            ∙ Iso-EM-ΩEM+1 (suc n) .Iso.ret (subst (EM (Ring→AbGroup R))
               (+'-comm (suc n) 0) (_⌣ₖ_ {m = 0}
                 (fst (gen-HⁿSⁿ-raw R (suc n)) z) r)))))
   ∙ HⁿSⁿ-raw≃G-inv-isInv R (suc n) r

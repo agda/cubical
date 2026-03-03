@@ -58,15 +58,15 @@ module _
   Iso-ℙEff-ℙDec : Iso ℙEff (ℙDec {ℓ' = ℓ'} X)
   Iso-ℙEff-ℙDec .fun = ℙEff→ℙDec
   Iso-ℙEff-ℙDec .inv (P , dec) x = Dec→Bool (dec x)
-  Iso-ℙEff-ℙDec {ℓ' = ℓ'} .leftInv f i x = Bool≡BoolDec* {ℓ = ℓ'} {a = f x} (~ i)
-  Iso-ℙEff-ℙDec .rightInv (P , dec) i .fst x .fst = ua (Dec≃DecBool* (P x .snd) (dec x)) (~ i)
-  Iso-ℙEff-ℙDec .rightInv (P , dec) i .fst x .snd =
-    isProp→PathP {B = λ i → isProp (Iso-ℙEff-ℙDec .rightInv (P , dec) i .fst x .fst)}
+  Iso-ℙEff-ℙDec {ℓ' = ℓ'} .ret f i x = Bool≡BoolDec* {ℓ = ℓ'} {a = f x} (~ i)
+  Iso-ℙEff-ℙDec .sec (P , dec) i .fst x .fst = ua (Dec≃DecBool* (P x .snd) (dec x)) (~ i)
+  Iso-ℙEff-ℙDec .sec (P , dec) i .fst x .snd =
+    isProp→PathP {B = λ i → isProp (Iso-ℙEff-ℙDec .sec (P , dec) i .fst x .fst)}
       (λ i → isPropIsProp)
       (Iso-ℙEff-ℙDec .fun (Iso-ℙEff-ℙDec .inv (P , dec)) .fst x .snd) (P x .snd) i
-  Iso-ℙEff-ℙDec .rightInv (P , dec) i .snd x =
-    isProp→PathP {B = λ i → Dec (Iso-ℙEff-ℙDec .rightInv (P , dec) i .fst x .fst)}
-      (λ i → isPropDec (Iso-ℙEff-ℙDec .rightInv (P , dec) i .fst x .snd))
+  Iso-ℙEff-ℙDec .sec (P , dec) i .snd x =
+    isProp→PathP {B = λ i → Dec (Iso-ℙEff-ℙDec .sec (P , dec) i .fst x .fst)}
+      (λ i → isPropDec (Iso-ℙEff-ℙDec .sec (P , dec) i .fst x .snd))
       (Iso-ℙEff-ℙDec .fun (Iso-ℙEff-ℙDec .inv (P , dec)) .snd x) (dec x) i
 
   ℙEff≃ℙDec : ℙEff ≃ (ℙDec {ℓ' = ℓ'} X)

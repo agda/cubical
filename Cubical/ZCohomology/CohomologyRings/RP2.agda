@@ -163,16 +163,16 @@ module Equiv-RP2-Properties where
   ϕ₀str = snd e₀
   ϕ₀⁻¹ = inv (fst e₀)
   ϕ₀⁻¹str = snd (invGroupIso e₀)
-  ϕ₀-sect = rightInv (fst e₀)
-  ϕ₀-retr = leftInv (fst e₀)
+  ϕ₀-sect = sec (fst e₀)
+  ϕ₀-retr = ret (fst e₀)
 
   e₂ = invGroupIso H²-RP²≅Bool
   ϕ₂ = fun (fst e₂)
   ϕ₂str = snd e₂
   ϕ₂⁻¹ = inv (fst e₂)
   ϕ₂⁻¹str = snd (invGroupIso e₂)
-  ϕ₂-sect = rightInv (fst e₂)
-  ϕ₂-retr = leftInv (fst e₂)
+  ϕ₂-sect = sec (fst e₂)
+  ϕ₂-retr = ret (fst e₂)
 
   Hⁿ-RP²≅0' : (n : ℕ) → (n ≡ 0 → ⊥) → (n ≡ 2 → ⊥) → GroupIso (coHomGr n RP²) UnitGroup₀
   Hⁿ-RP²≅0' zero ¬p ¬q = ⊥.rec (¬p refl)
@@ -506,8 +506,8 @@ module _ where
     is : Iso ℤ[x]/<2x,x²> (H* RP²)
     fun is = ℤ[x]/<2x,x²>→H*-RP²
     inv is = H*-RP²→ℤ[x]/<2x,x²>
-    rightInv is = e-sect
-    leftInv is = e-retr
+    sec is = e-sect
+    ret is = e-retr
   snd RP²-CohomologyRing = snd ℤ[X]/<2X,X²>→H*R-RP²
 
   CohomologyRing-RP² : RingEquiv (H*R RP²) (CommRing→Ring ℤ[X]/<2X,X²>)
