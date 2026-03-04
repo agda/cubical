@@ -19,7 +19,7 @@ module _ {ℓ : Level} (B : BooleanRing ℓ) where
     B' = BooleanRing→CommRing B
 
   open CommRingStr (snd B')
-  open BooleanAlgebraStr B
+  open BooleanAlgebraStr (snd B)
   open IsCommRingHom
 
   BoolBR→BAMap : Bool → ⟨ B ⟩
