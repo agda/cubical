@@ -18,7 +18,7 @@ module Coalgs (S : Type ℓ) (Q : S → Type ℓ') where
   open Iso
   open M
 
-  MAlg : ContFuncIso
+  MAlg : FixedPoint
   MAlg = iso (M S Q) isom
     where
       isom : Iso (Σ[ s ∈ S ] (Q s → M S Q)) (M S Q)
