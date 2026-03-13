@@ -15,6 +15,9 @@ open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Functor
 
+open import Cubical.Categories.Yoneda.Embedding public
+  using (yo; YO; isFullYO; isFaithfulYO; isFullyFaithfulYO)
+
 private
   variable
     ℓ ℓ' ℓ'' : Level
