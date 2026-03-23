@@ -129,7 +129,7 @@ graph⁰ {ℓ = ℓ} {x = x} {y = y} f = fromEmb E
 Π⁰isΠ : El⁰ (Π⁰ x y) ≡ ((a : El⁰ x) → El⁰ (y a))
 Π⁰isΠ = refl
 
-_→⁰_ : {ℓ : Level} (x y : V⁰ {ℓ}) → V⁰ {ℓ}
+_→⁰_ : V⁰ {ℓ} → V⁰ {ℓ} → V⁰ {ℓ}
 x →⁰ y = Π⁰ x (λ _ → y)
 
 →⁰is→ : {x y : V⁰ {ℓ}} → El⁰ (x →⁰ y) ≡ (El⁰ x → El⁰ y)
