@@ -1,8 +1,4 @@
--- {-# OPTIONS --no-termination-check #-}
-{-# OPTIONS --termination-depth 2 #-}
 module Cubical.Data.IterativeSets.Nat where
--- definitions in Base
--- properties in Properties
 
 open import Cubical.Core.Everything
 
@@ -41,14 +37,6 @@ private
     ℓ ℓ' ℓ'' : Level
     A A' : Type ℓ
     B B' : A → Type ℓ
-
-private
-  module _ where
-    ⊥*∼⊥ : ⊥* {ℓ} ≃ ⊥
-    ⊥*∼⊥ = invEquiv LiftEquiv
-
-    Unit*≃Unit : Unit* {ℓ} ≃ Unit
-    Unit*≃Unit = invEquiv LiftEquiv 
 
 -- TODO: move to a better place?
 private
@@ -92,6 +80,7 @@ suc⁰ {ℓ} (sup-∞ A f , isitsetAf) = fromEmb E
         E .snd .fst = ϕₓ
         E .snd .snd = hasPropFibers→isEmbedding hpf
 
+-- TODO
 ℕ* : Type ℓ
 ℕ* = Lift ℕ
 
@@ -126,7 +115,7 @@ vonNeumannOverline≃Fin {ℓ} = elim+2 case0 case1 caseSuc
     case0 = uninhabEquiv (λ ()) ¬Fin0
 
     case1 : El⁰ (vonNeumannEncoding (lift 1)) ≃ Fin 1
-    case1 = compEquiv (compEquiv ⊎-IdL-⊥*-≃ Unit*≃Unit) Unit≃Fin1 
+    case1 = compEquiv (compEquiv ⊎-IdL-⊥*-≃ (invEquiv LiftEquiv)) Unit≃Fin1 
 
     caseSuc : (n : ℕ) → El⁰ (vonNeumannEncoding (lift (suc n))) ≃ Fin (suc n) → El⁰ (vonNeumannEncoding (lift (suc (suc n)))) ≃ Fin (suc (suc n))
     caseSuc n indHyp = compEquiv (El⁰-vNE-suc≃El⁰-vNE⊎Unit* (suc n)) (isoToEquiv isom)
