@@ -126,11 +126,11 @@ graph⁰ {ℓ = ℓ} {x = x} {y = y} f = fromEmb E
     E .snd .fst f = graph⁰ {x = x} {y = y} f
     E .snd .snd = injEmbedding isSetV⁰ In'
 
-Π⁰isΠ : El⁰ (Π⁰ x y) ≡ ((a : El⁰ x) → El⁰ (y a))
-Π⁰isΠ = refl
+El⁰Π⁰isΠ : El⁰ (Π⁰ x y) ≡ ((a : El⁰ x) → El⁰ (y a))
+El⁰Π⁰isΠ = refl
 
 _→⁰_ : V⁰ {ℓ} → V⁰ {ℓ} → V⁰ {ℓ}
 x →⁰ y = Π⁰ x (λ _ → y)
 
-→⁰is→ : {x y : V⁰ {ℓ}} → El⁰ (x →⁰ y) ≡ (El⁰ x → El⁰ y)
-→⁰is→ = refl
+El⁰→⁰is→ : {x y : V⁰ {ℓ}} → El⁰ (x →⁰ y) ≡ (El⁰ x → El⁰ y)
+El⁰→⁰is→ = refl
