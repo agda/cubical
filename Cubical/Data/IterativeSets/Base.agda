@@ -37,10 +37,6 @@ isPropIsIterativeSet (sup-∞ A f) = isProp× isPropIsEmbedding helper
     helper : isProp ((a : A) → isIterativeSet (f a))
     helper g h i x = isPropIsIterativeSet (f x) (g x) (h x) i
 
--- lem10 : (x : V∞ {ℓ}) → isProp (isIterativeSet x)
--- lem10 = isPropIsIterativeSet
--- {-# WARNING_ON_USAGE lem10 "Deprecated: use isPropIsIterativeSet" #-}
-
 V⁰ : Type (ℓ-suc ℓ)
 V⁰ = Σ[ x ∈ V∞ ] isIterativeSet x
 
@@ -59,9 +55,6 @@ tilde-∞ : (x : V⁰ {ℓ}) → overline x → V∞ {ℓ}
 tilde-∞ = tilde-V∞ ∘ fst
 
 tilde : (x : V⁰ {ℓ}) → overline x → V⁰ {ℓ}
--- the following doesn't work because seemingly `isIterativeSet` cannot be destructured
--- tilde x a .fst = tilde-∞ (x .fst) a
--- tilde x a .snd = {!x .snd .snd a!}
 tilde (sup-∞ _ f , _) a .fst = f a
 tilde (sup-∞ _ _ , isitset) a .snd = isitset .snd a
 
@@ -178,61 +171,8 @@ embeddingToEquivOfPath : {ℓ ℓ' : Level} {A : Type ℓ} → {B : Type ℓ'} �
 embeddingToEquivOfPath {f = f} _ _ _ .fst = cong f
 embeddingToEquivOfPath isemb x y .snd = isemb x y
 
--- thm12-help1 : ((x ≡ y) ≃ ((z : V∞) → fiber (tilde-∞ x) z ≃ fiber (tilde-∞ y) z))
--- thm12-help1 = compEquiv ≡V⁰-≃-≡V∞ thm4
-
--- -- couldn't find it in the library
--- isPropEquiv : {ℓ ℓ' : Level} → {A : Type ℓ} → {B : Type ℓ'} → isProp A → isProp B → isProp (A ≃ B)
--- isPropEquiv = isOfHLevel≃ 1 -- isPropΣ (isPropΠ (λ _ → pB)) isPropIsEquiv
--- {-# WARNING_ON_USAGE isPropEquiv "use isOfHLevel≃" #-}
-
--- thm12-help2 : (x y : V⁰ {ℓ}) → isProp ((z : V∞) → (z ∈∞ (x .fst)) ≃ (z ∈∞ (y .fst)))
--- thm12-help2 x y = isPropΠ λ z → isOfHLevel≃ 1 (isProp∈∞ {x = x} {z = z}) (isProp∈∞ {x = y} {z = z})
-
--- thm12 : isSet (V⁰ {ℓ})
--- thm12 = isSetV⁰ -- isOfHLevelRespectEquiv 1 (invEquiv thm12-help1) (thm12-help2 x y)
--- {-# WARNING_ON_USAGE thm12 "Deprecated: use isSetV⁰" #-}
-
--- -- if f : A → B and g : B → C are functions and g ∘ f is injective, then f is injective too
--- -- probably can be generalized to embeddings (potentially with assuming that g is an embedding too, but this is a WIP, see `T15DefDesup.agda`
--- firstInInjCompIsInj : {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} → (f : A → B) → (g : B → C) → ((w x : A) → g (f w) ≡ g (f x) → w ≡ x) → {w x : A} → f w ≡ f x → w ≡ x
--- firstInInjCompIsInj f g inj∘ {w} {x} p = inj∘ w x (cong g p)
-
--- -- TODO: figure out why removing {x z : V⁰ {ℓ}} doesn't work (complains about z)...
 isProp∈⁰ : {x z : V⁰ {ℓ}} → isProp (z ∈⁰ x)
 isProp∈⁰ {x = x} {z = z} = isEmbedding→hasPropFibers (isEmbedding-tilde x) z
-
--- sup⁰ : (Σ[ A ∈ Type ℓ ] A ↪ V⁰ {ℓ}) → V⁰ {ℓ}
--- sup⁰ = fromEmb
--- -- sup⁰ (A , f) .fst = sup-∞ A (compEmbedding cor11 f .fst) -- λ x → f .fst x .fst
--- -- sup⁰ (A , f) .snd .fst = compEmbedding cor11 f .snd
--- -- sup⁰ (A , f) .snd .snd y = f .fst y .snd
--- -- sup⁰ s .fst = sup-∞ (s .fst) (compEmbedding cor11 (s .snd) .fst) -- λ x → f .fst x .fst
--- -- sup⁰ s .snd .fst = compEmbedding cor11 (s .snd) .snd
--- -- sup⁰ s .snd .snd y = s .snd .fst y .snd
-
--- desup⁰ : V⁰ {ℓ} → (Σ[ A ∈ Type ℓ ] A ↪ V⁰ {ℓ})
--- desup⁰ = toEmb
--- -- desup⁰ (sup-∞ A f , isitset) .fst = A
--- -- desup⁰ (sup-∞ A f , isitset) .snd .fst x .fst = f x
--- -- desup⁰ (sup-∞ A f , isitset) .snd .fst x .snd = isitset .snd x
--- -- desup⁰ (sup-∞ A f , isitset) .snd .snd = injEmbedding isSetV⁰ (firstInInjCompIsInj _ (cor11 .fst) (isEmbedding→Inj (isEmbedding-tilde-∞ (sup-∞ A f , isitset))))
-
--- sup⁰desup⁰≃ : (V⁰ {ℓ} ≃ (Σ[ A ∈ Type ℓ ] A ↪ V⁰ {ℓ}))
--- sup⁰desup⁰≃ = V⁰≃Emb
---     -- isoToEquiv (iso desup⁰ sup⁰ sec ret)
---     -- where
---     --     sec : section (desup⁰ {ℓ}) (sup⁰ {ℓ})
---     --     sec (A , (f , embf)) = cong (λ e → (A , (f , e))) (isPropIsEmbedding {f = f} _ embf)
-
---     --     ret : retract (desup⁰ {ℓ}) (sup⁰ {ℓ}) 
---     --     ret (sup-∞ A f , isitset) = cong fun (isPropIsIterativeSet (sup-∞ A f) _ isitset)
---     --         where
---     --             fun : isIterativeSet (sup-∞ A f) → V⁰ {ℓ}
---     --             fun _ .fst = sup-∞ A f
---     --             fun it .snd = it
-
--- -- Ch. 3
 
 El⁰ : V⁰ {ℓ} → Type ℓ
 El⁰ = overline
@@ -240,18 +180,10 @@ El⁰ = overline
 fromEmb' : (x : V⁰ {ℓ}) → (El⁰ x ↪ V⁰ {ℓ})
 fromEmb' (sup-∞ A f , its) = toEmb (sup-∞ A f , its) .snd
 
--- desup⁰' : (x : V⁰ {ℓ}) → (El⁰ x ↪ V⁰ {ℓ})
--- desup⁰' = fromEmb'
--- {-# WARNING_ON_USAGE desup⁰' "Deprecated: use fromEmb'" #-}
-
 isSetEl⁰ : (x : V⁰ {ℓ}) → isSet (El⁰ x)
 isSetEl⁰ {ℓ} x = Embedding-into-isSet→isSet {A = El⁰ {ℓ} x} {B = V⁰ {ℓ}} (fromEmb' x) (isSetV⁰ {ℓ})
 
--- thm17 : (x : V⁰ {ℓ}) → isSet (El⁰ x)
--- thm17 = isSetEl⁰
--- {-# WARNING_ON_USAGE thm17 "Deprecated: use isSetEl⁰" #-}
-
--- -- move somewhere better
+-- TODO move somewhere better
 private
   ΣEq-const-fst-fiberwiseEq : {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : A → Type ℓB} {C : A → Type ℓC}
                                 (E : Σ A B ≃ Σ A C)
@@ -281,40 +213,7 @@ private
        goal .snd = Cubical.Foundations.Equiv.Fiberwise.fiberEquiv B C fiberwise
                     eqTotal a
 
--- Iso-image-El⁰-V⁰ : Iso (Σ[ E ∈ Type ℓ ] fiber El⁰ E) (V⁰ {ℓ})
--- Iso-image-El⁰-V⁰ = invIso (totalIso El⁰)
-
--- image-El⁰-≃-V⁰ : (Σ[ E ∈ Type ℓ ] fiber El⁰ E) ≃ (V⁰ {ℓ})
--- image-El⁰-≃-V⁰ = isoToEquiv Iso-image-El⁰-V⁰
-
--- Iso-image-El⁰-Emb : {ℓ : Level} → Iso (Σ[ E ∈ Type ℓ ] fiber El⁰ E) (Embedding (V⁰ {ℓ}) ℓ)
--- Iso-image-El⁰-Emb = compIso Iso-image-El⁰-V⁰ Iso-V⁰-Emb
-
--- image-El⁰-≃-Emb : {ℓ : Level} → (Σ[ E ∈ Type ℓ ] fiber El⁰ E) ≃ (Embedding (V⁰ {ℓ}) ℓ)
--- image-El⁰-≃-Emb = isoToEquiv Iso-image-El⁰-Emb
-
--- image-El⁰-≃-Emb-fiberwise : {A : Type ℓ} → (fiber El⁰ A) ≃ (A ↪ V⁰ {ℓ})
--- image-El⁰-≃-Emb-fiberwise {ℓ} {A} = ΣEq-const-fst-fiberwiseEq image-El⁰-≃-Emb p A
---   where
---     p : (S : Σ (Type ℓ) (fiber El⁰)) → image-El⁰-≃-Emb .fst S .fst ≡ S .fst
---     p (_ , (sup-∞ _ _ , _) , p) = p
-
-
--- -- move somewhere better
--- private
---     flipΣ-fun : {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : Type ℓ'} {C : A → B → Type ℓ''} → (Σ[ a ∈ A ] (Σ[ b ∈ B ] C a b)) → (Σ[ b ∈ B ] Σ[ a ∈ A ] C a b)
---     flipΣ-fun x .fst = x .snd .fst
---     flipΣ-fun x .snd .fst = x .fst
---     flipΣ-fun x .snd .snd = x .snd .snd
-
--- private
---     flipΣ-Iso : {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : Type ℓ'} {C : A → B → Type ℓ''} → Iso (Σ[ a ∈ A ] (Σ[ b ∈ B ] C a b)) (Σ[ b ∈ B ] Σ[ a ∈ A ] C a b)
---     flipΣ-Iso .Iso.fun = flipΣ-fun
---     flipΣ-Iso .Iso.inv = flipΣ-fun
---     flipΣ-Iso .Iso.rightInv _ = refl
---     flipΣ-Iso .Iso.leftInv _ = refl
-
--- -- move this to some other place in the library
+-- TODO: move this to some other place in the library
 isEmbeddingFunctionFromIsPropToIsSet : {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → isProp A → isSet B → isEmbedding f
 isEmbeddingFunctionFromIsPropToIsSet f propA setB = injEmbedding setB λ {w} {x} _ → propA w x
 
@@ -331,33 +230,14 @@ isProp-∈⁰-Equiv x y = isPropΠ λ z → isOfHLevel≃ 1 (isProp∈⁰ {x = x
         g (a , p) .fst = a
         g (a , p) .snd = Σ≡Prop isPropIsIterativeSet p
 
--- thm4⁰-helper : {x y : V⁰ {ℓ}} → (((z : V∞ {ℓ}) → (z ∈∞ x .fst) ≃ (z ∈∞ y .fst)) ≃ ((z : V⁰ {ℓ}) → (z ∈⁰ x) ≃ (z ∈⁰ y)))
--- thm4⁰-helper {x = sup-∞ x α , itsetx} {y = sup-∞ y β , itsety} = propBiimpl→Equiv (thm12-help2 (sup-∞ x α , itsetx) (sup-∞ y β , itsety)) (isProp-∈⁰-Equiv (sup-∞ x α , itsetx) (sup-∞ y β , itsety)) f g
---     where
---        f : ((z : V∞) → (z ∈∞ sup-∞ x α) ≃ (z ∈∞ sup-∞ y β)) → (z : V⁰) → (z ∈⁰ (sup-∞ x α , itsetx)) ≃ (z ∈⁰ (sup-∞ y β , itsety))
---        f fibEquiv z = compEquiv (compEquiv (∈⁰≃∈∞ {x = sup-∞ x α , itsetx} {z = z}) (fibEquiv (z .fst))) (invEquiv (∈⁰≃∈∞ {x = sup-∞ y β , itsety} {z = z}))
---        g : ((z : V⁰) → (z ∈⁰ (sup-∞ x α , itsetx)) ≃ (z ∈⁰ (sup-∞ y β , itsety))) → (z : V∞) → (z ∈∞ sup-∞ x α) ≃ (z ∈∞ sup-∞ y β)
---        g fibEquiv z = propBiimpl→Equiv (isProp∈∞ {x = sup-∞ x α , itsetx} {z = z}) (isProp∈∞ {x = sup-∞ y β , itsety} {z = z}) (helper {u = sup-∞ x α , itsetx} {v = sup-∞ y β , itsety} fibEquiv) (helper {u = sup-∞ y β , itsety} {v = sup-∞ x α , itsetx} λ z' → invEquiv (fibEquiv z'))
---            where
---                helper : {u v : V⁰} → ((z' : V⁰) → (z' ∈⁰ u) ≃ (z' ∈⁰ v)) → z ∈∞ u .fst → z ∈∞ v .fst
---                helper {u = sup-∞ u δ , itsetu} {v = sup-∞ v ζ , itsetv} fE (a , p) = ∈⁰≃∈∞ {x = sup-∞ v ζ , itsetv} {z = z⁰} .fst (fE z⁰ .fst (invEq (∈⁰≃∈∞ {x = sup-∞ u δ , itsetu} {z = z⁰}) (a , p)))
---                    where
---                        z⁰ : V⁰
---                        z⁰ .fst = z
---                        z⁰ .snd = transport (cong isIterativeSet p) (itsetu .snd a)
-
--- thm4⁰ : (x ≡ y) ≃ ((z : V⁰ {ℓ}) → (z ∈⁰ x) ≃ (z ∈⁰ y))
--- thm4⁰ = ≡V⁰-≃-≃V⁰'
--- {-# WARNING_ON_USAGE thm4⁰ "Deprecated: use ≡V⁰-≃-≃V⁰'" #-}
-
--- -- move to better place
+-- TODO move to better place
 ⊥*≢Unit* : ((⊥* {ℓ} :> Type ℓ) ≡ (Unit* {ℓ} :> Type ℓ)) → ⊥
 ⊥*≢Unit* p = ⊥*-elim {A = λ _ → ⊥} (transport (sym p) (lift tt))
 
 Unit*≢⊥* : ((Unit* {ℓ} :> Type ℓ) ≡ (⊥* {ℓ} :> Type ℓ)) → ⊥
 Unit*≢⊥* p = ⊥*-elim {A = λ _ → ⊥} (transport p (lift tt))
 
--- this should be somewhere else, but I couldn't find it in the library for some reason
+-- TODO: move to better place
 ≡-from-isOfHLevel→isOfHLevel : {ℓ : Level} {A B : Type ℓ} {n : HLevel} → A ≡ B → isOfHLevel n A → isOfHLevel n B
 ≡-from-isOfHLevel→isOfHLevel {n = n} A≡B = subst (isOfHLevel n) A≡B
 
@@ -405,22 +285,21 @@ module _ {ℓ ℓ' ℓ'' : Level} {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''
     f-x₀ : Y → Z
     f-x₀ = curry f x₀
 
-    lem26 : isEmbedding f-x₀
-    lem26 = hasPropFibers→isEmbedding (λ z → isPropRetract (g z) (h z) (ret z) (isPropΣ (isEmbedding→hasPropFibers embf z) λ s → setX (s .fst .fst) x₀))
+    Embedding-Σ-fst-const : isEmbedding f-x₀
+    Embedding-Σ-fst-const = hasPropFibers→isEmbedding (λ z → isPropRetract (g z) (h z) (ret z) (isPropΣ (isEmbedding→hasPropFibers embf z) λ s → setX (s .fst .fst) x₀))
         where
             g : (z : Z) → (fiber f-x₀ z) → (Σ[ s ∈ fiber f z ] (s .fst .fst) ≡ x₀)
-            g z _ .fst .fst .fst = x₀
-            g z fib .fst .fst .snd = fib .fst
-            g z fib .fst .snd = fib .snd
-            g z _ .snd = refl
+            g _ _ .fst .fst .fst = x₀
+            g _ fib .fst .fst .snd = fib .fst
+            g _ fib .fst .snd = fib .snd
+            g _ _ .snd = refl
 
             h : (z : Z) → (Σ[ s ∈ fiber f z ] (s .fst .fst) ≡ x₀) → (fiber f-x₀ z)
-            -- h z (((x , y) , q) , p) .fst = y
-            h z s .fst = s .fst .fst .snd
-            h z s .snd = cong (λ x' → f (x' , (s .fst .fst .snd))) (sym (s .snd)) ∙ (s .fst .snd)
+            h _ s .fst = s .fst .fst .snd
+            h _ s .snd = cong (λ x' → f (x' , (s .fst .fst .snd))) (sym (s .snd)) ∙ (s .fst .snd)
 
             ret : (z : Z) → retract (g z) (h z)
-            ret z fib = cong (fib .fst ,_) (sym (lUnit _))
+            ret _ fib = cong (fib .fst ,_) (sym (lUnit _))
 
 private
     module _ {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) where
