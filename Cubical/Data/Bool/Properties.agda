@@ -86,6 +86,10 @@ false≢true p = subst (λ b → if b then ⊥ else Bool) p true
 ¬false→true false p = Empty.rec (p refl)
 ¬false→true true _ = refl
 
+¬≡b→≡notb : ∀ x y → ¬ x ≡ y → x ≡ not y
+¬≡b→≡notb x false = ¬false→true x
+¬≡b→≡notb x true = ¬true→false x
+
 not≢const : ∀ x → ¬ not x ≡ x
 not≢const false = true≢false
 not≢const true  = false≢true
@@ -378,6 +382,12 @@ PropBoolP→P (yes p) _ = p
 P→PropBoolP : (dec : Dec A) → A → Bool→Type (Dec→Bool dec)
 P→PropBoolP (yes p) _ = tt
 P→PropBoolP (no ¬p) = ¬p
+
+DecΠBool : {A : Bool → Type ℓ} → (∀ b → Dec (A b)) → Dec (∀ b → A b)
+DecΠBool {A = A} x = isDecBiimpl {A = A true × A false} (λ { as false → as .snd ; as true → as .fst }) (λ z z₁ → z (z₁ true , z₁ false)) (Dec× (x true) (x false))
+
+¬ΠBool→¬Σ : {A : Bool → Type ℓ} → (∀ b → Dec (A b)) → ¬ (∀ b → A b) → Σ[ b ∈ Bool ] (¬ (A b))
+¬ΠBool→¬Σ decA ¬∀ = decRec (decRec (λ Afalse Atrue → Empty.rec (¬∀ (λ { false → Afalse ; true → Atrue }))) (λ z z₁ → false , z) (decA false)) (λ z → true , z) (decA true)
 
 Bool≡ : Bool → Bool → Bool
 Bool≡ true true = true
