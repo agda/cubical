@@ -1,19 +1,16 @@
-{-# OPTIONS --cubical #-}
 module Cubical.Axiom.ExcludedMiddle where
 
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 
-open import Cubical.Data.Bool
-  renaming (Bool to 𝟚; Bool→Type to ⟨_⟩)
-open import Cubical.Data.Empty as Empty
-open import Cubical.Data.Sum as Sum
 open import Cubical.Functions.Surjection
+
+open import Cubical.Data.Bool renaming (Bool to 𝟚)
+open import Cubical.Data.Empty as Empty
 
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.Join as Join
