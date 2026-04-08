@@ -1,5 +1,4 @@
 -- The covering relation
-{-# OPTIONS --safe #-}
 
 module Cubical.Relation.Binary.Order.Poset.Covering where
 

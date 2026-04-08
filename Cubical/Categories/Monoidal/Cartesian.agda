@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Monoidal.Cartesian where
 

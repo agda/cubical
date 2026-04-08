@@ -1,4 +1,3 @@
-{-# OPTIONS --cubical #-}
 
 -- The posetal reflection is the universal way to turn a preorder into a poset
 -- In abstract-nonsense terms, the posetal reflection exhibits Pos as a reflective subcategory of preorders.

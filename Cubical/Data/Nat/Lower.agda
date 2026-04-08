@@ -1,4 +1,3 @@
-{-# OPTIONS --cubical --no-import-sorts #-}
 
 module Cubical.Data.Nat.Lower where
 

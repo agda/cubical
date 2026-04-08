@@ -1,4 +1,3 @@
-{-# OPTIONS --cubical #-}
 module Cubical.Data.Nat.Mod where
 
 open import Agda.Builtin.Nat using () renaming (

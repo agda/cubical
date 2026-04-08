@@ -1,5 +1,4 @@
 -- Dagger categories
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Dagger where
 
