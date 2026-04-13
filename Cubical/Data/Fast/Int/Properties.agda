@@ -20,8 +20,12 @@ open import Cubical.Data.Nat as ℕ hiding (
   renaming (_·_ to _·ℕ_; _+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order as ℕ using ()
 open import Cubical.Data.Sum
+
+open import Cubical.Data.Sigma
 open import Cubical.Data.Fin.Base
 open import Cubical.Data.Fin.Properties
+open import Cubical.Data.Nat.Divisibility
+open import Cubical.Data.Nat.GCD
 
 open import Cubical.Data.Int.Base as ℤ
   hiding (_+_ ; _·_ ; _-_ ; _ℕ-_ ; sumFinℤ ; sumFinℤId)
@@ -524,6 +528,11 @@ max- (suc x) (suc y) = refl
 
 -max : ∀ x y → max (- (pos x)) (pos y) ≡ pos y
 -max x y = maxComm (- (pos x)) (pos y) ∙ max- y x
+
+abs-max : ∀ n → pos (abs n) ≡ max n (- n)
+abs-max (pos zero) = refl
+abs-max (pos (suc n)) = refl
+abs-max (negsuc n) = refl
 
 inj-z+ : ∀ {z l n} → z + l ≡ z + n → l ≡ n
 inj-z+ {z} {l} {n} p =
@@ -1115,6 +1124,11 @@ sign·abs (pos zero)    = refl
 sign·abs (pos (suc n)) = cong (pos ∘ suc) (ℕ.+-zero n)
 sign·abs (negsuc n)    = cong negsuc (ℕ.+-zero n)
 
+abs≡sign· : ∀ m → pos (abs m) ≡ sign m · m
+abs≡sign· (pos zero) = refl
+abs≡sign· (pos (suc n)) = cong (pos ∘ suc) (sym (ℕ.+-zero n))
+abs≡sign· (negsuc n) = cong pos (sym (ℕ.+-zero (suc n)))
+
 -- ℤ is integral domain
 
 isIntegralℤPosPos : (c m : ℕ) → pos c · pos m ≡ 0 → ¬ c ≡ 0 → m ≡ 0
@@ -1163,3 +1177,22 @@ sumFinℤ0 n = sumFinGen0 _+_ 0 +IdR n (λ _ → 0) λ _ → refl
 sumFinℤHom : {n : ℕ} (f g : Fin n → ℤ)
   → sumFinℤ {n = n} (λ x → f x + g x) ≡ sumFinℤ {n = n} f + sumFinℤ {n = n} g
 sumFinℤHom {n = n} = sumFinGenHom _+_ 0 +IdR +Comm +Assoc n
+
+-- TODO : generalise to Vec and BigOp
+sing×[pos]Decompose : (x y : ℤ) → Σ[ (x' , y') ∈ (ℕ × ℕ) ] ((x · y ≡ pos (x' ℕ.· y')) ⊎ (x · y ≡ - pos (x' ℕ.· y')))
+sing×[pos]Decompose (pos n) (pos m) = (n , m) , inl refl
+sing×[pos]Decompose (pos n) (negsuc m) = (n , suc m) , inr (pos·negsuc n m)
+sing×[pos]Decompose (negsuc n) (pos m) = (suc n , m) , inr (negsuc·pos n m)
+sing×[pos]Decompose (negsuc n) (negsuc m) = (suc n , suc m) , inl (negsuc·negsuc n m)
+
+gcdℤ : (a b : ℤ) → Σ[ (a' , b' , c ) ∈ _ × _ × _ ]
+                (a ≡ a' · pos c) × (b ≡ b' · pos c)
+gcdℤ a b =
+  let ((a' , p) , (b' , q)) = map-× ∣-untrunc ∣-untrunc (gcdIsGCD (abs a) (abs b) .fst)
+  in (sign a · pos a' , sign b · pos b' , (gcd (abs a) (abs b))) ,
+       (sym (sign·abs a)
+        ∙∙ cong (sign a ·_) (cong pos (sym p))
+        ∙∙ ·Assoc _ _ _)
+       , sym (sign·abs b)
+        ∙∙ cong (sign b ·_) (cong pos (sym q))
+        ∙∙ ·Assoc _ _ _

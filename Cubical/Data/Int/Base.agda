@@ -7,6 +7,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat hiding (_+_ ; _·_) renaming (isEven to isEvenℕ ; isOdd to isOddℕ)
 open import Cubical.Data.Fin.Base
+open import Cubical.Data.NatPlusOne
 
 infix  8 -_
 infixl 7 _·_
@@ -96,3 +97,6 @@ sumFinℤ {n = n} f = sumFinGen {n = n} _+_ 0 f
 sumFinℤId : (n : ℕ) {f g : Fin n → ℤ}
   → ((x : _) → f x ≡ g x) → sumFinℤ {n = n} f ≡ sumFinℤ {n = n} g
 sumFinℤId n t i = sumFinℤ {n = n} λ x → t x i
+
+ℕ₊₁→ℤ : ℕ₊₁ → ℤ
+ℕ₊₁→ℤ n = pos (ℕ₊₁→ℕ n)

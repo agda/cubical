@@ -15,6 +15,7 @@ open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Empty
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 
@@ -145,7 +146,6 @@ module Units (R' : CommRing ℓ) where
                                   ∙ congR _·_ (·-rinv _)
                                   ∙ ·IdR _
 
-
 -- some convenient notation
 _ˣ : (R' : CommRing ℓ) → ℙ (R' .fst)
 R' ˣ = Units.Rˣ R'
@@ -223,6 +223,7 @@ module _ where
 
 module Exponentiation (R' : CommRing ℓ) where
  open CommRingStr (snd R')
+ open RingTheory (CommRing→Ring R')
  private R = fst R'
 
  -- introduce exponentiation
@@ -260,12 +261,27 @@ module Exponentiation (R' : CommRing ℓ) where
                         ∙∙ cong (f ^ m ·_) (^-rdist-·ℕ f n m)
                         ∙∙ sym  (^-ldist-· f (f ^ n) m)
 
+ 0^ˢⁿ≡0 : ∀ n → 0r ^ (suc n) ≡ 0r
+ 0^ˢⁿ≡0 _ = 0LeftAnnihilates _
+
  -- interaction of exponentiation and units
  open Units R'
 
  ^-presUnit : ∀ (f : R) (n : ℕ) → f ∈ Rˣ → f ^ n ∈ Rˣ
  ^-presUnit f zero f∈Rˣ = RˣContainsOne
  ^-presUnit f (suc n) f∈Rˣ = RˣMultClosed f (f ^ n) ⦃ f∈Rˣ ⦄ ⦃ ^-presUnit f n f∈Rˣ ⦄
+
+ module IntegralDomain (isIntDom : (c m : R) → c · m ≡ 0r → (c ≡ 0r → ⊥) → m ≡ 0r) where
+
+  x≢0→x^sn≢0 : ∀ x n → (x ≡ 0r → ⊥) → (x ^ (suc n) ≡ 0r → ⊥)
+  x≢0→x^sn≢0 x zero x≢0 p = x≢0 (sym (·IdR x) ∙ p )
+  x≢0→x^sn≢0 x (suc n) x≢0 p =
+    x≢0→x^sn≢0 x n x≢0 (isIntDom x (x ^ (suc n)) p x≢0)
+
+  x≢0≃x^sn≢0 : ∀ x n → (x ≡ 0r → ⊥) ≃ (x ^ (suc n) ≡ 0r → ⊥)
+  x≢0≃x^sn≢0 x n = propBiimpl→Equiv (isPropΠ λ _ → isProp⊥) (isPropΠ λ _ → isProp⊥)
+    (x≢0→x^sn≢0 x n) (_∘ λ x≡0 → cong (_^ (suc n)) x≡0 ∙ 0^ˢⁿ≡0 n)
+
 
 module CommRingHomTheory {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
  open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)

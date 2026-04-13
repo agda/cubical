@@ -146,6 +146,10 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
       symmetric : isSym
       transitive : isTrans
 
+    infixr 30 _equivRel∙_
+    _equivRel∙_ : isTrans'
+    _equivRel∙_ = transitive _ _ _
+
   isUniversalRel→isEquivRel : HeterogenousRelation.isUniversalRel R → isEquivRel
   isUniversalRel→isEquivRel u .isEquivRel.reflexive a = u a a
   isUniversalRel→isEquivRel u .isEquivRel.symmetric a b _ = u b a

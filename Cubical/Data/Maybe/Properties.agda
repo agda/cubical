@@ -10,7 +10,7 @@ open import Cubical.Foundations.Structure using (⟨_⟩)
 
 open import Cubical.Functions.Embedding using (isEmbedding)
 
-open import Cubical.Data.Empty as ⊥ using (⊥*; isProp⊥*)
+open import Cubical.Data.Empty as ⊥ using (⊥; ⊥*; isProp⊥*)
 open import Cubical.Data.Unit
 open import Cubical.Data.Nat using (suc)
 open import Cubical.Data.Sum using (_⊎_; inl; inr)
@@ -162,6 +162,9 @@ module SumUnit where
   SumUnit→Maybe→SumUnit (inl _) = refl
   SumUnit→Maybe→SumUnit (inr _) = refl
 
+maybeToSum : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → B → Maybe A → B ⊎ A
+maybeToSum b = rec (inl b) inr
+
 Maybe≡SumUnit : Maybe A ≡ Unit ⊎ A
 Maybe≡SumUnit = isoToPath (iso Maybe→SumUnit SumUnit→Maybe SumUnit→Maybe→SumUnit Maybe→SumUnit→Maybe)
   where open SumUnit
@@ -178,3 +181,38 @@ congMaybeEquiv e = isoToEquiv isom
   isom .sec (just b) = cong just (secEq e b)
   isom .ret nothing = refl
   isom .ret (just a) = cong just (retEq e a)
+
+infixl 20 _⁇→_
+
+_⁇→_ : ∀ {ℓ'} → Type ℓ → Type ℓ' → Type (ℓ-max ℓ ℓ')
+A ⁇→ B = (mbA : Maybe A) → caseMaybe Unit* B mbA
+
+⁇λ_ : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → A ⁇→ B
+⁇λ_ f nothing = tt*
+⁇λ_ f (just a) = f a
+
+∘rec : ∀ {ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} (f : B → C) n j
+           (x : Maybe A) → f (Maybe.rec n j x) ≡ Maybe.rec (f n) (f ∘ j) x
+∘rec f n j nothing = refl
+∘rec f n j (just x) = refl
+
+∘fromJust-def : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) n
+           (x : Maybe A) → f (fromJust-def n x) ≡ fromJust-def (f n) (map-Maybe f x)
+∘fromJust-def f n nothing = refl
+∘fromJust-def f n (just x) = refl
+
+FromMaybeΣ : ∀ {ℓ ℓ' A B} → Maybe (Σ {ℓ} {ℓ'} A B) → Type ℓ'
+FromMaybeΣ nothing = Unit*
+FromMaybeΣ {B = B} (just (a , _)) = B a
+
+fromMaybeΣ : ∀ {ℓ ℓ' A B} a,b → FromMaybeΣ {ℓ} {ℓ'} {A = A} {B = B} a,b
+fromMaybeΣ nothing = tt*
+fromMaybeΣ (just (_ , x)) = x
+
+
+IsJust : ∀ {ℓ} {A : Type ℓ} → Maybe A → Type
+IsJust nothing = ⊥
+IsJust (just _) = Unit
+
+fromIsJust : ∀ {ℓ} {A : Type ℓ} → {mbA : Maybe A} → (IsJust mbA) → A
+fromIsJust {mbA = just a} _ = a

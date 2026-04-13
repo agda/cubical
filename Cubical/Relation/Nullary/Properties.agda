@@ -17,6 +17,7 @@ open import Cubical.Functions.Fixpoint
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma.Base using (_×_)
 open import Cubical.Data.Sum.Base
+open import Cubical.Data.Maybe.Base
 
 open import Cubical.Relation.Nullary.Base
 open import Cubical.HITs.PropositionalTruncation.Base
@@ -226,3 +227,11 @@ inhabitedFibres? : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'}
   (f : A → B) → Type (ℓ-max ℓ ℓ')
 inhabitedFibres? {A = A} {B = B} f =
   (y : B) → (Σ[ x ∈ A ] f x ≡ y) ⊎ ((x : A) → ¬ f x ≡ y)
+
+Dec× : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'} → Dec A → Dec B → Dec (A × B)
+Dec× (yes p) (yes p') = yes (p , p')
+Dec× _ (no ¬p) = no (¬p ∘ snd)
+Dec× (no ¬p) _ = no (¬p ∘ fst)
+
+decToMaybe : {A : Type ℓ} → Dec A → Maybe A
+decToMaybe = decRec just λ _ → nothing

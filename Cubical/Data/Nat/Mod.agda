@@ -12,6 +12,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
 
 open import Cubical.Relation.Nullary
 
@@ -331,6 +332,7 @@ zero-charac-gen (suc n) (suc x) =
   (x · suc n) mod suc n         ≡⟨ zero-charac-gen (suc n) x ⟩
   0                             ∎
 
+
 mod·mod≡mod : (n x y : ℕ)
   → (x · y) mod n ≡ (((x mod n) · (y mod n)) mod n)
 mod·mod≡mod zero      _ _ = refl
@@ -355,6 +357,7 @@ mod·mod≡mod d@(suc n) x y =
               (sym (≡remainder+quotient d x)) (sym (≡remainder+quotient d y))
     step1 = cong (_mod d) (lemma d x′ y′ j k)
     step2 = sym (mod-rUnitMul d (x′ · y′) ((x mod d) · j + (y′ + j · d) · k))
+
 
 mod-rCancel : (n x y : ℕ) → (x + y) mod n ≡ (x + y mod n) mod n
 mod-rCancel zero      _ _ = refl
@@ -502,3 +505,46 @@ private
 
   test₁ : ((11 + (10 mod 3)) mod 3) ≡ 0
   test₁ = refl
+
+
+-- hmod0 : ∀ m m' → hmod 0 m m' m ≡ modInd m m'
+-- hmod0 m m' = {!!}
+
+-- -- ·mod : ∀ k n m → (k · n) mod (k · m) ≡ k · (n mod m)
+-- -- ·mod zero n m = refl
+-- -- ·mod (suc k) n zero = cong ((n + k · n) mod_) (sym (0≡m·0 (suc k)))
+-- --                   ∙ 0≡m·0 (suc k)
+-- -- ·mod (suc k) n (suc m) = ·mod' n n ≤-refl (splitℕ-≤ (suc m) n)
+
+-- --  where
+-- --  ·mod' : ∀ N n → n ≤ N → ((suc m) ≤ n) ⊎ (n < suc m) →
+-- --     ((suc k · n) mod (suc k · suc m)) ≡ suc k · (n mod suc m)
+-- --  ·mod' _ zero x _ = cong {x = k · 0} {y = 0}
+-- --                   (λ kk → hmod 0 (m + k · suc m) kk (m + k · suc m)) (sym (0≡m·0 k))
+-- --                   ∙ 0≡m·0 (suc k)
+-- --  ·mod' zero (suc n) x _ = ⊥.rec (¬-<-zero x)
+-- --  ·mod' (suc N) n@(suc n') x (inl (m' , p)) =
+-- --   let z = ·mod' N m' (≤-trans (m
+-- --                , +-comm m m' ∙ injSuc (sym (+-suc m' m) ∙ p))
+-- --               (pred-≤-pred x)) (splitℕ-≤ _ _) ∙ {!!} ∙ cong ((suc k) ·_)
+-- --             (sym (modIndStep m m') ∙
+-- --              {!!} ∙ cong (_mod (suc m)) (+-comm (suc m) m' ∙ p))
+-- --   in (cong (λ y → ((suc k · y) mod (suc k · suc m))) (sym p)
+-- --        ∙ {!!} ∙ cong {x = (m' + suc m + k · (m' + suc m))}
+-- --                {suc (m + k · suc m + (m' + k · m'))}
+-- --             (modInd (m + k · suc m))
+-- --               (cong (_+ k · (m' + suc m)) (+-suc m' m ∙ cong suc (+-comm m' m))
+-- --                  ∙ cong suc
+-- --                   (sym (+-assoc m m' _)
+-- --                     ∙∙ cong (m +_)
+-- --                        (((cong (m' +_) (sym (·-distribˡ k _ _)
+-- --                          ∙ +-comm (k · m') _) ∙ +-assoc m' (k · suc m) (k · m'))
+-- --                         ∙ cong (_+ k · m') (+-comm m' _))
+-- --                         ∙ sym (+-assoc (k · suc m) m' (k · m')) )
+-- --                     ∙∙ +-assoc m _ _))
+-- --          ∙ modIndStep (m + k · suc m) (m' + k · m')) ∙ {!!} ∙ z
+-- --  ·mod' (suc N) n x (inr x₁) = {!!}
+-- --    -- modIndBase _ _ (
+-- --    --   subst2 _<_ (·-comm n (suc k)) (·-comm _ (suc k))
+-- --    --    (<-·sk {n} {suc m} {k = k} x₁) )
+-- --    --  ∙ cong ((suc k) ·_) (sym (modIndBase _ _ x₁))

@@ -64,3 +64,10 @@ lookup : ∀ {n} {A : Type ℓ} → Fin n → Vec A n → A
 lookup zero    (x ∷ xs) = x
 lookup (suc i) (x ∷ xs) = lookup i xs
 
+drop : ∀ {n} {A : Type ℓ} → Fin (suc n) → Vec A (suc n) → Vec A n
+drop zero (x ∷ xs) = xs
+drop {n = suc n} (suc k) (x ∷ xs) = x ∷ drop k xs
+
+tabulate : ∀ {n} {A : Type ℓ} → (Fin n → A) → Vec A n
+tabulate {n = zero} _ = []
+tabulate {n = suc n} f = f zero ∷ tabulate (λ k → f (suc k))

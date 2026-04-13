@@ -199,7 +199,6 @@ fill A {φ = φ} u u0 i =
                 ; (i = i0) → outS u0 })
        (outS u0)
 
--- Σ-types
 infix 2 Σ-syntax
 
 Σ-syntax : ∀ {ℓ ℓ'} (A : Type ℓ) (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')

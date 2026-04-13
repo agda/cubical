@@ -7,11 +7,14 @@ open import Cubical.Data.Unit
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 
+open import Cubical.Algebra.Ring.Properties
+
 private
   variable
     ℓ ℓ' : Level
 
 open CommRingStr
+open RingStr
 
 UnitCommRing : CommRing ℓ
 fst UnitCommRing = Unit*
@@ -33,5 +36,9 @@ mapToUnitCommRing R .snd .IsCommRingHom.pres+ = λ _ _ → refl
 mapToUnitCommRing R .snd .IsCommRingHom.pres· = λ _ _ → refl
 mapToUnitCommRing R .snd .IsCommRingHom.pres- = λ _ → refl
 
-isPropMapToUnitCommRing : {ℓ : Level} (R : CommRing ℓ') → isProp (CommRingHom R (UnitCommRing {ℓ = ℓ}))
+isPropMapToUnitCommRing : (R : CommRing ℓ') → isProp (CommRingHom R (UnitCommRing {ℓ = ℓ}))
 isPropMapToUnitCommRing R f g = CommRingHom≡ (funExt λ _ → refl)
+
+[1=0]→≃UnitCommRing : (R : Ring ℓ') → (1r (snd R) ≡ 0r (snd R)) → RingEquiv R (CommRing→Ring (UnitCommRing {ℓ}))
+[1=0]→≃UnitCommRing R 1=0 = isContr→≃Unit* (RingTheory.zeroRing.isContrR R 1=0) ,
+  makeIsRingHom (λ _ → _) (λ _ _ _ → _) λ _ _ _ → _

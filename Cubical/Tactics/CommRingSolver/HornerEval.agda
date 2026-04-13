@@ -1,132 +1,82 @@
 module Cubical.Tactics.CommRingSolver.HornerEval where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat using (ℕ)
-open import Cubical.Data.Int hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.Vec
-open import Cubical.Data.Bool
+open import Cubical.Data.Bool as 𝟚
 
-open import Cubical.Relation.Nullary.Base using (¬_; yes; no)
+open import Cubical.Relation.Nullary
+open import Cubical.Relation.Binary
 
 open import Cubical.Tactics.CommRingSolver.Utility
+open import Cubical.Tactics.CommRingSolver.RawRing
 open import Cubical.Tactics.CommRingSolver.RawAlgebra
-open import Cubical.Tactics.CommRingSolver.IntAsRawRing
 open import Cubical.Tactics.CommRingSolver.HornerForms
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
+
 
 private
   variable
     ℓ ℓ' : Level
 
-eval : {A : RawAlgebra ℤAsRawRing ℓ'}
-       {n : ℕ} (P : IteratedHornerForms A n)
-       → Vec ⟨ A ⟩ n → ⟨ A ⟩
-eval {A = A} (const r) [] = RawAlgebra.scalar A r
-eval {A = A} 0H (_ ∷ _) = RawAlgebra.0r A
-eval {A = A} (P ·X+ Q) (x ∷ xs) =
-     let open RawAlgebra A
-         P' = (eval P (x ∷ xs))
-         Q' = eval Q xs
-     in if (isZero A P)
-        then Q'
-        else P' · x + Q'
 
-module _ (R : CommRing ℓ) where
-  private
-    νR = CommRing→RawℤAlgebra R
-  open CommRingStr (snd R)
-  open RingTheory (CommRing→Ring R)
-  open IteratedHornerOperations νR
+module HornerEval (R@(⟨R⟩ , _) : CommRing ℓ)
+                         (R'@(⟨R'⟩ , _) : CommRing ℓ')
+                         (hom@(scalar‵ , _) : CommRingHom R R') where
+ open CommRingStr (snd R)
 
-  someCalculation : {x : fst R} → _ ≡ _
-  someCalculation {x = x} =
-    0r                   ≡⟨ sym (+IdR 0r) ⟩
-    0r + 0r              ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + 0r ⟩
-    0r · x + 0r          ∎
+ open RingTheory (CommRing→Ring R)
 
 
-  evalIsZero : {n : ℕ} (P : IteratedHornerForms νR n)
-             → (l : Vec (fst R) n)
-             → isZero νR P ≡ true
-             → eval P l ≡ 0r
-  evalIsZero (const (pos ℕ.zero)) [] isZeroP = refl
-  evalIsZero (const (pos (ℕ.suc n))) [] isZeroP = byBoolAbsurdity isZeroP
-  evalIsZero (const (negsuc _)) [] isZeroP = byBoolAbsurdity isZeroP
-  evalIsZero 0H (x ∷ xs) _ = refl
-  evalIsZero {n = ℕ.suc n} (P ·X+ Q) (x ∷ xs) isZeroPandQ with isZero νR P
-  ... | true = eval Q xs   ≡⟨ evalIsZero Q xs isZeroQ ⟩
-               0r ∎
-               where isZeroQ = snd (extractFromAnd _ _ isZeroPandQ)
-  ... | false = byBoolAbsurdity isZeroP
-               where isZeroP = isZeroPandQ
+ open HornerForms R R' hom public
+ open IteratedHornerOperations public
 
-  computeEvalSummandIsZero :
-               {n : ℕ}
-               (P : IteratedHornerForms νR (ℕ.suc n))
-               (Q : IteratedHornerForms νR n)
-             → (xs : Vec (fst R) n)
-             → (x : (fst R))
-             → isZero νR P ≡ true
-             → eval (P ·X+ Q) (x ∷ xs) ≡ eval Q xs
-  computeEvalSummandIsZero P Q xs x isZeroP with isZero νR P
-  ... | true = refl
-  ... | false = byBoolAbsurdity isZeroP
+ open IsCommRingHom (snd hom)
 
-  computeEvalNotZero :
-               {n : ℕ}
-               (P : IteratedHornerForms νR (ℕ.suc n))
-               (Q : IteratedHornerForms νR n)
-             → (xs : Vec (fst R) n)
-             → (x : (fst R))
-             → ¬ (isZero νR P ≡ true)
-             → eval (P ·X+ Q) (x ∷ xs) ≡ (eval P (x ∷ xs)) · x + eval Q xs
-  computeEvalNotZero P Q xs x notZeroP with isZero νR P
-  ... | true = byBoolAbsurdity (sym (¬true→false true notZeroP))
-  ... | false = refl
-
-  combineCasesEval :
-    {n : ℕ}  (P : IteratedHornerForms νR (ℕ.suc n)) (Q : IteratedHornerForms νR n)
-    (x : (fst R)) (xs : Vec (fst R) n)
-    →   eval (P ·X+ Q) (x ∷ xs)
-      ≡ (eval P (x ∷ xs)) · x + eval Q xs
-  combineCasesEval P Q x xs with isZero νR P ≟ true
-  ... | yes p =
-       eval (P ·X+ Q) (x ∷ xs)            ≡⟨ computeEvalSummandIsZero P Q xs x p ⟩
-       eval Q xs                          ≡⟨ sym (+IdL _) ⟩
-       0r + eval Q xs                     ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + eval Q xs ⟩
-       0r · x + eval Q xs                 ≡[ i ]⟨ (evalIsZero P (x ∷ xs) p (~ i)) · x + eval Q xs ⟩
-       (eval P (x ∷ xs)) · x + eval Q xs ∎
-  ... | no p  = computeEvalNotZero P Q xs x p
+ open CommRingStr (snd R') using () renaming
+   (0r to 0r‵;1r to 1r‵;_+_ to _+‵_; _·_ to _·‵_; -_ to -‵_)
 
 
-  compute+ₕEvalBothZero :
-    (n : ℕ) (P Q : IteratedHornerForms νR (ℕ.suc n))
-    (r s : IteratedHornerForms νR n)
-    (x : (fst R)) (xs : Vec (fst R) n)
-    → (isZero νR (P +ₕ Q) and isZero νR (r +ₕ s)) ≡ true
-    → eval ((P ·X+ r) +ₕ (Q ·X+ s)) (x ∷ xs) ≡ eval ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs)
-  compute+ₕEvalBothZero n P Q r s x xs bothZero with isZero νR (P +ₕ Q) and isZero νR (r +ₕ s) | bothZero
-  ... | true | p =
-               eval {A = νR} 0H (x ∷ xs)                            ≡⟨ refl ⟩
-               0r                                                   ≡⟨ someCalculation ⟩
-               0r · x + 0r                                          ≡⟨ step1  ⟩
-               (eval (P +ₕ Q) (x ∷ xs)) · x + eval (r +ₕ s) xs       ≡⟨ step2 ⟩
-               eval ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs) ∎
-            where step1 : 0r · x + 0r ≡ (eval (P +ₕ Q) (x ∷ xs)) · x + eval (r +ₕ s) xs
-                  step1 i = (evalIsZero (P +ₕ Q) (x ∷ xs) (fst (extractFromAnd _ _ (bothZero))) (~ i)) · x
-                    + (evalIsZero (r +ₕ s) xs (snd (extractFromAnd _ _ (bothZero))) (~ i))
-                  step2 = sym (combineCasesEval (P +ₕ Q) (r +ₕ s) x xs)
-  ... | false | p = byBoolAbsurdity p
 
-  compute+ₕEvalNotBothZero :
-    (n : ℕ) (P Q : IteratedHornerForms νR (ℕ.suc n))
-    (r s : IteratedHornerForms νR n)
-    (x : (fst R)) (xs : Vec (fst R) n)
-    → (isZero νR (P +ₕ Q) and isZero νR (r +ₕ s)) ≡ false
-    → eval ((P ·X+ r) +ₕ (Q ·X+ s)) (x ∷ xs) ≡ eval ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs)
-  compute+ₕEvalNotBothZero n P Q r s _ _ notBothZero
-    with isZero νR (P +ₕ Q) and isZero νR (r +ₕ s) | notBothZero
-  ... | true | p = byBoolAbsurdity (sym p)
-  ... | false | p = refl
+ eval : {n : ℕ} (P : IteratedHornerForms n)
+        → Vec ⟨R'⟩ n → ⟨R'⟩
+ eval  (const r) [] = scalar‵ r
+ eval 0H _ = 0r‵
+ eval (P ·X+ Q) (x ∷ xs) =
+      let
+          P' = (eval P (x ∷ xs))
+          Q' = eval Q xs
+      in ((P' ·‵ x) +‵ Q')
+
+
+ record EvalInVecR {ℓ} (A : ℕ → Type ℓ) : Type (ℓ-max ℓ ℓ') where
+  no-eta-equality
+  field
+   evalInVecR : {n : ℕ} → A n → Vec ⟨R'⟩ n → ⟨R'⟩
+
+  _≑_ : ∀ {n} → A n → A n → Type ℓ'
+  P ≑ Q = ∀ xs → evalInVecR P xs ≡ evalInVecR Q xs
+
+  isProp≑ : ∀ {n} P Q → isProp (_≑_ {n} P Q)
+  isProp≑ P Q  = isPropΠ λ _ → R‵.is-set _ _
+
+  module ≑Rel {n} where
+   open BinaryRelation (_≑_ {n})
+   open isEquivRel
+   isEquivRel≑ : isEquivRel
+   isEquivRel≑ .reflexive _ _ = refl
+   isEquivRel≑ .symmetric _ _ x _ = sym (x _)
+   isEquivRel≑ .transitive _ _ _ x y _ = x _ ∙ y _
+
+   open isEquivRel isEquivRel≑
+     public using () renaming (symmetric to sym ; reflexive to refl ; _equivRel∙_ to _∙∶_)
+
+
+ open EvalInVecR ⦃...⦄ public
+
+ instance
+  EvalInVecRIteratedHornerForms : EvalInVecR IteratedHornerForms
+  EvalInVecRIteratedHornerForms .EvalInVecR.evalInVecR = eval
