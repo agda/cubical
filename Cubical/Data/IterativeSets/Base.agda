@@ -163,11 +163,6 @@ x ≃V⁰' y = (z : V⁰) → ((z ∈⁰ x) ≃ (z ∈⁰ y))
 isProp∈∞ : {z : V∞ {ℓ}} → isProp (z ∈∞ (x .fst))
 isProp∈∞ {x = x} {z = z} = isEmbedding→hasPropFibers (isEmbedding-tilde-∞ x) z
 
--- TODO: move to better place
-embeddingToEquivOfPath : {ℓ ℓ' : Level} {A : Type ℓ} → {B : Type ℓ'} → {f : A → B} → isEmbedding f → (x y : A) → (x ≡ y) ≃ (f x ≡ f y)
-embeddingToEquivOfPath {f = f} _ _ _ .fst = cong f
-embeddingToEquivOfPath isemb x y .snd = isemb x y
-
 isProp∈⁰ : {x z : V⁰ {ℓ}} → isProp (z ∈⁰ x)
 isProp∈⁰ {x = x} {z = z} = isEmbedding→hasPropFibers (isEmbedding-tilde x) z
 

@@ -552,3 +552,7 @@ isEmbeddingSndΣProp pB f emb =
 isEmbedding-isProp→isSet : isProp A → isSet B → (f : A → B) → isEmbedding f
 isEmbedding-isProp→isSet pA sB f x y = propBiimpl→Equiv (isProp→isSet pA x y) (sB (f x) (f y)) (cong f) (λ _ → pA x y) .snd
 
+embeddingToEquivOfPath : {ℓ ℓ' : Level} {A : Type ℓ} → {B : Type ℓ'} → {f : A → B} →
+                           isEmbedding f → (x y : A) → (x ≡ y) ≃ (f x ≡ f y)
+embeddingToEquivOfPath {f = f} _ _ _ .fst = cong f
+embeddingToEquivOfPath isemb x y .snd = isemb x y
