@@ -5,6 +5,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Transport
+
 open import Cubical.Relation.Nullary using (¬_)
 open import Cubical.Data.Sigma
 open import Cubical.Functions.Fibration
@@ -88,22 +90,6 @@ f ≡Equiv g = Σ[ e ∈ f .fst ≃ g .fst ] f .snd ≡ (g .snd ∘ e .fst)
 
 _≡Transp_ : {B : Type ℓ} (f g : Fibration B ℓ') → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 f ≡Transp g = Σ[ p ∈ f .fst ≡ g .fst ] f .snd ≡ (g .snd ∘ transport p)
-
--- TODO: move this to a better place
-private
-  transport→≡∘ : {ℓ ℓ' : Level} {A B : Type ℓ} {C : Type ℓ'}
-                 (f : A → C) (g : B → C) (p : A ≡ B) →
-                 (transport (λ i → p i → C) f ≡ g) ≡ (f ≡ g ∘ (transport p))
-  transport→≡∘ {C = C} f g p = q ∙∙ r ∙∙ s
-        where
-            q : (transport (λ i → p i → C) f ≡ g) ≡ (transport (λ i → p i → C) f ≡ g ∘ (transport refl))
-            q = cong (λ t → (transport (λ i → p i → C) f ≡ g ∘ t)) (funExt (λ x → sym (transportRefl x)))
-
-            r : (transport (λ i → p i → C) f ≡ g ∘ (transport refl)) ≡ (transport refl f ≡ g ∘ (transport p))
-            r i = transport (λ j → p (j ∧ (~ i)) → C) f ≡ g ∘ (transport λ j → p (j ∨ ~ i))
-
-            s : (transport refl f ≡ g ∘ (transport p)) ≡ (f ≡ g ∘ (transport p))
-            s = cong (λ t → t ≡ g ∘ transport p) (transportRefl f)
 
 ≡V∞-≃-≡Transp : {ℓ : Level} {x y : V∞ {ℓ}} →
                    (x ≡ y) ≃ ((overline x , tilde x) ≡Transp (overline y , tilde y))
