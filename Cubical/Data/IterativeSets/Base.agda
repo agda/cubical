@@ -175,36 +175,6 @@ fromEmb' (sup-∞ A f , its) = toEmb (sup-∞ A f , its) .snd
 isSetEl⁰ : (x : V⁰ {ℓ}) → isSet (El⁰ x)
 isSetEl⁰ {ℓ} x = Embedding-into-isSet→isSet {A = El⁰ {ℓ} x} {B = V⁰ {ℓ}} (fromEmb' x) (isSetV⁰ {ℓ})
 
--- TODO move somewhere better
-private
-  ΣEq-const-fst-fiberwiseEq : {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : A → Type ℓB} {C : A → Type ℓC}
-                                (E : Σ A B ≃ Σ A C)
-                                → ((S : Σ A B) → E .fst S .fst ≡ S .fst)
-                                → (a : A) → B a ≃ C a
-  ΣEq-const-fst-fiberwiseEq {A = A} {B = B} {C = C} E p a = goal
-    where
-       fiberwise : (a : A) → B a → C a
-       fiberwise a b = subst C (p (a , b)) (E .fst (a , b) .snd)
-
-       total : Σ A B → Σ A C
-       total S .fst = S .fst
-       total S .snd = fiberwise (S .fst) (S .snd)
-
-       EΣ≡total : (S : Σ A B) → Σ[ q ∈ E .fst S .fst ≡ total S .fst ] PathP (λ i → C (q i)) (E .fst S .snd) (total S .snd)
-       EΣ≡total S .fst = p S
-       EΣ≡total S .snd = subst-filler C (p S) (E .fst S .snd)
-
-       E≡total : E .fst ≡ total
-       E≡total = funExt (λ S → ΣPathP (EΣ≡total S))
-
-       eqTotal : isEquiv total
-       eqTotal = subst isEquiv E≡total (E .snd)
-
-       goal : B a ≃ C a
-       goal .fst = fiberwise a
-       goal .snd = Cubical.Foundations.Equiv.Fiberwise.fiberEquiv B C fiberwise
-                    eqTotal a
-
 -- TODO: move this to some other place in the library
 isEmbeddingFunctionFromIsPropToIsSet : {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → isProp A → isSet B → isEmbedding f
 isEmbeddingFunctionFromIsPropToIsSet f propA setB = injEmbedding setB λ {w} {x} _ → propA w x
