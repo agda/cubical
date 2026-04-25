@@ -29,6 +29,7 @@ private
   variable
     x y : V∞ {ℓ}
 
+overline : (x : V∞ {ℓ}) → Type ℓ
 overline = getShape
 
 tilde : (A : V∞ {ℓ}) → overline A → V∞ {ℓ}
