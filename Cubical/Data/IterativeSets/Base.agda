@@ -46,11 +46,9 @@ private
 -- accessing the components
 
 overline : V⁰ {ℓ} → Type ℓ
--- overline (sup-∞ A _ , _) = A
 overline = overline-∞ ∘ fst
 
 tilde-∞ : (x : V⁰ {ℓ}) → overline x → V∞ {ℓ}
--- tilde (sup-∞ _ f , _) = f
 tilde-∞ = tilde-V∞ ∘ fst
 
 tilde : (x : V⁰ {ℓ}) → overline x → V⁰ {ℓ}
