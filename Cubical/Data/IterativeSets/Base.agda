@@ -175,10 +175,6 @@ fromEmb' (sup-∞ A f , its) = toEmb (sup-∞ A f , its) .snd
 isSetEl⁰ : (x : V⁰ {ℓ}) → isSet (El⁰ x)
 isSetEl⁰ {ℓ} x = Embedding-into-isSet→isSet {A = El⁰ {ℓ} x} {B = V⁰ {ℓ}} (fromEmb' x) (isSetV⁰ {ℓ})
 
--- TODO: move this to some other place in the library
-isEmbeddingFunctionFromIsPropToIsSet : {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → isProp A → isSet B → isEmbedding f
-isEmbeddingFunctionFromIsPropToIsSet f propA setB = injEmbedding setB λ {w} {x} _ → propA w x
-
 isProp-∈⁰-Equiv : (x y : V⁰ {ℓ}) → isProp ((z : V⁰) → (z ∈⁰ x) ≃ (z ∈⁰ y))
 isProp-∈⁰-Equiv x y = isPropΠ λ z → isOfHLevel≃ 1 (isProp∈⁰ {x = x} {z = z}) (isProp∈⁰ {x = y} {z = z})
 

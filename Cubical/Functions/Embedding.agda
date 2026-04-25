@@ -556,3 +556,6 @@ embeddingToEquivOfPath : {ℓ ℓ' : Level} {A : Type ℓ} → {B : Type ℓ'} �
                            isEmbedding f → (x y : A) → (x ≡ y) ≃ (f x ≡ f y)
 embeddingToEquivOfPath {f = f} _ _ _ .fst = cong f
 embeddingToEquivOfPath isemb x y .snd = isemb x y
+
+isEmbeddingFunctionFromIsPropToIsSet : {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → isProp A → isSet B → isEmbedding f
+isEmbeddingFunctionFromIsPropToIsSet f propA setB = injEmbedding setB λ {w} {x} _ → propA w x
