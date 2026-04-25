@@ -538,7 +538,7 @@ _∪ₑ_ {A = A} X Y = (Σ[ x ∈ A ] ∥ (x ∈ₑ X) ⊎ (x ∈ₑ Y) ∥₁) 
                         EmbeddingΣProp λ _ → squash₁
 
 
-isEmbeddingSndΣProp : {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : A → Type ℓ'} {C : Type ℓ''}
+isEmbeddingSndΣProp : {A : Type ℓ} {B : A → Type ℓ'} {C : Type ℓ''}
                     → ((x : A) → isProp (B x))
                     → (f : C → Σ A B)
                     → isEmbedding (fst ∘ f)
@@ -552,10 +552,10 @@ isEmbeddingSndΣProp pB f emb =
 isEmbedding-isProp→isSet : isProp A → isSet B → (f : A → B) → isEmbedding f
 isEmbedding-isProp→isSet pA sB f x y = propBiimpl→Equiv (isProp→isSet pA x y) (sB (f x) (f y)) (cong f) (λ _ → pA x y) .snd
 
-embeddingToEquivOfPath : {ℓ ℓ' : Level} {A : Type ℓ} → {B : Type ℓ'} → {f : A → B} →
+embeddingToEquivOfPath : {A : Type ℓ} → {B : Type ℓ'} → {f : A → B} →
                            isEmbedding f → (x y : A) → (x ≡ y) ≃ (f x ≡ f y)
 embeddingToEquivOfPath {f = f} _ _ _ .fst = cong f
 embeddingToEquivOfPath isemb x y .snd = isemb x y
 
-isEmbeddingFunctionFromIsPropToIsSet : {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → isProp A → isSet B → isEmbedding f
+isEmbeddingFunctionFromIsPropToIsSet : {A : Type ℓ} {B : Type ℓ'} (f : A → B) → isProp A → isSet B → isEmbedding f
 isEmbeddingFunctionFromIsPropToIsSet f propA setB = injEmbedding setB λ {w} {x} _ → propA w x
