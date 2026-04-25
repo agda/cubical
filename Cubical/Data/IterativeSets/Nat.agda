@@ -1,7 +1,5 @@
 module Cubical.Data.IterativeSets.Nat where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv

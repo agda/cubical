@@ -1,6 +1,5 @@
 module Cubical.Data.IterativeSets.Empty where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Empty renaming (elim* to ⊥*-elim ; elim to ⊥-elim)

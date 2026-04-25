@@ -1,7 +1,6 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Data.IterativeSets.Sigma where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Functions.Embedding

@@ -1,6 +1,5 @@
 module Cubical.Data.IterativeSets.Identity where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Functions.Embedding

@@ -4,7 +4,6 @@
 
 module Cubical.Data.IterativeSets.Pi where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function

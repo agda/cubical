@@ -2,7 +2,6 @@
 
 module Cubical.Data.IterativeSets.UnorderedPair where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Foundations.Equiv
