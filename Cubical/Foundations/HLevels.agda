@@ -149,6 +149,34 @@ isPropIs2Groupoid = isPropIsOfHLevel 4
 TypeOfHLevel≡ : (n : HLevel) {X Y : TypeOfHLevel ℓ n} → ⟨ X ⟩ ≡ ⟨ Y ⟩ → X ≡ Y
 TypeOfHLevel≡ n = Σ≡Prop (λ _ → isPropIsOfHLevel n)
 
+-- hlevels are preserved by equalities
+
+≡-from-isOfHLevel→isOfHLevel : {ℓ : Level} {A B : Type ℓ} {n : HLevel} → A ≡ B → isOfHLevel n A → isOfHLevel n B
+≡-from-isOfHLevel→isOfHLevel {n = n} = subst (isOfHLevel n)
+
+≡-to-isOfHLevel→isOfHLevel : {ℓ : Level} {A B : Type ℓ} {n : HLevel} → A ≡ B → isOfHLevel n B → isOfHLevel n A
+≡-to-isOfHLevel→isOfHLevel {n = n} = subst⁻ (isOfHLevel n)
+
+≡-to-isContr→isContr : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isContr B → isContr A
+≡-to-isContr→isContr = ≡-to-isOfHLevel→isOfHLevel {n = 0}
+
+≡-from-isContr→isContr : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isContr A → isContr B
+≡-from-isContr→isContr = ≡-from-isOfHLevel→isOfHLevel {n = 0}
+
+≡-to-isProp→isProp : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isProp B → isProp A
+≡-to-isProp→isProp = ≡-to-isOfHLevel→isOfHLevel {n = 1}
+
+≡-from-isProp→isProp : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isProp A → isProp B
+≡-from-isProp→isProp = ≡-from-isOfHLevel→isOfHLevel {n = 1}
+
+≡-to-isSet→isSet : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isSet B → isSet A
+≡-to-isSet→isSet = ≡-to-isOfHLevel→isOfHLevel {n = 2}
+
+≡-from-isSet→isSet : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isSet A → isSet B
+≡-from-isSet→isSet = ≡-from-isOfHLevel→isOfHLevel {n = 2}
+
+
+
 -- hlevels are preserved by retracts (and consequently equivalences)
 
 isContrRetract

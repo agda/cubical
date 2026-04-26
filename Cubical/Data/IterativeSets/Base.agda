@@ -195,31 +195,6 @@ isProp-∈⁰-Equiv x y = isPropΠ λ z → isOfHLevel≃ 1 (isProp∈⁰ {x = x
 Unit*≢⊥* : ((Unit* {ℓ} :> Type ℓ) ≡ (⊥* {ℓ} :> Type ℓ)) → ⊥
 Unit*≢⊥* p = ⊥*-elim {A = λ _ → ⊥} (transport p (lift tt))
 
--- TODO: move to better place
-≡-from-isOfHLevel→isOfHLevel : {ℓ : Level} {A B : Type ℓ} {n : HLevel} → A ≡ B → isOfHLevel n A → isOfHLevel n B
-≡-from-isOfHLevel→isOfHLevel {n = n} A≡B = subst (isOfHLevel n) A≡B
-
-≡-to-isOfHLevel→isOfHLevel : {ℓ : Level} {A B : Type ℓ} {n : HLevel} → A ≡ B → isOfHLevel n B → isOfHLevel n A
-≡-to-isOfHLevel→isOfHLevel {n = n} A≡B = subst⁻ (isOfHLevel n) A≡B
-
-≡-to-isContr→isContr : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isContr B → isContr A
-≡-to-isContr→isContr = ≡-to-isOfHLevel→isOfHLevel {n = 0}
-
-≡-from-isContr→isContr : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isContr A → isContr B
-≡-from-isContr→isContr = ≡-from-isOfHLevel→isOfHLevel {n = 0}
-
-≡-to-isProp→isProp : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isProp B → isProp A
-≡-to-isProp→isProp = ≡-to-isOfHLevel→isOfHLevel {n = 1}
-
-≡-from-isProp→isProp : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isProp A → isProp B
-≡-from-isProp→isProp = ≡-from-isOfHLevel→isOfHLevel {n = 1}
-
-≡-to-isSet→isSet : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isSet B → isSet A
-≡-to-isSet→isSet = ≡-to-isOfHLevel→isOfHLevel {n = 2}
-
-≡-from-isSet→isSet : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isSet A → isSet B
-≡-from-isSet→isSet = ≡-from-isOfHLevel→isOfHLevel {n = 2}
-
 Unit≢Bool : ¬ (Unit ≡ Bool)
 Unit≢Bool p = false≢true (≡-from-isProp→isProp p isPropUnit false true)
 
