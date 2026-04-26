@@ -9,9 +9,10 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Powerset
-open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence using (ua; univalence; pathToEquiv)
+open import Cubical.Foundations.GroupoidLaws
+
 open import Cubical.Functions.Fibration
 
 open import Cubical.HITs.PropositionalTruncation.Base
@@ -559,3 +560,29 @@ embeddingToEquivOfPath isemb x y .snd = isemb x y
 
 isEmbeddingFunctionFromIsPropToIsSet : {A : Type ℓ} {B : Type ℓ'} (f : A → B) → isProp A → isSet B → isEmbedding f
 isEmbeddingFunctionFromIsPropToIsSet f propA setB = injEmbedding setB λ {w} {x} _ → propA w x
+
+module _ {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''} (setX : isSet X) (x₀ : X)
+           (f : (X × Y) → Z) (embf : isEmbedding f) where
+    private
+      f-x₀ : Y → Z
+      f-x₀ = curry f x₀
+
+    Embedding-×-fst-const : isEmbedding f-x₀
+    Embedding-×-fst-const = hasPropFibers→isEmbedding (
+                             λ z → isPropRetract (fun z) (inv z) (ret z) (
+                               isPropΣ (isEmbedding→hasPropFibers embf z)
+                                 λ s → setX (s .fst .fst) x₀))
+        where
+            fun : (z : Z) → (fiber f-x₀ z) → (Σ[ s ∈ fiber f z ] (s .fst .fst) ≡ x₀)
+            fun _ _ .fst .fst .fst = x₀
+            fun _ fib .fst .fst .snd = fib .fst
+            fun _ fib .fst .snd = fib .snd
+            fun _ _ .snd = refl
+
+            inv : (z : Z) → (Σ[ s ∈ fiber f z ] (s .fst .fst) ≡ x₀) → (fiber f-x₀ z)
+            inv _ s .fst = s .fst .fst .snd
+            inv _ s .snd = cong (λ x' → f (x' , (s .fst .fst .snd))) (sym (s .snd))
+                             ∙ (s .fst .snd)
+
+            ret : (z : Z) → retract (fun z) (inv z)
+            ret _ fib = cong (fib .fst ,_) (sym (lUnit _))

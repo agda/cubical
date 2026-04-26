@@ -214,26 +214,6 @@ Bool*≢Unit* : ¬ (Bool* {ℓ} ≡ Unit* {ℓ})
 Bool*≢Unit* p = false*≢true* (≡-to-isProp→isProp p isPropUnit* false* true*)
 
 -- probably also move to some better place in the library
-module _ {ℓ ℓ' ℓ'' : Level} {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''} (setX : isSet X) (x₀ : X) (f : (X × Y) → Z) (embf : isEmbedding f) where
-    f-x₀ : Y → Z
-    f-x₀ = curry f x₀
-
-    Embedding-Σ-fst-const : isEmbedding f-x₀
-    Embedding-Σ-fst-const = hasPropFibers→isEmbedding (λ z → isPropRetract (g z) (h z) (ret z) (isPropΣ (isEmbedding→hasPropFibers embf z) λ s → setX (s .fst .fst) x₀))
-        where
-            g : (z : Z) → (fiber f-x₀ z) → (Σ[ s ∈ fiber f z ] (s .fst .fst) ≡ x₀)
-            g _ _ .fst .fst .fst = x₀
-            g _ fib .fst .fst .snd = fib .fst
-            g _ fib .fst .snd = fib .snd
-            g _ _ .snd = refl
-
-            h : (z : Z) → (Σ[ s ∈ fiber f z ] (s .fst .fst) ≡ x₀) → (fiber f-x₀ z)
-            h _ s .fst = s .fst .fst .snd
-            h _ s .snd = cong (λ x' → f (x' , (s .fst .fst .snd))) (sym (s .snd)) ∙ (s .fst .snd)
-
-            ret : (z : Z) → retract (g z) (h z)
-            ret _ fib = cong (fib .fst ,_) (sym (lUnit _))
-
 private
     module _ {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) where
         uninhabIsEquiv : ¬ A → ¬ B → isEquiv f
