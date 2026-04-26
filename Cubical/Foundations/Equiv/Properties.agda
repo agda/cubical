@@ -282,3 +282,19 @@ uninhabIsEquiv {A = A} {B = B} f ¬A ¬B = isoToIsEquiv isom
         isom .inv = ⊥-elim ∘ ¬B
         isom .ret a = ⊥-elim {A = λ _ → isom .inv (f a) ≡ a} (¬A a)
         isom .sec b = ⊥-elim {A = λ _ → f (isom .inv b) ≡ b} (¬B b)
+
+second-in-isEquiv-comp→isEquiv : (f : A → B) (g : B → C) (h : A → C)
+                                   → isEquiv f → isEquiv h → h ≡ g ∘ f → isEquiv g
+second-in-isEquiv-comp→isEquiv {B = B} {C = C} f g h equivf equivh h≡g∘f = transport (cong isEquiv g'≡g) equivg'
+  where
+        B≃C : B ≃ C
+        B≃C = compEquiv (invEquiv (f , equivf)) (h , equivh)
+
+        g' : B → C
+        g' = B≃C .fst
+
+        equivg' : isEquiv g'
+        equivg' = B≃C .snd
+
+        g'≡g : g' ≡ g
+        g'≡g = funExt λ b → funExt⁻ h≡g∘f _ ∙ cong g (secIsEq equivf b)

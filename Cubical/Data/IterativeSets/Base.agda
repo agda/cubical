@@ -215,30 +215,6 @@ Bool*≢Unit* : ¬ (Bool* {ℓ} ≡ Unit* {ℓ})
 Bool*≢Unit* p = false*≢true* (≡-to-isProp→isProp p isPropUnit* false* true*)
 
 -- probably also move to some better place in the library
-private
-    module _ {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : Type ℓB} {C : Type ℓC} (f : A → B) (g : B → C) (h : A → C) (equivf : isEquiv f) (equivh : isEquiv h) (h≡g∘f : h ≡ g ∘ f) where
-        B≃C : B ≃ C
-        B≃C = compEquiv (invEquiv (f , equivf)) (h , equivh)
-
-        g' : B → C
-        g' = B≃C .fst
-
-        equivg' : isEquiv g'
-        equivg' = B≃C .snd
-
-        g'≡g : g' ≡ g
-        g'≡g = funExt λ b → funExt⁻ h≡g∘f _ ∙ cong g (secIsEq equivf b)
-            -- g' b
-            --     ≡⟨⟩
-            -- h (invIsEq equivf b)
-            --     ≡⟨ funExt⁻ h≡g∘f _ ⟩
-            -- g (f (invIsEq equivf b))
-            --     ≡⟨ cong g (secIsEq equivf b) ⟩
-            -- g b
-            --     ∎
-        second-in-isEquiv-comp→isEquiv : isEquiv g
-        second-in-isEquiv-comp→isEquiv = transport (cong isEquiv g'≡g) equivg'
-
 SumInl≢Inr : {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (a : A) (b : B) → ¬ (inl a :> A ⊎ B) ≡ (inr b :> A ⊎ B)
 SumInl≢Inr {A = A} {B = B} a b p = transport (cong helper p) _
     where
