@@ -16,12 +16,6 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Equiv.Fiberwise
 
--- TODO: remove ⊥*-elim, Data.Unit, Data.Bool Data.SumFin once the statements that need them have found their way to a better place
-open import Cubical.Data.Empty renaming (elim* to ⊥*-elim ; elim to ⊥-elim)
-open import Cubical.Data.Unit
-open import Cubical.Data.Bool
-open import Cubical.Data.Sum renaming (rec to ⊎-rec)
-
 open import Cubical.Data.IterativeMultisets.Base renaming (overline to overline-∞ ; tilde to tilde-V∞ ; toFib to toFib-∞)
 
 private
@@ -188,28 +182,3 @@ isProp-∈⁰-Equiv x y = isPropΠ λ z → isOfHLevel≃ 1 (isProp∈⁰ {x = x
         g : sup-∞ z γ ∈∞ sup-∞ x α → (sup-∞ z γ , itsetz) ∈⁰ (sup-∞ x α , itsetx)
         g (a , p) .fst = a
         g (a , p) .snd = Σ≡Prop isPropIsIterativeSet p
-
--- TODO move to better place
-⊥*≢Unit* : ((⊥* {ℓ} :> Type ℓ) ≡ (Unit* {ℓ} :> Type ℓ)) → ⊥
-⊥*≢Unit* p = ⊥*-elim {A = λ _ → ⊥} (transport (sym p) (lift tt))
-
-Unit*≢⊥* : ((Unit* {ℓ} :> Type ℓ) ≡ (⊥* {ℓ} :> Type ℓ)) → ⊥
-Unit*≢⊥* p = ⊥*-elim {A = λ _ → ⊥} (transport p (lift tt))
-
-Unit≢Bool : ¬ (Unit ≡ Bool)
-Unit≢Bool p = false≢true (≡-from-isProp→isProp p isPropUnit false true)
-
-Bool≢Unit : ¬ (Bool ≡ Unit)
-Bool≢Unit p = false≢true (≡-to-isProp→isProp p isPropUnit false true)
-
-false*≢true* : ¬ (false* {ℓ} ≡ true* {ℓ})
-false*≢true* p = subst (λ b → if b .lower then Unit else ⊥) (sym p) tt
-
-true*≢false* : ¬ (true* {ℓ} ≡ false* {ℓ})
-true*≢false* p = subst (λ b → if b .lower then Unit else ⊥) p tt
-
-Unit*≢Bool* : ¬ (Unit* {ℓ} ≡ Bool* {ℓ})
-Unit*≢Bool* p = false*≢true* (≡-from-isProp→isProp p isPropUnit* false* true*)
-
-Bool*≢Unit* : ¬ (Bool* {ℓ} ≡ Unit* {ℓ})
-Bool*≢Unit* p = false*≢true* (≡-to-isProp→isProp p isPropUnit* false* true*)
