@@ -215,13 +215,6 @@ Bool*≢Unit* : ¬ (Bool* {ℓ} ≡ Unit* {ℓ})
 Bool*≢Unit* p = false*≢true* (≡-to-isProp→isProp p isPropUnit* false* true*)
 
 -- probably also move to some better place in the library
-SumInl≢Inr : {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (a : A) (b : B) → ¬ (inl a :> A ⊎ B) ≡ (inr b :> A ⊎ B)
-SumInl≢Inr {A = A} {B = B} a b p = transport (cong helper p) _
-    where
-        helper : A ⊎ B → Type ℓ-zero
-        helper (inl _) = Unit
-        helper (inr _) = ⊥
-
 module _ {ℓ ℓ' ℓ'' : Level} {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''} (f : X → Z) (g : Y → Z) where
     f+g : (X ⊎ Y) → Z
     f+g = ⊎-rec f g
@@ -234,6 +227,6 @@ module _ {ℓ ℓ' ℓ'' : Level} {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''
     
     isEmbeddingPair : isEmbedding f → isEmbedding g → ((x : X) (y : Y) → ¬ f x ≡ g y) → isEmbedding f+g
     isEmbeddingPair embf embg fx≢gy (inl x) (inl x') = second-in-isEquiv-comp→isEquiv (cong inl) (cong f+g) cong-f+g∘inl (isEmbedding-inl x x') (embf x x') refl
-    isEmbeddingPair embf embg fx≢gy (inl x) (inr y') = uninhabIsEquiv (cong f+g) (SumInl≢Inr x y') (fx≢gy x y')
-    isEmbeddingPair embf embg fx≢gy (inr y) (inl x') = uninhabIsEquiv (cong f+g) (λ eq → SumInl≢Inr x' y (sym eq)) λ eq → fx≢gy x' y (sym eq)
+    isEmbeddingPair embf embg fx≢gy (inl x) (inr y') = uninhabIsEquiv (cong f+g) (⊎Path.inl≢inr x y') (fx≢gy x y')
+    isEmbeddingPair embf embg fx≢gy (inr y) (inl x') = uninhabIsEquiv (cong f+g) (λ eq → ⊎Path.inl≢inr x' y (sym eq)) λ eq → fx≢gy x' y (sym eq)
     isEmbeddingPair embf embg fx≢gy (inr y) (inr y') = second-in-isEquiv-comp→isEquiv (cong inr) (cong f+g) cong-f+g∘inr (isEmbedding-inr y y') (embg y y') refl

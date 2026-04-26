@@ -72,6 +72,9 @@ module ⊎Path {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   Cover≃Path c c' =
     isoToEquiv (iso (decode c c') (encode c c') (decodeEncode c c') (encodeDecode c c'))
 
+  inl≢inr : (a : A) (b : B) → ¬ ((inl a :> A ⊎ B) ≡ inr b)
+  inl≢inr a b inl≡inr = invEq (Cover≃Path (inl a) (inr b)) inl≡inr .lower
+
   isOfHLevelCover : (n : HLevel)
     → isOfHLevel (suc (suc n)) A
     → isOfHLevel (suc (suc n)) B
