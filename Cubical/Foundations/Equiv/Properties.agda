@@ -19,9 +19,11 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.HLevels
+open import Cubical.Relation.Nullary
 
 open import Cubical.Functions.FunExtEquiv
 
+open import Cubical.Data.Empty renaming (elim to ⊥-elim)
 open import Cubical.Data.Sigma
 
 private
@@ -270,3 +272,13 @@ module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {A' : Type ℓ'} {C : A → Type ℓ''}
           (f (isHAEquiv.linv is* x j))
   Iso.ret domIsoDep f j x =
     transp (λ i → C (isHAEquiv.rinv is* x (i ∨ j))) j (f (isHAEquiv.rinv is* x j))
+
+uninhabIsEquiv : (f : A → B) → ¬ A → ¬ B → isEquiv f
+uninhabIsEquiv {A = A} {B = B} f ¬A ¬B = isoToIsEquiv isom
+    where
+        open Iso
+        isom : Iso A B
+        isom .fun = f
+        isom .inv = ⊥-elim ∘ ¬B
+        isom .ret a = ⊥-elim {A = λ _ → isom .inv (f a) ≡ a} (¬A a)
+        isom .sec b = ⊥-elim {A = λ _ → f (isom .inv b) ≡ b} (¬B b)

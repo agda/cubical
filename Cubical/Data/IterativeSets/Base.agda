@@ -13,6 +13,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Functions.Fibration
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Equiv.Fiberwise
 
 -- TODO: remove ⊥*-elim, Data.Unit, Data.Bool Data.SumFin once the statements that need them have found their way to a better place
@@ -215,17 +216,6 @@ Bool*≢Unit* p = false*≢true* (≡-to-isProp→isProp p isPropUnit* false* tr
 
 -- probably also move to some better place in the library
 private
-    module _ {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) where
-        uninhabIsEquiv : ¬ A → ¬ B → isEquiv f
-        uninhabIsEquiv ¬A ¬B = isoToIsEquiv isom
-            where
-                open Iso
-                isom : Iso A B
-                isom .fun = f
-                isom .inv = ⊥-elim ∘ ¬B
-                isom .ret a = ⊥-elim {A = λ _ → isom .inv (f a) ≡ a} (¬A a)
-                isom .sec b = ⊥-elim {A = λ _ → f (isom .inv b) ≡ b} (¬B b)
-
     module _ {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : Type ℓB} {C : Type ℓC} (f : A → B) (g : B → C) (h : A → C) (equivf : isEquiv f) (equivh : isEquiv h) (h≡g∘f : h ≡ g ∘ f) where
         B≃C : B ≃ C
         B≃C = compEquiv (invEquiv (f , equivf)) (h , equivh)
