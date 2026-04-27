@@ -70,10 +70,10 @@ module _ {ℓA ℓA' ℓB ℓB' : Level} {A : Type ℓA} {B : A → Type ℓB}
   where
     E : Embedding (V⁰ {ℓ}) ℓ
     E .fst = (Σ[ a ∈ El⁰ {ℓ} x ] El⁰ {ℓ} (y a))
-    E .snd .fst (a , b) = ⟨ (tilde x a) , (tilde (y a) b) ⟩⁰
+    E .snd .fst (a , b) = ⟨ (elements x a) , (elements (y a) b) ⟩⁰
     E .snd .snd = isEmbedding-∘ isEmbOrderedPair⁰
                                 (Emb-Σfun _ _ (isSetΣ isSetV⁰ (λ _ → isSetV⁰))
-                                              (isEmbedding-tilde x) λ a → isEmbedding-tilde (y a))
+                                              (isEmbedding-elements x) λ a → isEmbedding-elements (y a))
 
 El⁰Σ⁰IsΣ : {x : V⁰ {ℓ}} {y : El⁰ x → V⁰ {ℓ}} → El⁰ (Σ⁰ x y) ≡ (Σ (El⁰ x) (λ a → El⁰ (y a)))
 El⁰Σ⁰IsΣ = refl

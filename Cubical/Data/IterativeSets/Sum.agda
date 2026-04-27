@@ -24,10 +24,10 @@ private
 private
     module _ {x y : V⁰ {ℓ}} where
         fl : El⁰ x → V⁰ {ℓ}
-        fl a = ⟨ empty⁰ , tilde x a ⟩⁰
+        fl a = ⟨ empty⁰ , elements x a ⟩⁰
 
         fr : El⁰ y → V⁰ {ℓ}
-        fr b = ⟨ unit⁰ , tilde y b ⟩⁰
+        fr b = ⟨ unit⁰ , elements y b ⟩⁰
         
         f : El⁰ x ⊎ El⁰ y → V⁰ {ℓ}
         f = ⊎-rec fl fr
@@ -35,12 +35,12 @@ private
         embfl : isEmbedding fl
         embfl = compEmbedding ((curry orderedPair⁰ empty⁰)
                                 , (Embedding-×-fst-const isSetV⁰ empty⁰ orderedPair⁰ isEmbOrderedPair⁰))
-                              ((tilde x) , (isEmbedding-tilde x)) .snd
+                              ((elements x) , (isEmbedding-elements x)) .snd
 
         embfr : isEmbedding fr
         embfr = compEmbedding ((curry orderedPair⁰ unit⁰)
                                 , (Embedding-×-fst-const isSetV⁰ unit⁰ orderedPair⁰ isEmbOrderedPair⁰))
-                              ((tilde y) , (isEmbedding-tilde y)) .snd
+                              ((elements y) , (isEmbedding-elements y)) .snd
 
         fla≢frb : (a : El⁰ x) (b : El⁰ y) → ¬ fl a ≡ fr b
         fla≢frb a b fla≡frb = empty⁰≢unit⁰ (orderedPair⁰≡orderedPair⁰ .fst fla≡frb .fst)

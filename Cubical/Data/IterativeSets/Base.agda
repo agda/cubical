@@ -16,7 +16,7 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Equiv.Fiberwise
 
-open import Cubical.Data.IterativeMultisets.Base renaming (overline to overline-∞ ; tilde to tilde-V∞ ; toFib to toFib-∞)
+open import Cubical.Data.IterativeMultisets.Base renaming (index to index-∞ ; elements to elements-V∞ ; toFib to toFib-∞)
 
 private
   variable
@@ -40,25 +40,25 @@ private
 
 -- accessing the components
 
-overline : V⁰ {ℓ} → Type ℓ
-overline = overline-∞ ∘ fst
+index : V⁰ {ℓ} → Type ℓ
+index = index-∞ ∘ fst
 
-tilde-∞ : (x : V⁰ {ℓ}) → overline x → V∞ {ℓ}
-tilde-∞ = tilde-V∞ ∘ fst
+elements-∞ : (x : V⁰ {ℓ}) → index x → V∞ {ℓ}
+elements-∞ = elements-V∞ ∘ fst
 
-tilde : (x : V⁰ {ℓ}) → overline x → V⁰ {ℓ}
-tilde (sup-∞ _ f , _) a .fst = f a
-tilde (sup-∞ _ _ , isitset) a .snd = isitset .snd a
+elements : (x : V⁰ {ℓ}) → index x → V⁰ {ℓ}
+elements (sup-∞ _ f , _) a .fst = f a
+elements (sup-∞ _ _ , isitset) a .snd = isitset .snd a
 
-isEmbedding-tilde-∞ : (x : V⁰ {ℓ}) → isEmbedding (tilde-∞ x)
-isEmbedding-tilde-∞ (sup-∞ _ _ , its) = its .fst
+isEmbedding-elements-∞ : (x : V⁰ {ℓ}) → isEmbedding (elements-∞ x)
+isEmbedding-elements-∞ (sup-∞ _ _ , its) = its .fst
 
-isEmbedding-tilde : (x : V⁰ {ℓ}) → isEmbedding (tilde x)
-isEmbedding-tilde (sup-∞ _ _ , isitset) = isEmbeddingSndΣProp isPropIsIterativeSet _ (isitset .fst)
+isEmbedding-elements : (x : V⁰ {ℓ}) → isEmbedding (elements x)
+isEmbedding-elements (sup-∞ _ _ , isitset) = isEmbeddingSndΣProp isPropIsIterativeSet _ (isitset .fst)
 
-Embedding-tilde : (x : V⁰ {ℓ}) → overline x ↪ V⁰ {ℓ}
-Embedding-tilde x .fst = tilde x
-Embedding-tilde x .snd = isEmbedding-tilde x
+Embedding-elements : (x : V⁰ {ℓ}) → index x ↪ V⁰ {ℓ}
+Embedding-elements x .fst = elements x
+Embedding-elements x .snd = isEmbedding-elements x
 
 V⁰↪V∞ : V⁰ {ℓ} ↪ V∞ {ℓ}
 V⁰↪V∞ = EmbeddingΣProp isPropIsIterativeSet
@@ -68,7 +68,7 @@ V⁰↪V∞ = EmbeddingΣProp isPropIsIterativeSet
 ≡V⁰-≃-≡V∞ .snd = V⁰↪V∞ .snd _ _
 
 _∈⁰_ : V⁰ {ℓ} → V⁰ {ℓ} → Type (ℓ-suc ℓ)
-x ∈⁰ y = fiber (tilde y) (x)
+x ∈⁰ y = fiber (elements y) (x)
 
 ∈⁰-irrefl : ¬ x ∈⁰ x
 ∈⁰-irrefl {x = sup-∞ A f , _} (a , p) = ∈∞-irrefl {x = sup-∞ A f} (a , cong fst p)
@@ -77,7 +77,7 @@ Iso-V⁰-Emb : Iso (V⁰ {ℓ}) (Embedding (V⁰ {ℓ}) ℓ)
 Iso-V⁰-Emb {ℓ} = compIso isom Σ-assoc-Iso
   where
     isom : Iso (V⁰ {ℓ}) (Σ[ F ∈ Fibration (V⁰ {ℓ}) ℓ ] isEmbedding (F .snd))
-    isom .Iso.fun (sup-∞ A f , its) .fst .fst = overline (sup-∞ A f , its)
+    isom .Iso.fun (sup-∞ A f , its) .fst .fst = index (sup-∞ A f , its)
     isom .Iso.fun (sup-∞ A f , its) .fst .snd a .fst = f a
     isom .Iso.fun (sup-∞ A f , its) .fst .snd a .snd = its .snd a
     isom .Iso.fun (sup-∞ A f , its) .snd = isEmbeddingSndΣProp isPropIsIterativeSet _ (its .fst)
@@ -156,13 +156,13 @@ x ≃V⁰' y = (z : V⁰) → ((z ∈⁰ x) ≃ (z ∈⁰ y))
     in compEquiv (cong toFib , V⁰↪Fib .snd x y) (invEquiv (FibrationIP (toFib x) (toFib y)))
 
 isProp∈∞ : {z : V∞ {ℓ}} → isProp (z ∈∞ (x .fst))
-isProp∈∞ {x = x} {z = z} = isEmbedding→hasPropFibers (isEmbedding-tilde-∞ x) z
+isProp∈∞ {x = x} {z = z} = isEmbedding→hasPropFibers (isEmbedding-elements-∞ x) z
 
 isProp∈⁰ : {x z : V⁰ {ℓ}} → isProp (z ∈⁰ x)
-isProp∈⁰ {x = x} {z = z} = isEmbedding→hasPropFibers (isEmbedding-tilde x) z
+isProp∈⁰ {x = x} {z = z} = isEmbedding→hasPropFibers (isEmbedding-elements x) z
 
 El⁰ : V⁰ {ℓ} → Type ℓ
-El⁰ = overline
+El⁰ = index
 
 fromEmb' : (x : V⁰ {ℓ}) → (El⁰ x ↪ V⁰ {ℓ})
 fromEmb' (sup-∞ A f , its) = toEmb (sup-∞ A f , its) .snd

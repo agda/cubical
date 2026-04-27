@@ -31,14 +31,14 @@ private
   variable
     x y : V∞ {ℓ}
 
-overline : (x : V∞ {ℓ}) → Type ℓ
-overline = getShape
+index : (x : V∞ {ℓ}) → Type ℓ
+index = getShape
 
-tilde : (A : V∞ {ℓ}) → overline A → V∞ {ℓ}
-tilde = getSubtree
+elements : (A : V∞ {ℓ}) → index A → V∞ {ℓ}
+elements = getSubtree
 
-V∞-overline-tilde : x ≡ sup-∞ (overline x) (tilde x)
-V∞-overline-tilde = W-shape-subtree
+V∞-index-elements : x ≡ sup-∞ (index x) (elements x)
+V∞-index-elements = W-shape-subtree
 
 _∈∞_ : V∞ {ℓ} → V∞ {ℓ} → Type (ℓ-suc ℓ)
 _∈∞_ = _∈W_
@@ -47,8 +47,8 @@ _∈∞_ = _∈W_
 ∈∞-irrefl = ∈W-irrefl
 
 toFib : V∞ {ℓ} → Fibration (V∞ {ℓ}) ℓ
-toFib x .fst = overline x
-toFib x .snd = tilde x
+toFib x .fst = index x
+toFib x .snd = elements x
 
 fromFib : Fibration (V∞ {ℓ}) ℓ → V∞ {ℓ}
 fromFib fib = sup-∞ (fib .fst) (fib .snd)
@@ -73,17 +73,17 @@ V∞≃Fib = isoToEquiv Iso-V∞-Fib
 ≡V∞-≃-≡Fib {x = x} {y = y} .snd = iso→isEmbedding Iso-V∞-Fib x y
 
 -- explicitly writing down the isomorphism
-Iso-≡V∞-≡Fib' : Iso (x ≡ y) (Path (Fibration (V∞ {ℓ}) ℓ) (overline x , tilde x) (overline y , tilde y))
-Iso-≡V∞-≡Fib' {x = sup-∞ x α} {y = sup-∞ y β} .Iso.fun = cong (λ s → overline s , tilde s)
+Iso-≡V∞-≡Fib' : Iso (x ≡ y) (Path (Fibration (V∞ {ℓ}) ℓ) (index x , elements x) (index y , elements y))
+Iso-≡V∞-≡Fib' {x = sup-∞ x α} {y = sup-∞ y β} .Iso.fun = cong (λ s → index s , elements s)
 Iso-≡V∞-≡Fib' {x = sup-∞ x α} {y = sup-∞ y β} .Iso.inv = cong (λ s → sup-∞ (s .fst) (s .snd))
 Iso-≡V∞-≡Fib' {x = sup-∞ x α} {y = sup-∞ y β} .Iso.sec _ = refl
 Iso-≡V∞-≡Fib' {x = sup-∞ x α} {y = sup-∞ y β} .Iso.ret p = cong (λ s → cong s p)
-                                                                (funExt (λ s → sym (V∞-overline-tilde {x = s})))
+                                                                (funExt (λ s → sym (V∞-index-elements {x = s})))
 
-≡V∞-≃-≡Fib' : (x ≡ y) ≃ Path (Fibration (V∞ {ℓ}) ℓ) (overline x , tilde x) (overline y , tilde y)
+≡V∞-≃-≡Fib' : (x ≡ y) ≃ Path (Fibration (V∞ {ℓ}) ℓ) (index x , elements x) (index y , elements y)
 ≡V∞-≃-≡Fib' = isoToEquiv Iso-≡V∞-≡Fib'
 
-≡V∞-≃-≃Fib : (x ≡ y) ≃ ((overline x , tilde x) ≃Fib (overline y , tilde y))
+≡V∞-≃-≃Fib : (x ≡ y) ≃ ((index x , elements x) ≃Fib (index y , elements y))
 ≡V∞-≃-≃Fib = compEquiv ≡V∞-≃-≡Fib (invEquiv (FibrationIP _ _))
 
 _≡Equiv_ : {B : Type ℓ} (f g : Fibration B ℓ') → Type (ℓ-max ℓ ℓ')
@@ -93,11 +93,11 @@ _≡Transp_ : {B : Type ℓ} (f g : Fibration B ℓ') → Type (ℓ-max ℓ (ℓ
 f ≡Transp g = Σ[ p ∈ f .fst ≡ g .fst ] f .snd ≡ (g .snd ∘ transport p)
 
 ≡V∞-≃-≡Transp : {ℓ : Level} {x y : V∞ {ℓ}} →
-                   (x ≡ y) ≃ ((overline x , tilde x) ≡Transp (overline y , tilde y))
+                   (x ≡ y) ≃ ((index x , elements x) ≡Transp (index y , elements y))
 ≡V∞-≃-≡Transp {ℓ} {x} {y} = compEquiv (compEquiv ≡V∞-≃-≡Fib (invEquiv (ΣPathTransport≃PathΣ _ _)))
-                                         (pathToEquiv (Σ-cong-snd (λ p → transport→≡∘ (tilde x) (tilde y) p)))
+                                         (pathToEquiv (Σ-cong-snd (λ p → transport→≡∘ (elements x) (elements y) p)))
 
-≡V∞-≃-≡Equiv : (x ≡ y) ≃ ((overline x , tilde x) ≡Equiv (overline y , tilde y))
+≡V∞-≃-≡Equiv : (x ≡ y) ≃ ((index x , elements x) ≡Equiv (index y , elements y))
 ≡V∞-≃-≡Equiv = compEquiv ≡V∞-≃-≡Transp (Σ-cong-equiv-fst univalence)
 
 -- examples

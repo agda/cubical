@@ -27,7 +27,7 @@ open import Cubical.Data.Sum.Properties using (isProp⊎)
 
 open import Cubical.Homotopy.Base
 
-open import Cubical.Data.IterativeMultisets.Base renaming (overline to overline-∞ ; tilde to tilde-V∞)
+open import Cubical.Data.IterativeMultisets.Base renaming (index to index-∞ ; elements to elements-V∞)
 open import Cubical.Data.IterativeSets.Base
 open import Cubical.Data.IterativeSets.Empty
 
@@ -40,7 +40,7 @@ private
 suc⁰ : {ℓ : Level} → V⁰ {ℓ} → V⁰ {ℓ}
 suc⁰ {ℓ} (sup-∞ A f , isitsetAf) = fromEmb E
     where
-        ϕₓ : (overline (sup-∞ A f , isitsetAf) ⊎ Unit* {ℓ}) → V⁰ {ℓ}
+        ϕₓ : (index (sup-∞ A f , isitsetAf) ⊎ Unit* {ℓ}) → V⁰ {ℓ}
         ϕₓ (inl a) = f a , isitsetAf .snd a
         ϕₓ (inr _) = (sup-∞ A f , isitsetAf)
 
@@ -70,7 +70,7 @@ suc⁰ {ℓ} (sup-∞ A f , isitsetAf) = fromEmb E
         hpf (sup-∞ B g , isitsetBg) = isOfHLevelRespectEquiv 1
                 (invEquiv (eqFib (sup-∞ B g , isitsetBg)))
                 (isProp⊎ (isEmbedding→hasPropFibers
-                           (isEmbedding-tilde (sup-∞ A f , isitsetAf))
+                           (isEmbedding-elements (sup-∞ A f , isitsetAf))
                            (sup-∞ B g , isitsetBg)) (isSetV⁰ _ _) (curry ∈⁰×≡→⊥))
             where
                 ∈⁰×≡→⊥ : ((sup-∞ B g , isitsetBg) ∈⁰ (sup-∞ A f , isitsetAf))
@@ -110,8 +110,8 @@ private
     fsuc-predFin-quasi-sec _ (suc _ , _) _ = refl
 
 -- the von-Neumann encoding of `n` is precisely a finite set with `n` elements
-vonNeumannOverline≃Fin : (n : ℕ) → (El⁰ (vonNeumannEncoding {ℓ} (lift n)) ≃ Fin n)
-vonNeumannOverline≃Fin {ℓ} = elim+2 case0 case1 caseSuc
+vonNeumannindex≃Fin : (n : ℕ) → (El⁰ (vonNeumannEncoding {ℓ} (lift n)) ≃ Fin n)
+vonNeumannindex≃Fin {ℓ} = elim+2 case0 case1 caseSuc
   where
     case0 : El⁰ (vonNeumannEncoding (lift 0)) ≃ Fin 0
     case0 = uninhabEquiv (λ ()) ¬Fin0
@@ -139,8 +139,8 @@ vonNeumannOverline≃Fin {ℓ} = elim+2 case0 case1 caseSuc
     where
         isinj : (w x : ℕ* {ℓ}) → vonNeumannEncoding w ≡ vonNeumannEncoding x → w ≡ x
         isinj (lift n) (lift m) p = liftExt (Fin-inj n m (ua (compEquiv
-                                      (invEquiv (vonNeumannOverline≃Fin n))
-                                      (compEquiv (pathToEquiv (cong overline p)) (vonNeumannOverline≃Fin m)))))
+                                      (invEquiv (vonNeumannindex≃Fin n))
+                                      (compEquiv (pathToEquiv (cong index p)) (vonNeumannindex≃Fin m)))))
         E : Embedding (V⁰ {ℓ}) ℓ
         E .fst = ℕ* {ℓ}
         E .snd .fst = vonNeumannEncoding {ℓ}
