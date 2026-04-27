@@ -469,8 +469,8 @@ Iso.sec (ΣBoolΣIso {true}) _ = refl
 Bool≢⊥ : ¬ Bool ≡ ⊥
 Bool≢⊥ Bool≡⊥ = transport Bool≡⊥ true
 
-Bool*≠⊥* : ¬ Bool* {ℓ} ≡ ⊥* {ℓ}
-Bool*≠⊥* Bool≡⊥ = transport Bool≡⊥ true* .lower
+Bool*≢⊥* : ¬ Bool* {ℓ} ≡ ⊥* {ℓ}
+Bool*≢⊥* Bool≡⊥ = transport Bool≡⊥ true* .lower
 
 Unit≢Bool : ¬ (Unit ≡ Bool)
 Unit≢Bool p = false≢true (≡-from-isProp→isProp p isPropUnit false true)

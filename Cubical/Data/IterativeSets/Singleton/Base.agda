@@ -1,6 +1,6 @@
 {-# OPTIONS --lossy-unification #-}
 
-module Cubical.Data.IterativeSets.Singleton where
+module Cubical.Data.IterativeSets.Singleton.Base where
 
 open import Cubical.Foundations.Prelude
 

@@ -6,7 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Data.Unit
 
 open import Cubical.Data.IterativeSets.Base
-open import Cubical.Data.IterativeSets.Singleton
+open import Cubical.Data.IterativeSets.Singleton.Base
 open import Cubical.Data.IterativeSets.Empty
 
 private

@@ -1,6 +1,6 @@
 {-# OPTIONS --lossy-unification #-}
 
-module Cubical.Data.IterativeSets.UnorderedPair where
+module Cubical.Data.IterativeSets.UnorderedPair.Base where
 
 open import Cubical.Foundations.Prelude
 
@@ -57,10 +57,6 @@ unorderedUnorderedPair⁰ {x = x} {y = y} = invEq ≡V⁰-≃-≃V⁰ (f , g)
         g _ (lift false , prf) .snd = prf
         g _ (lift true , _) .fst = lift false
         g _ (lift true , prf) .snd = prf
-
--- {x , y} ≡ {y , x} where for the sake of convenience the proof q : ¬ (y ≡ x) is simply the reversed version of p (which is irrelevant since V⁰ is a set)
-unorderedUnorderedPair⁰' : {x y : V⁰ {ℓ}} {x≢y : ¬ (x ≡ y)} → unorderedPair⁰ x y x≢y ≡ unorderedPair⁰ y x λ y≡x → x≢y (sym y≡x)
-unorderedUnorderedPair⁰' = unorderedUnorderedPair⁰
 
 unorderedPair⁰-is-unordered-pair : {x y z : V⁰ {ℓ}} {x≢y : ¬ (x ≡ y)} → ((z ∈⁰ (unorderedPair⁰ x y x≢y)) ≃ ((x ≡ z) ⊎ (y ≡ z)))
 unorderedPair⁰-is-unordered-pair {x = x} {y = y} {z = z} = isoToEquiv isom

@@ -11,13 +11,16 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty renaming (elim to ⊥-elim)
 open import Cubical.Data.Sum
+open import Cubical.Data.Unit.Properties
+open import Cubical.Data.Bool.Properties
 open import Cubical.Relation.Nullary using (¬_)
 
 open import Cubical.Data.IterativeSets.Base
 open import Cubical.Data.IterativeSets.Empty
-open import Cubical.Data.IterativeSets.Singleton
-
-open import Cubical.Data.IterativeSets.UnorderedPair
+open import Cubical.Data.IterativeSets.Singleton.Base
+open import Cubical.Data.IterativeSets.Singleton.Properties
+open import Cubical.Data.IterativeSets.UnorderedPair.Base
+open import Cubical.Data.IterativeSets.UnorderedPair.Properties
 
 private
   variable
@@ -27,20 +30,6 @@ private
 private
   variable
     x≢y : ¬ (x ≡ y)
-
--- TODO: maybe move to some better place together with empty⁰≢unit⁰
-empty⁰≢singleton⁰ : ¬ (empty⁰ {ℓ} ≡ singleton⁰ x)
-empty⁰≢singleton⁰ p = ⊥*≢Unit* (cong El⁰ p)
-
-singleton⁰≢empty⁰ : ¬ (singleton⁰ x ≡ empty⁰ {ℓ})
-singleton⁰≢empty⁰ p = Unit*≢⊥* (cong El⁰ p)
-
-singleton⁰≢unorderedPair⁰ : ¬ (singleton⁰ z ≡ unorderedPair⁰ x y x≢y)
-singleton⁰≢unorderedPair⁰ p = Unit*≢Bool* (cong El⁰ p)
-
-unorderedPair⁰≢singleton⁰ : ¬ (unorderedPair⁰ x y x≢y ≡ singleton⁰ z)
-unorderedPair⁰≢singleton⁰ p = Bool*≢Unit* (cong El⁰ p)
-
 
 -- Norbert Wiener encoding
 ⟨_,_⟩⁰ : V⁰ {ℓ} → V⁰ {ℓ} → V⁰ {ℓ}
