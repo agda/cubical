@@ -63,8 +63,6 @@ isEmbOrderedPair⁰ {ℓ} = injEmbedding isSetV⁰ inj
                 helper (inl (u , s)) .fst = x≡a-helper (unorderedPair⁰≡unorderedPair⁰ .fst u)
                 helper (inl (u , s)) .snd = invEq singleton⁰≡singleton⁰ (invEq singleton⁰≡singleton⁰ s)
                 helper (inr (p , _)) = ⊥-elim {A = λ _ → (x ≡ a) × (y ≡ b)} (unorderedPair⁰≢singleton⁰ p)
-                -- x≡a,y≡b : (x ≡ a) × (y ≡ b)
-                -- x≡a,y≡b = helper (unorderedPair⁰≡unorderedPair⁰ .fst p)
 
 orderedPair⁰≡orderedPair⁰ : {x y a b : V⁰ {ℓ}} → ((⟨ x , y ⟩⁰ ≡ ⟨ a , b ⟩⁰) ≃ ((x ≡ a) × (y ≡ b)))
 orderedPair⁰≡orderedPair⁰ {x = x} {y = y} {a = a} {b = b} = propBiimpl→Equiv
