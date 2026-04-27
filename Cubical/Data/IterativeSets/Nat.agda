@@ -1,3 +1,6 @@
+-- This module provides the Von-Neumann encoding of the natural numbers
+-- i.e. 0 = ∅, suc n = n ⊎ {n}
+
 module Cubical.Data.IterativeSets.Nat where
 
 open import Cubical.Foundations.Prelude
@@ -37,6 +40,7 @@ private
     A A' : Type ℓ
     B B' : A → Type ℓ
 
+-- suc x = x ⊎ {x}
 suc⁰ : {ℓ : Level} → V⁰ {ℓ} → V⁰ {ℓ}
 suc⁰ {ℓ} (sup-∞ A f , isitsetAf) = fromEmb E
     where
