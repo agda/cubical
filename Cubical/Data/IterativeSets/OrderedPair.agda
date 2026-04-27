@@ -1,3 +1,6 @@
+-- This modules provides the Norbert-Wiener encoding of ordered pairs
+-- i.e. ⟨ x , y ⟩ = {{{x}, ∅}, {{y}}}
+
 {-# OPTIONS --lossy-unification #-}
 
 module Cubical.Data.IterativeSets.OrderedPair where
