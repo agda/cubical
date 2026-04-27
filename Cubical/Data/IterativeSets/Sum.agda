@@ -14,17 +14,13 @@ open import Cubical.Relation.Nullary using (¬_)
 open import Cubical.Data.IterativeSets.Base
 open import Cubical.Data.IterativeSets.Empty
 open import Cubical.Data.IterativeSets.Unit
+open import Cubical.Data.IterativeSets.Singleton.Properties
 open import Cubical.Data.IterativeSets.OrderedPair
 
 private
     variable
         ℓ : Level
         
-private
-    module _ where
-        empty⁰≢unit⁰ : ¬ empty⁰ {ℓ} ≡ unit⁰ {ℓ}
-        empty⁰≢unit⁰ {ℓ} p = ⊥*≢Unit* (cong El⁰ p)
-
 private
     module _ {x y : V⁰ {ℓ}} where
         fl : El⁰ x → V⁰ {ℓ}
@@ -37,10 +33,10 @@ private
         f = ⊎-rec fl fr
 
         embfl : isEmbedding fl
-        embfl = compEmbedding ((curry orderedPair⁰ empty⁰) , (lem26 isSetV⁰ empty⁰ orderedPair⁰ isEmbOrderedPair⁰)) ((tilde x) , (isEmbedding-tilde x)) .snd
+        embfl = compEmbedding ((curry orderedPair⁰ empty⁰) , (Embedding-×-fst-const isSetV⁰ empty⁰ orderedPair⁰ isEmbOrderedPair⁰)) ((tilde x) , (isEmbedding-tilde x)) .snd
 
         embfr : isEmbedding fr
-        embfr = compEmbedding ((curry orderedPair⁰ unit⁰) , (lem26 isSetV⁰ unit⁰ orderedPair⁰ isEmbOrderedPair⁰)) ((tilde y) , (isEmbedding-tilde y)) .snd
+        embfr = compEmbedding ((curry orderedPair⁰ unit⁰) , (Embedding-×-fst-const isSetV⁰ unit⁰ orderedPair⁰ isEmbOrderedPair⁰)) ((tilde y) , (isEmbedding-tilde y)) .snd
 
         fla≢frb : (a : El⁰ x) (b : El⁰ y) → ¬ fl a ≡ fr b
         fla≢frb a b fla≡frb = empty⁰≢unit⁰ (orderedPair⁰≡orderedPair⁰ .fst fla≡frb .fst)

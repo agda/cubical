@@ -80,7 +80,7 @@ suc⁰ {ℓ} (sup-∞ A f , isitsetAf) = fromEmb E
 
 -- TODO
 ℕ* : Type ℓ
-ℕ* = Lift ℕ
+ℕ* {ℓ} = Lift ℓ ℕ
 
 vonNeumannEncoding : ℕ* {ℓ} → V⁰ {ℓ}
 vonNeumannEncoding (lift zero) = empty⁰
