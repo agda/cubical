@@ -70,10 +70,6 @@ suc⁰ {ℓ} (sup-∞ A f , isitsetAf) = fromEmb E
         E .snd .fst = ϕₓ
         E .snd .snd = hasPropFibers→isEmbedding hpf
 
--- TODO
-ℕ* : Type ℓ
-ℕ* {ℓ} = Lift ℓ ℕ
-
 vonNeumannEncoding : ℕ* {ℓ} → V⁰ {ℓ}
 vonNeumannEncoding (lift zero) = empty⁰
 vonNeumannEncoding (lift (suc x)) = suc⁰ (vonNeumannEncoding (lift x))
