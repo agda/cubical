@@ -23,6 +23,7 @@ open import Cubical.Relation.Nullary using (¬_)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sum using (_⊎_; inl; inr; ⊎-IdL-⊥*-≃) public
+open import Cubical.Data.Sum.Properties using (isProp⊎)
 
 open import Cubical.Homotopy.Base
 
@@ -35,15 +36,6 @@ private
     ℓ ℓ' ℓ'' : Level
     A A' : Type ℓ
     B B' : A → Type ℓ
-
--- TODO: move to a better place?
-private
-  module _ where
-    isProp⊎ : {A : Type ℓ} {B : Type ℓ} → isProp A → isProp B → ¬ A × B → isProp (A ⊎ B)
-    isProp⊎ propA propB disj (inl a₁) (inl a₂) = cong inl (propA a₁ a₂)
-    isProp⊎ propA propB disj (inr b₁) (inr b₂) = cong inr (propB b₁ b₂)
-    isProp⊎ propA propB disj (inl a) (inr b) = ⊥-elim (disj (a , b))
-    isProp⊎ propA propB disj (inr b) (inl a) = ⊥-elim (disj (a , b))
 
 suc⁰ : {ℓ : Level} → V⁰ {ℓ} → V⁰ {ℓ}
 suc⁰ {ℓ} (sup-∞ A f , isitsetAf) = fromEmb E
@@ -68,7 +60,7 @@ suc⁰ {ℓ} (sup-∞ A f , isitsetAf) = fromEmb E
                 ret (inl _ , _) = refl
                 ret (inr _ , _) = refl
         hpf : hasPropFibers ϕₓ
-        hpf (sup-∞ B g , isitsetBg) = isOfHLevelRespectEquiv 1 (invEquiv (eqFib (sup-∞ B g , isitsetBg))) (isProp⊎ (isEmbedding→hasPropFibers (isEmbedding-tilde (sup-∞ A f , isitsetAf)) (sup-∞ B g , isitsetBg)) (isSetV⁰ _ _) ∈⁰×≡→⊥)
+        hpf (sup-∞ B g , isitsetBg) = isOfHLevelRespectEquiv 1 (invEquiv (eqFib (sup-∞ B g , isitsetBg))) (isProp⊎ (isEmbedding→hasPropFibers (isEmbedding-tilde (sup-∞ A f , isitsetAf)) (sup-∞ B g , isitsetBg)) (isSetV⁰ _ _) (curry ∈⁰×≡→⊥))
             where
                 ∈⁰×≡→⊥ : ((sup-∞ B g , isitsetBg) ∈⁰ (sup-∞ A f , isitsetAf)) × ((sup-∞ A f , isitsetAf) ≡ (sup-∞ B g , isitsetBg)) → ⊥
                 ∈⁰×≡→⊥ ((a , pa) , p) = ∈⁰-irrefl {x = (sup-∞ B g , isitsetBg)} (transport (cong (λ r → ((sup-∞ B g , isitsetBg) ∈⁰ r)) p) (a , pa))
