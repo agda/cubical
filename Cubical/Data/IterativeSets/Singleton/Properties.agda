@@ -13,7 +13,7 @@ open import Cubical.Data.IterativeSets.Unit
 private
   variable
     ℓ : Level
-    x y z : V⁰ {ℓ}
+    x : V⁰ {ℓ}
 
 empty⁰≢singleton⁰ : ¬ empty⁰ {ℓ} ≡ singleton⁰ x
 empty⁰≢singleton⁰ p = ⊥*≢Unit* (cong El⁰ p)

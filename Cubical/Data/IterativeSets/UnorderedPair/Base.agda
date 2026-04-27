@@ -24,7 +24,8 @@ private
 -- TODO: (possibly) rename and move
 private
     module _ where
-        ≢-move-i0→i : {ℓ : Level} {A : Type ℓ} {x y a b : A} (p : x ≡ a) (q : y ≡ b) (i : I) → ¬ (x ≡ y) → ¬ (p i ≡ q i)
+        ≢-move-i0→i : {ℓ : Level} {A : Type ℓ} {x y a b : A} (p : x ≡ a) (q : y ≡ b)
+                       (i : I) → ¬ (x ≡ y) → ¬ (p i ≡ q i)
         ≢-move-i0→i p q i x≢y pi≡qi = x≢y ((λ j → p (i ∧ j)) ∙∙ pi≡qi ∙∙ λ j → q (i ∧ ~ j))
 
 unorderedPair⁰ : (x y : V⁰ {ℓ}) → ¬ (x ≡ y) → V⁰ {ℓ}
@@ -43,7 +44,8 @@ unorderedPair⁰ {ℓ} x y x≢y = fromEmb emb
                 inj {lift true} {lift true} _ = refl
 
 -- {x , y} ≡ {y , x}
-unorderedUnorderedPair⁰ : {x y : V⁰ {ℓ}} {x≢y : ¬ (x ≡ y)} {y≢x : ¬ (y ≡ x)} → unorderedPair⁰ x y x≢y ≡ unorderedPair⁰ y x y≢x
+unorderedUnorderedPair⁰ : {x y : V⁰ {ℓ}} {x≢y : ¬ (x ≡ y)} {y≢x : ¬ (y ≡ x)}
+                            → unorderedPair⁰ x y x≢y ≡ unorderedPair⁰ y x y≢x
 unorderedUnorderedPair⁰ {x = x} {y = y} = invEq ≡V⁰-≃-≃V⁰ (f , g)
     where
         f : (z : V⁰) → z ∈⁰ unorderedPair⁰ x y _ → z ∈⁰ unorderedPair⁰ y x _
@@ -58,7 +60,8 @@ unorderedUnorderedPair⁰ {x = x} {y = y} = invEq ≡V⁰-≃-≃V⁰ (f , g)
         g _ (lift true , _) .fst = lift false
         g _ (lift true , prf) .snd = prf
 
-unorderedPair⁰-is-unordered-pair : {x y z : V⁰ {ℓ}} {x≢y : ¬ (x ≡ y)} → ((z ∈⁰ (unorderedPair⁰ x y x≢y)) ≃ ((x ≡ z) ⊎ (y ≡ z)))
+unorderedPair⁰-is-unordered-pair : {x y z : V⁰ {ℓ}} {x≢y : ¬ (x ≡ y)}
+                                    → ((z ∈⁰ (unorderedPair⁰ x y x≢y)) ≃ ((x ≡ z) ⊎ (y ≡ z)))
 unorderedPair⁰-is-unordered-pair {x = x} {y = y} {z = z} = isoToEquiv isom
     where
         isom : Iso (z ∈⁰ unorderedPair⁰ x y _) ((x ≡ z) ⊎ (y ≡ z))
@@ -73,7 +76,8 @@ unorderedPair⁰-is-unordered-pair {x = x} {y = y} {z = z} = isoToEquiv isom
         isom .Iso.ret (lift false , _) = refl
         isom .Iso.ret (lift true , _) = refl
 
-unorderedPair⁰-is-unordered-pair-sym : {x y z : V⁰ {ℓ}} {x≢y : ¬ (x ≡ y)} → ((z ∈⁰ (unorderedPair⁰ x y x≢y)) ≃ ((z ≡ x) ⊎ (z ≡ y)))
+unorderedPair⁰-is-unordered-pair-sym : {x y z : V⁰ {ℓ}} {x≢y : ¬ (x ≡ y)}
+                                         → ((z ∈⁰ (unorderedPair⁰ x y x≢y)) ≃ ((z ≡ x) ⊎ (z ≡ y)))
 unorderedPair⁰-is-unordered-pair-sym {x = x} {y = y} {z = z} = isoToEquiv isom
     where
         isom : Iso (z ∈⁰ unorderedPair⁰ x y _) ((z ≡ x) ⊎ (z ≡ y))
@@ -88,7 +92,8 @@ unorderedPair⁰-is-unordered-pair-sym {x = x} {y = y} {z = z} = isoToEquiv isom
         isom .Iso.ret (lift false , _) = refl
         isom .Iso.ret (lift true , _) = refl
 
-unorderedPair⁰-≢-witness-agnostic : {x y : V⁰ {ℓ}} (x≢y₁ x≢y₂ : ¬ (x ≡ y)) → unorderedPair⁰ x y x≢y₁ ≡ unorderedPair⁰ x y x≢y₂
+unorderedPair⁰-≢-witness-agnostic : {x y : V⁰ {ℓ}} (x≢y₁ x≢y₂ : ¬ (x ≡ y))
+                                      → unorderedPair⁰ x y x≢y₁ ≡ unorderedPair⁰ x y x≢y₂
 unorderedPair⁰-≢-witness-agnostic {x = x} {y = y} x≢y₁ x≢y₂ = cong (unorderedPair⁰ x y) x≢y₁≡x≢y₂
     where
         x≢y₁≡x≢y₂ : x≢y₁ ≡ x≢y₂
@@ -97,25 +102,38 @@ unorderedPair⁰-≢-witness-agnostic {x = x} {y = y} x≢y₁ x≢y₂ = cong (
 unorderedPair⁰≡unorderedPair⁰ : {x y a b : V⁰ {ℓ}} {x≢y : ¬ (x ≡ y)} {a≢b : ¬ (a ≡ b)}
                                 → ((unorderedPair⁰ x y x≢y ≡ unorderedPair⁰ a b a≢b)
                                     ≃ (((x ≡ a) × (y ≡ b)) ⊎ ((x ≡ b) × (y ≡ a))))
-unorderedPair⁰≡unorderedPair⁰ {x = x} {y = y} {a = a} {b = b} {x≢y = x≢y} {a≢b = a≢b} = propBiimpl→Equiv (isSetV⁰ _ _) isPropRHS f g
+unorderedPair⁰≡unorderedPair⁰ {x = x} {y = y} {a = a} {b = b} {x≢y = x≢y} {a≢b = a≢b}
+                                              = propBiimpl→Equiv (isSetV⁰ _ _) isPropRHS f g
     where
        isPropRHS : isProp (((x ≡ a) × (y ≡ b)) ⊎ ((x ≡ b) × (y ≡ a)))
-       isPropRHS = isProp⊎ (isProp× (isSetV⁰ _ _) (isSetV⁰ _ _)) (isProp× (isSetV⁰ _ _) (isSetV⁰ _ _)) (λ (x≡a , _) (_ , y≡a) → x≢y (x≡a ∙ (sym y≡a)))
+       isPropRHS = isProp⊎ (isProp× (isSetV⁰ _ _) (isSetV⁰ _ _))
+                           (isProp× (isSetV⁰ _ _) (isSetV⁰ _ _))
+                           (λ (x≡a , _) (_ , y≡a) → x≢y (x≡a ∙ (sym y≡a)))
 
-       destruct : (unorderedPair⁰ x y _ ≡ unorderedPair⁰ a b _) → ((x ≡ a) ⊎ (x ≡ b)) × ((y ≡ a) ⊎ (y ≡ b))
-       destruct p .fst = unorderedPair⁰-is-unordered-pair-sym .fst (≡V⁰-≃-≃V⁰ .fst p .fst x (lift false , refl))
-       destruct p .snd = unorderedPair⁰-is-unordered-pair-sym .fst (≡V⁰-≃-≃V⁰ .fst p .fst y (lift true , refl))
+       destruct : (unorderedPair⁰ x y _ ≡ unorderedPair⁰ a b _)
+                    → ((x ≡ a) ⊎ (x ≡ b)) × ((y ≡ a) ⊎ (y ≡ b))
+       destruct p .fst = unorderedPair⁰-is-unordered-pair-sym .fst
+                                    (≡V⁰-≃-≃V⁰ .fst p .fst x (lift false , refl))
+       destruct p .snd = unorderedPair⁰-is-unordered-pair-sym .fst
+                                    (≡V⁰-≃-≃V⁰ .fst p .fst y (lift true , refl))
 
-       filter : ((x ≡ a) ⊎ (x ≡ b)) × ((y ≡ a) ⊎ (y ≡ b)) → ((x ≡ a) × (y ≡ b)) ⊎ ((x ≡ b) × (y ≡ a))
+       filter : ((x ≡ a) ⊎ (x ≡ b)) × ((y ≡ a) ⊎ (y ≡ b))
+                  → ((x ≡ a) × (y ≡ b)) ⊎ ((x ≡ b) × (y ≡ a))
        filter (inl x≡a , inl y≡a) = ⊥-elim (x≢y (x≡a ∙ (sym y≡a)))
        filter (inl x≡a , inr y≡b) = inl (x≡a , y≡b)
        filter (inr x≡b , inl y≡a) = inr (x≡b , y≡a)
        filter (inr x≡b , inr y≡b) = ⊥-elim (x≢y (x≡b ∙ (sym y≡b)))
 
-       f : unorderedPair⁰ x y _ ≡ unorderedPair⁰ a b _ → ((x ≡ a) × (y ≡ b)) ⊎ ((x ≡ b) × (y ≡ a))
+       f : unorderedPair⁰ x y _ ≡ unorderedPair⁰ a b _
+             → ((x ≡ a) × (y ≡ b)) ⊎ ((x ≡ b) × (y ≡ a))
        f = filter ∘ destruct
 
        -- TODO: make more efficient somehow
        g : ((x ≡ a) × (y ≡ b)) ⊎ ((x ≡ b) × (y ≡ a)) → unorderedPair⁰ x y _ ≡ unorderedPair⁰ a b _
-       g (inl (x≡a , y≡b)) = unorderedPair⁰-≢-witness-agnostic x≢y _ ∙∙ (λ i → unorderedPair⁰ (x≡a i) (y≡b i) (≢-move-i0→i x≡a y≡b i x≢y)) ∙∙ unorderedPair⁰-≢-witness-agnostic _ a≢b
-       g (inr (x≡b , y≡a)) = (unorderedPair⁰-≢-witness-agnostic x≢y _ ∙∙ (λ i → unorderedPair⁰ (x≡b i) (y≡a i) (≢-move-i0→i x≡b y≡a i x≢y)) ∙∙ unorderedPair⁰-≢-witness-agnostic _ (λ b≡a → a≢b (sym b≡a)) :> unorderedPair⁰ x y _ ≡ unorderedPair⁰ b a _) ∙ unorderedUnorderedPair⁰
+       g (inl (x≡a , y≡b)) = unorderedPair⁰-≢-witness-agnostic x≢y _
+                               ∙∙ (λ i → unorderedPair⁰ (x≡a i) (y≡b i) (≢-move-i0→i x≡a y≡b i x≢y))
+                               ∙∙ unorderedPair⁰-≢-witness-agnostic _ a≢b
+       g (inr (x≡b , y≡a)) = (unorderedPair⁰-≢-witness-agnostic x≢y _
+                               ∙∙ (λ i → unorderedPair⁰ (x≡b i) (y≡a i) (≢-move-i0→i x≡b y≡a i x≢y))
+                               ∙∙ unorderedPair⁰-≢-witness-agnostic _ (λ b≡a → a≢b (sym b≡a)))
+                             ∙ unorderedUnorderedPair⁰

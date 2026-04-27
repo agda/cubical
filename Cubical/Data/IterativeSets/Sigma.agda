@@ -28,7 +28,10 @@ private
         Inj : Type (ℓ-max ℓ ℓ')
         Inj = {x y : M} → h x ≡ h y → x ≡ y
 
-module _ {ℓA ℓA' ℓB ℓB' : Level} {A : Type ℓA} {B : A → Type ℓB} {A' : Type ℓA'} {B' : A' → Type ℓB'} (f : A → A') (g : (a : A) → B a → B' (f a)) where
+module _ {ℓA ℓA' ℓB ℓB' : Level} {A : Type ℓA} {B : A → Type ℓB}
+                                 {A' : Type ℓA'} {B' : A' → Type ℓB'}
+                                 (f : A → A')
+                                 (g : (a : A) → B a → B' (f a)) where
     Σfun : Σ A B → Σ A' B'
     Σfun (a , _) .fst = f a
     Σfun (a , b) .snd = g a b
@@ -40,7 +43,9 @@ module _ {ℓA ℓA' ℓB ℓB' : Level} {A : Type ℓA} {B : A → Type ℓB} {
             ΣP₁ = PathΣ→ΣPathTransport _ _ p
 
             ΣP₂ : Σ[ q ∈ a ≡ a' ] subst (λ a → B' (f a)) q (g a b) ≡ (g a' b')
-            ΣP₂ = invEq (Σ-cong-equiv-fst {B = λ q → subst B' q (g a b) ≡ (g a' b')} ((cong f :> (a ≡ a' → f a ≡ f a')), embf a a')) ΣP₁
+            ΣP₂ = invEq (Σ-cong-equiv-fst
+                          {B = λ q → subst B' q (g a b) ≡ (g a' b')}
+                          ((cong f :> (a ≡ a' → f a ≡ f a')), embf a a')) ΣP₁
 
             q₁ : a ≡ a'
             q₁ = ΣP₂ .fst
@@ -66,7 +71,9 @@ module _ {ℓA ℓA' ℓB ℓB' : Level} {A : Type ℓA} {B : A → Type ℓB} {
     E : Embedding (V⁰ {ℓ}) ℓ
     E .fst = (Σ[ a ∈ El⁰ {ℓ} x ] El⁰ {ℓ} (y a))
     E .snd .fst (a , b) = ⟨ (tilde x a) , (tilde (y a) b) ⟩⁰
-    E .snd .snd = isEmbedding-∘ isEmbOrderedPair⁰ (Emb-Σfun _ _ (isSetΣ isSetV⁰ (λ _ → isSetV⁰)) (isEmbedding-tilde x) λ a → isEmbedding-tilde (y a))
+    E .snd .snd = isEmbedding-∘ isEmbOrderedPair⁰
+                                (Emb-Σfun _ _ (isSetΣ isSetV⁰ (λ _ → isSetV⁰))
+                                              (isEmbedding-tilde x) λ a → isEmbedding-tilde (y a))
 
 El⁰Σ⁰IsΣ : {x : V⁰ {ℓ}} {y : El⁰ x → V⁰ {ℓ}} → El⁰ (Σ⁰ x y) ≡ (Σ (El⁰ x) (λ a → El⁰ (y a)))
 El⁰Σ⁰IsΣ = refl

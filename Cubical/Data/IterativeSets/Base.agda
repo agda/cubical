@@ -174,7 +174,10 @@ isProp-∈⁰-Equiv : (x y : V⁰ {ℓ}) → isProp ((z : V⁰) → (z ∈⁰ x)
 isProp-∈⁰-Equiv x y = isPropΠ λ z → isOfHLevel≃ 1 (isProp∈⁰ {x = x} {z = z}) (isProp∈⁰ {x = y} {z = z})
 
 ∈⁰≃∈∞ : {x z : V⁰ {ℓ}} → (z ∈⁰ x) ≃ (z .fst ∈∞ x .fst)
-∈⁰≃∈∞ {x = sup-∞ x α , itsetx} {z = sup-∞ z γ , itsetz} = propBiimpl→Equiv (isProp∈⁰ {x = sup-∞ x α , itsetx} {z = sup-∞ z γ , itsetz}) (isProp∈∞ {x = sup-∞ x α , itsetx} {z = sup-∞ z γ}) f g
+∈⁰≃∈∞ {x = sup-∞ x α , itsetx} {z = sup-∞ z γ , itsetz} = propBiimpl→Equiv
+      (isProp∈⁰ {x = sup-∞ x α , itsetx} {z = sup-∞ z γ , itsetz})
+      (isProp∈∞ {x = sup-∞ x α , itsetx} {z = sup-∞ z γ})
+      f g
     where
         f : (sup-∞ z γ , itsetz) ∈⁰ (sup-∞ x α , itsetx) → sup-∞ z γ ∈∞ sup-∞ x α
         f (a , p) .fst = a

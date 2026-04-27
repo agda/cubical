@@ -77,7 +77,8 @@ Iso-≡V∞-≡Fib' : Iso (x ≡ y) (Path (Fibration (V∞ {ℓ}) ℓ) (overline
 Iso-≡V∞-≡Fib' {x = sup-∞ x α} {y = sup-∞ y β} .Iso.fun = cong (λ s → overline s , tilde s)
 Iso-≡V∞-≡Fib' {x = sup-∞ x α} {y = sup-∞ y β} .Iso.inv = cong (λ s → sup-∞ (s .fst) (s .snd))
 Iso-≡V∞-≡Fib' {x = sup-∞ x α} {y = sup-∞ y β} .Iso.sec _ = refl
-Iso-≡V∞-≡Fib' {x = sup-∞ x α} {y = sup-∞ y β} .Iso.ret p = cong (λ s → cong s p) (funExt (λ s → sym (V∞-overline-tilde {x = s})))
+Iso-≡V∞-≡Fib' {x = sup-∞ x α} {y = sup-∞ y β} .Iso.ret p = cong (λ s → cong s p)
+                                                                (funExt (λ s → sym (V∞-overline-tilde {x = s})))
 
 ≡V∞-≃-≡Fib' : (x ≡ y) ≃ Path (Fibration (V∞ {ℓ}) ℓ) (overline x , tilde x) (overline y , tilde y)
 ≡V∞-≃-≡Fib' = isoToEquiv Iso-≡V∞-≡Fib'

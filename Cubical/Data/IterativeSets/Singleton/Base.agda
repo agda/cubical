@@ -49,7 +49,10 @@ singleton⁰-is-singleton-sym {x = x} {z = z} = isoToEquiv isom
     isom .Iso.sec _ = refl
 
 singleton⁰≡singleton⁰ : {x y : V⁰ {ℓ}} → ((x ≡ y) ≃ (singleton⁰ x ≡ singleton⁰ y))
-singleton⁰≡singleton⁰ {ℓ} {x} {y} = propBiimpl→Equiv (isSetV⁰ _ _) (isSetV⁰ _ _) (cong singleton⁰) inv
+singleton⁰≡singleton⁰ {ℓ} {x} {y} = propBiimpl→Equiv (isSetV⁰ _ _)
+                                                     (isSetV⁰ _ _)
+                                                     (cong singleton⁰)
+                                                     inv
   where
     inv : singleton⁰ x ≡ singleton⁰ y → x ≡ y
     inv p = singleton⁰-is-singleton .fst (≡V⁰-≃-≃V⁰ .fst p .snd y (tt* , refl))

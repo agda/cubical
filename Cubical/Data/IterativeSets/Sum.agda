@@ -33,10 +33,14 @@ private
         f = ⊎-rec fl fr
 
         embfl : isEmbedding fl
-        embfl = compEmbedding ((curry orderedPair⁰ empty⁰) , (Embedding-×-fst-const isSetV⁰ empty⁰ orderedPair⁰ isEmbOrderedPair⁰)) ((tilde x) , (isEmbedding-tilde x)) .snd
+        embfl = compEmbedding ((curry orderedPair⁰ empty⁰)
+                                , (Embedding-×-fst-const isSetV⁰ empty⁰ orderedPair⁰ isEmbOrderedPair⁰))
+                              ((tilde x) , (isEmbedding-tilde x)) .snd
 
         embfr : isEmbedding fr
-        embfr = compEmbedding ((curry orderedPair⁰ unit⁰) , (Embedding-×-fst-const isSetV⁰ unit⁰ orderedPair⁰ isEmbOrderedPair⁰)) ((tilde y) , (isEmbedding-tilde y)) .snd
+        embfr = compEmbedding ((curry orderedPair⁰ unit⁰)
+                                , (Embedding-×-fst-const isSetV⁰ unit⁰ orderedPair⁰ isEmbOrderedPair⁰))
+                              ((tilde y) , (isEmbedding-tilde y)) .snd
 
         fla≢frb : (a : El⁰ x) (b : El⁰ y) → ¬ fl a ≡ fr b
         fla≢frb a b fla≡frb = empty⁰≢unit⁰ (orderedPair⁰≡orderedPair⁰ .fst fla≡frb .fst)
