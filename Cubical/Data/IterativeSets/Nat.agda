@@ -121,7 +121,7 @@ vonNeumannindex≃Fin {ℓ} = elim+2 case0 case1 caseSuc
     case0 = uninhabEquiv (λ ()) ¬Fin0
 
     case1 : El⁰ (vonNeumannEncoding (lift 1)) ≃ Fin 1
-    case1 = compEquiv (compEquiv ⊎-IdL-⊥*-≃ (invEquiv LiftEquiv)) Unit≃Fin1 
+    case1 = compEquiv (compEquiv ⊎-IdL-⊥*-≃ (invEquiv LiftEquiv)) Unit≃Fin1
 
     caseSuc : (n : ℕ) → El⁰ (vonNeumannEncoding (lift (suc n))) ≃ Fin (suc n) →
                           El⁰ (vonNeumannEncoding (lift (suc (suc n)))) ≃ Fin (suc (suc n))
@@ -137,7 +137,7 @@ vonNeumannindex≃Fin {ℓ} = elim+2 case0 case1 caseSuc
                                                 ∙ fsuc-predFin-quasi-sec n (suc m , sucm<sucsucn) λ p → fznotfs (sym p)
         isom .Iso.ret (inl x) = cong inl (retEq indHyp x)
         isom .Iso.ret (inr x) = refl
-        
+
 ℕ⁰ : V⁰ {ℓ}
 ℕ⁰ {ℓ} = fromEmb E
     where

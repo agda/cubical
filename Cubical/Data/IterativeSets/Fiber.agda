@@ -11,7 +11,7 @@ open import Cubical.Data.IterativeSets.Identity
 private
     variable
         ℓ : Level
-        
+
 fiber⁰ : {x y : V⁰ {ℓ}} (f : El⁰ x → El⁰ y) (b : El⁰ y) → V⁰ {ℓ}
 fiber⁰ {x = x} {y = y} f b = Σ⁰ x λ a → Id⁰ y (f a) b
 

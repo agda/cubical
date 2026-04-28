@@ -20,7 +20,7 @@ open import Cubical.Data.IterativeSets.OrderedPair
 private
     variable
         ℓ : Level
-        
+
 private
     module _ {x y : V⁰ {ℓ}} where
         fl : El⁰ x → V⁰ {ℓ}
@@ -28,7 +28,7 @@ private
 
         fr : El⁰ y → V⁰ {ℓ}
         fr b = ⟨ unit⁰ , elements y b ⟩⁰
-        
+
         f : El⁰ x ⊎ El⁰ y → V⁰ {ℓ}
         f = ⊎-rec fl fr
 

@@ -102,7 +102,7 @@ module _ (f : A → C) (g : B → C) where
 
       cong-f+g∘inr : {y y' : B} → y ≡ y' → g y ≡ g y'
       cong-f+g∘inr {y = y} {y' = y'} = cong (f+g ∘ inr)
-    
+
     isEmbeddingPair : isEmbedding f → isEmbedding g → ((x : A) (y : B) → ¬ f x ≡ g y) → isEmbedding f+g
     isEmbeddingPair embf embg fx≢gy (inl x) (inl x') =
         second-in-isEquiv-comp→isEquiv (cong inl) (cong f+g) cong-f+g∘inl (isEmbedding-inl x x') (embf x x') refl
@@ -392,5 +392,4 @@ sec (Lift⊎Iso ℓD) (lift (inl x)) = refl
 sec (Lift⊎Iso ℓD) (lift (inr x)) = refl
 ret (Lift⊎Iso ℓD) (inl x) = refl
 ret (Lift⊎Iso ℓD) (inr x) = refl
-
 

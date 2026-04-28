@@ -49,7 +49,7 @@ module _ {ℓA ℓA' ℓB ℓB' : Level} {A : Type ℓA} {B : A → Type ℓB}
 
             q₁ : a ≡ a'
             q₁ = ΣP₂ .fst
-            
+
             Pg₁ : g a' (subst B q₁ b) ≡ subst (λ a → B' (f a)) q₁ (g a b)
             Pg₁ = sym (substCommSlice B (λ a → B' (f a)) g {a} {a'} q₁ b)
 

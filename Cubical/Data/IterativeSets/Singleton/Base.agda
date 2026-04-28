@@ -39,7 +39,7 @@ singleton⁰-is-singleton {x = x} {z = z} = isoToEquiv isom
     isom .Iso.sec _ = refl
 
 singleton⁰-is-singleton-sym : {x z : V⁰ {ℓ}} → ((z ∈⁰ (singleton⁰ x)) ≃ (z ≡ x))
-singleton⁰-is-singleton-sym {x = x} {z = z} = isoToEquiv isom 
+singleton⁰-is-singleton-sym {x = x} {z = z} = isoToEquiv isom
   where
     isom : Iso (z ∈⁰ singleton⁰ x) (z ≡ x)
     isom .Iso.fun f = sym (snd f)

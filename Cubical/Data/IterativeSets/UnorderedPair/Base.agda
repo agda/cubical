@@ -53,7 +53,7 @@ unorderedUnorderedPair⁰ {x = x} {y = y} = invEq ≡V⁰-≃-≃V⁰ (f , g)
         f _ (lift false , prf) .snd = prf
         f _ (lift true , _) .fst = lift false
         f _ (lift true , prf) .snd = prf
-        
+
         g : (z : V⁰) → z ∈⁰ unorderedPair⁰ y x _ → z ∈⁰ unorderedPair⁰ x y _
         g _ (lift false , _) .fst = lift true
         g _ (lift false , prf) .snd = prf

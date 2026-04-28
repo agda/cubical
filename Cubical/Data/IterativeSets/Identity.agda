@@ -10,7 +10,7 @@ open import Cubical.Data.IterativeSets.Empty
 private
     variable
         ℓ : Level
-        
+
 Id⁰ : (x : V⁰ {ℓ}) (a b : El⁰ x) → V⁰ {ℓ}
 Id⁰ x a b = fromEmb E
   where

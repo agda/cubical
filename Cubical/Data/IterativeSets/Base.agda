@@ -137,7 +137,7 @@ V⁰↪Fib {ℓ} = compEmbedding Emb↪Fib (Iso→Embedding Iso-V⁰-Emb)
 
 toFib : (V⁰ {ℓ}) → Fibration (V⁰ {ℓ}) ℓ
 toFib = V⁰↪Fib .fst
-    
+
 _≃V⁰'_ : (x y : V⁰ {ℓ}) → Type (ℓ-suc ℓ)
 x ≃V⁰' y = (z : V⁰) → ((z ∈⁰ x) ≃ (z ∈⁰ y))
 
