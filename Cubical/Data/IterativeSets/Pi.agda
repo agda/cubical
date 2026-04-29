@@ -14,7 +14,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Homotopy.Base
 open import Cubical.Foundations.Transport
 
-open import Cubical.Data.IterativeMultisets.Base renaming (overline to overline-V∞ ; tilde to tilde-V∞)
+open import Cubical.Data.IterativeMultisets.Base renaming (index to index∞ ; elements to elements-V∞)
 open import Cubical.Data.IterativeSets.Base
 open import Cubical.Data.IterativeSets.OrderedPair
 
@@ -79,8 +79,8 @@ graph⁰ {ℓ = ℓ} {x = x} {y = y} f = fromEmb E
   where
     E : Embedding (V⁰ {ℓ}) ℓ
     E .fst = El⁰ x
-    E .snd .fst a = orderedPair⁰ (tilde x a , tilde (y a) (f a))
-    E .snd .snd = injEmbedding isSetV⁰ (λ {v} {w} p → isEmbedding→Inj {f = tilde x} (isEmbedding-tilde x) v w (orderedPair⁰≡orderedPair⁰ .fst p .fst))
+    E .snd .fst a = orderedPair⁰ (elements x a , elements (y a) (f a))
+    E .snd .snd = injEmbedding isSetV⁰ (λ {v} {w} p → isEmbedding→Inj {f = elements x} (isEmbedding-elements x) v w (orderedPair⁰≡orderedPair⁰ .fst p .fst))
 
 Π⁰ : (x : V⁰ {ℓ}) → ((a : El⁰ x) → V⁰ {ℓ}) → V⁰ {ℓ}
 Π⁰ {ℓ} x y = fromEmb E
@@ -91,29 +91,29 @@ graph⁰ {ℓ = ℓ} {x = x} {y = y} f = fromEmb E
         ∈⁰graph⁰-f→g : ((z : V⁰) → z ∈⁰ graph⁰ f → z ∈⁰ graph⁰ g)
         ∈⁰graph⁰-f→g = ≡V⁰-≃-≃V⁰ .fst p .fst
 
-        p : Σ[ a' ∈ El⁰ x ] orderedPair⁰ ((tilde x a') , (tilde (y a') (g a'))) ≡ orderedPair⁰ ((tilde x a) , (tilde (y a) (f a)))
-        p = ∈⁰graph⁰-f→g (orderedPair⁰ ((tilde x a) , (tilde (y a) (f a)))) (a , refl)
+        p : Σ[ a' ∈ El⁰ x ] orderedPair⁰ ((elements x a') , (elements (y a') (g a'))) ≡ orderedPair⁰ ((elements x a) , (elements (y a) (f a)))
+        p = ∈⁰graph⁰-f→g (orderedPair⁰ ((elements x a) , (elements (y a) (f a)))) (a , refl)
 
         a' : El⁰ x
         a' = p .fst
 
-        p₂ : orderedPair⁰ ((tilde x a') , (tilde (y a') (g a'))) ≡ orderedPair⁰ ((tilde x a) , (tilde (y a) (f a)))
+        p₂ : orderedPair⁰ ((elements x a') , (elements (y a') (g a'))) ≡ orderedPair⁰ ((elements x a) , (elements (y a) (f a)))
         p₂ = p .snd
 
-        q : tilde x a' ≡ tilde x a
+        q : elements x a' ≡ elements x a
         q = orderedPair⁰≡orderedPair⁰ .fst p₂ .fst
 
         r : a' ≡ a
-        r = isEmbedding→Inj {f = tilde x} (isEmbedding-tilde x) a' a q
+        r = isEmbedding→Inj {f = elements x} (isEmbedding-elements x) a' a q
 
-        s : tilde (y a') (g a') ≡ tilde (y a) (f a)
+        s : elements (y a') (g a') ≡ elements (y a) (f a)
         s = orderedPair⁰≡orderedPair⁰ .fst p₂ .snd
         
-        t : tilde (y a) (g a) ≡ tilde (y a') (g a')
-        t i = tilde (y (r (~ i))) (g (r (~ i)))
+        t : elements (y a) (g a) ≡ elements (y a') (g a')
+        t i = elements (y (r (~ i))) (g (r (~ i)))
 
         goal : f a ≡ g a
-        goal = isEmbedding→Inj {f = tilde (y a)} (isEmbedding-tilde (y a)) (f a) (g a) (sym (t ∙ s))
+        goal = isEmbedding→Inj {f = elements (y a)} (isEmbedding-elements (y a)) (f a) (g a) (sym (t ∙ s))
       in goal
        
     
