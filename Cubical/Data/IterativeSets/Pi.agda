@@ -1,7 +1,7 @@
 {-# OPTIONS --lossy-unification #-}
 
 -- TODO: make type checking terminate
-
+    
 module Cubical.Data.IterativeSets.Pi where
 
 open import Cubical.Foundations.Prelude
