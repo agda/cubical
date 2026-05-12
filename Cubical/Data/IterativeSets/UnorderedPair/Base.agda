@@ -162,3 +162,13 @@ unorderedPair⁰≡unorderedPair⁰ {x = x} {y = y} {a = a} {b = b} {x≢y = x�
         g (inl x≡a , inr y≡b) z = pathToEquiv (λ i → (z ≡ x≡a i) ⊎ (z ≡ y≡b i))
         g (inr x≡b , inl y≡a) z = compEquiv (pathToEquiv (λ i → (z ≡ x≡b i) ⊎ (z ≡ y≡a i))) ⊎-swap-≃
         g (inr x≡b , inr y≡b) = ⊥-elim (x≢y (x≡b ∙ sym y≡b))
+
+unorderedPair⁰≡unorderedPair⁰' : {x y a b : V⁰ {ℓ}} {x≢y : ¬ (x ≡ y)} {a≢b : ¬ (a ≡ b)}
+                                → ¬ x ≡ b
+                                → (unorderedPair⁰ x y x≢y ≡ unorderedPair⁰ a b a≢b)
+                                  ≃
+                                  ((x ≡ a) × (y ≡ b))
+unorderedPair⁰≡unorderedPair⁰' {x = x} {y = y} {a = a} {b = b} x≢b = compEquiv unorderedPair⁰≡unorderedPair⁰
+                                                                    (compEquiv (⊎-equiv (idEquiv ((x ≡ a) × (y ≡ b)))
+                                                                                        (uninhabEquiv⊥ (λ p → x≢b (p .fst))))
+                                                                               ⊎-IdR-⊥-≃)
