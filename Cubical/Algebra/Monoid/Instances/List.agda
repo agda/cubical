@@ -55,3 +55,6 @@ foldlMonHom m = fn , monoidequiv refl respects∙
                                         (x ∙m (fn xs)) ∙m (fn ys)
                                           ≡⟨ cong (_∙m (fn ys)) (fnCons x xs) ⟩
                                         (fn (x ∷ xs)) ∙m (fn ys) ∎
+
+mapMonHom : (A B : Σ Type isSet) → (f : (fst A) → (fst B)) → MonoidHom (ListMonoid A) (ListMonoid B)
+mapMonHom A B f = map f , monoidequiv refl (λ x y → sym (map++ f x y))
