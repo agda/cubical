@@ -21,13 +21,6 @@ private
   variable
     ℓ : Level
 
--- TODO: (possibly) rename and move
-private
-    module _ where
-        ≢-move-i0→i : {ℓ : Level} {A : Type ℓ} {x y a b : A} (p : x ≡ a) (q : y ≡ b)
-                       (i : I) → ¬ (x ≡ y) → ¬ (p i ≡ q i)
-        ≢-move-i0→i p q i x≢y pi≡qi = x≢y ((λ j → p (i ∧ j)) ∙∙ pi≡qi ∙∙ λ j → q (i ∧ ~ j))
-
 unorderedPair⁰ : (x y : V⁰ {ℓ}) → ¬ (x ≡ y) → V⁰ {ℓ}
 unorderedPair⁰ {ℓ} x y x≢y = fromEmb emb
     where
