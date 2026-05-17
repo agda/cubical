@@ -110,7 +110,7 @@ module Graph {ℓ : Level} {x : V⁰ {ℓ}} {y : El⁰ {ℓ} x → V⁰ {ℓ}} w
                 (isEmbedding-elements x) a' a els≡
 
         graphEl⁰≡ : graphEl⁰ Φ a ≡ graphEl⁰ Ψ a
-        graphEl⁰≡ = transport (cong (λ m → graphEl⁰ Φ m ≡ graphEl⁰ Ψ a) a'≡a) graphEl⁰≡'
+        graphEl⁰≡ = subst (λ m → graphEl⁰ Φ m ≡ graphEl⁰ Ψ a) a'≡a graphEl⁰≡'
 
       P : graphEl⁰ Φ ≡ graphEl⁰ Ψ
       P = funExt graphEl⁰≡
