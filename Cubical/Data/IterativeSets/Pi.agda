@@ -65,7 +65,7 @@ module GraphElements {ℓ : Level} {x : V⁰ {ℓ}} {y : El⁰ {ℓ} x → V⁰ 
 
 module Graph {ℓ : Level} {x : V⁰ {ℓ}} {y : El⁰ {ℓ} x → V⁰ {ℓ}} where
   open GraphElements {ℓ} {x} {y}
-  
+
   graph⁰ : ((a : El⁰ {ℓ} x) → El⁰ {ℓ} (y a)) → V⁰ {ℓ}
   graph⁰ Φ = fromEmb E
     where

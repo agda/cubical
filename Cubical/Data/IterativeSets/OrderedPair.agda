@@ -55,7 +55,7 @@ orderedPair⁰≡orderedPair⁰ {ℓ = ℓ} {x = x} {y = y} {a = a} {b = b} = co
                                            {x≢y = unorderedPair⁰≢singleton⁰}
                                            {a≢b = unorderedPair⁰≢singleton⁰}
                                            unorderedPair⁰≢singleton⁰
-    
+
     step₂ : (unorderedPair⁰ (singleton⁰ x) empty⁰ singleton⁰≢empty⁰ ≡ unorderedPair⁰ (singleton⁰ a) empty⁰ singleton⁰≢empty⁰)
             × (singleton⁰ (singleton⁰ y) ≡ singleton⁰ (singleton⁰ b))
             ≃
@@ -76,7 +76,7 @@ orderedPair⁰≡orderedPair⁰ {ℓ = ℓ} {x = x} {y = y} {a = a} {b = b} = co
             ((singleton⁰ x ≡ singleton⁰ a) × (singleton⁰ y ≡ singleton⁰ b))
     step₃ = ≃-× (Σ-contractSnd (λ _ → inhProp→isContr refl (isSetV⁰ empty⁰ empty⁰)))
                 (idEquiv (singleton⁰ y ≡ singleton⁰ b))
-    step₄ : ((singleton⁰ x ≡ singleton⁰ a) × (singleton⁰ y ≡ singleton⁰ b)) 
+    step₄ : ((singleton⁰ x ≡ singleton⁰ a) × (singleton⁰ y ≡ singleton⁰ b))
             ≃
             ((x ≡ a) × (y ≡ b))
     step₄ = ≃-× (invEquiv (singleton⁰≡singleton⁰ {x = x} {y = a}))
