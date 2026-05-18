@@ -8,15 +8,18 @@ open import Cubical.Data.List
 
 open import Cubical.Algebra.Monoid
 
+private
+  variable
+    ℓ ℓ' : Level
 
-ListMonoid : (Σ Type isSet) → Monoid ℓ-zero
+ListMonoid : hSet ℓ → Monoid ℓ
 fst (ListMonoid (A , _)) = (List A)
 MonoidStr.ε (snd (ListMonoid _)) = []
 MonoidStr._·_ (snd (ListMonoid _)) = _++_
 MonoidStr.isMonoid (snd (ListMonoid (_ , pf))) = makeIsMonoid (isOfHLevelList 0 pf)
                                     (λ x y z → sym (++-assoc x y z)) ++-unit-r (λ _ → refl)
 
-foldlMonHom : (M : Monoid ℓ-zero) → MonoidHom (ListMonoid (fst M , MonoidStr.is-set (snd M))) M
+foldlMonHom : (M : Monoid ℓ) → MonoidHom (ListMonoid (fst M , MonoidStr.is-set (snd M))) M
 foldlMonHom m = fn , monoidequiv refl respects∙
   where _∙m_ = (MonoidStr._·_ (snd m))
         fn : ⟨ ListMonoid (fst m , MonoidStr.is-set (snd m)) ⟩ → ⟨ m ⟩
@@ -56,5 +59,5 @@ foldlMonHom m = fn , monoidequiv refl respects∙
                                           ≡⟨ cong (_∙m (fn ys)) (fnCons x xs) ⟩
                                         (fn (x ∷ xs)) ∙m (fn ys) ∎
 
-mapMonHom : (A B : Σ Type isSet) → (f : (fst A) → (fst B)) → MonoidHom (ListMonoid A) (ListMonoid B)
-mapMonHom A B f = map f , monoidequiv refl (λ x y → sym (map++ f x y))
+mapMonHom : {A : hSet ℓ} → {B : hSet ℓ'} → (f : (fst A) → (fst B)) → MonoidHom (ListMonoid A) (ListMonoid B)
+mapMonHom f = map f , monoidequiv refl (λ x y → sym (map++ f x y))
