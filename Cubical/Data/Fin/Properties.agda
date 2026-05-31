@@ -440,39 +440,6 @@ Fin-inj n m p with n ≟ m
 ... | lt n<m = Empty.rec (Fin-inj′ n<m (sym p))
 ... | gt n>m = Empty.rec (Fin-inj′ n>m p)
 
-≤-·sk-cancel : ∀ {m} {k} {n} → m · suc k ≤ n · suc k → m ≤ n
-≤-·sk-cancel {m} {k} {n} (d , p) = o , inj-·sm {m = k} goal where
-  r = d % suc k
-  o = d / suc k
-  resn·k : Residue (suc k) (n · suc k)
-  resn·k = ((r , n%sk<ᵗsk d k) , (o + m)) , reason where
-   reason = expand× ((r , n%sk<ᵗsk d k) , o + m) ≡⟨ expand≡ (suc k) r (o + m) ⟩
-            (o + m) · suc k + r                 ≡[ i ]⟨ +-comm (·-distribʳ o m (suc k) (~ i)) r i ⟩
-            r + (o · suc k + m · suc k)         ≡⟨ +-assoc r (o · suc k) (m · suc k) ⟩
-            (r + o · suc k) + m · suc k         ≡⟨ cong (_+ m · suc k) (+-comm r (o · suc k) ∙ moddiv d (suc k)) ⟩
-            d + m · suc k                       ≡⟨ p ⟩
-            n · suc k ∎
-
-  residuek·n : ∀ k n → (r : Residue (suc k) (n · suc k)) → ((fzero , n) , expand≡ (suc k) 0 n ∙ +-zero _) ≡ r
-  residuek·n _ _ = isContr→isProp isContrResidue _
-
-  r≡0 : r ≡ 0
-  r≡0 = cong (toℕ {suc k} ∘ extract) (sym (residuek·n k n resn·k))
-  d≡o·sk : d ≡ o · suc k
-  d≡o·sk = sym (moddiv d (suc k)) ∙∙ cong (o · suc k +_) r≡0 ∙∙ +-zero _
-  goal : (o + m) · suc k ≡ n · suc k
-  goal = sym (·-distribʳ o m (suc k)) ∙∙ cong (_+ m · suc k) (sym d≡o·sk) ∙∙ p
-
-<-·sk-cancel : ∀ {m} {k} {n} → m · suc k < n · suc k → m < n
-<-·sk-cancel {m} {k} {n} p = goal where
-  ≤-helper : m ≤ n
-  ≤-helper = ≤-·sk-cancel (pred-≤-pred (<≤-trans p (≤-suc ≤-refl)))
-  goal : m < n
-  goal = case <-split (suc-≤-suc ≤-helper) of λ
-    { (inl g) → g
-    ; (inr e) → Empty.rec (¬m<m (subst (λ m → m · suc k < n · suc k) e p))
-    }
-
 factorEquiv : ∀ {n} {m} → Fin n × Fin m ≃ Fin (n · m)
 factorEquiv {zero} {m} = uninhabEquiv (¬Fin0 ∘ fst) ¬Fin0
 factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddingIntro , isSurjectionIntro) where
