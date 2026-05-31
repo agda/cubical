@@ -94,7 +94,6 @@ isEmbOrderedPair⁰ s t = E .snd
                          (isSetV⁰ (orderedPair⁰ s) (orderedPair⁰ t))
                          (λ P i → ⟨ P .fst i , P .snd i ⟩⁰)
                          (orderedPair⁰≡orderedPair⁰ .fst)
-     -- invEquiv (orderedPair⁰≡orderedPair⁰ {x = s .fst} {y = s .snd} {a = t .fst} {b = t .snd})
 
     E : (s ≡ t) ≃ (orderedPair⁰ s ≡ orderedPair⁰ t)
     E = compEquiv (isoToEquiv (invIso (ΣPathPIsoPathPΣ {x = s} {y = t}))) F
