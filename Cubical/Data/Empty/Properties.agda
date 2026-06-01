@@ -34,3 +34,11 @@ uninhabEquiv ¬a ¬b = isoToEquiv isom
   isom .inv b = rec (¬b b)
   isom .sec b = rec (¬b b)
   isom .ret a = rec (¬a a)
+
+uninhabEquiv⊥ : ∀ {ℓ} {A : Type ℓ}
+  → (A → ⊥) → A ≃ ⊥
+uninhabEquiv⊥ ¬a = uninhabEquiv ¬a (λ ())
+
+uninhabEquiv⊥* : ∀ {ℓ ℓ'} {A : Type ℓ}
+  → (A → ⊥) → A ≃ ⊥* {ℓ'}
+uninhabEquiv⊥* ¬a = uninhabEquiv ¬a (λ ())

@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.Data.IterativeSets.UnorderedPair.Base where
 
 open import Cubical.Foundations.Prelude
@@ -8,8 +6,10 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Univalence
 open import Cubical.Functions.Embedding
 open import Cubical.Data.Sum
+open import Cubical.Data.Sum.Properties
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty renaming (elim to ⊥-elim)
@@ -20,13 +20,6 @@ open import Cubical.Data.IterativeSets.Base
 private
   variable
     ℓ : Level
-
--- TODO: (possibly) rename and move
-private
-    module _ where
-        ≢-move-i0→i : {ℓ : Level} {A : Type ℓ} {x y a b : A} (p : x ≡ a) (q : y ≡ b)
-                       (i : I) → ¬ (x ≡ y) → ¬ (p i ≡ q i)
-        ≢-move-i0→i p q i x≢y pi≡qi = x≢y ((λ j → p (i ∧ j)) ∙∙ pi≡qi ∙∙ λ j → q (i ∧ ~ j))
 
 unorderedPair⁰ : (x y : V⁰ {ℓ}) → ¬ (x ≡ y) → V⁰ {ℓ}
 unorderedPair⁰ {ℓ} x y x≢y = fromEmb emb
@@ -99,41 +92,76 @@ unorderedPair⁰-≢-witness-agnostic {x = x} {y = y} x≢y₁ x≢y₂ = cong (
         x≢y₁≡x≢y₂ : x≢y₁ ≡ x≢y₂
         x≢y₁≡x≢y₂ = isProp→ (λ ()) x≢y₁ x≢y₂
 
+private
+  -- maybe switch a and x, as well as b and y to make it closer to the place where we use it later
+  module _ {A : Type ℓ} (a b x y : A) (a≢b : ¬ a ≡ b) where
+    ⊎-×-≡-distr : Iso (((a ≡ x) ⊎ (a ≡ y))
+                        × ((b ≡ x) ⊎ (b ≡ y)))
+                      (((a ≡ x) × (b ≡ y))
+                        ⊎ ((a ≡ y) × (b ≡ x)))
+    ⊎-×-≡-distr .Iso.fun (inl a≡x , inl b≡x) = ⊥-elim (a≢b (a≡x ∙ sym b≡x))
+    ⊎-×-≡-distr .Iso.fun (inl a≡x , inr b≡y) = inl (a≡x , b≡y)
+    ⊎-×-≡-distr .Iso.fun (inr a≡y , inl b≡x) = inr (a≡y , b≡x)
+    ⊎-×-≡-distr .Iso.fun (inr a≡y , inr b≡y) = ⊥-elim (a≢b (a≡y ∙ sym b≡y))
+
+    ⊎-×-≡-distr .Iso.inv (inl (a≡x , b≡y)) .fst = inl a≡x
+    ⊎-×-≡-distr .Iso.inv (inl (a≡x , b≡y)) .snd = inr b≡y
+    ⊎-×-≡-distr .Iso.inv (inr (a≡y , b≡x)) .fst = inr a≡y
+    ⊎-×-≡-distr .Iso.inv (inr (a≡y , b≡x)) .snd = inl b≡x
+
+    ⊎-×-≡-distr .Iso.sec (inl _) = refl
+    ⊎-×-≡-distr .Iso.sec (inr _) = refl
+
+    ⊎-×-≡-distr .Iso.ret (inl a≡x , inl b≡x) = ⊥-elim {A = λ _ → ⊎-×-≡-distr .Iso.inv (⊎-×-≡-distr .Iso.fun (inl a≡x , inl b≡x)) ≡ (inl a≡x , inl b≡x)} (a≢b (a≡x ∙ sym b≡x))
+    ⊎-×-≡-distr .Iso.ret (inl x , inr x₁) = refl
+    ⊎-×-≡-distr .Iso.ret (inr x , inl x₁) = refl
+    ⊎-×-≡-distr .Iso.ret (inr a≡y , inr b≡y) = ⊥-elim {A = λ _ → Iso.inv ⊎-×-≡-distr (Iso.fun ⊎-×-≡-distr (inr a≡y , inr b≡y))
+      ≡ (inr a≡y , inr b≡y)} (a≢b (a≡y ∙ sym b≡y))
+
 unorderedPair⁰≡unorderedPair⁰ : {x y a b : V⁰ {ℓ}} {x≢y : ¬ (x ≡ y)} {a≢b : ¬ (a ≡ b)}
                                 → ((unorderedPair⁰ x y x≢y ≡ unorderedPair⁰ a b a≢b)
                                     ≃ (((x ≡ a) × (y ≡ b)) ⊎ ((x ≡ b) × (y ≡ a))))
 unorderedPair⁰≡unorderedPair⁰ {x = x} {y = y} {a = a} {b = b} {x≢y = x≢y} {a≢b = a≢b}
-                                              = propBiimpl→Equiv (isSetV⁰ _ _) isPropRHS f g
-    where
-       isPropRHS : isProp (((x ≡ a) × (y ≡ b)) ⊎ ((x ≡ b) × (y ≡ a)))
-       isPropRHS = isProp⊎ (isProp× (isSetV⁰ _ _) (isSetV⁰ _ _))
-                           (isProp× (isSetV⁰ _ _) (isSetV⁰ _ _))
-                           (λ (x≡a , _) (_ , y≡a) → x≢y (x≡a ∙ (sym y≡a)))
+                                              = compEquiv (compEquiv ≡V⁰-≃-≃V⁰' (compEquiv L M)) (isoToEquiv (⊎-×-≡-distr x y a b x≢y))
+  where
+    L : ((z : V⁰) → (z ∈⁰ unorderedPair⁰ x y x≢y) ≃ (z ∈⁰ unorderedPair⁰ a b a≢b))
+          ≃
+        ((z : V⁰) → ((z ≡ x) ⊎ (z ≡ y)) ≃ ((z ≡ a) ⊎ (z ≡ b)))
+    L = equivΠCod (λ z → equivComp unorderedPair⁰-is-unordered-pair-sym
+                                    unorderedPair⁰-is-unordered-pair-sym)
 
-       destruct : (unorderedPair⁰ x y _ ≡ unorderedPair⁰ a b _)
-                    → ((x ≡ a) ⊎ (x ≡ b)) × ((y ≡ a) ⊎ (y ≡ b))
-       destruct p .fst = unorderedPair⁰-is-unordered-pair-sym .fst
-                                    (≡V⁰-≃-≃V⁰ .fst p .fst x (lift false , refl))
-       destruct p .snd = unorderedPair⁰-is-unordered-pair-sym .fst
-                                    (≡V⁰-≃-≃V⁰ .fst p .fst y (lift true , refl))
+    M : ((z : V⁰) → ((z ≡ x) ⊎ (z ≡ y)) ≃ ((z ≡ a) ⊎ (z ≡ b)))
+           ≃
+         ((x ≡ a) ⊎ (x ≡ b)) × ((y ≡ a) ⊎ (y ≡ b))
+    M = propBiimpl→Equiv propLHS propRHS f g
+      where
+        propLHS : isProp ((z : V⁰) → ((z ≡ x) ⊎ (z ≡ y)) ≃ ((z ≡ a) ⊎ (z ≡ b)))
+        propLHS = isPropΠ (λ z → isOfHLevel≃ 1
+                    (isProp⊎ (isSetV⁰ z x) (isSetV⁰ z y) (λ z≡x z≡y → x≢y (sym z≡x ∙ z≡y)))
+                    (isProp⊎ (isSetV⁰ z a) (isSetV⁰ z b) (λ z≡a z≡b → a≢b (sym z≡a ∙ z≡b))))
 
-       filter : ((x ≡ a) ⊎ (x ≡ b)) × ((y ≡ a) ⊎ (y ≡ b))
-                  → ((x ≡ a) × (y ≡ b)) ⊎ ((x ≡ b) × (y ≡ a))
-       filter (inl x≡a , inl y≡a) = ⊥-elim (x≢y (x≡a ∙ (sym y≡a)))
-       filter (inl x≡a , inr y≡b) = inl (x≡a , y≡b)
-       filter (inr x≡b , inl y≡a) = inr (x≡b , y≡a)
-       filter (inr x≡b , inr y≡b) = ⊥-elim (x≢y (x≡b ∙ (sym y≡b)))
+        propRHS : isProp (((x ≡ a) ⊎ (x ≡ b)) × ((y ≡ a) ⊎ (y ≡ b)))
+        propRHS = isProp× (isProp⊎ (isSetV⁰ x a) (isSetV⁰ x b) (λ x≡a x≡b → a≢b (sym x≡a ∙ x≡b)))
+                          (isProp⊎ (isSetV⁰ y a) (isSetV⁰ y b) (λ y≡a y≡b → a≢b (sym y≡a ∙ y≡b)))
 
-       f : unorderedPair⁰ x y _ ≡ unorderedPair⁰ a b _
-             → ((x ≡ a) × (y ≡ b)) ⊎ ((x ≡ b) × (y ≡ a))
-       f = filter ∘ destruct
+        f : ((z : V⁰) → ((z ≡ x) ⊎ (z ≡ y)) ≃ ((z ≡ a) ⊎ (z ≡ b))) →
+             ((x ≡ a) ⊎ (x ≡ b)) × ((y ≡ a) ⊎ (y ≡ b))
+        f E .fst = E x .fst (inl refl)
+        f E .snd = E y .fst (inr refl)
 
-       -- TODO: make more efficient somehow
-       g : ((x ≡ a) × (y ≡ b)) ⊎ ((x ≡ b) × (y ≡ a)) → unorderedPair⁰ x y _ ≡ unorderedPair⁰ a b _
-       g (inl (x≡a , y≡b)) = unorderedPair⁰-≢-witness-agnostic x≢y _
-                               ∙∙ (λ i → unorderedPair⁰ (x≡a i) (y≡b i) (≢-move-i0→i x≡a y≡b i x≢y))
-                               ∙∙ unorderedPair⁰-≢-witness-agnostic _ a≢b
-       g (inr (x≡b , y≡a)) = (unorderedPair⁰-≢-witness-agnostic x≢y _
-                               ∙∙ (λ i → unorderedPair⁰ (x≡b i) (y≡a i) (≢-move-i0→i x≡b y≡a i x≢y))
-                               ∙∙ unorderedPair⁰-≢-witness-agnostic _ (λ b≡a → a≢b (sym b≡a)))
-                             ∙ unorderedUnorderedPair⁰
+        g : ((x ≡ a) ⊎ (x ≡ b)) × ((y ≡ a) ⊎ (y ≡ b)) →
+             (z : V⁰) → ((z ≡ x) ⊎ (z ≡ y)) ≃ ((z ≡ a) ⊎ (z ≡ b))
+        g (inl x≡a , inl y≡a) = ⊥-elim (x≢y (x≡a ∙ sym y≡a))
+        g (inl x≡a , inr y≡b) z = pathToEquiv (λ i → (z ≡ x≡a i) ⊎ (z ≡ y≡b i))
+        g (inr x≡b , inl y≡a) z = compEquiv (pathToEquiv (λ i → (z ≡ x≡b i) ⊎ (z ≡ y≡a i))) ⊎-swap-≃
+        g (inr x≡b , inr y≡b) = ⊥-elim (x≢y (x≡b ∙ sym y≡b))
+
+unorderedPair⁰≡unorderedPair⁰' : {x y a b : V⁰ {ℓ}} {x≢y : ¬ (x ≡ y)} {a≢b : ¬ (a ≡ b)}
+                                → ¬ x ≡ b
+                                → (unorderedPair⁰ x y x≢y ≡ unorderedPair⁰ a b a≢b)
+                                  ≃
+                                  ((x ≡ a) × (y ≡ b))
+unorderedPair⁰≡unorderedPair⁰' {x = x} {y = y} {a = a} {b = b} x≢b = compEquiv unorderedPair⁰≡unorderedPair⁰
+                                                                    (compEquiv (⊎-equiv (idEquiv ((x ≡ a) × (y ≡ b)))
+                                                                                        (uninhabEquiv⊥ (λ p → x≢b (p .fst))))
+                                                                               ⊎-IdR-⊥-≃)
