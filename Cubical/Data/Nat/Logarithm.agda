@@ -43,13 +43,12 @@ private
     in  ¬m<m $ begin< x <⟨ <b^1+l₀ ⟩ b ^ suc l₀ ≤⟨ ≤-sk^ l₀<l₁ ⟩ b ^ l₁ ≤⟨ b^l₁≤ ⟩ x ◾
 
 isPropLogℕ : ∀ m n → isProp (Logℕ (suc m) n)
-isPropLogℕ m x = isOfHLevelRetractFromIso 1 LogℕIsoΣ
-  λ (l₀ , b^l₀≤ , <b^1+l₀) (l₁ , b^l₁≤ , <b^1+l₁) →
-    Σ≡Prop (λ _ → isProp× isProp≤ isProp≤) $
-      case l₀ ≟ l₁ return (λ _ → l₀ ≡ l₁) of λ
-      { (lt l₀<l₁) → ⊥.rec (lemmaIsPropLogℕ <b^1+l₀ b^l₁≤ l₀<l₁)
-      ; (eq l₀≡l₁) → l₀≡l₁
-      ; (gt l₀>l₁) → ⊥.rec (lemmaIsPropLogℕ <b^1+l₁ b^l₀≤ l₀>l₁) }
+isPropLogℕ m x = isOfHLevelRetractFromIso 1 LogℕIsoΣ proof where
+  proof : isProp (Σ[ l ∈ ℕ ] ((suc m) ^ l ≤ x) × (x < (suc m) ^ suc l))
+  proof (l₀ , b^l₀≤ , <b^1+l₀) (l₁ , b^l₁≤ , <b^1+l₁) with l₀ ≟ l₁
+  ... | lt l₀<l₁ = ⊥.rec  (lemmaIsPropLogℕ <b^1+l₀ b^l₁≤ l₀<l₁)
+  ... | eq l₀≡l₁ = Σ≡Prop (λ _ → isProp× isProp≤ isProp≤) l₀≡l₁
+  ... | gt l₀>l₁ = ⊥.rec  (lemmaIsPropLogℕ <b^1+l₁ b^l₀≤ l₀>l₁)
 
 module LogTheory (logℕ : ∀ m n → Logℕ (suc (suc m)) (suc n)) where
 
