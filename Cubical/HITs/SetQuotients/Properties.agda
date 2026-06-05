@@ -18,6 +18,8 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Functions.FunExtEquiv
+open import Cubical.Functions.Embedding
+open import Cubical.Functions.Surjection
 
 open import Cubical.Data.Sigma
 
@@ -353,6 +355,78 @@ descendMapPath f g isSetM path i x =
     ([]surjective x)
     i
 
+-- If we have a function sending each element of A to its
+-- canonical representative under R, we can obtain A/R more
+-- simply as the set of fixed points of R.
+
+CanonicalReprs : (A → A) → Type _
+CanonicalReprs {A = A} r = Σ[ x ∈ A ] r x ≡ x
+
+-- Lemma 6.10.8 in HoTT Book: set quotients via canonical representatives
+module _ (isSetA : isSet A)
+  (r : A → A)
+  (ridem : (a : A) → r (r a) ≡ r a)
+  (r≃R : (a b : A) → (r a ≡ r b) ≃ R a b)
+  where
+
+  canonicalReprsUniversalIso : isSet B →
+    Iso (CanonicalReprs r → B) (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
+  Iso.fun (canonicalReprsUniversalIso isSetB) g =
+    (λ a → g (r a , ridem a)) ,
+    λ a b Rab → cong g (Σ≡Prop (λ _ → isSetA _ _) (invEq (r≃R a b) Rab))
+  Iso.inv (canonicalReprsUniversalIso isSetB) (f , R→f) (c , rc≡c) = f c
+  Iso.sec (canonicalReprsUniversalIso isSetB) (f , R→f) =
+    Σ≡Prop (λ _ → isPropΠ3 λ _ _ _ → isSetB _ _)
+      (funExt λ a → R→f (r a) a (equivFun (r≃R (r a) a) (ridem a)))
+  Iso.ret (canonicalReprsUniversalIso isSetB) g =
+    funExt λ (c , rc≡c) → cong g (Σ≡Prop (λ _ → isSetA _ _) rc≡c)
+
+  canonicalReprsUniversal : isSet B →
+    (CanonicalReprs r → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
+  canonicalReprsUniversal isSetB = isoToEquiv (canonicalReprsUniversalIso isSetB)
+
+  private
+    isSetCR : isSet (CanonicalReprs r)
+    isSetCR = isSetΣSndProp isSetA (λ _ → isSetA _ _)
+
+  equivQuotCRIso : Iso (A / R) (CanonicalReprs r)
+  Iso.fun equivQuotCRIso = invEq (setQuotUniversal isSetCR)
+    (equivFun (canonicalReprsUniversal isSetCR) (idfun _))
+  Iso.inv equivQuotCRIso (c , _) = [ c ]
+  Iso.sec equivQuotCRIso = funExt⁻ (retEq (canonicalReprsUniversal isSetCR) (idfun _))
+  Iso.ret equivQuotCRIso = funExt⁻
+    (descendMapPath _ (idfun _) squash/ (λ a → eq/ _ _ (equivFun (r≃R (r a) a) (ridem a))))
+
+  equivQuotCR : (A / R) ≃ (CanonicalReprs r)
+  equivQuotCR = isoToEquiv equivQuotCRIso
+
+-- Corollary 6.10.10 in HoTT Book
+quotRetractIso : isSet B
+  → (p : A → B) → (s : B → A) → retract s p
+  → Iso (A / (λ x y → p x ≡ p y)) B
+Iso.fun (quotRetractIso isSetB p s ret) = rec isSetB p (λ _ _ q → q)
+Iso.inv (quotRetractIso isSetB p s ret) b = [ s b ]
+Iso.sec (quotRetractIso isSetB p s ret) = ret
+Iso.ret (quotRetractIso isSetB p s ret) =
+  elimProp (λ _ → squash/ _ _) λ a → eq/ _ _ (ret (p a))
+
+quotRetractEquiv : isSet B
+  → (p : A → B) → (s : B → A) → retract s p
+  → (A / (λ x y → p x ≡ p y)) ≃ B
+quotRetractEquiv isSetB p s ret = isoToEquiv (quotRetractIso isSetB p s ret)
+
+-- Every set is equivalent to its quotient by _≡_.
+ER≡ : (A : Type ℓ) → isEquivRel ((_≡_) {ℓ = ℓ} {A})
+ER≡ {ℓ} A = equivRel (λ a i → a) (λ a b x i → x (~ i)) λ a b c x y i → (x ∙ y) i
+
+≡-quotEquiv : isSet A → A ≃ (A / _≡_)
+≡-quotEquiv isSetA .fst = [_]
+≡-quotEquiv isSetA .snd = isEmbedding×isSurjection→isEquiv ([]embedding , []surjective)
+  where
+  []embedding : isEmbedding [_]
+  []embedding = injEmbedding squash/ (effective (λ _ _ → isSetA _ _) (ER≡ _) _ _)
+
+
 -- An Isomorphism/R: An Isomorphism but up to equivalence R instead of equality _≡_:
 module _  {A : Type ℓ} {B : Type ℓ'} {R : A → A → Type ℓ} (ER : isEquivRel R) where
 
@@ -394,9 +468,6 @@ iso/R-A≡B {ℓ} {A}{B}{R} ER@{equivRel reflexive symmetric transitive} AB .lef
     help = transport⁻Transport AB a
     step1 : ∀ x y → x ≡ y → R x y
     step1 x y xy = subst (R x) xy (reflexive x)
-
-ER≡ : (A : Type ℓ) → isEquivRel ((_≡_) {ℓ = ℓ} {A})
-ER≡ {ℓ} A = equivRel (λ a i → a) (λ a b x i → x (~ i)) λ a b c x y i → (x ∙ y) i
 
 R→R* : {A : Type ℓ} {B : Type ℓ'} {R : A → A → Type ℓ}{ER : isEquivRel R} → {iso/r : Iso/R A B {R} ER}{a a' : A}
   → R a a' → R* {iso/r = iso/r} (iso/r .fun/R a) (iso/r .fun/R a')
