@@ -400,20 +400,25 @@ module _ (isSetA : isSet A)
   equivQuotCR : (A / R) ≃ (CanonicalReprs r)
   equivQuotCR = isoToEquiv equivQuotCRIso
 
--- Corollary 6.10.10 in HoTT Book
-quotRetractIso : isSet B
-  → (p : A → B) → (s : B → A) → retract s p
-  → Iso (A / (λ x y → p x ≡ p y)) B
-Iso.fun (quotRetractIso isSetB p s ret) = rec isSetB p (λ _ _ q → q)
-Iso.inv (quotRetractIso isSetB p s ret) b = [ s b ]
-Iso.sec (quotRetractIso isSetB p s ret) = ret
-Iso.ret (quotRetractIso isSetB p s ret) =
-  elimProp (λ _ → squash/ _ _) λ a → eq/ _ _ (ret (p a))
+quotSurjectionEquiv : isSet B
+  → (p : A → B) → isSurjection p
+  → (A / (λ x y → p x ≡ p y)) ≃ B
+quotSurjectionEquiv isSetB p surj = fun , isEmbedding×isSurjection→isEquiv (funEmb , funSurj)
+  where
+  fun = rec isSetB p (λ _ _ q → q)
 
+  funEmb : isEmbedding fun
+  funEmb = injEmbedding isSetB (elimProp2 {P = λ x y → fun x ≡ fun y → x ≡ y}
+    (λ _ _ → isPropΠ λ _ → squash/ _ _) eq/ _ _)
+
+  funSurj : isSurjection fun
+  funSurj = leftFactorSurjective [_] fun surj
+
+-- Corollary 6.10.10 in HoTT Book
 quotRetractEquiv : isSet B
   → (p : A → B) → (s : B → A) → retract s p
   → (A / (λ x y → p x ≡ p y)) ≃ B
-quotRetractEquiv isSetB p s ret = isoToEquiv (quotRetractIso isSetB p s ret)
+quotRetractEquiv isSetB p s ret = quotSurjectionEquiv isSetB p (section→isSurjection ret)
 
 -- Every set is equivalent to its quotient by _≡_.
 ER≡ : (A : Type ℓ) → isEquivRel ((_≡_) {ℓ = ℓ} {A})
@@ -723,4 +728,3 @@ quotientEqualityLemma4 {ℓ} {A}{B}{R}{R'}{ER} iso/r R'→R R→R' =
       help b b' = refl
       step1 : (A / R) ≡ (B / R* {iso/r = iso/r})
       step1 = quotientEqualityLemma {ℓ}{A}{B}{R}{ER}{iso/r}
-
