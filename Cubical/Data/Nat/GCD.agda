@@ -204,6 +204,7 @@ uniqueGCD isgd isgd' = sym (isGCD→gcd≡ isgd) ∙ isGCD→gcd≡ isgd'
 gcdSym : (m n : ℕ) → (gcd m n) ≡ (gcd n m)
 gcdSym m n =  uniqueGCD (gcdIsGCD m n) (symGCD (gcdIsGCD n m))
 
+
 -- multiplicative properties of the gcd
 
 isCD-cancelʳ : ∀ k → isCD (m · suc k) (n · suc k) (d · suc k)
@@ -269,6 +270,12 @@ gcd[m,n]≡0⇒m≡0 {suc m} {n} gmn =
 
 gcd[m,n]≡0⇒n≡0 : ∀ {m n} → gcd m n ≡ 0 → n ≡ 0
 gcd[m,n]≡0⇒n≡0 {m}{n} gmn = gcd[m,n]≡0⇒m≡0 {n} {m} (gcdSym n m ∙ gmn)
+
+¬gcdSuc≡0 : ∀ n d-1 → ¬ gcd n (suc d-1) ≡ 0
+¬gcdSuc≡0 n d-1 x = snotz (gcd[m,n]≡0⇒n≡0 {n} {suc d-1} x)
+
+nonZeroGcd-lemma : ∀ n d-1 → NonZero (gcd n (suc d-1))
+nonZeroGcd-lemma n d-1 = ¬x≡0→NonZero {(gcd n (suc d-1))} (¬gcdSuc≡0 n d-1)
 
 decGCD : ∀ {m}{n}{d} → Dec (isGCD m n d)
 decGCD {m}{n}{d} with (discreteℕ (gcd m n) d)

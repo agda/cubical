@@ -3,6 +3,8 @@ module Cubical.Data.Nat.Coprime where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
+open import Cubical.Relation.Nullary using (¬_)
+
 open import Cubical.Data.Sigma
 open import Cubical.Data.NatPlusOne
 open import Cubical.Data.Empty as ⊥ using (⊥)
@@ -103,6 +105,11 @@ toCoprime-cancelʳ (m , n) (1+ k) i =
         r₂ : ℕ₊₁→ℕ c₂' · suc d-1 ≡ ℕ₊₁→ℕ c₂ · suc d-1
         r₂ = subst (λ z → ℕ₊₁→ℕ c₂' · z ≡ ℕ₊₁→ℕ c₂ · z) q (inj-·sm q₂ ∙ sym p₂)
 
+coprime≢0 : ∀ m n → ¬ ToCoprime.c₁ (suc m , n) ≡ 0
+coprime≢0 m n =
+  ¬k·l≡0→¬k≡0 (ToCoprime.c₁ (suc m , n)) (gcd (suc m) (ℕ₊₁→ℕ n))
+   λ x → snotz {m}
+    (sym (∣-untrunc (gcdIsGCD (suc m) (ℕ₊₁→ℕ n) .fst .fst) .snd) ∙ x)
 
 private
   lem₀ : ∀ i j m n → i · m ≡ j · m + n → (i ∸ j) · m ≡ n
