@@ -8,7 +8,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Powerset
 open import Cubical.Functions.Surjection
 
-open import Cubical.Data.Nat
+open import Cubical.Data.Nat hiding (_+_)
 open import Cubical.Data.FinData
 open import Cubical.Data.Sigma using (Σ≡Prop)
 
@@ -199,6 +199,27 @@ module _ {R : CommRing ℓ} (I : IdealsIn R) where
                      in (π .fst x ≡ RingStr.0r (CommRing→Ring (R / I) .snd)                       ≡⟨ reason ⟩
                          π .fst x ≡ RingStr.0r ((CommRing→Ring R Ring./ CommIdeal→Ideal I) .snd) ∎))
      ∙ cong Ideal→CommIdeal (Ring.kernel≡I (CommIdeal→Ideal I))
+
+    equatedToDiffInKernel : (x y : ⟨ R ⟩ ) → π $cr x ≡ π $cr y → (x - y) ∈ fst I
+    equatedToDiffInKernel x y p = transport (cong (λ J → (x - y) ∈ (fst J) ) kernel≡I) $ equalIfDiffInKernelπ x y p  where
+      equalIfDiffInKernelπ :  (x y : ⟨ R ⟩ ) → π $cr x ≡ π $cr y → x - y ∈ fst (kernelIdeal R (R / I ) π )
+      equalIfDiffInKernelπ x y p = kernelFiber R (R / I)  π  x y p
+
+  open IsCommRingHom (snd π)
+
+  trivialQuotient→1∈I : Path ⟨ R / I ⟩ 1r 0r → 1r ∈ fst I
+  trivialQuotient→1∈I p =
+    transport (cong (λ a → a ∈ fst I ) q) (equatedToDiffInKernel 1r 0r p')  where
+      p' : π $cr 1r ≡ π  $cr 0r
+      p' = pres1 ∙ p ∙ sym pres0
+      q : 1r - 0r ≡ 1r
+      q = 1r - 0r
+             ≡⟨⟩
+          1r + (- 0r)
+             ≡⟨ cong (1r +_) (RingTheory.0Selfinverse (CommRing→Ring R)) ⟩
+          1r + 0r
+             ≡⟨ +IdR 1r ⟩
+          1r ∎
 
   zeroOnIdeal : (x : ⟨ R ⟩) → x ∈ fst I → fst π x ≡ 0r
   zeroOnIdeal x x∈I = subst (λ P → fst ((fst P) x)) (sym kernel≡I) x∈I
