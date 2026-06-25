@@ -27,6 +27,10 @@ decRec : ∀ {ℓ ℓ'} {P : Type ℓ} {A : Type ℓ'} → (P → A) → (¬ P �
 decRec ifyes ifno (yes p) = ifyes p
 decRec ifyes ifno (no ¬p) = ifno ¬p
 
+Dec¬ : Dec A → Dec (¬ A)
+Dec¬ (yes p) = no (λ z → z p)
+Dec¬ (no ¬p) = yes ¬p
+
 NonEmpty : Type ℓ → Type ℓ
 NonEmpty A = ¬ ¬ A
 

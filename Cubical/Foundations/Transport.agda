@@ -222,3 +222,17 @@ transport-filler-ua {A = A} {B = B} (e , _) a j i =
  in glue (λ { (i = i0) → a ; (i = i1) → tr j })
       (hcomp (λ k → λ { (i = i0) → b ; (i = i1) → tr (j ∧ k) ; (j = i1) → tr (~ i ∨ k)  })
       (hcomp (λ k → λ { (i = i0) → tr (j ∨ k) ; (i = i1) → z ; (j = i1) → z }) z))
+
+transport→≡∘ : {ℓ ℓ' : Level} {A B : Type ℓ} {C : Type ℓ'}
+                (f : A → C) (g : B → C) (p : A ≡ B) →
+                (transport (λ i → p i → C) f ≡ g) ≡ (f ≡ g ∘ (transport p))
+transport→≡∘ {C = C} f g p = q ∙∙ r ∙∙ s
+    where
+        q : (transport (λ i → p i → C) f ≡ g) ≡ (transport (λ i → p i → C) f ≡ g ∘ (transport refl))
+        q = cong (λ t → (transport (λ i → p i → C) f ≡ g ∘ t)) (funExt (λ x → sym (transportRefl x)))
+
+        r : (transport (λ i → p i → C) f ≡ g ∘ (transport refl)) ≡ (transport refl f ≡ g ∘ (transport p))
+        r i = transport (λ j → p (j ∧ (~ i)) → C) f ≡ g ∘ (transport λ j → p (j ∨ ~ i))
+
+        s : (transport refl f ≡ g ∘ (transport p)) ≡ (f ≡ g ∘ (transport p))
+        s = cong (λ t → t ≡ g ∘ transport p) (transportRefl f)

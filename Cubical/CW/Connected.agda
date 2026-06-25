@@ -583,38 +583,27 @@ module _ (A : ℕ → Type ℓ) (sk+c : yieldsCombinatorialConnectedCWskel A 0) 
   collapse₁card (suc (suc x)) = AC.card (suc (suc x))
 
   collapse₁CWskel : ℕ → Type _
-  collapse₁CWskel zero = Lift ⊥
-  collapse₁CWskel (suc zero) = Lift (Fin 1)
+  collapse₁CWskel zero = ⊥*
+  collapse₁CWskel (suc zero) = Unit*
   collapse₁CWskel (suc (suc n)) = A (suc (suc n))
 
   collapse₁α : (n : ℕ)
     → Fin (collapse₁card n) × S⁻ n → collapse₁CWskel n
-  collapse₁α (suc zero) (x , p) = lift fzero
+  collapse₁α (suc zero) (x , p) = tt*
   collapse₁α (suc (suc n)) = AC.α (2 +ℕ n)
 
   connectedCWskel→ : yieldsConnectedCWskel collapse₁CWskel 0
-  fst (fst connectedCWskel→) = collapse₁card
-  fst (snd (fst connectedCWskel→)) = collapse₁α
-  fst (snd (snd (fst connectedCWskel→))) = λ()
-  snd (snd (snd (fst connectedCWskel→))) zero =
-    isContr→Equiv (isOfHLevelLift 0 (inhProp→isContr fzero isPropFin1))
-                       ((inr fzero)
-                 , (λ { (inr x) j → inr (isPropFin1 fzero x j) }))
-  snd (snd (snd (fst connectedCWskel→))) (suc zero) =
-    compEquiv (invEquiv (isoToEquiv e₁))
-      (compEquiv (isoToEquiv (snd liftStr))
-      (isoToEquiv (pushoutIso _ _ _ _
-        (idEquiv _) LiftEquiv (idEquiv _)
-        (funExt cohₗ) (funExt cohᵣ))))
-    where
-    -- Agda complains if these proofs are inlined...
-    cohₗ : (x : _) → collapse₁α 1 x ≡ collapse₁α 1 x
-    cohₗ (x , p) = refl
-
-    cohᵣ : (x : Fin (fst liftStr) × Bool) → fst x ≡ fst x
-    cohᵣ x = refl
-  snd (snd (snd (fst connectedCWskel→))) (suc (suc n)) = AC.e (suc (suc n))
-  snd connectedCWskel→ = refl , (λ _ → λ ())
+  connectedCWskel→ .fst .fst = collapse₁card
+  connectedCWskel→ .fst .snd .fst = collapse₁α
+  connectedCWskel→ .fst .snd .snd .fst ()
+  connectedCWskel→ .fst .snd .snd .snd zero = isContr→Equiv isContrUnit* (inr fzero , λ { (inr x) → cong inr (isPropFin1 fzero x) })
+  connectedCWskel→ .fst .snd .snd .snd (suc zero) = isoToEquiv $
+    A 2                                                Iso⟨ invIso e₁ ⟩
+    Pushout (CW₁-discrete (A , sk) .fst ∘ AC.α 1) fst  Iso⟨ liftStr .snd ⟩
+    Pushout (λ _ → fzero) fst                          Iso⟨ pushoutIso _ _ _ _ (idEquiv _) (isContr→≃Unit* isContrFin1) (idEquiv _) refl refl ⟩
+    Pushout (collapse₁α 1) fst                        ∎Iso
+  connectedCWskel→ .fst .snd .snd .snd (suc (suc n)) = AC.e (suc (suc n))
+  connectedCWskel→ .snd = refl , λ _ ()
 
   collapse₁Equiv : (n : ℕ)
     → realise (_ , sk) ≃ realise (_ , connectedCWskel→ .fst)
@@ -1221,7 +1210,7 @@ makeConnectedCW {ℓ = ℓ} (suc n) {C = C} (cwsk , eqv) cA with
             C' zero (lt x) = ⊥*
             C' (suc m) (lt x) = Unit*
             C' m (eq x) =
-              Lift (SphereBouquet 2+n (A 2+n))
+              Lift _ (SphereBouquet 2+n (A 2+n))
             C' m (gt x) = C* m
 
             -- Basepoints (not needed, but useful)
@@ -1364,7 +1353,7 @@ connectedCWContr : {ℓ : Level} (n m : ℕ) (l : m <ᵗ suc n) (X : Type ℓ)
   (cwX : isConnectedCW n X) → isContr (fst (fst cwX) (suc m))
 connectedCWContr n zero l X cwX =
   subst isContr
-     (cong (Lift ∘ Fin) (sym ((snd (fst cwX)) .snd .fst))
+     (cong (Lift _ ∘ Fin) (sym ((snd (fst cwX)) .snd .fst))
     ∙ sym (ua (compEquiv (CW₁-discrete (connectedCWskel→CWskel (fst cwX)))
                          LiftEquiv)))
      (isOfHLevelLift 0 (inhProp→isContr fzero isPropFin1))
@@ -1515,7 +1504,7 @@ module isFinitelyPresented-π'connectedCW-lemmas {ℓ : Level}
       lem : (α : FinSphereBouquetMap∙
                    (card Xˢᵏᵉˡ (suc (suc (suc n)))) (card Xˢᵏᵉˡ (suc (suc n)))
                    (suc n))
-             (e : fst X₄₊ₙ∙ ≡ Lift (cofib (fst α)))
+             (e : fst X₄₊ₙ∙ ≡ Lift _ (cofib (fst α)))
         → ∥ PathP (λ i → e (~ i)) (lift (inl tt)) x ∥₁
       lem α e = TR.rec squash₁ ∣_∣₁ (isConnectedPathP _ isConX' _ _ .fst)
 

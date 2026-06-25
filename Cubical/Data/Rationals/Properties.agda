@@ -483,3 +483,16 @@ x - y = x + (- y)
 
 +CancelR : ∀ x y z → x + y ≡ z + y → x ≡ z
 +CancelR x y z p = +CancelL y x z (+Comm y x ∙ p ∙ +Comm z y)
+
+numerator0→0 : (u : ℤ × ℕ₊₁) → u .fst ≡ 0 → [ u ] ≡ 0
+numerator0→0 (a , b) p = eq/ ((a , b)) ((0 , 1)) q
+  where
+  q : a ℤ.· (ℕ₊₁→ℤ 1) ≡ 0 ℤ.· (ℕ₊₁→ℤ b)
+  q =
+    a ℤ.· (ℕ₊₁→ℤ 1)
+      ≡⟨ ℤ.·IdR a ⟩
+    a
+      ≡⟨ p ⟩
+    0
+      ≡⟨ sym (ℤ.·AnnihilL (ℕ₊₁→ℤ b)) ⟩
+    0 ℤ.· (ℕ₊₁→ℤ b) ∎

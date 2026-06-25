@@ -39,6 +39,7 @@ timings: clean
 listings: $(wildcard Cubical/**/*.agda)
 	./generate-everything.sh > Cubical/Everything.agda
 	$(AGDA) Cubical/Everything.agda -i. -isrc --html -vhtml:0
+	cp -f html/Cubical.Everything.html html/index.html
 
 .PHONY : clean
 clean:

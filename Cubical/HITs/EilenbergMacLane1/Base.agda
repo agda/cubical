@@ -10,7 +10,6 @@ between Ω EM₁ and G is in
 Cubical.Homotopy.EilenbergMacLane.Properties
 
 -}
-{-# OPTIONS --cubical --no-import-sorts #-}
 module Cubical.HITs.EilenbergMacLane1.Base where
 
 open import Cubical.Foundations.Prelude

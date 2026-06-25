@@ -32,7 +32,7 @@ open import Cubical.Data.Sum as ⊎ hiding (elim)
 open import Cubical.HITs.PropositionalTruncation as PropTrunc hiding (elim)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Join
+open import Cubical.HITs.Join hiding (elim)
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Pushout.Flattening
 

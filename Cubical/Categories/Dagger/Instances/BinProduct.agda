@@ -5,7 +5,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Morphism
 
 open import Cubical.Categories.Dagger.Base

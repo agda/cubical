@@ -27,6 +27,15 @@ private
     A B : Type ℓ
     P : A -> Type ℓ
 
+isDecBiimpl : (A → B) → (¬ A → ¬ B) → Dec A → Dec B
+isDecBiimpl f g (yes p) = yes (f p)
+isDecBiimpl f g (no ¬p) = no (g ¬p)
+
+Dec× : Dec A → Dec B → Dec (A × B)
+Dec× (yes p) (yes p₁) = yes (p , p₁)
+Dec× (yes p) (no ¬p) = no (λ z → ¬p (z .snd))
+Dec× (no ¬p) db = no (λ z → ¬p (z .fst))
+
 -- Functions with a section preserve discreteness.
 sectionDiscrete
   : (f : A → B) (g : B → A) → section f g → Discrete A → Discrete B

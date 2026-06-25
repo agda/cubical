@@ -7,15 +7,14 @@ open import Agda.Builtin.Unit public
   renaming ( ⊤ to Unit )
 
 -- Universe polymorphic version
-Unit* : {ℓ : Level} → Type ℓ
-Unit* = Lift Unit
+Unit* : ∀ {ℓ} → Type ℓ
+Unit* = Lift _ Unit
 
 pattern tt* = lift tt
 
 -- Pointed version
 Unit*∙ : ∀ {ℓ} → Σ[ X ∈ Type ℓ ] X
-fst Unit*∙ = Unit*
-snd Unit*∙ = tt*
+Unit*∙ = Unit* , tt*
 
 -- Universe polymorphic version without definitional equality
 -- Allows us to "lock" proofs. See "Locking, unlocking" in

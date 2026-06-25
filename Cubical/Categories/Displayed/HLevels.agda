@@ -5,9 +5,10 @@ module Cubical.Categories.Displayed.HLevels where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Functor
+open import Cubical.Categories.Functor.Base
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
@@ -33,6 +34,17 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   hasPropHoms =
     ∀ {c c' : C .ob}(f : C [ c , c' ])(cᴰ : Cᴰ.ob[ c ])(cᴰ' : Cᴰ.ob[ c' ])
       → isProp Cᴰ.Hom[ f ][ cᴰ , cᴰ' ]
+
+  hasPropHoms→isPropCatIsoᴰ : hasPropHoms
+    → ∀ {c}{c'}{f : CatIso C c c'}{cᴰ : Cᴰ.ob[ c ]}{cᴰ' : Cᴰ.ob[ c' ]}
+    → isProp (CatIsoᴰ Cᴰ f cᴰ cᴰ')
+  hasPropHoms→isPropCatIsoᴰ propHoms {c} {c'} {f} {cᴰ} {cᴰ'} =
+    isPropΣ (propHoms (f .fst) cᴰ cᴰ') (λ _ →
+    isPropRetract
+      (isIsoᴰIsoΣ Cᴰ .Iso.fun) (isIsoᴰIsoΣ Cᴰ .Iso.inv) (isIsoᴰIsoΣ Cᴰ .Iso.ret)
+      (isPropΣ (propHoms (f .snd .isIso.inv) cᴰ' cᴰ) (λ _ → isProp×
+        (isOfHLevelPathP' 1 Cᴰ.isSetHomᴰ _ _)
+        (isOfHLevelPathP' 1 Cᴰ.isSetHomᴰ _ _))))
 
   hasContrHoms→hasPropHoms : hasContrHoms → hasPropHoms
   hasContrHoms→hasPropHoms contrHoms =

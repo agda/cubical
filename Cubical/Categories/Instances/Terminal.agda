@@ -5,7 +5,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor
+open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Instances.Discrete
 
 module Cubical.Categories.Instances.Terminal where

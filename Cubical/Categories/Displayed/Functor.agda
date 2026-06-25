@@ -9,7 +9,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Functor
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functor.Properties
 
 open import Cubical.Categories.Displayed.Base
 
@@ -38,6 +39,10 @@ record Functorᴰ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
       {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]} {zᴰ : Cᴰ.ob[ z ]}
       (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gᴰ : Cᴰ [ g ][ yᴰ , zᴰ ])
       → F-homᴰ (fᴰ Cᴰ.⋆ᴰ gᴰ) Dᴰ.≡[ F-seq f g ] F-homᴰ fᴰ Dᴰ.⋆ᴰ F-homᴰ gᴰ
+
+Functorⱽ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ')
+  → Type _
+Functorⱽ = Functorᴰ Id
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F G : Functor C D} {H : F ≡ G}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

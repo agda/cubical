@@ -22,7 +22,7 @@ open import Cubical.HITs.PropositionalTruncation as PT hiding (rec ; elim)
 open import Cubical.HITs.SmashProduct.Base
 open import Cubical.HITs.Pushout.Base
 open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Join renaming (joinS¹S¹→S³ to joinS¹S¹→S3)
+open import Cubical.HITs.Join renaming (joinS¹S¹→S³ to joinS¹S¹→S3) hiding (elim)
 open import Cubical.Data.Bool hiding (elim)
 
 private

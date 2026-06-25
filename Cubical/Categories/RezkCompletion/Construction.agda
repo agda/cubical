@@ -24,7 +24,7 @@ open import Cubical.HITs.GroupoidQuotients as GQ using (_//_; [_]; eq//; comp//;
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Equivalence.WeakEquivalence
-open import Cubical.Categories.Constructions.EssentialImage
+open import Cubical.Categories.Instances.EssentialImage
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Isomorphism

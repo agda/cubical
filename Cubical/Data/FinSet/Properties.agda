@@ -107,11 +107,11 @@ isFinSet⊥ = isFinSetFin
 isFinSetLift :
   {L L' : Level} →
   {A : Type L} →
-  isFinSet A → isFinSet (Lift {L}{L'} A)
+  isFinSet A → isFinSet (Lift L' A)
 fst (isFinSetLift {A = A} isFinSetA) = isFinSetA .fst
 snd (isFinSetLift {A = A} isFinSetA) =
   Prop.elim
-  {P = λ _ → ∥ Lift A ≃ Fin (isFinSetA .fst) ∥₁}
+  {P = λ _ → ∥ Lift _ A ≃ Fin (isFinSetA .fst) ∥₁}
   (λ [a] → isPropPropTrunc )
   (λ A≅Fin → ∣ compEquiv (invEquiv (LiftEquiv {A = A})) A≅Fin ∣₁)
   (isFinSetA .snd)

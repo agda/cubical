@@ -3,7 +3,7 @@
 module Cubical.Categories.Monoidal.Base where
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.NaturalTransformation.Base

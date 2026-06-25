@@ -10,7 +10,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.Lift
+open import Cubical.Categories.Instances.Lift
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
@@ -153,27 +153,27 @@ module _ {C : Category ℓ ℓ'} where
 -- A more universe-polymorphic Yoneda lemma
 yoneda* : {C : Category ℓ ℓ'}(F : Functor C (SET ℓ''))
         → (c : Category.ob C)
-        → Iso ((FUNCTOR C (SET (ℓ-max ℓ' ℓ''))) [ LiftF {ℓ'}{ℓ''} ∘F (C [ c ,-])
-                                                , LiftF {ℓ''}{ℓ'} ∘F F ])
+        → Iso ((FUNCTOR C (SET (ℓ-max ℓ' ℓ''))) [ LiftF ℓ'' ∘F (C [ c ,-])
+                                                , LiftF ℓ'  ∘F F ])
               (fst (F ⟅ c ⟆))
 yoneda* {ℓ}{ℓ'}{ℓ''}{C} F c =
-  ((FUNCTOR C (SET (ℓ-max ℓ' ℓ''))) [ LiftF {ℓ'}{ℓ''} ∘F (C [ c ,-])
-                                    , LiftF {ℓ''}{ℓ'} ∘F F ])
+  ((FUNCTOR C (SET (ℓ-max ℓ' ℓ''))) [ LiftF ℓ'' ∘F (C [ c ,-])
+                                    , LiftF ℓ'  ∘F F ])
     Iso⟨ the-iso ⟩
   ((FUNCTOR (LiftHoms C ℓ'')
             (SET (ℓ-max ℓ' ℓ''))) [ (LiftHoms C ℓ'' [ c ,-])
-                                  , LiftF {ℓ''}{ℓ'} ∘F (F ∘F lowerHoms C ℓ'') ])
-    Iso⟨ yoneda (LiftF {ℓ''}{ℓ'} ∘F (F ∘F lowerHoms C ℓ'')) c ⟩
-  Lift {ℓ''}{ℓ'} (fst (F ⟅ c ⟆))
+                                  , LiftF ℓ' ∘F (F ∘F lowerHoms C ℓ'') ])
+    Iso⟨ yoneda (LiftF ℓ' ∘F (F ∘F lowerHoms C ℓ'')) c ⟩
+  Lift ℓ' (fst (F ⟅ c ⟆))
     Iso⟨ invIso LiftIso ⟩
   (fst (F ⟅ c ⟆)) ∎Iso where
 
   the-iso : Iso ((FUNCTOR C (SET (ℓ-max ℓ' ℓ'')))
-                  [ LiftF {ℓ'}{ℓ''} ∘F (C [ c ,-])
-                  , LiftF {ℓ''}{ℓ'} ∘F F ])
+                  [ LiftF ℓ'' ∘F (C [ c ,-])
+                  , LiftF ℓ' ∘F F ])
                 ((FUNCTOR (LiftHoms C ℓ'') (SET (ℓ-max ℓ' ℓ'')))
                   [ (LiftHoms C ℓ'' [ c ,-])
-                  , LiftF {ℓ''}{ℓ'} ∘F (F ∘F lowerHoms C ℓ'') ])
+                  , LiftF ℓ' ∘F (F ∘F lowerHoms C ℓ'') ])
   the-iso .fun α .N-ob d f = α .N-ob d f
   the-iso .fun α .N-hom g = α .N-hom (g .lower)
   the-iso .inv β .N-ob d f = β .N-ob d f
@@ -184,22 +184,22 @@ yoneda* {ℓ}{ℓ'}{ℓ''}{C} F c =
 yonedaᴾ* : {C : Category ℓ ℓ'}(F : Functor (C ^op) (SET ℓ''))
             → (c : Category.ob C)
             → Iso (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
-                    [ LiftF {ℓ'}{ℓ''} ∘F (C [-, c ])
-                    , LiftF {ℓ''}{ℓ'} ∘F F ])
+                    [ LiftF ℓ'' ∘F (C [-, c ])
+                    , LiftF ℓ'  ∘F F ])
                   (fst (F ⟅ c ⟆))
 yonedaᴾ* {ℓ}{ℓ'}{ℓ''}{C} F c =
   (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
-    [ LiftF {ℓ'}{ℓ''} ∘F (C [-, c ]) , LiftF {ℓ''}{ℓ'} ∘F F ]) Iso⟨ the-iso ⟩
+    [ LiftF ℓ'' ∘F (C [-, c ]) , LiftF ℓ' ∘F F ]) Iso⟨ the-iso ⟩
   (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
-    [ LiftF {ℓ'}{ℓ''} ∘F ((C ^op) [ c ,-])
-    , LiftF {ℓ''}{ℓ'} ∘F F ]) Iso⟨ yoneda* F c ⟩
+    [ LiftF ℓ'' ∘F ((C ^op) [ c ,-])
+    , LiftF  ℓ' ∘F F ]) Iso⟨ yoneda* F c ⟩
   fst (F ⟅ c ⟆) ∎Iso where
 
   the-iso :
     Iso (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
-          [ LiftF {ℓ'}{ℓ''} ∘F (C [-, c ]) , LiftF {ℓ''}{ℓ'} ∘F F ])
+          [ LiftF ℓ'' ∘F (C [-, c ]) , LiftF ℓ' ∘F F ])
         (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
-          [ LiftF {ℓ'}{ℓ''} ∘F ((C ^op) [ c ,-]) , LiftF {ℓ''}{ℓ'} ∘F F ])
+          [ LiftF ℓ'' ∘F ((C ^op) [ c ,-]) , LiftF ℓ' ∘F F ])
   the-iso .fun α .N-ob = α .N-ob
   the-iso .fun α .N-hom = α .N-hom
   the-iso .inv β .N-ob = β .N-ob
@@ -208,7 +208,7 @@ yonedaᴾ* {ℓ}{ℓ'}{ℓ''}{C} F c =
   the-iso .ret = λ a → refl
 
 -- Yoneda embedding
--- TODO: probably want to rename/refactor
+-- TODO: probably want to refactor
 module _ {C : Category ℓ ℓ'} where
   open Functor
   open NatTrans
@@ -226,22 +226,22 @@ module _ {C : Category ℓ ℓ'} where
 
 
   module _ {x} (F : Functor (C ^op) (SET ℓ')) where
-    yo-yo-yo : NatTrans (yo x) F → F .F-ob x .fst
-    yo-yo-yo α = α .N-ob _ id
+    yonedaToElement : NatTrans (yo x) F → F .F-ob x .fst
+    yonedaToElement α = α .N-ob _ id
 
-    no-no-no : F .F-ob x .fst → NatTrans (yo x) F
-    no-no-no a .N-ob y f = F .F-hom f a
-    no-no-no a .N-hom f = funExt λ g i → F .F-seq g f i a
+    elementToYoneda : F .F-ob x .fst → NatTrans (yo x) F
+    elementToYoneda a .N-ob y f = F .F-hom f a
+    elementToYoneda a .N-hom f = funExt λ g i → F .F-seq g f i a
 
     yoIso : Iso (NatTrans (yo x) F) (F .F-ob x .fst)
-    yoIso .Iso.fun = yo-yo-yo
-    yoIso .Iso.inv = no-no-no
+    yoIso .Iso.fun = yonedaToElement
+    yoIso .Iso.inv = elementToYoneda
     yoIso .Iso.sec b i = F .F-id i b
     yoIso .Iso.ret a = makeNatTransPath (funExt λ _ → funExt rem)
       where
-        rem : ∀ {z} (x₁ : C [ z , x ]) → F .F-hom x₁ (yo-yo-yo a) ≡ (a .N-ob z) x₁
+        rem : ∀ {z} (x₁ : C [ z , x ]) → F .F-hom x₁ (yonedaToElement a) ≡ (a .N-ob z) x₁
         rem g =
-          F .F-hom g (yo-yo-yo a)
+          F .F-hom g (yonedaToElement a)
             ≡[ i ]⟨ a .N-hom g (~ i) id ⟩
           a .N-hom g i0 id
             ≡[ i ]⟨ a .N-ob _ (⋆IdR g i) ⟩
@@ -253,13 +253,13 @@ module _ {C : Category ℓ ℓ'} where
 
 
   isFullYO : isFull YO
-  isFullYO x y F[f] = ∣ yo-yo-yo _ F[f] , yoIso {x} (yo y) .Iso.ret F[f] ∣₁
+  isFullYO x y F[f] = ∣ yonedaToElement _ F[f] , yoIso {x} (yo y) .Iso.ret F[f] ∣₁
 
   isFaithfulYO : isFaithful YO
   isFaithfulYO x y f g p i =
     hcomp
       (λ j → λ{ (i = i0) → ⋆IdL f j; (i = i1) → ⋆IdL g j})
-      (yo-yo-yo _ (p i))
+      (yonedaToElement _ (p i))
 
   isFullyFaithfulYO : isFullyFaithful YO
   isFullyFaithfulYO =

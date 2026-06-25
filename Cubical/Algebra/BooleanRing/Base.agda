@@ -94,7 +94,8 @@ module BooleanAlgebraStr {A : Type ℓ} (RingStr : BooleanRingStr A) where
   infixl 7 _∧_
   infixl 6 _∨_
 
-  variable x y z : A
+  private
+    variable x y z : A
 
   ∧Idem : x ∧ x ≡ x
   ∧Idem = ·Idem _

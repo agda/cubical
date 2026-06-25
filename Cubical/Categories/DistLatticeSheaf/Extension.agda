@@ -43,6 +43,7 @@ open import Cubical.Categories.Instances.Poset
 open import Cubical.Categories.Instances.Semilattice
 open import Cubical.Categories.Instances.Lattice
 open import Cubical.Categories.Instances.DistLattice
+open import Cubical.Categories.Instances.FullSubcategory
 
 open import Cubical.Categories.DistLatticeSheaf.Diagram
 open import Cubical.Categories.DistLatticeSheaf.Base

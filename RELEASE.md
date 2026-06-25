@@ -11,6 +11,12 @@ Start by making a branch for the release. Change the following things:
 
 * If needed, Increment the `version` field in `flake.nix`.
 
+* If needed, increment the version in the url of the Agda flake input.
+
+  ```diff
+  -url = "github:agda/agda/v2.8.0";
+  +url = "github:agda/agda/v2.9.0";
+  ```
 * Update flake inputs by running `nix flake update`.
 
 * Increment the version number in the name field in the library file

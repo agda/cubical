@@ -8,8 +8,10 @@ open import Cubical.Data.Empty as ⊥ using (⊥)
 open import Cubical.Data.Int.Base as ℤ
 open import Cubical.Data.Int.Properties as ℤ
 open import Cubical.Data.Nat as ℕ
+open import Cubical.Data.Nat.Order using () renaming (_≤_ to _ℕ≤_)
 open import Cubical.Data.NatPlusOne.Base as ℕ₊₁
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
 
 open import Cubical.Relation.Nullary
 
@@ -79,6 +81,9 @@ negsuc<pos {suc k} {suc l} = suc k ℕ.+ suc l
 
 suc-≤-suc : m ≤ n → sucℤ m ≤ sucℤ n
 suc-≤-suc {m} {n} (k , p) = k , (sym (sucℤ+pos k m) ∙ cong sucℤ p)
+
+zero-<sucPos : ∀ {l} → 0 < sucℤ (pos l)
+zero-<sucPos {l} = suc-≤-suc zero-≤pos
 
 negsuc-≤-negsuc : pos k ≤ pos l → negsuc l ≤ negsuc k
 negsuc-≤-negsuc {k} {l} (i , p) = i ,
@@ -187,6 +192,9 @@ isAntisym≤ {m} {n} (i , p) (j , q)
    ((m ℤ.+ o) +pos i)  ≡⟨ p ⟩
    n ℤ.+ o             ∎))
 
+m≤n→posm≤posn : ∀ {m}{n} → (m ℕ≤ n) → pos m ≤ pos n
+m≤n→posm≤posn {m} {n} (k , prf) = k , sym (pos+ m k) ∙ cong pos (ℕ.+-comm m k ∙ prf)
+
 ≤-+pos-trans : m ℤ.+ pos k ≤ n → m ≤ n
 ≤-+pos-trans {m} {k} {n} p = isTrans≤ ≤SumRightPos (subst (_≤ n) (+Comm m (pos k)) p)
 
@@ -290,8 +298,15 @@ isAsym< m<n = isIrrefl< ∘ <≤-trans m<n
 <Monotone+ : m < n → o < s → m ℤ.+ o < n ℤ.+ s
 <Monotone+ {o = o} m<n o<s = isTrans< (<-+o {o = o} m<n) (<-o+ o<s)
 
+<SumLeftPosSuc : ∀ {x y} → x < x ℤ.+ pos (suc y)
+<SumLeftPosSuc {x}{y} = <-o+ {pos zero}{pos (suc y)} zero-<sucPos
+
 <-+-≤ : m < n → o ≤ s → m ℤ.+ o < n ℤ.+ s
 <-+-≤ {o = o} m<n o≤s = <≤-trans (<-+o {o = o} m<n) (≤-o+ o≤s)
+
+≤-+-< : {m n o s : ℤ} → m ≤ n → o < s → m ℤ.+ o < n ℤ.+ s
+≤-+-< {m}{n}{o}{s} mn os = subst (λ x → x) (cong₂ (λ a b → a < b)
+  (ℤ.+Comm o m) (ℤ.+Comm s n)) (<-+-≤ os mn)
 
 -pos≤ : m - (pos k) ≤ m
 -pos≤ {m} {k} = k , minusPlus (pos k) m
@@ -449,6 +464,18 @@ min≤ {negsuc (suc m)} {negsuc (suc n)} = pred-≤-pred (subst (_≤ negsuc m)
                            maxAssoc m n (ℤ.max o s) ∙
            cong₂ ℤ.max (≤→max m≤n) (≤→max o≤s))
           (≤max {m = ℤ.max m o} {n = ℤ.max n s})
+
+0<+ : ∀ m n → 0 < m ℤ.+ n → (0 < m) ⊎ (0 < n)
+0<+ (pos zero)    (pos zero)    = ⊥.rec ∘ isIrrefl<
+0<+ (pos zero)    (pos (suc n)) = inr ∘ subst (0 <_) (sym $ pos0+ _)
+0<+ (pos (suc m)) (pos n)       = λ _ → inl (suc-≤-suc zero-≤pos)
+0<+ (pos zero)    (negsuc n)    = ⊥.rec ∘ ¬pos≤negsuc ∘ subst (0 <_)
+                                  (sym $ pos0+ (negsuc n))
+0<+ (pos (suc m)) (negsuc n)    = λ _ → inl (suc-≤-suc zero-≤pos)
+0<+ (negsuc m)    (pos zero)    = ⊥.rec ∘ ¬pos≤negsuc
+0<+ (negsuc m)    (pos (suc n)) = λ _ → inr (suc-≤-suc zero-≤pos)
+0<+ (negsuc m)    (negsuc n)    = ⊥.rec ∘ ¬pos≤negsuc ∘ subst (0 <_)
+                                  (sym $ neg+ (suc m) (suc n))
 
 ≤Dec : ∀ m n → Dec (m ≤ n)
 ≤Dec (pos zero) (pos n) = yes zero-≤pos

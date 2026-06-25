@@ -5,8 +5,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-
 open import Cubical.Functions.Embedding
+open import Cubical.Foundations.Equiv.Properties
 
 open import Cubical.Data.Sum.Base as ⊎
 open import Cubical.Data.Empty as ⊥
@@ -32,10 +32,10 @@ private
 module ⊎Path {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
 
   Cover : A ⊎ B → A ⊎ B → Type (ℓ-max ℓ ℓ')
-  Cover (inl a) (inl a') = Lift {j = ℓ-max ℓ ℓ'} (a ≡ a')
-  Cover (inl _) (inr _) = Lift ⊥
-  Cover (inr _) (inl _) = Lift ⊥
-  Cover (inr b) (inr b') = Lift {j = ℓ-max ℓ ℓ'} (b ≡ b')
+  Cover (inl a) (inl a') = Lift ℓ' (a ≡ a')
+  Cover (inl _) (inr _) = ⊥*
+  Cover (inr _) (inl _) = ⊥*
+  Cover (inr b) (inr b') = Lift ℓ (b ≡ b')
 
   reflCode : (c : A ⊎ B) → Cover c c
   reflCode (inl a) = lift refl
@@ -72,6 +72,9 @@ module ⊎Path {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   Cover≃Path c c' =
     isoToEquiv (iso (decode c c') (encode c c') (decodeEncode c c') (encodeDecode c c'))
 
+  inl≢inr : (a : A) (b : B) → ¬ ((inl a :> A ⊎ B) ≡ inr b)
+  inl≢inr a b inl≡inr = invEq (Cover≃Path (inl a) (inr b)) inl≡inr .lower
+
   isOfHLevelCover : (n : HLevel)
     → isOfHLevel (suc (suc n)) A
     → isOfHLevel (suc (suc n)) B
@@ -88,6 +91,27 @@ isEmbedding-inl w z = snd (compEquiv LiftEquiv (⊎Path.Cover≃Path (inl w) (in
 
 isEmbedding-inr : isEmbedding (inr {A = A} {B = B})
 isEmbedding-inr w z = snd (compEquiv LiftEquiv (⊎Path.Cover≃Path (inr w) (inr z)))
+
+module _ (f : A → C) (g : B → C) where
+    private
+      f+g : (A ⊎ B) → C
+      f+g = ⊎.rec f g
+
+      cong-f+g∘inl : {x x' : A} → x ≡ x' → f x ≡ f x'
+      cong-f+g∘inl {x = x} {x' = x'} = cong (f+g ∘ inl)
+
+      cong-f+g∘inr : {y y' : B} → y ≡ y' → g y ≡ g y'
+      cong-f+g∘inr {y = y} {y' = y'} = cong (f+g ∘ inr)
+
+    isEmbeddingPair : isEmbedding f → isEmbedding g → ((x : A) (y : B) → ¬ f x ≡ g y) → isEmbedding f+g
+    isEmbeddingPair embf embg fx≢gy (inl x) (inl x') =
+        second-in-isEquiv-comp→isEquiv (cong inl) (cong f+g) cong-f+g∘inl (isEmbedding-inl x x') (embf x x') refl
+    isEmbeddingPair embf embg fx≢gy (inl x) (inr y') =
+        uninhabIsEquiv (cong f+g) (⊎Path.inl≢inr x y') (fx≢gy x y')
+    isEmbeddingPair embf embg fx≢gy (inr y) (inl x') =
+        uninhabIsEquiv (cong f+g) (λ eq → ⊎Path.inl≢inr x' y (sym eq)) λ eq → fx≢gy x' y (sym eq)
+    isEmbeddingPair embf embg fx≢gy (inr y) (inr y') =
+        second-in-isEquiv-comp→isEquiv (cong inr) (cong f+g) cong-f+g∘inr (isEmbedding-inr y y') (embg y y') refl
 
 isOfHLevel⊎ : (n : HLevel)
   → isOfHLevel (suc (suc n)) A
@@ -178,13 +202,13 @@ inv ⊎-IdL-⊥-Iso x       = inr x
 sec ⊎-IdL-⊥-Iso _      = refl
 ret ⊎-IdL-⊥-Iso (inr _) = refl
 
-⊎-IdL-⊥*-Iso : ∀{ℓ} → Iso (⊥* {ℓ} ⊎ A) A
+⊎-IdL-⊥*-Iso : ∀ {ℓ} → Iso (⊥* {ℓ} ⊎ A) A
 fun ⊎-IdL-⊥*-Iso (inr x) = x
 inv ⊎-IdL-⊥*-Iso x       = inr x
 sec ⊎-IdL-⊥*-Iso _      = refl
 ret ⊎-IdL-⊥*-Iso (inr _) = refl
 
-⊎-IdR-⊥*-Iso : ∀{ℓ} → Iso (A ⊎ ⊥* {ℓ}) A
+⊎-IdR-⊥*-Iso : ∀ {ℓ} → Iso (A ⊎ ⊥* {ℓ}) A
 fun ⊎-IdR-⊥*-Iso (inl x) = x
 inv ⊎-IdR-⊥*-Iso x       = inl x
 sec ⊎-IdR-⊥*-Iso _      = refl
@@ -196,10 +220,10 @@ ret ⊎-IdR-⊥*-Iso (inl _) = refl
 ⊎-IdL-⊥-≃ : ⊥ ⊎ A ≃ A
 ⊎-IdL-⊥-≃ = isoToEquiv ⊎-IdL-⊥-Iso
 
-⊎-IdR-⊥*-≃ : ∀{ℓ} → A ⊎ ⊥* {ℓ} ≃ A
+⊎-IdR-⊥*-≃ : ∀ {ℓ} → A ⊎ ⊥* {ℓ} ≃ A
 ⊎-IdR-⊥*-≃ = isoToEquiv ⊎-IdR-⊥*-Iso
 
-⊎-IdL-⊥*-≃ : ∀{ℓ} → ⊥* {ℓ} ⊎ A ≃ A
+⊎-IdL-⊥*-≃ : ∀ {ℓ} → ⊥* {ℓ} ⊎ A ≃ A
 ⊎-IdL-⊥*-≃ = isoToEquiv ⊎-IdL-⊥*-Iso
 
 Π⊎Iso : Iso ((x : A ⊎ B) → E x) (((a : A) → E (inl a)) × ((b : B) → E (inr b)))
@@ -358,8 +382,8 @@ Iso⊎→Iso {A = A} {C = C} {B = B} {D = D} f e p = Iso'
   Iso.ret Iso' x = lem1 x (_ , refl) (_ , refl)
 
 Lift⊎Iso : ∀ (ℓ : Level)
-  → Iso (Lift {j = ℓ} A ⊎ Lift {j = ℓ} B)
-         (Lift {j = ℓ} (A ⊎ B))
+  → Iso (Lift ℓ A ⊎ Lift ℓ B)
+         (Lift ℓ (A ⊎ B))
 fun (Lift⊎Iso ℓD) (inl x) = liftFun inl x
 fun (Lift⊎Iso ℓD) (inr x) = liftFun inr x
 inv (Lift⊎Iso ℓD) (lift (inl x)) = inl (lift x)
@@ -368,3 +392,4 @@ sec (Lift⊎Iso ℓD) (lift (inl x)) = refl
 sec (Lift⊎Iso ℓD) (lift (inr x)) = refl
 ret (Lift⊎Iso ℓD) (inl x) = refl
 ret (Lift⊎Iso ℓD) (inr x) = refl
+

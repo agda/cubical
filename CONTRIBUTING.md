@@ -39,13 +39,6 @@ When preparing a PR here are some general guidelines:
 - Use `Type ℓ` for universes (so `Set ℓ` is not allowed in order to
   avoid confusion with the type of h-sets).
 
-- All files should start with
-
-  `{-# OPTIONS --safe #-}`
-
-  unless there is a good reason for it not to. The `--cubical` and
-  `--no-import-sorts` flags are added in the `cubical.agda-lib` file.
-
 - It is much easier for us to review and merge smaller and
   self-contained PRs. If a PR changes a lot of files all over the
   library then they will conflict with other PRs making it harder for

@@ -31,8 +31,8 @@ open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.Reflection.RecordEquiv
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Constructions.Elements
-open import Cubical.Categories.Constructions.Opposite
+open import Cubical.Categories.Instances.Elements
+open import Cubical.Categories.Instances.Opposite
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
@@ -56,6 +56,8 @@ open isIsoC
 -- | Lifts don't appear in practice because we usually use universal
 -- | elements instead
 module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
+  private
+    module P = PresheafNotation P
   Representation : Type (ℓ-max (ℓ-max ℓo (ℓ-suc ℓh)) (ℓ-suc ℓp))
   Representation =
     Σ[ A ∈ C .ob ] PshIso C (C [-, A ]) P
@@ -63,7 +65,7 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   Representable : Type (ℓ-max (ℓ-max ℓo (ℓ-suc ℓh)) (ℓ-suc ℓp))
   Representable = ∥ Representation ∥₁
 
-  Elements = ∫ᴾ_ {C = C} P
+  Elements = ∫_ {C = C} P
 
   TerminalElement : Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
   TerminalElement = Terminal Elements
@@ -145,7 +147,7 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
     (NatIso≡ (cong NatTrans.N-ob
       (yonedaᴾ* {C = C} P (repr .fst) .Iso.ret (repr .snd .trans)))))
 
-  isTerminalToIsUniversal : ∀ {η : Elementᴾ {C = C} P}
+  isTerminalToIsUniversal : ∀ {η : Σ[ x ∈ C .ob ] P.p[ x ]}
     → isTerminal Elements η → isUniversal (η .fst) (η .snd)
   isTerminalToIsUniversal {η} term A .equiv-proof ϕ .fst .fst =
     term (_ , ϕ) .fst .fst
@@ -201,5 +203,5 @@ module _
   isPropUniversalElement : isProp (UniversalElement C P)
   isPropUniversalElement = isOfHLevelRetractFromIso 1
     (invIso (TerminalElement≅UniversalElement C P))
-    (isPropTerminal (∫ᴾ_ {C = C} P)
-    (isUnivalentOp (Covariant.isUnivalent∫ (isUnivalentOp isUnivC) P)))
+    (isPropTerminal (∫_ {C = C} P)
+    (isUnivalent∫ {F = P} isUnivC))

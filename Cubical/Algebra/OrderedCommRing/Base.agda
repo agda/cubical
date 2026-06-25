@@ -1,6 +1,6 @@
 module Cubical.Algebra.OrderedCommRing.Base where
 {-
-  Definition of an commutative ordered ring.
+  Definition of an ordered commutative ring.
 -}
 
 open import Cubical.Foundations.Prelude

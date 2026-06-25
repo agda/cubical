@@ -4,7 +4,7 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Instances.TotalCategory
 
 private
   variable

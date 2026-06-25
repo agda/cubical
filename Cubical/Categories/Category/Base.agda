@@ -4,7 +4,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Powerset
+
 open import Cubical.Data.Sigma
+import Cubical.Data.Equality as Eq
 
 private
   variable
@@ -32,6 +34,14 @@ record Category ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   ⟨_⟩⋆⟨_⟩ : {x y z : ob} {f f' : Hom[ x , y ]} {g g' : Hom[ y , z ]}
           → f ≡ f' → g ≡ g' → f ⋆ g ≡ f' ⋆ g'
   ⟨ ≡f ⟩⋆⟨ ≡g ⟩ = cong₂ _⋆_ ≡f ≡g
+
+  ⟨_⟩⋆⟨⟩ : {x y z : ob} {f f' : Hom[ x , y ]} {g : Hom[ y , z ]}
+          → f ≡ f' → f ⋆ g ≡ f' ⋆ g
+  ⟨ ≡f ⟩⋆⟨⟩ = cong (_⋆ _) ≡f
+
+  ⟨⟩⋆⟨_⟩ : {x y z : ob} {f : Hom[ x , y ]} {g g' : Hom[ y , z ]}
+          → g ≡ g' → f ⋆ g ≡ f ⋆ g'
+  ⟨⟩⋆⟨ ≡g ⟩ = cong (_ ⋆_) ≡g
 
   infixr 9 _⋆_
   infixr 9 _∘_
@@ -108,13 +118,23 @@ idCatIso {C = C} = C .id , isiso (C .id) (C .⋆IdL (C .id)) (C .⋆IdL (C .id))
 isSet-CatIso : {C : Category ℓ ℓ'} → ∀ x y → isSet (CatIso C x y)
 isSet-CatIso {C = C} x y = isOfHLevelΣ 2 (C .isSetHom) (λ f → isProp→isSet (isPropIsIso f))
 
-
 pathToIso : {C : Category ℓ ℓ'} {x y : C .ob} (p : x ≡ y) → CatIso C x y
 pathToIso {C = C} p = J (λ z _ → CatIso C _ z) idCatIso p
+
+pathToMorphism : {C : Category ℓ ℓ'} {x y : C .ob} (p : x ≡ y) → C [ x , y ]
+pathToMorphism {C = C} p = pathToIso {C = C} p .fst
 
 pathToIso-refl : {C : Category ℓ ℓ'} {x : C .ob} → pathToIso {C = C} {x} refl ≡ idCatIso
 pathToIso-refl {C = C} {x} = JRefl (λ z _ → CatIso C x z) (idCatIso)
 
+eqToIso : {C : Category ℓ ℓ'} {x y : C .ob} (p : x Eq.≡ y) → CatIso C x y
+eqToIso {C = C} Eq.refl = idCatIso
+
+eqToIso-refl : {C : Category ℓ ℓ'} {x : C .ob} → eqToIso {C = C} {x} Eq.refl ≡ idCatIso
+eqToIso-refl = refl
+
+eqToMorphism : {C : Category ℓ ℓ'} {x y : C .ob} (p : x Eq.≡ y) → C [ x , y ]
+eqToMorphism {C = C} p = eqToIso {C = C} p .fst
 
 -- Univalent Categories
 record isUnivalent (C : Category ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
@@ -148,21 +168,3 @@ _⋆_ (C ^op) f g      = g ⋆⟨ C ⟩ f
 ⋆IdR (C ^op)         = C .⋆IdL
 ⋆Assoc (C ^op) f g h = sym (C .⋆Assoc _ _ _)
 isSetHom (C ^op)     = C .isSetHom
-
-ΣPropCat : (C : Category ℓ ℓ') (P : ℙ (ob C)) → Category ℓ ℓ'
-ob (ΣPropCat C P) = Σ[ x ∈ ob C ] x ∈ P
-Hom[_,_] (ΣPropCat C P) x y = C [ fst x , fst y ]
-id (ΣPropCat C P) = id C
-_⋆_ (ΣPropCat C P) = _⋆_ C
-⋆IdL (ΣPropCat C P) = ⋆IdL C
-⋆IdR (ΣPropCat C P) = ⋆IdR C
-⋆Assoc (ΣPropCat C P) = ⋆Assoc C
-isSetHom (ΣPropCat C P) = isSetHom C
-
-isIsoΣPropCat : {C : Category ℓ ℓ'} {P : ℙ (ob C)}
-                {x y : ob C} (p : x ∈ P) (q : y ∈ P)
-                (f : C [ x , y ])
-              → isIso C f → isIso (ΣPropCat C P) {x , p} {y , q} f
-inv (isIsoΣPropCat p q f isIsoF) = isIsoF .inv
-sec (isIsoΣPropCat p q f isIsoF) = isIsoF .sec
-ret (isIsoΣPropCat p q f isIsoF) = isIsoF .ret

@@ -556,7 +556,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
                           ∙∙ cong -_ (cong pos (≡remainder+quotient (suc n) (suc x))))) ∣₁})
   BijectionIso.surj (ℤHom→ℤ/im≅ℤ/im1 n p) x =
       ∣ [ pos (fst x) ]
-    , (Σ≡Prop (λ _ → isProp<ᵗ) (modIndBase n (fst x) (<ᵗ→< (snd x)))) ∣₁
+    , (Σ≡Prop (λ _ → isProp<ᵗ) (<→mod≡id (fst x) (suc n) (<ᵗ→< (snd x)))) ∣₁
 
 -- main result
 ℤ/imIso : (f : GroupHom ℤGroup ℤGroup)

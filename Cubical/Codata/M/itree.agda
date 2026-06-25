@@ -29,12 +29,9 @@ delay-ret r = in-fun (inr r , λ ())
 delay-tau : {R : Type₀} -> delay R -> delay R
 delay-tau S = in-fun (inl tt , λ x → S)
 
--- Bottom element raised
-data ⊥₁ : Type₁ where
-
 -- TREES
 tree-S : (E : Type₀ -> Type₁) (R : Type₀) -> Container (ℓ-suc ℓ-zero)
-tree-S E R = (R ⊎ (Σ[ A ∈ Type₀ ] (E A))) , (λ { (inl _) -> ⊥₁ ; (inr (A , e)) -> Lift A } )
+tree-S E R = (R ⊎ (Σ[ A ∈ Type₀ ] (E A))) , (λ { (inl _) -> ⊥* ; (inr (A , e)) -> Lift _ A } )
 
 tree : (E : Type₀ -> Type₁) (R : Type₀) -> Type₁
 tree E R = M (tree-S E R)
@@ -51,7 +48,7 @@ tree-vis {A = A} e k = in-fun (inr (A , e) , λ { (lift x) -> k x } )
 -- Li-yao Xia, Yannick Zakowski, Paul He, Chung-Kil Hur, Gregory Malecha, Benjamin C. Pierce, Steve Zdancewic
 
 itree-S : ∀ (E : Type₀ -> Type₁) (R : Type₀) -> Container (ℓ-suc ℓ-zero)
-itree-S E R = ((Unit ⊎ R) ⊎ (Σ[ A ∈ Type₀ ] (E A))) , (λ { (inl (inl _)) -> Lift Unit ; (inl (inr _)) -> ⊥₁ ; (inr (A , e)) -> Lift A } )
+itree-S E R = ((Unit ⊎ R) ⊎ (Σ[ A ∈ Type₀ ] (E A))) , (λ { (inl (inl _)) -> Unit* ; (inl (inr _)) -> ⊥* ; (inr (A , e)) -> Lift _ A } )
 
 itree :  ∀ (E : Type₀ -> Type₁) (R : Type₀) -> Type₁
 itree E R = M (itree-S E R)

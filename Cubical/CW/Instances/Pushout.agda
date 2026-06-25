@@ -757,8 +757,11 @@ module _ {ℓ ℓ' : Level} (P : Type ℓ → Type ℓ') (P1 : P Unit*) (P0 : P 
          (Ppush : (A B C : Type ℓ) (f : A → B) (g : A → C)
                 → P A → P B → P C → P (Pushout f g)) where
   private
-   PFin1 : P (Lift (Fin 1))
-   PFin1 = subst P (cong Lift (isoToPath Iso-Unit-Fin1)) P1
+   L : Type → Type ℓ
+   L = Lift ℓ
+
+   PFin1 : P (L (Fin 1))
+   PFin1 = subst P (cong L (isoToPath Iso-Unit-Fin1)) P1
 
    P⊎ : {B C : Type ℓ} → P B → P C → P (B ⊎ C)
    P⊎ {B = B} {C} pB pC =
@@ -768,35 +771,35 @@ module _ {ℓ ℓ' : Level} (P : Type ℓ → Type ℓ') (P1 : P Unit*) (P0 : P 
          PushoutEmptyDomainIso))
              (Ppush ⊥* B C (λ ()) (λ ()) P0 pB pC)
 
-   PFin : (n : ℕ) → P (Lift (Fin n))
+   PFin : (n : ℕ) → P (Lift _ (Fin n))
    PFin zero =
      subst P
-       (cong Lift
+       (cong L
          (ua (propBiimpl→Equiv isProp⊥
               (λ x → ⊥.rec (¬Fin0 x)) (λ()) ¬Fin0)))
        P0
    PFin (suc n) =
-     subst P (cong Lift (sym (isoToPath Iso-Fin-Unit⊎Fin)))
+     subst P (cong (Lift _) (sym (isoToPath Iso-Fin-Unit⊎Fin)))
        (subst P (isoToPath (Lift⊎Iso ℓ))
          (P⊎ P1 (PFin n)))
 
-   PS : (n : ℕ) → P (Lift (S⁻ n))
+   PS : (n : ℕ) → P (L (S⁻ n))
    PS zero = P0
-   PS (suc zero) = subst P (cong Lift (isoToPath (invIso Iso-Bool-Fin2))) (PFin 2)
+   PS (suc zero) = subst P (cong L (isoToPath (invIso Iso-Bool-Fin2))) (PFin 2)
    PS (suc (suc n)) =
      subst P
-       (cong Lift (isoToPath (compIso PushoutSuspIsoSusp (invIso (IsoSucSphereSusp n)))))
+       (cong L (isoToPath (compIso PushoutSuspIsoSusp (invIso (IsoSucSphereSusp n)))))
        (subst P (isoToPath (LiftPushoutIso ℓ))
-         (Ppush (Lift (S₊ n)) Unit* Unit* (λ _ → tt*) (λ _ → tt*)
+         (Ppush (L (S₊ n)) Unit* Unit* (λ _ → tt*) (λ _ → tt*)
            (PS (suc n)) P1 P1))
 
-   PFin×S : (n m : ℕ) → P (Lift (Fin n × S⁻ m))
+   PFin×S : (n m : ℕ) → P (L (Fin n × S⁻ m))
    PFin×S zero m =
-     subst P (ua (compEquiv (uninhabEquiv (λ()) λ()) LiftEquiv)) P0
+     subst P (ua (uninhabEquiv lower λ ())) P0
    PFin×S (suc n) m = subst P (isoToPath is) (P⊎ (PS m) (PFin×S n m))
      where
-     is : Iso (Lift (S⁻ m) ⊎ Lift (Fin n × S⁻ m))
-               (Lift (Fin (suc n) × S⁻ m))
+     is : Iso (L (S⁻ m) ⊎ L (Fin n × S⁻ m))
+               (L (Fin (suc n) × S⁻ m))
      is =
        compIso (Lift⊎Iso ℓ)
         (compIso (invIso LiftIso)

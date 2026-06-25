@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Homotopy.Spectrum.Truncation where
 
 open import Cubical.Data.Int

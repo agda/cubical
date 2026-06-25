@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.Algebra.BooleanRing.Instances.Bool where
 

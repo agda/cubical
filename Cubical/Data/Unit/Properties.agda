@@ -6,7 +6,10 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Transport
+open import Cubical.Relation.Nullary
 
+open import Cubical.Data.Empty renaming (elim to ⊥-elim; elim* to ⊥*-elim)
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit.Base
 open import Cubical.Data.Prod.Base
@@ -134,3 +137,15 @@ JPointedProp {ℓ' = ℓ'} {B = B} ind A a isPr =
 
   coh : PathP (λ i → (P (~ i) .fst)) tt* a
   coh = toPathP refl
+
+⊥≢Unit : ¬ ⊥ ≡ Unit
+⊥≢Unit ⊥≡Unit = ⊥-elim {A = λ _ → ⊥} (transport⁻ ⊥≡Unit tt)
+
+⊥*≢Unit* : ¬ (⊥* {ℓ} :> Type ℓ) ≡ (Unit* {ℓ} :> Type ℓ)
+⊥*≢Unit* ⊥≡Unit = ⊥*-elim {A = λ _ → ⊥} (transport⁻ ⊥≡Unit (lift tt))
+
+Unit≢⊥ : ¬ Unit ≡ ⊥
+Unit≢⊥ Unit≡⊥ = ⊥-elim {A = λ _ → ⊥} (transport Unit≡⊥ tt)
+
+Unit*≢⊥* : ¬ (Unit* {ℓ} :> Type ℓ) ≡ (⊥* {ℓ} :> Type ℓ)
+Unit*≢⊥* Unit≡⊥ = ⊥*-elim {A = λ _ → ⊥} (transport Unit≡⊥ (lift tt))

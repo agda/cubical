@@ -5,7 +5,12 @@
 module Cubical.Categories.Displayed.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Categories.Category.Base
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Reflection.RecordEquiv
+open import Cubical.Categories.Category.Base renaming (isIso to isCatIso)
 
 private
   variable
@@ -50,22 +55,48 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open Category C
   open Categoryᴰ Cᴰ
 
-  record isIsoᴰ {a b : ob} {f : C [ a , b ]} (f-isIso : isIso C f)
+  record isIsoᴰ {a b : ob} {f : C [ a , b ]} (f-isIso : isCatIso C f)
     {aᴰ : ob[ a ]} {bᴰ : ob[ b ]} (fᴰ : Hom[ f ][ aᴰ , bᴰ ])
     : Type ℓCᴰ'
     where
     constructor isisoᴰ
-    open isIso f-isIso
+    open isCatIso f-isIso
     field
       invᴰ : Hom[ inv ][ bᴰ , aᴰ ]
       secᴰ : invᴰ ⋆ᴰ fᴰ ≡[ sec ] idᴰ
       retᴰ : fᴰ ⋆ᴰ invᴰ ≡[ ret ] idᴰ
 
+  unquoteDecl isIsoᴰIsoΣ = declareRecordIsoΣ isIsoᴰIsoΣ (quote isIsoᴰ)
+
   CatIsoᴰ : {a b : ob} → CatIso C a b → ob[ a ] → ob[ b ] → Type ℓCᴰ'
   CatIsoᴰ (f , f-isIso) aᴰ bᴰ = Σ[ fᴰ ∈ Hom[ f ][ aᴰ , bᴰ ] ] isIsoᴰ f-isIso fᴰ
 
+  isSetCatIsoᴰ : ∀ {a b : ob} {f : CatIso C a b} {aᴰ : ob[ a ]} {bᴰ : ob[ b ]}
+    → isSet (CatIsoᴰ f aᴰ bᴰ)
+  isSetCatIsoᴰ = isSetΣ isSetHomᴰ (λ fᴰ →
+    isSetRetract (isIsoᴰIsoΣ .Iso.fun) (isIsoᴰIsoΣ .Iso.inv) (isIsoᴰIsoΣ .Iso.ret)
+    (isSetΣSndProp isSetHomᴰ (λ fᴰ⁻ →
+    isProp× (isOfHLevelPathP' 1 isSetHomᴰ _ _)
+            (isOfHLevelPathP' 1 isSetHomᴰ _ _))))
+
+  CatIsoⱽ : {a : ob} → ob[ a ] → ob[ a ] → Type ℓCᴰ'
+  CatIsoⱽ = CatIsoᴰ idCatIso
+
   idᴰCatIsoᴰ : {x : ob} {xᴰ : ob[ x ]} → CatIsoᴰ idCatIso xᴰ xᴰ
   idᴰCatIsoᴰ = idᴰ , isisoᴰ idᴰ (⋆IdLᴰ idᴰ) (⋆IdLᴰ idᴰ)
+
+  pathToIsoᴰ : ∀ {x y : ob} {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+    → (p : x ≡ y)
+    → (pᴰ : PathP (λ i → ob[ p i ]) xᴰ yᴰ)
+    → CatIsoᴰ (pathToIso p) xᴰ yᴰ
+  pathToIsoᴰ {x} {y} {xᴰ} {yᴰ} p pᴰ = transport Type≡ idᴰCatIsoᴰ
+    where
+    Type≡ : CatIsoᴰ idCatIso xᴰ xᴰ ≡ CatIsoᴰ (pathToIso p) xᴰ yᴰ
+    Type≡ i = CatIsoᴰ (transp (λ j → CatIso C x (p (i ∧ j))) (~ i) idCatIso) xᴰ (pᴰ i)
+
+  isUnivalentᴰ : Type (ℓ-max (ℓ-max ℓC ℓCᴰ) ℓCᴰ')
+  isUnivalentᴰ = ∀ x y (xᴰ : ob[ x ]) (yᴰ : ob[ y ])
+    → isEquivOver {Q = λ f → CatIsoᴰ f xᴰ yᴰ}{f = pathToIso {C = C}} pathToIsoᴰ
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open Category

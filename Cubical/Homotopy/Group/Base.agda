@@ -644,7 +644,7 @@ snd (π'Gr≅πGr n A) =
 
 -- Proof that π'Gr preserves universe lifts
 π'GrLiftIso : ∀ {ℓ} (ℓ' : Level) {A : Pointed ℓ} (n : ℕ)
-  → GroupIso (π'Gr n (Lift∙ {j = ℓ'} A)) (π'Gr n A)
+  → GroupIso (π'Gr n (Lift∙ ℓ' A)) (π'Gr n A)
 fun (fst (π'GrLiftIso ℓ' n)) =
   sMap λ f → (λ x → lower (fst f x))
             , (cong lower (snd f))
@@ -1080,10 +1080,8 @@ invEquiv∙idEquiv∙≡idEquiv = ΣPathP ((Σ≡Prop (λ _ → isPropIsEquiv _)
                , (cong-∙ lower (cong (lift ∘ (fst (fst e))) (snd f)) _))))))
     (πA≃πB .snd)
   where
-  e' : Lift∙ {j = ℓ'} A ≃∙ Lift∙ {j = ℓ} B
-  fst e' =
-    compEquiv (invEquiv LiftEquiv) (compEquiv (fst e) LiftEquiv)
-  snd e' = cong lift (snd e)
+  e' : Lift∙ ℓ' A ≃∙ Lift∙ ℓ B
+  e' = Lift∙≃Lift∙ e
 
   main : ∀ {ℓ} {A B : Pointed ℓ} (n : ℕ)
       → (e : A ≃∙ B)
@@ -1115,10 +1113,8 @@ invEquiv∙idEquiv∙≡idEquiv = ΣPathP ((Σ≡Prop (λ _ → isPropIsEquiv _)
          (compGroupHom (_ , main n e')
           (GroupIso→GroupHom (π'GrLiftIso _ n))) .snd)
   where
-  e' : Lift∙ {j = ℓ'} A ≃∙ Lift∙ {j = ℓ} B
-  fst e' =
-    compEquiv (invEquiv LiftEquiv) (compEquiv (fst e) LiftEquiv)
-  snd e' = cong lift (snd e)
+  e' : Lift∙ ℓ' A ≃∙ Lift∙ ℓ B
+  e' = Lift∙≃Lift∙ e
 
   main : ∀ {ℓ} {A B : Pointed ℓ} (n : ℕ)
       → (e : A ≃∙ B)

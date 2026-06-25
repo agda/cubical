@@ -10,6 +10,10 @@ This file contains:
 
 - Ganea's theorem
 
+- eliminator for join
+- Join is contractible if either side is contractible
+- Join is prop if both sides are prop
+
 -}
 
 
@@ -17,6 +21,7 @@ module Cubical.HITs.Join.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
@@ -27,13 +32,13 @@ open import Cubical.Data.Sigma renaming (fst to proj₁; snd to proj₂)
 open import Cubical.Data.Unit
 
 open import Cubical.HITs.Join.Base
-open import Cubical.HITs.Pushout
+open import Cubical.HITs.Pushout hiding (elimProp)
 
 open import Cubical.Homotopy.Loopspace
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
 -- the inclusion maps are null-homotopic
 join-inl-null : {X : Pointed ℓ} {Y : Pointed ℓ'} (x : typ X)
@@ -711,3 +716,49 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
   inv GaneaIso = join→GaneaFib
   sec GaneaIso = join→GaneaFib→join
   ret GaneaIso = GaneaFib→join→GaneaFib
+
+-- Characterizing when Join isContr, isProp
+module _ {A : Type ℓ}{B : Type ℓ'} where
+  elim : {C : join A B → Type ℓ''}
+    → (l : (a : A) → C (inl a))
+    → (r : (b : B) → C (inr b))
+    → (p : ∀ a b → PathP (λ i → C (push a b i)) (l a) (r b))
+    → ∀ j → C j
+  elim l r p (inl a) = l a
+  elim l r p (inr b) = r b
+  elim l r p (push a b i) = p a b i
+
+  elimProp : {C : join A B → Type ℓ''} (isPropC : ∀ j → isProp (C j))
+    → (l : (a : A) → C (inl a))
+    → (r : (b : B) → C (inr b))
+    → ∀ j → C j
+  elimProp isPropC l r = elim l r (λ a b →
+    isProp→PathP (λ i → isPropC (push a b i)) (l a) (r b))
+
+  isContrJoinL : isContr A → isContr (join A B)
+  isContrJoinL isContrA .fst = inl (isContrA .fst)
+  isContrJoinL isContrA .snd (inl a) = cong inl (isContrA .snd a)
+  isContrJoinL isContrA .snd (inr b) = push (isContrA .fst) b
+  isContrJoinL isContrA .snd (push a b i) j = hcomp (λ where
+    k (i = i0) → inl (isContrA .snd a (~ k ∨ j))
+    k (i = i1) → push (isContrA .snd a (~ k)) b j
+    k (j = i0) → inl (isContrA .snd a (~ k))
+    k (j = i1) → push a b i)
+    (push a b (i ∧ j))
+
+  isContrJoinR : isContr B → isContr (join A B)
+  isContrJoinR isContrB .fst = inr (isContrB .fst)
+  isContrJoinR isContrB .snd (inl a) = sym $ push a (isContrB .fst)
+  isContrJoinR isContrB .snd (inr b) = cong inr (isContrB .snd b)
+  isContrJoinR isContrB .snd (push a b i) j = hcomp (λ where
+    k (i = i0) → push a (isContrB .snd b (~ k)) (~ j)
+    k (i = i1) → inr (isContrB .snd b (~ k ∨ j))
+    k (j = i0) → inr (isContrB .snd b (~ k))
+    k (j = i1) → push a b i)
+    (push a b (i ∨ (~ j)))
+
+  isPropJoin : isProp A → isProp B → isProp (join A B)
+  isPropJoin isPropA isPropB = isContrIfInhabited→isProp (elimProp
+    (λ _ → isPropIsContr)
+    (λ a → isContrJoinL (inhProp→isContr a isPropA))
+    (λ b → isContrJoinR (inhProp→isContr b isPropB)))

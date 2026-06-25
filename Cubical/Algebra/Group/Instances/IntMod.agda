@@ -95,13 +95,7 @@ snd Bool≅ℤGroup/2 =
       → Path (Fin (suc n)) (-ₘ (1 mod (suc n) , <→<ᵗ (mod< n 1)))
                             (n mod (suc n) , <→<ᵗ (mod< n n))
 -ₘ1-id zero = refl
--ₘ1-id (suc n) =
-     cong -ₘ_ (FinPathℕ {suc (suc n)} ((1 mod suc (suc n)) , <→<ᵗ (mod< (suc n) 1)) 1
-                (modIndBase (suc n) 1 (n , +-comm n 2)) .snd)
-   ∙ Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = suc (suc n)})
-      ((+inductionBase (suc n) _
-        (λ x _ → ((suc (suc n)) ∸ x) mod (suc (suc n))) λ _ x → x) 1
-        (n , (+-comm n 2)))
+-ₘ1-id (suc n) = refl
 
 suc-ₘ1 : (n y : ℕ)
   → ((suc y mod suc n) , <→<ᵗ (mod< n (suc y))) -ₘ (1 mod (suc n) , <→<ᵗ (mod< n 1))
@@ -143,9 +137,9 @@ suc-ₘ1 (suc n) y =
      sym (GroupTheory.invInv (ℤGroup/ (suc n)) _)
    ∙ cong -ₘ_
       (GroupTheory.invDistr (ℤGroup/ (suc n))
-        (modInd n 1 , <→<ᵗ (mod< n 1)) (-ₘ (modInd n (suc y) , <→<ᵗ (mod< n (suc y))))
-      ∙ cong (_-ₘ (modInd n 1 , <→<ᵗ (mod< n 1)))
-       (GroupTheory.invInv (ℤGroup/ (suc n)) (modInd n (suc y) , <→<ᵗ (mod< n (suc y))))
+        (1 mod suc n , <→<ᵗ (mod< n 1)) (-ₘ (suc y mod suc n , <→<ᵗ (mod< n (suc y))))
+      ∙ cong (_-ₘ (1 mod suc n , <→<ᵗ (mod< n 1)))
+       (GroupTheory.invInv (ℤGroup/ (suc n)) (suc y mod suc n , <→<ᵗ (mod< n (suc y))))
        ∙ suc-ₘ1 n y)
 
 isHomℤ→Fin : (n : ℕ) → IsGroupHom (snd ℤGroup) (ℤ→Fin n) (snd (ℤGroup/ (suc n)))
@@ -161,8 +155,8 @@ isHomℤ→Fin n =
         ∙∙ ℤ→Fin-presinv n (pos (suc x) +ℤ (pos (suc y)))
         ∙∙ cong -ₘ_ (pos+case (suc x) (pos (suc y)))
         ∙∙ GroupTheory.invDistr (ℤGroup/ (suc n))
-             (modInd n (suc x)
-            , <→<ᵗ (mod< n (suc x))) (modInd n (suc y) , <→<ᵗ (mod< n (suc y)))
+             (suc x mod suc n
+            , <→<ᵗ (mod< n (suc x))) (suc y mod suc n , <→<ᵗ (mod< n (suc y)))
         ∙∙ +ₘ-comm (ℤ→Fin n (negsuc y)) (ℤ→Fin n (negsuc x))}
   where
   +1case :  (y : ℤ) → ℤ→Fin n (1 +ℤ y) ≡ ℤ→Fin n 1 +ₘ ℤ→Fin n y
@@ -172,7 +166,7 @@ isHomℤ→Fin n =
      ∙ Σ≡Prop (λ z → isProp<ᵗ {n = z} {suc n}) (mod+mod≡mod (suc n) 1 (suc y))
   +1case (negsuc zero) =
       Σ≡Prop (λ z → isProp<ᵗ {n = z} {suc n}) refl
-    ∙ sym (GroupStr.·InvR (snd (ℤGroup/ (suc n))) (modInd n 1 , <→<ᵗ (mod< n 1)))
+    ∙ sym (GroupStr.·InvR (snd (ℤGroup/ (suc n))) (1 mod suc n , <→<ᵗ (mod< n 1)))
   +1case (negsuc (suc y)) =
     Σ≡Prop (λ z → isProp<ᵗ {n = z} {suc n})
       (cong fst (cong (ℤ→Fin n) (+Comm 1 (negsuc (suc y))))
@@ -191,13 +185,13 @@ isHomℤ→Fin n =
        cong (ℤ→Fin n) (cong (_+ℤ y) (+Comm (pos (suc x)) 1)
                      ∙ sym (+Assoc 1 (pos (suc x)) y))
     ∙∙ +1case (pos (suc x) +ℤ y)
-    ∙∙ (cong ((modInd n 1 , <→<ᵗ (mod< n 1)) +ₘ_) (pos+case (suc x) y)
-     ∙∙ sym (+ₘ-assoc (modInd n 1 , <→<ᵗ (mod< n 1))
-              (modInd n (suc x) , <→<ᵗ (mod< n (suc x))) (ℤ→Fin n y))
+    ∙∙ (cong ((1 mod suc n , <→<ᵗ (mod< n 1)) +ₘ_) (pos+case (suc x) y)
+     ∙∙ sym (+ₘ-assoc (1 mod suc n , <→<ᵗ (mod< n 1))
+              (suc x mod suc n , <→<ᵗ (mod< n (suc x))) (ℤ→Fin n y))
      ∙∙ cong (_+ₘ ℤ→Fin n y) (lem x))
     where
     lem : (x : ℕ)
-      → (modInd n 1 , <→<ᵗ (mod< n 1)) +ₘ (modInd n (suc x) , <→<ᵗ (mod< n (suc x)))
+      → (1 mod suc n , <→<ᵗ (mod< n 1)) +ₘ (suc x mod suc n , <→<ᵗ (mod< n (suc x)))
         ≡ ℤ→Fin n (pos (suc (suc x)))
     lem x =
       Σ≡Prop (λ z → isProp<ᵗ {n = z} {suc n}) (sym (mod+mod≡mod (suc n) 1 (suc x)))

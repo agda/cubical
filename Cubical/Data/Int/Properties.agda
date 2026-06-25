@@ -11,8 +11,8 @@ open import Cubical.Relation.Nullary
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
-  hiding   (+-assoc ; +-comm ; min ; max ; minComm ; maxComm)
-  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ;
+  hiding   (+-assoc ; min ; max ; minComm ; maxComm)
+  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; +-comm to +ℕ-comm ; ·-assoc to ·ℕ-assoc ;
             ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
 open import Cubical.Data.Sum
 open import Cubical.Data.Fin.Base
@@ -827,6 +827,15 @@ inj-+z {z} {l} {n} p = inj-z+ {z = z} (+Comm z l ∙ p ∙ +Comm n z)
 n+z≡z→n≡0 : ∀ n z → n + z ≡ z → n ≡ 0
 n+z≡z→n≡0 n z p = inj-z+ {z = z} {l = n} {n = 0} (+Comm z n ∙ p)
 
+negsuc+negsuc-def : ∀ m {k} → negsuc m +negsuc k ≡ negsuc (m +ℕ (suc k))
+negsuc+negsuc-def m {zero} = cong negsuc (+ℕ-comm 1 m)
+negsuc+negsuc-def m {suc k} = cong predℤ (negsuc+negsuc-def m {k}) ∙
+  sym (cong negsuc (+-suc m (suc k)))
+
++CancelRNegsuc : ∀ a b c → a +negsuc b ≡ c → a ≡ c +pos (suc b)
++CancelRNegsuc a b c abc =
+  sym (minusPlus (pos (suc b)) a) ∙ cong (λ u → u + (pos (suc b))) abc
+
 pos+posLposMin : ∀ x y → min (pos (x +ℕ y)) (pos x) ≡ pos x
 pos+posLposMin zero y = minComm (pos y) (pos zero)
 pos+posLposMin (suc x) zero
@@ -1193,6 +1202,23 @@ negsuc·negsuc (suc n) m = cong (pos (suc m) +_) (negsuc·negsuc n m)
 ·AnnihilL : (x : ℤ) → 0 · x ≡ 0
 ·AnnihilL x = refl
 
+signx·y≡signx·signy : ∀ x y → sign (x · y) ≡ (sign x) · (sign y)
+signx·y≡signx·signy x (pos ℕ.zero) =
+  cong sign (·AnnihilR x) ∙ sym (·AnnihilR (sign x))
+signx·y≡signx·signy (pos ℕ.zero) (pos (ℕ.suc n)) = refl
+signx·y≡signx·signy (pos (ℕ.suc m)) (pos (ℕ.suc n)) =
+  cong sign (sym (pos·pos (ℕ.suc m) (ℕ.suc n)))
+signx·y≡signx·signy (negsuc m) (pos (ℕ.suc n)) =
+  cong sign (negsuc·pos m (ℕ.suc n)) ∙
+  cong (λ a → sign (- a)) (sym (pos·pos (ℕ.suc m) (ℕ.suc n)))
+signx·y≡signx·signy (pos ℕ.zero) (negsuc n) = refl
+signx·y≡signx·signy (pos (ℕ.suc m)) (negsuc n) =
+  cong sign (pos·negsuc (ℕ.suc m) n) ∙
+  cong (λ a → sign (- a)) (sym (pos·pos (ℕ.suc m) (ℕ.suc n)))
+signx·y≡signx·signy (negsuc m) (negsuc n) =
+  cong sign (negsuc·negsuc m n) ∙
+  cong sign (sym (pos·pos (ℕ.suc m) (ℕ.suc n)))
+
 private
   distrHelper : (x y z w : ℤ) → (x + y) + (z + w) ≡ ((x + z) + (y + w))
   distrHelper x y z w =
@@ -1238,6 +1264,10 @@ private
 ℤ·negsuc (pos n) m = pos·negsuc n m
 ℤ·negsuc (negsuc n) m = negsuc·negsuc n m ∙ sym (-DistL· (negsuc n) (pos (suc m)))
 
+negsuc·possuc : (m n : ℕ) → negsuc m · pos (suc n) ≡ negsuc (n +ℕ (suc n ·ℕ m))
+negsuc·possuc m n =
+  ·Comm (negsuc m) (pos (suc n)) ∙ ℤ·negsuc (pos (suc n)) m ∙
+  cong (-_) ((sym (pos·pos (suc n) (suc m))) ∙ cong pos (·-suc (suc n) m))
 
 ·Assoc : (a b c : ℤ) → (a · (b · c)) ≡ ((a · b) · c)
 ·Assoc (pos zero) b c = refl
@@ -1453,6 +1483,11 @@ abs· (pos m) (negsuc n) =
 abs· (negsuc m) (pos n) =
   cong abs (negsuc·pos m n) ∙ abs- (pos (suc m) · pos n) ∙ absPos·Pos (suc m) n
 abs· (negsuc m) (negsuc n) = cong abs (negsuc·negsuc m n) ∙ absPos·Pos (suc m) (suc n)
+
+sign·abs : ∀ m → sign m · pos (abs m) ≡ m
+sign·abs (pos zero) = refl
+sign·abs (pos (suc n)) = refl
+sign·abs (negsuc n) = refl
 
 -- ℤ is integral domain
 

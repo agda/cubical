@@ -2,6 +2,7 @@ module Cubical.Data.Rationals.MoreRationals.QuoQ.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat as ℕ using (discreteℕ)
 open import Cubical.Data.NatPlusOne
@@ -35,6 +36,9 @@ _∼_ : ℤ × ℕ₊₁ → ℤ × ℕ₊₁ → Type₀
 isSetℚ : isSet ℚ
 isSetℚ = SetQuotient.squash/
 
+isProp∼ : ∀ (x y : ℤ × ℕ₊₁) → isProp (x ∼ y)
+isProp∼ x@(a , b) y@(c , d) xy xy' = isSetℤ (a · ℕ₊₁→ℤ d) (c · ℕ₊₁→ℤ b) xy xy'
+
 [_/_] : ℤ → ℕ₊₁ → ℚ
 [ a / b ] = [ a , b ]
 
@@ -56,6 +60,12 @@ isEquivRel.transitive isEquivRel∼ (a , b) (c , d) (e , f) p q = ·-injʳ _ _ _
 
 eq/⁻¹ : ∀ x y → Path ℚ [ x ] [ y ] → x ∼ y
 eq/⁻¹ = SetQuotient.effective (λ _ _ → isSetℤ _ _) isEquivRel∼
+
+path∼ : ∀ (x  y : ℤ × ℕ₊₁) → Path ℚ [ x ] [ y ] ≡ x ∼ y
+path∼ x y = isoToPath (iso (eq/⁻¹ x y) (eq/ x y)
+            (λ b → isProp∼ x y (eq/⁻¹ x y (eq/ x y b)) b)
+            (λ a → isSetℚ [ x ] [ y ]
+              (eq/ x y (eq/⁻¹ x y a)) a))
 
 discreteℚ : Discrete ℚ
 discreteℚ = discreteSetQuotients isEquivRel∼ (λ _ _ → discreteℤ _ _)

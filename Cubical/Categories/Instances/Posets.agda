@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Instances.Posets where
 
 open import Cubical.Foundations.Prelude

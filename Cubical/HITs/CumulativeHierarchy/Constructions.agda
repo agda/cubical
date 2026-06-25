@@ -71,7 +71,7 @@ open SetPackage using (structure; ∈-rep; unpack; repack)
 
 module EmptySet where
   EmptyStructure : SetStructure ℓ
-  SetStructure.X EmptyStructure = Lift E.⊥
+  SetStructure.X EmptyStructure = E.⊥*
   SetStructure.ix EmptyStructure ()
 
   EmptyPackage : SetPackage ℓ ℓ-zero
@@ -114,7 +114,7 @@ open UnionSet renaming (UNION to infixr 9 ⋃_) using (union-ax) public
 
 module PairingSet (a b : V ℓ) where
   PairingStructure : SetStructure ℓ
-  SetStructure.X PairingStructure = Lift Bool
+  SetStructure.X PairingStructure = Bool*
   SetStructure.ix PairingStructure (lift false) = a
   SetStructure.ix PairingStructure (lift true) = b
 
@@ -139,8 +139,8 @@ open PairingSet renaming (PAIR to infix 12 ⁅_,_⁆) using (pairing-ax) public
 
 module SingletonSet (a : V ℓ) where
   SingletonStructure : SetStructure ℓ
-  SetStructure.X SingletonStructure = Lift Unit
-  SetStructure.ix SingletonStructure (lift tt) = a
+  SetStructure.X SingletonStructure = Unit*
+  SetStructure.ix SingletonStructure tt* = a
 
   SingletonPackage : SetPackage _ (ℓ-suc ℓ)
   structure SingletonPackage = SingletonStructure
@@ -165,7 +165,7 @@ module InfinitySet {ℓ} where
   # suc n = sucV (# n)
 
   ωStructure : SetStructure ℓ
-  SetStructure.X ωStructure = Lift ℕ
+  SetStructure.X ωStructure = Lift ℓ ℕ
   SetStructure.ix ωStructure = #_ ∘ lower
 
   ω : V ℓ

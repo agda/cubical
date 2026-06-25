@@ -21,7 +21,7 @@ private
 
 module _ (ℓ : Level) where
   CWskelLift : CWskel ℓA → CWskel (ℓ-max ℓA ℓ)
-  fst (CWskelLift sk) n = Lift {j = ℓ} (fst sk n)
+  fst (CWskelLift sk) n = Lift ℓ (fst sk n)
   fst (snd (CWskelLift sk)) = CWskel-fields.card sk
   fst (snd (snd (CWskelLift sk))) n (x , a) =
     lift (CWskel-fields.α sk n (x , a))
@@ -33,7 +33,7 @@ module _ (ℓ : Level) where
         (pushoutEquiv _ _ _ _ (idEquiv _)
           LiftEquiv (idEquiv _) refl refl))
 
-  hasCWskelLift : {A : Type ℓA} → hasCWskel A → hasCWskel (Lift {j = ℓ} A)
+  hasCWskelLift : {A : Type ℓA} → hasCWskel A → hasCWskel (Lift ℓ A)
   fst (hasCWskelLift (sk , e)) = CWskelLift sk
   snd (hasCWskelLift (sk , e)) =
     compEquiv (invEquiv LiftEquiv)
@@ -41,7 +41,7 @@ module _ (ℓ : Level) where
        (invEquiv (isoToEquiv (SeqColimLift {ℓ = ℓ} _))))
 
   CWLift : CW ℓA → CW (ℓ-max ℓA ℓ)
-  fst (CWLift (A , sk)) = Lift {j = ℓ} A
+  fst (CWLift (A , sk)) = Lift ℓ A
   snd (CWLift (A , sk)) = PT.map hasCWskelLift sk
 
   finCWskelLift : ∀ {n} → finCWskel ℓA n → finCWskel (ℓ-max ℓA ℓ) n
@@ -52,12 +52,12 @@ module _ (ℓ : Level) where
       (compEquiv (_ , snd (snd sk) k) LiftEquiv) .snd
 
   hasFinCWskelLift : {A : Type ℓA}
-    → hasFinCWskel A → hasFinCWskel (Lift {j = ℓ} A)
+    → hasFinCWskel A → hasFinCWskel (Lift ℓ A)
   fst (hasFinCWskelLift (dim , sk , e)) = dim
   fst (snd (hasFinCWskelLift (dim , sk , e))) = finCWskelLift sk
   snd (snd (hasFinCWskelLift c)) =
     hasCWskelLift (hasFinCWskel→hasCWskel _ c) .snd
 
   finCWLift : finCW ℓA → finCW (ℓ-max ℓA ℓ)
-  fst (finCWLift (A , sk)) = Lift {j = ℓ} A
+  fst (finCWLift (A , sk)) = Lift ℓ A
   snd (finCWLift (A , sk)) = PT.map hasFinCWskelLift sk
