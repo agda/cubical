@@ -1553,8 +1553,8 @@ clamp (negsuc n) = zero
 
 -- useful lemmas for _·_
 
-¬x≡0¬y≡0→¬x·y≡0 :  ∀ x y → ¬ x ≡ 0 → ¬ y ≡ 0 → ¬ x · y ≡ 0
-¬x≡0¬y≡0→¬x·y≡0 x y nx0 ny0 = contraposition (isIntegralℤ x y) ny0 nx0
+¬x≡0¬y≡0→¬x·y≡0 : ∀ {x}{y} → ¬ x ≡ 0 → ¬ y ≡ 0 → ¬ x · y ≡ 0
+¬x≡0¬y≡0→¬x·y≡0 {x}{y} nx0 ny0 = contraposition (isIntegralℤ x y) ny0 nx0
 
 ab'c≡ac'b : ∀ a b c → (a · b) · c ≡ (a · c) · b
 ab'c≡ac'b a b c =

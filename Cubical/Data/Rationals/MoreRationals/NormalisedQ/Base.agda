@@ -24,6 +24,9 @@ open import Cubical.Data.Int as ℤ
 open import Cubical.Data.Int.GCD as ℤ using (gcd-def; ℕ₊₁→ℤ-gcd-def; gcdSucNot0)
 open import Cubical.Data.Int.Order as ℤ using ()
 
+converse : {ℓ : Level} {a b : Type ℓ} →
+  (a → b) → ¬ b → ¬ a
+converse = λ z z₁ z₂ → z₁ (z z₂)
 
 ------------------------------------------------
 -- Core definitions
@@ -142,99 +145,6 @@ neg-injective : ∀{a}{b} → - a ≡ - b → a ≡ b
 neg-injective {a}{b} -a-b =
   sym (neg-involutive {a}) ∙ (cong (-_) -a-b) ∙ neg-involutive {b}
 
----------------------------------------------------
--- Signs
-
-NonZero : (p : ℚ) → Type
-NonZero ((pos zero , d-1) , c) = ⊥
-NonZero ((pos (suc n) , d-1) , c) = Unit
-NonZero ((negsuc n , d-1) , c) = Unit
-
-IsZero : (p : ℚ) → Type
-IsZero ((pos zero , n) , c) = Unit
-IsZero ((pos (suc m) , n) , c) = ⊥
-IsZero ((negsuc m , n) , c) = ⊥
-
-¬IsZero→NonZero : ∀ p → ¬ (IsZero p) → NonZero p
-¬IsZero→NonZero ((pos zero , n) , c) ¬p0 = ¬p0 tt
-¬IsZero→NonZero ((pos (suc m) , n) , c) ¬p0 = tt
-¬IsZero→NonZero ((negsuc m , n) , c) ¬p0 = tt
-
-Positive : (p : ℚ) → Type
-Positive ((pos zero , d-1) , c) = ⊥
-Positive ((pos (suc n) , d-1) , c) = Unit
-Positive ((negsuc n , d-1) , c) = ⊥
-
-Negative : (p : ℚ) → Type
-Negative ((pos n , d-1) , c) = ⊥
-Negative ((negsuc n , d-1) , c) = Unit
-
-NonNegative : (p : ℚ) → Type
-NonNegative ((pos m , n) , copr) = Unit
-NonNegative ((negsuc m , n) , copr) = ⊥
-
-IsZero→NonNegative : {p : ℚ} → IsZero p → NonNegative p
-IsZero→NonNegative {(pos m , n) , c} posp = tt
-
-Positive→NonNegative : ∀ {p : ℚ} → Positive p → NonNegative p
-Positive→NonNegative {(pos m , n) , c} pp = tt
-Positive→NonNegative {(negsuc m , n) , c} pp = pp
-
-IsInteger : (p : ℚ) → Type
-IsInteger ((z , zero) , c) = Unit
-IsInteger ((z , suc n) , c) = ⊥
-
-decIsZero : ∀ (p : ℚ) → Dec (IsZero p)
-decIsZero p@((pos zero , n) , c) = yes tt
-decIsZero ((pos (suc m) , n) , c) = no (λ ())
-decIsZero ((negsuc m , n) , c) = no (λ ())
-
-decNonZero : ∀ (p : ℚ) → Dec (NonZero p)
-decNonZero ((pos ℕ.zero , n) , copr) = no (λ ())
-decNonZero ((pos (ℕ.suc m) , n) , copr) = yes tt
-decNonZero ((negsuc m , n) , copr) = yes tt
-
-decPositive : ∀ (p : ℚ) → Dec (Positive p)
-decPositive ((pos zero , n) , copr) = no λ ()
-decPositive ((pos (suc m) , n) , copr) = yes tt
-decPositive ((negsuc m , n) , copr) = no (λ ())
-
-decNegative : ∀ (p : ℚ) → Dec (Negative p)
-decNegative ((pos m , n) , copr) = no (λ ())
-decNegative ((negsuc m , n) , copr) = yes tt
-
-decNonNegative : ∀ (p : ℚ) → Dec (NonNegative p)
-decNonNegative ((pos m , n) , c) = yes tt
-decNonNegative ((negsuc m , n) , c) = no (λ ())
-
-decIsInteger : ∀ (p : ℚ) → Dec (IsInteger p)
-decIsInteger ((z , zero) , c) = yes tt
-decIsInteger ((z , suc n) , c) = no (λ ())
-
----------------------------------------------
--- Abs
-abs : ℚ → ℚ
-abs z@((pos m , n) , copr) = z
-abs z@((negsuc m , n) , copr) = ((pos (suc m) , n) , copr)
-
-absDef : ∀ x → abs (- x) ≡ abs x
-absDef ((pos zero , n) , copr) = refl
-absDef ((pos (suc m) , n) , copr) = refl
-absDef ((negsuc m , n) , copr) = refl
-
-absNegative : ∀ x → Negative x → abs x ≡ - x
-absNegative ((negsuc m , n) , c) negx = refl
-
-absNonNegative : ∀ x → NonNegative x → abs x ≡ x
-absNonNegative ((pos zero , n) , c) nnegx = refl
-absNonNegative ((pos (suc m) , n) , c) nnegx = refl
-absNonNegative ((negsuc m , n) , c) nnegx = ⊥.elim nnegx
-
-absIsNonNegative : ∀ x → NonNegative (abs x)
-absIsNonNegative ((pos zero , n) , c) = tt
-absIsNonNegative ((pos (suc m) , n) , c) = tt
-absIsNonNegative ((negsuc m , n) , c) = tt
-
 -------------------------------------------------
 -- Constructing rationals
 
@@ -308,6 +218,111 @@ a≡0→↥a≡0 {((n , d-1) , c)} a0 = cong ↥_ a0
 
 ↥↧a≡↥↧b→a≡b : ∀ {a}{b} → ↥↧ a ≡ ↥↧ b → a ≡ b
 ↥↧a≡↥↧b→a≡b {a}{b} ab = ℚ-unique (cong fst ab) (cong snd ab)
+
+
+---------------------------------------------------
+-- Signs
+
+NonZero : (p : ℚ) → Type
+NonZero ((pos zero , d-1) , c) = ⊥
+NonZero ((pos (suc n) , d-1) , c) = Unit
+NonZero ((negsuc n , d-1) , c) = Unit
+
+IsZero : (p : ℚ) → Type
+IsZero ((pos zero , n) , c) = Unit
+IsZero ((pos (suc m) , n) , c) = ⊥
+IsZero ((negsuc m , n) , c) = ⊥
+
+¬IsZero→NonZero : ∀ p → ¬ (IsZero p) → NonZero p
+¬IsZero→NonZero ((pos zero , n) , c) ¬p0 = ¬p0 tt
+¬IsZero→NonZero ((pos (suc m) , n) , c) ¬p0 = tt
+¬IsZero→NonZero ((negsuc m , n) , c) ¬p0 = tt
+
+Positive : (p : ℚ) → Type
+Positive ((pos zero , d-1) , c) = ⊥
+Positive ((pos (suc n) , d-1) , c) = Unit
+Positive ((negsuc n , d-1) , c) = ⊥
+
+Negative : (p : ℚ) → Type
+Negative ((pos n , d-1) , c) = ⊥
+Negative ((negsuc n , d-1) , c) = Unit
+
+NonNegative : (p : ℚ) → Type
+NonNegative ((pos m , n) , copr) = Unit
+NonNegative ((negsuc m , n) , copr) = ⊥
+
+IsZero→NonNegative : {p : ℚ} → IsZero p → NonNegative p
+IsZero→NonNegative {(pos m , n) , c} posp = tt
+
+Positive→NonNegative : ∀ {p : ℚ} → Positive p → NonNegative p
+Positive→NonNegative {(pos m , n) , c} pp = tt
+Positive→NonNegative {(negsuc m , n) , c} pp = pp
+
+IsInteger : (p : ℚ) → Type
+IsInteger ((z , zero) , c) = Unit
+IsInteger ((z , suc n) , c) = ⊥
+
+decIsZero : ∀ (p : ℚ) → Dec (IsZero p)
+decIsZero p@((pos zero , n) , c) = yes tt
+decIsZero ((pos (suc m) , n) , c) = no (λ ())
+decIsZero ((negsuc m , n) , c) = no (λ ())
+
+decNonZero : ∀ (p : ℚ) → Dec (NonZero p)
+decNonZero ((pos ℕ.zero , n) , copr) = no (λ ())
+decNonZero ((pos (ℕ.suc m) , n) , copr) = yes tt
+decNonZero ((negsuc m , n) , copr) = yes tt
+
+decPositive : ∀ (p : ℚ) → Dec (Positive p)
+decPositive ((pos zero , n) , copr) = no λ ()
+decPositive ((pos (suc m) , n) , copr) = yes tt
+decPositive ((negsuc m , n) , copr) = no (λ ())
+
+decNegative : ∀ (p : ℚ) → Dec (Negative p)
+decNegative ((pos m , n) , copr) = no (λ ())
+decNegative ((negsuc m , n) , copr) = yes tt
+
+decNonNegative : ∀ (p : ℚ) → Dec (NonNegative p)
+decNonNegative ((pos m , n) , c) = yes tt
+decNonNegative ((negsuc m , n) , c) = no (λ ())
+
+decIsInteger : ∀ (p : ℚ) → Dec (IsInteger p)
+decIsInteger ((z , zero) , c) = yes tt
+decIsInteger ((z , suc n) , c) = no (λ ())
+
+NonZero→¬≡0 : ∀ {p : ℚ} → NonZero p → ¬ p ≡ 0ℚ
+NonZero→¬≡0 p@{(pos (suc m) , n) , c} tt =
+  converse a≡0→↥a≡0 (λ x → snotz (injPos x))
+NonZero→¬≡0 p@{(negsuc m , n) , c} tt =
+  converse a≡0→↥a≡0 (λ x → ℤ.negsucNotpos m 0 x)
+
+¬≡0→NonZero : ∀ {p : ℚ} → ¬ p ≡ 0ℚ → NonZero p
+¬≡0→NonZero {(pos zero , n) , c} ¬p0 = ¬p0 (↥a≡0→a≡0ℚ refl)
+¬≡0→NonZero {(pos (suc m) , n) , c} ¬p0 = tt
+¬≡0→NonZero {(negsuc m , n) , c} ¬p0 = tt
+
+---------------------------------------------
+-- Abs
+abs : ℚ → ℚ
+abs z@((pos m , n) , copr) = z
+abs z@((negsuc m , n) , copr) = ((pos (suc m) , n) , copr)
+
+absDef : ∀ x → abs (- x) ≡ abs x
+absDef ((pos zero , n) , copr) = refl
+absDef ((pos (suc m) , n) , copr) = refl
+absDef ((negsuc m , n) , copr) = refl
+
+absNegative : ∀ x → Negative x → abs x ≡ - x
+absNegative ((negsuc m , n) , c) negx = refl
+
+absNonNegative : ∀ x → NonNegative x → abs x ≡ x
+absNonNegative ((pos zero , n) , c) nnegx = refl
+absNonNegative ((pos (suc m) , n) , c) nnegx = refl
+absNonNegative ((negsuc m , n) , c) nnegx = ⊥.elim nnegx
+
+absIsNonNegative : ∀ x → NonNegative (abs x)
+absIsNonNegative ((pos zero , n) , c) = tt
+absIsNonNegative ((pos (suc m) , n) , c) = tt
+absIsNonNegative ((negsuc m , n) , c) = tt
 
 ----------------------------------------------------
 -- Properties of normalise and [ _ ]
@@ -476,7 +491,8 @@ p≃q→-p≃-q {p}{q} pq = cong₂ (λ a b → a ℤ.· b) (↥-neg p) (↧-neg
   in ℚ-unique (cong negsuc (injSuc (injPos (cong (λ a → (a .fst)) npq))))
      (cong (λ a → (a .snd)) npq)
 
--- Equality relation and equality
+
+-- Equality relation (normalised) and equality
 ≃≡≡ : ∀ (p q : ℚ) → (p ≃ q) ≡ (p ≡ q)
 ≃≡≡ p q = isoToPath (iso ≃→≡ ≡→≃ (λ b → isSetℚ p q (≃→≡ (≡→≃ b)) b)
                       (λ a → isProp≃ (≡→≃ (≃→≡ a)) a))
@@ -599,7 +615,7 @@ open gcd-helpers
     step {a}{b}{c}{d}{x}{y} nx0 ny0 abcd =
       ·rCancel (x ℤ· y) (a ℤ· b) (c ℤ· d)
        (sym (ab'cd≡ac'bd a x b y) ∙ abcd ∙ (ab'cd≡ac'bd c y d x) ∙
-       (cong (λ u → (c ℤ· d) ℤ· u) (·Comm y x))) (¬x≡0¬y≡0→¬x·y≡0 x y nx0 ny0)
+       (cong (λ u → (c ℤ· d) ℤ· u) (·Comm y x))) (¬x≡0¬y≡0→¬x·y≡0 nx0 ny0)
     res : (↥ [ x , (1+ d-1) ]) ℤ· (↧ [ y , (1+ d-1') ]) ≡
           (↥ [ y , (1+ d-1') ]) ℤ· (↧ [ x , (1+ d-1) ])
     res = step
@@ -630,6 +646,15 @@ open gcd-helpers
 *≡*ᵘ⁻¹ : ∀{x}{y}{d-1}{d-1'} → [ x , 1+ d-1 ] ≡ [ y , 1+ d-1' ] →
   x ℤ· pos (suc d-1') ≡ y ℤ· pos (suc d-1)
 *≡*ᵘ⁻¹ {x}{y}{d-1}{d-1'} xy = *≃*ᵘ⁻¹ {x}{y}{d-1}{d-1'} (≡→≃ xy)
+
+-- Equality relation (unnormalised) and equality
+≃ᵘ≡≡ : ∀ {x}{y}{d-1}{d-1'} →
+  (x ℤ.· pos (suc d-1') ≡ y ℤ.· pos (suc d-1)) ≡ ([ x ,  1+ d-1 ] ≡ [ y , 1+ d-1' ])
+≃ᵘ≡≡ {x}{y}{d-1}{d-1'} = isoToPath (iso (*≡*ᵘ  {x}{y}{d-1}{d-1'}) (*≡*ᵘ⁻¹ {x}{y}{d-1}{d-1'})
+  (λ b → (isSetℚ [ x , (1+ d-1) ] [ y , (1+ d-1') ])
+   (*≡*ᵘ {x}{y}{d-1}{d-1'} (*≡*ᵘ⁻¹ {x}{y}{d-1}{d-1'} b)) b)
+  (λ a → (ℤ.isSetℤ (x ℤ.· pos (suc d-1')) (y ℤ.· pos (suc d-1)))
+   (*≡*ᵘ⁻¹ {x}{y}{d-1}{d-1'} (*≡*ᵘ {x}{y}{d-1}{d-1'} a)) a))
 
 ----------------------------------------------------------
 -- Type ordering
