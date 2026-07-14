@@ -33,3 +33,23 @@ open M-R
 ηEqM : {S' : Type ℓ} {Q' : S' → Type ℓ'} (m : M S' Q') → sup-M (shape m) (pos m) ≡ m
 shape (ηEqM m i) = shape m
 pos (ηEqM m i) = pos m
+
+-- Coinduction principle for M
+MCoind : {S : Type ℓ} {Q : S → Type ℓ'} (R : M S Q → M S Q → Type ℓ'')
+          (is-bisim : {m₀ m₁ : M S Q} → R m₀ m₁ → M-R R m₀ m₁)
+          {m₀ m₁ : M S Q} → R m₀ m₁ → m₀ ≡ m₁
+shape (MCoind R is-bisim r i) = s-eq (is-bisim r) i
+pos (MCoind {S = S} {Q} R is-bisim {m₀ = m₀}{m₁ = m₁} r i) q =
+  MCoind R is-bisim {m₀ = pos m₀ q₀} {m₁ = pos m₁ q₁} (p-eq (is-bisim r) q₀ q₁ q₂) i
+    where QQ : I → Type _
+          QQ i = Q (s-eq (is-bisim r) i)
+
+          q₀ : QQ i0
+          q₀ = transp (λ j → QQ (~ j ∧ i)) (~ i) q
+
+          q₁ : QQ i1
+          q₁ = transp (λ j → QQ (j ∨ i)) i q
+
+          q₂ : PathP (λ i → QQ i) q₀ q₁
+          q₂ k = transp (λ j → QQ ((~ k ∧ ~ j ∧ i) ∨ (k ∧ (j ∨ i)) ∨
+                 ((~ j ∧ i) ∧ (j ∨ i)))) ((~ k ∧ ~ i) ∨ (k ∧ i)) q
