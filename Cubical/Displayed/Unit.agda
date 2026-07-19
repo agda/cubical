@@ -3,7 +3,7 @@
   DUARel for the constant unit family
 
 -}
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Displayed.Unit where
 
 open import Cubical.Foundations.Prelude

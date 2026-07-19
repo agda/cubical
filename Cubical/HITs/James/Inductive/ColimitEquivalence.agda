@@ -4,7 +4,7 @@ This file contains:
   - The reduced version gives the same type as James.
 
 -}
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.HITs.James.Inductive.ColimitEquivalence where
 
 open import Cubical.Foundations.Prelude

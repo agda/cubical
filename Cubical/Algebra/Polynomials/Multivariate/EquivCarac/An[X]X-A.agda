@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.Polynomials.Multivariate.EquivCarac.An[X]X-A where
 
 open import Cubical.Foundations.Prelude
@@ -22,9 +22,9 @@ open import Cubical.Algebra.CommRing.Quotient
 
 
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly
      renaming (PolyCommRing to A[X1,···,Xn] ; Poly to A[x1,···,xn])
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly-Quotient
 
 open import Cubical.Relation.Nullary
 
@@ -177,7 +177,7 @@ module Properties-Equiv-QuotientXn-A
 
   PAr→Ar : CommRingHom (A[X1,···,Xn] Ar n) Ar
   fst PAr→Ar = PA→A
-  snd PAr→Ar = makeIsRingHom PA→A-pres1 PA→A-pres+ PA→A-pres·
+  snd PAr→Ar = makeIsCommRingHom PA→A-pres1 PA→A-pres+ PA→A-pres·
 
   PAIr→Ar : CommRingHom (A[X1,···,Xn]/<X1,···,Xn> Ar n) Ar
   PAIr→Ar = Quotient-FGideal-CommRing-CommRing.inducedHom (A[X1,···,Xn] Ar n) Ar PAr→Ar (<X1,···,Xn> Ar n) PA→A-cancel

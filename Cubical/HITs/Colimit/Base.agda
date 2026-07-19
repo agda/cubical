@@ -3,7 +3,6 @@
   Homotopy colimits of graphs
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Colimit.Base where
 
 open import Cubical.Foundations.Prelude

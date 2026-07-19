@@ -4,7 +4,6 @@ This file contains:
 - Rijke finiteness is closed under forming Σ-type.
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinType.Sigma where
 

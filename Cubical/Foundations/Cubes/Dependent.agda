@@ -9,7 +9,6 @@ This file contains:
 - Dependent cubes over a constant cube is equivalent to the (non-dependent) cubes in the fiber.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Cubes.Dependent where
 
 open import Cubical.Foundations.Prelude hiding (Cube)

@@ -6,7 +6,6 @@ This file contains:
   modulo a certain equivalence relation defined by π₁ of the base.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.SetTruncation.Fibers where
 
 open import Cubical.HITs.SetTruncation.Base

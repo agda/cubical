@@ -5,7 +5,6 @@ This file contains:
 - Definition of type quotients (i.e. non-truncated quotients)
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.TypeQuotients.Base where
 
 open import Cubical.Core.Primitives

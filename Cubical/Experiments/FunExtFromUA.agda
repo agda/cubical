@@ -1,6 +1,5 @@
 {- Voevodsky's proof that univalence implies funext -}
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Experiments.FunExtFromUA where
 

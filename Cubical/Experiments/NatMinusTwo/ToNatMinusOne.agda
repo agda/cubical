@@ -1,4 +1,4 @@
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Experiments.NatMinusTwo.ToNatMinusOne where
 
 open import Cubical.Foundations.Prelude

@@ -1,7 +1,6 @@
 {-
   Definition of an adjoint pair displayed over another adjoint pair
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Adjoint where
 
 open import Cubical.Foundations.Prelude

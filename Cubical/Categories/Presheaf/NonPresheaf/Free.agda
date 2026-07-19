@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Presheaf.NonPresheaf.Free where
 
 open import Cubical.Foundations.Prelude

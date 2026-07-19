@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   Successor structures for spectra, chain complexes and fiber sequences.
   This is an idea from Floris van Doorn's phd thesis.

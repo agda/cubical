@@ -1,5 +1,4 @@
 -- Paths in a graph
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.Graph.Path where
 

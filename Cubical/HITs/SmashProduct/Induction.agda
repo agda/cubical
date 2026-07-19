@@ -15,7 +15,6 @@ Statement: Let f,g : ⋀ᵢ Aᵢ → B. If f ∘ ⋀̃→⋀ = g ∘ ⋀̃→⋀
 
 -}
 
-{-# OPTIONS --safe #-}
 
 
 module Cubical.HITs.SmashProduct.Induction where

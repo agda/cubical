@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.FinSequence where
 
 open import Cubical.Data.FinSequence.Base public

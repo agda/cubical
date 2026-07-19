@@ -1,5 +1,4 @@
 -- Product of type-many categories
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Constructions.Product where
 

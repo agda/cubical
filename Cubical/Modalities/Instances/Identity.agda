@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Modalities.Instances.Identity where
 
 open import Cubical.Modalities.Modality

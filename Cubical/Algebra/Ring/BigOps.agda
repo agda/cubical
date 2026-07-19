@@ -1,7 +1,6 @@
 -- define ∑ and ∏ as the bigOps of a Ring when interpreted
 -- as an additive/multiplicative monoid
 
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Ring.BigOps where
 
 open import Cubical.Foundations.Prelude

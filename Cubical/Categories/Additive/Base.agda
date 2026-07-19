@@ -1,5 +1,4 @@
 -- (Pre)additive categories
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Additive.Base where
 

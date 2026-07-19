@@ -7,7 +7,6 @@ The definition is the same as the first definition of subgroups in:
 https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#subgroups-sip
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Subgroup where
 
 open import Cubical.Foundations.Prelude

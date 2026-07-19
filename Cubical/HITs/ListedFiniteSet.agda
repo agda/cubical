@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.ListedFiniteSet where
 
 open import Cubical.HITs.ListedFiniteSet.Base public

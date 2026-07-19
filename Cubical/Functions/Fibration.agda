@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Functions.Fibration where
 
 open import Cubical.Foundations.Prelude

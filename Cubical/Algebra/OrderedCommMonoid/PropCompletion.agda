@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --postfix-projections #-}
+{-# OPTIONS --postfix-projections #-}
 module Cubical.Algebra.OrderedCommMonoid.PropCompletion where
 {-
   The completion of an ordered monoid, viewed as monoidal prop-enriched category.

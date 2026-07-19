@@ -21,7 +21,6 @@
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Profunctor.Base where
 
 open import Cubical.Foundations.Prelude hiding (Path)

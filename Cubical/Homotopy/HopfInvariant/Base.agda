@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Homotopy.HopfInvariant.Base where
 
 open import Cubical.Homotopy.Connected

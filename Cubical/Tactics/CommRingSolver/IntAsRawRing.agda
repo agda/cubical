@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Tactics.CommRingSolver.IntAsRawRing where
 
 open import Cubical.Data.Nat hiding (_+_; _·_)

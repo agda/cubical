@@ -8,7 +8,6 @@ This file contains:
   has a form essentially more clearer, and it avoids indexes.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.James.Inductive.Reduced where
 
 open import Cubical.Foundations.Prelude

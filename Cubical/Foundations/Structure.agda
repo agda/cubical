@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Structure where
 
 open import Cubical.Foundations.Prelude
@@ -14,6 +13,25 @@ private
 
 TypeWithStr : (ℓ : Level) (S : Type ℓ → Type ℓ') → Type (ℓ-max (ℓ-suc ℓ) ℓ')
 TypeWithStr ℓ S = Σ[ X ∈ Type ℓ ] S X
+
+{-
+ A helper to make a definition or the second component of a type with structure
+ opaque. It is a good idea to use this for set-level structures,
+ where the second component consists only of proofs of identities
+ or other propositions
+-}
+makeOpaque : {A : Type ℓ'} → A → A
+makeOpaque {A = A} a = a'
+  where
+    opaque
+      a' : A
+      a' = a
+
+withOpaqueStr : {A : Type ℓ'} {B : A → Type ℓ''}
+               → Σ[ x ∈ A ] B x
+               → Σ[ x ∈ A ] B x
+withOpaqueStr {B = B} (x , str) = x , makeOpaque str
+
 
 typ : TypeWithStr ℓ S → Type ℓ
 typ = fst

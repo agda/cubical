@@ -4,7 +4,6 @@
   https://github.com/HoTT/Coq-HoTT/tree/master/theories/WildCat
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.WildCat.Base where
 
 open import Cubical.Foundations.Prelude

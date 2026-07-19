@@ -1,4 +1,4 @@
-{-# OPTIONS --guardedness --safe #-}
+{-# OPTIONS --guardedness #-}
 
 module Cubical.Codata.M.helper where
 

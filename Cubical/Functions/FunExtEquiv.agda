@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Functions.FunExtEquiv where
 
 open import Cubical.Foundations.Prelude

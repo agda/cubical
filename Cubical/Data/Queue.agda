@@ -1,5 +1,4 @@
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.Queue where
 

@@ -15,7 +15,6 @@ defined equality type _≡_.
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Data.Equality where
 
 open import Cubical.Data.Equality.Base public

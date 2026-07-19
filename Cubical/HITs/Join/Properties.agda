@@ -12,7 +12,6 @@ This file contains:
 
 -}
 
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.Join.Properties where
 

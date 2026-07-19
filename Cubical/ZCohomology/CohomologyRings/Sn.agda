@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.ZCohomology.CohomologyRings.Sn where
 
 {-
@@ -37,9 +37,9 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.Quotient
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-notationZ
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly-Quotient
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly-notationZ
 
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
 open import Cubical.HITs.PropositionalTruncation as PT

@@ -17,7 +17,6 @@ ArXiv version: https://arxiv.org/abs/2212.02902
 -}
 
 -- The "--safe" flag ensures that there are no postulates or unfinished goals
-{-# OPTIONS --safe #-}
 module Cubical.Papers.AffineSchemes where
 
 
@@ -40,8 +39,8 @@ module Localization = L.Loc
 
 import Cubical.Algebra.CommRing.Localisation.UniversalProperty     as LocalizationUnivProp
 import Cubical.Algebra.CommRing.Localisation.InvertingElements     as LocalizationInvEl
-import Cubical.Algebra.CommAlgebra                                 as R-Algs
-import Cubical.Algebra.CommAlgebra.Localisation                    as LocalizationR-Alg
+import Cubical.Algebra.CommAlgebra.AsModule                     as R-Algs
+import Cubical.Algebra.CommAlgebra.AsModule.Localisation        as LocalizationR-Alg
 
 
 -- 3.2: The Zariski Lattice

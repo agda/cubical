@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.AlgebraicGeometry.ZariskiLattice.UniversalProperty where
 
 
@@ -136,7 +136,7 @@ module _ {A B : CommRing ℓ} (φ : CommRingHom A B)
   open IsSupport
   open CommRingStr ⦃...⦄
   open DistLatticeStr ⦃...⦄
-  open IsRingHom
+  open IsCommRingHom
   private
     instance
       _ = L .snd

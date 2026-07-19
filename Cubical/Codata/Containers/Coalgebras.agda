@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --guardedness #-}
+{-# OPTIONS --guardedness #-}
 
 module Cubical.Codata.Containers.Coalgebras where
 

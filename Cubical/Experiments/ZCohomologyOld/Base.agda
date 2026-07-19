@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomologyOld.Base where
 
 open import Cubical.Data.Int.Base hiding (_+_)

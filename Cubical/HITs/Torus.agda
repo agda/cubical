@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Torus where
 
 open import Cubical.HITs.Torus.Base public

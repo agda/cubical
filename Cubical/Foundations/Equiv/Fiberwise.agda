@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.Fiberwise where
 
 open import Cubical.Foundations.Prelude

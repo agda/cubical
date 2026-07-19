@@ -8,7 +8,6 @@ This file contains:
 - Proofs that these functions and paths respect the groupoid structure of FreeGroupoid
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.FreeGroupoid.GroupoidActions where
 

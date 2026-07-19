@@ -6,7 +6,6 @@ This file mainly contains a proof that IsoInt ≢ Int, and ends with a
  demonstration of how the same proof strategy fails for BiInvℤ.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Experiments.IsoInt.Base where
 
 open import Cubical.Foundations.Prelude

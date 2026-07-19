@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Kernel where
 
 open import Cubical.Foundations.Prelude
@@ -19,7 +18,7 @@ module _ (R S : CommRing ℓ) (f : CommRingHom R S) where
 
   -- If R and S were implicit, their ·Comm component could (almost?) never be inferred.
   kernelIdeal : IdealsIn R
-  kernelIdeal = Ideal→CommIdeal (ringKernelIdeal f)
+  kernelIdeal = Ideal→CommIdeal (ringKernelIdeal (CommRingHom→RingHom f))
 
   kernelFiber : (x y : ⟨ R ⟩) → fst f x ≡ fst f y → (x - y) ∈ fst kernelIdeal
-  kernelFiber x y p = ringKernelFiber f x y p
+  kernelFiber x y p = ringKernelFiber (CommRingHom→RingHom f) x y p

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.ZCohomology.Groups.Connected where
 
 open import Cubical.Foundations.Prelude

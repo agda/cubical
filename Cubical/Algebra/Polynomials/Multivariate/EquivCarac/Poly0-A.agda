@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.Polynomials.Multivariate.EquivCarac.Poly0-A where
 
 open import Cubical.Foundations.Prelude
@@ -12,7 +12,7 @@ open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly
 
 private variable
   ℓ : Level
@@ -88,4 +88,4 @@ module _ (A' : CommRing ℓ) where
     Iso.inv is = A→Poly0
     Iso.rightInv is = e-sect
     Iso.leftInv is = e-retr
-  snd CRE-Poly0-A = makeIsRingHom Poly0→A-pres1 Poly0→A-pres+ Poly0→A-pres·
+  snd CRE-Poly0-A = makeIsCommRingHom Poly0→A-pres1 Poly0→A-pres+ Poly0→A-pres·

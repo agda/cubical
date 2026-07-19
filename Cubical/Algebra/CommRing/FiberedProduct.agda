@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.FiberedProduct where
 
 open import Cubical.Foundations.Prelude
@@ -20,11 +19,11 @@ module _ (A B C : CommRing ℓ) (α : CommRingHom A C) (β : CommRingHom B C) wh
     module A = CommRingStr (snd A)
     module B = CommRingStr (snd B)
     module C = CommRingStr (snd C)
-    module α = IsRingHom (snd α)
-    module β = IsRingHom (snd β)
+    module α = IsCommRingHom (snd α)
+    module β = IsCommRingHom (snd β)
 
   open CommRingStr
-  open IsRingHom
+  open IsCommRingHom
 
   fbT : Type ℓ
   fbT = Σ[ ab ∈ fst A × fst B ] (fst α (fst ab) ≡ fst β (snd ab))
@@ -69,31 +68,31 @@ module _ (A B C : CommRing ℓ) (α : CommRingHom A C) (β : CommRingHom B C) wh
 
   fiberedProductPr₁ : CommRingHom fiberedProduct A
   fst fiberedProductPr₁ = fst ∘ fst
-  snd fiberedProductPr₁ = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
+  snd fiberedProductPr₁ = makeIsCommRingHom refl (λ _ _ → refl) (λ _ _ → refl)
 
   fiberedProductPr₂ : CommRingHom fiberedProduct B
   fst fiberedProductPr₂ = snd ∘ fst
-  snd fiberedProductPr₂ = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
+  snd fiberedProductPr₂ = makeIsCommRingHom refl (λ _ _ → refl) (λ _ _ → refl)
 
-  fiberedProductPr₁₂Commutes : compCommRingHom fiberedProduct A C fiberedProductPr₁ α
-                             ≡ compCommRingHom fiberedProduct B C fiberedProductPr₂ β
-  fiberedProductPr₁₂Commutes = RingHom≡ (funExt (λ x → x .snd))
+  fiberedProductPr₁₂Commutes : compCommRingHom fiberedProductPr₁ α
+                             ≡ compCommRingHom fiberedProductPr₂ β
+  fiberedProductPr₁₂Commutes = CommRingHom≡ (funExt (λ x → x .snd))
 
   fiberedProductUnivProp :
     (D : CommRing ℓ) (h : CommRingHom D A) (k : CommRingHom D B) →
-    compCommRingHom D A C h α ≡ compCommRingHom D B C k β →
+    compCommRingHom h α ≡ compCommRingHom k β →
     ∃![ l ∈ CommRingHom D fiberedProduct ]
-        (h ≡ compCommRingHom D fiberedProduct A l fiberedProductPr₁)
-      × (k ≡ compCommRingHom D fiberedProduct B l fiberedProductPr₂)
+        (h ≡ compCommRingHom l fiberedProductPr₁)
+      × (k ≡ compCommRingHom l fiberedProductPr₂)
   fiberedProductUnivProp D (h , hh) (k , hk) H =
-    uniqueExists f (RingHom≡ refl , RingHom≡ refl)
-                 (λ _ → isProp× (isSetRingHom _ _ _ _) (isSetRingHom _ _ _ _))
+    uniqueExists f (CommRingHom≡ refl , CommRingHom≡ refl)
+                 (λ _ → isProp× (isSetCommRingHom _ _ _ _) (isSetCommRingHom _ _ _ _))
                  (λ { (g , _) (Hh , Hk) →
-                    RingHom≡ (funExt (λ d → fbT≡ (funExt⁻ (cong fst Hh) d)
+                    CommRingHom≡ (funExt (λ d → fbT≡ (funExt⁻ (cong fst Hh) d)
                                                  (funExt⁻ (cong fst Hk) d))) })
     where
     f : CommRingHom D fiberedProduct
     fst f d = (h d , k d) , funExt⁻ (cong fst H) d
-    snd f = makeIsRingHom (fbT≡ (hh .pres1) (hk .pres1))
+    snd f = makeIsCommRingHom (fbT≡ (hh .pres1) (hk .pres1))
                           (λ _ _ → fbT≡ (hh .pres+ _ _) (hk .pres+ _ _))
                           (λ _ _ → fbT≡ (hh .pres· _ _) (hk .pres· _ _))

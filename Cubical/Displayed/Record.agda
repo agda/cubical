@@ -6,7 +6,7 @@ characterizations of the field types using reflection.
 See end of file for an example.
 
 -}
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Displayed.Record where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.Polynomials.Multivariate.EquivCarac.An[Am[X]]-Anm[X] where
 
 open import Cubical.Foundations.Prelude
@@ -14,7 +14,7 @@ open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly
 
 private variable
   ℓ ℓ' : Level
@@ -143,4 +143,4 @@ module _ (A' : CommRing ℓ) (n m : ℕ) where
     Iso.rightInv is = e-sect
     Iso.leftInv is = e-retr
 
-  snd CRE-PolyN∘M-PolyN+M = makeIsRingHom PAmn→PAn+m-pres1 PAmn→PAn+m-pres+ PAmn→PAn+m-pres·
+  snd CRE-PolyN∘M-PolyN+M = makeIsCommRingHom PAmn→PAn+m-pres1 PAmn→PAn+m-pres+ PAmn→PAn+m-pres·

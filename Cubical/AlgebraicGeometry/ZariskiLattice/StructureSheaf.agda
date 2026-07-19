@@ -7,7 +7,7 @@
 
 -}
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.AlgebraicGeometry.ZariskiLattice.StructureSheaf where
 
 
@@ -47,9 +47,9 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
 open import Cubical.Algebra.CommRing.Localisation
 open import Cubical.Algebra.CommRing.Instances.Unit
-open import Cubical.Algebra.CommAlgebra.Base
-open import Cubical.Algebra.CommAlgebra.Properties
-open import Cubical.Algebra.CommAlgebra.Localisation
+open import Cubical.Algebra.CommAlgebra.AsModule.Base
+open import Cubical.Algebra.CommAlgebra.AsModule.Properties
+open import Cubical.Algebra.CommAlgebra.AsModule.Localisation
 open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
@@ -141,7 +141,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
       _ = snd R[1/ f ]AsCommRing
 
     f∈√⟨g⟩ : f ∈ √ ⟨ g ⟩ₛ
-    f∈√⟨g⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun Df≤Dg .fst zero
+    f∈√⟨g⟩ = √FGIdealCharLImpl _ _ (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun Df≤Dg .fst) zero
 
 
  -- The structure presheaf on BO
@@ -250,11 +250,11 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
 
       -- crucial facts about radical ideals
       h∈√⟨f⟩ : h ∈ √ ⟨ f ⟩[ R' ]
-      h∈√⟨f⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun DHelper .fst zero
+      h∈√⟨f⟩ = √FGIdealCharLImpl _ _ (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun DHelper .fst) zero
 
       f∈√⟨h⟩ : ∀ i → f i ∈ √ ⟨ h ⟩ₛ
-      f∈√⟨h⟩ i = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun
-                   (sym DHelper) .fst i
+      f∈√⟨h⟩ = √FGIdealCharLImpl _ _ (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun
+                   (sym DHelper) .fst)
 
       ff∈√⟨h⟩ : ∀ i j → f i · f j ∈ √ ⟨ h ⟩ₛ
       ff∈√⟨h⟩ i j = √ ⟨ h ⟩ₛ .snd .·Closed (f i) (f∈√⟨h⟩ j)
@@ -279,8 +279,8 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
           where
           open Units R[1/ h ]AsCommRing
           open Sum (CommRing→Ring R[1/ h ]AsCommRing)
-          open IsRingHom (snd /1AsCommRingHom)
-          open SumMap _ _ /1AsCommRingHom
+          open IsCommRingHom (snd /1AsCommRingHom)
+          open SumMap _ _ (CommRingHom→RingHom /1AsCommRingHom)
           instance
            h⁻ᵐ : (h ^ m) /1 ∈ₚ (R[1/ h ]AsCommRing ˣ)
            h⁻ᵐ = [ 1r , h ^ m , ∣ m , refl ∣₁ ]
@@ -325,7 +325,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
       -- R[1/h][(fᵢfⱼ)/1/1] =/= R[1/h][(fᵢ/1 · fⱼ/1)/1]
       -- definitionally
       open Cone
-      open IsRingHom
+      open IsCommRingHom
 
       module D i = DoubleLoc R' h (f i)
 
@@ -346,11 +346,11 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
                       (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))
       pres- (snd (coneOut /1/1Cone (pair i j i<j))) _ = refl
       coneOutCommutes /1/1Cone idAr = idCompCommRingHom _
-      coneOutCommutes /1/1Cone singPairL = RingHom≡ (funExt
+      coneOutCommutes /1/1Cone singPairL = CommRingHom≡ (funExt
         (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·IdR x)
         (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r))))
         (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r)))))
-      coneOutCommutes /1/1Cone singPairR = RingHom≡ (funExt
+      coneOutCommutes /1/1Cone singPairR = CommRingHom≡ (funExt
         (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·IdR x)
         (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r))))
         (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r)))))
@@ -361,7 +361,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
       -- get the desired cone in algebras:
       isConeMor/1 : isConeMor /1/1Cone doubleLocCone /1AsCommRingHom
       isConeMor/1 = isConeMorSingLemma /1/1Cone doubleLocCone
-                      (λ _ → RingHom≡ (funExt (λ _ → refl)))
+                      (λ _ → CommRingHom≡ (funExt (λ _ → refl)))
 
       doubleLocAlgCone = algCone /1AsCommRingHom isConeMor/1
       isLimConeDoubleLocAlgCone : isLimCone _ _ doubleLocAlgCone
@@ -397,7 +397,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
 
           q : PathP (λ i → CommRingHom R' (p i)) (coneOut /1/1Cone (pair i j i<j))
                                                  (/1/1AsCommRingHom (f i · f j))
-          q = toPathP (RingHom≡ (funExt (
+          q = toPathP (CommRingHom≡ (funExt (
                 λ r → cong [_] (≡-× (cong [_] (≡-× (transportRefl _ ∙ transportRefl r)
                     (Σ≡Prop (λ _ → isPropPropTrunc) (transportRefl 1r))))
                     (Σ≡Prop (λ _ → isPropPropTrunc) (transportRefl 1r))))))

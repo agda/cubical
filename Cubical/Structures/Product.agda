@@ -3,7 +3,6 @@
 Product of structures S and T: X ↦ S X × T X
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Structures.Product where
 
 open import Cubical.Foundations.Prelude

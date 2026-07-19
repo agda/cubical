@@ -5,7 +5,6 @@ Counting how many structured finite sets with a given cardinal
 https://github.com/EgbertRijke/OEIS-A000001
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Experiments.CountingFiniteStructure where
 

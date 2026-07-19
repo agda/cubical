@@ -1,36 +1,38 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.Ideal where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Ideal renaming (IdealsIn to IdealsInCommRing;
-                                                     makeIdeal to makeIdealCommRing)
-open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.Ring
+import Cubical.Algebra.CommRing.Ideal as CommRing
+import Cubical.Algebra.CommRing.Ideal.Base
+
+
+open import Cubical.Algebra.CommAlgebra.Base
 
 open import Cubical.Data.Unit
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
-module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
+module _ (R : CommRing ℓ) (A : CommAlgebra R ℓ') where
   IdealsIn : Type _
-  IdealsIn = IdealsInCommRing (CommAlgebra→CommRing A)
+  IdealsIn = CommRing.IdealsIn (fst A)
 
-  open CommAlgebraStr (snd A)
+  open CommRingStr (A .fst .snd)
 
-  makeIdeal : (I : fst A → hProp ℓ)
-              → (+-closed : {x y : fst A} → x ∈ I → y ∈ I → (x + y) ∈ I)
-              → (0-closed : 0a ∈ I)
-              → (·-closedLeft : {x : fst A} → (r : fst A) → x ∈ I → r · x ∈ I)
+  makeIdeal : (I : A .fst .fst → hProp ℓ')
+              → (+-closed : {x y : A .fst .fst} → x ∈ I → y ∈ I → (x + y) ∈ I)
+              → (0-closed : 0r ∈ I)
+              → (·-closedLeft : {x : A .fst .fst} → (r : A .fst .fst) → x ∈ I → r · x ∈ I)
               → IdealsIn
-  makeIdeal = makeIdealCommRing {R = CommAlgebra→CommRing A}
+  makeIdeal = CommRing.makeIdeal {R = fst A}
 
   0Ideal : IdealsIn
-  0Ideal = CommIdeal.0Ideal (CommAlgebra→CommRing A)
+  0Ideal = CommRing.CommIdeal.0Ideal (fst A)
 
   1Ideal : IdealsIn
-  1Ideal = CommIdeal.1Ideal (CommAlgebra→CommRing A)
+  1Ideal = CommRing.CommIdeal.1Ideal (fst A)
+
+open Cubical.Algebra.CommRing.Ideal.Base.CommIdeal using (isPropIsCommIdeal) public

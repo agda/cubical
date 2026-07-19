@@ -2,7 +2,6 @@
 -- Heavily inspired by https://github.com/UniMath/UniMath/blob/master/UniMath/CategoryTheory/limits/graphs/limits.v
 -- (except we're using categories instead of graphs to index limits)
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Limits.Limits where
 
 open import Cubical.Foundations.Prelude

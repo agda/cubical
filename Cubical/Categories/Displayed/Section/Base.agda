@@ -69,7 +69,6 @@
    style is to offer both introS for Section and introF for Functorᴰ.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Section.Base where
 
 open import Cubical.Foundations.Prelude

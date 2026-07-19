@@ -11,7 +11,6 @@ This file contains:
 - FinProp is equivalent to Bool.
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.Cardinality where
 

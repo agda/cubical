@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Sn.Degree where
 {-
 Contains facts about the degree of maps Sⁿ → Sⁿ

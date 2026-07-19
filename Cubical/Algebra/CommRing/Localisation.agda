@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Localisation where
 
 open import Cubical.Algebra.CommRing.Localisation.Base public

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.FiniteMultiset.Base where
 
 open import Cubical.Foundations.Prelude

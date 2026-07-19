@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Queue.Untruncated2ListInvariant where
 
 open import Cubical.Foundations.Prelude

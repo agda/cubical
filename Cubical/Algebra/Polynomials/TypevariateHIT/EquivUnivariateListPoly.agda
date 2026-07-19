@@ -1,4 +1,6 @@
-{-# OPTIONS --safe #-}
+{-
+  TODO: upgrade to the default definition of CommAlgebra
+-}
 module Cubical.Algebra.Polynomials.TypevariateHIT.EquivUnivariateListPoly where
 
 open import Cubical.Foundations.Prelude
@@ -10,8 +12,8 @@ open import Cubical.Data.Unit
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Algebra
-open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.Polynomials.TypevariateHIT
+open import Cubical.Algebra.CommAlgebra.AsModule
+open import Cubical.Algebra.CommAlgebra.AsModule.FreeCommAlgebra
             renaming (inducedHomUnique to inducedHomUniqueHIT;
                       isIdByUMP to isIdByUMP-HIT)
 open import Cubical.Algebra.Polynomials.UnivariateList.UniversalProperty

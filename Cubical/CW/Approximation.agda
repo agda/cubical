@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification --safe #-}
+{-# OPTIONS --lossy-unification #-}
 {- Cellular approximation theorems for
 -- cellular maps and homotopies
 -}

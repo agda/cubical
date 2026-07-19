@@ -15,7 +15,6 @@ Preprint: https://arxiv.org/abs/2403.13088
 
 
 -- The "--safe" flag ensures that there are no postulates or unfinished goals
-{-# OPTIONS --safe #-}
 module Cubical.Papers.FunctorialQcQsSchemes where
 
 

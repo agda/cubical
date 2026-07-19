@@ -9,7 +9,6 @@ Some theory about Bi-Invertible Equivalences
 - Dependent version of these results
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.BiInvertible where
 
 open import Cubical.Foundations.Prelude

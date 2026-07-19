@@ -3,7 +3,6 @@
 ℤ is a Commutative Ring (using QuoInt)
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Instances.QuoInt where
 
 open import Cubical.Foundations.Prelude

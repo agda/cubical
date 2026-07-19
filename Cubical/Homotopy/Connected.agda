@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Homotopy.Connected where
 
 open import Cubical.Foundations.Prelude

@@ -11,7 +11,6 @@ This definition is weaker than `isFinSet`.
 
 -}
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinInd where
 

@@ -2,7 +2,6 @@
 
 -- This time using a "quiver" as the presentation of the generators,
 -- which is better in some applications
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Constructions.Free.Category.Quiver where
 

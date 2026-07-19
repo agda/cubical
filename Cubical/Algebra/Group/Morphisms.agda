@@ -14,7 +14,6 @@ groups:
 - BijectionIso (surjective + injective)
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Morphisms where
 
 open import Cubical.Foundations.Prelude

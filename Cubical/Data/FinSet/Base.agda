@@ -6,7 +6,6 @@ There are may different formulations of finite sets in constructive mathematics,
 and we will use Bishop finiteness as is usually called in the literature.
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.Base where
 

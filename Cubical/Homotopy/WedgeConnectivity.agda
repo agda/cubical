@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Homotopy.WedgeConnectivity where
 
 open import Cubical.Foundations.Prelude

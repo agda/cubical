@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset

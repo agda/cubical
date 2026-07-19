@@ -2,7 +2,6 @@
  This an earlier formalization of posets using the old SIP instead of DURGs
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Experiments.Poset where
 
 open import Cubical.Foundations.Prelude

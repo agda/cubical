@@ -3,7 +3,6 @@
 The Essential Image of Functor
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.EssentialImage where
 
 open import Cubical.Foundations.Prelude

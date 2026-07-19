@@ -31,7 +31,6 @@ forcing the path constructor to preserve reflexivity, but Amélia Liao and David
 Wärn independently observed that this was unnecessary.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Replacement.Base where
 
 open import Cubical.Foundations.Prelude

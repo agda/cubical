@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.GradedRing.DirectSumHIT where
 
 open import Cubical.Foundations.Prelude

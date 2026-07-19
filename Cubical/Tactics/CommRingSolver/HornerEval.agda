@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Tactics.CommRingSolver.HornerEval where
 
 open import Cubical.Foundations.Prelude

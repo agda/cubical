@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Bool.Properties where
 
 open import Cubical.Functions.Involution

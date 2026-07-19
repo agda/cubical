@@ -11,7 +11,6 @@ This file contains:
 
 -}
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Algebra.LindenbaumTarski where
 

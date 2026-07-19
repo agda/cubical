@@ -5,7 +5,6 @@ Main results:
 - Ω∙ : ℕ → Pointed ℓ → Pointed ℓ
 - ΣΩAdjunction : ((X , x₀) : Pointed ℓ) (Y : Pointed ℓ') → (∙Susp X →∙ Y) ≃ ((X , x₀) →∙ Ω∙ 1 Y)
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Susp.LoopAdjunction where
 
 open import Cubical.Foundations.Prelude

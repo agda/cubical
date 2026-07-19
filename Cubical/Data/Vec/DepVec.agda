@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Vec.DepVec where
 
 open import Cubical.Foundations.Prelude

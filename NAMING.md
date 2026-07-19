@@ -4,6 +4,10 @@ NAMING
 This file provides a guide for how to name things. Note that many
 files in the library do not currently follow these guidelines.
 
+It should work to use other file ending than ".agda", e.g. ".lagda.md"
+for more flexible documentation - at the time of writing, this has not
+been tested though.
+
 For naming conventions specific to the Algebra subfolder, see
 [Cubical/Algebra/NAMING.md](https://github.com/agda/cubical/blob/master/Cubical/Algebra/NAMING.md).
 
@@ -52,7 +56,7 @@ For naming conventions specific to the Algebra subfolder, see
   [here](https://github.com/agda/cubical/blob/master/Cubical/HITs/SetQuotients/Properties.agda#L42-L92)
   and
   [here](https://github.com/agda/cubical/blob/master/Cubical/HITs/S1/Properties.agda#L14-L20)
-  to see how diffrent versions of `elim` and `rec` are named and typed.
+  to see how different versions of `elim` and `rec` are named and typed.
 
 * The `elim` and `rec` should be used as much as possible without
   renaming, but by importing and renaming the module.

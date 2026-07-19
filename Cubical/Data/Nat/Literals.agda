@@ -4,7 +4,7 @@
    and negative integer literals for any type (e.g. Int, ℕ₋₁, ℕ₋₂, ℕ₊₁).
 
 -}
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Data.Nat.Literals where
 
 open import Agda.Builtin.FromNat public

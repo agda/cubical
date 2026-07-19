@@ -11,7 +11,6 @@ Referrences:
   https://github.com/EgbertRijke/OEIS-A000001
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinType.Base where
 

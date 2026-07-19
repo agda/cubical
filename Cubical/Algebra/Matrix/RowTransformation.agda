@@ -3,7 +3,6 @@
 Technical results about row transformation applied to matrices
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Matrix.RowTransformation where
 
 open import Cubical.Foundations.Prelude

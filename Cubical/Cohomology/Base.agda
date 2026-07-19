@@ -10,7 +10,6 @@
   This general cohomology coincides with ZCohomology when the coefficients
   are constantly the Eilenberg-MacLane spectrum for ℤ (not proven here/yet)
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Cohomology.Base where
 
 open import Cubical.Foundations.Prelude

@@ -9,7 +9,7 @@
 
 -}
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.AlgebraicGeometry.Functorial.ZFunctors.OpenSubscheme where
 
 open import Cubical.Foundations.Prelude
@@ -27,7 +27,6 @@ open import Cubical.Data.Nat using (ℕ)
 
 open import Cubical.Data.FinData
 
-open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation
 open import Cubical.Algebra.Semilattice
@@ -66,8 +65,7 @@ module StandardOpens {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
   open isIsoC
   open DistLatticeStr ⦃...⦄
   open CommRingStr ⦃...⦄
-  open IsRingHom
-  open RingHoms
+  open IsCommRingHom
   open IsLatticeHom
   open ZarLat
 
@@ -84,7 +82,7 @@ module StandardOpens {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
   D = yonedaᴾ ZarLatFun R .inv (ZL.D R f)
 
   SpR[1/f]≅⟦Df⟧ : NatIso (Sp .F-ob R[1/ f ]AsCommRing) ⟦ D ⟧ᶜᵒ
-  N-ob (trans SpR[1/f]≅⟦Df⟧) B φ = (φ ∘r /1AsCommRingHom) , ∨lRid _ ∙ path
+  N-ob (trans SpR[1/f]≅⟦Df⟧) B φ = (φ ∘cr /1AsCommRingHom) , ∨lRid _ ∙ path
     where
     open CommRingHomTheory φ
     open IsSupport (ZL.isSupportD B)
@@ -98,18 +96,18 @@ module StandardOpens {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
     path : ZL.D B (φ .fst (f /1)) ≡ 1l
     path = supportUnit _ isUnitφ[f/1]
 
-  N-hom (trans SpR[1/f]≅⟦Df⟧) _ = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (RingHom≡ refl)
+  N-hom (trans SpR[1/f]≅⟦Df⟧) _ = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (CommRingHom≡ refl)
 
   inv (nIso SpR[1/f]≅⟦Df⟧ B) (φ , Dφf≡D1) = invElemUniversalProp B φ isUnitφf .fst .fst
     where
     instance _ = ZariskiLattice B .snd
     isUnitφf : φ .fst f ∈ B ˣ
-    isUnitφf = unitLemmaZarLat B (φ $r f) (sym (∨lRid _) ∙ Dφf≡D1)
+    isUnitφf = unitLemmaZarLat B (φ $cr f) (sym (∨lRid _) ∙ Dφf≡D1)
 
   sec (nIso SpR[1/f]≅⟦Df⟧ B) =
-    funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (RingHom≡ (invElemUniversalProp _ _ _ .fst .snd))
+    funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (CommRingHom≡ (invElemUniversalProp _ _ _ .fst .snd))
   ret (nIso SpR[1/f]≅⟦Df⟧ B) =
-    funExt λ φ → cong fst (invElemUniversalProp B (φ ∘r /1AsCommRingHom) _ .snd (φ , refl))
+    funExt λ φ → cong fst (invElemUniversalProp B (φ ∘cr /1AsCommRingHom) _ .snd (φ , refl))
 
   isAffineD : isAffineCompactOpen D
   isAffineD = ∣ R[1/ f ]AsCommRing , SpR[1/f]≅⟦Df⟧ ∣₁
@@ -128,8 +126,7 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
   open DistLatticeStr ⦃...⦄
   open CommRingStr ⦃...⦄
   open PosetStr ⦃...⦄
-  open IsRingHom
-  open RingHoms
+  open IsCommRingHom
   open IsLatticeHom
   open ZarLat
 

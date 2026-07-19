@@ -3,7 +3,6 @@
 Matrix with coefficients in a commutative ring
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Matrix.CommRingCoefficient where
 
 open import Cubical.Foundations.Prelude

@@ -4,7 +4,6 @@ This files contains:
 - Facts about constructions on finite sets, especially when they preserve finiteness.
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.Constructors where
 

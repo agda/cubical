@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 
 Properties of nullary relations, i.e. structures on types.

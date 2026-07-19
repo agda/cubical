@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Order.Quoset where
 
 open import Cubical.Relation.Binary.Order.Quoset.Base public

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Pointed where
 
 open import Cubical.Foundations.Pointed.Base public

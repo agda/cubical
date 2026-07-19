@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Site.Sheaf where
 
 -- Definition of sheaves on a site.

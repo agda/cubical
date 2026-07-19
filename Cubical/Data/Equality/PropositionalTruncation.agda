@@ -1,6 +1,5 @@
 {- Propositional truncation for the inductively defined equality type ≡, using paths internally -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Data.Equality.PropositionalTruncation where
 
 open import Cubical.HITs.PropositionalTruncation

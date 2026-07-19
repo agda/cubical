@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 module Cubical.Tactics.FunctorSolver.Reflection where
 

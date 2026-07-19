@@ -5,7 +5,6 @@ This file contains:
 - Definition of the Bouquet of circles of a type aka wedge of A circles
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.HITs.Bouquet.Base where
 

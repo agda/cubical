@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Abelian.Instances.Terminal where
 
 open import Cubical.Foundations.Prelude

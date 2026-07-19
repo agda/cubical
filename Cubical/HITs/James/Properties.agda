@@ -10,7 +10,6 @@ This file contains:
     where X₊ denotes the type formed by freely adjoining a base point to X.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.James.Properties where
 
 open import Cubical.Foundations.Prelude

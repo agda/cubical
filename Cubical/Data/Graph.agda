@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Graph where
 
 open import Cubical.Data.Graph.Base public

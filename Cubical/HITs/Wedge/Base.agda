@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.HITs.Wedge.Base where
 
 open import Cubical.Foundations.Prelude

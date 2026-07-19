@@ -1,5 +1,4 @@
 -- Binary products
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Limits.BinProduct where
 

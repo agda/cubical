@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.ZCohomology.Groups.Sn where
 
 open import Cubical.Foundations.HLevels

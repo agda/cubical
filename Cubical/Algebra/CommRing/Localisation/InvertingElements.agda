@@ -6,7 +6,7 @@
 -- This fact has an important application in algebraic geometry where it's
 -- used to define the structure sheaf of a commutative ring.
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.InvertingElements where
 
 open import Cubical.Foundations.Prelude
@@ -44,6 +44,7 @@ open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
+open import Cubical.Algebra.CommRing.Univalence
 
 
 open import Cubical.Tactics.CommRingSolver
@@ -92,7 +93,7 @@ module InvertingElementsBase (R' : CommRing ℓ) where
  R[1/0]≡0 : R[1/ 0r ]AsCommRing ≡ UnitCommRing
  R[1/0]≡0 = uaCommRing (e , eIsRHom)
   where
-  open IsRingHom
+  open IsCommRingHom
 
   e : R[1/ 0r ]AsCommRing .fst ≃ UnitCommRing .fst
   e = isContr→Equiv isContrR[1/0] isContrUnit*
@@ -280,11 +281,11 @@ module _ {A B : CommRing ℓ} (φ : CommRingHom A B) (f : fst A) where
     module A = InvertingElementsBase A
     module B = InvertingElementsBase B
     module AU = A.UniversalProp f
-    module BU = B.UniversalProp (φ $r f)
+    module BU = B.UniversalProp (φ $cr f)
 
     φ/1 = BU./1AsCommRingHom ∘cr φ
 
-  uniqInvElemHom : ∃![ χ ∈ CommRingHom A.R[1/ f ]AsCommRing B.R[1/ φ $r f ]AsCommRing ]
+  uniqInvElemHom : ∃![ χ ∈ CommRingHom A.R[1/ f ]AsCommRing B.R[1/ φ $cr f ]AsCommRing ]
                      (fst χ) ∘ (fst AU./1AsCommRingHom) ≡ (fst φ/1)
   uniqInvElemHom = AU.invElemUniversalProp _ φ/1 (BU.S/1⊆S⁻¹Rˣ _ ∣ 1 , sym (·IdR _) ∣₁)
 
@@ -381,7 +382,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
 
  /1/1AsCommRingHom : CommRingHom R' R[1/f][1/g]AsCommRing
  fst /1/1AsCommRingHom = _/1/1
- snd /1/1AsCommRingHom = makeIsRingHom refl lem+ lem·
+ snd /1/1AsCommRingHom = makeIsCommRingHom refl lem+ lem·
    where
    lem+ : _
    lem+ r r' =

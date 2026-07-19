@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Semiring.Base where
 
 open import Cubical.Foundations.Prelude

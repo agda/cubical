@@ -1,5 +1,4 @@
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.NaturalTransformation.Properties where
 

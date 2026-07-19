@@ -1,5 +1,4 @@
 -- Define the integers as a HIT by identifying +0 and -0
-{-# OPTIONS --safe #-}
 module Cubical.Data.Int.MoreInts.QuoInt.Base where
 
 open import Cubical.Foundations.Prelude

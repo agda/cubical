@@ -4,7 +4,6 @@
 -- by the universal property, and give sufficient criteria for
 -- satisfying the universal property.
 
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Localisation.UniversalProperty where
 
 open import Cubical.Foundations.Prelude
@@ -34,6 +33,7 @@ open import Cubical.Relation.Binary
 open import Cubical.Algebra.Ring
 open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.Univalence
 open import Cubical.Algebra.CommRing.Localisation.Base
 
 open import Cubical.HITs.SetQuotients as SQ
@@ -76,7 +76,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
   /1AsCommRingHom : CommRingHom R' S⁻¹RAsCommRing
   fst /1AsCommRingHom = _/1
   snd /1AsCommRingHom =
-    makeIsRingHom
+    makeIsCommRingHom
       refl
       (λ r r' → cong [_] (≡-× (cong₂ (_+_) (sym (·IdR r)) (sym (·IdR r')))
                               (Σ≡Prop (λ x → S' x .snd) (sym (·IdL 1r)))))
@@ -100,7 +100,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
    open CommRingTheory B' renaming (·CommAssocl to ·B-commAssocl ; ·CommAssocSwap to ·B-commAssocSwap)
 
    ψ₀ = fst ψ
-   module ψ = IsRingHom (snd ψ)
+   module ψ = IsCommRingHom (snd ψ)
 
    χ : CommRingHom S⁻¹RAsCommRing B'
    fst χ = SQ.rec Bset fχ fχcoh
@@ -209,7 +209,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
                     ψ₀ r' ·B ψ₀ s' ⁻¹ ∎
 
    snd χ =
-    makeIsRingHom
+    makeIsCommRingHom
       (instancepres1χ ⦃ ψS⊆Bˣ 1r (SMultClosedSubset .containsOne) ⦄ ⦃ BˣContainsOne ⦄)
       (elimProp2 (λ _ _ _ _ → Bset _ _ _ _) pres+[])
       (elimProp2 (λ _ _ _ _ → Bset _ _ _ _) pres·[])
@@ -294,12 +294,12 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
 
    χunique : (y : Σ[ χ' ∈ CommRingHom S⁻¹RAsCommRing B' ] fst χ' ∘ _/1 ≡ ψ₀)
            → (χ , funExt χcomp) ≡ y
-   χunique (χ' , χ'/1≡ψ) = Σ≡Prop (λ x → isSetΠ (λ _ → Bset) _ _) (RingHom≡ fχ≡fχ')
+   χunique (χ' , χ'/1≡ψ) = Σ≡Prop (λ x → isSetΠ (λ _ → Bset) _ _) (CommRingHom≡ fχ≡fχ')
     where
     open CommRingHomTheory {A' = S⁻¹RAsCommRing} {B' = B'} χ'
                           renaming (φ[x⁻¹]≡φ[x]⁻¹ to χ'[x⁻¹]≡χ'[x]⁻¹)
 
-    module χ' = IsRingHom (χ' .snd)
+    module χ' = IsCommRingHom (χ' .snd)
 
     []-path : (a : R × S) → fst χ [ a ] ≡ fst χ' [ a ]
     []-path (r , s , s∈S') = instancepath ⦃ ψS⊆Bˣ s s∈S' ⦄ ⦃ S/1⊆S⁻¹Rˣ s s∈S' ⦄
@@ -374,9 +374,10 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
   open Units A' renaming (Rˣ to Aˣ ; RˣInvClosed to AˣInvClosed)
   open PathToS⁻¹R ⦃...⦄
   A = fst A'
-  instance _ = cond
+  instance
+   _ = cond
   χ = (S⁻¹RHasUniversalProp A' φ φS⊆Aˣ .fst .fst)
-  open RingHomTheory χ
+  open RingHomTheory (CommRingHom→RingHom χ)
 
   S⁻¹R≃A : S⁻¹R ≃ A
   S⁻¹R≃A = fst χ , isEmbedding×isSurjection→isEquiv (Embχ , Surχ)

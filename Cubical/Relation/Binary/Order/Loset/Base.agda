@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   Losets are linearly-ordered sets,
   i.e. strict posets that are also weakly linear

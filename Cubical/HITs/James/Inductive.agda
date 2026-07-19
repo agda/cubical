@@ -13,7 +13,6 @@ This file is the summary of the main results.
 The proof is divided into parts and put inside the fold Cubical.HITs.James.Inductive
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.James.Inductive where
 
 open import Cubical.Foundations.Prelude

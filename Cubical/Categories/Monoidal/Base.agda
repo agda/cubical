@@ -1,5 +1,4 @@
 -- Monoidal categories
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Monoidal.Base where
 
@@ -9,25 +8,26 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Foundations.Prelude
+open import Cubical.Algebra.Monoid
 
 
 module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
   open Category C
 
   record TensorStr : Type (ℓ-max ℓ ℓ') where
-      field
-        ─⊗─ : Functor (C ×C C) C
-        unit : ob
+    field
+      ─⊗─ : Functor (C ×C C) C
+      unit : ob
 
-      open Functor
+    open Functor
 
-      -- Useful tensor product notation
-      _⊗_ : ob → ob → ob
-      x ⊗ y = ─⊗─ .F-ob (x , y)
+    -- Useful tensor product notation
+    _⊗_ : ob → ob → ob
+    x ⊗ y = ─⊗─ .F-ob (x , y)
 
-      _⊗ₕ_ : ∀ {x y z w} → Hom[ x , y ] → Hom[ z , w ]
-           → Hom[ x ⊗ z , y ⊗ w ]
-      f ⊗ₕ g = ─⊗─ .F-hom (f , g)
+    _⊗ₕ_ : ∀ {x y z w} → Hom[ x , y ] → Hom[ z , w ]
+         → Hom[ x ⊗ z , y ⊗ w ]
+    f ⊗ₕ g = ─⊗─ .F-hom (f , g)
 
 
   record StrictMonStr : Type (ℓ-max ℓ ℓ') where
@@ -38,10 +38,24 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
 
     field
       -- Axioms - strict
-      assoc : ∀ x y z →  x ⊗ (y ⊗ z) ≡ (x ⊗ y) ⊗ z
-      idl : ∀ x →  unit ⊗ x ≡ x
-      idr : ∀ x →  x ⊗ unit ≡ x
+      is-monoid : IsMonoid unit _⊗_
 
+    open IsMonoid is-monoid renaming (·Assoc to assoc; ·IdL to idl; ·IdR to idr) public
+
+    field
+      -- Axioms for the morphisms
+      assocₕ : ∀ {x y z x' y' z'}
+             → (f : Hom[ x , x' ]) (g : Hom[ y , y' ]) (h : Hom[ z , z' ])
+             → (λ i → Hom[ assoc x y z i , assoc x' y' z' i ])
+               [ f ⊗ₕ (g ⊗ₕ h) ≡ (f ⊗ₕ g) ⊗ₕ h ]
+
+      idlₕ : ∀ {x x'} (f : Hom[ x , x' ])
+           → (λ i → Hom[ idl x i , idl x' i ])
+             [ id ⊗ₕ f ≡ f ]
+
+      idrₕ : ∀ {x x'} (f : Hom[ x , x' ])
+           → (λ i → Hom[ idr x i , idr x' i ])
+             [ f ⊗ₕ id ≡ f ]
 
   record MonoidalStr : Type (ℓ-max ℓ ℓ') where
     field
@@ -71,7 +85,7 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
 
     -- More nice notations
     α⟨_,_,_⟩ : (x y z : ob) → Hom[ x ⊗ (y ⊗ z) , (x ⊗ y) ⊗ z ]
-    α⟨ x , y , z ⟩ = α .trans ⟦ ( x , y , z ) ⟧
+    α⟨ x , y , z ⟩ = α .trans ⟦ (x , y , z) ⟧
 
     η⟨_⟩ : (x : ob) → Hom[ unit ⊗ x , x ]
     η⟨ x ⟩ = η .trans ⟦ x ⟧

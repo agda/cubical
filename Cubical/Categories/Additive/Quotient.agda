@@ -1,5 +1,4 @@
 -- Quotients of additive categories
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Additive.Quotient where
 

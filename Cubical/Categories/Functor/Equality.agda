@@ -3,7 +3,6 @@
   constructions that use J where the equalities are refl.
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Functor.Equality where
 
 open import Cubical.Foundations.Prelude

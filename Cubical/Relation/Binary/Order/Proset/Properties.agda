@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Order.Proset.Properties where
 
 open import Cubical.Data.Sigma

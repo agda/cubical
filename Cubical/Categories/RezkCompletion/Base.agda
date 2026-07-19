@@ -3,7 +3,6 @@
 The Rezk Completion
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.RezkCompletion.Base where
 

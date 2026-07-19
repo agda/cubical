@@ -3,7 +3,6 @@
 Constant structure: _ ↦ A
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Structures.Relational.Constant where
 
 open import Cubical.Foundations.Prelude

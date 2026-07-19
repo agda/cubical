@@ -1,5 +1,5 @@
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Site.Instances.ZariskiCommRing where
 
 
@@ -50,10 +50,10 @@ record UniModVec (R : CommRing ℓ) : Type ℓ where
 
 module _ {A : CommRing ℓ} {B : CommRing ℓ'} (φ : CommRingHom A B) where
   open UniModVec
-  open IsRingHom ⦃...⦄
+  open IsCommRingHom ⦃...⦄
   open CommRingStr ⦃...⦄
   open Sum (CommRing→Ring B)
-  open SumMap _ _ φ
+  open SumMap _ _ (CommRingHom→RingHom φ)
   private
     module A = CommIdeal A
     module B = CommIdeal B
@@ -65,16 +65,16 @@ module _ {A : CommRing ℓ} {B : CommRing ℓ'} (φ : CommRingHom A B) where
 
   pullbackUniModVec : UniModVec A → UniModVec B
   n (pullbackUniModVec um) = um .n
-  f (pullbackUniModVec um) i = φ $r um .f i
+  f (pullbackUniModVec um) i = φ $cr um .f i
   isUniMod (pullbackUniModVec um) = B.subst-∈ -- 1 ∈ ⟨ f₁ ,..., fₙ ⟩ → 1 ∈ ⟨ φ(f₁) ,..., φ(fₙ) ⟩
                                       ⟨ φ .fst ∘ um .f ⟩[ B ]
                                         pres1 (PT.map mapHelper (um .isUniMod))
     where
     mapHelper : Σ[ α ∈ FinVec ⟨ A ⟩ _ ] 1r ≡ linearCombination A α (um .f)
-              → Σ[ β ∈ FinVec ⟨ B ⟩ _ ] φ $r 1r ≡ linearCombination B β (φ .fst ∘ um .f)
+              → Σ[ β ∈ FinVec ⟨ B ⟩ _ ] φ $cr 1r ≡ linearCombination B β (φ .fst ∘ um .f)
     fst (mapHelper (α , 1≡∑αf)) = φ .fst ∘ α
     snd (mapHelper (α , 1≡∑αf)) =
-      subst (λ x → φ $r x ≡ linearCombination B (φ .fst ∘ α) (φ .fst ∘ um .f))
+      subst (λ x → φ $cr x ≡ linearCombination B (φ .fst ∘ α) (φ .fst ∘ um .f))
             (sym 1≡∑αf)
             (∑Map _ ∙ ∑Ext (λ _ → pres· _ _))
 
@@ -99,7 +99,7 @@ S-arr (snd (snd (covers zariskiCoverage R) um) i) = /1AsCommRingHom
   open UniModVec um
   open InvertingElementsBase.UniversalProp R (f i)
 pullbackStability zariskiCoverage {c = A} um {d = B} φ =
-  ∣ pullbackUniModVec φ um , (λ i → ∣ i , ψ i , RingHom≡ (sym (ψComm i)) ∣₁) ∣₁
+  ∣ pullbackUniModVec φ um , (λ i → ∣ i , ψ i , CommRingHom≡ (sym (ψComm i)) ∣₁) ∣₁
   where
   open UniModVec
   module A = InvertingElementsBase A
@@ -107,10 +107,10 @@ pullbackStability zariskiCoverage {c = A} um {d = B} φ =
   module AU = A.UniversalProp
   module BU = B.UniversalProp
 
-  ψ : (i : Fin (um .n)) → CommRingHom A.R[1/ um .f i ]AsCommRing B.R[1/ φ $r um .f i ]AsCommRing
+  ψ : (i : Fin (um .n)) → CommRingHom A.R[1/ um .f i ]AsCommRing B.R[1/ φ $cr um .f i ]AsCommRing
   ψ i = uniqInvElemHom φ (um .f i) .fst .fst
 
-  ψComm : ∀ i → (ψ i .fst) ∘ (AU._/1 (um .f i)) ≡ (BU._/1 (φ $r um .f i)) ∘ φ .fst
+  ψComm : ∀ i → (ψ i .fst) ∘ (AU._/1 (um .f i)) ≡ (BU._/1 (φ $cr um .f i)) ∘ φ .fst
   ψComm i = uniqInvElemHom φ (um .f i) .fst .snd
 
 {-
@@ -157,22 +157,22 @@ module SubcanonicalLemmas (A R : CommRing ℓ) where
     applyEqualizerLemma : ∀ a → ∃![ r ∈ ⟨ R ⟩ ] ∀ i → r /1ⁱ ≡ φ i .fst a
     applyEqualizerLemma a = equalizerLemma R f isUniModF (λ i → φ i .fst a) path
       where
-      pathHelper : ∀ i j → χˡ R f i j ∘r (U./1AsCommRingHom i)
-                         ≡ χʳ R f i j ∘r (U./1AsCommRingHom j)
-      pathHelper i j = RingHom≡
+      pathHelper : ∀ i j → χˡ R f i j ∘cr (U./1AsCommRingHom i)
+                         ≡ χʳ R f i j ∘cr (U./1AsCommRingHom j)
+      pathHelper i j = CommRingHom≡
                          (χˡUnique R f i j .fst .snd ∙ sym (χʳUnique R f i j .fst .snd))
 
-      path : ∀ i j → χˡ R f i j .fst (φ i $r a) ≡ χʳ R f i j .fst (φ j $r a)
+      path : ∀ i j → χˡ R f i j .fst (φ i $cr a) ≡ χʳ R f i j .fst (φ j $cr a)
       path i j = funExt⁻ (cong fst (isCompatibleφ i j _ _ _ (pathHelper i j))) a
 
     inducedHom : CommRingHom A R
     fst inducedHom a = applyEqualizerLemma a .fst .fst
-    snd inducedHom = makeIsRingHom
+    snd inducedHom = makeIsCommRingHom
                        (cong fst (applyEqualizerLemma 1r .snd (1r , 1Coh)))
                        (λ x y → cong fst (applyEqualizerLemma (x + y) .snd (_ , +Coh x y)))
                        (λ x y → cong fst (applyEqualizerLemma (x · y) .snd (_ , ·Coh x y)))
       where
-      open IsRingHom
+      open IsCommRingHom
       1Coh : ∀ i → (1r /1ⁱ ≡ φ i .fst 1r)
       1Coh i = sym (φ i .snd .pres1)
 
@@ -189,12 +189,12 @@ module SubcanonicalLemmas (A R : CommRing ℓ) where
         ∙∙ sym (φ i .snd .pres· x y)
 
     inducedHomUnique : ∀ (ψ : CommRingHom A R)
-                     → (∀ a i →  (ψ $r a) /1ⁱ ≡ φ i $r a)
+                     → (∀ a i →  (ψ $cr a) /1ⁱ ≡ φ i $cr a)
                      → inducedHom ≡ ψ
     inducedHomUnique ψ ψ/1≡φ =
-      RingHom≡
+      CommRingHom≡
         (funExt
-          (λ a → cong fst (applyEqualizerLemma a .snd (ψ $r a , ψ/1≡φ a))))
+          (λ a → cong fst (applyEqualizerLemma a .snd (ψ $cr a , ψ/1≡φ a))))
 
 
 isSubcanonicalZariskiCoverage : isSubcanonical (zariskiCoverage {ℓ = ℓ})
@@ -209,6 +209,6 @@ isSubcanonicalZariskiCoverage A R (unimodvec n f isUniModF) = isoToIsEquiv theIs
   fun theIso = elementToCompatibleFamily _ _
   inv theIso fam = inducedHom f isUniModF fam
   rightInv theIso fam = CompatibleFamily≡ _ _ _ _
-                          λ i → RingHom≡ (funExt
+                          λ i → CommRingHom≡ (funExt
                             λ a → applyEqualizerLemma f isUniModF fam a .fst .snd i)
   leftInv theIso φ = inducedHomUnique _ _ _ _ λ _ _ → refl

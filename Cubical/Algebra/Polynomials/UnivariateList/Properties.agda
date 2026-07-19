@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Polynomials.UnivariateList.Properties where
 
 open import Cubical.HITs.PropositionalTruncation

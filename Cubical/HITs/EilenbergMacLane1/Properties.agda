@@ -4,7 +4,7 @@ Eilenberg–Mac Lane type K(G, 1)
 
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --safe  --lossy-unification #-}
+{-# OPTIONS --cubical --no-import-sorts  --lossy-unification #-}
 module Cubical.HITs.EilenbergMacLane1.Properties where
 
 open import Cubical.Foundations.Prelude

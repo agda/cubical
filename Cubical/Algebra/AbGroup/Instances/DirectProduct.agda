@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.AbGroup.Instances.DirectProduct where
 
 open import Cubical.Data.Sigma

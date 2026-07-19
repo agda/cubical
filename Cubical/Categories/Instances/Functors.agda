@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 {-
    Category whose objects are functors and morphisms are natural transformations.

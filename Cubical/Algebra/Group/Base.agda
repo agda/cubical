@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Base where
 {-
   Defines groups and adds the smart constructors [makeGroup-right] and [makeGroup-left]

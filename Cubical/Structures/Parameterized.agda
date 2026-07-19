@@ -6,7 +6,6 @@ X ↦ (a : A) → S a X
 This is more general than Structures.Function in that S can vary in A.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Structures.Parameterized where
 
 open import Cubical.Foundations.Prelude

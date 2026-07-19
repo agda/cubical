@@ -18,7 +18,6 @@ then it should be removed before the above command is run.
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomology.Benchmarks where
 
 open import Cubical.Foundations.Prelude

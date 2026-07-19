@@ -1,8 +1,8 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Ring.Quotient where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset using (_∈_; _⊆_; ⊆-extensionality) -- \in, \sub=
@@ -12,8 +12,8 @@ open import Cubical.Data.Sigma using (Σ≡Prop)
 
 open import Cubical.Relation.Binary
 
-open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/ₛ_)
-open import Cubical.HITs.SetQuotients.Properties
+open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/ₛ_)
+open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal
@@ -55,7 +55,7 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
                       ((x + a) - (y + a))   ∎
 
     pre-+/I : R → R/I → R/I
-    pre-+/I x = elim
+    pre-+/I x = SQ.elim
                     (λ _ → squash/)
                     (λ y → [ x + y ])
                     λ y y' diffrenceInIdeal
@@ -71,7 +71,7 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
                                    (λ a → lemma x y a x-y∈I)
 
     _+/I_ : R/I → R/I → R/I
-    x +/I y = (elim R/I→R/I-isSet pre-+/I pre-+/I-DescendsToQuotient x) y
+    x +/I y = (SQ.elim R/I→R/I-isSet pre-+/I pre-+/I-DescendsToQuotient x) y
       where
         R/I→R/I-isSet : R/I → isSet (R/I → R/I)
         R/I→R/I-isSet _ = isSetΠ (λ _ → squash/)
@@ -98,7 +98,7 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
     1/I = [ 1r ]
 
     -/I : R/I → R/I
-    -/I = elim (λ _ → squash/) (λ x' → [ - x' ]) eq
+    -/I = SQ.elim (λ _ → squash/) (λ x' → [ - x' ]) eq
       where
         eq : (x y : R) → (x - y ∈ I) → [ - x ] ≡ [ - y ]
         eq x y x-y∈I = eq/ (- x) (- y) (subst (λ u → u ∈ I) eq' (isIdeal.-closed I-isIdeal x-y∈I))
@@ -121,7 +121,7 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
 
     _·/I_ : R/I → R/I → R/I
     _·/I_ =
-      elim (λ _ → isSetΠ (λ _ → squash/))
+      SQ.elim (λ _ → isSetΠ (λ _ → squash/))
                (λ x → left· x)
                eq'
       where
@@ -134,7 +134,7 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
                                   (x · y) - (x · y')       ∎)
                                   (isIdeal.·-closedLeft I-isIdeal x y-y'∈I))
         left· : (x : R) → R/I → R/I
-        left· x = elim (λ y → squash/)
+        left· x = SQ.elim (λ y → squash/)
                      (λ y → [ x · y ])
                      (eq x)
         eq' : (x x' : R) → (x - x' ∈ I) → left· x ≡ left· x'
@@ -184,28 +184,59 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
         eq : (x y z : R) → [ x ] ·/I ([ y ] +/I [ z ]) ≡ ([ x ] ·/I [ y ]) +/I ([ x ] ·/I [ z ])
         eq x y z i = [ ·DistR+ x y z i ]
 
-  asRing : Ring ℓ
-  asRing = makeRing 0/I 1/I _+/I_ _·/I_ -/I isSetR/I
-                    +/I-assoc +/I-rid +/I-rinv +/I-comm
-                    ·/I-assoc ·/I-rid ·/I-lid /I-rdist /I-ldist
+    quotientRingStr' : RingStr R/I
+    quotientRingStr' = snd (makeRing 0/I 1/I _+/I_ _·/I_ -/I isSetR/I
+                      +/I-assoc +/I-rid +/I-rinv +/I-comm
+                      ·/I-assoc ·/I-rid ·/I-lid /I-rdist /I-ldist)
+
+  opaque
+    isRingQuotient : IsRing 0/I 1/I _+/I_ _·/I_ -/I
+    isRingQuotient = RingStr.isRing quotientRingStr'
+
+  quotientRingStr : RingStr R/I
+  quotientRingStr =
+    record
+      { isRing = isRingQuotient; RingStr quotientRingStr'  }
+
 
 _/_ : (R : Ring ℓ) → (I : IdealsIn R) → Ring ℓ
-R / (I , IisIdeal) = asRing R I IisIdeal
+fst (R / I) = R/I R (fst I) (snd I)
+snd (R / I) = quotientRingStr R (fst I) (snd I)
 
 [_]/I : {R : Ring ℓ} {I : IdealsIn R} → (a : ⟨ R ⟩) → ⟨ R / I ⟩
 [ a ]/I = [ a ]
 
+opaque
+  isRingHomQuotientHom : (R : Ring ℓ) (I : IdealsIn R)
+                         → IsRingHom (R .snd) [_] ((R / I) .snd)
+  IsRingHom.pres0 (isRingHomQuotientHom R I) = refl
+  IsRingHom.pres1 (isRingHomQuotientHom R I) = refl
+  IsRingHom.pres+ (isRingHomQuotientHom R I) _ _ = refl
+  IsRingHom.pres· (isRingHomQuotientHom R I) _ _ = refl
+  IsRingHom.pres- (isRingHomQuotientHom R I) _ = refl
+
 quotientHom : (R : Ring ℓ) → (I : IdealsIn R) → RingHom R (R / I)
 fst (quotientHom R I) = [_]
-IsRingHom.pres0 (snd (quotientHom R I)) = refl
-IsRingHom.pres1 (snd (quotientHom R I)) = refl
-IsRingHom.pres+ (snd (quotientHom R I)) _ _ = refl
-IsRingHom.pres· (snd (quotientHom R I)) _ _ = refl
-IsRingHom.pres- (snd (quotientHom R I)) _ = refl
+snd (quotientHom R I) = isRingHomQuotientHom R I
 
-quotientHomSurjective : (R : Ring ℓ) → (I : IdealsIn R)
-                        → isSurjection (fst (quotientHom R I))
-quotientHomSurjective R I = []surjective
+module _ (R : Ring ℓ) (I : IdealsIn R) where
+  quotientHomSurjective : isSurjection (fst (quotientHom R I))
+  quotientHomSurjective = []surjective
+
+  open RingHoms
+  quotientHomEpi :  (S : hSet ℓ')
+                   → (f g : ⟨ R / I ⟩ → ⟨ S ⟩)
+                   → f ∘ fst (quotientHom R I) ≡ g ∘ fst (quotientHom R I)
+                   → f ≡ g
+  quotientHomEpi S f g p =
+    (funExt λ x
+      → PT.rec
+        (S .snd _ _)
+        (λ {(x' , [x']≡x) → f x                                ≡⟨ cong (λ y → f y) (sym [x']≡x) ⟩
+                            (f ∘ fst (quotientHom R I)) x'     ≡⟨ cong (λ h → h x') p ⟩
+                            (g ∘ fst (quotientHom R I)) x'     ≡⟨ cong (λ y → g y) [x']≡x ⟩
+                            g x ∎ })
+        (quotientHomSurjective x ))
 
 
 module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
@@ -230,9 +261,9 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
       if S is from a different universe. Instead, the condition, that
       Iₛ is contained in the kernel of φ is rephrased explicitly.
     -}
-    inducedHom : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r) → RingHom (R / I) S
-    fst (inducedHom Iₛ⊆kernel) =
-      elim
+    inducedHomMap : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r) → ⟨ R / I ⟩ → ⟨ S ⟩
+    inducedHomMap Iₛ⊆kernel =
+      SQ.elim
         (λ _ → is-set)
         f
         λ r₁ r₂ r₁-r₂∈I → equalByDifference (f r₁) (f r₂)
@@ -240,23 +271,39 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
            f r₁ + f (- r₂) ≡⟨ sym (φ.pres+ _ _) ⟩
            f (r₁ - r₂)     ≡⟨ Iₛ⊆kernel (r₁ - r₂) r₁-r₂∈I ⟩
            0r ∎)
-    pres0 (snd (inducedHom Iₛ⊆kernel)) = φ.pres0
-    pres1 (snd (inducedHom Iₛ⊆kernel)) = φ.pres1
-    pres+ (snd (inducedHom Iₛ⊆kernel)) =
-      elimProp2 (λ _ _ → is-set _ _) φ.pres+
-    pres· (snd (inducedHom Iₛ⊆kernel)) =
-      elimProp2 (λ _ _ → is-set _ _) φ.pres·
-    pres- (snd (inducedHom Iₛ⊆kernel)) =
-      elimProp (λ _ → is-set _ _) φ.pres-
 
-    solution : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r))
-               → (x : ⟨ R ⟩) → inducedHom p $r [ x ] ≡ φ $r x
-    solution p x = refl
+    opaque
+      inducedMapIsRingHom : (Iₛ⊆kernel : (x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r)
+                           → IsRingHom ((R / I) .snd) (inducedHomMap Iₛ⊆kernel) (S .snd)
+      pres0 (inducedMapIsRingHom Iₛ⊆kernel) = φ.pres0
+      pres1 (inducedMapIsRingHom Iₛ⊆kernel) = φ.pres1
+      pres+ (inducedMapIsRingHom Iₛ⊆kernel) = elimProp2 (λ _ _ → is-set _ _) φ.pres+
+      pres· (inducedMapIsRingHom Iₛ⊆kernel) = elimProp2 (λ _ _ → is-set _ _) φ.pres·
+      pres- (inducedMapIsRingHom Iₛ⊆kernel) = elimProp (λ _ → is-set _ _) φ.pres-
 
-    unique : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r))
-             → (ψ : RingHom (R / I) S) → (ψIsSolution : (x : ⟨ R ⟩) → ψ $r [ x ] ≡ φ $r x)
-             → (x : ⟨ R ⟩) → ψ $r [ x ] ≡ inducedHom p $r [ x ]
-    unique p ψ ψIsSolution x = ψIsSolution x
+    inducedHom : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r) → RingHom (R / I) S
+    fst (inducedHom Iₛ⊆kernel) = inducedHomMap Iₛ⊆kernel
+    snd (inducedHom Iₛ⊆kernel) = inducedMapIsRingHom Iₛ⊆kernel
+
+    open RingHoms
+    opaque
+      solution : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r))
+                 →  inducedHom p ∘r quotientHom R I ≡ φ
+      solution p = Σ≡Prop (λ _ → isPropIsRingHom _ _ _) refl
+
+      unique : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r))
+               → (ψ : RingHom (R / I) S) → (ψIsSolution : ψ ∘r quotientHom R I ≡ φ)
+               →  ψ ≡ inducedHom p
+      unique p ψ ψIsSolution =
+        RingHom≡
+          (quotientHomEpi R I (S .fst , isSetS) (ψ .fst) (inducedHom p .fst)
+            (cong fst $ ψIsSolution ∙ sym (solution p)))
+        where open RingStr (S .snd) using () renaming (is-set to isSetS)
+
+      unique' : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r))
+               → (ψ : RingHom (R / I) S) → (ψIsSolution : ψ .fst ∘ quotientHom R I .fst ≡ φ .fst)
+               →  ψ ≡ inducedHom p
+      unique' p ψ ψIsSolution = unique p ψ (RingHom≡ ψIsSolution)
 
 {-
   Show that the kernel of the quotient map
@@ -276,8 +323,10 @@ module idealIsKernel {R : Ring ℓ} (I : IdealsIn R) where
       x + 0r  ≡⟨ +IdR x ⟩
       x       ∎
 
-  I⊆ker : fst I ⊆ kernel π
-  I⊆ker x x∈I = eq/ _ _ (subst (_∈ fst I) (sym (x-0≡x x)) x∈I)
+  opaque
+    unfolding isRingHomQuotientHom
+    I⊆ker : fst I ⊆ kernel π
+    I⊆ker x x∈I = eq/ _ _ (subst (_∈ fst I) (sym (x-0≡x x)) x∈I)
 
   private
     _~_ : Rel ⟨ R ⟩ ⟨ R ⟩ ℓ
@@ -310,13 +359,16 @@ module idealIsKernel {R : Ring ℓ} (I : IdealsIn R) where
     symmetric ~IsEquivRel x y x~y        = subst (_∈ fst I) -[x-y]≡y-x (-closed x~y)
     transitive ~IsEquivRel x y z x~y y~z = subst (_∈ fst I) x-y+y-z≡x-z (+-closed x~y y~z)
 
-  ker⊆I : kernel π ⊆ fst I
-  ker⊆I x x∈ker = subst (_∈ fst I) (x-0≡x x) x-0∈I
-    where
-      x-0∈I : x - 0r ∈ fst I
-      x-0∈I = effective ~IsPropValued ~IsEquivRel x 0r x∈ker
+  opaque
+    unfolding isRingHomQuotientHom
+    ker⊆I : kernel π ⊆ fst I
+    ker⊆I x x∈ker = subst (_∈ fst I) (x-0≡x x) x-0∈I
+      where
+        x-0∈I : x - 0r ∈ fst I
+        x-0∈I = effective ~IsPropValued ~IsEquivRel x 0r x∈ker
 
-kernel≡I :  {R : Ring ℓ} (I : IdealsIn R)
-          → kernelIdeal (quotientHom R I) ≡ I
-kernel≡I {R = R} I = Σ≡Prop (isPropIsIdeal R) (⊆-extensionality _ _ (ker⊆I , I⊆ker))
-  where open idealIsKernel I
+opaque
+  kernel≡I :  {R : Ring ℓ} (I : IdealsIn R)
+            → kernelIdeal (quotientHom R I) ≡ I
+  kernel≡I {R = R} I = Σ≡Prop (isPropIsIdeal R) (⊆-extensionality _ _ (ker⊆I , I⊆ker))
+    where open idealIsKernel I

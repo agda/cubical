@@ -1,5 +1,4 @@
 -- Properties of (pre)additive categories
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Additive.Properties where
 

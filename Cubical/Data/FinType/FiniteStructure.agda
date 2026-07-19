@@ -9,7 +9,6 @@ This file contains:
   so that we can count their number up to equivalence/isomorphism.
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinType.FiniteStructure where
 

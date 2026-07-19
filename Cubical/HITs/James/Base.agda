@@ -14,7 +14,6 @@ Referrence:
   (https://arxiv.org/abs/1710.10307)
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.HITs.James.Base where
 
 open import Cubical.Foundations.Prelude

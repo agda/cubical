@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Site.Coverage where
 
 -- Definition of a coverage on a category, also called a Grothendieck topology.

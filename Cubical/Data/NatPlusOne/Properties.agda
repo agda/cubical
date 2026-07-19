@@ -1,4 +1,4 @@
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Data.NatPlusOne.Properties where
 
 open import Cubical.Foundations.Prelude

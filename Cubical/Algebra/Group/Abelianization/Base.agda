@@ -6,7 +6,6 @@ This file contains:
 The definition of the abelianization is not as a set-quotient, since the relation of abelianization is cumbersome to work with.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Abelianization.Base where
 
 open import Cubical.Data.Sigma

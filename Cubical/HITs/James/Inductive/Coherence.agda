@@ -9,7 +9,7 @@ Verbose, indeed. But should be simple. The length mainly thanks to:
     also it is overcomplicated to construct JRefl in nested cases.
 
 -}
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.HITs.James.Inductive.Coherence where
 
 open import Cubical.Foundations.Prelude

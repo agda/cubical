@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Instances.Pointwise where
 
 open import Cubical.Foundations.Prelude

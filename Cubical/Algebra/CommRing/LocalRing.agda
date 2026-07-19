@@ -13,7 +13,6 @@
     https://ncatlab.org/nlab/show/local+ring
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.LocalRing where
 
 open import Cubical.Foundations.Prelude

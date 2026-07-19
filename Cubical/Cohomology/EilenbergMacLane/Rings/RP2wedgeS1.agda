@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 module Cubical.Cohomology.EilenbergMacLane.Rings.RP2wedgeS1 where
 
@@ -68,9 +68,9 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.Quotient
 open import Cubical.Algebra.CommRing.Instances.IntMod
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-notationZ2
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly-Quotient
+open import Cubical.Algebra.CommRing.Polynomials.MultivariatePoly-notationZ2
 
 open Iso
 open PlusBis

@@ -7,7 +7,6 @@ Theory about isomorphisms
 - Any isomorphism is an equivalence ([isoToEquiv])
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Foundations.Isomorphism where
 
 open import Cubical.Core.Glue

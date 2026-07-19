@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 -- The category of elements of a functor to Set
 

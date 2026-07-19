@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.ZCohomology.Base where
 
 open import Cubical.Foundations.Prelude

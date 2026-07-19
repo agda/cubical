@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Experiments.ZariskiLatticeBasicOpens where
 
 
@@ -23,7 +23,6 @@ open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
--- open import Cubical.Relation.Binary.Poset
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
@@ -31,8 +30,8 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation.Base
 open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
 open import Cubical.Algebra.CommRing.Localisation.InvertingElements
-open import Cubical.Algebra.CommAlgebra.Base
-open import Cubical.Algebra.CommAlgebra.Properties
+open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebra.Univalence
 open import Cubical.Algebra.CommAlgebra.Localisation
 open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Semilattice
@@ -50,8 +49,12 @@ private
 
 
 module Presheaf (A' : CommRing ℓ) where
- open CommRingStr (snd A') renaming (_·_ to _·r_ ; ·Comm to ·r-comm ; ·Assoc to ·rAssoc
-                                                 ; ·IdL to ·rLid ; ·IdR to ·rRid)
+ open CommRingStr ⦃...⦄  -- renaming (_·_ to _·r_ ; ·Comm to ·r-comm ; ·Assoc to ·rAssoc
+                              --                    ; ·IdL to ·rLid ; ·IdR to ·rRid)
+
+ private
+   instance
+     _ = A' .snd
  open Exponentiation A'
  open CommRingTheory A'
  open InvertingElementsBase A'
@@ -63,32 +66,32 @@ module Presheaf (A' : CommRing ℓ) where
   A[1/_] : A → CommAlgebra A' ℓ
   A[1/ x ] = AlgLoc.S⁻¹RAsCommAlg A' [ x ⁿ|n≥0] (powersFormMultClosedSubset _)
 
-  A[1/_]ˣ : (x : A) → ℙ (fst A[1/ x ])
+  A[1/_]ˣ : (x : A) → ℙ ⟨ A[1/ x ] ⟩ₐ
   A[1/ x ]ˣ = (CommAlgebra→CommRing A[1/ x ]) ˣ
 
 
  _≼_ : A → A → Type ℓ
- x ≼ y = ∃[ n ∈ ℕ ] Σ[ z ∈ A ] x ^ n ≡ z ·r y -- rad(x) ⊆ rad(y)
+ x ≼ y = ∃[ n ∈ ℕ ] Σ[ z ∈ A ] x ^ n ≡ z · y -- rad(x) ⊆ rad(y)
 
 -- ≼ is a pre-order:
  Refl≼ : isRefl _≼_
- Refl≼ x = PT.∣ 1 , 1r , ·r-comm _ _ ∣₁
+ Refl≼ x = PT.∣ 1 , 1r , ·Comm _ _ ∣₁
 
  Trans≼ : isTrans _≼_
  Trans≼ x y z = map2 Trans≼Σ
   where
-  Trans≼Σ : Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a ·r y
-          → Σ[ n ∈ ℕ ] Σ[ a ∈ A ] y ^ n ≡ a ·r z
-          → Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a ·r z
-  Trans≼Σ (n , a , p) (m , b , q) = n ·ℕ m , (a ^ m ·r b) , path
+  Trans≼Σ : Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a · y
+          → Σ[ n ∈ ℕ ] Σ[ a ∈ A ] y ^ n ≡ a · z
+          → Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a · z
+  Trans≼Σ (n , a , p) (m , b , q) = n ·ℕ m , (a ^ m · b) , path
    where
-   path : x ^ (n ·ℕ m) ≡ a ^ m ·r b ·r z
+   path : x ^ (n ·ℕ m) ≡ a ^ m · b · z
    path = x ^ (n ·ℕ m)    ≡⟨ ^-rdist-·ℕ x n m ⟩
           (x ^ n) ^ m     ≡⟨ cong (_^ m) p ⟩
-          (a ·r y) ^ m     ≡⟨ ^-ldist-· a y m ⟩
-          a ^ m ·r y ^ m   ≡⟨ cong (a ^ m ·r_) q ⟩
-          a ^ m ·r (b ·r z) ≡⟨ ·rAssoc _ _ _ ⟩
-          a ^ m ·r b ·r z   ∎
+          (a · y) ^ m     ≡⟨ ^-ldist-· a y m ⟩
+          a ^ m · y ^ m   ≡⟨ cong (a ^ m ·_) q ⟩
+          a ^ m · (b · z) ≡⟨ ·Assoc _ _ _ ⟩
+          a ^ m · b · z   ∎
 
 
  R : A → A → Type ℓ
@@ -106,23 +109,24 @@ module Presheaf (A' : CommRing ℓ) where
  powerIs≽ : (x a : A) → x ∈ [ a ⁿ|n≥0] → a ≼ x
  powerIs≽ x a = map powerIs≽Σ
   where
-  powerIs≽Σ : Σ[ n ∈ ℕ ] (x ≡ a ^ n) → Σ[ n ∈ ℕ ] Σ[ z ∈ A ] (a ^ n ≡ z ·r x)
-  powerIs≽Σ (n , p) = n , 1r , sym p ∙ sym (·rLid _)
+  powerIs≽Σ : Σ[ n ∈ ℕ ] (x ≡ a ^ n) → Σ[ n ∈ ℕ ] Σ[ z ∈ A ] (a ^ n ≡ z · x)
+  powerIs≽Σ (n , p) = n , 1r , sym p ∙ sym (·IdL _)
 
  module ≼ToLoc (x y : A) where
   private
    instance
-    _ = snd A[1/ x ]
+    _ = CommAlgebra→CommRingStr A[1/ x ]
+    _ = CommAlgebra→CommAlgebraStr A[1/ x ]
 
-  lemma : x ≼ y → y ⋆ 1a ∈ A[1/ x ]ˣ -- y/1 ∈ A[1/x]ˣ
-  lemma = PT.rec (A[1/ x ]ˣ (y ⋆ 1a) .snd) lemmaΣ
+  lemma : x ≼ y → y ⋆ 1r ∈ A[1/ x ]ˣ -- y/1 ∈ A[1/x]ˣ
+  lemma = PT.rec (A[1/ x ]ˣ (y ⋆ 1r) .snd) lemmaΣ
    where
-   path1 : (y z : A) → 1r ·r (y ·r 1r ·r z) ·r 1r ≡ z ·r y
+   path1 : (y z : A) → 1r · (y · 1r · z) · 1r ≡ z · y
    path1 _ _ = solve! A'
-   path2 : (xn : A) → xn ≡ 1r ·r 1r ·r (1r ·r 1r ·r xn)
+   path2 : (xn : A) → xn ≡ 1r · 1r · (1r · 1r · xn)
    path2 _ = solve! A'
 
-   lemmaΣ : Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a ·r y → y ⋆ 1a ∈ A[1/ x ]ˣ
+   lemmaΣ : Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a · y → y ⋆ 1r ∈ A[1/ x ]ˣ
    lemmaΣ (n , z , p) = [ z , (x ^ n) ,  PT.∣ n , refl ∣₁ ] -- xⁿ≡zy → y⁻¹ ≡ z/xⁿ
                       , eq/ _ _ ((1r , powersFormMultClosedSubset _ .containsOne)
                       , (path1 _ _ ∙∙ sym p ∙∙ path2 _))
@@ -131,8 +135,10 @@ module Presheaf (A' : CommRing ℓ) where
   private
    [yⁿ|n≥0] = [ y ⁿ|n≥0]
    instance
-    _ = snd A[1/ x ]
-  lemma : ∀ (s : A) → s ∈ [yⁿ|n≥0] → s ⋆ 1a ∈ A[1/ x ]ˣ
+    _ = CommAlgebra→CommRingStr A[1/ x ]
+    _ = CommAlgebra→CommAlgebraStr A[1/ x ]
+
+  lemma : ∀ (s : A) → s ∈ [yⁿ|n≥0] → s ⋆ 1r ∈ A[1/ x ]ˣ
   lemma _ s∈[yⁿ|n≥0] = ≼ToLoc.lemma _ _ (Trans≼ _ y _ x≼y (powerIs≽ _ _ s∈[yⁿ|n≥0]))
 
 
@@ -158,23 +164,24 @@ module Presheaf (A' : CommRing ℓ) where
  -- Multiplication lifts to the quotient and corresponds to intersection
  -- of basic opens, i.e. we get a meet-semilattice with:
  _∧/_ : A / R → A / R → A / R
- _∧/_ = setQuotSymmBinOp (RequivRel .reflexive) (RequivRel .transitive) _·r_
-          (λ a b → subst (λ x → R (a ·r b) x) (·r-comm a b) (RequivRel .reflexive (a ·r b))) ·r-lcoh
+ _∧/_ = setQuotSymmBinOp (RequivRel .reflexive) (RequivRel .transitive) _·_
+          (λ a b → subst (λ x → R (a · b) x) (·Comm a b) (RequivRel .reflexive (a · b))) ·-lcoh
   where
-  ·r-lcoh-≼ : (x y z : A) → x ≼ y → (x ·r z) ≼ (y ·r z)
-  ·r-lcoh-≼ x y z = map ·r-lcoh-≼Σ
+  ·-lcoh-≼ : (x y z : A) → x ≼ y → (x · z) ≼ (y · z)
+  ·-lcoh-≼ x y z = map ·-lcoh-≼Σ
    where
-   path : (x z a y zn : A) →  x ·r z ·r (a ·r y ·r zn) ≡ x ·r zn ·r a ·r (y ·r z)
+   path : (x z a y zn : A) →  x · z · (a · y · zn) ≡ x · zn · a · (y · z)
    path _ _ _ _ _ = solve! A'
 
-   ·r-lcoh-≼Σ : Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a ·r y
-              → Σ[ n ∈ ℕ ] Σ[ a ∈ A ] (x ·r z) ^ n ≡ a ·r (y ·r z)
-   ·r-lcoh-≼Σ  (n , a , p) = suc n , (x ·r z ^ n ·r a) , (cong (x ·r z ·r_) (^-ldist-· _ _ _)
-                                                       ∙∙ cong (λ v → x ·r z ·r (v ·r z ^ n)) p
+   ·-lcoh-≼Σ : Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a · y
+              → Σ[ n ∈ ℕ ] Σ[ a ∈ A ] (x · z) ^ n ≡ a · (y · z)
+   ·-lcoh-≼Σ  (n , a , p) = suc n , (x · z ^ n · a) , (cong (x · z ·_) (^-ldist-· _ _ _)
+                                                       ∙∙ cong (λ v → x · z · (v · z ^ n)) p
                                                        ∙∙ path _ _ _ _ _)
 
-  ·r-lcoh : (x y z : A) → R x y → R (x ·r z) (y ·r z)
-  ·r-lcoh x y z Rxy = ·r-lcoh-≼ x y z (Rxy .fst) , ·r-lcoh-≼ y x z (Rxy .snd)
+  ·-lcoh : (x y z : A) → R x y → R (x · z) (y · z)
+  ·-lcoh x y z Rxy = ·-lcoh-≼ x y z (Rxy .fst) , ·-lcoh-≼ y x z (Rxy .snd)
+
 {-
  BasicOpens : Semilattice ℓ
  BasicOpens = makeSemilattice [ 1r ] _∧/_ squash/

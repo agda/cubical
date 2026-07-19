@@ -8,7 +8,6 @@
 
 -}
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.Containers.ContainerExtensionProofs where
 

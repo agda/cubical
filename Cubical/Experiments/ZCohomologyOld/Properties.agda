@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomologyOld.Properties where
 
 open import Cubical.Foundations.HLevels

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommMonoid.Instances.FreeComMonoid where
 
 open import Cubical.Foundations.Prelude

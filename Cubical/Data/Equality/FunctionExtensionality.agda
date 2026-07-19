@@ -6,7 +6,6 @@
   in terms of J and satisfies happly refl = refl by definition
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Data.Equality.FunctionExtensionality where
 
 open import Cubical.Foundations.Prelude

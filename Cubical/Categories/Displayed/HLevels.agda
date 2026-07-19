@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-- This file contains some utilities for reasoning
  -- about the HLevels of morphisms in displayed categories.
  --}

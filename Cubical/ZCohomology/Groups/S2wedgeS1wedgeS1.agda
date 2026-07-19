@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.ZCohomology.Groups.S2wedgeS1wedgeS1 where
 
 open import Cubical.Foundations.Prelude

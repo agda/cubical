@@ -19,7 +19,7 @@
  -}
 
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.PullbackSquare where
 
 open import Cubical.Foundations.Prelude
@@ -73,7 +73,7 @@ private
 
 module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
- open IsRingHom
+ open IsCommRingHom
  open isMultClosedSubset
  open CommRingTheory R'
  open RingTheory (CommRing→Ring R')
@@ -490,7 +490,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
   /1χComm x = eq/ _ _ ((1r , powersFormMultClosedSubset (f · g) .containsOne) , refl)
 
   /1χHomComm : /1ᵍAsCommRingHom ⋆ χ₂ ≡ /1ᶠAsCommRingHom ⋆ χ₁
-  /1χHomComm = RingHom≡ (funExt /1χComm)
+  /1χHomComm = CommRingHom≡ (funExt /1χComm)
 
  fgSquare : 1r ∈ ⟨f,g⟩
           → isPullback _ fgCospan /1ᵍAsCommRingHom /1ᶠAsCommRingHom /1χHomComm
@@ -501,16 +501,16 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
   applyEqualizerLemma : ∀ a → ∃![ χa ∈ R ] (χa /1ᶠ ≡ fst φ a) × (χa /1ᵍ ≡ fst ψ a)
   applyEqualizerLemma a =
-    equalizerLemma 1∈⟨f,g⟩ (fst φ a) (fst ψ a) (cong (_$r a) (sym ψχ₂≡φχ₁))
+    equalizerLemma 1∈⟨f,g⟩ (fst φ a) (fst ψ a) (cong (_$cr a) (sym ψχ₂≡φχ₁))
 
   χ : CommRingHom A R'
   fst χ a = applyEqualizerLemma a .fst .fst
-  snd χ = makeIsRingHom
+  snd χ = makeIsCommRingHom
        (cong fst (applyEqualizerLemma 1r .snd (1r , 1Coh)))
         (λ x y → cong fst (applyEqualizerLemma (x + y) .snd (_ , +Coh x y)))
          (λ x y → cong fst (applyEqualizerLemma (x · y) .snd (_ , ·Coh x y)))
    where
-   open IsRingHom
+   open IsCommRingHom
    1Coh : (1r /1ᶠ ≡ fst φ 1r) × (1r /1ᵍ ≡ fst ψ 1r)
    1Coh = (sym (φ .snd .pres1)) , sym (ψ .snd .pres1)
 
@@ -538,19 +538,19 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
 
   χCoh : (ψ ≡ χ ⋆ /1ᵍAsCommRingHom) × (φ ≡ χ ⋆ /1ᶠAsCommRingHom)
-  fst χCoh = RingHom≡ (funExt (λ a → sym (applyEqualizerLemma a .fst .snd .snd)))
-  snd χCoh = RingHom≡ (funExt (λ a → sym (applyEqualizerLemma a .fst .snd .fst)))
+  fst χCoh = CommRingHom≡ (funExt (λ a → sym (applyEqualizerLemma a .fst .snd .snd)))
+  snd χCoh = CommRingHom≡ (funExt (λ a → sym (applyEqualizerLemma a .fst .snd .fst)))
 
   χUniqueness : (y : Σ[ θ ∈ CommRingHom A R' ]
                        (ψ ≡ θ ⋆ /1ᵍAsCommRingHom) × (φ ≡ θ ⋆ /1ᶠAsCommRingHom))
               → (χ , χCoh) ≡ y
-  χUniqueness (θ , θCoh) = Σ≡Prop (λ _ → isProp× (isSetRingHom _ _ _ _)
-                                                 (isSetRingHom _ _ _ _))
-    (RingHom≡ (funExt (λ a → cong fst (applyEqualizerLemma a .snd (θtriple a)))))
+  χUniqueness (θ , θCoh) = Σ≡Prop (λ _ → isProp× (isSetCommRingHom _ _ _ _)
+                                                 (isSetCommRingHom _ _ _ _))
+    (CommRingHom≡ (funExt (λ a → cong fst (applyEqualizerLemma a .snd (θtriple a)))))
       where
       θtriple : ∀ a → Σ[ x ∈ R ] (x /1ᶠ ≡ fst φ a) × (x /1ᵍ ≡ fst ψ a)
-      θtriple a = fst θ a , sym (cong (_$r a) (θCoh .snd))
-                          , sym (cong (_$r a) (θCoh .fst))
+      θtriple a = fst θ a , sym (cong (_$cr a) (θCoh .snd))
+                          , sym (cong (_$cr a) (θCoh .fst))
 
 
  -- packaging it all up

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Data.Nat.Order.Inductive where
 
 open import Cubical.Foundations.Prelude

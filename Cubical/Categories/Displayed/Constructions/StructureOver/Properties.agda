@@ -1,5 +1,4 @@
 -- | Structure displayed over a category.
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.StructureOver.Properties where
 
 open import Cubical.Foundations.Prelude

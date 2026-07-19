@@ -3,7 +3,6 @@
 Computable stuff constructed from the Combinatorics of Finite Sets
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Experiments.Combinatorics where
 

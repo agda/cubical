@@ -2,7 +2,6 @@
   The vertical category over an object from a displayed
   category. Also sometimes called the "fiber"
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.Vertical where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.Kernel where
 
 open import Cubical.Foundations.Prelude
@@ -8,14 +7,14 @@ open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.CommRing.Ideal using (Ideal→CommIdeal)
 open import Cubical.Algebra.Ring.Kernel using () renaming (kernelIdeal to ringKernel)
 open import Cubical.Algebra.CommAlgebra.Base
-open import Cubical.Algebra.CommAlgebra.Properties
+--open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Ideal
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
-module _ {R : CommRing ℓ} (A B : CommAlgebra R ℓ) (ϕ : CommAlgebraHom A B) where
+module _ {R : CommRing ℓ} (A B : CommAlgebra R ℓ') (ϕ : CommAlgebraHom A B) where
 
-  kernel : IdealsIn A
+  kernel : IdealsIn R A
   kernel = Ideal→CommIdeal (ringKernel (CommAlgebraHom→RingHom {A = A} {B = B} ϕ))

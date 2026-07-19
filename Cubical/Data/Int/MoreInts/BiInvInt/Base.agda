@@ -13,7 +13,6 @@ This file contains:
 - versions of the point constructors of BiInvInt which satisfy the path constructors judgmentally
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Data.Int.MoreInts.BiInvInt.Base where
 
 open import Cubical.Foundations.Prelude

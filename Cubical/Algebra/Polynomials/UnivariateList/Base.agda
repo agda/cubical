@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Algebra.Polynomials.UnivariateList.Base where
 
 {-

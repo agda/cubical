@@ -10,7 +10,6 @@ Computational Synthetic Cohomology Theory in Homotopy Type Theory
 -}
 
 -- The "--safe" flag ensures that there are no postulates or unfinished goals
-{-# OPTIONS --safe #-}
 module Cubical.Papers.ComputationalSyntheticCohomology where
 
 open import Cubical.Data.Nat

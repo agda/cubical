@@ -9,7 +9,6 @@ The sequence Susp X → (B ⋁ C) → B ⊔_X C therefore induces a long exact s
 Proof is adapted from Evan Cavallo's master's thesis.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Homotopy.MayerVietorisCofiber where
 
 

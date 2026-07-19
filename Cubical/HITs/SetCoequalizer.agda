@@ -1,4 +1,4 @@
-{-# OPTIONS --safe  #-}
+{-# OPTIONS  #-}
 module Cubical.HITs.SetCoequalizer where
 
 open import Cubical.HITs.SetCoequalizer.Base public

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
   This is inspired by/copied from:
   https://github.com/agda/agda-stdlib/blob/master/src/Tactic/MonoidSolver.agda

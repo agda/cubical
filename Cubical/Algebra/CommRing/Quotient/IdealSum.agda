@@ -3,11 +3,12 @@
 
     R / (I + J) = (R / I) / J
 -}
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.CommRing.Quotient.IdealSum where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Functions.Surjection
 open import Cubical.Functions.Embedding using (isEmbedding; injEmbedding)
@@ -33,7 +34,7 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
   open IdealSum R
   open Cubical.Algebra.Ring.Properties.RingHoms
   open CommRingStr ⦃...⦄
-  open IsRingHom ⦃...⦄
+  open IsCommRingHom ⦃...⦄
 
   {-
     We show ψ is an isomorphism, by showing it is
@@ -55,7 +56,7 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
   π₂ = quotientHom (R / I) π₁J
 
   π : CommRingHom R ((R / I) / π₁J)
-  π = π₂ ∘r π₁
+  π = π₂ ∘cr π₁
 
   π+ : CommRingHom R (R / (I +i J))
   π+ = quotientHom R (I +i J)
@@ -120,7 +121,7 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
     ψ x was slow to normalise and normalisation was triggered
     on plugging 'ϕ-injective' into 'injEmbedding'.
   -}
-  abstract
+  opaque
     ϕ : CommRingHom (R / (I +i J)) ((R / I) / π₁J)
     ϕ = ψ
 
@@ -130,7 +131,7 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
       RingHomTheory.ker≡0→inj
                   {R = CommRing→Ring (R / (I +i J))}
                   {S = CommRing→Ring ((R / I) / π₁J)}
-                  ψ
+                  (CommRingHom→RingHom ψ)
                   λ {x} → kernel-0 x
 
     ϕ≡ψ : ϕ ≡ ψ
@@ -160,4 +161,14 @@ module _ {R : CommRing ℓ} (I J : IdealsIn R) where
     fst (invEquiv isEquiv≃isEmbedding×isSurjection)
         ((subst (λ ξ → isEmbedding (fst ξ)) ϕ≡ψ embedding) ,
          surjective)
-  snd quotientIdealSumEquiv = snd ψ
+  snd quotientIdealSumEquiv = t
+    where
+      opaque
+        t : IsCommRingHom ((R / (I +i J)) .snd) (ψ .fst) (((R / I) / π₁J) .snd)
+        t = snd ψ
+
+  opaque
+    commutesWithQuotientHoms :
+        quotientIdealSumEquiv .fst .fst ∘ quotientHom R (I +i J) .fst
+      ≡ quotientHom (R / I) π₁J .fst ∘ quotientHom R I .fst
+    commutesWithQuotientHoms = refl

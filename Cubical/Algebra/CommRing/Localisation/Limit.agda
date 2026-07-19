@@ -10,7 +10,7 @@
   Cubical.Categories.DistLatticeSheaf.Diagram
 -}
 
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.Limit where
 
 open import Cubical.Foundations.Prelude
@@ -512,7 +512,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
              0at i ∎
            where
            instance _ = L.S⁻¹RAsCommRing i .snd
-           open IsRingHom
+           open IsCommRingHom
 
 
 
@@ -539,8 +539,8 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
  coneOut locCone (sing i) = U./1AsCommRingHom i
  coneOut locCone (pair i j _) = UP./1AsCommRingHom i j
  coneOutCommutes locCone idAr = ⋆IdR _
- coneOutCommutes locCone singPairL = RingHom≡ (χˡUnique _ _ .fst .snd)
- coneOutCommutes locCone singPairR = RingHom≡ (χʳUnique _ _ .fst .snd)
+ coneOutCommutes locCone singPairL = CommRingHom≡ (χˡUnique _ _ .fst .snd)
+ coneOutCommutes locCone singPairR = CommRingHom≡ (χʳUnique _ _ .fst .snd)
 
  isLimConeLocCone : 1r ∈ ⟨f₀,⋯,fₙ⟩ → isLimCone _ _ locCone
  isLimConeLocCone 1∈⟨f₀,⋯,fₙ⟩ A' cᴬ = (ψ , isConeMorψ) , ψUniqueness
@@ -557,19 +557,19 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
     where
     χφSquare< : ∀ i j → i < j → χˡ i j .fst (φ i .fst a) ≡ χʳ i j .fst (φ j .fst a)
     χφSquare< i j i<j =
-      χˡ i j .fst (φ i .fst a)          ≡⟨ cong (_$r a) (cᴬ .coneOutCommutes singPairL) ⟩
-      cᴬ .coneOut (pair i j i<j) .fst a ≡⟨ cong (_$r a) (sym (cᴬ .coneOutCommutes singPairR)) ⟩
+      χˡ i j .fst (φ i .fst a)          ≡⟨ cong (_$cr a) (cᴬ .coneOutCommutes singPairL) ⟩
+      cᴬ .coneOut (pair i j i<j) .fst a ≡⟨ cong (_$cr a) (sym (cᴬ .coneOutCommutes singPairR)) ⟩
       χʳ i j .fst (φ j .fst a)          ∎
 
 
    ψ : CommRingHom A' R'
    fst ψ a = applyEqualizerLemma a .fst .fst
-   snd ψ = makeIsRingHom
+   snd ψ = makeIsCommRingHom
             (cong fst (applyEqualizerLemma 1r .snd (1r , 1Coh)))
               (λ x y → cong fst (applyEqualizerLemma (x + y) .snd (_ , +Coh x y)))
                 λ x y → cong fst (applyEqualizerLemma (x · y) .snd (_ , ·Coh x y))
      where
-     open IsRingHom
+     open IsCommRingHom
      1Coh : ∀ i → (1r /1ˢ ≡ φ i .fst 1r)
      1Coh i = sym (φ i .snd .pres1)
 
@@ -587,9 +587,9 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
 
    -- TODO: Can you use lemma from other PR to eliminate pair case
    isConeMorψ : isConeMor cᴬ locCone ψ
-   isConeMorψ (sing i) = RingHom≡ (funExt (λ a → applyEqualizerLemma a .fst .snd i))
+   isConeMorψ (sing i) = CommRingHom≡ (funExt (λ a → applyEqualizerLemma a .fst .snd i))
    isConeMorψ (pair i j i<j) =
-     ψ ⋆ UP./1AsCommRingHom i j         ≡⟨ cong (ψ ⋆_) (sym (RingHom≡ (χˡUnique _ _ .fst .snd))) ⟩
+     ψ ⋆ UP./1AsCommRingHom i j         ≡⟨ cong (ψ ⋆_) (sym (CommRingHom≡ (χˡUnique _ _ .fst .snd))) ⟩
      ψ ⋆ U./1AsCommRingHom i ⋆ χˡ i j   ≡⟨ sym (⋆Assoc _ _ _) ⟩
      (ψ ⋆ U./1AsCommRingHom i) ⋆ χˡ i j ≡⟨ cong (_⋆ χˡ i j) (isConeMorψ (sing i)) ⟩
      φ i ⋆ χˡ i j                       ≡⟨ coneOutCommutes cᴬ singPairL ⟩
@@ -597,7 +597,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
 
    ψUniqueness : (y : Σ[ θ ∈ CommRingHom A' R' ] isConeMor cᴬ locCone θ) → (ψ , isConeMorψ) ≡ y
    ψUniqueness (θ , isConeMorθ) = Σ≡Prop (λ _ → isPropIsConeMor _ _ _)
-     (RingHom≡ (funExt λ a → cong fst (applyEqualizerLemma a .snd (θtriple a))))
+     (CommRingHom≡ (funExt λ a → cong fst (applyEqualizerLemma a .snd (θtriple a))))
      where
      θtriple : (a : A) → Σ[ x ∈ R ] ∀ i → x /1ˢ ≡ φ i .fst a
-     θtriple a = fst θ a , λ i → cong (_$r a) (isConeMorθ (sing i))
+     θtriple a = fst θ a , λ i → cong (_$cr a) (isConeMorθ (sing i))

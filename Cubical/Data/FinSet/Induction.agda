@@ -3,7 +3,6 @@
 Inductive eliminators to establish properties of all finite sets directly
 
 -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.Induction where
 

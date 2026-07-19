@@ -1,5 +1,4 @@
 
-{-# OPTIONS --safe #-}
 module Cubical.Data.FinData.Properties where
 
 -- WARNING : fromℕ' is in triple ! => to clean !

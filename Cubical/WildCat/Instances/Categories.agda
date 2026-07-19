@@ -1,5 +1,4 @@
 -- The wild category of (small) categories
-{-# OPTIONS --safe #-}
 
 module Cubical.WildCat.Instances.Categories where
 
