@@ -414,6 +414,9 @@ p ≄ q = ¬ (p ≃ q)
 *≡*⁻¹ : ∀ {p : ℚ} {q : ℚ} → p ≃ q → ↥ p ℤ· ↧ q ≡ ↥ q ℤ· ↧ p
 *≡*⁻¹ {p} {q} (*≡* x) = x
 
+¬*≡* : ∀ {m}{n} → ¬ (↥ m) ℤ.· (↧ n) ≡ (↥ n) ℤ.· (↧ m) → ¬ m ≃ n
+¬*≡* {m}{n} ¬mn = λ x → ¬mn (*≡*⁻¹ {m}{n} x)
+
 isProp≃ : ∀ {p q} → isProp (p ≃ q)
 isProp≃ {(n , d-1) , c} {(n' , d-1') , c'} (*≡* x) (*≡* y) = cong *≡*
   (isSetℤ (n ℤ· (↧ ((n' , d-1') , c'))) (n' ℤ· (↧ ((n , d-1) , c))) x y)
@@ -422,6 +425,9 @@ dec≃ : ∀ {p q} → Dec (p ≃ q)
 dec≃ {p}{q} with discreteℤ (↥ p ℤ· ↧ q) (↥ q ℤ· ↧ p)
 ... | yes pq = yes (*≡* pq)
 ... | no ¬pq = no λ x → ¬pq (*≡*⁻¹ x)
+
+≃Dec : ∀ (p q : ℚ) → Dec (p ≃ q)
+≃Dec p q = dec≃ {p}{q}
 
 ≃-def : ∀ (p : ℚ) (q : ℚ) → (↥ p ℤ· ↧ q ≡ ↥ q ℤ· ↧ p) ≡ (p ≃ q)
 ≃-def p q = isoToPath
@@ -500,6 +506,9 @@ p≃q→-p≃-q {p}{q} pq = cong₂ (λ a b → a ℤ.· b) (↥-neg p) (↧-neg
 discreteℚ : Discrete ℚ
 discreteℚ m n = subst Dec (≃≡≡ m n) dec≃
 
+≡Dec : ∀ (p q : ℚ) → Dec (p ≡ q)
+≡Dec p q = discreteℚ p q
+
 refl≃ : ∀ p → p ≃ p
 refl≃ p = transport⁻ (≃≡≡ p p) refl
 
@@ -520,6 +529,9 @@ sym≃ {p}{q} = isEquiv≃ .symmetric p q
 
 trans≃ : ∀ {p}{q}{r} → p ≃ q → q ≃ r → p ≃ r
 trans≃ {p}{q}{r} = isEquiv≃ .transitive p q r
+
+sym≄ : ∀ {m}{n} → (m ≄ n) → (n ≄ m)
+sym≄ {m}{n} mn = λ x → mn (sym≃ x)
 
 ----------------------------------------------------------
 -- Unnormalised equivalence
