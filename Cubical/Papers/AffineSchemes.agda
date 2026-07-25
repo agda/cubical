@@ -57,7 +57,7 @@ module ZariskiLatUnivProp = ZLUP.ZarLatUniversalProp
 
 -- 4: Category Theory
 -- background theory not explicitly mentioned
-import Cubical.Categories.Category.Base                            as CatTheory
+import Cubical.Categories.Instances.FullSubcategory                as CatTheory
 import Cubical.Categories.Limits                                   as GeneralLimits
 import Cubical.Categories.Limits.RightKan                          as GeneralKanExtension
 

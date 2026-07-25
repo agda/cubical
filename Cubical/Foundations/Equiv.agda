@@ -190,14 +190,18 @@ Lift≃Lift e .snd .equiv-proof b .snd (a , p) i .snd j .lower =
 isContr→Equiv : isContr A → isContr B → A ≃ B
 isContr→Equiv Actr Bctr = isoToEquiv (isContr→Iso Actr Bctr)
 
+propBiimpl→isEquiv
+  : (Aprop : isProp A) (Bprop : isProp B) {f : A → B} (g : B → A) → isEquiv f
+propBiimpl→isEquiv Aprop Bprop {f} g .equiv-proof y .fst =
+  (g y , Bprop (f (g y)) y)
+propBiimpl→isEquiv Aprop Bprop {f} g .equiv-proof y .snd h i .fst =
+  Aprop (g y) (h .fst) i
+propBiimpl→isEquiv Aprop Bprop {f} g .equiv-proof y .snd h i .snd =
+  isProp→isSet' Bprop (Bprop (f (g y)) y) (h .snd)
+                (cong f (Aprop (g y) (h .fst))) refl i
+
 propBiimpl→Equiv : (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → A ≃ B
-propBiimpl→Equiv Aprop Bprop f g = f , hf
-  where
-  hf : isEquiv f
-  hf .equiv-proof y .fst          = (g y , Bprop (f (g y)) y)
-  hf .equiv-proof y .snd h i .fst = Aprop (g y) (h .fst) i
-  hf .equiv-proof y .snd h i .snd = isProp→isSet' Bprop (Bprop (f (g y)) y) (h .snd)
-                                                  (cong f (Aprop (g y) (h .fst))) refl i
+propBiimpl→Equiv Aprop Bprop f g = f , propBiimpl→isEquiv Aprop Bprop g
 
 isEquivPropBiimpl→Equiv : isProp A → isProp B
                         → ((A → B) × (B → A)) ≃ (A ≃ B)
@@ -322,4 +326,3 @@ isEquiv≃isEquiv' : (f : A → B) → isEquiv f ≃ isEquiv' f
 isEquiv≃isEquiv' f = isoToEquiv (isEquiv-isEquiv'-Iso f)
 
 -- The fact that funExt is an equivalence can be found in Cubical.Functions.FunExtEquiv
-

@@ -7,7 +7,8 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Instances.FullSubcategory
 open import Cubical.Categories.Morphism
 
 open import Cubical.Relation.Binary.Order.Proset

@@ -15,8 +15,10 @@ open import Cubical.HITs.PropositionalTruncation as PropTrunc
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Int.Base as ℤ using ()
 
 open import Cubical.Relation.Nullary
+
 
 private
   variable
@@ -84,6 +86,34 @@ isProp∣' {suc m} {n} (c₁ , p₁) (c₂ , p₂) =
 
 ∣-oneˡ : ∀ m → 1 ∣ m
 ∣-oneˡ m = ∣ m , ·-identityʳ m ∣₁
+
+
+→|' : ∀ {n x : ℕ} → n ∣ x → n ∣' x
+→|' {ℕ.zero} {x} nx with ∣-untrunc nx
+... | c' , nx' = 0≡m·0 c' ∙ nx'
+→|' {ℕ.suc n} {x} nx = ∣-untrunc nx
+
+→∣ : ∀ {n x : ℕ} → n ∣' x → n ∣ x
+→∣ {ℕ.zero} {x} nx = ∣ (0 , nx) ∣₁
+→∣ {ℕ.suc n} {x} nx = ∣ nx ∣₁
+
+∣'x→∣'x+y→∣'y : ∀ {n x y : ℕ} → n ∣' x → n ∣' (x + y) → n ∣' y
+∣'x→∣'x+y→∣'y {ℕ.zero}{x}{y} nx nxy = nxy ∙ sym (cong (λ a → a + y) nx)
+∣'x→∣'x+y→∣'y {ℕ.suc n}{x}{y} nx nxy =
+  (nxy .fst ∸ nx .fst) , ∸-distribʳ (nxy .fst) (nx .fst) (ℕ.suc n) ∙
+    (λ i → (snd nxy i) ∸ (snd nx i)) ∙ (∸+ y x)
+
+∣'x→∣'y→∣'x+y : ∀ {n x y : ℕ} → n ∣' x → n ∣' y → n ∣' (x + y)
+∣'x→∣'y→∣'x+y {ℕ.zero} {x} {y} nx ny i = nx i + ny i
+∣'x→∣'y→∣'x+y {ℕ.suc n} {x} {y} nx ny =
+  (nx .fst + ny .fst) , sym (·-distribʳ (nx .fst) (ny .fst) (ℕ.suc n)) ∙
+    (λ i → (snd nx i) + (snd ny i))
+
+∣x→∣x+y→∣y : ∀ {n x y : ℕ} → n ∣ x → n ∣ (x + y) → n ∣ y
+∣x→∣x+y→∣y {n}{x}{y} nx nxy = →∣ (∣'x→∣'x+y→∣'y (→|' nx) (→|' nxy))
+
+∣x→∣y→∣x+y : ∀ {n x y : ℕ} → n ∣ x  → n ∣ y → n ∣ (x + y)
+∣x→∣y→∣x+y {n}{x}{y} nx ny = →∣ (∣'x→∣'y→∣'x+y (→|' nx) (→|' ny))
 
 -- if n > 0, then the constant c (s.t. c · m ≡ n) is also > 0
 ∣s-untrunc : m ∣ suc n → Σ[ c ∈ ℕ ] (suc c) · m ≡ suc n

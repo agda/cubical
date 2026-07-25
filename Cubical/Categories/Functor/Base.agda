@@ -120,12 +120,6 @@ _⟪_⟫ = F-hom
 Id : {C : Category ℓ ℓ'} → Functor C C
 Id = 𝟙⟨ _ ⟩
 
-forgetΣPropCat : (C : Category ℓ ℓ') (prop : ℙ (C .ob)) → Functor (ΣPropCat C prop) C
-forgetΣPropCat _ _ .F-ob x    = x .fst
-forgetΣPropCat _ _ .F-hom f   = f
-forgetΣPropCat _ _ .F-id      = refl
-forgetΣPropCat _ _ .F-seq _ _ = refl
-
 -- functor composition
 funcComp : ∀ (G : Functor D E) (F : Functor C D) → Functor C E
 (funcComp G F) .F-ob c    = G ⟅ F ⟅ c ⟆ ⟆
@@ -176,12 +170,3 @@ Iso^opF .ret F = Functor≡ (λ _ → refl) (λ _ → refl)
 
 ^opFEquiv : Functor C D ≃ Functor (C ^op) (D ^op)
 ^opFEquiv = isoToEquiv Iso^opF
-
--- Functoriality on full subcategories defined by propositions
-ΣPropCatFunc : {P : ℙ (ob C)} {Q : ℙ (ob D)} (F : Functor C D)
-             → (∀ c → c ∈ P → F .F-ob c ∈ Q)
-             → Functor (ΣPropCat C P) (ΣPropCat D Q)
-F-ob (ΣPropCatFunc F FPres) (c , c∈P) = F .F-ob c , FPres c c∈P
-F-hom (ΣPropCatFunc F FPres) = F .F-hom
-F-id (ΣPropCatFunc F FPres) = F .F-id
-F-seq (ΣPropCatFunc F FPres) = F .F-seq

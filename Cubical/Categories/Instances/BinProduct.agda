@@ -9,24 +9,20 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functors.Constant
 
+open import Cubical.Categories.Instances.TotalCategory.Base
+open import Cubical.Categories.Displayed.Instances.Weaken.Base
+
 private
   variable
     ℓA ℓA' ℓB ℓB' ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
-
 
 open Category
 
 _×C_ : (C : Category ℓC ℓC') → (D : Category ℓD ℓD')
     → Category (ℓ-max ℓC ℓD) (ℓ-max ℓC' ℓD')
+C ×C D = ∫C (weaken C D)
 
-(C ×C D) .ob = (ob C) × (ob D)
-(C ×C D) .Hom[_,_] (c , d) (c' , d') = (C [ c , c' ]) × (D [ d , d' ])
-(C ×C D) .id = (id C , id D)
-(C ×C D) ._⋆_ _ _ = (_ ⋆⟨ C ⟩ _ , _ ⋆⟨ D ⟩ _)
-(C ×C D) .⋆IdL _ = ≡-× (⋆IdL C _) (⋆IdL D _)
-(C ×C D) .⋆IdR _ = ≡-× (⋆IdR C _) (⋆IdR D _)
-(C ×C D) .⋆Assoc _ _ _ = ≡-× (⋆Assoc C _ _ _) (⋆Assoc D _ _ _)
-(C ×C D) .isSetHom = isSet× (isSetHom C) (isSetHom D)
+{-# DISPLAY ∫C (weaken C D) = C ×C D #-}
 
 infixr 5 _×C_
 

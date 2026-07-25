@@ -1,22 +1,27 @@
-module Cubical.Categories.Instances.FullSubcategory where
 -- Full subcategory (not necessarily injective on objects)
+module Cubical.Categories.Instances.FullSubcategory where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Functions.Embedding
 open import Cubical.Data.Sigma
 
-open import Cubical.Categories.Category
+open import Cubical.Categories.Category renaming (isIso to isCatIso)
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Functor renaming (𝟙⟨_⟩ to funcId)
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Equivalence.Base
 
 private
   variable
     ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓP ℓQ ℓR : Level
+
+open isCatIso
 
 module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
   private
@@ -44,8 +49,6 @@ module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
   isFullyFaithfulIncl _ _ = idEquiv _ .snd
 
   module _ (x y : FullSubcategory .ob) where
-
-    open isIso
 
     Incl-Iso = F-Iso {F = FullInclusion} {x = x} {y = y}
 
@@ -158,3 +161,56 @@ module _
   isUnivalentFullSub isUnivC .univ _ _ = isEquiv[equivFunA≃B∘f]→isEquiv[f] _ (Incl-Iso≃ C P _ _)
     (subst isEquiv (sym (F-pathToIso-∘ {F = FullInclusion C P}))
       (compEquiv (_ , isEmbdIncl-ob _ _) (_ , isUnivC .univ _ _) .snd))
+
+open Functor
+ΣPropCat : (C : Category ℓC ℓC') (P : ℙ (ob C)) → Category ℓC ℓC'
+ΣPropCat C P = FullSubcategory C (_∈ P)
+
+forgetΣPropCat : (C : Category ℓC ℓC') (prop : ℙ (C .ob)) → Functor (ΣPropCat C prop) C
+forgetΣPropCat C prop = FullInclusion C _
+
+-- Functoriality on full subcategories defined by propositions
+ΣPropCatFunc : {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+               {P : ℙ (ob C)} {Q : ℙ (ob D)} (F : Functor C D)
+             → (∀ c → c ∈ P → F .F-ob c ∈ Q)
+             → Functor (ΣPropCat C P) (ΣPropCat D Q)
+ΣPropCatFunc = MapFullSubcategory _ _ _ _
+
+-- equivalence on full subcategories defined by propositions
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (invF : WeakInverse F) where
+  open NatTrans
+  open NatIso
+  open WeakInverse
+  open _≃ᶜ_
+
+  private
+    F⁻¹ = invF .invFunc
+    ηᴱ = invF .η
+    εᴱ = invF .ε
+
+  ΣPropCatEquiv : {P : ℙ (ob C)} {Q : ℙ (ob D)}
+                → (presF : ∀ c → c ∈ P → F .F-ob c ∈ Q)
+                → (∀ d → d ∈ Q → F⁻¹ .F-ob d ∈ P)
+                → WeakInverse (ΣPropCatFunc {P = P} {Q = Q} F presF)
+
+  invFunc (ΣPropCatEquiv {P} {Q} _ presF⁻¹) = ΣPropCatFunc {P = Q} {Q = P} F⁻¹ presF⁻¹
+
+  N-ob (trans (η (ΣPropCatEquiv _ _))) (x , _) = ηᴱ .trans .N-ob x
+  N-hom (trans (η (ΣPropCatEquiv _ _))) f = ηᴱ .trans .N-hom f
+  inv (nIso (η (ΣPropCatEquiv _ _)) (x , _)) = ηᴱ .nIso x .inv
+  sec (nIso (η (ΣPropCatEquiv _ _)) (x , _)) = ηᴱ .nIso x .sec
+  ret (nIso (η (ΣPropCatEquiv _ _)) (x , _)) = ηᴱ .nIso x .ret
+
+  N-ob (trans (ε (ΣPropCatEquiv _ _))) (x , _) = εᴱ .trans .N-ob x
+  N-hom (trans (ε (ΣPropCatEquiv _ _))) f = εᴱ .trans .N-hom f
+  inv (nIso (ε (ΣPropCatEquiv _ _)) (x , _)) = εᴱ .nIso x .inv
+  sec (nIso (ε (ΣPropCatEquiv _ _)) (x , _)) = εᴱ .nIso x .sec
+  ret (nIso (ε (ΣPropCatEquiv _ _)) (x , _)) = εᴱ .nIso x .ret
+
+isIsoΣPropCat : {C : Category ℓC ℓC'} {P : ℙ (ob C)}
+                {x y : ob C} (p : x ∈ P) (q : y ∈ P)
+                (f : C [ x , y ])
+              → isCatIso C f → isCatIso (ΣPropCat C P) {x , p} {y , q} f
+inv (isIsoΣPropCat p q f isIsoF) = isIsoF .inv
+sec (isIsoΣPropCat p q f isIsoF) = isIsoF .sec
+ret (isIsoΣPropCat p q f isIsoF) = isIsoF .ret

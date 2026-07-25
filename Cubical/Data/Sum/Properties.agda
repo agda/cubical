@@ -5,8 +5,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-
 open import Cubical.Functions.Embedding
+open import Cubical.Foundations.Equiv.Properties
 
 open import Cubical.Data.Sum.Base as ⊎
 open import Cubical.Data.Empty as ⊥
@@ -72,6 +72,9 @@ module ⊎Path {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   Cover≃Path c c' =
     isoToEquiv (iso (decode c c') (encode c c') (decodeEncode c c') (encodeDecode c c'))
 
+  inl≢inr : (a : A) (b : B) → ¬ ((inl a :> A ⊎ B) ≡ inr b)
+  inl≢inr a b inl≡inr = invEq (Cover≃Path (inl a) (inr b)) inl≡inr .lower
+
   isOfHLevelCover : (n : HLevel)
     → isOfHLevel (suc (suc n)) A
     → isOfHLevel (suc (suc n)) B
@@ -88,6 +91,27 @@ isEmbedding-inl w z = snd (compEquiv LiftEquiv (⊎Path.Cover≃Path (inl w) (in
 
 isEmbedding-inr : isEmbedding (inr {A = A} {B = B})
 isEmbedding-inr w z = snd (compEquiv LiftEquiv (⊎Path.Cover≃Path (inr w) (inr z)))
+
+module _ (f : A → C) (g : B → C) where
+    private
+      f+g : (A ⊎ B) → C
+      f+g = ⊎.rec f g
+
+      cong-f+g∘inl : {x x' : A} → x ≡ x' → f x ≡ f x'
+      cong-f+g∘inl {x = x} {x' = x'} = cong (f+g ∘ inl)
+
+      cong-f+g∘inr : {y y' : B} → y ≡ y' → g y ≡ g y'
+      cong-f+g∘inr {y = y} {y' = y'} = cong (f+g ∘ inr)
+
+    isEmbeddingPair : isEmbedding f → isEmbedding g → ((x : A) (y : B) → ¬ f x ≡ g y) → isEmbedding f+g
+    isEmbeddingPair embf embg fx≢gy (inl x) (inl x') =
+        second-in-isEquiv-comp→isEquiv (cong inl) (cong f+g) cong-f+g∘inl (isEmbedding-inl x x') (embf x x') refl
+    isEmbeddingPair embf embg fx≢gy (inl x) (inr y') =
+        uninhabIsEquiv (cong f+g) (⊎Path.inl≢inr x y') (fx≢gy x y')
+    isEmbeddingPair embf embg fx≢gy (inr y) (inl x') =
+        uninhabIsEquiv (cong f+g) (λ eq → ⊎Path.inl≢inr x' y (sym eq)) λ eq → fx≢gy x' y (sym eq)
+    isEmbeddingPair embf embg fx≢gy (inr y) (inr y') =
+        second-in-isEquiv-comp→isEquiv (cong inr) (cong f+g) cong-f+g∘inr (isEmbedding-inr y y') (embg y y') refl
 
 isOfHLevel⊎ : (n : HLevel)
   → isOfHLevel (suc (suc n)) A
@@ -368,3 +392,4 @@ sec (Lift⊎Iso ℓD) (lift (inl x)) = refl
 sec (Lift⊎Iso ℓD) (lift (inr x)) = refl
 ret (Lift⊎Iso ℓD) (inl x) = refl
 ret (Lift⊎Iso ℓD) (inr x) = refl
+

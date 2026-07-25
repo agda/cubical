@@ -1,6 +1,8 @@
 {-# OPTIONS --no-exact-split #-}
 module Cubical.Data.Nat.Base where
 
+open import Cubical.Foundations.Prelude
+
 open import Agda.Builtin.Nat public
   using (zero; suc; _+_)
   renaming (Nat to ℕ; _-_ to _∸_; _*_ to _·_ ; _<_ to _<ᵇ_ ; _==_ to _≡ᵇ_)
@@ -11,6 +13,9 @@ open import Cubical.Data.Sum.Base hiding (elim)
 open import Cubical.Data.Empty.Base hiding (elim)
 open import Cubical.Data.Unit.Base
 open import Cubical.Data.Sigma.Base
+
+ℕ* : {ℓ : Level} → Type ℓ
+ℕ* = Lift _ ℕ
 
 predℕ : ℕ → ℕ
 predℕ zero = zero
@@ -70,6 +75,10 @@ isOddT n = isEvenT (suc n)
 isZero : ℕ → Bool
 isZero zero = true
 isZero (suc n) = false
+
+NonZero : ℕ → Type
+NonZero zero = ⊥
+NonZero (ℕ.suc n) = Unit
 
 -- exponential
 

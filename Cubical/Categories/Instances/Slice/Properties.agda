@@ -28,13 +28,13 @@ open _≃ᶜ_
 open Functor
 open WeakInverse
 
-slice→el : Functor (SliceCat C c) (∫ᴾ (C [-, c ]))
+slice→el : Functor (SliceCat C c) (∫ (C [-, c ]))
 slice→el .F-ob s = s .S-ob , s .S-arr
 slice→el .F-hom f = f .S-hom , f .S-comm
 slice→el .F-id = ΣPathP (refl , (isOfHLevelPath' 1 (C .isSetHom) _ _ _ _))
 slice→el .F-seq _ _ = ΣPathP (refl , (isOfHLevelPath' 1 (C .isSetHom) _ _ _ _))
 
-el→slice : Functor (∫ᴾ (C [-, c ])) (SliceCat C c)
+el→slice : Functor (∫ (C [-, c ])) (SliceCat C c)
 el→slice .F-ob (_ , s) = sliceob s
 el→slice .F-hom (f , comm) = slicehom f comm
 el→slice .F-id = SliceHom-≡-intro C c refl (isOfHLevelPath' 1 (C .isSetHom) _ _ _ _)
@@ -43,7 +43,7 @@ el→slice .F-seq _ _ = SliceHom-≡-intro C c refl (isOfHLevelPath' 1 (C .isSet
 open NatTrans
 open NatIso
 
-sliceIsElementsOfRep : SliceCat C c ≃ᶜ (∫ᴾ (C [-, c ]))
+sliceIsElementsOfRep : SliceCat C c ≃ᶜ (∫ (C [-, c ]))
 sliceIsElementsOfRep .func = slice→el
 sliceIsElementsOfRep .isEquiv  = ∣ w-inv ∣₁
   where
@@ -52,12 +52,8 @@ sliceIsElementsOfRep .isEquiv  = ∣ w-inv ∣₁
     w-inv .η .trans .N-ob s = SliceCat C c .id
     w-inv .η .trans .N-hom f = (SliceCat C c .⋆IdR f)
                              ∙ sym (SliceCat C c .⋆IdL f)
-    w-inv .η .nIso x = isiso (SliceCat C c .id)
-                             (SliceCat C c .⋆IdR _)
-                             (SliceCat C c .⋆IdR _)
-    w-inv .ε .trans .N-ob s = (∫ᴾ (C [-, c ])) .id
-    w-inv .ε .trans .N-hom f = ((∫ᴾ (C [-, c ])) .⋆IdR f)
-                             ∙ sym ((∫ᴾ (C [-, c ])) .⋆IdL f)
-    w-inv .ε .nIso x = isiso ((∫ᴾ (C [-, c ])) .id)
-                             ((∫ᴾ (C [-, c ])) .⋆IdR _)
-                             ((∫ᴾ (C [-, c ])) .⋆IdR _)
+    w-inv .η .nIso x = idCatIso {C = (SliceCat C c)} .snd
+    w-inv .ε .trans .N-ob x = (∫ (C [-, c ])) .id
+    w-inv .ε .trans .N-hom f = ((∫ (C [-, c ])) .⋆IdR f)
+                             ∙ sym ((∫ (C [-, c ])) .⋆IdL f)
+    w-inv .ε .nIso x = idCatIso {C = ∫ (C [-, c ])} .snd

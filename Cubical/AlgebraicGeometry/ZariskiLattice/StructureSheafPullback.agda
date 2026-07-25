@@ -67,6 +67,7 @@ open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Instances.CommAlgebras
 open import Cubical.Categories.Instances.DistLattice
+open import Cubical.Categories.Instances.FullSubcategory
 open import Cubical.Categories.Instances.Semilattice
 open import Cubical.Categories.DistLatticeSheaf.Base
 

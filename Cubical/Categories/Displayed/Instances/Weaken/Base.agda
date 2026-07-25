@@ -1,7 +1,8 @@
 {-
-  Weaken a category to be a displayed category.
+  Weaken a category to be a displayed over an arbitrary other category.
+
+  The total category of this is the ordinary product of categories.
 -}
---
 module Cubical.Categories.Displayed.Instances.Weaken.Base where
 
 open import Cubical.Foundations.Prelude
@@ -9,8 +10,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Functor
-open import Cubical.Categories.Instances.BinProduct
+open import Cubical.Categories.Functor.Base
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
@@ -42,9 +42,6 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
   weakenΠ .F-hom = snd
   weakenΠ .F-id = refl
   weakenΠ .F-seq _ _ = refl
-
-  ∫weaken→×C : Functor (∫C weaken) (C ×C D)
-  ∫weaken→×C = TC.Fst ,F weakenΠ
 
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}

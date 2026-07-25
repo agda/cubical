@@ -149,6 +149,34 @@ isPropIs2Groupoid = isPropIsOfHLevel 4
 TypeOfHLevel≡ : (n : HLevel) {X Y : TypeOfHLevel ℓ n} → ⟨ X ⟩ ≡ ⟨ Y ⟩ → X ≡ Y
 TypeOfHLevel≡ n = Σ≡Prop (λ _ → isPropIsOfHLevel n)
 
+-- hlevels are preserved by equalities
+
+≡-from-isOfHLevel→isOfHLevel : {ℓ : Level} {A B : Type ℓ} {n : HLevel} → A ≡ B → isOfHLevel n A → isOfHLevel n B
+≡-from-isOfHLevel→isOfHLevel {n = n} = subst (isOfHLevel n)
+
+≡-to-isOfHLevel→isOfHLevel : {ℓ : Level} {A B : Type ℓ} {n : HLevel} → A ≡ B → isOfHLevel n B → isOfHLevel n A
+≡-to-isOfHLevel→isOfHLevel {n = n} = subst⁻ (isOfHLevel n)
+
+≡-to-isContr→isContr : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isContr B → isContr A
+≡-to-isContr→isContr = ≡-to-isOfHLevel→isOfHLevel {n = 0}
+
+≡-from-isContr→isContr : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isContr A → isContr B
+≡-from-isContr→isContr = ≡-from-isOfHLevel→isOfHLevel {n = 0}
+
+≡-to-isProp→isProp : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isProp B → isProp A
+≡-to-isProp→isProp = ≡-to-isOfHLevel→isOfHLevel {n = 1}
+
+≡-from-isProp→isProp : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isProp A → isProp B
+≡-from-isProp→isProp = ≡-from-isOfHLevel→isOfHLevel {n = 1}
+
+≡-to-isSet→isSet : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isSet B → isSet A
+≡-to-isSet→isSet = ≡-to-isOfHLevel→isOfHLevel {n = 2}
+
+≡-from-isSet→isSet : {ℓ : Level} {A B : Type ℓ} → A ≡ B → isSet A → isSet B
+≡-from-isSet→isSet = ≡-from-isOfHLevel→isOfHLevel {n = 2}
+
+
+
 -- hlevels are preserved by retracts (and consequently equivalences)
 
 isContrRetract
@@ -643,6 +671,9 @@ isContrDep = isOfHLevelDep 0
 isPropDep : {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
 isPropDep = isOfHLevelDep 1
 
+isSetDep : {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
+isSetDep = isOfHLevelDep 2
+
 isContrDep∘
   : {A' : Type ℓ} (f : A' → A) → isContrDep B → isContrDep (B ∘ f)
 isContrDep∘ f cB {a} = λ where
@@ -670,6 +701,18 @@ isOfHLevel→isOfHLevelDep (suc (suc n)) {A = A} {B} h {a0} {a1} b0 b1 =
     isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1)
   helper p = J (λ a1 p → ∀ b1 → isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1))
                      (λ _ → h _ _ _) p b1
+
+isContr→isContrDep :
+ {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isContr (B a)) → isContrDep {A = A} B
+isContr→isContrDep = isOfHLevel→isOfHLevelDep 0
+
+isProp→isPropDep :
+ {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isProp (B a)) → isPropDep {A = A} B
+isProp→isPropDep = isOfHLevel→isOfHLevelDep 1
+
+isSet→isSetDep :
+ {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isSet (B a)) → isSetDep {A = A} B
+isSet→isSetDep = isOfHLevel→isOfHLevelDep 2
 
 isContrDep→isPropDep : isOfHLevelDep 0 B → isOfHLevelDep 1 B
 isContrDep→isPropDep {B = B} Bctr {a0 = a0} b0 b1 p i

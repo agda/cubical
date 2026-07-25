@@ -28,8 +28,7 @@ private
     ℓS ℓS' : Level
     e e' : Level
 
-
--- (PresheafCategory C) / F ≃ᶜ PresheafCategory (∫ᴾ F)
+-- (PresheafCategory C) / F ≃ᶜ PresheafCategory (∫ F)
 module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS)) where
   open Category
   open Functor
@@ -54,7 +53,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
   -- ========================================
 
   -- action on (slice) objects
-  K-ob : (s : SliceCat .ob) → (PresheafCategory (∫ᴾ F) ℓS .ob)
+  K-ob : (s : SliceCat .ob) → (PresheafCategory (∫ F) ℓS .ob)
   -- we take (c , x) to the fiber in A of ϕ over x
   K-ob (sliceob {A} ϕ) .F-ob (c , x)
     = (fiber (ϕ ⟦ c ⟧) x)
@@ -90,18 +89,18 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
 
       -- just apply the natural transformation (ε) we're given
       -- this ensures that we stay in the fiber over x due to the commutativity given by slicenesss
-      η-ob : (el : (∫ᴾ F) .ob) → (fst (P ⟅ el ⟆) → fst (Q ⟅ el ⟆) )
+      η-ob : (el : (∫ F) .ob) → (fst (P ⟅ el ⟆) → fst (Q ⟅ el ⟆) )
       η-ob (c , x) (a , ϕa≡x) = ((ε ⟦ c ⟧) a) , εψ≡ϕ ∙ ϕa≡x
         where
           εψ≡ϕ : (ψ ⟦ c ⟧) ((ε ⟦ c ⟧) a) ≡ (ϕ ⟦ c ⟧) a
           εψ≡ϕ i = ((com i) ⟦ c ⟧) a
 
-      η-hom : ∀ {el1 el2} (h : (∫ᴾ F) [ el1 , el2 ]) (ae : fst (P ⟅ el2 ⟆)) → η-ob el1 ((P ⟪ h ⟫) ae) ≡ (Q ⟪ h ⟫) (η-ob el2 ae)
+      η-hom : ∀ {el1 el2} (h : (∫ F) [ el1 , el2 ]) (ae : fst (P ⟅ el2 ⟆)) → η-ob el1 ((P ⟪ h ⟫) ae) ≡ (Q ⟪ h ⟫) (η-ob el2 ae)
       η-hom {el1 = (c , x)} {d , y} (h , eqh) (a , eqa)
         = fibersEqIfRepsEqNatTrans ψ (λ i → ε .N-hom h i a)
 
 
-  K : Functor SliceCat (PresheafCategory (∫ᴾ F) ℓS)
+  K : Functor SliceCat (PresheafCategory (∫ F) ℓS)
   K .F-ob = K-ob
   K .F-hom = K-hom
   K .F-id = makeNatTransPath
@@ -120,7 +119,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
   -- ========================================
 
   -- action on objects (presheaves)
-  L-ob : (P : PresheafCategory (∫ᴾ F) ℓS .ob)
+  L-ob : (P : PresheafCategory (∫ F) ℓS .ob)
         → SliceCat .ob
   L-ob P = sliceob {S-ob = L-ob-ob} L-ob-hom
     where
@@ -162,7 +161,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
                     left : PathP (λ i → fst (P ⟅ c , leftEq i ⟆))
                                   ((P ⟪ C .id , refl ⟫) X)
                                   ((P ⟪ ∫id ⟫) X)
-                    left i = (P ⟪ ∫ᴾhomEq {F = F} (C .id , refl) ∫id (λ i → (c , leftEq i)) refl refl i ⟫) X
+                    left i = (P ⟪ ElementHomPathP F (C .id , refl) ∫id (λ i → (c , leftEq i)) refl refl i ⟫) X
       L-ob-ob .F-seq {x = c} {d} {e} f g
         = funExt seqFunEq
           where
@@ -185,21 +184,21 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
                 rightEq = left ▷ right
                   where
                     -- functoriality of P only gets us to this weird composition on the left
-                    right : (P ⟪ (g , refl) ⋆⟨ (∫ᴾ F) ⟩ (f , refl) ⟫) X ≡ (P ⟪ g , refl ⟫) ((P ⟪ f , refl ⟫) X)
+                    right : (P ⟪ (g , refl) ⋆⟨ (∫ F) ⟩ (f , refl) ⟫) X ≡ (P ⟪ g , refl ⟫) ((P ⟪ f , refl ⟫) X)
                     right i = P .F-seq (f , refl) (g , refl) i X
 
                     -- so we need to show that this composition is actually equal to the one we want
                     left : PathP (λ i → fst (P ⟅ e , leftEq i ⟆))
                                   ((P ⟪ g ⋆⟨ C ⟩ f , refl ⟫) X)
-                                  ((P ⟪ (g , refl) ⋆⟨ (∫ᴾ F) ⟩ (f , refl) ⟫) X)
-                    left i = (P ⟪ ∫ᴾhomEq {F = F} (g ⋆⟨ C ⟩ f , refl) ((g , refl) ⋆⟨ (∫ᴾ F) ⟩ (f , refl)) (λ i → (e , leftEq i)) refl refl i ⟫) X
+                                  ((P ⟪ (g , refl) ⋆⟨ (∫ F) ⟩ (f , refl) ⟫) X)
+                    left i = (P ⟪ ElementHomPathP F (g ⋆⟨ C ⟩ f , refl) ((g , refl) ⋆⟨ (∫ F) ⟩ (f , refl)) (λ i → (e , leftEq i)) refl refl i ⟫) X
       L-ob-hom : L-ob-ob ⇒ F
       L-ob-hom .N-ob c (x , _) = x
       L-ob-hom .N-hom f = funExt λ (x , _) → refl
 
   -- action on morphisms (aka natural transformations between presheaves)
   -- is essentially the identity (plus equality proofs for naturality and slice commutativity)
-  L-hom : ∀ {P Q} → PresheafCategory (∫ᴾ F) ℓS [ P , Q ] →
+  L-hom : ∀ {P Q} → PresheafCategory (∫ F) ℓS [ P , Q ] →
         SliceCat [ L-ob P , L-ob Q ]
   L-hom {P} {Q} η = slicehom arr com
     where
@@ -223,7 +222,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
                     → (arr ●ᵛ ψ) ⟦ c ⟧ ≡ ϕ ⟦ c ⟧
           comFunExt c = funExt λ x → refl
 
-  L : Functor (PresheafCategory (∫ᴾ F) ℓS) SliceCat
+  L : Functor (PresheafCategory (∫ F) ℓS) SliceCat
   L .F-ob = L-ob
   L .F-hom = L-hom
   L .F-id {cx} = SliceHom-≡-intro' (makeNatTransPath (funExt λ c → refl))
@@ -300,18 +299,18 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
 
     -- the natural isomorphism
     -- applies typeFiberIso (inv)
-    εTrans : (K ∘F L) ⇒ 𝟙⟨ PresheafCategory (∫ᴾ F) ℓS ⟩
+    εTrans : (K ∘F L) ⇒ 𝟙⟨ PresheafCategory (∫ F) ℓS ⟩
     εTrans .N-ob P = natTrans γ-ob (λ f → funExt (λ a → γ-homFunExt f a))
       where
         KLP = K ⟅ L ⟅ P ⟆ ⟆
 
-        γ-ob : (el : (∫ᴾ F) .ob)
+        γ-ob : (el : (∫ F) .ob)
             → (fst (KLP ⟅ el ⟆) → fst (P ⟅ el ⟆) )
         γ-ob el@(c , _) = typeFiberIso {isSetA = snd (F ⟅ c ⟆)} (λ x → fst (P ⟅ c , x ⟆)) .inv
 
         -- naturality
         -- the annoying part is all the substs
-        γ-homFunExt : ∀ {el2 el1} → (f' : (∫ᴾ F) [ el2 , el1 ])
+        γ-homFunExt : ∀ {el2 el1} → (f' : (∫ F) [ el2 , el1 ])
               → (∀ (a : fst (KLP ⟅ el1 ⟆)) → γ-ob el2 ((KLP ⟪ f' ⟫) a) ≡ (P ⟪ f' ⟫) (γ-ob el1 a))
         γ-homFunExt {d , y} {c , x} f'@(f , comm) a@((x' , X') , eq) i
           = comp (λ j → fst (P ⟅ d , eq' j ⟆)) (λ j → λ { (i = i0) → left j
@@ -340,7 +339,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
         KLP = K ⟅ L ⟅ P ⟆ ⟆
 
         -- naturality of the above construction applies a similar argument as in `γ-homFunExt`
-        ε-homFunExt : ∀ (cx@(c , x) : (∫ᴾ F) .ob) (xX'@((x' , X') , eq) : fst (KLP ⟅ cx ⟆))
+        ε-homFunExt : ∀ (cx@(c , x) : (∫ F) .ob) (xX'@((x' , X') , eq) : fst (KLP ⟅ cx ⟆))
                     → subst (λ v → fst (Q ⟅ c , v ⟆)) (snd ((K ⟪ L ⟪ α ⟫ ⟫ ⟦ cx ⟧) xX')) ((α ⟦ c , x' ⟧) X')
                     ≡ (α ⟦ c , x ⟧) (subst _ eq X')
         ε-homFunExt cx@(c , x) xX'@((x' , X') , eq) i
@@ -370,18 +369,18 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
                 eq'≡eq : eq' ≡ eq
                 eq'≡eq = snd (F ⟅ c ⟆) _ _ eq' eq
 
-    εIso : ∀ (P : PresheafCategory (∫ᴾ F) ℓS .ob)
-          → isIsoC (PresheafCategory (∫ᴾ F) ℓS) (εTrans ⟦ P ⟧)
+    εIso : ∀ (P : PresheafCategory (∫ F) ℓS .ob)
+          → isIsoC (PresheafCategory (∫ F) ℓS) (εTrans ⟦ P ⟧)
     εIso P = FUNCTORIso _ _ _ isIsoC'
       where
-        isIsoC' : ∀ (cx : (∫ᴾ F) .ob)
+        isIsoC' : ∀ (cx : (∫ F) .ob)
                 → isIsoC (SET _) ((εTrans ⟦ P ⟧) ⟦ cx ⟧)
         isIsoC' cx@(c , _) = Morphism.CatIso→isIso (Iso→CatIso (invIso (typeFiberIso {isSetA = snd (F ⟅ c ⟆)} _)))
 
 
   -- putting it all together
 
-  preshSlice≃preshElem : SliceCat ≃ᶜ PresheafCategory (∫ᴾ F) ℓS
+  preshSlice≃preshElem : SliceCat ≃ᶜ PresheafCategory (∫ F) ℓS
   preshSlice≃preshElem .func = K
   preshSlice≃preshElem .isEquiv = ∣ w-inv ∣₁
     where

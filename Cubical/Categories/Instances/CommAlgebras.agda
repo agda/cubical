@@ -24,6 +24,7 @@ open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Limits.Limits
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.CommRings
+open import Cubical.Categories.Instances.FullSubcategory
 
 open import Cubical.HITs.PropositionalTruncation
 
@@ -534,9 +535,9 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
          where
 
  private
-  ∥P∥ : ℙ (ob C)
-  ∥P∥ x  = ∥ P x ∥₁ , isPropPropTrunc
-  ΣC∥P∥Cat = ΣPropCat C ∥P∥
+  ∥P∥ : (ob C) → Type _
+  ∥P∥ x  = ∥ P x ∥₁
+  ΣC∥P∥Cat = FullSubcategory C ∥P∥
   CommAlgCat = CommAlgebrasCategory {ℓ = ℓ''} R {ℓ' = ℓ''}
 
  𝓕UniqueEquiv : (x : ob C) (p q : P x) → isContr (CommAlgebraEquiv (𝓕 (x , p)) (𝓕 (x , q)))

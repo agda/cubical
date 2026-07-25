@@ -24,6 +24,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Limits
+open import Cubical.Categories.Instances.FullSubcategory
 open import Cubical.Categories.Instances.Poset
 open import Cubical.Categories.Instances.Semilattice
 open import Cubical.Categories.Instances.Lattice

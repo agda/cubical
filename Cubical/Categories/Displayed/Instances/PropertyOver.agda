@@ -6,7 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Functor
+open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.HLevels

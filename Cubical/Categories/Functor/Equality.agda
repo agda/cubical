@@ -8,7 +8,7 @@ module Cubical.Categories.Functor.Equality where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Functor
+open import Cubical.Categories.Functor.Base
 import      Cubical.Data.Equality as Eq
 
 private

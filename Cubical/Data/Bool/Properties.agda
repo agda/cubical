@@ -10,6 +10,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sum hiding (elim)
 open import Cubical.Data.Bool.Base
@@ -77,6 +78,12 @@ true≢false p = subst (λ b → if b then Bool else ⊥) p true
 
 false≢true : ¬ false ≡ true
 false≢true p = subst (λ b → if b then ⊥ else Bool) p true
+
+true*≢false* : ¬ (true* {ℓ} ≡ false* {ℓ})
+true*≢false* p = subst (λ b → if b .lower then Bool else ⊥) p true
+
+false*≢true* : ¬ (false* {ℓ} ≡ true* {ℓ})
+false*≢true* p = subst⁻ (λ b → if b .lower then Bool else ⊥) p true
 
 ¬true→false : (x : Bool) → ¬ x ≡ true → x ≡ false
 ¬true→false false _ = refl
@@ -452,3 +459,27 @@ Iso.sec (ΣBoolΣIso {true}) _ = refl
 ΣBool≃Σ : {b : Bool} {c : (Bool→Type b) → Bool} →
   (Bool→Type (ΣBool b c)) ≃ (Σ[ z ∈ Bool→Type b ] Bool→Type (c z))
 ΣBool≃Σ = isoToEquiv ΣBoolΣIso
+
+⊥≢Bool : ¬ ⊥ ≡ Bool
+⊥≢Bool ⊥≡Bool = transport⁻ ⊥≡Bool true
+
+⊥*≢Bool* : ¬ ⊥* {ℓ} ≡ Bool* {ℓ}
+⊥*≢Bool* ⊥≡Bool = transport⁻ ⊥≡Bool true* .lower
+
+Bool≢⊥ : ¬ Bool ≡ ⊥
+Bool≢⊥ Bool≡⊥ = transport Bool≡⊥ true
+
+Bool*≢⊥* : ¬ Bool* {ℓ} ≡ ⊥* {ℓ}
+Bool*≢⊥* Bool≡⊥ = transport Bool≡⊥ true* .lower
+
+Unit≢Bool : ¬ (Unit ≡ Bool)
+Unit≢Bool p = false≢true (≡-from-isProp→isProp p isPropUnit false true)
+
+Bool≢Unit : ¬ (Bool ≡ Unit)
+Bool≢Unit p = false≢true (≡-to-isProp→isProp p isPropUnit false true)
+
+Unit*≢Bool* : ¬ (Unit* {ℓ} ≡ Bool* {ℓ})
+Unit*≢Bool* p = false*≢true* (≡-from-isProp→isProp p isPropUnit* false* true*)
+
+Bool*≢Unit* : ¬ (Bool* {ℓ} ≡ Unit* {ℓ})
+Bool*≢Unit* p = false*≢true* (≡-to-isProp→isProp p isPropUnit* false* true*)
