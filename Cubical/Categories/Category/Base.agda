@@ -39,7 +39,7 @@ record Category ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
           → f ≡ f' → f ⋆ g ≡ f' ⋆ g
   ⟨ ≡f ⟩⋆⟨⟩ = cong (_⋆ _) ≡f
 
-  ⟨⟩⋆⟨_⟩ : {x y z : ob} {f f : Hom[ x , y ]} {g g' : Hom[ y , z ]}
+  ⟨⟩⋆⟨_⟩ : {x y z : ob} {f : Hom[ x , y ]} {g g' : Hom[ y , z ]}
           → g ≡ g' → f ⋆ g ≡ f ⋆ g'
   ⟨⟩⋆⟨ ≡g ⟩ = cong (_ ⋆_) ≡g
 
