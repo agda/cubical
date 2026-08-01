@@ -16,7 +16,6 @@ open import Cubical.Data.Nat as ℕ
    ¬x≡0→NonZero; ¬k·l≡0→¬k≡0)
 open import Cubical.Data.Nat.GCD as ℕ
 open import Cubical.Data.Nat.Coprime as ℕ
-open import Cubical.Data.Nat.Divisibility as ℕ using (∣-untrunc)
 open import Cubical.Data.NatPlusOne using (1+_; ℕ₊₁; -1+_; ℕ₊₁→ℕ; _·₊₁_)
 open import Cubical.Data.NatPlusOne.PropertiesWithInt
 open import Cubical.Data.Int as ℤ

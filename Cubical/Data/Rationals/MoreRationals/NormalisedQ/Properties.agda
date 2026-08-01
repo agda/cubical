@@ -2,28 +2,15 @@
 module Cubical.Data.Rationals.MoreRationals.NormalisedQ.Properties where
 
 open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Unit
-
 open import Cubical.Data.Nat as ℕ using (ℕ; suc; zero; predℕ)
   renaming (_+_ to _ℕ+_; _·_ to _ℕ·_)
 open import Cubical.Data.Nat.GCD as ℕ renaming (gcd to gcdℕ; gcdSym to gcdℕSym)
 open import Cubical.Data.Nat.Coprime
 open import Cubical.Data.Nat.Properties
-open import Cubical.Data.Nat.Mod
 open import Cubical.Data.NatPlusOne.PropertiesWithInt
   using (ℕ₊₁→ℤ; ·ℕ₊₁→ℤ-distr)
-
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Transport
-open import Cubical.HITs.SetQuotients using (eq/)
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Binary
-open BinaryRelation
-
-open import Cubical.Data.Sigma
-open import Cubical.Data.Sum.Base
-open import Cubical.Data.Int.Order as ℤ using ()
 open import Cubical.Data.Int as ℤ
   using (ℤ; pos; negsuc; isIntegralℤ; injPos)
   renaming (-_ to -ℤ_; ·IdR to ℤ·IdR; ·IdL to ℤ·IdL; +Assoc to ℤ+Assoc;
@@ -31,8 +18,6 @@ open import Cubical.Data.Int as ℤ
    ·DistL+ to ℤ·DistL+; -DistL· to ℤ-DistL·; abs to absℤ;
    abs· to absℤ·)
 open import Cubical.Data.Int.GCD as ℤ
-
-open import Cubical.Data.Bool hiding (_≤_)
 open import Cubical.Data.NatPlusOne as ℕ₊₁
   using (1+_; _·₊₁_; ℕ₊₁; ℕ₊₁→ℕ; ℕ₊₁→ℕ-inj; ·₊₁-comm; -1+_;
     ·₊₁-identityʳ; ·₊₁-identityˡ ; ·₊₁-assoc)
