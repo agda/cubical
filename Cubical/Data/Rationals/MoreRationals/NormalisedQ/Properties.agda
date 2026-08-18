@@ -97,6 +97,10 @@ p / q = p · (1/ q)
       cong₂ (λ u v → u ·₊₁ v)
        (sym (↧₊₁·gcd-lemma x d-1)) (sym (↧₊₁·gcd-lemma y d-1'))
 
+·ᵘ-def-cross : ∀ x y d d' → [ x , d ] · [ y , d' ] ≡ [ x ℤ.· y , d' ·₊₁ d ]
+·ᵘ-def-cross x y d d' =
+  ·ᵘ-def x y d d' ∙ cong (λ a → [ x ℤ.· y , a ]) (·₊₁-comm d d')
+
 ·[]CancelCrossR : ∀ x d d' → [ x , d ] · [ ℕ₊₁→ℤ d , d' ] ≡ [ x , d' ]
 ·[]CancelCrossR x d d' = ·ᵘ-def x (ℕ₊₁→ℤ d) d d' ∙
   cong (λ u → [ u ,  d ·₊₁ d' ]) (ℤ·Comm x (ℕ₊₁→ℤ d)) ∙
@@ -168,6 +172,10 @@ p / q = p · (1/ q)
      (λ a -> [ a , (↧₊₁ x) ·₊₁ c ]) (ℤ.·DistL+ (↥ x) (↥ y) (ℕ₊₁→ℤ c)) ∙
       (cong (λ a → [ ((↥ x) ℤ.· (ℕ₊₁→ℤ c)) ℤ.+ ((↥ y) ℤ.· a) , (↧₊₁ x) ·₊₁ c ])
        (cong pos (sym (cong ℕ₊₁→ℕ ((sym denx) ∙ deny)))))
+
+↧↧₊₁≡1 : ∀ n → [ ↧ n , ↧₊₁ n ] ≡ 1ℚ
+↧↧₊₁≡1 n = ·[]Cancel {pos (suc zero)}{1+ zero}{↧ n}{↧₊₁ n}
+  (↧₊₁ n) refl (sym (·₊₁-identityˡ (↧₊₁ n)))
 
 --------------------------------------------------
 -- Properties of _·_
@@ -290,6 +298,30 @@ y-x-comm x y = +Comm (- x) y
 -Invol x@((pos (suc m) , n) , copr) = refl
 -Invol x@((negsuc m , n) , copr) = refl
 
+subtractR : ∀ {x y z} → x + y ≡ z → x ≡ z - y
+subtractR {x} {y} {z} xyz =  sym (+IdR x) ∙ cong (x +_) (sym (+InvR y)) ∙
+  +Assoc x y (- y) ∙ cong (_- y) xyz
+
+-nonZero : (p : ℚ) {{np : NonZero p}} → NonZero (- p)
+-nonZero p@((pos (suc m) , n) , c) ⦃ np ⦄ = tt
+-nonZero p@((negsuc m , n) , c) ⦃ np ⦄ = tt
+
+-- Useful lemmas with _+_
+
+a+b+'c+d≡a+'c+b+d : ∀ a b c d → (a + b) + (c + d) ≡ a + (c + b + d)
+a+b+'c+d≡a+'c+b+d a b c d = sym (+Assoc a b (c + d)) ∙ cong (λ x → a + x)
+ (+Assoc b c d ∙ cong (λ x → x + d) (+Comm b c))
+
+a+b+'c+d≡a+c+'b+d : ∀ a b c d → (a + b) + (c + d) ≡ (a + c) + (b + d)
+a+b+'c+d≡a+c+'b+d a b c d = step1 ∙ step3 ∙ sym step2
+  where
+    step1 : (a + b) + (c + d) ≡ a + (c + b + d)
+    step1 = a+b+'c+d≡a+'c+b+d a b c d
+    step2 : (a + c) + (b + d) ≡ a + (b + c + d)
+    step2 = a+b+'c+d≡a+'c+b+d a c b d
+    step3 : a + (c + b + d) ≡ a + (b + c + d)
+    step3 = cong (λ x → a + (x + d)) (+Comm c b)
+
 -------------------------------------------------
 -- Distributivity relations between _·_ and _+_
 
@@ -343,6 +375,33 @@ y-x-comm x y = +Comm (- x) y
 -DistrR· : ∀ x y → - (x · y) ≡ x · (- y)
 -DistrR· x y = cong -_ (·Comm x y) ∙ -DistrL· y x ∙ ·Comm (- y) x
 
+-[]distr' : ∀ a b → - [ a , b ] ≡ [ -ℤ a , b ]
+-[]distr' (pos zero) b =  refl
+-[]distr' (pos (suc n)) b = refl
+-[]distr' (negsuc n) b = -Invol (normalise (suc n) b)
+
+-dist+ : ∀ p q → - (p + q) ≡ (- p) + (- q)
+-dist+ p q = -[]distr' p+q-num p+q-den ∙ cong₂ (λ a b → [ a , b ]) ths bhs
+  where
+    p+q-num = (↥ p) ℤ.· (↧ q) ℤ.+ (↥ q) ℤ.· (↧ p)
+    -p-q-num = (↥ (- p)) ℤ.· (↧ (- q)) ℤ.+ (↥ (- q)) ℤ.· (↧ (- p))
+    p+q-den = (↧₊₁ p) ·₊₁ (↧₊₁ q)
+    -p-q-den = (↧₊₁ (- p)) ·₊₁ (↧₊₁ (- q))
+    lhs : ↥ (- p) ℤ.· ↧ (- q) ≡ ℤ.- (↥ p ℤ.· ↧ q)
+    lhs = cong₂ (λ a b → a ℤ.· b) (↥-neg p) (↧-neg q) ∙
+      sym (ℤ-DistL· (↥ p) (↧ q))
+    rhs : ↥ (- q) ℤ.· ↧ (- p) ≡ ℤ.- (↥ q ℤ.· ↧ p)
+    rhs = cong₂ (λ a b → a ℤ.· b) (↥-neg q) (↧-neg p) ∙
+      sym (ℤ-DistL· (↥ q) (↧ p))
+    ths : -ℤ p+q-num ≡ -p-q-num
+    ths = ℤ.-Dist+ ((↥ p) ℤ.· (↧ q)) ((↥ q) ℤ.· (↧ p)) ∙
+      sym (cong₂ (λ a b → a ℤ.+ b) lhs rhs)
+    bhs : p+q-den ≡ -p-q-den
+    bhs = sym (cong₂ (λ a b → a ·₊₁ b) (↧₊₁-neg p) (↧₊₁-neg q))
+
+-dist- : ∀ p q → - (p - q) ≡ q - p
+-dist- p q = -dist+ p (- q) ∙ cong ((- p) +_) (-Invol q) ∙ +Comm (- p) q
+
 -x·-y≡x·y : ∀ x y → (- x) · (- y) ≡ x · y
 -x·-y≡x·y x y = sym ((cong -_ (·Comm (- y) x)) ∙ (-DistrL· x (- y))) ∙
   -DistrL· (- y) x ∙ ·Comm (- (- y)) x ∙ cong (λ u → x · u) (-Invol y)
@@ -350,16 +409,22 @@ y-x-comm x y = +Comm (- x) y
 x·-y≡-x·y : ∀ x y → x · (- y) ≡ (- x) · y
 x·-y≡-x·y x y = sym (-DistrR· x y) ∙ -DistrL· x y
 
--------------------------------------------------------
--- Some helper functions for properties of 1/_ and _/_
-
 ·nonZero : (p q : ℚ) {{np : NonZero p}}{{nq : NonZero q}} → NonZero (p · q)
 ·nonZero p q {{np}}{{nq}} =
   ¬≡0→NonZero (converse (isIntegralℚ {p}{q} (NonZero→¬≡0 np)) (NonZero→¬≡0 nq))
 
--nonZero : (p : ℚ) {{np : NonZero p}} → NonZero (- p)
--nonZero p@((pos (suc m) , n) , c) ⦃ np ⦄ = tt
--nonZero p@((negsuc m , n) , c) ⦃ np ⦄ = tt
+·NonNegatives : ∀ {p}{q} → NonNegative p → NonNegative q → NonNegative (p · q)
+·NonNegatives {p@((pos m , d-1) , c)} {q@((pos n , d-1') , c')} tt tt = nnpq
+  where
+    step = cong (λ a → NonNegative [ a , (↧₊₁ p) ·₊₁ (↧₊₁ q) ]) (ℤ.pos·pos m n)
+    nnpq : NonNegative (p · q)
+    nnpq = subst (λ x → x) step tt
+
+-------------------------------------------------------
+-- Some helper functions for properties of 1/_ and _/_
+
+substNonZero : {p q : ℚ} → {{nz : NonZero p}} → p ≡ q → NonZero q
+substNonZero {p}{q}{{nz}} pq = subst NonZero pq nz
 
 instance
   nonZero-1/q' : {q : ℚ} → {{nz : NonZero q}} → NonZero (1/ q)
@@ -376,9 +441,6 @@ nonZero-p/q p q {{nz}}{{nz'}} = subst (λ z → z)
   (·nonZero p (1ℚ · 1/ q) {{nz}}{{step}})
   where
     step = subst (λ z → z) (cong NonZero (sym (·IdL (1/ q)))) (nonZero-1/q' {q})
-
-substNonZero : {p q : ℚ} → {{nz : NonZero p}} → p ≡ q → NonZero q
-substNonZero {p}{q}{{nz}} pq = subst NonZero pq nz
 
 private
   -- Absolute value of a non-zero numerator of a ℚ as an ℕ₊₁
@@ -664,3 +726,15 @@ pq/rs≡p/qxr/s* p q r s ⦃ nr ⦄ ⦃ ns ⦄ =
 1/p/q≡q/p* : (p q : ℚ) {{np : NonZero p}}{{nq : NonZero q}} →
   (1ℚ / (p / q)) {{nonZero-p/q p q}} ≡ q / p
 1/p/q≡q/p* p q {{np}}{{nq}} = 1/p/q≡q/p p q {{np}}{{nq}}{{nonZero-p/q p q}}
+
+---------------------------
+-- Sign lemmas
+
++NonNegatives : ∀ {p}{q} → NonNegative p → NonNegative q → NonNegative (p + q)
++NonNegatives p@{(pos m , d-1) , c} q@{(pos n , d-1') , c'} nnp nnq =
+  subst (λ x → x) step2 tt
+  where
+    step1 : (↥ p) ℤ.· (↧ q) ℤ.+ (↥ q) ℤ.· (↧ p) ≡ pos (m ℕ· suc d-1' ℕ+ n ℕ· suc d-1)
+    step1 = (cong₂ (λ a b → a ℤ.+ b) (sym (ℤ.pos·pos m (suc d-1')))
+      (sym (ℤ.pos·pos n (suc d-1)))) ∙ sym (ℤ.pos+ (m ℕ· suc d-1') (n ℕ· suc d-1))
+    step2 = sym (cong (λ a → NonNegative [ a , (↧₊₁ p) ·₊₁ (↧₊₁ q) ]) step1)

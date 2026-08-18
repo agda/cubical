@@ -294,6 +294,16 @@ NonZero→¬≡0 p@{(pos (suc m) , n) , c} tt =
 NonZero→¬≡0 p@{(negsuc m , n) , c} tt =
   converse a≡0→↥a≡0 (λ x → ℤ.negsucNotpos m 0 x)
 
+Positive→Negative- : ∀ {p : ℚ} → Positive p → Negative (- p)
+Positive→Negative- {(pos (suc n) , d-1) , c} pp = tt
+
+Negative→Positive- : ∀ {p : ℚ} → Negative p → Positive (- p)
+Negative→Positive- {(negsuc n , d-1) , c} np = tt
+
+Negative→NonNegative→⊥ : ∀ {p : ℚ} → Negative p → NonNegative p → ⊥
+Negative→NonNegative→⊥ {(pos n , d-1) , c} np nnp = np
+Negative→NonNegative→⊥ {(negsuc n , d-1) , c} np nnp = nnp
+
 ¬≡0→NonZero : ∀ {p : ℚ} → ¬ p ≡ 0ℚ → NonZero p
 ¬≡0→NonZero {(pos zero , n) , c} ¬p0 = ¬p0 (↥a≡0→a≡0ℚ refl)
 ¬≡0→NonZero {(pos (suc m) , n) , c} ¬p0 = tt
@@ -378,6 +388,16 @@ numerator[]≢0 (negsuc n) {n+} ¬0 x =
 [z,n]≡0→z≡0 {negsuc m} {n} zn0 =
   ⊥.elim {A = λ x → negsuc m ≡ pos 0}
    (normaliseNonZero m n ((sym neg-involutive) ∙ (cong -_ zn0) ))
+
+¬z≡0→¬[z,n]≡0 : {z : ℤ}{n : ℕ₊₁} → ¬ (z ≡ pos zero) → ¬ ([ z , n ] ≡ 0ℚ)
+¬z≡0→¬[z,n]≡0 {z}{n} nz = converse [z,n]≡0→z≡0 nz
+
+numSucNonZero : ∀ {k n+} → NonZero [ pos (suc k) , n+ ]
+numSucNonZero {k}{n+} =
+  ¬≡0→NonZero (¬z≡0→¬[z,n]≡0 {pos (suc k)}{n+} (λ x → snotz (injPos x)))
+
+nonZ→NonNeg→Pos : ∀ {m} → NonZero m → NonNegative m → Positive m
+nonZ→NonNeg→Pos {(pos (suc n) , d-1) , c} nzm nnm = tt
 
 [negsuc]≡[-pos] : ∀ n d → [ negsuc n , d ] ≡ - [ pos (suc n) , d ]
 [negsuc]≡[-pos] n d = refl
