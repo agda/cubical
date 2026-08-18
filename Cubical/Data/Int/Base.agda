@@ -4,6 +4,7 @@ module Cubical.Data.Int.Base where
 
 open import Cubical.Foundations.Prelude
 
+open import Cubical.Data.Empty as ⊥ using (⊥)
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat hiding (_+_ ; _·_) renaming (isEven to isEvenℕ ; isOdd to isOddℕ)
 open import Cubical.Data.Fin.Base
@@ -77,6 +78,12 @@ pos zero · m = pos zero
 pos (suc n) · m = m + pos n · m
 negsuc zero · m = - m
 negsuc (suc n) · m = - m + negsuc n · m
+
+NonZeroℤ : ∀ (z : ℤ) → Type
+NonZeroℤ (pos zero) = ⊥
+NonZeroℤ (pos (suc n)) = Unit
+NonZeroℤ (negsuc n) = Unit
+
 
 -- Natural number and negative integer literals for ℤ
 

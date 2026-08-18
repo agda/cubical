@@ -3,8 +3,11 @@ module Cubical.Data.Nat.Coprime where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
+open import Cubical.Relation.Nullary using (¬_)
+
 open import Cubical.Data.Sigma
 open import Cubical.Data.NatPlusOne
+open import Cubical.Data.Sum
 open import Cubical.Data.Empty as ⊥ using (⊥)
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
@@ -103,6 +106,11 @@ toCoprime-cancelʳ (m , n) (1+ k) i =
         r₂ : ℕ₊₁→ℕ c₂' · suc d-1 ≡ ℕ₊₁→ℕ c₂ · suc d-1
         r₂ = subst (λ z → ℕ₊₁→ℕ c₂' · z ≡ ℕ₊₁→ℕ c₂ · z) q (inj-·sm q₂ ∙ sym p₂)
 
+coprime≢0 : ∀ m n → ¬ ToCoprime.c₁ (suc m , n) ≡ 0
+coprime≢0 m n =
+  ¬k·l≡0→¬k≡0 (ToCoprime.c₁ (suc m , n)) (gcd (suc m) (ℕ₊₁→ℕ n))
+   λ x → snotz {m}
+    (sym (∣-untrunc (gcdIsGCD (suc m) (ℕ₊₁→ℕ n) .fst .fst) .snd) ∙ x)
 
 private
   lem₀ : ∀ i j m n → i · m ≡ j · m + n → (i ∸ j) · m ≡ n
@@ -202,3 +210,15 @@ natDivisibility' {suc m} {n} {zero} {n'} c c' mn =
 natDivisibility' m@{suc p} {n} m'@{suc q} {n'} c c' mn =
   injSuc (inj-sm· {p}{suc n} (cong (λ x → x · suc n)
     (natDivisibility c c' mn) ∙ sym mn))
+
+symCoprime : ∀ m n → fst (toCoprime (suc m , (1+ n))) ≡
+             ℕ₊₁→ℕ (snd (toCoprime (suc n , (1+ m))))
+symCoprime m n = inj-·sm  ((sym (cong (λ u → c₁ · u) sucd1)) ∙ p₁ ∙ (sym p₂') ∙
+  cong (λ u → ℕ₊₁→ℕ c₂' · u) (sym (gcdSym (suc m) (suc n))) ∙
+  cong (λ u → (ℕ₊₁→ℕ c₂') · u) sucd1)
+  where
+    open ToCoprime (suc m , 1+ n)
+    open ToCoprime (suc n , 1+ m) using ()
+      renaming (c₁ to c₁'; p₁ to p₁'; c₂ to c₂'; p₂ to p₂'; d to d')
+    d-1' = predℕ d
+    sucd1 = suc-predℕ d (gcd[m,n]≢0 (suc m) (suc n) (inl snotz))

@@ -264,17 +264,24 @@ inj-·sm {suc l} {m} {suc n} p = cong suc (inj-·sm (inj-m+ {m = suc m} p))
 inj-sm· : suc m · l ≡ suc m · n → l ≡ n
 inj-sm· {m} {l} {n} p = inj-·sm (·-comm l (suc m) ∙ p ∙ ·-comm (suc m) n)
 
+¬x≡0→NonZero : ∀ {x : ℕ} → ¬ x ≡ 0 → NonZero x
+¬x≡0→NonZero {zero} nx0 = nx0 refl
+¬x≡0→NonZero {suc x} nx0 = tt
+
 integral-domain-· : {k l : ℕ} → (k ≡ 0 → ⊥) → (l ≡ 0 → ⊥) → (k · l ≡ 0 → ⊥)
 integral-domain-· {zero} {l} ¬p ¬q r = ¬p refl
 integral-domain-· {suc k} {zero} ¬p ¬q r = ¬q refl
 integral-domain-· {suc k} {suc l} ¬p ¬q r = snotz r
+
+¬k·l≡0→¬k≡0 : ∀ k l → (k · l ≡ 0 → ⊥) → (k ≡ 0 → ⊥)
+¬k·l≡0→¬k≡0 zero l ¬0 = ¬0
+¬k·l≡0→¬k≡0 (suc k) l ¬0 = snotz
 
 -- Arithmetic facts about ∸
 
 zero∸ : ∀ n → zero ∸ n ≡ zero
 zero∸ zero = refl
 zero∸ (suc _) = refl
-
 
 n∸n : (n : ℕ) → n ∸ n ≡ 0
 n∸n zero = refl
