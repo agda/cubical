@@ -124,6 +124,12 @@ injSucFinP {ℕsuc (ℕsuc n0)} {ℕsuc (ℕsuc n1)} {pn} {p0} {p1} sucp =
         eqn : pn' ≡ pn
         eqn = isSetℕ (2 + n0) (2 + n1) pn' pn
 
+sucPredFin :  {n : ℕ} → (k l : Fin (ℕsuc (ℕsuc n))) → toℕ k <' toℕ l → suc (predFin l) ≡ l
+sucPredFin {ℕzero} zero one le = refl
+sucPredFin {ℕzero} (suc k) (suc l) le = refl
+sucPredFin {ℕsuc n} zero (suc l) le = refl
+sucPredFin {ℕsuc n} (suc k) (suc l) (s≤s le) = refl
+
 discreteFin : ∀{k} → Discrete (Fin k)
 discreteFin zero zero = yes refl
 discreteFin zero (suc y) = no znots
