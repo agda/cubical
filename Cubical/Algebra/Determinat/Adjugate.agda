@@ -1860,7 +1860,7 @@ module Adjugate (ℓ : Level) (P' : CommRing ℓ) where
      ∎)
   ... | lt k<l = adjugateInvRLcomponent M k l (subst(λ x → suc (toℕ k) ≤' x)(weakenRespToℕ l)k<l)
   ... | gt l<k = adjugateInvRGcomponent M k l (subst(λ x → suc (toℕ l) ≤' x)(weakenRespToℕ k)l<k)
-  
+
   -- The adjugate matrix divided by the determinant is the left inverse.
   -- Component-wise version
   adjugateInvLComp : {n : ℕ} → (M : FinMatrix R n n) → (k l : Fin n)  →

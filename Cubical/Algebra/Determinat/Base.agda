@@ -48,7 +48,7 @@ module Determinat (ℓ : Level) (P' : CommRing ℓ) where
   MF-add : (i j : ℕ) → MF (i +ℕ j) ≡ MF i · MF j
   MF-add i j =
     sym (·-of-^-is-^-of-+ (- 1r) i j)
-    
+
   MF-suc-rev : (i : ℕ) → MF i ≡ (- 1r) · MF (suc i)
   MF-suc-rev i = solve! P'
 

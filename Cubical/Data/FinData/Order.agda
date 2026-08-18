@@ -90,7 +90,7 @@ toℕstrengthenFin {ℕ.zero} {suc ()} i (le)
 toℕstrengthenFin {ℕ.suc n} {suc j} zero le = refl
 toℕstrengthenFin {ℕ.suc n} {suc j} (suc i) (s≤s le) =
   cong (λ a → ℕ.suc a) (toℕstrengthenFin {n} {j} i le)
-  
+
 open BinaryRelation
 ≤'FinIsPropValued : ∀ {n : ℕ} → isPropValued (_≤'Fin_ {n})
 ≤'FinIsPropValued _ _ = ≤'IsPropValued _ _
