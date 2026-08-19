@@ -1,4 +1,4 @@
-module Cubical.Algebra.Determinat.RingSum where
+module Cubical.Algebra.Determinant.RingSum where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

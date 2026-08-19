@@ -1,4 +1,4 @@
-module Cubical.Algebra.Determinat.Base where
+module Cubical.Algebra.Determinant.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -27,13 +27,13 @@ open import Cubical.Data.Int.Base using (pos; negsuc)
 open import Cubical.Data.Vec.Base using (_∷_; [])
 open import Cubical.Data.Nat.Order
 open import Cubical.Tactics.CommRingSolver
-open import Cubical.Algebra.Determinat.Minor
-open import Cubical.Algebra.Determinat.RingSum
+open import Cubical.Algebra.Determinant.Minor
+open import Cubical.Algebra.Determinant.RingSum
 
 module Determinat (ℓ : Level) (P' : CommRing ℓ) where
 
-  open Cubical.Algebra.Determinat.Minor.Minor ℓ
-  open Cubical.Algebra.Determinat.RingSum.RingSum ℓ P'
+  open Cubical.Algebra.Determinant.Minor.Minor ℓ
+  open Cubical.Algebra.Determinant.RingSum.RingSum ℓ P'
   open RingStr (snd (CommRing→Ring P')) renaming ( is-set to isSetR )
   open Exponentiation P' renaming (_^_ to _^R_)
 

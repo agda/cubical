@@ -1,4 +1,4 @@
-module Cubical.Algebra.Determinat.Minor where
+module Cubical.Algebra.Determinant.Minor where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
