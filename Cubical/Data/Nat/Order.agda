@@ -63,6 +63,10 @@ zero-≤ {n} = n , +-zero n
 suc-≤-suc : m ≤ n → suc m ≤ suc n
 suc-≤-suc (k , p) = k , (+-suc k _) ∙ (cong suc p)
 
+-- TO DO :
+-- change the names of the lemmas below, following the naming convention of the library,
+-- (no free variables in the names)
+
 ≤-+k : m ≤ n → m + k ≤ n + k
 ≤-+k {m} {k = k} (i , p)
   = i , +-assoc i m k ∙ cong (_+ k) p
