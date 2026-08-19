@@ -1,4 +1,9 @@
 module Cubical.Algebra.OrderedCommRing.Morphisms where
+{-
+  The notion of homomorphism/monomorphism of Ordered Commutative Rings is derived
+  from homomorphisms of Ordered Heyting Fields, following definition 4.3.1 of
+  Analysis in univalent type theory, A.B.Booij, PhD Thesis, 2020
+-}
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
