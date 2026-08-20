@@ -35,6 +35,7 @@ module Cubical.HITs.Replacement.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Smallness
 open import Cubical.Functions.Embedding
 open import Cubical.Functions.Image
 open import Cubical.HITs.PropositionalTruncation as Prop
@@ -112,3 +113,12 @@ module _ {ℓA ℓB ℓ≅B} {A : Type ℓA} {B : Type ℓB} (𝒮-B : UARel B �
       (restrictToImage f , isSurjectionImageRestriction f)
       (imageInclusion f)
       refl
+
+module _ {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (lsB : isLocally[ ℓ ]Small B) (f : A → B) where
+  locallySmall→UARel : UARel B ℓ
+  locallySmall→UARel .UARel._≅_ x y = lsB x y .fst
+  locallySmall→UARel .UARel.ua x y = lsB x y .snd
+
+  Replacement' : is[ ℓ ]Small (Image f)
+  Replacement' .fst = Replacement locallySmall→UARel f
+  Replacement' .snd = replacement≃Image locallySmall→UARel f

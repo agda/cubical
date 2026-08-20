@@ -17,16 +17,6 @@ open import Cubical.Data.IterativeSets.UnorderedPair.Base
 open import Cubical.Data.IterativeMultisets.Base renaming (index to index∞ ; elements to elements∞)
 open import Cubical.Functions.Embedding
 
--- Key result: the image of a map of levels ℓ → ℓ' is ℓ-small
-module Replacement' {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (lsB : isLocally[ ℓ ]Small B) (f : A → B) where
-  locallySmall→UARel : UARel B ℓ
-  locallySmall→UARel .UARel._≅_ x y = lsB x y .fst
-  locallySmall→UARel .UARel.ua x y = lsB x y .snd
-
-  Replacement' : is[ ℓ ]Small (Image f)
-  Replacement' .fst = Replacement locallySmall→UARel f
-  Replacement' .snd = replacement≃Image locallySmall→UARel f
-
 -- I don't know if more things should be public? Should the replacement
 -- machinery be exposed?
 module _ {ℓ : Level} where
@@ -35,7 +25,6 @@ module _ {ℓ : Level} where
   ∪⁰-elements : (x : V⁰) → ∪⁰-index x → V⁰
   ∪⁰-elements x (a , b) = elements (elements x a) b
 
-  open Replacement'
   private
     uar : (x : V⁰ {ℓ}) → UARel V⁰ ℓ
     uar x = locallySmall→UARel isLocallySmallV (∪⁰-elements x)
