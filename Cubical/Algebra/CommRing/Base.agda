@@ -135,6 +135,7 @@ record IsCommRingHom {A : Type ℓ} {B : Type ℓ'} (R : CommRingStr A) (f : A �
     pres· : (x y : A) → f (x R.· y) ≡ f x S.· f y
     pres- : (x : A) → f (R.- x) ≡ S.- (f x)
 
+{-# INLINE IsCommRingHom.constructor #-}
 unquoteDecl IsCommRingHomIsoΣ = declareRecordIsoΣ IsCommRingHomIsoΣ (quote IsCommRingHom)
 
 CommRingHom : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
