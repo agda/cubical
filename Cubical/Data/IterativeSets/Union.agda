@@ -8,39 +8,14 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Functions.Image
-open import Cubical.Functions.FunExtEquiv
 open import Cubical.HITs.Replacement
 open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Displayed.Base
 open import Cubical.Data.Sigma
-open import Cubical.Data.W.W
 open import Cubical.Data.IterativeSets.Base
 open import Cubical.Data.IterativeSets.UnorderedPair.Base
 open import Cubical.Data.IterativeMultisets.Base renaming (index to index∞ ; elements to elements∞)
 open import Cubical.Functions.Embedding
-
--- Some results about smallness of iterative sets
-module V-Smallness where
-  isSmallEl : ∀ {ℓ} (x : V⁰ {ℓ}) → is[ ℓ ]Small (El⁰ x)
-  isSmallEl x = isℓSmallℓ (El⁰ x)
-
-  isLocallySmallV∞ : {ℓ : Level} → isLocally[ ℓ ]Small (V∞ {ℓ})
-  isLocallySmallV∞ {ℓ} = WInd2 (Type ℓ) (λ A → A) (Type ℓ) (λ A → A) (λ x y → is[ ℓ ]Small (x ≡ y)) step
-    where
-      step : {A : Type ℓ} {α : A → V∞ {ℓ}} {B : Type ℓ} {β : B → V∞ {ℓ}}
-        → ((a : A) (b : B) → is[ ℓ ]Small (α a ≡ β b))
-        → is[ ℓ ]Small (sup-∞ A α ≡ sup-∞ B β)
-      step {A} {α} {B} {β} IH =
-        isSmall-≃-isSmall
-          (isSmallΣ (isℓSmallℓ (A ≃ B))
-            (λ e → isSmall-≃-isSmall
-              (isSmallΠ (isℓSmallℓ A) (λ a → IH a (e .fst a)))
-              funExtEquiv))
-          (invEquiv ≡V∞-≃-≡Equiv)
-
-  isLocallySmallV : {ℓ : Level} → isLocally[ ℓ ]Small (V⁰ {ℓ})
-  isLocallySmallV {ℓ} x y =
-    isSmall-≃-isSmall (isLocallySmallV∞ (x .fst) (y .fst)) (invEquiv ≡V⁰-≃-≡V∞)
 
 -- Key result: the image of a map of levels ℓ → ℓ' is ℓ-small
 module Replacement' {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (lsB : isLocally[ ℓ ]Small B) (f : A → B) where
@@ -61,7 +36,6 @@ module _ {ℓ : Level} where
   ∪⁰-elements x (a , b) = elements (elements x a) b
 
   open Replacement'
-  open V-Smallness
   private
     uar : (x : V⁰ {ℓ}) → UARel V⁰ ℓ
     uar x = locallySmall→UARel isLocallySmallV (∪⁰-elements x)

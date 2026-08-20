@@ -3,9 +3,12 @@ module Cubical.Data.IterativeSets.Base where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Smallness
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Data.W.W
 open import Cubical.Functions.Embedding
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary using (¬_)
@@ -185,3 +188,25 @@ isProp-∈⁰-Equiv x y = isPropΠ λ z → isOfHLevel≃ 1 (isProp∈⁰ {x = x
         g : sup-∞ z γ ∈∞ sup-∞ x α → (sup-∞ z γ , itsetz) ∈⁰ (sup-∞ x α , itsetx)
         g (a , p) .fst = a
         g (a , p) .snd = Σ≡Prop isPropIsIterativeSet p
+
+-- Some results about smallness of iterative sets
+isSmallEl⁰ : ∀ {ℓ} (x : V⁰ {ℓ}) → is[ ℓ ]Small (El⁰ x)
+isSmallEl⁰ x = isℓSmallℓ (El⁰ x)
+
+isLocallySmallV∞ : {ℓ : Level} → isLocally[ ℓ ]Small (V∞ {ℓ})
+isLocallySmallV∞ {ℓ} = WInd2 (Type ℓ) (λ A → A) (Type ℓ) (λ A → A) (λ x y → is[ ℓ ]Small (x ≡ y)) step
+  where
+    step : {A : Type ℓ} {α : A → V∞ {ℓ}} {B : Type ℓ} {β : B → V∞ {ℓ}}
+      → ((a : A) (b : B) → is[ ℓ ]Small (α a ≡ β b))
+      → is[ ℓ ]Small (sup-∞ A α ≡ sup-∞ B β)
+    step {A} {α} {B} {β} IH =
+      isSmall-≃-isSmall
+        (isSmallΣ (isℓSmallℓ (A ≃ B))
+          (λ e → isSmall-≃-isSmall
+            (isSmallΠ (isℓSmallℓ A) (λ a → IH a (e .fst a)))
+            funExtEquiv))
+        (invEquiv ≡V∞-≃-≡Equiv)
+
+isLocallySmallV : {ℓ : Level} → isLocally[ ℓ ]Small (V⁰ {ℓ})
+isLocallySmallV {ℓ} x y =
+  isSmall-≃-isSmall (isLocallySmallV∞ (x .fst) (y .fst)) (invEquiv ≡V⁰-≃-≡V∞)
