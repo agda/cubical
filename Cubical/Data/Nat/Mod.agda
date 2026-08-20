@@ -377,6 +377,10 @@ mod-lCancel d@(suc n) x y =
   (y + x mod d) mod d ≡⟨ cong (_mod d) (+-comm y (x mod d)) ⟩
   (x mod d + y) mod d ∎
 
+mod≤L : (m n : ℕ) → m mod n ≤ m
+mod≤L m   zero    = zero-≤
+mod≤L m n@(suc _) = subst (m mod n ≤_) (≡remainder+quotient n m) ≤SumLeft
+
 <→mod≡id : (m n : ℕ) → m < n → m mod n ≡ m
 <→mod≡id m zero    m<0     = ⊥.rec (¬-<-zero m<0)
 <→mod≡id m (suc n) (k , p) = cong (hmod 0 n m) (injSuc (sym p ∙ +-comm k (suc m)))
@@ -397,6 +401,70 @@ mod-lCancel d@(suc n) x y =
     step1 = cong (_∸ (m mod suc n)) (+-comm _ (m mod suc n))
     step2 = cong (_∸ (m mod suc n)) (≡remainder+quotient (suc n) m)
     step3 = cong (m ∸_) (<→mod≡id m (suc n) m<sn)
+
+quotientUnipotent : (n : ℕ) → quotient suc n / suc n ≡ 1
+quotientUnipotent n =
+  let
+    x = suc n ; _/_ = quotient_/_ ; _%_ = remainder_/_
+  in
+    inj-sm· {m = n} $
+      x · x / x         ≡⟨⟩
+      0 + x · x / x     ≡⟨ sym $ cong (_+ x · x / x) (zero-charac x) ⟩
+      x % x + x · x / x ≡⟨ ≡remainder+quotient x x ⟩
+      x                 ≡⟨ sym $ ·-identityʳ x ⟩
+      x · 1             ∎
+
+≥→quotient≥1 : (m n : ℕ) → suc m ≥ suc n → 1 ≤ quotient suc m / suc n
+≥→quotient≥1 m n (r , p) =
+  let
+    a = suc m ; b = suc n
+    _/_ = quotient_/_ ; _%_ = remainder_/_
+  in
+    ≤-sk·-cancel {k = n} $ ≤-k+-cancel {k = remainder a / b} $
+      a % b + b · 1       ≡≤⟨ cong₂ ((_+_) ∘ _% b) (sym p) (·-identityʳ b) ⟩
+      (r + b) % b + b     ≡≤⟨ sym $ cong (_+ b) (mod-rUnit b r) ⟩
+      r % b + b           ≤≡⟨ ≤-+k {k = b} (mod≤L r b) ⟩
+      r + b                ≡⟨ p ⟩
+      a                    ≡⟨ sym $ ≡remainder+quotient b a ⟩
+      a % b + b · (a / b)  ∎
+    where open <-Reasoning
+
+quotient<id : (m n : ℕ) → (quotient suc m / suc (suc n)) < suc m
+quotient<id m n =
+  let
+    a = suc m ; b = suc (suc n) ; b-1 = suc n
+    _/_ = quotient_/_ ; _%_ = remainder_/_
+  in
+    case (a ≟ b) return (λ _ → a / b < a) of λ
+    { (lt a<b) →
+      a / b ≡<⟨ <→quotient≡0 a b a<b ⟩
+      0     <≡⟨ <ᵇ→< tt ⟩
+      a      ∎
+    ; (eq a≡b) →
+      a / b ≡<⟨ cong (_/ b) a≡b ∙ quotientUnipotent b-1 ⟩
+      1     <≡⟨ <ᵇ→< tt ⟩
+      b      ≡⟨ sym a≡b ⟩
+      a      ∎
+    ; (gt b<a) →
+      a / b             ≤<⟨ ≤SumLeft ⟩
+      b-1 · a / b       <≤⟨ <-suc ⟩
+      1 + b-1 · a / b    ≤⟨ ≤-+k (≥→quotient≥1 m b-1 (<-weaken b<a)) ⟩
+      b · a / b         ≤≡⟨ ≤SumRight {k = a % b} ⟩
+      a % b + b · a / b  ≡⟨ ≡remainder+quotient b a ⟩
+      a                  ∎
+    } where open <-Reasoning
+
+quotient<→<· : (m n k : ℕ) → quotient m / suc n < k → m < (suc n) · k
+quotient<→<· m n-1 k m/n<k =
+  let
+    n = suc n-1 ; _/_ = quotient_/_ ; _%_ = remainder_/_
+  in
+    m                 ≡<⟨ sym $ ≡remainder+quotient n m ⟩
+    m % n + n · m / n <≤⟨ <-+k (mod< n-1 m) ⟩
+    n + n · m / n     ≡≤⟨ sym $ ·-suc n (m / n) ⟩
+    n · suc (m / n)   ≤≡⟨ ≤-k· {k = n} m/n<k ⟩
+    n · k              ∎
+  where open <-Reasoning
 
 mod1≡0 : ∀ n → n mod 1 ≡ 0
 mod1≡0 n with (n mod 1) ≟ 0
