@@ -30,7 +30,7 @@ private
     compare : (l : ℕ) → (l' : ℕ) →
               n < f (suc l) → f l' ≤ n →
               ¬ l < l'
-    compare l l' n<fsl fl'≤n l<l' = ¬m<m $
+    compare l l' n<fsl fl'≤n l<l' = <-irrefl $
      n
        <≤⟨ n<fsl ⟩
      f (suc l)

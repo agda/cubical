@@ -276,7 +276,7 @@ enumElim P k p h f i =
 -- ++Fin is commutative, but how to go from there?
 +Shuffle : (m n : ℕ) → Fin (m + n) → Fin (n + m)
 +Shuffle m n i with <Dec (toℕ i) m
-... | yes i<m = toFin (n + (toℕ i)) (<-k+ i<m)
+... | yes i<m = toFin (n + (toℕ i)) (<-+ˡ i<m)
 ... | no ¬i<m = toFin (toℕ i ∸ m)
                   (subst (λ x → toℕ i ∸ m < x) (+-comm m n) (≤<-trans (∸-≤ (toℕ i) m) (toℕ<n i)))
 

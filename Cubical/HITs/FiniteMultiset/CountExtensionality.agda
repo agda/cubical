@@ -69,7 +69,7 @@ module _{A : Type ℓ} (discA : Discrete A) where
   ...     | yes a≡x = pred-≤-pred (subst (λ b → (FMScount discA b ys) < suc (FMScount discA b xs)) (sym a≡x) <suc)
   ...     | no  a≢x = ≤-trans (ys≼x∷xs a) (subst (λ n → FMScount discA a (x ∷ xs) ≤ n) (FMScount-≢-lemma discA xs a≢x) ≤-refl)
  ...                         | eq ≡suc = inr (remove1-suc-lemma discA x (FMScount discA x xs) ys ≡suc)
- ...                         | gt >suc = ⊥.rec (¬m<m strict-ineq)
+ ...                         | gt >suc = ⊥.rec (<-irrefl strict-ineq)
   where
   strict-ineq : suc (FMScount discA x xs) < suc (FMScount discA x xs)
   strict-ineq =  <≤-trans (<≤-trans >suc (ys≼x∷xs x)) (0 , FMScount-≡-lemma-refl discA xs)

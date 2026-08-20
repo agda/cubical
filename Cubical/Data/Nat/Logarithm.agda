@@ -40,7 +40,7 @@ private
   lemmaIsPropLogℕ : ∀ {m x l₀ l₁} → x < (suc m) ^ suc l₀ → (suc m) ^ l₁ ≤ x → ¬ (l₀ < l₁)
   lemmaIsPropLogℕ {b-1} {x} {l₀} {l₁} <b^1+l₀ b^l₁≤ l₀<l₁ =
     let b = suc b-1
-    in  ¬m<m $ begin< x <⟨ <b^1+l₀ ⟩ b ^ suc l₀ ≤⟨ ≤-sk^ l₀<l₁ ⟩ b ^ l₁ ≤⟨ b^l₁≤ ⟩ x ◾
+    in  <-irrefl $ begin< x <⟨ <b^1+l₀ ⟩ b ^ suc l₀ ≤⟨ ≤-^ˡ l₀<l₁ ⟩ b ^ l₁ ≤⟨ b^l₁≤ ⟩ x ◾
 
 isPropLogℕ : ∀ m n → isProp (Logℕ (suc m) n)
 isPropLogℕ m x = isOfHLevelRetractFromIso 1 LogℕIsoΣ proof where
@@ -63,12 +63,12 @@ module LogTheory (logℕ : ∀ m n → Logℕ (suc (suc m)) (suc n)) where
       logℕBase^ : ∀ n → Logℕ b (b ^ n)
       logℕBase^ n .Logℕ.log     = n
       logℕBase^ n .Logℕ.^log≤   = ≤-refl
-      logℕBase^ n .Logℕ.<^1+log = <-ssk^ {m = n} <-suc
+      logℕBase^ n .Logℕ.<^1+log = <-^ˡ {m = n} <-suc
 
       logℕBase· : ∀ n → Logℕ b (b · suc n)
       logℕBase· n .Logℕ.log     = suc (log b (suc n))
-      logℕBase· n .Logℕ.^log≤   = ≤-k·  {k = b}     (Logℕ.^log≤ (logℕ m n))
-      logℕBase· n .Logℕ.<^1+log = <-sk· {k = suc m} (Logℕ.<^1+log (logℕ m n))
+      logℕBase· n .Logℕ.^log≤   = ≤-·ˡ {k = b}     (Logℕ.^log≤ (logℕ m n))
+      logℕBase· n .Logℕ.<^1+log = <-·ˡ {k = suc m} (Logℕ.<^1+log (logℕ m n))
 
       logℕ1 : Logℕ b 1
       logℕ1 .Logℕ.log     = 0
@@ -96,7 +96,7 @@ module LogTheory (logℕ : ∀ m n → Logℕ (suc (suc m)) (suc n)) where
       cong (λ m → log b (suc m)) (sym (·-identityʳ b-1)) ∙∙ logBase· 0 ∙∙ cong suc log1
 
     logMono≤ : ∀ x y {1≤x} {1≤y} → x ≤ y → log b x {1≤x} ≤ log b y {1≤y}
-    logMono≤ x@(suc x') y@(suc y') x≤y = pred-≤-pred $ <-ssk^-cancel {k = m} $ begin<
+    logMono≤ x@(suc x') y@(suc y') x≤y = pred-≤-pred $ <-^-cancelˡ {k = m} $ begin<
       b ^ log b x       ≤⟨ Logℕ.^log≤ (logℕ m x') ⟩
       x                 ≤⟨ x≤y ⟩
       y                 <⟨ Logℕ.<^1+log (logℕ m y') ⟩
@@ -128,7 +128,7 @@ module LogCore (m : ℕ) where
   ... | inr x<b = ≤ᵇ→≤ tt
   ... | inl b≤x with Dichotomyℕ b (x / b)
   ... | inl b≤x/b = let 1≤x/b = ≤→≤ᵇ (≥→quotient≥1 n b-1 b≤x) in begin≤
-    b ^ suc (hlog (x / b) f (/b≤f n t))   ≤⟨ ≤-k· {k = b} (^hlog≤ (x / b) f {1≤x/b} _) ⟩
+    b ^ suc (hlog (x / b) f (/b≤f n t))   ≤⟨ ≤-·ˡ {k = b} (^hlog≤ (x / b) f {1≤x/b} _) ⟩
     b · (x / b)                           ≤⟨ ≤SumRight {k = x % b} ⟩
     x % b + b · (x / b)                 ≡→≤⟨ ≡%+·/ b x ⟩
     x                                     ◾

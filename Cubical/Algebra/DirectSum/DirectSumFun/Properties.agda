@@ -47,7 +47,7 @@ module DSF-properties
     Anf+g = PT.rec2 squash₁
             (λ { (k , nf) → λ { (l , ng) →
                ∣ ((k +n l) ,
-                 (λ n p → cong₂ ((Gstr n)._+_) (nf n (<-+k-trans p)) (ng n (<-k+-trans p))
+                 (λ n p → cong₂ ((Gstr n)._+_) (nf n (<-+-transʳ p)) (ng n (<-+-transˡ p))
                            ∙ +IdR (Gstr n) (0g (Gstr n)))) ∣₁ } })
 
 

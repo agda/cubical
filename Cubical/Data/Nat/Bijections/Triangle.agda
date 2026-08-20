@@ -30,7 +30,7 @@ private
   Triangle⊂ℕ×ℕ≅partitionTriangle : Iso Triangle⊂ℕ×ℕ partitionTriangle
   Iso.fun Triangle⊂ℕ×ℕ≅partitionTriangle (k , i , i≤k) = k , i , i+tk<tsk where
       i+tk<tsk : i + triangle k < triangle (suc k)
-      i+tk<tsk = i + triangle k <≤⟨ suc-≤-suc (≤-+k {k = triangle k} i≤k) ⟩
+      i+tk<tsk = i + triangle k <≤⟨ suc-≤-suc (≤-+ʳ {k = triangle k} i≤k) ⟩
                  k + triangle k <≡⟨ <-suc ⟩ 1+k+tk=tsk k
 
   Iso.inv Triangle⊂ℕ×ℕ≅partitionTriangle (k , i , i+tk<tsk) = k , i , i≤k where
@@ -39,7 +39,7 @@ private
       i+tk≤k+tk : i + triangle k ≤ k + triangle k
       i+tk≤k+tk = pred-≤-pred i+tk<k+tk+1
       i≤k : i ≤ k
-      i≤k = ≤-+k-cancel i+tk≤k+tk
+      i≤k = ≤-+-cancelʳ i+tk≤k+tk
   Iso.sec Triangle⊂ℕ×ℕ≅partitionTriangle (k , i , _) = ΣPathP (refl , ΣPathPProp (λ _ → isProp≤) refl)
   Iso.ret Triangle⊂ℕ×ℕ≅partitionTriangle  (k , i , _) = ΣPathP (refl , ΣPathPProp (λ _ → isProp≤) refl)
 

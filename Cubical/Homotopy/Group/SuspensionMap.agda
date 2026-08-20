@@ -291,10 +291,10 @@ suspMapΩ-connected : ∀ {ℓ} (n : HLevel) (m : ℕ) {A : Pointed ℓ}
 suspMapΩ-connected n zero {A = A} connA = isConnectedσ n connA
 suspMapΩ-connected n (suc m) {A = A} connA with ((n + suc n) ≟ m)
 ... | (lt p) = subst (λ x → isConnectedFun x (suspMapΩ {A = A} (suc m)))
-                     (sym (n∸m≡0 _ m (<-weaken p)))
+                     (sym (≤→∸≡0 _ m (<-weaken p)))
                      λ b → tt* , (λ {tt* → refl})
 ... | (eq q) = subst (λ x → isConnectedFun x (suspMapΩ {A = A} (suc m)))
-                     (sym (n∸n≡0 m) ∙ cong (_∸ m) (sym q))
+                     (sym (∘diag∸≡0 m) ∙ cong (_∸ m) (sym q))
                      λ b → tt* , (λ {tt* → refl})
 ... | (gt p) = isConnectedCong' (n + suc n ∸ m) (suspMapΩ {A = A} m)
     (subst (λ x → isConnectedFun x (suspMapΩ {A = A} m))

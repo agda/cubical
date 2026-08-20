@@ -487,7 +487,7 @@ snd (sumCoefficients n) = makeIsGroupHom (λ x y → funExt λ _ → sumFinℤHo
   where
     sum→product : (ℤ[Fin (n +ℕ m) ] .fst) → ((AbDirProd ℤ[Fin n ] ℤ[Fin m ]) .fst)
     sum→product x = ((λ (a , Ha) → x (a , <→<ᵗ (≤-trans (<ᵗ→< Ha) (≤SumLeft {n}{m}))))
-                    , λ (a , Ha) → x (n +ℕ a , <→<ᵗ (<-k+ {a}{m}{n} (<ᵗ→< Ha))))
+                    , λ (a , Ha) → x (n +ℕ a , <→<ᵗ (<-+ˡ {a}{m}{n} (<ᵗ→< Ha))))
 
     product→sum : ((AbDirProd ℤ[Fin n ] ℤ[Fin m ]) .fst) → (ℤ[Fin (n +ℕ m) ] .fst)
     product→sum (x , y) (a , Ha) with (a ≟ᵗ n)
@@ -506,7 +506,7 @@ snd (sumCoefficients n) = makeIsGroupHom (λ x y → funExt λ _ → sumFinℤHo
 
         lemy : (a : ℕ) (Ha : a <ᵗ m) → snd (sum→product (product→sum (x , y))) (a , Ha) ≡ y (a , Ha)
         lemy a Ha with ((n +ℕ a) ≟ᵗ n)
-        ... | lt H = rec (¬m<m (≤<-trans (≤SumLeft {n}{a}) (<ᵗ→< H)))
+        ... | lt H = rec (<-irrefl (≤<-trans (≤SumLeft {n}{a}) (<ᵗ→< H)))
         ... | eq H = cong y (Fin≡ _ _ (∸+ a n))
         ... | gt H = cong y (Fin≡ _ _ (∸+ a n))
 
