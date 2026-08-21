@@ -345,7 +345,7 @@ module _ {ℓ : Level} (G : CommRing ℓ) (n : ℕ) where
       → H*[Sⁿ,G]→G[X]/<X²>-fun^ n p
            (invEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g)
        ≡ [ base (one ∷ []) g ]
-    h2 g (lt x) = ⊥.rec (¬m<m x)
+    h2 g (lt x) = ⊥.rec (<-irrefl x)
     h2 g (eq x) = cong [_]
       (cong (base (1 ∷ []))
         (cong (Hⁿ[Sⁿ,G]≅G GAb n .fst .fst)
@@ -354,7 +354,7 @@ module _ {ℓ : Level} (G : CommRing ℓ) (n : ℕ) where
                   (invEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g))
         ∙ transportRefl (invEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g))
         ∙ secEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g))
-    h2 g (gt x) = ⊥.rec (¬m<m x)
+    h2 g (gt x) = ⊥.rec (<-irrefl x)
 
 
   G[X]/<X²>≅H*[Sⁿ,G] : RingEquiv (CommRing→Ring G[X]/<X²>) (H*R GRing (S₊ (suc n)))

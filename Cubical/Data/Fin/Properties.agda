@@ -453,9 +453,9 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
     mm<m = <ᵗ→< (snd mm)
     nm<n·m : toℕ {k = m} mm · suc n + toℕ {k = suc n} nn < suc n · m
     nm<n·m =
-      toℕ {k = m} mm · suc n + toℕ {k = suc n} nn   <≤⟨ <-k+ nn< ⟩
+      toℕ {k = m} mm · suc n + toℕ {k = suc n} nn   <≤⟨ <-+ˡ nn< ⟩
       toℕ {k = m} mm · suc n + suc n                ≡≤⟨ +-comm (toℕ {k = m} mm · suc n) (suc n) ⟩
-      suc (toℕ {k = m} mm) · suc n                  ≤≡⟨ ≤-·k mm<m ⟩
+      suc (toℕ {k = m} mm) · suc n                  ≤≡⟨ ≤-·ʳ mm<m ⟩
       m · suc n                                     ≡⟨ sym (·-comm (suc n) m) ⟩
       suc n · m                                     ∎ where open <-Reasoning
 
@@ -492,7 +492,7 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
       m · suc n       ∎ where open <-Reasoning
 
     mm<m : mm < m
-    mm<m = <-·sk-cancel mm·sn<m·sn
+    mm<m = <-·-cancelʳ mm·sn<m·sn
     nnFin : Fin (suc n)
     nnFin = nn , n%sk<ᵗsk k _
     mmFin : Fin m
@@ -560,7 +560,7 @@ Iso.inv (Fin+≅Fin⊎Fin m n) = g
   where
     g :  Fin m  ⊎  Fin n  →  Fin (m + n)
     g (inl (k , k<m)) = k     , <→<ᵗ (o<m→o<m+n m n k (<ᵗ→< k<m))
-    g (inr (k , k<n)) = m + k , <→<ᵗ (<-k+ {k = m} (<ᵗ→< k<n))
+    g (inr (k , k<n)) = m + k , <→<ᵗ (<-+ˡ {k = m} (<ᵗ→< k<n))
 Iso.sec (Fin+≅Fin⊎Fin m n) = sec-f-g
   where
     sec-f-g : _
@@ -568,7 +568,7 @@ Iso.sec (Fin+≅Fin⊎Fin m n) = sec-f-g
     sec-f-g (inl (k , k<m)) | inl _   = cong inl (Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = m}) refl)
     sec-f-g (inl (k , k<m)) | inr m≤k = Empty.rec (¬-<-and-≥ (<ᵗ→< k<m) m≤k)
     sec-f-g (inr (k , k<n)) with (m + k) ≤? m
-    sec-f-g (inr (k , k<n)) | inl p   = Empty.rec (¬m+n<m {m} {k} p)
+    sec-f-g (inr (k , k<n)) | inl p   = Empty.rec (¬SumLeft< {m} {k} p)
     sec-f-g (inr (k , k<n)) | inr k≥m = cong inr (Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = n}) rem)
       where
         rem : (m + k) ∸ m ≡ k
@@ -749,21 +749,21 @@ module _ (_+A_ : A → A → A) (0A : A)
     sumFin-choose {zero} f a x p t = Empty.rec (¬Fin0 x)
     sumFin-choose {suc n} f a x p t with (n ≟ fst x)
     ... | lt x₁ =
-      Empty.rec (¬m<m {suc n} ((fst (<ᵗ→< {n = x .fst} {suc n} (x .snd))) + fst x₁
+      Empty.rec (<-irrefl {suc n} ((fst (<ᵗ→< {n = x .fst} {suc n} (x .snd))) + fst x₁
            , (sym (+-assoc (fst (<ᵗ→< {n = x .fst} {suc n} (x .snd))) (fst x₁) (suc (suc n)))
            ∙ (cong (fst (<ᵗ→< {n = x .fst} {suc n} (x .snd)) +_ ) (+-suc (fst x₁) (suc n))))
            ∙ sym ((sym (<ᵗ→< {n = x .fst} (x .snd) .snd))
                 ∙ cong (fst (<ᵗ→< {n = x .fst} {suc n} ((x .snd))) +_) (sym (cong suc (x₁ .snd))))))
     ... | eq x₁ =
       cong (f flast +A_) (sumFinGen0 n _
-        λ h → t _ λ q → ¬m<m (subst (_< n) (cong fst q ∙ sym x₁) (<ᵗ→< (h .snd))))
+        λ h → t _ λ q → <-irrefl (subst (_< n) (cong fst q ∙ sym x₁) (<ᵗ→< (h .snd))))
              ∙ rUnit _ ∙ sym (cong f x=flast) ∙ p
       where
       x=flast : x ≡ flast
       x=flast = Σ≡Prop (λ z → isProp<ᵗ {n = z} {m = suc n}) (sym x₁)
     ... | gt x₁ =
       cong₂ _+A_
-         (t flast (λ p → ¬m<m (subst (_< n) (sym (cong fst p)) x₁)))
+         (t flast (λ p → <-irrefl (subst (_< n) (sym (cong fst p)) x₁)))
          refl
       ∙ lUnitA _
       ∙ sumFin-choose {n = n} (f ∘ injectSuc) a (fst x , <→<ᵗ x₁)

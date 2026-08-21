@@ -34,7 +34,7 @@ private
                       ≡⟨ 2Sn=2n+2 ⟩
                     doubleℕ n + 2 ∎
       k+2<2 : suc (suc k) < suc (suc 0)
-      k+2<2 = <-k+-cancel 2n+k+2<2n+2
+      k+2<2 = <-+-cancelˡ 2n+k+2<2n+2
       k<0 : k < 0
       k<0 = pred-≤-pred (pred-≤-pred k+2<2)
 

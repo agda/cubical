@@ -41,12 +41,12 @@ isPropQuotRemℕ m n = isOfHLevelRetractFromIso 1 QuotRemIsoΣ
     lemma : ∀ (q  r  : ℕ) → (p  : r  + (suc n) · q  ≡ m) → (rem< : r < suc n)
             → (q' r' : ℕ) → (p' : r' + (suc n) · q' ≡ m)
             → ¬ (q < q')
-    lemma q r p rem< q' r' p' q<q' = ¬m<m (
+    lemma q r p rem< q' r' p' q<q' = <-irrefl (
       m                   ≡<⟨ sym p ⟩
-      r       + suc n · q <≤⟨ <-+k rem< ⟩
+      r       + suc n · q <≤⟨ <-+ʳ rem< ⟩
       (suc n) + suc n · q ≡≤⟨ cong (suc n +_) (·-comm (suc n) q) ⟩
       (suc n) + q · suc n ≡≤⟨ refl ⟩
-      (suc q)     · suc n  ≤⟨ ≤-·k q<q' ⟩
+      (suc q)     · suc n  ≤⟨ ≤-·ʳ q<q' ⟩
       q'          · suc n ≤≡⟨ ≤SumRight ⟩
       r' + q' · suc n      ≡⟨ cong (r' +_) (·-comm q' (suc n)) ⟩
       r' + suc n · q'      ≡⟨ p' ⟩
@@ -420,10 +420,10 @@ quotientUnipotent n =
     a = suc m ; b = suc n
     _/_ = quotient_/_ ; _%_ = remainder_/_
   in
-    ≤-sk·-cancel {k = n} $ ≤-k+-cancel {k = remainder a / b} $
+    ≤-·-cancelˡ {k = n} $ ≤-+-cancelˡ {k = remainder a / b} $
       a % b + b · 1       ≡≤⟨ cong₂ ((_+_) ∘ _% b) (sym p) (·-identityʳ b) ⟩
       (r + b) % b + b     ≡≤⟨ sym $ cong (_+ b) (mod-rUnit b r) ⟩
-      r % b + b           ≤≡⟨ ≤-+k {k = b} (mod≤L r b) ⟩
+      r % b + b           ≤≡⟨ ≤-+ʳ {k = b} (mod≤L r b) ⟩
       r + b                ≡⟨ p ⟩
       a                    ≡⟨ sym $ ≡remainder+quotient b a ⟩
       a % b + b · (a / b)  ∎
@@ -448,7 +448,7 @@ quotient<id m n =
     ; (gt b<a) →
       a / b             ≤<⟨ ≤SumLeft ⟩
       b-1 · a / b       <≤⟨ <-suc ⟩
-      1 + b-1 · a / b    ≤⟨ ≤-+k (≥→quotient≥1 m b-1 (<-weaken b<a)) ⟩
+      1 + b-1 · a / b    ≤⟨ ≤-+ʳ (≥→quotient≥1 m b-1 (<-weaken b<a)) ⟩
       b · a / b         ≤≡⟨ ≤SumRight {k = a % b} ⟩
       a % b + b · a / b  ≡⟨ ≡remainder+quotient b a ⟩
       a                  ∎
@@ -460,9 +460,9 @@ quotient<→<· m n-1 k m/n<k =
     n = suc n-1 ; _/_ = quotient_/_ ; _%_ = remainder_/_
   in
     m                 ≡<⟨ sym $ ≡remainder+quotient n m ⟩
-    m % n + n · m / n <≤⟨ <-+k (mod< n-1 m) ⟩
+    m % n + n · m / n <≤⟨ <-+ʳ (mod< n-1 m) ⟩
     n + n · m / n     ≡≤⟨ sym $ ·-suc n (m / n) ⟩
-    n · suc (m / n)   ≤≡⟨ ≤-k· {k = n} m/n<k ⟩
+    n · suc (m / n)   ≤≡⟨ ≤-·ˡ {k = n} m/n<k ⟩
     n · k              ∎
   where open <-Reasoning
 
@@ -470,7 +470,7 @@ mod1≡0 : ∀ n → n mod 1 ≡ 0
 mod1≡0 n with (n mod 1) ≟ 0
 ... | lt <0 = ⊥.rec (¬-<-zero <0)
 ... | eq ≡0 = ≡0
-... | gt >0 = ⊥.rec (¬m<m (<≤-trans >0 (pred-≤-pred (mod< 0 n))))
+... | gt >0 = ⊥.rec (<-irrefl (<≤-trans >0 (pred-≤-pred (mod< 0 n))))
 
 -- Alternative definitions of quotient, mod and remainder
 
