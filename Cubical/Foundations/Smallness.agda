@@ -4,6 +4,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.Sigma
+open import Cubical.Displayed.Base
 
 is[_]Small : (ℓ : Level) {ℓ' : Level} (A : Type ℓ') → Type (ℓ-max (ℓ-suc ℓ) ℓ')
 is[_]Small ℓ A = Σ (Type ℓ) λ B → B ≃ A
@@ -45,3 +46,15 @@ isSmallΠ : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ'} {B : A → Type ℓ''}
   → is[ ℓ ]Small ((a : A) → B a)
 isSmallΠ sA sB .fst = (a' : sA .fst) → sB (sA .snd .fst a') .fst
 isSmallΠ sA sB .snd = equivΠ (sA .snd) (λ a' → sB (sA .snd .fst a') .snd)
+
+-- Evidence that A is locally ℓ-small is the same as an ℓ-valued UARel on A.
+
+module _ {ℓ ℓ'} {A : Type ℓ} where
+
+  locallySmall→UARel : isLocally[ ℓ' ]Small A → UARel A ℓ'
+  locallySmall→UARel lsA .UARel._≅_ x y = lsA x y .fst
+  locallySmall→UARel lsA .UARel.ua x y = lsA x y .snd
+
+  UARel→locallySmall : UARel A ℓ' → isLocally[ ℓ' ]Small A
+  UARel→locallySmall 𝒮-A x y = (x A.≅ y ) , A.ua x y
+    where module A = UARel 𝒮-A
