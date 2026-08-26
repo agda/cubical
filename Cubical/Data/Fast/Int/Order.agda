@@ -560,58 +560,56 @@ isAsym'< = recompute≤ ∘ proof _ _ where
 ≤max : m ≤ ℤ.max m n
 ≤max {pos zero}       {pos n}          = zero-≤pos
 ≤max {pos (suc m)}    {pos zero}       = isRefl≤
-≤max {pos (suc m)}    {pos (suc n)} with m ℕ.<ᵇ n UsingEq
-... | false , p = isRefl≤
-... | true  , p = <-weaken (pos<pos (subst Bool→Type (sym p) tt))
+≤max {pos (suc m)}    {pos (suc n)} with m ℕ.<ᵇ? n
+... | no ¬p = isRefl≤
+... | yes p = <-weaken (pos<pos p)
 ≤max {pos m}          {negsuc n}       = isRefl≤
 ≤max {negsuc m}       {pos n}          = negsuc≤pos
 ≤max {negsuc zero}    {negsuc n}       = isRefl≤
 ≤max {negsuc (suc m)} {negsuc zero}    = negsuc≤negsuc tt
-≤max {negsuc (suc m)} {negsuc (suc n)} with m ℕ.<ᵇ n UsingEq
-... | false , p = isAsym'< (¬>ℕ→¬negsuc<negsuc (subst Bool→Type p))
-... | true  , p = isRefl≤
+≤max {negsuc (suc m)} {negsuc (suc n)} with m ℕ.<ᵇ? n
+... | no ¬p = isAsym'< (¬>ℕ→¬negsuc<negsuc ¬p)
+... | yes p = isRefl≤
 
 -- this proof will not normalize quickly when m and n are the same large number
 ≤→max : m ≤ n → ℤ.max m n ≡ n
 ≤→max {pos zero}       {pos n}           p                = refl
-≤→max {pos (suc m)}    {pos (suc n)}    (pos≤pos p) with m ℕ.<ᵇ n UsingEq
-... | false , q = isAntisym≤ (pos≤pos p) (isAsym'< (¬<ℕ→¬pos<pos (subst Bool→Type q)) )
-... | true  , q = refl
+≤→max {pos (suc m)}    {pos (suc n)}    (pos≤pos p) with m ℕ.<ᵇ? n
+... | no ¬q = isAntisym≤ (pos≤pos p) (isAsym'< (¬<ℕ→¬pos<pos ¬q))
+... | yes q = refl
 ≤→max {negsuc m}       {pos n}           _                = refl
 ≤→max {negsuc zero}    {negsuc zero}    (negsuc≤negsuc p) = refl
 ≤→max {negsuc (suc m)} {negsuc zero}    (negsuc≤negsuc p) = refl
-≤→max {negsuc (suc m)} {negsuc (suc n)} (negsuc≤negsuc p) with m ℕ.<ᵇ n UsingEq
-... | false , q = refl
-... | true  , q = isAntisym≤ (negsuc≤negsuc p)
-                             (<-weaken (negsuc<negsuc (subst Bool→Type (sym q) tt)))
+≤→max {negsuc (suc m)} {negsuc (suc n)} (negsuc≤negsuc p) with m ℕ.<ᵇ? n
+... | no ¬q = refl
+... | yes q = isAntisym≤ (negsuc≤negsuc p) (<-weaken (negsuc<negsuc q))
 
 min≤ : ℤ.min m n ≤ m
 min≤ {pos zero}       {pos n}          = zero-≤pos
 min≤ {pos (suc m)}    {pos zero}       = zero-≤pos
-min≤ {pos (suc m)}    {pos (suc n)} with m ℕ.<ᵇ n UsingEq
-... | false , p = isAsym'< (¬<ℕ→¬pos<pos (subst Bool→Type p))
-... | true  , p = isRefl≤
+min≤ {pos (suc m)}    {pos (suc n)} with m ℕ.<ᵇ? n
+... | no ¬p = isAsym'< (¬<ℕ→¬pos<pos ¬p)
+... | yes p = isRefl≤
 min≤ {pos m}          {negsuc n}       = negsuc≤pos
 min≤ {negsuc m}       {pos n}          = isRefl≤
 min≤ {negsuc zero}    {negsuc n}       = negsuc≤negsuc tt
 min≤ {negsuc (suc m)} {negsuc zero}    = isRefl≤
-min≤ {negsuc (suc m)} {negsuc (suc n)} with m ℕ.<ᵇ n UsingEq
-... | false , p = isRefl≤
-... | true  , p = <-weaken (negsuc<negsuc (subst Bool→Type (sym p) tt))
+min≤ {negsuc (suc m)} {negsuc (suc n)} with m ℕ.<ᵇ? n
+... | no ¬p = isRefl≤
+... | yes p = <-weaken (negsuc<negsuc p)
 
 -- this proof will not normalize quickly when m and n are the same large number
 ≤→min : m ≤ n → ℤ.min m n ≡ m
 ≤→min {pos zero}       {pos n}           _                = refl
-≤→min {pos (suc m)}    {pos (suc n)}    (pos≤pos p) with m ℕ.<ᵇ n UsingEq
-... | false , q = isAntisym≤ (isAsym'< (¬<ℕ→¬pos<pos (subst Bool→Type q))) (pos≤pos p)
-... | true  , q = refl
+≤→min {pos (suc m)}    {pos (suc n)}    (pos≤pos p) with m ℕ.<ᵇ? n
+... | no ¬q = isAntisym≤ (isAsym'< (¬<ℕ→¬pos<pos ¬q)) (pos≤pos p)
+... | yes q = refl
 ≤→min {negsuc m}       {pos n}           _                = refl
 ≤→min {negsuc zero}    {negsuc zero}    (negsuc≤negsuc p) = refl
 ≤→min {negsuc (suc m)} {negsuc zero}    (negsuc≤negsuc p) = refl
-≤→min {negsuc (suc m)} {negsuc (suc n)} (negsuc≤negsuc p) with m ℕ.<ᵇ n UsingEq
-... | false , q = refl
-... | true  , q = isAntisym≤ (<-weaken (negsuc<negsuc (subst Bool→Type (sym q) tt)))
-                             (negsuc≤negsuc p)
+≤→min {negsuc (suc m)} {negsuc (suc n)} (negsuc≤negsuc p) with m ℕ.<ᵇ? n
+... | no ¬q = refl
+... | yes q = isAntisym≤ (<-weaken (negsuc<negsuc q)) (negsuc≤negsuc p)
 
 ≤MonotoneMin : m ≤ n → o ≤ s → ℤ.min m o ≤ ℤ.min n s
 ≤MonotoneMin {m} {n} {o} {s} p q = recompute≤ $

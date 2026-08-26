@@ -214,38 +214,38 @@ maxAssoc (negsuc m) (negsuc n) (negsuc k) = cong negsuc $ ∧Assoc {m} {n} {k}
 minAbsorbLMax : ∀ x y → min x (max x y) ≡ x
 minAbsorbLMax (pos zero) (pos n) = refl
 minAbsorbLMax (pos (suc m)) (pos zero) = cong pos ∧Idem
-minAbsorbLMax (pos (suc m)) (pos (suc n)) with m <ᵇ n UsingEq
-... | false , _ = cong pos ∧Idem
-... | true  , p  with m <ᵇ n UsingEq
-... | false , ¬p = ⊥.rec (true≢false (sym p ∙ ¬p))
-... | true  , _  = refl
+minAbsorbLMax (pos (suc m)) (pos (suc n)) with m <ᵇ? n
+... | no  _ = cong pos ∧Idem
+... | yes p with m <ᵇ? n
+... | no ¬p = ⊥.rec (¬p p)
+... | yes _ = refl
 minAbsorbLMax (pos m)    (negsuc n) = cong pos ∧Idem
 minAbsorbLMax (negsuc m) (pos n)    = refl
 minAbsorbLMax (negsuc zero) (negsuc n) = refl
 minAbsorbLMax (negsuc (suc m)) (negsuc zero) = refl
-minAbsorbLMax (negsuc (suc m)) (negsuc (suc n)) with m <ᵇ n UsingEq
-... | true  , _ = cong negsuc ∨Idem
-... | false , ¬p with m <ᵇ n UsingEq
-... | false , _ = refl
-... | true  , p = ⊥.rec (true≢false (sym p ∙ ¬p))
+minAbsorbLMax (negsuc (suc m)) (negsuc (suc n)) with m <ᵇ? n
+... | yes _ = cong negsuc ∨Idem
+... | no ¬p with m <ᵇ? n
+... | no  _ = refl
+... | yes p = ⊥.rec (¬p p)
 
 maxAbsorbLMin : ∀ x y → max x (min x y) ≡ x
 maxAbsorbLMin (pos zero) (pos n) = refl
 maxAbsorbLMin (pos (suc m)) (pos zero) = refl
-maxAbsorbLMin (pos (suc m)) (pos (suc n)) with m <ᵇ n UsingEq
-... | true  , _ = cong pos ∨Idem
-... | false , ¬p with m <ᵇ n UsingEq
-... | false , _ = refl
-... | true  , p = ⊥.rec (true≢false (sym p ∙ ¬p))
+maxAbsorbLMin (pos (suc m)) (pos (suc n)) with m <ᵇ? n
+... | yes _ = cong pos ∨Idem
+... | no ¬p with m <ᵇ? n
+... | no  _ = refl
+... | yes p = ⊥.rec (¬p p)
 maxAbsorbLMin (pos m) (negsuc n) = refl
 maxAbsorbLMin (negsuc m) (pos n) = cong negsuc ∧Idem
 maxAbsorbLMin (negsuc zero) (negsuc n) = refl
 maxAbsorbLMin (negsuc (suc m)) (negsuc zero) = cong negsuc ∧Idem
-maxAbsorbLMin (negsuc (suc m)) (negsuc (suc n)) with m <ᵇ n UsingEq
-... | false , _ = cong negsuc ∧Idem
-... | true  , p  with m <ᵇ n UsingEq
-... | false , ¬p = ⊥.rec (true≢false (sym p ∙ ¬p))
-... | true  , _  = refl
+maxAbsorbLMin (negsuc (suc m)) (negsuc (suc n)) with m <ᵇ? n
+... | no  _ = cong negsuc ∧Idem
+... | yes p with m <ᵇ? n
+... | no ¬p = ⊥.rec (¬p p)
+... | yes _ = refl
 
 predℤ+pos : ∀ n m → predℤ (m +pos n) ≡ (predℤ m) +pos n
 predℤ+pos zero m = refl
