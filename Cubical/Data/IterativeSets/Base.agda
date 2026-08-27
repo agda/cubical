@@ -18,6 +18,8 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Equiv.Fiberwise
+open import Cubical.Displayed.Base
+open import Cubical.HITs.Replacement
 
 open import Cubical.Data.IterativeMultisets.Base renaming (index to index-∞ ; elements to elements-V∞ ; toFib to toFib-∞)
 
@@ -210,3 +212,9 @@ isLocallySmallV∞ {ℓ} = WInd2 (Type ℓ) (λ A → A) (Type ℓ) (λ A → A)
 isLocallySmallV : {ℓ : Level} → isLocally[ ℓ ]Small (V⁰ {ℓ})
 isLocallySmallV {ℓ} x y =
   isSmall-≃-isSmall (isLocallySmallV∞ (x .fst) (y .fst)) (invEquiv ≡V⁰-≃-≡V∞)
+
+V⁰UARel : UARel (V⁰ {ℓ}) ℓ
+V⁰UARel = locallySmall→UARel isLocallySmallV
+
+replacementV⁰ : ∀ {ℓ} {A : Type ℓ} → (A → V⁰ {ℓ}) → V⁰ {ℓ}
+replacementV⁰ α = fromEmb (Replacement V⁰UARel α , unrepEmbedding V⁰UARel α)
