@@ -39,8 +39,8 @@ minSuc {zero} {zero} = refl
 minSuc {zero} {suc m} = refl
 minSuc {suc n} {zero} = refl
 minSuc {suc n} {suc m} with suc n <ᵇ? suc m
-... | yes p = refl
-... | no ¬p = refl
+... | yes _ = refl
+... | no  _ = refl
 
 minComm : (n m : ℕ) → min n m ≡ min m n
 minComm zero zero = refl
