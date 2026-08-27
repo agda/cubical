@@ -25,10 +25,6 @@ module _ {ℓ : Level} where
   ∪⁰-elements : (x : V⁰) → ∪⁰-index x → V⁰
   ∪⁰-elements x (a , b) = elements (elements x a) b
 
-  private
-    uar : (x : V⁰ {ℓ}) → UARel V⁰ ℓ
-    uar x = locallySmall→UARel isLocallySmallV (∪⁰-elements x)
-
   -- Morally, ∪ x has for indexing set the (union of indices of the) image of
   -- elements x. But this fails for level reasons, which is why we need the
   -- notion of smallness and replacement.
@@ -38,8 +34,8 @@ module _ {ℓ : Level} where
       idx : Type ℓ
       idx = Replacement' isLocallySmallV (∪⁰-elements x) .fst
       elm : idx ↪ V⁰
-      elm .fst = unrep (uar x) (∪⁰-elements x)
-      elm .snd = isEmbeddingUnrep (locallySmall→UARel isLocallySmallV (∪⁰-elements x)) (∪⁰-elements x)
+      elm .fst = unrep V⁰UARel (∪⁰-elements x)
+      elm .snd = isEmbeddingUnrep (locallySmall→UARel isLocallySmallV) (∪⁰-elements x)
 
   -- This indeed satisfies the union axiom. Unfortunately, computationally, we
   -- lose track of which original set each element of the union comes from.
@@ -48,15 +44,15 @@ module _ {ℓ : Level} where
       (z ∈⁰ ∪⁰ x)
     ≃⟨ idEquiv _ ⟩
       fiber (unrep _ _) z
-    ≃⟨ invEquiv (propTruncIdempotent≃ (isEmbedding→hasPropFibers (isEmbeddingUnrep (uar x) (∪⁰-elements x)) z)) ⟩
-      isInImage (unrep (uar x) (∪⁰-elements x)) z
+    ≃⟨ invEquiv (propTruncIdempotent≃ (isEmbedding→hasPropFibers (isEmbeddingUnrep V⁰UARel (∪⁰-elements x)) z)) ⟩
+      isInImage (unrep V⁰UARel (∪⁰-elements x)) z
     ≃⟨ idEquiv _ ⟩
-      ∃[ x₁ ∈ Replacement (uar x) (∪⁰-elements x)] unrep (uar x) (∪⁰-elements x) x₁ ≡ z
+      ∃[ x₁ ∈ Replacement V⁰UARel (∪⁰-elements x)] unrep V⁰UARel (∪⁰-elements x) x₁ ≡ z
     ≃⟨ propBiimpl→Equiv squash₁ squash₁
          (rec squash₁ λ (r , p) →
            rec squash₁ (λ ((a , b) , q) →
-             ∣ a , ∣ b , cong (unrep (uar x) (∪⁰-elements x)) q ∙ p ∣₁ ∣₁)
-             (isSurjectiveRep (uar x) (∪⁰-elements x) r))
+             ∣ a , ∣ b , cong (unrep V⁰UARel (∪⁰-elements x)) q ∙ p ∣₁ ∣₁)
+             (isSurjectiveRep V⁰UARel (∪⁰-elements x) r))
          (rec squash₁ λ (a , h) →
            rec squash₁ (λ (b , p) → ∣ rep (a , b) , p ∣₁) h)
       ⟩

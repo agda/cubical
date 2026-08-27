@@ -28,6 +28,10 @@ isSurjection f = ∀ b → ∥ fiber f b ∥₁
 _↠_ : Type ℓ → Type ℓ' → Type (ℓ-max ℓ ℓ')
 A ↠ B = Σ[ f ∈ (A → B) ] isSurjection f
 
+id↠ : (A : Type ℓ) → A ↠ A
+id↠ A .fst = idfun A
+id↠ A .snd a = ∣ a , refl ∣₁
+
 section→isSurjection : {g : B → A} → section f g → isSurjection f
 section→isSurjection {g = g} s b = ∣ g b , s b ∣₁
 

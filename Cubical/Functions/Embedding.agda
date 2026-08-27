@@ -224,6 +224,11 @@ Embedding-into-isProp→isProp = Embedding-into-hLevel→hLevel 0
 Embedding-into-isSet→isSet : A ↪ B → isSet B → isSet A
 Embedding-into-isSet→isSet = Embedding-into-hLevel→hLevel 1
 
+lCancelEmbedding : (g : B → C) (f : A → B)
+  → isEmbedding (g ∘ f) → isEmbedding g → isEmbedding f
+lCancelEmbedding g f isEmbeddingGF isEmbeddingG a a' =
+  lCancelIsEquiv (cong g) (cong f) (isEmbeddingGF a a') (isEmbeddingG (f a) (f a'))
+
 -- We now show that the powerset is the subtype classifier
 -- i.e. ℙ X ≃ Σ[A ∈ Type ℓ] (A ↪ X)
 Embedding→Subset : {X : Type ℓ} → Σ[ A ∈ Type ℓ ] (A ↪ X) → ℙ X
