@@ -1,4 +1,3 @@
-
 module Cubical.Data.Rationals.MoreRationals.NormalisedQ.Properties where
 
 open import Cubical.Data.Empty as ⊥

@@ -93,6 +93,9 @@ weaken≡→≤ mn = zero , *≡*⁻¹ (≡→≃ mn)
 ... | yes p = yes (⋖→< p)
 ... | no ¬p = no (converse <→⋖ ¬p)
 
+isProp≤ : ∀ m n → isProp (m ≤ n)
+isProp≤ m n = ℤ.isProp≤
+
 isProp< : ∀ m n → isProp (m < n)
 isProp< m n = ℤ.isProp<
 
