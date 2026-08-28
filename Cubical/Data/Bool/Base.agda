@@ -60,6 +60,15 @@ Bool→Type* : Bool → Type ℓ
 Bool→Type* true = Unit*
 Bool→Type* false = ⊥*
 
+-- this is proved here to avoid cyclic dependency, as it is needed in `Nat.Properties`
+DecBool→Type : {a : Bool} → Dec (Bool→Type a)
+DecBool→Type {a = true} = yes tt
+DecBool→Type {a = false} = no (λ x → x)
+
+DecBool→Type* : {a : Bool} → Dec (Bool→Type* {ℓ} a)
+DecBool→Type* {a = true} = yes tt*
+DecBool→Type* {a = false} = no (λ (lift x) → x)
+
 True : Dec A → Type₀
 True Q = Bool→Type (Dec→Bool Q)
 

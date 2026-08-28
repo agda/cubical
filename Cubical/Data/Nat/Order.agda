@@ -305,16 +305,16 @@ min-≤-right {suc m} {suc n} = subst (_≤ _) (sym minSuc) $ suc-≤-suc $ min-
 maxLUB : ∀ {x} → m ≤ x → n ≤ x → max m n ≤ x
 maxLUB {zero}  {n}     _    n≤x  = n≤x
 maxLUB {suc m} {zero}  sm≤x _    = sm≤x
-maxLUB {suc m} {suc n} sm≤x sn≤x with m <ᵇ n
-... | false = sm≤x
-... | true  = sn≤x
+maxLUB {suc m} {suc n} sm≤x sn≤x with m <ᵇ? n
+... | no  _ = sm≤x
+... | yes _ = sn≤x
 
 minGLB : ∀ {x} → x ≤ m → x ≤ n → x ≤ min m n
 minGLB {zero}  {n}     x≤0 _     = x≤0
 minGLB {suc m} {zero}  _   x≤0   = x≤0
-minGLB {suc m} {suc n} x≤sm x≤sn with m <ᵇ n
-... | false = x≤sn
-... | true  = x≤sm
+minGLB {suc m} {suc n} x≤sm x≤sn with m <ᵇ? n
+... | no  _ = x≤sn
+... | yes _ = x≤sm
 
 0<^ : ∀ n → 0 < (suc m) ^ n
 0<^ {m} (zero ) = <-suc
@@ -381,6 +381,16 @@ private
 ≤→≤ᵇ {zero}  {n} 0≤n  = tt
 ≤→≤ᵇ {suc m} {n} sm≤n = <→<ᵇ sm≤n
 
+¬<ᵇ→≥ᵇ : ∀ m n → ¬ Bool→Type (m <ᵇ n) → Bool→Type (n ≤ᵇ m)
+¬<ᵇ→≥ᵇ m       zero    = λ _ → tt
+¬<ᵇ→≥ᵇ zero    (suc n) = ⊥.rec ∘ (_$ tt)
+¬<ᵇ→≥ᵇ (suc m) (suc n) = ¬<ᵇ→≥ᵇ m n
+
+¬≤ᵇ→>ᵇ : ∀ m n → ¬ Bool→Type (m ≤ᵇ n) → Bool→Type (n <ᵇ m)
+¬≤ᵇ→>ᵇ zero    n       = ⊥.rec ∘ (_$ tt)
+¬≤ᵇ→>ᵇ (suc m) zero    = λ _ → tt
+¬≤ᵇ→>ᵇ (suc m) (suc n) = ¬≤ᵇ→>ᵇ m n
+
 ≤Dec : ∀ m n → Dec (m ≤ n)
 ≤Dec zero n = yes (n , +-zero _)
 ≤Dec (suc m) zero = no ¬-<-zero
@@ -402,19 +412,12 @@ Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)
 Trichotomy-suc (eq m=n) = eq (cong suc m=n)
 Trichotomy-suc (gt n<m) = gt (suc-≤-suc n<m)
 
-private
-  ∸→>ᵇ : ∀ m n → caseNat ⊥.⊥ Unit (m ∸ n) → Bool→Type (m >ᵇ n)
-  ∸→>ᵇ (suc m) zero    t = tt
-  ∸→>ᵇ (suc m) (suc n) t = ∸→>ᵇ m n t
-
 _≟_ : ∀ m n → Trichotomy m n
-m ≟ n with m ∸ n UsingEq | n ∸ m UsingEq
-... | zero  , p | zero  , q = eq (∸≡0→≡ p q)
-... | zero  , p | suc _ , q = lt (<ᵇ→< $ ∸→>ᵇ n m $ subst (caseNat ⊥.⊥ Unit) (sym q) tt)
-... | suc _ , p | zero  , q = gt (<ᵇ→< $ ∸→>ᵇ m n $ subst (caseNat ⊥.⊥ Unit) (sym p) tt)
-... | suc _ , p | suc _ , q = ⊥.rec $ <-irrefl {m} $ <-trans
-  (<ᵇ→< $ ∸→>ᵇ n m $ subst (caseNat ⊥.⊥ Unit) (sym q) tt)
-  (<ᵇ→< $ ∸→>ᵇ m n $ subst (caseNat ⊥.⊥ Unit) (sym p) tt)
+m ≟ n with m <ᵇ? n | n <ᵇ? m
+... | yes p | yes q = ⊥.rec $ <-irrefl {m} $ <-trans (<ᵇ→< p) (<ᵇ→< q)
+... | yes p | no ¬q = lt (<ᵇ→< p)
+... | no ¬p | yes q = gt (<ᵇ→< q)
+... | no ¬p | no ¬q = eq (≤-antisym (≤ᵇ→≤ (¬<ᵇ→≥ᵇ n m ¬q)) (≤ᵇ→≤ (¬<ᵇ→≥ᵇ m n ¬p)))
 
 --  Alternative version of ≟, defined without builtin primitives
 
