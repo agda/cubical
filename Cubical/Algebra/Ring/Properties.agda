@@ -14,6 +14,8 @@ open import Cubical.Foundations.Path
 
 open import Cubical.Functions.Embedding
 
+import Cubical.Data.Nat.Base as ℕ
+import Cubical.Data.Int.Base as ℤ
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Monoid
@@ -153,6 +155,15 @@ module RingTheory (R' : Ring ℓ) where
 
   ·-assoc2 : (x y z w : R) → (x · y) · (z · w) ≡ x · (y · z) · w
   ·-assoc2 x y z w = ·Assoc (x · y) z w ∙ congL _·_ (sym (·Assoc x y z))
+
+  fromℕ : ℕ.ℕ → R
+  fromℕ ℕ.zero = 0r
+  fromℕ (ℕ.suc ℕ.zero) = 1r
+  fromℕ (ℕ.suc (ℕ.suc n)) = 1r + fromℕ (ℕ.suc n)
+
+  fromℤ : ℤ.ℤ → R
+  fromℤ (ℤ.pos n) = fromℕ n
+  fromℤ (ℤ.negsuc n) = - (fromℕ (ℕ.suc n))
 
 Ring→Semiring : Ring ℓ → Semiring ℓ
 Ring→Semiring R =

@@ -9,6 +9,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
+open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.Algebra.Ring.Properties
 open RingTheory
 
@@ -33,6 +34,26 @@ module _ {ℓ : Level} (R : CommRing ℓ) {X : Type ℓ} (f : X → ⟨ R ⟩) w
     genIdeal : IdealsIn R
     genIdeal = makeIdeal (λ r → generatedIdeal r , squash)
       add zero λ r → mul
+
+    data isInGeneratedIdeal : (r : ⟨ R ⟩) → Type ℓ where
+          isImage  : (r : ⟨ R ⟩) → (x : X) → (f x ≡ r) → isInGeneratedIdeal r
+          iszero   : (r : ⟨ R ⟩) → (0r ≡ r)            → isInGeneratedIdeal r
+          isSum    : (r : ⟨ R ⟩) → (s t : ⟨ R ⟩) → (s + t ≡ r) →
+            isInGeneratedIdeal s → isInGeneratedIdeal t → isInGeneratedIdeal r
+          isMul    : (r : ⟨ R ⟩) → (s t : ⟨ R ⟩) → (s · t ≡ r) →
+            isInGeneratedIdeal t → isInGeneratedIdeal r
+
+    generatedIdealDecomp : ( r : ⟨ R ⟩ ) → generatedIdeal r → ∥ isInGeneratedIdeal r ∥₁
+    generatedIdealDecomp .(f x)   (single x)                    = ∣ isImage (f x) x refl ∣₁
+    generatedIdealDecomp .(0r)     zero                         = ∣ iszero 0r refl ∣₁
+    generatedIdealDecomp .(s + t) (add {x = s} {y = t} s∈I t∈I) =
+      PT.map2 (isSum (s + t) s t refl)
+      (generatedIdealDecomp s s∈I) (generatedIdealDecomp t t∈I)
+    generatedIdealDecomp .(s · t) (mul {r = s} {x = t} t∈I )    =
+      PT.map  (isMul (s · t) s t refl) (generatedIdealDecomp t t∈I)
+    generatedIdealDecomp r        (squash r∈I r∈I' i)           =
+      ∥∥-isPropDep isInGeneratedIdeal
+      (generatedIdealDecomp r r∈I) (generatedIdealDecomp r r∈I') refl i
 
     _/Im_ : CommRing ℓ
     _/Im_ = R / genIdeal

@@ -1315,8 +1315,8 @@ makeConnectedCW {ℓ = ℓ} (suc n) {C = C} (cwsk , eqv) cA with
             C'-realise : (n₁ : ℕ) (q : _)
               → Iso (C' (n₁ +ℕ 4+n) q)
                      (C* (n₁ +ℕ 4+n))
-            C'-realise m (lt x) = ⊥.rec (¬m<m (<-trans (<ᵗ→< x) (m , refl)))
-            C'-realise m (eq x) = ⊥.rec (¬m<m (m , x))
+            C'-realise m (lt x) = ⊥.rec (<-irrefl (<-trans (<ᵗ→< x) (m , refl)))
+            C'-realise m (eq x) = ⊥.rec (<-irrefl (m , x))
             C'-realise zero (gt x) = idIso
             C'-realise (suc m) (gt x) = idIso
 
@@ -1326,8 +1326,8 @@ makeConnectedCW {ℓ = ℓ} (suc n) {C = C} (cwsk , eqv) cA with
                       (Iso.fun (C'-realise n₁ q) a)
                 ≡ Iso.fun (C'-realise (suc n₁) _)
                     (invEq (e' (n₁ +ℕ 4+n) r q) (inl a))
-            C'-realise-coh m (lt x) r a = ⊥.rec (¬m<m (<-trans (<ᵗ→< x) (m , refl)))
-            C'-realise-coh m (eq x) r a = ⊥.rec (¬m<m (m , x))
+            C'-realise-coh m (lt x) r a = ⊥.rec (<-irrefl (<-trans (<ᵗ→< x) (m , refl)))
+            C'-realise-coh m (eq x) r a = ⊥.rec (<-irrefl (m , x))
             C'-realise-coh m (gt x) (lt x₁) a =
               ⊥.rec (¬m<ᵗm (<ᵗ-trans (<ᵗ-trans x x₁) <ᵗsucm))
             C'-realise-coh m (gt x) (eq x₁) a =

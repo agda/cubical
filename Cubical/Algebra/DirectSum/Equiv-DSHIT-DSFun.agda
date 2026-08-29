@@ -173,7 +173,7 @@ module Equiv-Properties
                       λ {U} {V} → PT.elim (λ _ → isPropΠ (λ _ → squash₁))
                                    (λ { (k , nu) → PT.elim (λ _ → squash₁)
                                     λ { (l , nv) →
-                                   ∣ ((k +n l) , (λ n q → cong₂ ((Gstr n)._+_) (nu n (<-+k-trans q)) (nv n (<-k+-trans q))
+                                   ∣ ((k +n l) , (λ n q → cong₂ ((Gstr n)._+_) (nu n (<-+-transʳ q)) (nv n (<-+-transˡ q))
                                                           ∙ +IdR (Gstr n) _)) ∣₁} })
 
   ---------------------------------------------------------------------------

@@ -297,6 +297,24 @@ _■ = idEquiv
 infixr  0 _≃⟨_⟩_
 infix   1 _■
 
+-- 2-out-of-3 properties
+
+rCancelIsEquiv : (g : B → C) (f : A → B)
+  → isEquiv (g ∘ f) → isEquiv f → isEquiv g
+rCancelIsEquiv g f iseGF iseF =
+  subst
+    isEquiv
+    (cong (g ∘_) (funExt (secIsEq iseF)))
+    (compEquiv (invEquiv (f , iseF)) (_ , iseGF) .snd)
+
+lCancelIsEquiv : (g : B → C) (f : A → B)
+  → isEquiv (g ∘ f) → isEquiv g → isEquiv f
+lCancelIsEquiv g f iseGF iseG =
+  subst
+    isEquiv
+    (cong (_∘ f) (funExt (retIsEq iseG)))
+    (compEquiv (_ , iseGF) (invEquiv (g , iseG)) .snd)
+
 composesToId→Equiv : (f : A → B) (g : B → A) → f ∘ g ≡ idfun B → isEquiv f → isEquiv g
 composesToId→Equiv f g id iseqf =
   isoToIsEquiv

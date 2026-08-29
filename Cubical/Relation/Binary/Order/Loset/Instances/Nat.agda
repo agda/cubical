@@ -22,9 +22,9 @@ isLoset (snd ℕ<Loset) = isLosetℕ<
       isLosetℕ< : IsLoset _<ℕ_
       isLosetℕ< .is-set         = isSetℕ
       isLosetℕ< .is-prop-valued = λ _ _ → isProp≤
-      isLosetℕ< .is-irrefl      = λ _ → ¬m<m
+      isLosetℕ< .is-irrefl      = λ _ → <-irrefl
       isLosetℕ< .is-trans       = λ _ _ _ → <-trans
-      isLosetℕ< .is-asym        = λ a b a<b b<a → ¬m<m (<-trans a<b b<a)
+      isLosetℕ< .is-asym        = λ a b a<b b<a → <-irrefl (<-trans a<b b<a)
       isLosetℕ< .is-weakly-linear a b c a<b with a ≟ c
       ... | lt a<c = ∣ inl a<c ∣₁
       ... | eq a≡c = ∣ inr (subst (_<ℕ b) a≡c a<b) ∣₁

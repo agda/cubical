@@ -63,21 +63,21 @@ zero-≤ {n} = n , +-zero n
 suc-≤-suc : m ≤ n → suc m ≤ suc n
 suc-≤-suc (k , p) = k , (+-suc k _) ∙ (cong suc p)
 
-≤-+k : m ≤ n → m + k ≤ n + k
-≤-+k {m} {k = k} (i , p)
+≤-+ʳ : m ≤ n → m + k ≤ n + k
+≤-+ʳ {m} {k = k} (i , p)
   = i , +-assoc i m k ∙ cong (_+ k) p
 
 ≤SumRight : n ≤ k + n
-≤SumRight {n} {k} = ≤-+k zero-≤
+≤SumRight {n} {k} = ≤-+ʳ zero-≤
 
-≤-k+ : m ≤ n → k + m ≤ k + n
-≤-k+ {m} {n} {k}
+≤-+ˡ : m ≤ n → k + m ≤ k + n
+≤-+ˡ {m} {n} {k}
   = subst (_≤ k + n) (+-comm m k)
   ∘ subst (m + k ≤_) (+-comm n k)
-  ∘ ≤-+k
+  ∘ ≤-+ʳ
 
 ≤SumLeft : n ≤ n + k
-≤SumLeft {n} {k} = subst (n ≤_) (+-comm k n) (≤-+k zero-≤)
+≤SumLeft {n} {k} = subst (n ≤_) (+-comm k n) (≤-+ʳ zero-≤)
 
 pred-≤-pred : suc m ≤ suc n → m ≤ n
 pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
@@ -120,41 +120,52 @@ suc-< p = pred-≤-pred (≤-suc p)
   l3 = sym (snd (m+n≡0→m≡0×n≡0 l2))
 
 ≤-+-≤ : m ≤ n → l ≤ k → m + l ≤ n + k
-≤-+-≤ p q = ≤-trans (≤-+k p) (≤-k+ q)
+≤-+-≤ p q = ≤-trans (≤-+ʳ p) (≤-+ˡ q)
 
-≤-k+-cancel : k + m ≤ k + n → m ≤ n
-≤-k+-cancel {k} {m} (l , p) = l , inj-m+ (sub k m ∙ p)
+≤-+-cancelˡ : k + m ≤ k + n → m ≤ n
+≤-+-cancelˡ {k} {m} (l , p) = l , inj-m+ (sub k m ∙ p)
  where
  sub : ∀ k m → k + (l + m) ≡ l + (k + m)
  sub k m = +-assoc k l m ∙ cong (_+ m) (+-comm k l) ∙ sym (+-assoc l k m)
 
-≤-+k-cancel : m + k ≤ n + k → m ≤ n
-≤-+k-cancel {m} {k} {n} (l , p) = l , cancelled
+≤-+-cancelʳ : m + k ≤ n + k → m ≤ n
+≤-+-cancelʳ {m} {k} {n} (l , p) = l , cancelled
  where
  cancelled : l + m ≡ n
  cancelled = inj-+m (sym (+-assoc l m k) ∙ p)
 
-≤-+k-trans : (m + k ≤ n) → m ≤ n
-≤-+k-trans {m} {k} {n} p = ≤-trans (k , +-comm k m) p
+≤-+-transʳ : (m + k ≤ n) → m ≤ n
+≤-+-transʳ {m} {k} {n} p = ≤-trans (k , +-comm k m) p
 
-≤-k+-trans : (k + m ≤ n) → m ≤ n
-≤-k+-trans {m} {k} {n} p = ≤-trans (m , refl) p
+≤-+-transˡ : (k + m ≤ n) → m ≤ n
+≤-+-transˡ {m} {k} {n} p = ≤-trans (m , refl) p
 
-≤-·k : m ≤ n → m · k ≤ n · k
-≤-·k {m} {n} {k} (d , r) = d · k , reason where
+≤-·ʳ : m ≤ n → m · k ≤ n · k
+≤-·ʳ {m} {n} {k} (d , r) = d · k , reason where
   reason : d · k + m · k ≡ n · k
   reason = d · k + m · k ≡⟨ ·-distribʳ d m k ⟩
            (d + m) · k   ≡⟨ cong (_· k) r ⟩
            n · k         ∎
 
-<-k+-cancel : k + m < k + n → m < n
-<-k+-cancel {k} {m} {n} = ≤-k+-cancel ∘ subst (_≤ k + n) (sym (+-suc k m))
+≤-·ˡ : m ≤ n → k · m ≤ k · n
+≤-·ˡ {k = k} = subst2 _≤_ (·-comm _ k) (·-comm _ k) ∘ ≤-·ʳ
+
+<-+-cancelˡ : k + m < k + n → m < n
+<-+-cancelˡ {k} {m} {n} = ≤-+-cancelˡ ∘ subst (_≤ k + n) (sym (+-suc k m))
 
 ¬-<-zero : ¬ m < 0
 ¬-<-zero (k , p) = snotz ((sym (+-suc k _)) ∙ p)
 
-¬m<m : ¬ m < m
-¬m<m {m} = ¬-<-zero ∘ ≤-+k-cancel {k = m}
+≤-·-cancelʳ : m · suc k ≤ n · suc k → m ≤ n
+≤-·-cancelʳ {zero}  {n = n}     = λ _ → zero-≤
+≤-·-cancelʳ {suc m} {n = zero}  = ⊥.rec ∘ ¬-<-zero
+≤-·-cancelʳ {suc m} {n = suc n} = suc-≤-suc ∘ ≤-·-cancelʳ {m} {n = n} ∘ ≤-+-cancelˡ
+
+≤-·-cancelˡ : suc k · m ≤ suc k · n → m ≤ n
+≤-·-cancelˡ {k = k} = ≤-·-cancelʳ ∘ subst2 _≤_ (·-comm (suc k) _) (·-comm (suc k) _)
+
+<-irrefl : ¬ m < m
+<-irrefl {m} = ¬-<-zero ∘ ≤-+-cancelʳ {k = m}
 
 ≤0→≡0 : n ≤ 0 → n ≡ 0
 ≤0→≡0 {zero} ineq = refl
@@ -166,8 +177,11 @@ predℕ-≤-predℕ {zero} {suc n}  ineq = zero-≤
 predℕ-≤-predℕ {suc m} {zero}  ineq = ⊥.rec (¬-<-zero ineq)
 predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 
-¬m+n<m : ¬ m + n < m
-¬m+n<m {m} {n} = ¬-<-zero ∘ <-k+-cancel ∘ subst (m + n <_) (sym (+-zero m))
+zero-<suc : zero < suc n
+zero-<suc = suc-≤-suc zero-≤
+
+¬SumLeft< : ¬ m + n < m
+¬SumLeft< {m} {n} = ¬-<-zero ∘ <-+-cancelˡ ∘ subst (m + n <_) (sym (+-zero m))
 
 <-weaken : m < n → m ≤ n
 <-weaken (k , p) = suc k , sym (+-suc k _) ∙ p
@@ -182,28 +196,28 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-trans p = ≤<-trans (<-weaken p)
 
 <-asym : m < n → ¬ n ≤ m
-<-asym m<n = ¬m<m ∘ <≤-trans m<n
+<-asym m<n = <-irrefl ∘ <≤-trans m<n
 
-<-+k : m < n → m + k < n + k
-<-+k p = ≤-+k p
+<-+ʳ : m < n → m + k < n + k
+<-+ʳ p = ≤-+ʳ p
 
-<-k+ : m < n → k + m < k + n
-<-k+ {m} {n} {k} p = subst (λ km → km ≤ k + n) (+-suc k m) (≤-k+ p)
+<-+ˡ : m < n → k + m < k + n
+<-+ˡ {m} {n} {k} p = subst (λ km → km ≤ k + n) (+-suc k m) (≤-+ˡ p)
 
-<-+k-trans : (m + k < n) → m < n
-<-+k-trans {m} {k} {n} p = ≤<-trans (k , +-comm k m) p
+<-+-transʳ : (m + k < n) → m < n
+<-+-transʳ {m} {k} {n} p = ≤<-trans (k , +-comm k m) p
 
-<-k+-trans : (k + m < n) → m < n
-<-k+-trans {m} {k} {n} p = ≤<-trans (m , refl) p
+<-+-transˡ : (k + m < n) → m < n
+<-+-transˡ {m} {k} {n} p = ≤<-trans (m , refl) p
 
 <-+-< : m < n → k < l → m + k < n + l
-<-+-<  m<n k<l = <-trans (<-+k m<n) (<-k+ k<l)
+<-+-<  m<n k<l = <-trans (<-+ʳ m<n) (<-+ˡ k<l)
 
-¬-suc-n<n : {n : ℕ} → ¬ (suc n < n)
-¬-suc-n<n {n = n} = <-asym (1 , refl)
+¬-sucℕ-< : {n : ℕ} → ¬ (suc n < n)
+¬-sucℕ-< {n = n} = <-asym (1 , refl)
 
 <-+-≤ : m < n → k ≤ l → m + k < n + l
-<-+-≤ p q = <≤-trans (<-+k p) (≤-k+ q)
+<-+-≤ p q = <≤-trans (<-+ʳ p) (≤-+ˡ q)
 
 <-suc : {n : ℕ} → n < suc n
 <-suc = 0 , refl
@@ -215,28 +229,39 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <SumRight {n} {k} = k , +-suc k n
 
 ¬squeeze< : {n m : ℕ} → ¬ (n < m) × (m < suc n)
-¬squeeze< {n = n} ((zero , p) , t) = ¬m<m (subst (_< suc n) (sym p) t)
+¬squeeze< {n = n} ((zero , p) , t) = <-irrefl (subst (_< suc n) (sym p) t)
 ¬squeeze< {n = n}  ((suc diff1 , p) , q) =
-  ¬m<m (<-trans help (subst (_< suc n) (sym p) q))
+  <-irrefl (<-trans help (subst (_< suc n) (sym p) q))
   where
   help : suc n < suc (diff1 + suc n)
   help = diff1 , +-suc diff1 (suc n)
 
 ¬-<-suc : {n m : ℕ} → n < m → ¬ m < suc n
-¬-<-suc {n = n} {m = m} (zero , q) p = ¬m<m (subst (_< suc n) (sym q) p)
-¬-<-suc {n = n} {m = m} (suc diff , q) p = ¬m<m (<-trans p lem)
+¬-<-suc {n = n} {m = m} (zero , q) p = <-irrefl (subst (_< suc n) (sym q) p)
+¬-<-suc {n = n} {m = m} (suc diff , q) p = <-irrefl (<-trans p lem)
   where
   lem : suc n < m
   lem = diff , +-suc diff (suc n) ∙ q
 
-<-·sk : m < n → m · suc k < n · suc k
-<-·sk {m} {n} {k} (d , r) = (d · suc k + k) , reason where
+<-·ʳ : m < n → m · suc k < n · suc k
+<-·ʳ {m} {n} {k} (d , r) = (d · suc k + k) , reason where
   reason : (d · suc k + k) + suc (m · suc k) ≡ n · suc k
   reason = (d · suc k + k) + suc (m · suc k) ≡⟨ sym (+-assoc (d · suc k) k _) ⟩
            d · suc k + (k + suc (m · suc k)) ≡[ i ]⟨ d · suc k + +-suc k (m · suc k) i ⟩
            d · suc k + suc m · suc k         ≡⟨ ·-distribʳ d (suc m) (suc k) ⟩
            (d + suc m) · suc k               ≡⟨ cong (_· suc k) r ⟩
            n · suc k                         ∎
+
+<-·ˡ : m < n → suc k · m < suc k · n
+<-·ˡ {k = k} = subst2 _<_ (·-comm _ (suc k)) (·-comm _ (suc k)) ∘ <-·ʳ {k = k}
+
+<-·-cancelʳ : m · suc k < n · suc k → m < n
+<-·-cancelʳ {m}     {n = zero}  = ⊥.rec ∘ ¬-<-zero
+<-·-cancelʳ {zero}  {n = suc n} = λ _ → zero-<suc
+<-·-cancelʳ {suc m} {n = suc n} = suc-≤-suc ∘ <-·-cancelʳ {m} {n = n} ∘ <-+-cancelˡ
+
+<-·-cancelˡ : suc k · m < suc k · n → m < n
+<-·-cancelˡ {k = k} = <-·-cancelʳ ∘ subst2 _<_ (·-comm (suc k) _) (·-comm (suc k) _)
 
 ∸-≤ : ∀ m n → m ∸ n ≤ m
 ∸-≤ m zero = ≤-refl
@@ -253,9 +278,9 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 ≤-∸-suc {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
 ≤-∸-suc {suc m} {suc n} m+1≤n+1 = ≤-∸-suc (pred-≤-pred m+1≤n+1)
 
-≤-∸-k : m ≤ n → k + (n ∸ m) ≡ (k + n) ∸ m
-≤-∸-k {m} {n} {zero} r = refl
-≤-∸-k {m} {n} {suc k} r = cong suc (≤-∸-k r) ∙ ≤-∸-suc (≤-trans r (k , refl))
+≤-+∸ : m ≤ n → k + (n ∸ m) ≡ (k + n) ∸ m
+≤-+∸ {m} {n} {zero} r = refl
+≤-+∸ {m} {n} {suc k} r = cong suc (≤-+∸ r) ∙ ≤-∸-suc (≤-trans r (k , refl))
 
 left-≤-max : m ≤ max m n
 left-≤-max {zero} {n} = zero-≤
@@ -280,16 +305,44 @@ min-≤-right {suc m} {suc n} = subst (_≤ _) (sym minSuc) $ suc-≤-suc $ min-
 maxLUB : ∀ {x} → m ≤ x → n ≤ x → max m n ≤ x
 maxLUB {zero}  {n}     _    n≤x  = n≤x
 maxLUB {suc m} {zero}  sm≤x _    = sm≤x
-maxLUB {suc m} {suc n} sm≤x sn≤x with m <ᵇ n
-... | false = sm≤x
-... | true  = sn≤x
+maxLUB {suc m} {suc n} sm≤x sn≤x with m <ᵇ? n
+... | no  _ = sm≤x
+... | yes _ = sn≤x
 
 minGLB : ∀ {x} → x ≤ m → x ≤ n → x ≤ min m n
 minGLB {zero}  {n}     x≤0 _     = x≤0
 minGLB {suc m} {zero}  _   x≤0   = x≤0
-minGLB {suc m} {suc n} x≤sm x≤sn with m <ᵇ n
-... | false = x≤sn
-... | true  = x≤sm
+minGLB {suc m} {suc n} x≤sm x≤sn with m <ᵇ? n
+... | no  _ = x≤sn
+... | yes _ = x≤sm
+
+0<^ : ∀ n → 0 < (suc m) ^ n
+0<^ {m} (zero ) = <-suc
+0<^ {m} (suc n) = subst (_< (suc m ^ suc n)) (sym (0≡m·0 (suc m))) (<-·ˡ {k = m} (0<^ n))
+
+≤-^ˡ : m ≤ n → (suc k) ^ m ≤ (suc k) ^ n
+≤-^ˡ {zero}  {n}     {k} = λ _ → 0<^ n
+≤-^ˡ {suc m} {zero}  {k} = ⊥.rec ∘ ¬-<-zero
+≤-^ˡ {suc m} {suc n} {k} = ≤-·ˡ {k = suc k} ∘ ≤-^ˡ ∘ pred-≤-pred
+
+1<^suc : ∀ n → 1 < (suc (suc m)) ^ (suc n)
+1<^suc {m} zero    = suc-≤-suc (zero-<suc)
+1<^suc {m} (suc n) = <≤-trans (1<^suc n) (≤-^ˡ (≤-sucℕ {suc n}))
+
+<-^ˡ : m < n → (suc (suc k)) ^ m < (suc (suc k)) ^ n
+<-^ˡ {m}     {zero}  {k} = ⊥.rec ∘ ¬-<-zero
+<-^ˡ {zero}  {suc n} {k} = λ _ → 1<^suc n
+<-^ˡ {suc m} {suc n} {k} = <-·ˡ {k = suc k} ∘ <-^ˡ ∘ pred-≤-pred
+
+≤-^-cancelˡ : (suc (suc k)) ^ m ≤ (suc (suc k)) ^ n → m ≤ n
+≤-^-cancelˡ {k} {zero}  {n}     = λ _ → zero-≤
+≤-^-cancelˡ {k} {suc m} {zero}  = ⊥.rec ∘ <-asym (1<^suc m)
+≤-^-cancelˡ {k} {suc m} {suc n} = suc-≤-suc ∘ ≤-^-cancelˡ ∘ ≤-·-cancelˡ {suc k}
+
+<-^-cancelˡ : (suc (suc k)) ^ m < (suc (suc k)) ^ n → m < n
+<-^-cancelˡ {k} {m}     {zero}  = ⊥.rec ∘ flip <-asym (0<^ m)
+<-^-cancelˡ {k} {zero}  {suc n} = λ _ → zero-<suc
+<-^-cancelˡ {k} {suc m} {suc n} = suc-≤-suc ∘ <-^-cancelˡ ∘ <-·-cancelˡ {suc k}
 
 -- Boolean order relations and their conversions to/from ≤ and <
 
@@ -328,6 +381,16 @@ private
 ≤→≤ᵇ {zero}  {n} 0≤n  = tt
 ≤→≤ᵇ {suc m} {n} sm≤n = <→<ᵇ sm≤n
 
+¬<ᵇ→≥ᵇ : ∀ m n → ¬ Bool→Type (m <ᵇ n) → Bool→Type (n ≤ᵇ m)
+¬<ᵇ→≥ᵇ m       zero    = λ _ → tt
+¬<ᵇ→≥ᵇ zero    (suc n) = ⊥.rec ∘ (_$ tt)
+¬<ᵇ→≥ᵇ (suc m) (suc n) = ¬<ᵇ→≥ᵇ m n
+
+¬≤ᵇ→>ᵇ : ∀ m n → ¬ Bool→Type (m ≤ᵇ n) → Bool→Type (n <ᵇ m)
+¬≤ᵇ→>ᵇ zero    n       = ⊥.rec ∘ (_$ tt)
+¬≤ᵇ→>ᵇ (suc m) zero    = λ _ → tt
+¬≤ᵇ→>ᵇ (suc m) (suc n) = ¬≤ᵇ→>ᵇ m n
+
 ≤Dec : ∀ m n → Dec (m ≤ n)
 ≤Dec zero n = yes (n , +-zero _)
 ≤Dec (suc m) zero = no ¬-<-zero
@@ -349,19 +412,12 @@ Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)
 Trichotomy-suc (eq m=n) = eq (cong suc m=n)
 Trichotomy-suc (gt n<m) = gt (suc-≤-suc n<m)
 
-private
-  ∸→>ᵇ : ∀ m n → caseNat ⊥.⊥ Unit (m ∸ n) → Bool→Type (m >ᵇ n)
-  ∸→>ᵇ (suc m) zero    t = tt
-  ∸→>ᵇ (suc m) (suc n) t = ∸→>ᵇ m n t
-
 _≟_ : ∀ m n → Trichotomy m n
-m ≟ n with m ∸ n UsingEq | n ∸ m UsingEq
-... | zero  , p | zero  , q = eq (∸≡0→≡ p q)
-... | zero  , p | suc _ , q = lt (<ᵇ→< $ ∸→>ᵇ n m $ subst (caseNat ⊥.⊥ Unit) (sym q) tt)
-... | suc _ , p | zero  , q = gt (<ᵇ→< $ ∸→>ᵇ m n $ subst (caseNat ⊥.⊥ Unit) (sym p) tt)
-... | suc _ , p | suc _ , q = ⊥.rec $ ¬m<m {m} $ <-trans
-  (<ᵇ→< $ ∸→>ᵇ n m $ subst (caseNat ⊥.⊥ Unit) (sym q) tt)
-  (<ᵇ→< $ ∸→>ᵇ m n $ subst (caseNat ⊥.⊥ Unit) (sym p) tt)
+m ≟ n with m <ᵇ? n | n <ᵇ? m
+... | yes p | yes q = ⊥.rec $ <-irrefl {m} $ <-trans (<ᵇ→< p) (<ᵇ→< q)
+... | yes p | no ¬q = lt (<ᵇ→< p)
+... | no ¬p | yes q = gt (<ᵇ→< q)
+... | no ¬p | no ¬q = eq (≤-antisym (≤ᵇ→≤ (¬<ᵇ→≥ᵇ n m ¬q)) (≤ᵇ→≤ (¬<ᵇ→≥ᵇ m n ¬p)))
 
 --  Alternative version of ≟, defined without builtin primitives
 
@@ -403,7 +459,7 @@ splitℕ-< m n with m ≟ n
 <-split {suc m} {suc n} sm<ssn with m ≟ n
 ... | lt m<n = inl (suc-≤-suc m<n)
 ... | eq m≡n = inr (cong suc m≡n)
-... | gt n<m = ⊥.rec $ ¬m<m {suc (suc n)} $ ≤-trans (suc-≤-suc (suc-≤-suc n<m)) sm<ssn
+... | gt n<m = ⊥.rec $ <-irrefl {suc (suc n)} $ ≤-trans (suc-≤-suc (suc-≤-suc n<m)) sm<ssn
 
 ≤-split : m ≤ n → (m < n) ⊎ (m ≡ n)
 ≤-split p = <-split (suc-≤-suc p)
@@ -425,7 +481,7 @@ splitℕ-< m n with m ≟ n
 ... | eq p = inr (0 , p)
 ... | lt m<n+m∸k = inr (<-weaken m<n+m∸k)
 ... | gt n+m∸k<m =
-      ⊥.rec (¬m<m (transport (λ i → ≤-∸-+-cancel k≤n+m i < +-comm m n i) (<-+-< n+m∸k<m k<n)))
+      ⊥.rec (<-irrefl (transport (λ i → ≤-∸-+-cancel k≤n+m i < +-comm m n i) (<-+-< n+m∸k<m k<n)))
 
 <-asym'-case : Trichotomy m n → ¬ m < n → n ≤ m
 <-asym'-case (lt p) q = ⊥.rec (q p)
@@ -449,7 +505,7 @@ private
 <-wellfounded (suc n) = acc-suc (<-wellfounded n)
 
 <→≢ : n < m → ¬ n ≡ m
-<→≢ {n} {m} p q = ¬m<m (subst (_< m) q p)
+<→≢ {n} {m} p q = <-irrefl (subst (_< m) q p)
 
 module _
     (b₀ : ℕ)
@@ -548,21 +604,21 @@ suc∸-fst zero (suc m) p = ⊥.rec (¬-<-zero p)
 suc∸-fst (suc n) zero p = refl
 suc∸-fst (suc n) (suc m) p = (suc∸-fst n m (pred-≤-pred p))
 
-n∸m≡0 : (n m : ℕ) → n ≤ m → (n ∸ m) ≡ 0
-n∸m≡0 zero zero p = refl
-n∸m≡0 (suc n) zero p = ⊥.rec (¬-<-zero p)
-n∸m≡0 zero (suc m) p = refl
-n∸m≡0 (suc n) (suc m) p = n∸m≡0 n m (pred-≤-pred p)
+≤→∸≡0 : (n m : ℕ) → n ≤ m → (n ∸ m) ≡ 0
+≤→∸≡0 zero zero p = refl
+≤→∸≡0 (suc n) zero p = ⊥.rec (¬-<-zero p)
+≤→∸≡0 zero (suc m) p = refl
+≤→∸≡0 (suc n) (suc m) p = ≤→∸≡0 n m (pred-≤-pred p)
 
-n∸n≡0 : (n : ℕ) → n ∸ n ≡ 0
-n∸n≡0 zero = refl
-n∸n≡0 (suc n) = n∸n≡0 n
+∘diag∸≡0 : (n : ℕ) → n ∸ n ≡ 0
+∘diag∸≡0 zero = refl
+∘diag∸≡0 (suc n) = ∘diag∸≡0 n
 
-n∸l>0 : (n l : ℕ) → (l < n) → 0 < (n ∸ l)
-n∸l>0  zero    zero   r = ⊥.rec (¬-<-zero r)
-n∸l>0  zero   (suc l) r = ⊥.rec (¬-<-zero r)
-n∸l>0 (suc n)  zero   r = suc-≤-suc zero-≤
-n∸l>0 (suc n) (suc l) r = n∸l>0 n l (pred-≤-pred r)
+<→0<∸ : (n l : ℕ) → (l < n) → 0 < (n ∸ l)
+<→0<∸  zero    zero   r = ⊥.rec (¬-<-zero r)
+<→0<∸  zero   (suc l) r = ⊥.rec (¬-<-zero r)
+<→0<∸ (suc n)  zero   r = suc-≤-suc zero-≤
+<→0<∸ (suc n) (suc l) r = <→0<∸ n l (pred-≤-pred r)
 
 -- automation
 
@@ -619,7 +675,7 @@ pattern s<s {m} {n} m<n = s≤s {m} {n} m<n
 <-∸-< : ∀ m n l → m < n → l < n → m ∸ l < n ∸ l
 <-∸-<  m       n       zero   r q = r
 <-∸-<  zero    zero   (suc l) r q = ⊥.rec (¬-<-zero r)
-<-∸-<  zero   (suc n) (suc l) r q = n∸l>0 (suc n) (suc l) q
+<-∸-<  zero   (suc n) (suc l) r q = <→0<∸ (suc n) (suc l) q
 <-∸-< (suc m)  zero   (suc l) r q = ⊥.rec (¬-<-zero r)
 <-∸-< (suc m) (suc n) (suc l) r q = <-∸-< m n l (pred-≤-pred r) (pred-≤-pred q)
 

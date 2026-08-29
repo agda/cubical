@@ -20,20 +20,27 @@ private
   variable
     l m n : ℕ
 
+-- decidability of boolean builtins
+_<ᵇ?_ : ∀ m n → Dec (Bool→Type (m <ᵇ n))
+m <ᵇ? n = DecBool→Type {m <ᵇ n}
+
+_≡ᵇ?_ : ∀ m n → Dec (Bool→Type (m ≡ᵇ n))
+m ≡ᵇ? n = DecBool→Type {m ≡ᵇ n}
+
 min : ℕ → ℕ → ℕ
 min zero m = zero
 min (suc n) zero = zero
-min (suc n) (suc m) with n <ᵇ m UsingEq
-... | false , _ = suc m
-... | true  , _ = suc n
+min (suc n) (suc m) with n <ᵇ? m
+... | no  _ = suc m
+... | yes _ = suc n
 
 minSuc : min (suc n) (suc m) ≡ suc (min n m)
 minSuc {zero} {zero} = refl
 minSuc {zero} {suc m} = refl
 minSuc {suc n} {zero} = refl
-minSuc {suc n} {suc m} with suc n <ᵇ suc m
-... | false = refl
-... | true  = refl
+minSuc {suc n} {suc m} with suc n <ᵇ? suc m
+... | yes _ = refl
+... | no  _ = refl
 
 minComm : (n m : ℕ) → min n m ≡ min m n
 minComm zero zero = refl
@@ -44,17 +51,17 @@ minComm (suc n) (suc m) = minSuc ∙∙ cong suc (minComm n m) ∙∙ sym minSuc
 max : ℕ → ℕ → ℕ
 max zero m = m
 max (suc n) zero = suc n
-max (suc n) (suc m) with n <ᵇ m UsingEq
-... | false , _ = suc n
-... | true  , _ = suc m
+max (suc n) (suc m) with n <ᵇ? m
+... | no  _ = suc n
+... | yes _ = suc m
 
 maxSuc : max (suc n) (suc m) ≡ suc (max n m)
 maxSuc {zero} {zero} = refl
 maxSuc {zero} {suc m} = refl
 maxSuc {suc n} {zero} = refl
-maxSuc {suc n} {suc m} with suc n <ᵇ suc m
-... | false = refl
-... | true  = refl
+maxSuc {suc n} {suc m} with suc n <ᵇ? suc m
+... | no  _ = refl
+... | yes _ = refl
 
 maxComm : (n m : ℕ) → max n m ≡ max m n
 maxComm zero zero = refl
@@ -157,9 +164,9 @@ decodeℕ (suc n) (suc m) = λ r → cong suc (decodeℕ n m r)
 ≡→≡ᵇ {suc m} {suc n} p = ≡→≡ᵇ {m} {n} (cong predℕ p)
 
 discreteℕ : Discrete ℕ
-discreteℕ m n with m ≡ᵇ n UsingEq
-... | false , p = no  (subst Bool→Type p ∘ ≡→≡ᵇ)
-... | true  , p = yes (≡ᵇ→≡ (subst Bool→Type (sym p) tt))
+discreteℕ m n with m ≡ᵇ? n
+... | no ¬p = no  (¬p ∘ ≡→≡ᵇ)
+... | yes p = yes (≡ᵇ→≡ p)
 
 separatedℕ : Separated ℕ
 separatedℕ = Discrete→Separated discreteℕ

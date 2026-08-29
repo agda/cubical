@@ -317,14 +317,6 @@ isPropBool→Type* : {a : Bool} → isProp (Bool→Type* {ℓ} a)
 isPropBool→Type* {a = true} = isPropUnit*
 isPropBool→Type* {a = false} = isProp⊥*
 
-DecBool→Type : {a : Bool} → Dec (Bool→Type a)
-DecBool→Type {a = true} = yes tt
-DecBool→Type {a = false} = no (λ x → x)
-
-DecBool→Type* : {a : Bool} → Dec (Bool→Type* {ℓ} a)
-DecBool→Type* {a = true} = yes tt*
-DecBool→Type* {a = false} = no (λ (lift x) → x)
-
 Dec→DecBool : {P : Type ℓ} → (dec : Dec P) → P → Bool→Type (Dec→Bool dec)
 Dec→DecBool (yes p) _ = tt
 Dec→DecBool (no ¬p) q = Empty.rec (¬p q)

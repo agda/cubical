@@ -4,20 +4,25 @@ module Cubical.Algebra.OrderedCommRing.Base where
 -}
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
-
-import Cubical.Functions.Logic as L
-
-open import Cubical.Relation.Nullary.Base
 
 open import Cubical.Algebra.CommRing.Base
 
-open import Cubical.Relation.Binary.Base
-open import Cubical.Relation.Binary.Order.Poset hiding (isPseudolattice)
-open import Cubical.Relation.Binary.Order.StrictOrder
+import Cubical.Functions.Logic as L
 
+open import Cubical.HITs.PropositionalTruncation as PT
+
+open import Cubical.Reflection.RecordEquiv
+
+open import Cubical.Relation.Binary.Base
+open import Cubical.Relation.Binary.Order.Poset hiding (
+  isPseudolattice ; isPropIsPseudolattice)
 open import Cubical.Relation.Binary.Order.Pseudolattice
+open import Cubical.Relation.Binary.Order.StrictOrder
+open import Cubical.Relation.Nullary
 
 open BinaryRelation
 
@@ -52,6 +57,8 @@ record IsOrderedCommRing
                                                                 ; isPseudolattice to is-pseudolattice
                                                                 ; _∧l_ to _⊓_ ; _∨l_ to _⊔_) public
   open IsStrictOrder isStrictOrder hiding (is-set) renaming (is-prop-valued to is-prop-valued< ; is-trans to is-trans<) public
+
+unquoteDecl IsOrderedCommRingIsoΣ = declareRecordIsoΣ IsOrderedCommRingIsoΣ (quote IsOrderedCommRing)
 
 record OrderedCommRingStr (ℓ' : Level) (R : Type ℓ) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   constructor orderedcommringstr
@@ -134,3 +141,26 @@ OrderedCommRing→CommRing : OrderedCommRing ℓ ℓ' → CommRing ℓ
 OrderedCommRing→CommRing R .fst = R .fst
 OrderedCommRing→CommRing R .snd = commringstr _ _ _ _ _ isCommRing where
   open OrderedCommRingStr (str R)
+
+isPropIsOrderedCommRing : {R : Type ℓ}
+                          → (0r 1r : R)
+                          → (_+_ _·_ : R → R → R) (-_ : R → R)
+                          → (_<_ _≤_ : R → R → Type ℓ')
+                          → isProp (IsOrderedCommRing 0r 1r _+_ _·_ -_ _<_ _≤_)
+isPropIsOrderedCommRing 0r 1r _+_ _·_ -_ _<_ _≤_ = isOfHLevelRetractFromIso 1
+  IsOrderedCommRingIsoΣ $
+    isPropΣ (isPropIsCommRing _ _ _ _ _) λ isCR →
+    isPropΣ (isPropIsPseudolattice _) λ isPL →
+    isPropΣ (isPropIsStrictOrder _) λ isSO →
+    isProp× (isPropΠ3 λ _ _ _ → isPL .IsPseudolattice.is-prop-valued _ _) $
+    isProp× (isPropΠ2 λ x y → isOfHLevel≃ 1
+      (IsPoset.is-prop-valued (IsPseudolattice.isPoset isPL) x y)
+      (isProp¬ (y < x))) $
+    isProp× (isPropΠ4 λ _ _ _ _ → isPL .IsPseudolattice.is-prop-valued _ _) $
+    isProp× (isPropΠ4 λ _ _ _ _ → isSO .IsStrictOrder.is-prop-valued _ _) $
+    isProp× (isPropΠ3 λ _ _ _ → PT.squash₁) $
+    isProp× (isPropΠ5 λ _ _ _ _ _ → isSO .IsStrictOrder.is-prop-valued _ _) $
+    isProp× (isPropΠ5 λ _ _ _ _ _ → isSO .IsStrictOrder.is-prop-valued _ _) $
+    isProp× (isPropΠ5 λ _ _ _ _ _ → isPL .IsPseudolattice.is-prop-valued _ _) $
+    isProp× (isPropΠ5 λ _ _ _ _ _ → isSO .IsStrictOrder.is-prop-valued _ _)
+            (isSO .IsStrictOrder.is-prop-valued _ _)

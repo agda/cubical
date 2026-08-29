@@ -67,8 +67,8 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
  CommRingWithHom = Σ[ A ∈ CommRing ℓ' ] CommRingHom R A
 
  toCommAlg : CommRingWithHom → CommAlgebra R ℓ'
- toCommAlg (A , φ , φIsHom) =
-  commAlgebraFromCommRing
+ toCommAlg (A , φ , φIsHom) .fst = A .fst
+ toCommAlg (A , φ , φIsHom) .snd = commAlgebraStrFromCommRing
     A
     (λ r a → (φ r) · a)
     (λ r s x → cong (_· x) (pres· r s) ∙ sym (·Assoc _ _ _))
@@ -81,7 +81,7 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
   open IsCommRingHom φIsHom
 
  fromCommAlg : CommAlgebra R ℓ' → CommRingWithHom
- fromCommAlg A = (CommAlgebra→CommRing A) , φ , φIsHom
+ fromCommAlg A = record { fst = CommAlgebra→CommRing A ; snd = record { fst = φ ; snd = φIsHom }  }
   where
   open CommRingStr (snd R) renaming (_·_ to _·r_) hiding (·IdL)
   open CommAlgebraStr (snd A)

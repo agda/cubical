@@ -152,7 +152,7 @@ module _
       where
       sumF0 : (i n : ℕ) → (pp : k +ℕ l < n) → (r : i ≤ n) → sumFun i n r f g ≡ 0g (Gstr n)
       sumF0 zero n pp r = cong (subst G (sameFiber r))
-                               (cong (λ X → f 0 ⋆ X) (ng (n -ℕ zero) (<-k+-trans pp)) ∙ ⋆-0 _) ∙ substG0 _
+                               (cong (λ X → f 0 ⋆ X) (ng (n -ℕ zero) (<-+-transˡ pp)) ∙ ⋆-0 _) ∙ substG0 _
       sumF0 (suc i) n pp r with splitℕ-≤ (suc i) k
       ... | inl x = cong₂ (Gstr n ._+_)
                         (cong (subst G (sameFiber r))
@@ -161,7 +161,7 @@ module _
                                     -- Proof : l = k + l - k < n - k < n - suc i
                                     (subst (λ X → X < n -ℕ suc i) (∸+ l k)
                                             (≤<-trans (≤-∸-≥ (k +ℕ l) (suc i) k x)
-                                            (<-∸-< (k +ℕ l) n (suc i) pp (≤<-trans x (<-+k-trans pp))))))
+                                            (<-∸-< (k +ℕ l) n (suc i) pp (≤<-trans x (<-+-transʳ pp))))))
                               ∙ ⋆-0 (f (suc i))))
                         (sumF0 i n pp (≤-trans ≤-sucℕ r))
                   ∙ +IdR (Gstr n) _

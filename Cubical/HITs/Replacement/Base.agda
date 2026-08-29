@@ -35,6 +35,7 @@ module Cubical.HITs.Replacement.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Smallness
 open import Cubical.Functions.Embedding
 open import Cubical.Functions.Image
 open import Cubical.HITs.PropositionalTruncation as Prop
@@ -102,6 +103,9 @@ module _ {ℓA ℓB ℓ≅B} {A : Type ℓA} {B : Type ℓB} (𝒮-B : UARel B �
     unrepInv : ∀ r r' Q → cong unrep (inv r r' Q) ≡ Q
     unrepInv r r' Q = B.uaIso (unrep r) (unrep r') .Iso.sec Q
 
+  unrepEmbedding : Replacement ↪ B
+  unrepEmbedding = unrep , isEmbeddingUnrep
+
   -- Equivalence to the image with level (ℓ-max ℓA ℓB) that always exists
 
   replacement≃Image : Replacement ≃ Image f
@@ -112,3 +116,21 @@ module _ {ℓA ℓB ℓ≅B} {A : Type ℓA} {B : Type ℓB} (𝒮-B : UARel B �
       (restrictToImage f , isSurjectionImageRestriction f)
       (imageInclusion f)
       refl
+
+module _ {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (lsB : isLocally[ ℓ ]Small B) (f : A → B) where
+
+  Replacement' : is[ ℓ ]Small (Image f)
+  Replacement' .fst = Replacement (locallySmall→UARel lsB) f
+  Replacement' .snd = replacement≃Image (locallySmall→UARel lsB) f
+
+module _ {ℓA ℓB ℓ≅B} {A : Type ℓA} {B : Type ℓB} (𝒮-B : UARel B ℓ≅B) (f : A ↪ B)  where
+
+  isEquivEmbeddingOntoReplacement : isEquiv (rep {𝒮-B = 𝒮-B} {f = f .fst})
+  isEquivEmbeddingOntoReplacement =
+    imagesEquiv
+      (id↠ A)
+      f
+      (rep , isSurjectiveRep 𝒮-B (f .fst))
+      (unrep 𝒮-B (f .fst) , isEmbeddingUnrep 𝒮-B (f .fst))
+      refl
+      .snd

@@ -61,6 +61,7 @@ record CommAlgebraStr (R : CommRing ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ
   infixl 7 _⋆_
   infixl 6 _+_
 
+{-# INLINE CommAlgebraStr.constructor #-}
 unquoteDecl CommAlgebraStrIsoΣ = declareRecordIsoΣ CommAlgebraStrIsoΣ (quote CommAlgebraStr)
 
 CommAlgebra : (R : CommRing ℓ) → ∀ ℓ' → Type (ℓ-max ℓ (ℓ-suc ℓ'))
@@ -86,18 +87,18 @@ module _ {R : CommRing ℓ} where
   snd (CommAlgebra→Algebra A) = CommAlgebraStr→AlgebraStr (snd A)
 
   CommAlgebra→CommRing : (A : CommAlgebra R ℓ') → CommRing ℓ'
-  CommAlgebra→CommRing (A , str) = x
+  CommAlgebra→CommRing (A , str) .fst = A
+  CommAlgebra→CommRing (A , str) .snd = x
     where open CommRingStr
           open CommAlgebraStr
-          x : CommRing _
-          fst x = A
-          0r (snd x) = _
-          1r (snd x) = _
-          _+_ (snd x) = _
-          _·_ (snd x) = _
-          - snd x = _
-          IsCommRing.isRing (isCommRing (snd x)) = RingStr.isRing (Algebra→Ring (_ , CommAlgebraStr→AlgebraStr str) .snd)
-          IsCommRing.·Comm (isCommRing (snd x)) = CommAlgebraStr.·Comm  str
+          x : CommRingStr _
+          0r x = _
+          1r x = _
+          _+_ x = _
+          _·_ x = _
+          - x = _
+          IsCommRing.isRing (isCommRing x) = RingStr.isRing (Algebra→Ring (_ , CommAlgebraStr→AlgebraStr str) .snd)
+          IsCommRing.·Comm (isCommRing x) = CommAlgebraStr.·Comm  str
 
   module _
       {A : Type ℓ'} {0a 1a : A}
@@ -151,6 +152,7 @@ module _ {R : CommRing ℓ} where
     (_+_ _·_ : A → A → A) ( -_ : A → A) (_⋆_ : ⟨ R ⟩ → A → A)
     (isCommAlg : IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_)
     → CommAlgebraStr R A
+  {-# INLINE makeCommAlgebraStr #-}
   makeCommAlgebraStr A 0a 1a _+_ _·_ -_ _⋆_ isCommAlg =
     record
       { 0a = 0a
@@ -175,17 +177,15 @@ module _ {R : CommRing ℓ} where
         (⋆AssocL : (r : fst R) (x y : fst S) → (r ⋆ x) · y ≡ r ⋆ (x · y))
       where
 
+      commAlgebraStrFromCommRing : CommAlgebraStr R (S .fst)
+      {-# INLINE commAlgebraStrFromCommRing #-}
+      commAlgebraStrFromCommRing = record
+        { isCommAlgebra = makeIsCommAlgebra is-set +Assoc +IdR +InvR +Comm ·Assoc ·IdL ·DistL+ ·Comm ·Assoc⋆ ⋆DistR+ ⋆DistL+ ⋆IdL ⋆AssocL
+        }
+
       commAlgebraFromCommRing : CommAlgebra R ℓ'
       commAlgebraFromCommRing .fst = fst S
-      commAlgebraFromCommRing .snd .CommAlgebraStr.0a = 0r
-      commAlgebraFromCommRing .snd .CommAlgebraStr.1a = 1S
-      commAlgebraFromCommRing .snd .CommAlgebraStr._+_ = _+_
-      commAlgebraFromCommRing .snd .CommAlgebraStr._·_ = _·_
-      commAlgebraFromCommRing .snd .CommAlgebraStr.-_ = -_
-      commAlgebraFromCommRing .snd .CommAlgebraStr._⋆_ = _⋆_
-      commAlgebraFromCommRing .snd .CommAlgebraStr.isCommAlgebra =
-        makeIsCommAlgebra is-set +Assoc +IdR +InvR +Comm ·Assoc ·IdL ·DistL+ ·Comm
-                                    ·Assoc⋆ ⋆DistR+ ⋆DistL+ ⋆IdL ⋆AssocL
+      commAlgebraFromCommRing .snd = commAlgebraStrFromCommRing
 
       commAlgebraFromCommRing→CommRing : CommAlgebra→CommRing commAlgebraFromCommRing ≡ S
       -- Note that this is not definitional: the proofs of the axioms might differ.
