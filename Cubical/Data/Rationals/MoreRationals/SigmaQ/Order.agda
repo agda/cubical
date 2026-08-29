@@ -1,39 +1,33 @@
-module Cubical.Data.Rationals.MoreRationals.NormalisedQ.Order where
+module Cubical.Data.Rationals.MoreRationals.SigmaQ.Order where
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat as ℕ using (ℕ; suc; zero)
 open import Cubical.Foundations.Prelude
 open import Cubical.Relation.Nullary
 open import Cubical.Data.Sigma
-open import Cubical.Data.Int.Order as ℤ using ()
+open import Cubical.Data.Int.Order as ℤ using (¬≤→≢)
+  renaming (weaken≡→≤ to ℤweaken≡→≤; <→≢ to ℤ<→≢)
 open import Cubical.Data.Int as ℤ
   using (ℤ; pos; negsuc; isIntegralℤ; injPos; pos·pos; pos+)
 open import Cubical.Data.NatPlusOne as ℕ₊₁
   using (1+_; _·₊₁_; ℕ₊₁; ℕ₊₁→ℕ; ℕ₊₁→ℕ-inj; ·₊₁-comm; -1+_;
     ·₊₁-identityʳ; ·₊₁-identityˡ ; ·₊₁-assoc)
-open import Cubical.Data.Rationals.MoreRationals.NormalisedQ
+open import Cubical.Data.Rationals.MoreRationals.SigmaQ.Base
+open import Cubical.Data.Rationals.MoreRationals.SigmaQ.Properties
 
 private
   variable
     ℓ ℓ' : Level
     m n o : ℚ
 
--- Helper functions
 private
+  converse : {ℓ : Level} {a b : Type ℓ} →
+    (a → b) → ¬ b → ¬ a
+  converse = λ z z₁ z₂ → z₁ (z z₂)
+
   isProp× : ∀ (A : Type ℓ) (B : Type ℓ') → isProp A → isProp B → isProp (A × B)
   isProp× A B ispA ispB (a₁ , b₁) (a₂ , b₂) =
     cong₂ (λ a b → a , b) (ispA a₁ a₂) (ispB b₁ b₂)
-
-  ℤweaken≡→≤ : ∀ {m}{n} → m ≡ n → m ℤ.≤ n
-  ℤweaken≡→≤ {m}{n} mn =
-    subst (λ x → x) (cong (λ x → x ℤ.≤ n) (sym mn)) (ℤ.isRefl≤ {n})
-
-  ℤ¬≤→¬≡ : ∀ {m n : ℤ} → ¬ m ℤ.≤ n → ¬ m ≡ n
-  ℤ¬≤→¬≡ {m}{n} ¬mn = λ x → ¬mn (ℤweaken≡→≤ x)
-
-  ℤ<→¬≡ : ∀ {m n : ℤ} → m ℤ.< n → ¬ m ≡ n
-  ℤ<→¬≡ {m}{n} m<n m≡n =
-    ⊥.elim (ℤ.isAsym< {m}{n} m<n (subst (λ u → u ℤ.≤ m) m≡n (ℤ.isRefl≤ {m})))
 
 infix 4 _<_ _≥_ _>_ _⋖_
 
@@ -50,7 +44,7 @@ _>_ : ℚ → ℚ → Type
 m > n = n < m
 
 <→¬≃ : m < n → ¬ m ≃ n
-<→¬≃ {m}{n} m<n = ¬*≡* (ℤ<→¬≡ m<n)
+<→¬≃ {m}{n} m<n = ¬*≡* (ℤ<→≢ m<n)
 
 isIrrefl< : ¬ m < m
 isIrrefl< = ℤ.isIrrefl<
@@ -61,8 +55,8 @@ isIrrefl< = ℤ.isIrrefl<
 weaken≡→≤ : m ≡ n → m ≤ n
 weaken≡→≤ mn = zero , *≡*⁻¹ (≡→≃ mn)
 
-<→¬≡ : m < n → ¬ m ≡ n
-<→¬≡ {m}{n} m<n = ≄→¬≡ (<→¬≃ m<n)
+<→≢ : m < n → ¬ m ≡ n
+<→≢ {m}{n} m<n = ≄→¬≡ (<→¬≃ m<n)
 
 <→⋖ : m < n → m ⋖ n
 <→⋖ {m}{n} mn = (<-weaken {m}{n} mn) , (<→¬≃ mn)
@@ -102,38 +96,38 @@ isProp< m n = ℤ.isProp<
 isProp⋖ : ∀ m n → isProp (m ⋖ n)
 isProp⋖ m n mn mn' = isProp× (m ≤ n) (¬ m ≃ n) ℤ.isProp≤ (isProp¬ (m ≃ n)) mn mn'
 
-m≤n→¬n<m : ∀ {m n} → m ≤ n → ¬ (n < m)
-m≤n→¬n<m {m}{n} mn =
+≤⇒¬> : ∀ {m n} → m ≤ n → ¬ (n < m)
+≤⇒¬> {m}{n} mn =
   converse (ℤ.isAsym< {↥ n ℤ.· ↧ m} {↥ m ℤ.· ↧ n}) λ z → z mn
 
-¬m<n→n≤m : ∀ {m n : ℚ} → ¬ (m < n) → n ≤ m
-¬m<n→n≤m {m}{n} ¬mn with (↥ m ℤ.· ↧ n) ℤ.≟ (↥ n ℤ.· ↧ m)
+¬<→≥ : ∀ {m n : ℚ} → ¬ (m < n) → m ≥ n
+¬<→≥ {m}{n} ¬mn with (↥ m ℤ.· ↧ n) ℤ.≟ (↥ n ℤ.· ↧ m)
 ... | ℤ.lt x = ⊥.elim (¬mn x)
 ... | ℤ.eq x = zero , sym x
 ... | ℤ.gt x = ℤ.<-weaken x
 
-¬m≤n→n<m : ∀ {m n : ℚ} → ¬ (m ≤ n) → n < m
-¬m≤n→n<m {m}{n} ¬m≤n = ⋖→< {n}{m}
-  (¬m<n→n≤m {m}{n} (converse (<-weaken {m}{n}) ¬m≤n) ,
-   sym≄ (¬*≡* (ℤ¬≤→¬≡ ¬m≤n)))
+¬≤→> : ∀ {m n : ℚ} → ¬ (m ≤ n) → m > n
+¬≤→> {m}{n} ¬m≤n = ⋖→< {n}{m}
+  (¬<→≥ {m}{n} (converse (<-weaken {m}{n}) ¬m≤n) ,
+   sym≄ (¬*≡* (¬≤→≢ ¬m≤n)))
 
-¬m≤n→n≤m : ∀ {m n : ℚ} → ¬ (m ≤ n) → n ≤ m
-¬m≤n→n≤m {m}{n} nmn = <-weaken {n}{m} (¬m≤n→n<m {m}{n} nmn)
+¬≤⇒≥ : ∀ {m n : ℚ} → ¬ (m ≤ n) → m ≥ n
+¬≤⇒≥ {m}{n} nmn = <-weaken {n}{m} (¬≤→> {m}{n} nmn)
 
-m<n→¬n≤m : ∀ {m n : ℚ} → m < n → ¬ (n ≤ m)
-m<n→¬n≤m {m}{n} mn = converse (m≤n→¬n<m {n} {m}) (λ z → z mn)
+<⇒¬≥ : ∀ {m n : ℚ} → m < n → ¬ (m ≥ n)
+<⇒¬≥ {m}{n} mn = converse (≤⇒¬> {n} {m}) (λ z → z mn)
 
-m≤n→n≤m→m≃n : ∀ {m n} → m ≤ n → n ≤ m → m ≃ n
-m≤n→n≤m→m≃n {m}{n} m≤n n≤m = *≡* (ℤ.isAntisym≤ m≤n n≤m)
+≤⇒≥⇒≃ : ∀ {m n} → m ≤ n → m ≥ n → m ≃ n
+≤⇒≥⇒≃ {m}{n} m≤n n≤m = *≡* (ℤ.isAntisym≤ m≤n n≤m)
 
-m≤n→n≤m→m≡n : ∀ {m n} → m ≤ n → n ≤ m → m ≡ n
-m≤n→n≤m→m≡n {m}{n} m≤n n≤m = ≃→≡ (m≤n→n≤m→m≃n {m}{n} m≤n n≤m)
+≤⇒≥⇒≡ : ∀ {m n} → m ≤ n → m ≥ n → m ≡ n
+≤⇒≥⇒≡ {m}{n} m≤n n≤m = ≃→≡ (≤⇒≥⇒≃ {m}{n} m≤n n≤m)
 
-m⋖n→¬n⋖m : ∀ {m n} → m ⋖ n → ¬ (n ⋖ m)
-m⋖n→¬n⋖m {m}{n} m⋖n n⋖m = (snd m⋖n) (m≤n→n≤m→m≃n  (m⋖n .fst) (n⋖m .fst))
+⋖⇒¬⋗ : ∀ {m n} → m ⋖ n → ¬ (n ⋖ m)
+⋖⇒¬⋗ {m}{n} m⋖n n⋖m = (snd m⋖n) (≤⇒≥⇒≃ (m⋖n .fst) (n⋖m .fst))
 
-m<n→¬n<m : ∀ {m n} → m < n → ¬ (n < m)
-m<n→¬n<m {m}{n} m<n = ¬⋖→¬< {n}{m} (m⋖n→¬n⋖m (<→⋖ m<n))
+<→¬> : ∀ {m n} → m < n → ¬ (m > n)
+<→¬> {m}{n} m<n = ¬⋖→¬< {n}{m} (⋖⇒¬⋗ (<→⋖ m<n))
 
 ≤-diff : ∀ {m n} → m ≤ n → Σ[ d ∈ ℚ ] (m + d ≡ n) × NonNegative d
 ≤-diff {m}{n} (k , eqn) = d , (lhs ∙ step ∙ ·IdR n , tt)
@@ -166,7 +160,7 @@ diff-≤ {m} {n} mdn@(d@((num , den-1) , c) , m+d≡n , nonegd) with ≤Dec m n
 ... | yes p = p
 ... | no ¬p = ⊥.elim (Negative→NonNegative→⊥ contra m≥n)
   where
-    n<m = ¬m≤n→n<m {m}{n} ¬p
+    n<m = ¬≤→> {m}{n} ¬p
     diff = <-diff {n}{m} n<m
     d' = diff .fst
     d'≡m-n = subtractR {d'}{n}{m} (+Comm d' n ∙ (diff .snd .fst))
@@ -184,7 +178,7 @@ diff-< {m}{n} mdn@(d@((num , den-1) , c) , m+d≡n , posd) with <Dec m n
 ... | no ¬p = ⊥.elim (Negative→NonNegative→⊥ contra m<n)
   where
     n≤m : n ≤ m
-    n≤m = ¬m<n→n≤m {m}{n} ¬p
+    n≤m = ¬<→≥ {m}{n} ¬p
     diff = ≤-diff {n}{m} n≤m
     d' = diff .fst
     m+d'≡n : n + d' ≡ m
@@ -205,11 +199,11 @@ isRefl≤ : ∀ m → m ≤ m
 isRefl≤ m = zero , refl
 
 isAntisym≤ : ∀ {m n} → m ≤ n → n ≤ m → m ≡ n
-isAntisym≤ {m}{n} m≤n n≤m = ≃→≡ (m≤n→n≤m→m≃n m≤n n≤m)
+isAntisym≤ {m}{n} m≤n n≤m = ≃→≡ (≤⇒≥⇒≃ m≤n n≤m)
 
 isTrans≤ : m ≤ n → n ≤ o → m ≤ o
 isTrans≤ {m}{n}{o} m≤n n≤o =
-  diff-≤ {m}{o} ((d + d') , (m+d+d'≡o , +NonNegatives {d}{d'} tt tt))
+  diff-≤ {m}{o} ((d + d') , (m+d+d'≡o , +-NonNegatives {d}{d'} tt tt))
   where
     d = fst (≤-diff {m}{n} m≤n) ; d' = fst (≤-diff {n}{o} n≤o)
     m+d≡n = (≤-diff {m}{n} m≤n) .snd .fst
@@ -227,9 +221,9 @@ isTrans≤ {m}{n}{o} m≤n n≤o =
     m+d≡n = fst (snd diffmn) ; d'+o≡s = fst (snd diffos)
     mod≡ns : (m + d) + (o + d') ≡ n + s
     mod≡ns i = m+d≡n i + d'+o≡s i
-    d+d' = +NonNegatives {d}{d'} tt tt
+    d+d' = +-NonNegatives {d}{d'} tt tt
     diffms : Σ ℚ (λ d'' → ((m + o) + d'' ≡ (n + s)) × NonNegative d'')
-    diffms = d + d' , a+b+'c+d≡a+c+'b+d m o d d' ∙ mod≡ns , d+d'
+    diffms = d + d' , +-interchange m o d d' ∙ mod≡ns , d+d'
 
 zero-≤NonNeg : ∀ {m} → NonNegative m → 0ℚ ≤ m
 zero-≤NonNeg {m} nnm = diff-≤ {0ℚ}{m} (m , (+IdL m , nnm))
@@ -292,7 +286,8 @@ zero-≤NonNeg {m} nnm = diff-≤ {0ℚ}{m} (m , (+IdL m , nnm))
     d = fst diff
     m+d≡n = fst (snd diff)
     m·o+d·o≡n·o = sym (·DistL+ m d o) ∙ (cong (λ a → a · o) m+d≡n)
-    nndo = ·NonNegatives {d}{o} tt nno
+    nndo : NonNegative (d · o)
+    nndo = ·-NonNegatives {d}{o} tt nno
 
 ---------------------------------------
 -- min and max
@@ -334,17 +329,17 @@ minComm m n with ≤Dec m n | ≤Dec n m
 ... | yes p | no ¬q = refl
 ... | no ¬p | yes q = refl
 ... | no ¬p | no ¬q = ⊥.elim {A = λ x → n ≡ m}
-  (m⋖n→¬n⋖m {m}{n} (<→⋖ (¬m≤n→n<m {n}{m} ¬q)) (<→⋖ (¬m≤n→n<m {m}{n} ¬p)))
+  (⋖⇒¬⋗ {m}{n} (<→⋖ (¬≤→> {n}{m} ¬q)) (<→⋖ (¬≤→> {m}{n} ¬p)))
 
 maxComm : ∀ m n → max m n ≡ max n m
 maxComm m n with ≤Dec m n | ≤Dec n m
-... | yes p | yes q = m≤n→n≤m→m≡n q p
+... | yes p | yes q = ≤⇒≥⇒≡ q p
 ... | yes p | no ¬q = refl
 ... | no ¬p | yes q = refl
 ... | no ¬p | no ¬q = ⊥.elim {A = λ x → m ≡ n} (¬q step)
   where
     step : n ≤ m
-    step = <-weaken {n}{m} (¬m≤n→n<m {m}{n} ¬p)
+    step = <-weaken {n}{m} (¬≤→> {m}{n} ¬p)
 
 ≤→⊓ : ∀ {p q : ℚ} → p ≤ q → p ⊓ q ≡ p
 ≤→⊓ {p}{q} pq with ≤Dec p q
@@ -370,12 +365,12 @@ maxComm m n with ≤Dec m n | ≤Dec n m
 ¬≤→⊔ {p}{q} npq = maxComm p q ∙ rhs
   where
     rhs : q ⊔ p ≡ p
-    rhs = ≤→⊔ {q}{p} (<-weaken {q}{p} (¬m≤n→n<m {p}{q} npq))
+    rhs = ≤→⊔ {q}{p} (<-weaken {q}{p} (¬≤→> {p}{q} npq))
 
 ⊔→≤ : ∀ {p q : ℚ} → p ⊔ q ≡ p → q ≤ p
 ⊔→≤ {p}{q} pq with ≤Dec p q
 ... | yes r = weaken≡→≤ pq
-... | no ¬r = <-weaken {q}{p} (¬m≤n→n<m {p}{q} ¬r)
+... | no ¬r = <-weaken {q}{p} (¬≤→> {p}{q} ¬r)
 
 private
   minAssocHlp : ∀ {m : ℚ}{n : ℚ}{o : ℚ} →
@@ -404,7 +399,7 @@ private
   minAssocHlp {m}{n}{o} (no ¬p) (no ¬q) _ = lhs ∙ sym rhs
    where
       n⊓o≡o = ¬≤→⊓ {n}{o} ¬q
-      o≤m = isTrans≤ {o}{n}{m} (¬m≤n→n≤m {n}{o} ¬q) (¬m≤n→n≤m {m}{n} ¬p)
+      o≤m = isTrans≤ {o}{n}{m} (¬≤⇒≥ {n}{o} ¬q) (¬≤⇒≥ {m}{n} ¬p)
       lhs = cong (λ a → min m a) n⊓o≡o ∙ minComm m o ∙ ≤→⊓ {o}{m} o≤m
       rhs = cong (λ a → min a o) (¬≤→⊓ {m}{n} ¬p) ∙ n⊓o≡o
 

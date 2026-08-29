@@ -275,7 +275,7 @@ gcd[m,n]≡0⇒n≡0 {m}{n} gmn = gcd[m,n]≡0⇒m≡0 {n} {m} (gcdSym n m ∙ g
 ¬gcdSuc≡0 n d-1 x = snotz (gcd[m,n]≡0⇒n≡0 {n} {suc d-1} x)
 
 nonZeroGcd-lemma : ∀ n d-1 → NonZero (gcd n (suc d-1))
-nonZeroGcd-lemma n d-1 = ¬x≡0→NonZero {(gcd n (suc d-1))} (¬gcdSuc≡0 n d-1)
+nonZeroGcd-lemma n d-1 = ≢0→NonZero {(gcd n (suc d-1))} (¬gcdSuc≡0 n d-1)
 
 decGCD : ∀ {m}{n}{d} → Dec (isGCD m n d)
 decGCD {m}{n}{d} with (discreteℕ (gcd m n) d)

@@ -12,18 +12,12 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
   hiding   (+-assoc ; min ; max ; minComm ; maxComm)
-  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; +-comm to +ℕ-comm ; ·-assoc to ·ℕ-assoc ;
-            ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
+  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; +-comm to +ℕ-comm ;
+    ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm ; isEven to isEvenℕ ;
+    isOdd to isOddℕ)
 open import Cubical.Data.Sum
 open import Cubical.Data.Fin.Base
 open import Cubical.Data.Fin.Properties
-
-private
-  contraposition : {ℓ : Level} {a b c : Type ℓ} →
-    (a → (b → c)) → ¬ c → (b → ¬ a)
-  contraposition = λ z z₁ z₂ z₃ → z₁ (z z₃ z₂)
-
-
 open import Cubical.Data.Int.Base
 
 min : ℤ → ℤ → ℤ
@@ -1550,67 +1544,65 @@ clamp : ℤ → ℕ
 clamp (pos n) = n
 clamp (negsuc n) = zero
 
-
 -- useful lemmas for _·_
 
-¬x≡0¬y≡0→¬x·y≡0 : ∀ {x}{y} → ¬ x ≡ 0 → ¬ y ≡ 0 → ¬ x · y ≡ 0
-¬x≡0¬y≡0→¬x·y≡0 {x}{y} nx0 ny0 = contraposition (isIntegralℤ x y) ny0 nx0
+private
+  contraposition : {ℓ : Level} {a b c : Type ℓ} →
+    (a → (b → c)) → ¬ c → (b → ¬ a)
+  contraposition = λ z z₁ z₂ z₃ → z₁ (z z₃ z₂)
 
-ab'c≡ac'b : ∀ a b c → (a · b) · c ≡ (a · c) · b
-ab'c≡ac'b a b c =
-  sym (·Assoc a b c) ∙ cong (λ u → a · u) (·Comm b c) ∙ ·Assoc a c b
+·≢0 : ∀ {x}{y} → ¬ x ≡ 0 → ¬ y ≡ 0 → ¬ x · y ≡ 0
+·≢0 {x}{y} nx0 ny0 = contraposition (isIntegralℤ x y) ny0 nx0
 
-ab'c≡ba'c : ∀ a b c → (a · b) · c ≡ (b · a) · c
-ab'c≡ba'c a b c = cong (λ u → u · c) (·Comm a b)
+·-rightComm : ∀ a b c → a · b · c ≡ a · c · b
+·-rightComm a b c = sym (·Assoc a b c) ∙
+  cong (λ u → a · u) (·Comm b c) ∙ ·Assoc a c b
 
-ab'c≡b'ca : ∀ a b c → (a · b) · c ≡ (b · c) · a
-ab'c≡b'ca a b c = ab'c≡ba'c a b c ∙ ab'c≡ac'b b a c
-
-a'bc≡a'cb : ∀ a b c -> a · (b · c) ≡ a · (c · b)
-a'bc≡a'cb a b c = cong (λ u → a · u) (·Comm b c)
-
-a'bc≡b'ac : ∀ a b c → a · (b · c) ≡ b · (a · c)
-a'bc≡b'ac a b c =
+·-leftComm : ∀ a b c → a · (b · c) ≡ b · (a · c)
+·-leftComm a b c =
   (·Assoc a b c) ∙ cong (λ u → u · c) (·Comm a b) ∙ sym (·Assoc b a c)
 
-abcd≡ab'cd : ∀ a b c d → ((a · b) · c) · d ≡ (a · b) · (c · d)
-abcd≡ab'cd a b c d = sym (·Assoc (a · b) c d)
+·-leftComm-assoc : ∀ a b c → a · b · c ≡ b · a · c
+·-leftComm-assoc a b c = sym (·Assoc a b c) ∙ ·-leftComm a b c ∙ ·Assoc b a c
 
--- reverses a b c d
-ab'cd≡dc'ba : ∀ a b c d → (a · b) · (c · d) ≡ (d · c) · (b · a)
-ab'cd≡dc'ba  a b c d =
-  cong₂ (λ u v → u  · v) (·Comm a b) (·Comm c d) ∙
+·-rotate : ∀ a b c → a · b · c ≡ b · c · a
+·-rotate a b c = cong (λ u → u · c) (·Comm a b) ∙ ·-rightComm b a c
+
+·-rotate' : ∀ a b c → a · b · c ≡ c · a · b
+·-rotate' a b c = ·-rightComm a b c ∙ cong (λ u → u · b) (·Comm a c)
+
+·-reverse₃ : ∀ a b c → a · b · c ≡ c · b · a
+·-reverse₃ a b c = ·-leftComm-assoc a b c ∙ ·-rightComm b a c ∙
+  ·-leftComm-assoc b c a
+
+reverse₄' : ∀ a b c d → (a · b) · (c · d) ≡ (d · c) · (b · a)
+reverse₄'  a b c d = cong₂ (λ u v → u  · v) (·Comm a b) (·Comm c d) ∙
   ·Comm (b · a) (d · c)
 
--- reverses a b c d
-abcd≡dcba :  ∀ a b c d → ((a · b) · c) · d ≡ ((d · c) · b) · a
-abcd≡dcba a b c d =
-  abcd≡ab'cd a b c d ∙ ab'cd≡dc'ba a b c d ∙ sym (abcd≡ab'cd d c b a)
+reverse₄ :  ∀ a b c d → a · b · c · d ≡ d · c · b · a
+reverse₄ a b c d =
+  (sym (·Assoc (a · b) c d)) ∙ reverse₄' a b c d ∙ ·Assoc (d · c) b a
 
--- flips 2nd and 3rd
-ab'cd≡ac'bd : ∀ a b c d -> (a · b) · (c · d) ≡ (a · c) · (b · d)
-ab'cd≡ac'bd a b c d =
-  sym (·Assoc a b (c · d)) ∙
-  cong (λ u → a · u) ((·Assoc b c d) ∙
-  (cong (λ u → u · d) (·Comm b c)) ∙
-  sym (·Assoc c b d)) ∙ ·Assoc a c (b · d)
+·-interchange   : ∀ a b c d -> (a · b) · (c · d) ≡ (a · c) · (b · d)
+·-interchange   a b c d = sym (·Assoc a b (c · d)) ∙
+  cong (a ·_) (·-leftComm b c d) ∙ ·Assoc a c (b · d)
 
--- flips 2nd and 4th
-ab'cd≡ad'cb : ∀ a b c d -> (a · b) · (c · d) ≡ (a · d) · (c · b)
-ab'cd≡ad'cb a b c d =
-  a'bc≡a'cb (a · b) c d ∙ ab'cd≡ac'bd a b d c ∙ a'bc≡a'cb (a · d) b c
+·-interchange' : ∀ a b c d -> (a · b) · (c · d) ≡ (a · d) · (c · b)
+·-interchange' a b c d = cong (λ u →  (a · b) · u) (·Comm c d) ∙
+  ·-interchange a b d c ∙  cong (λ u →  (a · d) · u) (·Comm b c)
 
-ab'cd≡ca'db : ∀ a b c d -> (a · b) · (c · d) ≡ (c · a) · (d · b)
-ab'cd≡ca'db a b c d =
-  ab'cd≡ac'bd a b c d ∙ cong₂ (λ u v → u · v) (·Comm a c) (·Comm b d)
+·-interchangeComm : ∀ a b c d -> (a · b) · (c · d) ≡ (c · a) · (d · b)
+·-interchangeComm a b c d =
+ ·-interchange a b c d ∙ cong₂ (λ u v → u · v) (·Comm a c) (·Comm b d)
 
-abcd≡ac'bd : ∀ a b c d → ((a · b) · c) · d ≡ (a · c) · (b · d)
-abcd≡ac'bd a b c d =
-  (cong (λ u → u · d)) (ab'c≡ac'b a b c) ∙ sym (·Assoc (a · c) b d)
+·-interchange-assoc : ∀ a b c d → a · b · c · d ≡ (a · c) · (b · d)
+·-interchange-assoc a b c d =
+  (cong (λ u → u · d)) (·-rightComm a b c) ∙ sym (·Assoc (a · c) b d)
 
-ab'cd≡cb'da :  ∀ a b c d -> (a · b) · (c · d) ≡ (c · b) · (d · a)
-ab'cd≡cb'da a b c d = ab'cd≡ca'db a b c d ∙ ab'cd≡ad'cb c a d b
+·-interchangeComm' : ∀ a b c d -> (a · b) · (c · d) ≡ (c · b) · (d · a)
+·-interchangeComm' a b c d = ·-interchangeComm a b c d ∙
+  ·-interchange' c a d b
 
-a'bc'd≡ab'cd : ∀ a b c d -> (a · (b · c)) · d ≡ (a · b) · (c · d)
-a'bc'd≡ab'cd a b c d =
+·-assoc4 : ∀ a b c d -> a · (b · c) · d ≡ (a · b) · (c · d)
+·-assoc4 a b c d =
   cong (λ u → u · d) (·Assoc a b c) ∙ sym (·Assoc (a · b) c d)

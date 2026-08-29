@@ -3,11 +3,8 @@ module Cubical.Data.NatPlusOne.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
-open import Cubical.Data.Nat renaming (NonZero to NonZeroℕ)
-open import Cubical.Data.Int using (ℤ; pos; injPos; pos·pos; sucℤ; pos+)
-  renaming (_·_ to _ℤ·_; _+_ to _ℤ+_)
+open import Cubical.Data.Nat
 open import Cubical.Data.NatPlusOne.Base
-
 open import Cubical.Reflection.StrictEquiv
 
 1+Path : ℕ ≡ ℕ₊₁
@@ -43,18 +40,13 @@ private
 ·₊₁-identityʳ : ∀ n → n ·₊₁ 1 ≡ n
 ·₊₁-identityʳ (1+ n) = cong 1+_ (injSuc (·-identityʳ (suc n)))
 
--- Useful lemmas
-a'bc≡a'cb : ∀ a b c -> a ·₊₁ (b ·₊₁ c) ≡ a ·₊₁ (c ·₊₁ b)
-a'bc≡a'cb a b c = cong (λ u → a ·₊₁ u) (·₊₁-comm b c)
-
-a'bc'd≡ab'cd : ∀ a b c d ->
-  (a ·₊₁ (b ·₊₁ c)) ·₊₁ d ≡ (a ·₊₁ b) ·₊₁ (c ·₊₁ d)
-a'bc'd≡ab'cd a b c d =
-  cong (λ u → u ·₊₁ d) (·₊₁-assoc a b c) ∙ sym (·₊₁-assoc (a ·₊₁ b) c d)
-
-ab'cd≡ac'bd : ∀ a b c d ->
-  (a ·₊₁ b) ·₊₁ (c ·₊₁ d) ≡ (a ·₊₁ c) ·₊₁ (b ·₊₁ d)
-ab'cd≡ac'bd a b c d =
+·₊₁-interchange : ∀ a b c d -> (a ·₊₁ b) ·₊₁ (c ·₊₁ d) ≡ (a ·₊₁ c) ·₊₁ (b ·₊₁ d)
+·₊₁-interchange a b c d =
   sym (·₊₁-assoc a b (c ·₊₁ d)) ∙ cong (λ u → a ·₊₁ u) ((·₊₁-assoc b c d) ∙
-  (cong (λ u → u ·₊₁ d) (·₊₁-comm b c)) ∙
-  sym (·₊₁-assoc c b d)) ∙ ·₊₁-assoc a c (b ·₊₁ d)
+      (cong (λ u → u ·₊₁ d) (·₊₁-comm b c)) ∙
+      sym (·₊₁-assoc c b d)) ∙ ·₊₁-assoc a c (b ·₊₁ d)
+
+·₊₁-assoc4 : ∀ a b c d →
+  a ·₊₁ (b ·₊₁ c) ·₊₁ d ≡ a ·₊₁ b ·₊₁ (c ·₊₁ d)
+·₊₁-assoc4 a b c d =
+  cong (λ u → u ·₊₁ d) (·₊₁-assoc a b c) ∙ sym (·₊₁-assoc (a ·₊₁ b) c d)
