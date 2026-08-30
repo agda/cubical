@@ -27,7 +27,7 @@ import Cubical.HITs.Cost.Base                  as CostMonad
 import Cubical.HITs.SetQuotients               as SetQuotients
 import Cubical.Data.Rationals                  as SetQuoQ
 import Cubical.Data.Rationals.MoreRationals.SigmaQ
-                                               as SigmaQ
+                                               as SigmaQ hiding (nonZero-1/')
 -- 3.1
 import Cubical.Foundations.SIP                 as SIP
 import Cubical.Structures.Axioms               as Axioms
@@ -107,8 +107,7 @@ _ = refl
 open SetQuotients using (_/_ ; setQuotUniversal) public
 -- Rational Numbers
 open SetQuoQ using (_∼_ ; ℚ) public
-open SigmaQ renaming (ℚ to ℚ') public
-
+open SigmaQ using () renaming (ℚ to ℚ') public
 
 
 -------------------------------------------------------------------------

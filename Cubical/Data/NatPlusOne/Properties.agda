@@ -5,7 +5,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.Nat
 open import Cubical.Data.NatPlusOne.Base
-
 open import Cubical.Reflection.StrictEquiv
 
 1+Path : ℕ ≡ ℕ₊₁
@@ -40,3 +39,14 @@ private
 
 ·₊₁-identityʳ : ∀ n → n ·₊₁ 1 ≡ n
 ·₊₁-identityʳ (1+ n) = cong 1+_ (injSuc (·-identityʳ (suc n)))
+
+·₊₁-interchange : ∀ a b c d -> (a ·₊₁ b) ·₊₁ (c ·₊₁ d) ≡ (a ·₊₁ c) ·₊₁ (b ·₊₁ d)
+·₊₁-interchange a b c d =
+  sym (·₊₁-assoc a b (c ·₊₁ d)) ∙ cong (λ u → a ·₊₁ u) ((·₊₁-assoc b c d) ∙
+      (cong (λ u → u ·₊₁ d) (·₊₁-comm b c)) ∙
+      sym (·₊₁-assoc c b d)) ∙ ·₊₁-assoc a c (b ·₊₁ d)
+
+·₊₁-assoc4 : ∀ a b c d →
+  a ·₊₁ (b ·₊₁ c) ·₊₁ d ≡ a ·₊₁ b ·₊₁ (c ·₊₁ d)
+·₊₁-assoc4 a b c d =
+  cong (λ u → u ·₊₁ d) (·₊₁-assoc a b c) ∙ sym (·₊₁-assoc (a ·₊₁ b) c d)

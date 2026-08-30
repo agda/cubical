@@ -1,8 +1,13 @@
 module Cubical.Data.Int.GCD where
 
+open import Cubical.Relation.Nullary using (¬_)
 open import Cubical.Data.Empty as ⊥
 import Cubical.Data.Nat.GCD as ℕ
+open import Cubical.Data.Nat using (suc; predℕ; ≢0→NonZero; snotz)
 open import Cubical.Data.Nat.Divisibility renaming (_∣_ to _∣ℕ_)
+open import Cubical.Data.NatPlusOne using (1+_)
+open import Cubical.Data.NatPlusOne.PropertiesWithInt
+  using (ℕ₊₁→ℤ; ℕ₊₁→ℤ-1+pred-def)
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Int.Divisibility
 open import Cubical.Data.Int
@@ -58,3 +63,16 @@ gcd[i,j]≡0⇒i≡0 {i} {j} eqn = abs≡0 i (ℕ.gcd[m,n]≡0⇒m≡0 {abs i}{a
 
 gcd[i,j]≡0⇒j≡0 : ∀ {i j} → gcd i j ≡ 0 → j ≡ 0
 gcd[i,j]≡0⇒j≡0 {i}{j} eqn = gcd[i,j]≡0⇒i≡0 {j}{i} (gcdSym j i ∙ eqn)
+
+ℕ₊₁→ℤ-gcd-def : ∀ x d-1 →
+  ℕ₊₁→ℤ (1+ predℕ (ℕ.gcd x (suc d-1))) ≡ gcd (pos x) (pos (suc d-1))
+ℕ₊₁→ℤ-gcd-def x d-1 =
+  ℕ₊₁→ℤ-1+pred-def (ℕ.gcd x (suc d-1)) {{≢0→NonZero (ℕ.¬gcdSuc≡0 x d-1)}}
+
+gcdSucNot0 : ∀ x d → ¬ gcd x (pos (suc d)) ≡ 0
+gcdSucNot0 x d u = snotz (injPos (gcd[i,j]≡0⇒j≡0 {x}{pos (suc d)} u))
+
+gcd-ℕ₊₁→ℤ-lemma : ∀ numerator d-1 →
+  ℕ₊₁→ℤ (1+ (predℕ (ℕ.gcd (abs numerator) (suc d-1)))) ≡
+   gcd numerator (pos (suc d-1))
+gcd-ℕ₊₁→ℤ-lemma numerator d-1 = ℕ₊₁→ℤ-gcd-def (abs numerator) d-1
