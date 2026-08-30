@@ -111,10 +111,6 @@ coprime≢0 m n =
   left≢0-of-·≢0 (ToCoprime.c₁ (suc m , n)) (gcd (suc m) (ℕ₊₁→ℕ n))
    λ x → snotz {m}
     (sym (∣-untrunc (gcdIsGCD (suc m) (ℕ₊₁→ℕ n) .fst .fst) .snd) ∙ x)
-  where
-    coprime≢0Hlp : ∀ k l → (k · l ≡ 0 → ⊥) → (k ≡ 0 → ⊥)
-    coprime≢0Hlp zero l ¬0 = ¬0
-    coprime≢0Hlp (suc k) l ¬0 = snotz
 
 private
   lem₀ : ∀ i j m n → i · m ≡ j · m + n → (i ∸ j) · m ≡ n
