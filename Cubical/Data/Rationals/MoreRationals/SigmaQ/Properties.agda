@@ -510,7 +510,7 @@ private
   (1ℚ / (1ℚ / q)) ≡ q
 /-invol q {{nz}}{{nz'}} = 1ℚ/≡1/ (1ℚ / q) {{nz'}} ∙
   (1/-subst (1ℚ/≡1/ q {{nz}})
-  {{nz'}}{{nonZero-1/'}}) ∙ /-invol' q
+  {{nz'}}{{nonZero-1/'}}) ∙ /-invol' q {{nz}} {{nonZero-1/'}}
 
 -- specialises one of the instances of /-invol for convenience
 /-invol* : (q : ℚ) {{nz : NonZero q}} →
@@ -729,7 +729,7 @@ open 1/-helpers
   {{npq : NonZero (p / q)}} → 1ℚ / (p / q) ≡ q / p
 1/-flip p q {{np}}{{nq}}{{npq}} =
   (cong (λ u → u / (p / q)) (sym (/-self q))) ∙ (cong (λ u → (q · 1/ q) · u)
-   (1/-subst {p / q} {p / q} refl {{npq}}{{·-NonZero p (1/ q)}})) ∙
+   (1/-subst {p / q} {p / q} refl {{npq}}{{·-NonZero p (1/ q) {{np}}{{nonZero-1/'}}}})) ∙
   ·/CancelR* (1/ q) q p {{nonZero-1/' {q}}}{{np}}
 
 1/-flip* : (p q : ℚ) {{np : NonZero p}}{{nq : NonZero q}} →
