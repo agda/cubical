@@ -110,3 +110,8 @@ singleton-∞ x = sup-∞ Unit* λ _ → x
 
 unorderedPair-∞ : V∞ → V∞ → V∞
 unorderedPair-∞ x y = sup-∞ Bool (λ b → if b then x else y)
+
+-- raising the universe level, by applying `Lift` to every index type
+
+lift-V∞ : (ℓ' : Level) → V∞ {ℓ} → V∞ {ℓ-max ℓ ℓ'}
+lift-V∞ ℓ' (sup-∞ A α) = sup-∞ (Lift ℓ' A) (λ a → lift-V∞ ℓ' (α (a .lower)))
