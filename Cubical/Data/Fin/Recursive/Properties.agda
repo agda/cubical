@@ -15,7 +15,7 @@ open import Cubical.Functions.Embedding
 import Cubical.Data.Empty as Empty
 open Empty hiding (rec; elim)
 open import Cubical.Data.Nat hiding (elim)
-open import Cubical.Data.Nat.Order.Recursive
+open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Sigma
 import Cubical.Data.Sum as Sum
 open Sum using (_⊎_; _⊎?_; inl; inr)
@@ -113,11 +113,11 @@ discreteFin {suc m} (suc i) (suc j) with discreteFin i j
 discreteFin {suc m} zero (suc _) = no Cover.cover
 discreteFin {suc m} (suc _) zero = no Cover.cover
 
-inject< : m < n → Fin m → Fin n
+inject< : m <ᵗ n → Fin m → Fin n
 inject< {suc m} {suc n} _ zero = zero
 inject< {suc m} {suc n} m<n (suc i) = suc (inject< m<n i)
 
-inject≤ : m ≤ n → Fin m → Fin n
+inject≤ : m ≤ᵗ n → Fin m → Fin n
 inject≤ {suc m} {suc n} _ zero = zero
 inject≤ {suc m} {suc n} m≤n (suc i) = suc (inject≤ m≤n i)
 
@@ -147,7 +147,7 @@ _#_ {m = suc m} (suc i) (suc j) = i # j
 ≢→# {suc m} {suc i} {zero}   _ = _
 ≢→# {suc m} {suc i} {suc j} ¬p = ≢→# {m} {i} {j} (¬p ∘ cong suc)
 
-#-inject< : ∀{l : m < n} (i j : Fin m) → i # j → inject< {m} {n} l i # inject< l j
+#-inject< : ∀{l : m <ᵗ n} (i j : Fin m) → i # j → inject< {m} {n} l i # inject< l j
 #-inject< {suc m} {suc n} zero    (suc _) _ = _
 #-inject< {suc m} {suc n} (suc _) zero    _ = _
 #-inject< {suc m} {suc n} (suc i) (suc j) a = #-inject< {m} {n} i j a
@@ -179,15 +179,15 @@ toFin : (n : ℕ) → Fin (suc n)
 toFin zero = zero
 toFin (suc n) = suc (toFin n)
 
-toFin< : (m : ℕ) → m < n → Fin n
+toFin< : (m : ℕ) → m <ᵗ n → Fin n
 toFin< {suc n} zero 0<sn = zero
 toFin< {suc n} (suc m) m<n = suc (toFin< m m<n)
 
-inject<#toFin : ∀(i : Fin n) → inject< (≤-refl (suc n)) i # toFin n
+inject<#toFin : ∀(i : Fin n) → inject< (≤ᵗ-refl (suc n)) i # toFin n
 inject<#toFin {suc n} zero = _
 inject<#toFin {suc n} (suc i) = inject<#toFin {n} i
 
-inject≤#⊕ : ∀(i : Fin m) (j : Fin n) → inject≤ (k≤k+n m) i # (m ⊕ j)
+inject≤#⊕ : ∀(i : Fin m) (j : Fin n) → inject≤ (k≤ᵗk+n m) i # (m ⊕ j)
 inject≤#⊕ {suc m} {suc n} zero    j = _
 inject≤#⊕ {suc m} {suc n} (suc i) j = inject≤#⊕ i j
 
@@ -199,7 +199,7 @@ split (suc m) (suc i) with split m i
 ... | inr j = inr j
 
 pigeonhole
-  : m < n
+  : m <ᵗ n
   → (f : Fin n → Fin m)
   → Σ[ i ∈ Fin n ] Σ[ j ∈ Fin n ] (i # j) × (f i ≡ f j)
 pigeonhole {zero} {suc n} m<n f = Empty.rec (f zero)
@@ -215,7 +215,7 @@ pigeonhole {suc m} {suc n} m<n f with any? (λ i → discreteFin (f zero) (f (su
   g : Fin n → Fin m
   g i = punchOut (f zero) (f (suc i)) (apart i)
 
-Fin-inj₀ : m < n → ¬ Fin n ≡ Fin m
+Fin-inj₀ : m <ᵗ n → ¬ Fin n ≡ Fin m
 Fin-inj₀ m<n P with pigeonhole m<n (transport P)
 ... | i , j , i#j , p = #→≢ i#j i≡j
   where
@@ -224,7 +224,7 @@ Fin-inj₀ m<n P with pigeonhole m<n (transport P)
           (cong (transport⁻ P) p)
 
 Fin-inj : (m n : ℕ) → Fin m ≡ Fin n → m ≡ n
-Fin-inj m n P with m ≟ n
+Fin-inj m n P with m ≟ᶠ n
 ... | eq p   = p
 ... | lt m<n = Empty.rec (Fin-inj₀ m<n (sym P))
 ... | gt n<m = Empty.rec (Fin-inj₀ n<m P)
@@ -233,7 +233,7 @@ module Isos where
   open Iso
 
   up : Fin m → Fin (m + n)
-  up {m} = inject≤ (k≤k+n m)
+  up {m} = inject≤ (k≤ᵗk+n m)
 
   resplit-identᵣ₀ : ∀ m (i : Fin n) → Sum.⊎Path.Cover (split m (m ⊕ i)) (inr i)
   resplit-identᵣ₀ zero    i = lift refl

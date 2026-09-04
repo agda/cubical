@@ -9,7 +9,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Data.Bool
   renaming (Bool to 𝟚; Bool→Type to ⟨_⟩)
 open import Cubical.Data.Nat
-open import Cubical.Data.Nat.Order.Recursive
+open import Cubical.Data.Nat.Order.Inductive
 
 open import Cubical.Relation.Nullary
 

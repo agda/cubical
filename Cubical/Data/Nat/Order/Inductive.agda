@@ -2,22 +2,33 @@ module Cubical.Data.Nat.Order.Inductive where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
 
-open import Cubical.Data.Bool.Base hiding (_≟_)
+open import Cubical.Data.Bool hiding (_≤_)
 
 open import Cubical.Induction.WellFounded
 
 open import Cubical.Relation.Nullary
 
--- TODO: unify with recursive.agda
+private
+  variable
+    ℓ : Level
+    R : Type ℓ
+    P : ℕ → Type ℓ
+    k l m n : ℕ
 
 -- alternative definition of <
+
+infix 4 _<ᵗ_ _≤ᵗ_ _>ᵗ_ _≥ᵗ_
+
 _<ᵗ_ : (n m : ℕ) → Type
 n <ᵗ m = Bool→Type (n <ᵇ m)
 
@@ -33,13 +44,13 @@ n ≥ᵗ m = m ≤ᵗ n
 -- <ᵗ satisfies the following judgmental equalities,
 -- which give <ᵗ an "inductive" presentation, justifying the module name:
 private
-  _ : ∀ {n} → n <ᵗ zero ≡ ⊥
+  _ : ∀ {n} → (n <ᵗ zero) ≡ ⊥
   _ = refl
 
-  _ : ∀ {m} → zero <ᵗ suc m ≡ Unit
+  _ : ∀ {m} → (zero <ᵗ suc m) ≡ Unit
   _ = refl
 
-  _ : ∀ {n m} → suc n <ᵗ suc m ≡ n <ᵗ m
+  _ : ∀ {n m} → (suc n <ᵗ suc m) ≡ (n <ᵗ m)
   _ = refl
 
   -- direct inductive definition (avoided for performance reasons):
@@ -47,6 +58,12 @@ private
   -- n <ᵗ zero = ⊥
   -- zero <ᵗ suc m = Unit
   -- suc n <ᵗ suc m = n <ᵗ m
+
+_<ᵗ?_ : (m n : ℕ) → Dec (m <ᵗ n)
+m <ᵗ? n = m <ᵇ? n
+
+_≤ᵗ?_ : (m n : ℕ) → Dec (m ≤ᵗ n)
+m ≤ᵗ? n = m <ᵇ? (suc n)
 
 data Trichotomyᵗ (m n : ℕ) : Type₀ where
   lt : m <ᵗ n → Trichotomyᵗ m n
@@ -59,16 +76,68 @@ Trichotomyᵗ-suc (lt x) = lt x
 Trichotomyᵗ-suc (eq x) = eq (cong suc x)
 Trichotomyᵗ-suc (gt x) = gt x
 
+-- NOTE:
+-- This function computes very slowly for concrete numbers.
+-- However, it has a useful definitional identity that has been used in several modules:
+--  (suc m) ≟ᵗ (suc n) = Trichotomyᵗ-suc (m ≟ᵗ n)
+-- therefore, we keep it here as the default implementation.
+-- For a more efficient implementation, see `_≟ᶠ_` below
+
 _≟ᵗ_ : ∀ m n → Trichotomyᵗ m n
 zero ≟ᵗ zero = eq refl
 zero ≟ᵗ suc n = lt tt
 suc m ≟ᵗ zero = gt tt
 suc m ≟ᵗ suc n = Trichotomyᵗ-suc (m ≟ᵗ n)
 
-isProp<ᵗ : {n m : ℕ} → isProp (n <ᵗ m)
-isProp<ᵗ {n = n} {zero} = isProp⊥
-isProp<ᵗ {n = zero} {suc m} _ _ = refl
-isProp<ᵗ {n = suc n} {suc m} = isProp<ᵗ {n = n} {m = m}
+isProp<ᵗ : isProp (n <ᵗ m)
+isProp<ᵗ = isPropBool→Type
+
+isProp≤ᵗ : isProp (n ≤ᵗ m)
+isProp≤ᵗ = isPropBool→Type
+
+≤ᵗ-k+ : m ≤ᵗ n → k + m ≤ᵗ k + n
+≤ᵗ-k+ {k = zero}  m≤n = m≤n
+≤ᵗ-k+ {k = suc k} m≤n = ≤ᵗ-k+ {k = k} m≤n
+
+≤ᵗ-+k : m ≤ᵗ n → m + k ≤ᵗ n + k
+≤ᵗ-+k {m} {n} {k} m≤n
+  = transport (λ i → +-comm k m i ≤ᵗ +-comm k n i) (≤ᵗ-k+ {m} {n} {k} m≤n)
+
+≤ᵗ-refl : ∀ m → m ≤ᵗ m
+≤ᵗ-refl zero = _
+≤ᵗ-refl (suc m) = ≤ᵗ-refl m
+
+≤ᵗ-trans : k ≤ᵗ m → m ≤ᵗ n → k ≤ᵗ n
+≤ᵗ-trans {zero} _ _ = _
+≤ᵗ-trans {suc k} {suc m} {suc n} = ≤ᵗ-trans {k} {m} {n}
+
+≤ᵗ-antisym : m ≤ᵗ n → n ≤ᵗ m → m ≡ n
+≤ᵗ-antisym {zero} {zero} _ _ = refl
+≤ᵗ-antisym {suc m} {suc n} m≤n n≤m = cong suc (≤ᵗ-antisym m≤n n≤m)
+
+≤ᵗ-k+-cancel : k + m ≤ᵗ k + n → m ≤ᵗ n
+≤ᵗ-k+-cancel {k =  zero} m≤n = m≤n
+≤ᵗ-k+-cancel {k = suc k} m≤n = ≤ᵗ-k+-cancel {k} m≤n
+
+≤ᵗ-+k-cancel : m + k ≤ᵗ n + k → m ≤ᵗ n
+≤ᵗ-+k-cancel {m} {k} {n}
+  = ≤ᵗ-k+-cancel {k} {m} {n} ∘ transport λ i → +-comm m k i ≤ᵗ +-comm n k i
+
+≤ᵗ0→≡0 : n ≤ᵗ 0 → n ≡ 0
+≤ᵗ0→≡0 {zero} _ = refl
+
+k≤ᵗk+n : ∀ k → k ≤ᵗ k + n
+k≤ᵗk+n zero    = _
+k≤ᵗk+n (suc k) = k≤ᵗk+n k
+
+n≤ᵗk+n : ∀ n → n ≤ᵗ k + n
+n≤ᵗk+n {k} n = transport (λ i → n ≤ᵗ +-comm n k i) (k≤ᵗk+n n)
+
+¬<ᵗ→≥ᵗ : {m n : ℕ} → ¬ m <ᵗ n → n ≤ᵗ m
+¬<ᵗ→≥ᵗ {m} {n} = ¬<ᵇ→≥ᵇ m n
+
+¬≤ᵗ→>ᵗ : {m n : ℕ} → ¬ m ≤ᵗ n → n <ᵗ m
+¬≤ᵗ→>ᵗ {m} {n} = ¬≤ᵇ→>ᵇ m n
 
 <ᵗsucm : {m : ℕ} → m <ᵗ suc m
 <ᵗsucm {m = zero} = tt
@@ -87,6 +156,13 @@ isProp<ᵗ {n = suc n} {suc m} = isProp<ᵗ {n = n} {m = m}
 
 ¬m<ᵗm : {m : ℕ} → ¬ (m <ᵗ m)
 ¬m<ᵗm {m = suc m} p = ¬m<ᵗm {m = m} p
+
+¬m+n<ᵗm : {m n : ℕ} → ¬ m + n <ᵗ m
+¬m+n<ᵗm {suc m} = ¬m+n<ᵗm {m}
+
+<ᵗ-weaken : {m n : ℕ} → m <ᵗ n → m ≤ᵗ n
+<ᵗ-weaken {zero} _ = _
+<ᵗ-weaken {suc m} {suc n} = <ᵗ-weaken {m}
 
 <ᵗ-+ : {n k : ℕ} → n <ᵗ suc (k + n)
 <ᵗ-+ {n = zero} {k} = tt
@@ -110,6 +186,24 @@ isProp<ᵗ {n = suc n} {suc m} = isProp<ᵗ {n = n} {m = m}
 
 <ᵗ-asym : ∀ {m n} → m <ᵗ n → n ≤ m → ⊥
 <ᵗ-asym p = <-asym (<ᵗ→< p)
+
+<ᵗ-asym' : {m n : ℕ} → m <ᵗ n → ¬ n <ᵗ m
+<ᵗ-asym' {m} m<n n<m = ¬m<ᵗm {m} (<ᵗ-trans {m} {_} {m} m<n n<m)
+
+<ᵗ→≢ : {n m : ℕ} → n <ᵗ m → ¬ n ≡ m
+<ᵗ→≢ {n} {m} p q = ¬m<ᵗm {m = m} (subst {x = n} (_<ᵗ m) q p)
+
+_≟ᶠ_ : ∀ m n → Trichotomyᵗ m n
+m ≟ᶠ n with m <ᵗ? n
+... | yes m<n = lt m<n
+... | no ¬m<n with n <ᵗ? m
+... | yes n<m = gt n<m
+... | no ¬n<m = eq (≤ᵗ-antisym (¬<ᵇ→≥ᵇ n m ¬n<m) (¬<ᵇ→≥ᵇ m n ¬m<n))
+
+≤ᵗ-split : {m n : ℕ} → m ≤ᵗ n → (m <ᵗ n) ⊎ (m ≡ n)
+≤ᵗ-split {m} {n} m≤n with m <ᵗ? n
+... | yes m<n = inl m<n
+... | no ¬m<n = inr (≤ᵗ-antisym m≤n (¬<ᵇ→≥ᵇ m n ¬m<n))
 
 private
   acc-suc : ∀ {n} → Acc _<ᵗ_ n → Acc _<ᵗ_ (suc n)
@@ -135,10 +229,10 @@ module _ {n m : ℕ} where
   isPropTrichotomyᵗ (gt x) (gt y) i = gt (isProp<ᵗ {n = m} {n} x y i)
 
 module falseDichotomies where
-  lt-eq : {n m : ℕ} → ¬ m <ᵗ n × (m ≡ suc n)
+  lt-eq : {n m : ℕ} → ¬ (m <ᵗ n) × (m ≡ suc n)
   lt-eq {n = n} (p , q) = ¬-suc-n<ᵗn {n = n} (subst (_<ᵗ n) q p)
 
-  lt-gt : {n m : ℕ}  → ¬ m <ᵗ n × (suc n <ᵗ m)
+  lt-gt : {n m : ℕ}  → ¬ (m <ᵗ n) × (suc n <ᵗ m)
   lt-gt {n = n} {m} (p , q) =
     ¬-suc-n<ᵗn {n = n} (<ᵗ-trans {n = suc n} {m} {n} q p)
 
@@ -151,3 +245,71 @@ module falseDichotomies where
 
   gt-lt : {n m : ℕ} → ¬ (n <ᵗ m) × (m <ᵗ suc n)
   gt-lt {n = n} {m = m} = ¬squeeze {n = n} {m = m}
+
+module WellFounded where
+  wf-<ᵗ : WellFounded _<ᵗ_
+  wf-rec-<ᵗ : ∀ n → WFRec _<ᵗ_ (Acc _<ᵗ_) n
+
+  wf-<ᵗ n = acc (wf-rec-<ᵗ n)
+
+  wf-rec-<ᵗ (suc n) m m≤n with ≤ᵗ-split {m} {n} m≤n
+  ... | inl m<n = wf-rec-<ᵗ n m m<n
+  ... | inr m≡n = subst⁻ (Acc _<ᵗ_) m≡n (wf-<ᵗ n)
+
+wf-elim : (∀ n → (∀ m → m <ᵗ n → P m) → P n) → ∀ n → P n
+wf-elim = WFI.induction WellFounded.wf-<ᵗ
+
+wf-rec : (∀ n → (∀ m → m <ᵗ n → R) → R) → ℕ → R
+wf-rec {R = R} = wf-elim {P = λ _ → R}
+
+module Minimal where
+  Least : ∀{ℓ} → (ℕ → Type ℓ) → (ℕ → Type ℓ)
+  Least P m = P m × (∀ n → n <ᵗ m → ¬ P n)
+
+  isPropLeast : (∀ m → isProp (P m)) → ∀ m → isProp (Least P m)
+  isPropLeast pP m
+    = isPropΣ (pP m) (λ _ → isPropΠ3 λ _ _ _ → isProp⊥)
+
+  Least→ : Σ _ (Least P) → Σ _ P
+  Least→ = map-snd fst
+
+  private
+    search-lemma : ∀ n → ¬ P 0 → (∀ m → m <ᵗ n → ¬ P (suc m)) → ∀ m → m <ᵗ suc n → ¬ P m
+    search-lemma n ¬P0 ¬P<1+n zero    = λ _ → ¬P0
+    search-lemma n ¬P0 ¬P<1+n (suc m) = ¬P<1+n m
+
+  search
+    : (∀ m → Dec (P m))
+    → ∀ n → (Σ[ m ∈ ℕ ] Least P m) ⊎ (∀ m → m <ᵗ n → ¬ P m)
+  search {P = P} dec zero    = inr λ _ b _ → b
+  search {P = P} dec (suc n) with dec 0
+  ... | yes P0 = inl (0 , P0 , λ _ b _ → b)
+  ... | no ¬P0 with search {P = P ∘ suc} (dec ∘ suc) n
+  ... | inl (m , P1+m , ¬P<1+m) = inl (suc m , P1+m , search-lemma m ¬P0 ¬P<1+m)
+  ... | inr ¬P<1+n              = inr (search-lemma n ¬P0 ¬P<1+n)
+
+  →Least : (∀ m → Dec (P m)) → Σ _ P → Σ _ (Least P)
+  →Least dec (n , Pn) with search dec n
+  ... | inl least = least
+  ... | inr ¬P<n  = n , Pn , ¬P<n
+
+  Least-unique : ∀ m n → Least P m → Least P n → m ≡ n
+  Least-unique m n (Pm , ¬P<m) (Pn , ¬P<n) with m ≟ᶠ n
+  ... | lt m<n = ⊥.rec (¬P<n m m<n Pm)
+  ... | eq m≡n = m≡n
+  ... | gt n<m = ⊥.rec (¬P<m n n<m Pn)
+
+  isPropΣLeast : (∀ m → isProp (P m)) → isProp (Σ _ (Least P))
+  isPropΣLeast pP (m , LPm) (n , LPn)
+    = ΣPathP λ where
+        .fst → Least-unique m n LPm LPn
+        .snd → isOfHLevel→isOfHLevelDep 1 (isPropLeast pP)
+                LPm LPn (Least-unique m n LPm LPn)
+
+  Decidable→Collapsible
+    : (∀ m → isProp (P m)) → (∀ m → Dec (P m)) → Collapsible (Σ ℕ P)
+  Decidable→Collapsible pP dP = λ where
+    .fst → Least→ ∘ →Least dP
+    .snd x y → cong Least→ (isPropΣLeast pP (→Least dP x) (→Least dP y))
+
+open Minimal using (Decidable→Collapsible) public
