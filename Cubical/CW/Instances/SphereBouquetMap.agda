@@ -72,13 +72,13 @@ module _ (c1 c2 : ℕ) {n : ℕ} where
   SphereBouquet/EqContrGen a (suc m) m< (lt y) (lt x) =
     (inl tt) , (λ {(inl tt) → refl})
   SphereBouquet/EqContrGen a (suc m) m< (eq y) (lt x) =
-    ⊥.rec (¬m<ᵗm {suc n} (subst (_<ᵗ suc n) y m<))
+    ⊥.rec (<ᵗ-irrefl {suc n} (subst (_<ᵗ suc n) y m<))
   SphereBouquet/EqContrGen a (suc m) m< (gt y) (lt x) =
-    ⊥.rec (¬m<ᵗm {m} (<ᵗ-trans {m} {n} {m} m< y))
+    ⊥.rec (<ᵗ-irrefl {m} (<ᵗ-trans {m} {n} {m} m< y))
   SphereBouquet/EqContrGen a (suc m) m< p (eq x) =
     ⊥.rec (falseDichotomies.lt-eq (m< , (cong predℕ x)))
   SphereBouquet/EqContrGen a (suc m) m< p (gt x) =
-    ⊥.rec (¬-suc-n<ᵗn {n} (<ᵗ-trans {suc n} {m} {n} x m<))
+    ⊥.rec (¬-sucℕ-<ᵗ {n} (<ᵗ-trans {suc n} {m} {n} x m<))
 
   SphereBouquet/EqBottomMainGen : (α : FinSphereBouquetMap c1 c2 n)
     → SphereBouquet (suc n) (Fin c2)
@@ -94,7 +94,7 @@ module _ (c1 c2 : ℕ) {n : ℕ} where
     (r : m ≡ suc n) (p : Trichotomyᵗ m (suc n)) (q : Trichotomyᵗ m (suc (suc n)))
     → SphereBouquet (suc n) (Fin c2) ≃ Pushout (SphereBouquet/αGen α m p q) fst
   SphereBouquet/EqBottomGen a m m< (lt x) q =
-    ⊥.rec (¬m<ᵗm {suc n} (subst (_<ᵗ suc n) m< x))
+    ⊥.rec (<ᵗ-irrefl {suc n} (subst (_<ᵗ suc n) m< x))
   SphereBouquet/EqBottomGen a zero m< (eq x) (lt y) = ⊥.rec (snotz (sym x))
   SphereBouquet/EqBottomGen a (suc m) m< (eq x) (lt y) =
     compEquiv (SphereBouquet/EqBottomMainGen a)
@@ -105,7 +105,7 @@ module _ (c1 c2 : ℕ) {n : ℕ} where
   SphereBouquet/EqBottomGen a m m< (eq x) (gt y) =
     ⊥.rec (falseDichotomies.eq-gt (x , y))
   SphereBouquet/EqBottomGen a m m< (gt x) q =
-    ⊥.rec (¬m<ᵗm {suc n} (subst (suc n <ᵗ_) m< x))
+    ⊥.rec (<ᵗ-irrefl {suc n} (subst (suc n <ᵗ_) m< x))
 
   SphereBouquet/EqTopGen' : (m : ℕ) (α : FinSphereBouquetMap c1 c2 n)
     (p : m ≡ suc n)
@@ -155,9 +155,9 @@ module _ (c1 c2 : ℕ) {n : ℕ} where
     → suc n <ᵗ m → (p : Trichotomyᵗ m (suc n)) (q : Trichotomyᵗ m (suc (suc n)))
     → cofib α ≃ Pushout (SphereBouquet/αGen α m p q) fst
   SphereBouquet/EqTopGen (suc m) a m< (lt x) q =
-    ⊥.rec (¬m<ᵗm {n} (<ᵗ-trans {n} {m} {n} m< x))
+    ⊥.rec (<ᵗ-irrefl {n} (<ᵗ-trans {n} {m} {n} m< x))
   SphereBouquet/EqTopGen (suc m) a m< (eq x) q =
-    ⊥.rec (¬m<ᵗm {suc m} (subst (_<ᵗ suc m) (sym x) m<))
+    ⊥.rec (<ᵗ-irrefl {suc m} (subst (_<ᵗ suc m) (sym x) m<))
   SphereBouquet/EqTopGen (suc m) a m< (gt x) (lt y) =
     ⊥.rec (¬squeeze {m} {suc n} (y , x))
   SphereBouquet/EqTopGen (suc m) a m< (gt x) (eq y) =
@@ -181,7 +181,7 @@ module _ (c1 c2 : ℕ) {n : ℕ} where
   ¬SphereBouquet/CardGen (suc k) ineq (eq x) q c =
     falseDichotomies.eq-gt (x , ineq)
   ¬SphereBouquet/CardGen (suc k) ineq (gt x) (eq y) c =
-    ¬m<ᵗm {suc n} (subst (suc n <ᵗ_) (cong predℕ y) ineq)
+    <ᵗ-irrefl {suc n} (subst (suc n <ᵗ_) (cong predℕ y) ineq)
 
   SphereBouquet/ˢᵏᵉˡConverges : (k : ℕ) (α : FinSphereBouquetMap c1 c2 n)
     → suc (suc n) <ᵗ k
@@ -196,19 +196,19 @@ module _ (c1 c2 : ℕ) {n : ℕ} where
     → suc (suc n) ≡ k → (p : _)
     → SphereBouquet (suc n) (Fin c2) ≃ (SphereBouquet/FamGen α k p)
   SphereBouquet/FamMidElementGen k q s (lt x) =
-    ⊥.rec (¬m<ᵗm {n} (subst (_<ᵗ suc (suc n)) (sym s) x))
+    ⊥.rec (<ᵗ-irrefl {n} (subst (_<ᵗ suc (suc n)) (sym s) x))
   SphereBouquet/FamMidElementGen zero q s (eq x) = ⊥.rec (snotz (sym x))
   SphereBouquet/FamMidElementGen (suc k) q s (eq x) = idEquiv _
   SphereBouquet/FamMidElementGen k q s (gt x) =
-    ⊥.rec (¬m<ᵗm {k} (subst (_<ᵗ k) s x))
+    ⊥.rec (<ᵗ-irrefl {k} (subst (_<ᵗ k) s x))
 
   SphereBouquet/FamTopElementGen : (k : ℕ) (α : FinSphereBouquetMap c1 c2 n)
     → suc (suc n) <ᵗ k → (p : _)
     → cofib α ≃ (SphereBouquet/FamGen α k p)
   SphereBouquet/FamTopElementGen (suc k) α ineq (lt x) =
-    ⊥.rec (¬m<ᵗm {k} (<ᵗ-trans {k} {suc n} {k} x ineq))
+    ⊥.rec (<ᵗ-irrefl {k} (<ᵗ-trans {k} {suc n} {k} x ineq))
   SphereBouquet/FamTopElementGen (suc k) α ineq (eq x) =
-    ⊥.rec (¬m<ᵗm {k} (subst (_<ᵗ k) (cong predℕ (sym x)) ineq))
+    ⊥.rec (<ᵗ-irrefl {k} (subst (_<ᵗ k) (cong predℕ (sym x)) ineq))
   SphereBouquet/FamTopElementGen (suc k) α ineq (gt x) = idEquiv _
 
 SphereBouquet/EqBottomMainGenLem : {C : Type} {c1 c2 : ℕ} (n : ℕ)
@@ -303,7 +303,7 @@ module _ {c1 c2 : ℕ} {n : ℕ} (α : FinSphereBouquetMap c1 c2 n) where
   fst hasCWskelSphereBouquet/ = SphereBouquet/ˢᵏᵉˡ
   snd hasCWskelSphereBouquet/ =
     compEquiv (SphereBouquet/FamTopElementGen c1 c2 (suc (suc (suc n))) α
-               (<ᵗsucm {n}) (suc (suc (suc n)) ≟ᵗ suc (suc n)))
+               (<ᵗsuc {n}) (suc (suc (suc n)) ≟ᵗ suc (suc n)))
       (isoToEquiv (converges→ColimIso (suc (suc (suc n)))
       λ k → compEquiv (inl
         , SphereBouquet/ˢᵏᵉˡConverges c1 c2 (k +ℕ suc (suc (suc n))) α
