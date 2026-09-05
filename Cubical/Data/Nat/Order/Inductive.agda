@@ -95,13 +95,13 @@ isProp<ᵗ = isPropBool→Type
 isProp≤ᵗ : isProp (n ≤ᵗ m)
 isProp≤ᵗ = isPropBool→Type
 
-≤ᵗ-k+ : m ≤ᵗ n → k + m ≤ᵗ k + n
-≤ᵗ-k+ {k = zero}  m≤n = m≤n
-≤ᵗ-k+ {k = suc k} m≤n = ≤ᵗ-k+ {k = k} m≤n
+≤ᵗ-+ˡ : m ≤ᵗ n → k + m ≤ᵗ k + n
+≤ᵗ-+ˡ {k = zero}  m≤n = m≤n
+≤ᵗ-+ˡ {k = suc k} m≤n = ≤ᵗ-+ˡ {k = k} m≤n
 
-≤ᵗ-+k : m ≤ᵗ n → m + k ≤ᵗ n + k
-≤ᵗ-+k {m} {n} {k} m≤n
-  = transport (λ i → +-comm k m i ≤ᵗ +-comm k n i) (≤ᵗ-k+ {m} {n} {k} m≤n)
+≤ᵗ-+ʳ : m ≤ᵗ n → m + k ≤ᵗ n + k
+≤ᵗ-+ʳ {m} {n} {k} m≤n
+  = transport (λ i → +-comm k m i ≤ᵗ +-comm k n i) (≤ᵗ-+ˡ {m} {n} {k} m≤n)
 
 ≤ᵗ-refl : ∀ m → m ≤ᵗ m
 ≤ᵗ-refl zero = _
@@ -115,23 +115,23 @@ isProp≤ᵗ = isPropBool→Type
 ≤ᵗ-antisym {zero} {zero} _ _ = refl
 ≤ᵗ-antisym {suc m} {suc n} m≤n n≤m = cong suc (≤ᵗ-antisym m≤n n≤m)
 
-≤ᵗ-k+-cancel : k + m ≤ᵗ k + n → m ≤ᵗ n
-≤ᵗ-k+-cancel {k =  zero} m≤n = m≤n
-≤ᵗ-k+-cancel {k = suc k} m≤n = ≤ᵗ-k+-cancel {k} m≤n
+≤ᵗ-+-cancelˡ : k + m ≤ᵗ k + n → m ≤ᵗ n
+≤ᵗ-+-cancelˡ {k =  zero} m≤n = m≤n
+≤ᵗ-+-cancelˡ {k = suc k} m≤n = ≤ᵗ-+-cancelˡ {k} m≤n
 
-≤ᵗ-+k-cancel : m + k ≤ᵗ n + k → m ≤ᵗ n
-≤ᵗ-+k-cancel {m} {k} {n}
-  = ≤ᵗ-k+-cancel {k} {m} {n} ∘ transport λ i → +-comm m k i ≤ᵗ +-comm n k i
+≤ᵗ-+-cancelʳ : m + k ≤ᵗ n + k → m ≤ᵗ n
+≤ᵗ-+-cancelʳ {m} {k} {n}
+  = ≤ᵗ-+-cancelˡ {k} {m} {n} ∘ transport λ i → +-comm m k i ≤ᵗ +-comm n k i
 
 ≤ᵗ0→≡0 : n ≤ᵗ 0 → n ≡ 0
 ≤ᵗ0→≡0 {zero} _ = refl
 
-k≤ᵗk+n : ∀ k → k ≤ᵗ k + n
-k≤ᵗk+n zero    = _
-k≤ᵗk+n (suc k) = k≤ᵗk+n k
+≤ᵗSumLeft : ∀ k → k ≤ᵗ k + n
+≤ᵗSumLeft zero    = _
+≤ᵗSumLeft (suc k) = ≤ᵗSumLeft k
 
-n≤ᵗk+n : ∀ n → n ≤ᵗ k + n
-n≤ᵗk+n {k} n = transport (λ i → n ≤ᵗ +-comm n k i) (k≤ᵗk+n n)
+≤ᵗSumRight : ∀ n → n ≤ᵗ k + n
+≤ᵗSumRight {k} n = transport (λ i → n ≤ᵗ +-comm n k i) (≤ᵗSumLeft n)
 
 ¬<ᵗ→≥ᵗ : {m n : ℕ} → ¬ m <ᵗ n → n ≤ᵗ m
 ¬<ᵗ→≥ᵗ {m} {n} = ¬<ᵇ→≥ᵇ m n
@@ -139,26 +139,26 @@ n≤ᵗk+n {k} n = transport (λ i → n ≤ᵗ +-comm n k i) (k≤ᵗk+n n)
 ¬≤ᵗ→>ᵗ : {m n : ℕ} → ¬ m ≤ᵗ n → n <ᵗ m
 ¬≤ᵗ→>ᵗ {m} {n} = ¬≤ᵇ→>ᵇ m n
 
-<ᵗsucm : {m : ℕ} → m <ᵗ suc m
-<ᵗsucm {m = zero} = tt
-<ᵗsucm {m = suc m} = <ᵗsucm {m = m}
+<ᵗsuc : {m : ℕ} → m <ᵗ suc m
+<ᵗsuc {m = zero} = tt
+<ᵗsuc {m = suc m} = <ᵗsuc {m = m}
 
 <ᵗ-trans-suc : {n m : ℕ} → n <ᵗ m → n <ᵗ suc m
 <ᵗ-trans-suc {n = zero} {suc m} x = tt
 <ᵗ-trans-suc {n = suc n} {suc m} x = <ᵗ-trans-suc  {n = n} x
 
-¬-suc-n<ᵗn : {n : ℕ} → ¬ (suc n) <ᵗ n
-¬-suc-n<ᵗn {suc n} = ¬-suc-n<ᵗn {n}
+¬-sucℕ-<ᵗ : {n : ℕ} → ¬ (suc n) <ᵗ n
+¬-sucℕ-<ᵗ {suc n} = ¬-sucℕ-<ᵗ {n}
 
 <ᵗ-trans : {n m k : ℕ} → n <ᵗ m → m <ᵗ k → n <ᵗ k
 <ᵗ-trans {n = zero} {suc m} {suc k} _ _ = tt
 <ᵗ-trans {n = suc n} {suc m} {suc k} = <ᵗ-trans {n = n} {m} {k}
 
-¬m<ᵗm : {m : ℕ} → ¬ (m <ᵗ m)
-¬m<ᵗm {m = suc m} p = ¬m<ᵗm {m = m} p
+<ᵗ-irrefl : {m : ℕ} → ¬ (m <ᵗ m)
+<ᵗ-irrefl {m = suc m} p = <ᵗ-irrefl {m = m} p
 
-¬m+n<ᵗm : {m n : ℕ} → ¬ m + n <ᵗ m
-¬m+n<ᵗm {suc m} = ¬m+n<ᵗm {m}
+¬SumLeft<ᵗ : {m n : ℕ} → ¬ m + n <ᵗ m
+¬SumLeft<ᵗ {suc m} = ¬SumLeft<ᵗ {m}
 
 <ᵗ-weaken : {m n : ℕ} → m <ᵗ n → m ≤ᵗ n
 <ᵗ-weaken {zero} _ = _
@@ -188,10 +188,10 @@ n≤ᵗk+n {k} n = transport (λ i → n ≤ᵗ +-comm n k i) (k≤ᵗk+n n)
 <ᵗ-asym p = <-asym (<ᵗ→< p)
 
 <ᵗ-asym' : {m n : ℕ} → m <ᵗ n → ¬ n <ᵗ m
-<ᵗ-asym' {m} m<n n<m = ¬m<ᵗm {m} (<ᵗ-trans {m} {_} {m} m<n n<m)
+<ᵗ-asym' {m} m<n n<m = <ᵗ-irrefl {m} (<ᵗ-trans {m} {_} {m} m<n n<m)
 
 <ᵗ→≢ : {n m : ℕ} → n <ᵗ m → ¬ n ≡ m
-<ᵗ→≢ {n} {m} p q = ¬m<ᵗm {m = m} (subst {x = n} (_<ᵗ m) q p)
+<ᵗ→≢ {n} {m} p q = <ᵗ-irrefl {m = m} (subst {x = n} (_<ᵗ m) q p)
 
 _≟ᶠ_ : ∀ m n → Trichotomyᵗ m n
 m ≟ᶠ n with m <ᵗ? n
@@ -218,27 +218,26 @@ private
 module _ {n m : ℕ} where
   isPropTrichotomyᵗ : isProp (Trichotomyᵗ n m)
   isPropTrichotomyᵗ (lt x) (lt y) i = lt (isProp<ᵗ {n = n} {m} x y i)
-  isPropTrichotomyᵗ (lt x) (eq y) = ⊥.rec (¬m<ᵗm {m} (subst (_<ᵗ m) y x))
-  isPropTrichotomyᵗ (lt x) (gt y) = ⊥.rec (¬m<ᵗm {m} (<ᵗ-trans {m} {n} {m} y x))
-  isPropTrichotomyᵗ (eq x) (lt y) =
-    ⊥.rec (¬m<ᵗm {m} (subst (_<ᵗ m) x y))
+  isPropTrichotomyᵗ (lt x) (eq y) = ⊥.rec (<ᵗ-irrefl {m} (subst (_<ᵗ m) y x))
+  isPropTrichotomyᵗ (lt x) (gt y) = ⊥.rec (<ᵗ-irrefl {m} (<ᵗ-trans {m} {n} {m} y x))
+  isPropTrichotomyᵗ (eq x) (lt y) = ⊥.rec (<ᵗ-irrefl {m} (subst (_<ᵗ m) x y))
   isPropTrichotomyᵗ (eq x) (eq y) i = eq (isSetℕ n m x y i)
-  isPropTrichotomyᵗ (eq x) (gt y) = ⊥.rec (¬m<ᵗm {n} (subst (_<ᵗ n) (sym x) y))
-  isPropTrichotomyᵗ (gt x) (lt y) = ⊥.rec (¬m<ᵗm {n} (<ᵗ-trans {n} {m} {n} y x))
-  isPropTrichotomyᵗ (gt x) (eq y) = ⊥.rec (¬m<ᵗm {n} (subst (_<ᵗ n) (sym y) x))
+  isPropTrichotomyᵗ (eq x) (gt y) = ⊥.rec (<ᵗ-irrefl {n} (subst (_<ᵗ n) (sym x) y))
+  isPropTrichotomyᵗ (gt x) (lt y) = ⊥.rec (<ᵗ-irrefl {n} (<ᵗ-trans {n} {m} {n} y x))
+  isPropTrichotomyᵗ (gt x) (eq y) = ⊥.rec (<ᵗ-irrefl {n} (subst (_<ᵗ n) (sym y) x))
   isPropTrichotomyᵗ (gt x) (gt y) i = gt (isProp<ᵗ {n = m} {n} x y i)
 
 module falseDichotomies where
   lt-eq : {n m : ℕ} → ¬ (m <ᵗ n) × (m ≡ suc n)
-  lt-eq {n = n} (p , q) = ¬-suc-n<ᵗn {n = n} (subst (_<ᵗ n) q p)
+  lt-eq {n = n} (p , q) = ¬-sucℕ-<ᵗ {n = n} (subst (_<ᵗ n) q p)
 
   lt-gt : {n m : ℕ}  → ¬ (m <ᵗ n) × (suc n <ᵗ m)
   lt-gt {n = n} {m} (p , q) =
-    ¬-suc-n<ᵗn {n = n} (<ᵗ-trans {n = suc n} {m} {n} q p)
+    ¬-sucℕ-<ᵗ {n = n} (<ᵗ-trans {n = suc n} {m} {n} q p)
 
   eq-eq : {n m : ℕ} → ¬ (m ≡ n) × (m ≡ suc n)
   eq-eq {n = n} (p , q) =
-    ¬m<ᵗm {n} (subst (_<ᵗ suc n) (sym p ∙ q) (<ᵗsucm {n}))
+    <ᵗ-irrefl {n} (subst (_<ᵗ suc n) (sym p ∙ q) (<ᵗsuc {n}))
 
   eq-gt : {n m : ℕ} → ¬ (m ≡ n) × (suc n <ᵗ m)
   eq-gt (p , q) = lt-eq (q , cong suc (sym p))

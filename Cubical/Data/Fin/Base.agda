@@ -81,7 +81,7 @@ fst (injectSuc {n = n} (x , p)) = x
 snd (injectSuc {n = suc n} (x , p)) = <ᵗ-trans-suc {n = x} p
 
 flast : {k : ℕ} → Fin (suc k)
-flast {k = k} = (k , <ᵗsucm {k})
+flast {k = k} = (k , <ᵗsuc {k})
 
 -- Fin 0 is empty
 ¬Fin0 : ¬ Fin 0

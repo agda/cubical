@@ -94,8 +94,8 @@ module _ where
                           (lem (suc n) (fst g)))))) ∣₁
       where
       f : _ → homology n D .fst
-      f (a , b) = [ ϕ (suc n , <ᵗ-trans p <ᵗsucm) .fst a
-                , ((λ i → fst (ϕcomm (n , <ᵗ-trans p <ᵗsucm)  i) a)
+      f (a , b) = [ ϕ (suc n , <ᵗ-trans p <ᵗsuc) .fst a
+                , ((λ i → fst (ϕcomm (n , <ᵗ-trans p <ᵗsuc)  i) a)
                 ∙∙ cong (fst (ϕ (n , _))) b
                 ∙∙ IsGroupHom.pres1 (snd (ϕ (n , _)))) ]
 
@@ -176,7 +176,7 @@ module _ where
     where
     open GroupTheory (AbGroup→Group (chain B (suc (fst n))))
     pf : suc (fst n) <ᵗ suc (suc m)
-    pf = <ᵗ-trans (snd n) <ᵗsucm
+    pf = <ᵗ-trans (snd n) <ᵗsuc
 
     invB = GroupStr.inv (snd (AbGroup→Group (chain B (suc (fst n)))))
     _+B_ = AbGroupStr._+_ (snd (chain B (suc (fst n))))

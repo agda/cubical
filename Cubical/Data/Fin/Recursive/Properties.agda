@@ -187,7 +187,7 @@ inject<#toFin : ∀(i : Fin n) → inject< (≤ᵗ-refl (suc n)) i # toFin n
 inject<#toFin {suc n} zero = _
 inject<#toFin {suc n} (suc i) = inject<#toFin {n} i
 
-inject≤#⊕ : ∀(i : Fin m) (j : Fin n) → inject≤ (k≤ᵗk+n m) i # (m ⊕ j)
+inject≤#⊕ : ∀(i : Fin m) (j : Fin n) → inject≤ (≤ᵗSumLeft m) i # (m ⊕ j)
 inject≤#⊕ {suc m} {suc n} zero    j = _
 inject≤#⊕ {suc m} {suc n} (suc i) j = inject≤#⊕ i j
 
@@ -233,7 +233,7 @@ module Isos where
   open Iso
 
   up : Fin m → Fin (m + n)
-  up {m} = inject≤ (k≤ᵗk+n m)
+  up {m} = inject≤ (≤ᵗSumLeft m)
 
   resplit-identᵣ₀ : ∀ m (i : Fin n) → Sum.⊎Path.Cover (split m (m ⊕ i)) (inr i)
   resplit-identᵣ₀ zero    i = lift refl

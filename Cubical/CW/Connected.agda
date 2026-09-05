@@ -632,7 +632,7 @@ isConnectedCW→Contr (suc n) sk (zero , p) =
 isConnectedCW→Contr (suc n) sk (suc x , p)
   with (isConnectedCW→Contr n
         (fst sk , (snd sk .fst) , ((snd sk .snd .fst)
-                , (λ p w → snd sk .snd .snd p (<ᵗ-trans w <ᵗsucm))))
+                , (λ p w → snd sk .snd .snd p (<ᵗ-trans w <ᵗsuc))))
                              (x , p))
 ... | ind = subst isContr
                (ua (invEquiv (sk .snd .fst .snd .snd .snd (suc x))))
@@ -691,21 +691,21 @@ makeConnectedCW {ℓ = ℓ} (suc n) {C = C} (cwsk , eqv) cA with
       isConnectedC4+n : isConnected 3+n C4+n
       isConnectedC4+n = isConnectedCW→isConnectedSkel
                  (_ , ind .fst .snd .fst) 4+n
-                   (3+n , <ᵗ-trans <ᵗsucm <ᵗsucm)
+                   (3+n , <ᵗ-trans <ᵗsuc <ᵗsuc)
                    (subst (isConnected 3+n) (ua (invEquiv (ind .snd)))
                    cA)
 
       isConnected3+n : isConnected 2+n C3+n
       isConnected3+n = isConnectedCW→isConnectedSkel
                  (_ , ind .fst .snd .fst) 3+n
-                   (2+n , <ᵗ-trans <ᵗsucm <ᵗsucm)
+                   (2+n , <ᵗ-trans <ᵗsuc <ᵗsuc)
                    (subst (isConnected 2+n) (ua (invEquiv (ind .snd)))
                    (isConnectedSubtr 2+n 1 cA))
 
     -- C₁₊ₙ is trivial
     Iso-C1+n-Fin1 : Iso C1+n (Fin 1)
     Iso-C1+n-Fin1 =
-      isContr→Iso (isConnectedCW→Contr n (ind .fst) (n , <ᵗsucm))
+      isContr→Iso (isConnectedCW→Contr n (ind .fst) (n , <ᵗsuc))
                    (flast , isPropFin1 _)
 
     -- C₂₊ₙ is a bouquet of spheres
@@ -1236,8 +1236,8 @@ makeConnectedCW {ℓ = ℓ} (suc n) {C = C} (cwsk , eqv) cA with
             C'-connected : (n₁ : ℕ) → n₁ <ᵗ suc n
               → (p : _) (q : _) → card' (suc n₁) p q ≡ 0
             C'-connected m ineq (lt x) q = refl
-            C'-connected m ineq (eq x) q = ⊥.rec (¬m<ᵗm (subst (_<ᵗ 2+n) x ineq))
-            C'-connected m ineq (gt x) q = ⊥.rec (¬m<ᵗm (<ᵗ-trans ineq x))
+            C'-connected m ineq (eq x) q = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ 2+n) x ineq))
+            C'-connected m ineq (gt x) q = ⊥.rec (<ᵗ-irrefl (<ᵗ-trans ineq x))
 
             -- Attaching maps
             α' : (m : ℕ) (p : _) (q : _) → Fin (card' m p q) × S⁻ m → C' m q
@@ -1269,10 +1269,10 @@ makeConnectedCW {ℓ = ℓ} (suc n) {C = C} (cwsk , eqv) cA with
                 → isContr (C' (suc m) q)
               C'Contr m t (lt x) = tt* , λ {tt* → refl}
               C'Contr m t (eq x) =
-                ⊥.rec (¬m<ᵗm (<ᵗ-trans (subst (_<ᵗ suc n)
-                                        (cong predℕ x) t) <ᵗsucm))
+                ⊥.rec (<ᵗ-irrefl (<ᵗ-trans (subst (_<ᵗ suc n)
+                                           (cong predℕ x) t) <ᵗsuc))
               C'Contr m t (gt x) =
-                ⊥.rec (¬m<ᵗm (<ᵗ-trans (<ᵗ-trans x t) <ᵗsucm))
+                ⊥.rec (<ᵗ-irrefl (<ᵗ-trans (<ᵗ-trans x t) <ᵗsuc))
             e' (suc m) (eq x) (lt x₁) =
               invEquiv (isoToEquiv
                 (compIso (⋁-cofib-Iso
@@ -1285,11 +1285,11 @@ makeConnectedCW {ℓ = ℓ} (suc n) {C = C} (cwsk , eqv) cA with
                             (λ i → SphereBouquet (x i) (A 2+n)))
                           LiftIso))))))
             e' (suc m) (eq x) (eq x₁) =
-              ⊥.rec (¬m<ᵗm (subst (_<ᵗ suc n)
-                      (cong (predℕ ∘ predℕ) (sym x ∙ x₁)) <ᵗsucm))
+              ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ suc n)
+                      (cong (predℕ ∘ predℕ) (sym x ∙ x₁)) <ᵗsuc))
             e' (suc m) (eq x) (gt y) =
-              ⊥.rec (¬m<ᵗm (<ᵗ-trans (subst (2+n <ᵗ_)
-                                   (cong predℕ x) y) <ᵗsucm))
+              ⊥.rec (<ᵗ-irrefl (<ᵗ-trans (subst (2+n <ᵗ_)
+                                   (cong predℕ x) y) <ᵗsuc))
             e' (suc m) (gt x) (lt x₁) = ⊥.rec (¬squeeze (x , x₁))
             e' (suc m) (gt x) (eq x₁) =
               isoToEquiv (compIso (compIso
@@ -1329,9 +1329,9 @@ makeConnectedCW {ℓ = ℓ} (suc n) {C = C} (cwsk , eqv) cA with
             C'-realise-coh m (lt x) r a = ⊥.rec (<-irrefl (<-trans (<ᵗ→< x) (m , refl)))
             C'-realise-coh m (eq x) r a = ⊥.rec (<-irrefl (m , x))
             C'-realise-coh m (gt x) (lt x₁) a =
-              ⊥.rec (¬m<ᵗm (<ᵗ-trans (<ᵗ-trans x x₁) <ᵗsucm))
+              ⊥.rec (<ᵗ-irrefl (<ᵗ-trans (<ᵗ-trans x x₁) <ᵗsuc))
             C'-realise-coh m (gt x) (eq x₁) a =
-              ⊥.rec (¬m<ᵗm (<ᵗ-trans ((subst (_<ᵗ (m +ℕ 4+n)) (cong suc (sym x₁)) x)) <ᵗsucm))
+              ⊥.rec (<ᵗ-irrefl (<ᵗ-trans ((subst (_<ᵗ (m +ℕ 4+n)) (cong suc (sym x₁)) x)) <ᵗsuc))
             C'-realise-coh zero (gt x) (gt x₁) a = refl
             C'-realise-coh (suc m) (gt x) (gt x₁) a = refl
 
@@ -1364,7 +1364,7 @@ connectedCWContr n (suc m) l X cwX =
       (¬Fin0 ∘ subst Fin cardₘ₊₁≡0)))
       (invEquiv (e (connectedCWskel→CWskel (fst cwX)) (suc m)))
       ))
-    (connectedCWContr n m (<ᵗ-trans l <ᵗsucm) X cwX)
+    (connectedCWContr n m (<ᵗ-trans l <ᵗsuc) X cwX)
   where
   cardₘ₊₁≡0 = snd (snd (snd (fst cwX))) m l
 
@@ -1377,7 +1377,7 @@ connectedCW≃SphereBouquet n X cwX =
     (compEquiv
      (pushoutEquiv _ _ _ fst
        (idEquiv _)
-       (isContr→≃Unit (connectedCWContr n n <ᵗsucm X cwX))
+       (isContr→≃Unit (connectedCWContr n n <ᵗsuc X cwX))
        (idEquiv _)
        (λ _ _ → tt)
        (λ i x → fst x))

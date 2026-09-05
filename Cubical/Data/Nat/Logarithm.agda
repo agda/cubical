@@ -144,9 +144,9 @@ module LogCore (m : ℕ) where
   ... | inr x<b = subst (x <_) (sym (·-identityʳ b)) x<b
 
 logℕ : ∀ m n → Logℕ (suc (suc m)) (suc n)
-logℕ m n .Logℕ.log     = LogCore.hlog     m (suc n) (suc n) (<ᵗsucm {n})
-logℕ m n .Logℕ.^log≤   = LogCore.^hlog≤   m (suc n) (suc n) (<ᵗsucm {n})
-logℕ m n .Logℕ.<^1+log = LogCore.<^1+hlog m (suc n) (suc n) (<ᵗsucm {n})
+logℕ m n .Logℕ.log     = LogCore.hlog     m (suc n) (suc n) (<ᵗsuc {n})
+logℕ m n .Logℕ.^log≤   = LogCore.^hlog≤   m (suc n) (suc n) (<ᵗsuc {n})
+logℕ m n .Logℕ.<^1+log = LogCore.<^1+hlog m (suc n) (suc n) (<ᵗsuc {n})
 
 open LogTheory (logℕ) public
 

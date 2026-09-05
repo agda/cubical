@@ -30,9 +30,9 @@ open Iso
 module _ (n : ℕ) where
   ScardDiag : isContr (Fin (Scard (suc n) (suc n)))
   ScardDiag with (n ≟ᵗ n)
-  ... | lt x = ⊥.rec (¬m<ᵗm x)
+  ... | lt x = ⊥.rec (<ᵗ-irrefl x)
   ... | eq x = inhProp→isContr fzero isPropFin1
-  ... | gt x = ⊥.rec (¬m<ᵗm x)
+  ... | gt x = ⊥.rec (<ᵗ-irrefl x)
 
   HₙSⁿ→ℤ-fun : (a : Fin (Scard (suc n) (suc n)) → ℤ) → ℤ
   HₙSⁿ→ℤ-fun a = a (ScardDiag .fst)
@@ -45,14 +45,14 @@ module _ (n : ℕ) where
              ∂ (Sˢᵏᵉˡ (suc n)) (suc n) .fst t ≡ λ q → a q - b q)
     → HₙSⁿ→ℤ-fun a ≡ HₙSⁿ→ℤ-fun b
   HₙSⁿ→ℤ-coh a b aker bker r with (n ≟ᵗ n) | (suc n ≟ᵗ n)
-  ... | lt x | t = ⊥.rec (¬m<ᵗm x)
-  ... | eq x | lt x₁ = ⊥.rec (¬-suc-n<ᵗn x₁)
+  ... | lt x | t = ⊥.rec (<ᵗ-irrefl x)
+  ... | eq x | lt x₁ = ⊥.rec (¬-sucℕ-<ᵗ x₁)
   ... | eq x | eq x₁ = ⊥.rec (sucn≠n x₁)
   ... | eq x | gt x₁ = sym (+Comm (b fzero) 0
                      ∙ cong (_+ b fzero) (funExt⁻ (snd r) fzero)
                      ∙ sym (+Assoc (a fzero) (- b fzero) (b fzero))
                      ∙ cong (a fzero +_) (-Cancel' (b fzero)))
-  ... | gt x | t = ⊥.rec (¬m<ᵗm x)
+  ... | gt x | t = ⊥.rec (<ᵗ-irrefl x)
 
   HₙSⁿ→ℤ : H̃ˢᵏᵉˡ (Sˢᵏᵉˡ (suc n)) (suc n) . fst → ℤ
   HₙSⁿ→ℤ = SQ.elim (λ _ → isSetℤ) (λ a → HₙSⁿ→ℤ-fun (fst a))

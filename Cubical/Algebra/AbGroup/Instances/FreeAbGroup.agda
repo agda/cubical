@@ -110,13 +110,13 @@ module _ {A : Type ℓ} where
 ℤFinGeneratorComm : {n : ℕ} (x y : Fin n) → ℤFinGenerator x y ≡ ℤFinGenerator y x
 ℤFinGeneratorComm x y with (fst x ≟ᵗ fst y) | (fst y ≟ᵗ fst x)
 ... | lt x₁ | lt x₂ = refl
-... | lt x₁ | eq x₂ = ⊥.rec (¬m<ᵗm (subst (_<ᵗ fst y) (sym x₂) x₁))
+... | lt x₁ | eq x₂ = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ fst y) (sym x₂) x₁))
 ... | lt x₁ | gt x₂ = refl
-... | eq x₁ | lt x₂ = ⊥.rec (¬m<ᵗm (subst (fst y <ᵗ_) x₁ x₂))
+... | eq x₁ | lt x₂ = ⊥.rec (<ᵗ-irrefl (subst (fst y <ᵗ_) x₁ x₂))
 ... | eq x₁ | eq x₂ = refl
-... | eq x₁ | gt x₂ = ⊥.rec (¬m<ᵗm (subst (_<ᵗ fst y) x₁ x₂))
+... | eq x₁ | gt x₂ = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ fst y) x₁ x₂))
 ... | gt x₁ | lt x₂ = refl
-... | gt x₁ | eq x₂ = ⊥.rec (¬m<ᵗm (subst (_<ᵗ fst x) x₂ x₁))
+... | gt x₁ | eq x₂ = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ fst x) x₂ x₁))
 ... | gt x₁ | gt x₂ = refl
 
 isGeneratorℤFinGenerator : {n : ℕ} (f : ℤ[Fin n ] .fst) (a : _)
@@ -133,20 +133,20 @@ isGeneratorℤFinGenerator {n = suc n} f =
   where
   basec : f flast ≡ sumFinℤ (λ s → f s ·ℤ ℤFinGenerator s flast)
   basec with (n ≟ᵗ n)
-  ... | lt x = ⊥.rec (¬m<ᵗm x)
+  ... | lt x = ⊥.rec (<ᵗ-irrefl x)
   ... | eq x = λ i → (·Comm (f flast) (pos 1) (~ i)) + lem₂ (~ i)
     where
     lem₁ : (s : _) → ℤFinGenerator (injectSuc {n = n} s) flast ≡ 0
     lem₁ s with (fst s ≟ᵗ n)
     ... | lt x = refl
-    ... | eq w = ⊥.rec (¬m<ᵗm (subst (fst s <ᵗ_) (sym w) (snd s)))
+    ... | eq w = ⊥.rec (<ᵗ-irrefl (subst (fst s <ᵗ_) (sym w) (snd s)))
     ... | gt x = refl
 
     lem₂ : sumFinℤ (λ s → f (injectSuc s) ·ℤ ℤFinGenerator (injectSuc s) flast) ≡ 0
     lem₂ = (λ i → sumFinℤ λ s → (cong (f (injectSuc s) ·ℤ_) (lem₁ s)
                               ∙ ·Comm (f (injectSuc s)) 0) i)
        ∙ (sumFinℤ0 n)
-  ... | gt x = ⊥.rec (¬m<ᵗm x)
+  ... | gt x = ⊥.rec (<ᵗ-irrefl x)
 
   module _ (a : Fin n) where
     F = sumFinGen _+_ (pos 0) (λ x → f (injectSuc x)
@@ -164,7 +164,7 @@ isGeneratorℤFinGenerator {n = suc n} f =
       → ℤFinGenerator {n = suc n} k (injectSuc a) ≡ 0
     lem₂ k q with (fst k ≟ᵗ fst a)
     ... | lt _ = refl
-    ... | eq x = ⊥.rec (¬m<ᵗm (subst (_<ᵗ n) (sym x ∙ q) (snd a)))
+    ... | eq x = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ n) (sym x ∙ q) (snd a)))
     ... | gt _ = refl
 
 
@@ -178,7 +178,7 @@ isGeneratorℤFinGenerator' {n = n} f a =
 ℤFinGeneratorVanish : (n : ℕ) (x : _) → ℤFinGenerator {n = suc n} flast (injectSuc x) ≡ 0
 ℤFinGeneratorVanish n x with (n ≟ᵗ (fst x))
 ... | lt x₁ = refl
-... | eq x₁ = ⊥.rec (¬m<ᵗm (subst (_<ᵗ n) (sym x₁) (snd x)))
+... | eq x₁ = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ n) (sym x₁) (snd x)))
 ... | gt x₁ = refl
 
 -- elimination principle
@@ -289,7 +289,7 @@ sumFinℤFinGenerator≡1 (suc n) =
   where
   basec : (n : ℕ) → sumFinGen _·_ ε (λ x → ·Free (ℤFinGenerator (flast {n}) x) x) ≡ ⟦ flast ⟧
   basec n with (n ≟ᵗ n)
-  ... | lt x = ⊥.rec (¬m<ᵗm x)
+  ... | lt x = ⊥.rec (<ᵗ-irrefl x)
   ... | eq x = ((λ i → identityᵣ ⟦ flast ⟧ i
             · sumFinGen _·_ ε (λ x → ·Free (ℤFinGenerator flast (injectSuc x))
                                             (injectSuc x)))
@@ -298,7 +298,7 @@ sumFinℤFinGenerator≡1 (suc n) =
                 ∙ sumFinGen0 _·_ ε identityᵣ n
                    (λ x₁ → ·Free (pos 0) (injectSuc x₁)) (λ _ → refl)) )
               ∙ identityᵣ _
-  ... | gt x = ⊥.rec (¬m<ᵗm x)
+  ... | gt x = ⊥.rec (<ᵗ-irrefl x)
   module _ (x : Fin n) where
     FR = Free↑
     indstep :
@@ -319,8 +319,8 @@ sumFinℤFinGenerator≡1 (suc n) =
      ... | lt x = refl
      ... | eq x = refl
      ... | gt x = refl
-    ... | eq a = ⊥.rec (¬m<ᵗm (subst (_<ᵗ n) a (snd x)))
-    ... | gt a = ⊥.rec (¬m<ᵗm (<ᵗ-trans a (snd x)))
+    ... | eq a = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ n) a (snd x)))
+    ... | gt a = ⊥.rec (<ᵗ-irrefl (<ᵗ-trans a (snd x)))
 
 
 -- equivalence between two versions of free ab group
@@ -430,9 +430,9 @@ elimPropℤFin n A pr z t s u w =
   where
   lem : _
   lem with (fst t ≟ᵗ fst t)
-  ... | lt q = ⊥.rec (¬m<ᵗm q)
+  ... | lt q = ⊥.rec (<ᵗ-irrefl q)
   ... | eq _ = refl
-  ... | gt q = ⊥.rec (¬m<ᵗm q)
+  ... | gt q = ⊥.rec (<ᵗ-irrefl q)
 ... | gt _ = refl
 
 ℤFinFunctFun : {n m : ℕ} (f : Fin n → Fin m)
@@ -501,8 +501,8 @@ snd (sumCoefficients n) = makeIsGroupHom (λ x y → funExt λ _ → sumFinℤHo
         lemx : (a : ℕ) (Ha : a <ᵗ n) → fst (sum→product (product→sum (x , y))) (a , Ha) ≡ x (a , Ha)
         lemx a Ha with (a ≟ᵗ n)
         ... | lt H = cong x (Fin≡ (a , H) (a , Ha) refl)
-        ... | eq H = rec (¬m<ᵗm (subst (λ a → a <ᵗ n) H Ha))
-        ... | gt H = rec (¬m<ᵗm (<ᵗ-trans Ha H))
+        ... | eq H = rec (<ᵗ-irrefl (subst (λ a → a <ᵗ n) H Ha))
+        ... | gt H = rec (<ᵗ-irrefl (<ᵗ-trans Ha H))
 
         lemy : (a : ℕ) (Ha : a <ᵗ m) → snd (sum→product (product→sum (x , y))) (a , Ha) ≡ y (a , Ha)
         lemy a Ha with ((n +ℕ a) ≟ᵗ n)

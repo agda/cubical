@@ -107,9 +107,9 @@ module _ {m k : ℕ} (f : Fin m → FreeGroup (Fin k)) where
 
       lem : ℤFinGenerator a a ≡ 1
       lem with (fst a ≟ᵗ fst a)
-      ... | lt x = ⊥.rec (¬m<ᵗm x)
+      ... | lt x = ⊥.rec (<ᵗ-irrefl x)
       ... | eq x = refl
-      ... | gt x = ⊥.rec (¬m<ᵗm x)
+      ... | gt x = ⊥.rec (<ᵗ-irrefl x)
 
       aux : (x : FreeGroup (Fin k)) (y : S¹)
         → fst (SphereBouquet∙ 1 (Fin k))
