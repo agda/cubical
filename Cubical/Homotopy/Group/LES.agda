@@ -131,7 +131,7 @@ snd (ret (ΩFibreIso f) p i j) k =
                     → (p q : (typ (Ω (fiber (fst f) (pt B) , (pt A) , snd f))))
                     → fst (fun (ΩFibreIso f) (p ∙ q))
                     ≡ fst (fun (ΩFibreIso f) p) ∙ fst (fun (ΩFibreIso f) q)
-ΩFibreIsopres∙fst f p q = cong-∙ fst p q
+ΩFibreIsopres∙fst f p q = refl
 
 ΩFibreIso⁻pres∙snd : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
                     (f : A →∙ B) (p q : typ (Ω (Ω B)))

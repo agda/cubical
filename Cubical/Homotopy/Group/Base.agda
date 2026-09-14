@@ -269,10 +269,7 @@ In order to show that Ω→SphereMap is an equivalence, we show that it factors
          , refl)
   where
   lem : funExt⁻ (cong fst (Ω→SphereMapSplit₁ zero p)) false ≡ p
-  lem = (λ i → funExt⁻ (cong-∙∙ fst (sym (Ω→SphereMapId2 zero))
-                                     (cong (Ω→SphereMap zero) p)
-                                     (Ω→SphereMapId2 zero) i) false)
-    ∙ sym (rUnit _)
+  lem = sym (rUnit _)
 Ω→SphereMap-split {A = A} (suc n) p =
   ΣPathP ((funExt (λ { north → refl
                      ; south → refl
@@ -297,13 +294,10 @@ In order to show that Ω→SphereMap is an equivalence, we show that it factors
                  ∙∙ funExt⁻ (cong fst (λ i → Ω→SphereMap (suc n) (p i))) a
                  ∙∙ x)
              (lem n a)
-     ∙∙ sym (cong-∙∙ (λ x → x a)
+      ∙ sym (cong-∙∙ (λ x → x a)
               (cong fst (λ i → Ω→SphereMapId2 (suc n) (~ i)))
               (cong fst (λ i → Ω→SphereMap (suc n) (p i)))
               (cong fst (Ω→SphereMapId2 (suc n))))
-     ∙∙ (λ i → funExt⁻ (cong-∙∙ fst (sym (Ω→SphereMapId2 (suc n)))
-                          (cong (Ω→SphereMap (suc n)) p)
-                          (Ω→SphereMapId2 (suc n)) (~ i)) a)
 
 isEquiv-Ω→SphereMap₀ : ∀ {ℓ} {A : Pointed ℓ}
   → isEquiv (Ω→SphereMap 0 {A = A})
