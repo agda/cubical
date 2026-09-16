@@ -653,10 +653,7 @@ snd (π'GrLiftIso ℓ' zero) =
   makeIsGroupHom (sElim2 (λ _ _ → isSetPathImplicit)
     λ f g → cong ∣_∣₂ (ΣPathP ((funExt
      λ { base → refl
-       ; (loop i) j → (cong-∙ lower (Ω→ f .fst loop) (Ω→ g .fst loop)
-        ∙ cong₂ _∙_
-          (cong-∙∙ lower (sym (snd f)) (cong (fst f) loop) (snd f))
-          (cong-∙∙ lower (sym (snd g)) (cong (fst g) loop) (snd g))) j i})
+       ; (loop i) j → lower ((Ω→ f .fst loop ∙ Ω→ g .fst loop) i)})
        , refl)))
 snd (π'GrLiftIso ℓ' {A = A} (suc n)) =
   makeIsGroupHom (sElim2 (λ _ _ → isSetPathImplicit)
@@ -664,10 +661,7 @@ snd (π'GrLiftIso ℓ' {A = A} (suc n)) =
       λ { north → refl
         ; south → refl
         ; (merid a i) j
-       → (cong-∙ lower (Ω→ f .fst (σS a)) (Ω→ g .fst (σS a))
-        ∙ cong₂ _∙_
-          (cong-∙∙ lower (sym (snd f)) (cong (fst f) (σS a)) (snd f))
-          (cong-∙∙ lower (sym (snd g)) (cong (fst g) (σS a)) (snd g))) j i}))
+       → lower ((Ω→ f .fst (σS a) ∙ Ω→ g .fst (σS a)) i)}))
       , refl)))
 
 {- Proof of πₙ(ΩA) = πₙ₊₁(A) -}
@@ -972,12 +966,7 @@ v         f∘_      v
                (Ω→ (post∘∙ (S₊∙ (suc n)) (f , refl)) .fst g)))
              (merid a)
         ≡ cong (fst ((f , refl) ∘∙ ΩSphereMap (suc n) g)) (merid a)
-    lem f g a =
-      (λ i → funExt⁻
-        (cong-∙∙ fst (sym (snd (post∘∙ (S₊∙ (suc n)) (f , (λ _ → f (snd A))))))
-                 (cong (fst (post∘∙ (S₊∙ (suc n)) (f , (λ _ → f (snd A))))) g)
-                 (snd (post∘∙ (S₊∙ (suc n)) (f , (λ _ → f (snd A))))) i) a)
-              ∙ sym (rUnit (λ i → f (fst (g i) a)))
+    lem f g a = sym (rUnit (λ i → f (fst (g i) a)))
 
 {- We can use this to define prove that post composition induces a homomorphism
 πₙ A → πₙ B-}
@@ -1069,9 +1058,7 @@ invEquiv∙idEquiv∙≡idEquiv = ΣPathP ((Σ≡Prop (λ _ → isPropIsEquiv _)
 π'eqFunIsEquiv {ℓ = ℓ} {ℓ'} {A} {B} n e =
   subst isEquiv
     (funExt (sElim (λ _ → isSetPathImplicit)
-             (λ f → cong ∣_∣₂
-             (ΣPathP (refl
-               , (cong-∙ lower (cong (lift ∘ (fst (fst e))) (snd f)) _))))))
+      (λ f → cong ∣_∣₂ (refl {x = ≃∙map e ∘∙ f}))))
     (πA≃πB .snd)
   where
   e' : Lift∙ ℓ' A ≃∙ Lift∙ ℓ B
@@ -1096,13 +1083,10 @@ invEquiv∙idEquiv∙≡idEquiv = ΣPathP ((Σ≡Prop (λ _ → isPropIsEquiv _)
       → IsGroupHom (π'Gr n A .snd) (π'eqFun n e)
                     (π'Gr n B .snd)
 π'eqFunIsHom {ℓ = ℓ} {ℓ'} {A} {B} n e =
-  subst (λ ϕ → IsGroupHom (π'Gr n A .snd)
-                         ϕ (π'Gr n B .snd))
-        (funExt (sElim (λ _ → isSetPathImplicit)
-          (λ f → cong ∣_∣₂ (ΣPathP
-            (refl
-           , cong-∙ lower (cong (lift ∘ (fst (fst e))) (snd f)) _)))))
-        (compGroupHom
+  subst (λ ϕ → IsGroupHom (π'Gr n A .snd) ϕ (π'Gr n B .snd))
+    (funExt (sElim (λ _ → isSetPathImplicit)
+      (λ f → cong ∣_∣₂ (refl {x = ≃∙map e ∘∙ f}))))
+    (compGroupHom
           (GroupIso→GroupHom (invGroupIso (π'GrLiftIso _ n)))
          (compGroupHom (_ , main n e')
           (GroupIso→GroupHom (π'GrLiftIso _ n))) .snd)
