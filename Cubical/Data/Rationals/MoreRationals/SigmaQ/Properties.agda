@@ -435,7 +435,7 @@ subtractR {x} {y} {z} xyz =  sym (+IdR x) ∙ cong (x +_) (sym (+InvR y)) ∙
 substNonZero : {p q : ℚ} → {{nz : NonZero p}} → p ≡ q → NonZero q
 substNonZero {p}{q}{{nz}} pq = subst NonZero pq nz
 
-instance
+private
   nonZero-1/' : {q : ℚ} → {{nz : NonZero q}} → NonZero (1/ q)
   nonZero-1/' {(pos (suc m) , n) , c} ⦃ nz ⦄ = tt
   nonZero-1/' {(negsuc m , n) , c} ⦃ nz ⦄ = tt

@@ -27,7 +27,7 @@ import Cubical.HITs.Cost.Base                  as CostMonad
 import Cubical.HITs.SetQuotients               as SetQuotients
 import Cubical.Data.Rationals                  as SetQuoQ
 import Cubical.Data.Rationals.MoreRationals.SigmaQ
-                                               as SigmaQ hiding (nonZero-1/')
+
 -- 3.1
 import Cubical.Foundations.SIP                 as SIP
 import Cubical.Structures.Axioms               as Axioms
