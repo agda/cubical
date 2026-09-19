@@ -16,6 +16,9 @@ open import Cubical.Data.NatPlusOne as ℕ₊₁
   using (1+_; _·₊₁_; ℕ₊₁; ℕ₊₁→ℕ; ·₊₁-comm; -1+_;
     ·₊₁-identityʳ; ·₊₁-identityˡ ; ·₊₁-assoc; ·₊₁-interchange; ·₊₁-assoc4)
 open import Cubical.Data.Rationals.MoreRationals.SigmaQ.Base
+open import Cubical.Algebra.CommRing.Instances.Int
+open import Cubical.Algebra.CommRing
+open CommRingTheory ℤCommRing
 
 private
   converse : {ℓ : Level} {a b : Type ℓ} →
@@ -87,7 +90,7 @@ p / q = p · (1/ q)
     step4 = 1+ (predℕ (ℕ.gcd (ℤ.abs y) (suc d-1')))
     step5 : (step1 ℤ.· ((↥ p) ℤ.· (↥ q))) ℤ.· step2 ≡ x ℤ.· y
     step5 = (cong₂ (λ u v → u ℤ.· ((↥ p) ℤ.· (↥ q)) ℤ.· v) step1≡1' step2≡2' ∙
-      (ℤ.·-assoc4 step1' (↥ p) (↥ q) step2') ∙
+      (ℤ.·-assoc₄ step1' (↥ p) (↥ q) step2') ∙
       cong (λ u → u ℤ.· ((↥ q) ℤ.· step2')) (ℤ.·Comm step1' (↥ p)) ∙
       cong₂ (λ a b → a ℤ.· b) (sym x≡) (sym y≡))
     step6 = (·₊₁-assoc4 step3 (↧₊₁ p) (↧₊₁ q) step4) ∙
@@ -136,7 +139,7 @@ p / q = p · (1/ q)
     step3 =
       ℤ.·DistR+ xy ((↥ p) ℤ.· (↧ q)) ((↥ q) ℤ.· (↧ p)) ∙
       cong₂ (λ u v → u ℤ.+ v)
-       ((ℤ.·-interchangeComm (pos (ℕ.gcd (ℤ.abs x) (suc d-1)))
+       ((ℤ.·-commAssocCross (pos (ℕ.gcd (ℤ.abs x) (suc d-1)))
         (pos (ℕ.gcd (ℤ.abs y) (suc d-1'))) (↥ p) (↧ q)) ∙
         cong₂ (λ u w → u ℤ.· w)
          (sym (↥·gcd-lemma x d-1)) (sym (↧·gcd-lemma y d-1')))
@@ -259,7 +262,7 @@ isIntegralℚ p@{(z , n) , c} q@{(z' , n') , c'} ¬p0 pq0 =
      ((↥ z ℤ.· ℕ₊₁→ℤ (↧₊₁ y)) ℤ.· ℕ₊₁→ℤ (↧₊₁ x)) ∙
      cong₃ (λ u v w → (u ℤ.+  v) ℤ.+  w)
      (ℤ.·Assoc (↥ x) (ℕ₊₁→ℤ (↧₊₁ y)) (ℕ₊₁→ℤ (↧₊₁ z)))
-     (ℤ.·-rightComm (↥ y) (ℕ₊₁→ℤ (↧₊₁ z)) (ℕ₊₁→ℤ (↧₊₁ x)))
+     (·CommAssocr (↥ y) (ℕ₊₁→ℤ (↧₊₁ z)) (ℕ₊₁→ℤ (↧₊₁ x)))
      ((sym (ℤ.·Assoc (↥ z) (ℕ₊₁→ℤ (↧₊₁ y)) (ℕ₊₁→ℤ (↧₊₁ x)))) ∙
      (cong (λ (u : ℤ) → (↥ z) ℤ.· u)
        (ℤ.·Comm (ℕ₊₁→ℤ (↧₊₁ y)) (ℕ₊₁→ℤ (↧₊₁ x)))))

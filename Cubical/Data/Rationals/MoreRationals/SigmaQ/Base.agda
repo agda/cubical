@@ -23,6 +23,11 @@ open import Cubical.Data.Int.GCD as ℤ
   using (gcd-def; ℕ₊₁→ℤ-gcd-def; gcdSucNot0)
 open import Cubical.Data.Int.Order as ℤ using ()
 
+open import Cubical.Algebra.CommRing.Instances.Int
+open import Cubical.Algebra.CommRing
+open CommRingTheory ℤCommRing
+
+
 private
   converse : {ℓ : Level} {a b : Type ℓ} →
     (a → b) → ¬ b → ¬ a
@@ -632,7 +637,7 @@ open gcd-helpers
      (a ℤ.· x) ℤ.· (b ℤ.· y) ≡ (c ℤ.· y) ℤ.· (d ℤ.· x) → (a ℤ.· b) ≡ (c ℤ.· d)
     step {a}{b}{c}{d}{x}{y} nx0 ny0 abcd =
       ·rCancel (x ℤ.· y) (a ℤ.· b) (c ℤ.· d)
-       (sym (·-interchange a x b y) ∙ abcd ∙ (·-interchange c y d x) ∙
+       (sym (·CommAssocSwap a x b y) ∙ abcd ∙ (·CommAssocSwap c y d x) ∙
        (cong (λ u → (c ℤ.· d) ℤ.· u) (·Comm y x))) (·≢0 nx0 ny0)
     res : (↥ [ x , (1+ d-1) ]) ℤ.· (↧ [ y , (1+ d-1') ]) ≡
           (↥ [ y , (1+ d-1') ]) ℤ.· (↧ [ x , (1+ d-1) ])
@@ -651,7 +656,7 @@ open gcd-helpers
       cong₂ (λ a b → a ℤ.· b) (sym (↥·gcd-lemma x d-1)) (sym (↧·gcd-lemma y d-1')))
     step2 = cong (λ a → a ℤ.· ℤ.gcd x (pos (suc d-1)) ℤ.·
       ℤ.gcd y (pos (suc d-1'))) xy
-    step3 = (·-rightComm ((↥ [ y , (1+ d-1') ]) ℤ.·
+    step3 = (·CommAssocr ((↥ [ y , (1+ d-1') ]) ℤ.·
       ((↧ [ x , (1+ d-1) ]))) (ℤ.gcd x (pos (suc d-1))) (ℤ.gcd y (pos (suc d-1'))))
     step4 = ·-interchange-assoc (↥ [ y , (1+ d-1') ]) (↧ [ x , (1+ d-1) ])
       (ℤ.gcd y (pos (suc d-1'))) (ℤ.gcd x (pos (suc d-1))) ∙
