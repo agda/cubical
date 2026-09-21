@@ -5,12 +5,11 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv
-
 open import Cubical.Relation.Nullary
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
-  hiding   (+-assoc ; min ; max ; minComm ; maxComm)
+  hiding   (+-assoc ; min ; max ; minComm ; maxComm ; _≡ᵇ_ ; _<ᵇ_)
   renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; +-comm to +ℕ-comm ;
     ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm ; isEven to isEvenℕ ;
     isOdd to isOddℕ)
@@ -18,6 +17,18 @@ open import Cubical.Data.Sum
 open import Cubical.Data.Fin.Base
 open import Cubical.Data.Fin.Properties
 open import Cubical.Data.Int.Base
+
+IsZeroℤ : ℤ → Type
+IsZeroℤ = Bool→Type ∘ (_≡ᵇ pos 0)
+
+NonZeroℤ : ℤ → Type
+NonZeroℤ = Bool→Type ∘ not ∘ (_≡ᵇ pos 0)
+
+isDecIsZeroℤ : ∀ z → Dec (IsZeroℤ z)
+isDecIsZeroℤ _ = DecBool→Type
+
+isDecNonZeroℤ : ∀ z → Dec (NonZeroℤ z)
+isDecNonZeroℤ _ = DecBool→Type
 
 private
   contraposition : {ℓ : Level} {a b c : Type ℓ} →
@@ -1550,33 +1561,3 @@ sumFinℤHom {n = n} = sumFinGenHom _+_ 0 (λ _ → refl) +Comm +Assoc n
 clamp : ℤ → ℕ
 clamp (pos n) = n
 clamp (negsuc n) = zero
-
--- useful lemmas for _·_
-
-open import Cubical.Algebra.CommMonoid
-
-ℤ·CommMonoid : CommMonoid ℓ-zero
-ℤ·CommMonoid = makeCommMonoid 1 _·_ isSetℤ ·Assoc ·IdR ·Comm
-
-open CommMonoidTheory ℤ·CommMonoid
-
-·-interchange   : ∀ a b c d -> (a · b) · (c · d) ≡ (a · c) · (b · d)
-·-interchange   a b c d = sym (·Assoc a b (c · d)) ∙
-  cong (a ·_) (commAssocl b c d) ∙ ·Assoc a c (b · d)
-
-·-commAssocCross : ∀ a b c d -> (a · b) · (c · d) ≡ (c · a) · (d · b)
-·-commAssocCross a b c d =
- ·-interchange a b c d ∙ cong₂ (λ u v → u · v) (·Comm a c) (·Comm b d)
-
-·-interchange-assoc : ∀ a b c d → a · b · c · d ≡ (a · c) · (b · d)
-·-interchange-assoc a b c d =
-  sym (·Assoc (a · b) c d) ∙ (·-interchange a b c d)
-
-·-assoc₄ : ∀ a b c d -> a · (b · c) · d ≡ (a · b) · (c · d)
-·-assoc₄ a b c d =
-  cong (λ u → u · d) (·Assoc a b c) ∙ sym (·Assoc (a · b) c d)
-
-·-interchangeComm' : ∀ a b c d -> (a · b) · (c · d) ≡ (c · b) · (d · a)
-·-interchangeComm' a b c d = ·-commAssocCross a b c d ∙
-   cong (λ u →  (c · a) · u) (·Comm d b) ∙ ·-interchange c a b d ∙
-   cong (λ x → ((c · b) · x)) (·Comm a d)

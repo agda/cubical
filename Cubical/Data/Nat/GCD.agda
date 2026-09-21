@@ -4,15 +4,11 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-
 open import Cubical.Induction.WellFounded
-
 open import Cubical.Data.Sigma as Σ
 open import Cubical.Data.Sum
 open import Cubical.Data.Fin as F hiding (_%_ ; _/_)
-
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
-
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
@@ -22,7 +18,6 @@ open import Cubical.Data.Nat.Mod renaming (
   quotient_/_  to _/_ ; remainder_/_ to _%_
   ; ≡remainder+quotient to ≡%+·/ ; mod< to %< )
 open import Cubical.Data.Nat.Divisibility
-
 open import Cubical.Data.Int.Base as ℤ using (ℤ ; pos ; negsuc ; abs) renaming (_·_ to _ℤ·_; _+_ to _ℤ+_ ; -_ to -ℤ_)
 open import Cubical.Data.Int.Properties as ℤ using (injPos; injNegsuc; pos·pos; pos0+; -Dist+; -DistL·; negsucNotpos; negsuc·possuc;  pos+;  +CancelRNegsuc; negsuc+negsuc-def)
 open import Cubical.Data.Int.Order as ℤ using (zero-<sucPos; ≤-+-<; m≤n→posm≤posn)
@@ -255,7 +250,7 @@ gcd-greatest = curry (snd (gcdIsGCD _ _) _)
 -- Other properties
 
 gcd[0,0]≡0 : gcd 0 0 ≡ 0
-gcd[0,0]≡0 = antisym∣ (∣-zeroʳ (gcd 0 0) ) (gcd-greatest (∣-zeroʳ 0) (∣-zeroʳ 0))
+gcd[0,0]≡0 = refl
 
 gcd[m,n]≢0 : ∀ (m n : ℕ) → (¬ (m ≡ 0)) ⊎ (¬ (n ≡ 0)) → ¬ (gcd m n ≡ 0)
 gcd[m,n]≢0 m n (inl m≢0) gcd0 =

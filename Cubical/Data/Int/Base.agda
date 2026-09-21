@@ -6,7 +6,7 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Empty as ⊥ using (⊥)
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat hiding (_+_ ; _·_) renaming (isEven to isEvenℕ ; isOdd to isOddℕ)
+open import Cubical.Data.Nat as ℕ hiding (_+_ ; _·_ ; _≡ᵇ_ ; _<ᵇ_) renaming (isEven to isEvenℕ ; isOdd to isOddℕ)
 open import Cubical.Data.Fin.Base
 
 infix  8 -_
@@ -79,11 +79,17 @@ pos (suc n) · m = m + pos n · m
 negsuc zero · m = - m
 negsuc (suc n) · m = - m + negsuc n · m
 
-NonZeroℤ : ∀ (z : ℤ) → Type
-NonZeroℤ (pos zero) = ⊥
-NonZeroℤ (pos (suc n)) = Unit
-NonZeroℤ (negsuc n) = Unit
+_≡ᵇ_ : ℤ → ℤ → Bool
+pos n    ≡ᵇ pos m    = n ℕ.≡ᵇ m
+pos n    ≡ᵇ negsuc m = false
+negsuc n ≡ᵇ pos m    = false
+negsuc n ≡ᵇ negsuc m = n ℕ.≡ᵇ m
 
+_<ᵇ_ : ℤ → ℤ → Bool
+pos n    <ᵇ pos m    = n ℕ.<ᵇ m
+pos n    <ᵇ negsuc m = false
+negsuc n <ᵇ pos m    = true
+negsuc n <ᵇ negsuc m = m ℕ.<ᵇ n
 
 -- Natural number and negative integer literals for ℤ
 

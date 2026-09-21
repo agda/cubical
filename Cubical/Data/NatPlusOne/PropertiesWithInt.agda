@@ -10,8 +10,7 @@ open import Cubical.Data.NatPlusOne.Properties
 ℕ₊₁→ℤ : ℕ₊₁ → ℤ
 ℕ₊₁→ℤ n = pos (ℕ₊₁→ℕ n)
 
-ℕ₊₁→ℤ-1+pred-def : ∀ (x : ℕ) → {{px : NonZeroℕ x}} →
-  ℕ₊₁→ℤ (1+ predℕ x) ≡ pos x
+ℕ₊₁→ℤ-1+pred-def : ∀ (x : ℕ) → {{px : NonZeroℕ x}} → ℕ₊₁→ℤ (1+ predℕ x) ≡ pos x
 ℕ₊₁→ℤ-1+pred-def (suc x) {{px}} = refl
 
 ℕ₊₁→ℤ-inj : ∀{n}{n'} → ℕ₊₁→ℤ n ≡ ℕ₊₁→ℤ n' → n ≡ n'

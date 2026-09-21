@@ -57,6 +57,33 @@ module CommMonoidTheory (M' : CommMonoid ℓ) where
  commAssocSwap x y z w = ·Assoc (x · y) z w ∙∙ cong (_· w) (commAssocr x y z)
                                                ∙∙ sym (·Assoc (x · z) y w)
 
+ rotate : ∀ a b c → a · b · c ≡ b · c · a
+ rotate a b c = cong (λ u → u · c) (·Comm a b) ∙ commAssocr b a c
+
+ rotate' : ∀ a b c → a · b · c ≡ c · a · b
+ rotate' a b c = commAssocr a b c ∙ cong (λ u → u · b) (·Comm a c)
+
+ interchange   : ∀ a b c d -> (a · b) · (c · d) ≡ (a · c) · (b · d)
+ interchange   a b c d = sym (·Assoc a b (c · d)) ∙
+   cong (a ·_) (commAssocl b c d) ∙ ·Assoc a c (b · d)
+
+ commAssocCross : ∀ a b c d -> (a · b) · (c · d) ≡ (c · a) · (d · b)
+ commAssocCross a b c d =
+   interchange a b c d ∙ cong₂ (λ u v → u · v) (·Comm a c) (·Comm b d)
+
+ interchange-assoc : ∀ a b c d → a · b · c · d ≡ (a · c) · (b · d)
+ interchange-assoc a b c d =
+   sym (·Assoc (a · b) c d) ∙ (interchange a b c d)
+
+ assoc₄ : ∀ a b c d -> a · (b · c) · d ≡ (a · b) · (c · d)
+ assoc₄ a b c d =
+   cong (λ u → u · d) (·Assoc a b c) ∙ sym (·Assoc (a · b) c d)
+
+ interchangeComm' : ∀ a b c d -> (a · b) · (c · d) ≡ (c · b) · (d · a)
+ interchangeComm' a b c d = commAssocCross a b c d ∙
+   cong (λ u →  (c · a) · u) (·Comm d b) ∙ interchange c a b d ∙
+   cong (λ x → ((c · b) · x)) (·Comm a d)
+
  hasInverse : (x : M) → Type ℓ
  hasInverse x = Σ[ -x ∈ M ] -x · x ≡ ε
 

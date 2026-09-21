@@ -1,5 +1,7 @@
 module Cubical.Data.Rationals.MoreRationals.SigmaQ.Properties where
 
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat as ℕ using (ℕ; suc; zero; predℕ)
 open import Cubical.Data.Nat.GCD as ℕ
@@ -7,23 +9,17 @@ open import Cubical.Data.Nat.Coprime
 open import Cubical.Data.Nat.Properties hiding (≢0→NonZero)
 open import Cubical.Data.NatPlusOne.PropertiesWithInt
   using (ℕ₊₁→ℤ; ·ℕ₊₁→ℤ-distr)
-open import Cubical.Foundations.Prelude
-open import Cubical.Relation.Nullary
 open import Cubical.Data.Int as ℤ
   using (ℤ; pos; negsuc; isIntegralℤ; injPos)
 open import Cubical.Data.Int.GCD as ℤ
 open import Cubical.Data.NatPlusOne as ℕ₊₁
   using (1+_; _·₊₁_; ℕ₊₁; ℕ₊₁→ℕ; ·₊₁-comm; -1+_;
-    ·₊₁-identityʳ; ·₊₁-identityˡ ; ·₊₁-assoc; ·₊₁-interchange; ·₊₁-assoc4)
+    ·₊₁-identityʳ; ·₊₁-identityˡ ; ·₊₁-assoc; ·₊₁-interchange; ·₊₁-assoc₄)
 open import Cubical.Data.Rationals.MoreRationals.SigmaQ.Base
-open import Cubical.Algebra.CommRing.Instances.Int
-open import Cubical.Algebra.CommRing
-open CommRingTheory ℤCommRing
+open import Cubical.Relation.Nullary
 
-private
-  converse : {ℓ : Level} {a b : Type ℓ} →
-    (a → b) → ¬ b → ¬ a
-  converse = λ z z₁ z₂ → z₁ (z z₂)
+open import Cubical.Algebra.CommMonoid
+open CommMonoidTheory ℤ·CommMonoid
 
 -- Operations on ℚ
 infixl 6 _-_ _+_
@@ -90,10 +86,10 @@ p / q = p · (1/ q)
     step4 = 1+ (predℕ (ℕ.gcd (ℤ.abs y) (suc d-1')))
     step5 : (step1 ℤ.· ((↥ p) ℤ.· (↥ q))) ℤ.· step2 ≡ x ℤ.· y
     step5 = (cong₂ (λ u v → u ℤ.· ((↥ p) ℤ.· (↥ q)) ℤ.· v) step1≡1' step2≡2' ∙
-      (ℤ.·-assoc₄ step1' (↥ p) (↥ q) step2') ∙
+      (assoc₄ step1' (↥ p) (↥ q) step2') ∙
       cong (λ u → u ℤ.· ((↥ q) ℤ.· step2')) (ℤ.·Comm step1' (↥ p)) ∙
       cong₂ (λ a b → a ℤ.· b) (sym x≡) (sym y≡))
-    step6 = (·₊₁-assoc4 step3 (↧₊₁ p) (↧₊₁ q) step4) ∙
+    step6 = (·₊₁-assoc₄ step3 (↧₊₁ p) (↧₊₁ q) step4) ∙
       cong (λ u → u ·₊₁ (↧₊₁ q ·₊₁ step4)) (·₊₁-comm step3 (↧₊₁ p)) ∙
       cong₂ (λ u v → u ·₊₁ v)
        (sym (↧₊₁·gcd-lemma x d-1)) (sym (↧₊₁·gcd-lemma y d-1'))
@@ -139,11 +135,11 @@ p / q = p · (1/ q)
     step3 =
       ℤ.·DistR+ xy ((↥ p) ℤ.· (↧ q)) ((↥ q) ℤ.· (↧ p)) ∙
       cong₂ (λ u v → u ℤ.+ v)
-       ((ℤ.·-commAssocCross (pos (ℕ.gcd (ℤ.abs x) (suc d-1)))
+       ((commAssocCross (pos (ℕ.gcd (ℤ.abs x) (suc d-1)))
         (pos (ℕ.gcd (ℤ.abs y) (suc d-1'))) (↥ p) (↧ q)) ∙
         cong₂ (λ u w → u ℤ.· w)
          (sym (↥·gcd-lemma x d-1)) (sym (↧·gcd-lemma y d-1')))
-       ((ℤ.·-interchangeComm' (pos (ℕ.gcd (ℤ.abs x) (suc d-1)))
+       ((interchangeComm' (pos (ℕ.gcd (ℤ.abs x) (suc d-1)))
         (pos (ℕ.gcd (ℤ.abs y) (suc d-1'))) (↥ q) (↧ p)) ∙
         cong₂ (λ u w → u ℤ.· w)
          (sym (↥·gcd-lemma y d-1')) (sym (↧·gcd-lemma x d-1)))
@@ -262,7 +258,7 @@ isIntegralℚ p@{(z , n) , c} q@{(z' , n') , c'} ¬p0 pq0 =
      ((↥ z ℤ.· ℕ₊₁→ℤ (↧₊₁ y)) ℤ.· ℕ₊₁→ℤ (↧₊₁ x)) ∙
      cong₃ (λ u v w → (u ℤ.+  v) ℤ.+  w)
      (ℤ.·Assoc (↥ x) (ℕ₊₁→ℤ (↧₊₁ y)) (ℕ₊₁→ℤ (↧₊₁ z)))
-     (·CommAssocr (↥ y) (ℕ₊₁→ℤ (↧₊₁ z)) (ℕ₊₁→ℤ (↧₊₁ x)))
+     (commAssocr (↥ y) (ℕ₊₁→ℤ (↧₊₁ z)) (ℕ₊₁→ℤ (↧₊₁ x)))
      ((sym (ℤ.·Assoc (↥ z) (ℕ₊₁→ℤ (↧₊₁ y)) (ℕ₊₁→ℤ (↧₊₁ x)))) ∙
      (cong (λ (u : ℤ) → (↥ z) ℤ.· u)
        (ℤ.·Comm (ℕ₊₁→ℤ (↧₊₁ y)) (ℕ₊₁→ℤ (↧₊₁ x)))))
@@ -513,7 +509,7 @@ private
   (1ℚ / (1ℚ / q)) ≡ q
 /-invol q {{nz}}{{nz'}} = 1ℚ/≡1/ (1ℚ / q) {{nz'}} ∙
   (1/-subst (1ℚ/≡1/ q {{nz}})
-  {{nz'}}{{nonZero-1/'}}) ∙ /-invol' q {{nz}} {{nonZero-1/'}}
+  {{nz'}}{{nonZero-1/' {q}}}) ∙ /-invol' q {{nz}} {{nonZero-1/' {q}}}
 
 -- specialises one of the instances of /-invol for convenience
 /-invol* : (q : ℚ) {{nz : NonZero q}} →
@@ -732,7 +728,7 @@ open 1/-helpers
   {{npq : NonZero (p / q)}} → 1ℚ / (p / q) ≡ q / p
 1/-flip p q {{np}}{{nq}}{{npq}} =
   (cong (λ u → u / (p / q)) (sym (/-self q))) ∙ (cong (λ u → (q · 1/ q) · u)
-   (1/-subst {p / q} {p / q} refl {{npq}}{{·-NonZero p (1/ q) {{np}}{{nonZero-1/'}}}})) ∙
+   (1/-subst {p / q} {p / q} refl {{npq}}{{·-NonZero p (1/ q) {{np}}{{nonZero-1/' {q}}}}})) ∙
   ·/CancelR* (1/ q) q p {{nonZero-1/' {q}}}{{np}}
 
 1/-flip* : (p q : ℚ) {{np : NonZero p}}{{nq : NonZero q}} →

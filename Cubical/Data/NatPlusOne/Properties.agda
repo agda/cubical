@@ -46,7 +46,7 @@ private
       (cong (λ u → u ·₊₁ d) (·₊₁-comm b c)) ∙
       sym (·₊₁-assoc c b d)) ∙ ·₊₁-assoc a c (b ·₊₁ d)
 
-·₊₁-assoc4 : ∀ a b c d →
+·₊₁-assoc₄ : ∀ a b c d →
   a ·₊₁ (b ·₊₁ c) ·₊₁ d ≡ a ·₊₁ b ·₊₁ (c ·₊₁ d)
-·₊₁-assoc4 a b c d =
+·₊₁-assoc₄ a b c d =
   cong (λ u → u ·₊₁ d) (·₊₁-assoc a b c) ∙ sym (·₊₁-assoc (a ·₊₁ b) c d)

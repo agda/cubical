@@ -1,6 +1,7 @@
 module Cubical.Data.Rationals.MoreRationals.SigmaQ.Extras where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 
@@ -37,42 +38,35 @@ normalise-∼ : ∀ a n → (↥ [ a , 1+ n ] , ↧₊₁ [ a , 1+ n ]) ∼ (a ,
 normalise-∼ a n = sym (*≃*ᵘ⁻¹ {a}{(↥ [ a , (1+ n) ])}{n}
   {[ a , (1+ n) ] .fst .snd} (≡→≃ (≡↥↧₊₁ [ a , 1+ n ])))
 
-fromRat : Rationalsℚ → ℚ
-fromRat = SetQuotient.rec isSetℚ [_] []-respects-∼
+Rationalsℚ→ℚ : Rationalsℚ → ℚ
+Rationalsℚ→ℚ = SetQuotient.rec isSetℚ [_] []-respects-∼
 
-toRat : ℚ → Rationalsℚ
-toRat q = Rationals[ ↥ q , ↧₊₁ q ]
+ℚ→Rationalsℚ : ℚ → Rationalsℚ
+ℚ→Rationalsℚ q = Rationals[ ↥ q , ↧₊₁ q ]
 
-toRat-fromRat : ∀ q → toRat (fromRat q) ≡ q
+toRat-fromRat : ∀ q → ℚ→Rationalsℚ (Rationalsℚ→ℚ q) ≡ q
 toRat-fromRat = SetQuotient.elimProp (λ _ → isSetRationalsℚ _ _)
   (λ { (a , 1+ n) → eq/ _ _ (normalise-∼ a n) })
 
-fromRat-toRat : ∀ q → fromRat (toRat q) ≡ q
+fromRat-toRat : ∀ q → Rationalsℚ→ℚ (ℚ→Rationalsℚ q) ≡ q
 fromRat-toRat q = sym (≡↥↧₊₁ q)
 
 ℚ≡Rationalsℚ : ℚ ≡ Rationalsℚ
-ℚ≡Rationalsℚ = sym (isoToPath
-  (iso fromRat toRat fromRat-toRat toRat-fromRat))
-
-Rationalsℚ→ℚ : Rationalsℚ → ℚ
-Rationalsℚ→ℚ q = transport⁻ ℚ≡Rationalsℚ q
-
-ℚ→Rationalsℚ : ℚ → Rationalsℚ
-ℚ→Rationalsℚ q = transport ℚ≡Rationalsℚ q
+ℚ≡Rationalsℚ = isoToPath
+  (iso ℚ→Rationalsℚ Rationalsℚ→ℚ toRat-fromRat fromRat-toRat)
 
 Quoℚ≡ℚ : Quoℚ ≡ ℚ
 Quoℚ≡ℚ = Quoℚ≡Rationalsℚ ∙ sym ℚ≡Rationalsℚ
 
 Quoℚ→ℚ : Quoℚ → ℚ
-Quoℚ→ℚ q = transport Quoℚ≡ℚ q
+Quoℚ→ℚ = Rationalsℚ→ℚ ∘ transport Quoℚ≡Rationalsℚ
 
 [↥↧₊₁]≡Rationalsℚ : ∀ (p : ℚ) →
   Rationals[ (↥ p) , (↧₊₁ p) ] ≡ ℚ→Rationalsℚ p
-[↥↧₊₁]≡Rationalsℚ p = sym (transportRefl (toRat p))
+[↥↧₊₁]≡Rationalsℚ p = refl
 
 [↥↧₊₁]≡ℚ : ∀ (q : ℚ) → Rationalsℚ→ℚ (Rationals[ (↥ q) , (↧₊₁ q) ]) ≡ q
-[↥↧₊₁]≡ℚ q = (cong Rationalsℚ→ℚ ([↥↧₊₁]≡Rationalsℚ q)) ∙
-  transport⁻Transport ℚ≡Rationalsℚ q
+[↥↧₊₁]≡ℚ q = cong Rationalsℚ→ℚ ([↥↧₊₁]≡Rationalsℚ q) ∙ fromRat-toRat q
 
 ≃-∼-def' : ∀ (p : ℚ) (q : ℚ) → (p ≃ q) ≡ ((↥ p , ↧₊₁ p) ∼ (↥ q , ↧₊₁ q))
 ≃-∼-def' p q = sym (≃-def p q)

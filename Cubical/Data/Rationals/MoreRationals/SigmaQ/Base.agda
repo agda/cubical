@@ -1,6 +1,7 @@
 module Cubical.Data.Rationals.MoreRationals.SigmaQ.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism using (isoToPath ; iso)
 open import Cubical.Foundations.HLevels using (isSetΣ ; isSet×)
 open import Cubical.Foundations.Transport
@@ -8,6 +9,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
 open BinaryRelation
 open isEquivRel
+open import Cubical.Data.Bool hiding (_≤_)
 open import Cubical.Data.Empty as ⊥ using (⊥)
 open import Cubical.Data.Sigma using (_×_; Σ≡Prop)
 open import Cubical.Data.Nat as ℕ
@@ -21,17 +23,14 @@ open import Cubical.Data.Int as ℤ
   renaming (-_ to -ℤ_; abs to absℤ)
 open import Cubical.Data.Int.GCD as ℤ
   using (gcd-def; ℕ₊₁→ℤ-gcd-def; gcdSucNot0)
-open import Cubical.Data.Int.Order as ℤ using ()
+open import Cubical.Data.Int.Order as ℤ using
+  ( Positiveℤ ; Negativeℤ ; NonNegativeℤ ; NonPositiveℤ
+  ; isDecPositiveℤ ; isDecNegativeℤ ; isDecNonNegativeℤ ; isDecNonPositiveℤ)
+open import Cubical.Algebra.CommMonoid
 
-open import Cubical.Algebra.CommRing.Instances.Int
-open import Cubical.Algebra.CommRing
-open CommRingTheory ℤCommRing
-
-
-private
-  converse : {ℓ : Level} {a b : Type ℓ} →
-    (a → b) → ¬ b → ¬ a
-  converse = λ z z₁ z₂ → z₁ (z z₂)
+ℤ·CommMonoid : CommMonoid ℓ-zero
+ℤ·CommMonoid = makeCommMonoid 1 _·_ isSetℤ ·Assoc ·IdR ·Comm
+open CommMonoidTheory ℤ·CommMonoid
 
 ------------------------------------------------
 -- Core definitions
@@ -214,33 +213,25 @@ normalise-id m n = refl
 ---------------------------------------------------
 -- Signs
 
-NonZero : (p : ℚ) → Type
-NonZero ((pos zero , d-1) , c) = ⊥
-NonZero ((pos (suc n) , d-1) , c) = Unit
-NonZero ((negsuc n , d-1) , c) = Unit
+NonZero : ℚ → Type
+NonZero ((n , d-1) , c) = NonZeroℤ n
 
-IsZero : (p : ℚ) → Type
-IsZero ((pos zero , n) , c) = Unit
-IsZero ((pos (suc m) , n) , c) = ⊥
-IsZero ((negsuc m , n) , c) = ⊥
+IsZero : ℚ → Type
+IsZero ((n , d-1) , c) = IsZeroℤ n
 
 ¬IsZero→NonZero : ∀ p → ¬ (IsZero p) → NonZero p
 ¬IsZero→NonZero ((pos zero , n) , c) ¬p0 = ¬p0 tt
 ¬IsZero→NonZero ((pos (suc m) , n) , c) ¬p0 = tt
 ¬IsZero→NonZero ((negsuc m , n) , c) ¬p0 = tt
 
-Positive : (p : ℚ) → Type
-Positive ((pos zero , d-1) , c) = ⊥
-Positive ((pos (suc n) , d-1) , c) = Unit
-Positive ((negsuc n , d-1) , c) = ⊥
+Positive : ℚ → Type
+Positive ((n , d-1) , c) = Positiveℤ n
 
-Negative : (p : ℚ) → Type
-Negative ((pos n , d-1) , c) = ⊥
-Negative ((negsuc n , d-1) , c) = Unit
+Negative : ℚ → Type
+Negative ((n , d-1) , c) = Negativeℤ n
 
-NonNegative : (p : ℚ) → Type
-NonNegative ((pos m , n) , copr) = Unit
-NonNegative ((negsuc m , n) , copr) = ⊥
+NonNegative : ℚ → Type
+NonNegative ((n , d-1) , c) = NonNegativeℤ n
 
 IsZero→NonNegative : {p : ℚ} → IsZero p → NonNegative p
 IsZero→NonNegative {(pos m , n) , c} posp = tt
@@ -250,35 +241,26 @@ Positive→NonNegative {(pos m , n) , c} pp = tt
 Positive→NonNegative {(negsuc m , n) , c} pp = pp
 
 IsInteger : (p : ℚ) → Type
-IsInteger ((z , zero) , c) = Unit
-IsInteger ((z , suc n) , c) = ⊥
+IsInteger ((z , d-1) , c) = Bool→Type (d-1 ℕ.≡ᵇ 0)
 
 decIsZero : ∀ (p : ℚ) → Dec (IsZero p)
-decIsZero p@((pos zero , n) , c) = yes tt
-decIsZero ((pos (suc m) , n) , c) = no (λ ())
-decIsZero ((negsuc m , n) , c) = no (λ ())
+decIsZero ((n , d-1) , c) = isDecIsZeroℤ n
 
 decNonZero : ∀ (p : ℚ) → Dec (NonZero p)
-decNonZero ((pos ℕ.zero , n) , copr) = no (λ ())
-decNonZero ((pos (ℕ.suc m) , n) , copr) = yes tt
-decNonZero ((negsuc m , n) , copr) = yes tt
+decNonZero ((n , d-1) , c) = isDecNonZeroℤ n
 
 decPositive : ∀ (p : ℚ) → Dec (Positive p)
-decPositive ((pos zero , n) , copr) = no λ ()
-decPositive ((pos (suc m) , n) , copr) = yes tt
-decPositive ((negsuc m , n) , copr) = no (λ ())
+decPositive ((n , d-1) , c) = isDecPositiveℤ n
 
 decNegative : ∀ (p : ℚ) → Dec (Negative p)
 decNegative ((pos m , n) , copr) = no (λ ())
 decNegative ((negsuc m , n) , copr) = yes tt
 
 decNonNegative : ∀ (p : ℚ) → Dec (NonNegative p)
-decNonNegative ((pos m , n) , c) = yes tt
-decNonNegative ((negsuc m , n) , c) = no (λ ())
+decNonNegative ((n , d-1) , c) = isDecNonNegativeℤ n
 
 decIsInteger : ∀ (p : ℚ) → Dec (IsInteger p)
-decIsInteger ((z , zero) , c) = yes tt
-decIsInteger ((z , suc n) , c) = no (λ ())
+decIsInteger ((z , d-1) , c) = DecBool→Type
 
 NonZero→≢0 : ∀ {p : ℚ} → NonZero p → ¬ p ≡ 0ℚ
 NonZero→≢0 p@{(pos (suc m) , n) , c} tt =
@@ -292,9 +274,9 @@ Positive→Negative- {(pos (suc n) , d-1) , c} pp = tt
 Negative→Positive- : ∀ {p : ℚ} → Negative p → Positive (- p)
 Negative→Positive- {(negsuc n , d-1) , c} np = tt
 
-Negative→NonNegative→⊥ : ∀ {p : ℚ} → Negative p → NonNegative p → ⊥
-Negative→NonNegative→⊥ {(pos n , d-1) , c} np nnp = np
-Negative→NonNegative→⊥ {(negsuc n , d-1) , c} np nnp = nnp
+Negative→¬NonNegative : ∀ {p : ℚ} → Negative p → ¬ NonNegative p
+Negative→¬NonNegative {(pos n , d-1) , c} np nnp = np
+Negative→¬NonNegative {(negsuc n , d-1) , c} np nnp = nnp
 
 ≢0→NonZero : ∀ {p : ℚ} → ¬ p ≡ 0ℚ → NonZero p
 ≢0→NonZero {(pos zero , n) , c} ¬p0 = ¬p0 (↥≡0→≡0ℚ refl)
@@ -521,7 +503,7 @@ discreteℚ m n = subst Dec (≃≡≡ m n) dec≃
 ≡Dec p q = discreteℚ p q
 
 refl≃ : ∀ p → p ≃ p
-refl≃ p = transport⁻ (≃≡≡ p p) refl
+refl≃ p = *≡* refl
 
 sym≃-≡ : ∀ p q → (p ≃ q) ≡ (q ≃ p)
 sym≃-≡ p q = isoToPath
@@ -637,7 +619,7 @@ open gcd-helpers
      (a ℤ.· x) ℤ.· (b ℤ.· y) ≡ (c ℤ.· y) ℤ.· (d ℤ.· x) → (a ℤ.· b) ≡ (c ℤ.· d)
     step {a}{b}{c}{d}{x}{y} nx0 ny0 abcd =
       ·rCancel (x ℤ.· y) (a ℤ.· b) (c ℤ.· d)
-       (sym (·CommAssocSwap a x b y) ∙ abcd ∙ (·CommAssocSwap c y d x) ∙
+       (sym (commAssocSwap a x b y) ∙ abcd ∙ (commAssocSwap c y d x) ∙
        (cong (λ u → (c ℤ.· d) ℤ.· u) (·Comm y x))) (·≢0 nx0 ny0)
     res : (↥ [ x , (1+ d-1) ]) ℤ.· (↧ [ y , (1+ d-1') ]) ≡
           (↥ [ y , (1+ d-1') ]) ℤ.· (↧ [ x , (1+ d-1) ])
@@ -651,14 +633,14 @@ open gcd-helpers
   x ℤ.· pos (suc d-1') ≡ y ℤ.· pos (suc d-1)
 *≃*ᵘ⁻¹ {x} {y} {d-1} {d-1'} (*≡* xy) = step1 ∙ step2 ∙ step3 ∙ step4
   where
-    step1 = sym (·-interchange-assoc (↥ [ x , (1+ d-1) ]) (↧ [ y , (1+ d-1') ])
+    step1 = sym (interchange-assoc (↥ [ x , (1+ d-1) ]) (↧ [ y , (1+ d-1') ])
       (ℤ.gcd x (pos (suc d-1))) (ℤ.gcd y (pos (suc d-1'))) ∙
       cong₂ (λ a b → a ℤ.· b) (sym (↥·gcd-lemma x d-1)) (sym (↧·gcd-lemma y d-1')))
     step2 = cong (λ a → a ℤ.· ℤ.gcd x (pos (suc d-1)) ℤ.·
       ℤ.gcd y (pos (suc d-1'))) xy
-    step3 = (·CommAssocr ((↥ [ y , (1+ d-1') ]) ℤ.·
+    step3 = (commAssocr ((↥ [ y , (1+ d-1') ]) ℤ.·
       ((↧ [ x , (1+ d-1) ]))) (ℤ.gcd x (pos (suc d-1))) (ℤ.gcd y (pos (suc d-1'))))
-    step4 = ·-interchange-assoc (↥ [ y , (1+ d-1') ]) (↧ [ x , (1+ d-1) ])
+    step4 = interchange-assoc (↥ [ y , (1+ d-1') ]) (↧ [ x , (1+ d-1) ])
       (ℤ.gcd y (pos (suc d-1'))) (ℤ.gcd x (pos (suc d-1))) ∙
       cong₂ (λ a b → a ℤ.· b) (sym (↥·gcd-lemma y d-1')) (sym (↧·gcd-lemma x d-1))
 
@@ -698,11 +680,8 @@ instance
   fromNatℚ : HasFromNat ℚ
   fromNatℚ = record { Constraint = λ _ → Unit ;
                       fromNat = λ n → [ pos n , 1 ]}
-negDisplay : ℕ → ℚ
-negDisplay zero = [ pos 0 , 1 ]
-negDisplay (suc n) = [ negsuc n , 1 ]
 
 instance
   fromNegℚ : HasFromNeg ℚ
   fromNegℚ = record { Constraint = λ _ → Unit ;
-                      fromNeg = λ n → negDisplay n }
+                      fromNeg = λ n → [ neg n , 1 ] }

@@ -1,5 +1,9 @@
 module Cubical.Data.Rationals.MoreRationals.SigmaQ.Order where
 
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat as ℕ using (ℕ; suc; zero)
 open import Cubical.Foundations.Prelude
@@ -19,15 +23,6 @@ private
   variable
     ℓ ℓ' : Level
     m n o : ℚ
-
-private
-  converse : {ℓ : Level} {a b : Type ℓ} →
-    (a → b) → ¬ b → ¬ a
-  converse = λ z z₁ z₂ → z₁ (z z₂)
-
-  isProp× : ∀ (A : Type ℓ) (B : Type ℓ') → isProp A → isProp B → isProp (A × B)
-  isProp× A B ispA ispB (a₁ , b₁) (a₂ , b₂) =
-    cong₂ (λ a b → a , b) (ispA a₁ a₂) (ispB b₁ b₂)
 
 infix 4 _<_ _≥_ _>_ _⋖_
 
@@ -94,7 +89,7 @@ isProp< : ∀ m n → isProp (m < n)
 isProp< m n = ℤ.isProp<
 
 isProp⋖ : ∀ m n → isProp (m ⋖ n)
-isProp⋖ m n mn mn' = isProp× (m ≤ n) (¬ m ≃ n) ℤ.isProp≤ (isProp¬ (m ≃ n)) mn mn'
+isProp⋖ m n = isProp× ℤ.isProp≤ (isProp¬ (m ≃ n))
 
 ≤⇒¬> : ∀ {m n} → m ≤ n → ¬ (n < m)
 ≤⇒¬> {m}{n} mn =
@@ -147,7 +142,7 @@ isProp⋖ m n mn mn' = isProp× (m ≤ n) (¬ m ≃ n) ℤ.isProp≤ (isProp¬ (
 
 <-diff : ∀ {m n} → m < n → Σ[ d ∈ ℚ ] (m + d ≡ n) × Positive d
 <-diff {m} {n} mn@(d-1 , eqn) =
-  d , (fst (snd step) , nonZ→NonNeg→Pos dnz tt)
+  d , (fst (snd step) , nonZ→NonNeg→Pos {d} dnz tt)
   where
     d = [ pos (suc d-1) , ↧₊₁ n ·₊₁ ↧₊₁ m ]
     dnz : NonZero d
@@ -158,7 +153,7 @@ isProp⋖ m n mn mn' = isProp× (m ≤ n) (¬ m ≃ n) ℤ.isProp≤ (isProp¬ (
 diff-≤ : ∀ {m n} → Σ[ d ∈ ℚ ] (m + d ≡ n) × NonNegative d → m ≤ n
 diff-≤ {m} {n} mdn@(d@((num , den-1) , c) , m+d≡n , nonegd) with ≤Dec m n
 ... | yes p = p
-... | no ¬p = ⊥.elim (Negative→NonNegative→⊥ contra m≥n)
+... | no ¬p = ⊥.elim (Negative→¬NonNegative {n - m} contra m≥n)
   where
     n<m = ¬≤→> {m}{n} ¬p
     diff = <-diff {n}{m} n<m
@@ -170,12 +165,12 @@ diff-≤ {m} {n} mdn@(d@((num , den-1) , c) , m+d≡n , nonegd) with ≤Dec m n
     m≥n : NonNegative (n - m)
     m≥n = subst NonNegative d≡n-m nonegd
     contra : Negative (n - m)
-    contra = subst (λ x → Negative x) (-dist- m n) (Positive→Negative- m<n)
+    contra = subst (λ x → Negative x) (-dist- m n) (Positive→Negative- {m - n} m<n)
 
 diff-< : ∀ {m n} → Σ[ d ∈ ℚ ] (m + d ≡ n) × Positive d → m < n
 diff-< {m}{n} mdn@(d@((num , den-1) , c) , m+d≡n , posd) with <Dec m n
 ... | yes p = p
-... | no ¬p = ⊥.elim (Negative→NonNegative→⊥ contra m<n)
+... | no ¬p = ⊥.elim (Negative→¬NonNegative {m - n} contra m<n)
   where
     n≤m : n ≤ m
     n≤m = ¬<→≥ {m}{n} ¬p
@@ -193,7 +188,7 @@ diff-< {m}{n} mdn@(d@((num , den-1) , c) , m+d≡n , posd) with <Dec m n
     m>n = subst Positive step2 posd
     contra : Negative (m - n)
     contra = subst (λ x → Negative x) (-dist- n m)
-      (Positive→Negative- m>n)
+      (Positive→Negative- {n - m} m>n)
 
 isRefl≤ : ∀ m → m ≤ m
 isRefl≤ m = zero , refl

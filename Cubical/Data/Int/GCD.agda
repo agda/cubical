@@ -55,7 +55,7 @@ gcd-greatest {i}{j}{c} ci cj =
   ℕ∣gcd→ℤ∣-lemma {i}{j}{c} (ℕ.gcd-greatest (∣→∣ℕ ci) (∣→∣ℕ cj))
 
 gcd[0,0]≡0 : gcd 0 0 ≡ 0
-gcd[0,0]≡0  = cong pos ℕ.gcd[0,0]≡0
+gcd[0,0]≡0  = refl
 
 gcd[i,j]≡0⇒i≡0 : ∀ {i j} → gcd i j ≡ 0 → i ≡ 0
 gcd[i,j]≡0⇒i≡0 {i} {j} eqn = abs≡0 i (ℕ.gcd[m,n]≡0⇒m≡0 {abs i}{abs j} (injPos eqn))
