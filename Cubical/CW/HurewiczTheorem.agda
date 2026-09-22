@@ -755,7 +755,7 @@ HurewiczMapCofibEquiv {n = n} {m} {k} α isC = makeHurewiczMapCofibEquiv α
 
    CTB'∘cofib→cofib =
        CTB' zero α (eq refl) (lt t)
-     ∘ cofib→cofib zero α w (1 , <ᵗ-trans <ᵗsucm <ᵗsucm) (eq refl) (lt t)
+     ∘ cofib→cofib zero α w (1 , tt) (eq refl) (lt t)
 
    lem : cong pick∘CTB'∘cofib→cofib∘BTC' loop
      ≡ cong (pickPetal x) (push w)

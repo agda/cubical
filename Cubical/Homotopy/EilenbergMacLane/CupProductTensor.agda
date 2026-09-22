@@ -981,11 +981,11 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
       assocInd zero zero 1 _ _
         λ x y z →
           help x y z
-        ∙ sym (transportRefl (swapFun zero zero 1 (x ⌣ₖ (y ⌣ₖ EM-raw'→EM _ _ z))))
+        ∙ sym (transportRefl (swapFun zero zero 1 (x ⌣ₖ (y ⌣ₖ EM-raw'→EM L' 1 z))))
       where
       help : (x : G) (y : H) (z : EM-raw' L' 1)
-        → (cup∙ 0 1 (cup∙ 0 0 x .fst y) .fst (EM-raw'→EM _ _ z))
-         ≡ swapFun zero zero 1  (x ⌣ₖ (y ⌣ₖ (EM-raw'→EM _ _ z)))
+        → (cup∙ 0 1 (cup∙ 0 0 x .fst y) .fst (EM-raw'→EM L' 1 z))
+         ≡ swapFun zero zero 1  (x ⌣ₖ (y ⌣ₖ (EM-raw'→EM L' 1 z)))
       help x y embase-raw = refl
       help x y (emloop-raw g i) = refl
     assoc₀₀ₗ (suc (suc l)) =
@@ -1158,22 +1158,22 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
         → fst (assL 1 zero 1) (EM-raw'→EM G' 1 x)
           .fst (EM-raw'→EM H' zero y)
           .fst (EM-raw'→EM L' 1 z)
-        ≡ swapFun 1 zero 1 (EM-raw'→EM _ _ x ⌣ₖ (y ⌣ₖ EM-raw'→EM _ _ z))
+        ≡ swapFun 1 zero 1 (EM-raw'→EM G' 1 x ⌣ₖ (y ⌣ₖ EM-raw'→EM L' 1 z))
       l₂ z y embase-raw = refl
       l₂ z y (emloop-raw g i) = sym (flipSquare help i)
         where
-        help : cong (λ x → swapFun 1 zero 1 (x ⌣ₖ (y ⌣ₖ EM-raw'→EM _ _ z)))
+        help : cong (λ x → swapFun 1 zero 1 (x ⌣ₖ (y ⌣ₖ EM-raw'→EM L' 1 z)))
                     (emloop g)
              ≡ cong (λ x → (_⌣ₖ_ {n = suc zero} {m = suc zero}
                     (_⌣ₖ_ {G' = G'} {H' = H'} {n = suc zero} {m = 0} x y)
-                     (EM-raw'→EM _ _ z))) (emloop g)
+                     (EM-raw'→EM L' 1 z))) (emloop g)
         help = (sym (EMFun-EM→ΩEM+1 (suc zero)
-          (cup∙ zero 1 g .fst (cup∙ zero 1 y .fst (EM-raw'→EM _ _ z)))))
+          (cup∙ zero 1 g .fst (cup∙ zero 1 y .fst (EM-raw'→EM L' 1 z)))))
              ∙ cong (EM→ΩEM+1 1)
                   (sym (transportRefl _)
                  ∙ sym (funExt⁻ (cong fst (funExt⁻
                     (cong fst (funExt⁻ (cong fst (mainAssoc₀ₘₗ zero 1)) g)) y))
-                     (EM-raw'→EM _ _ z)))
+                     (EM-raw'→EM L' 1 z)))
 
       lem : (n : ℕ) → substFun 1 zero (suc (suc n)) ≡ idfun _
       lem n = (λ i → subst (EM ((G' ⨂ H') ⨂ L'))
