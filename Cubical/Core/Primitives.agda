@@ -9,9 +9,9 @@ open import Agda.Builtin.Cubical.Path public
 open import Agda.Builtin.Cubical.Sub public
   renaming (primSubOut to outS)
 open import Agda.Primitive.Cubical public
-  renaming ( primIMin       to _∧_  -- I → I → I
-           ; primIMax       to _∨_  -- I → I → I
-           ; primINeg       to ~_   -- I → I
+  renaming ( primIMin       to infixr 20 _∧_  -- I → I → I
+           ; primIMax       to infixr 20 _∨_  -- I → I → I
+           ; primINeg       to infix  30 ~_   -- I → I
            ; isOneEmpty     to empty
            ; primComp       to comp
            ; primHComp      to hcomp
