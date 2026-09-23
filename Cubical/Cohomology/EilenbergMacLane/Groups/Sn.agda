@@ -473,8 +473,10 @@ HⁿSⁿ-raw≃G-inv-isInv R (suc (suc n)) r =
             λ i → transp (λ i → EM (Ring→AbGroup R)
                           (+'-comm (suc (suc n)) 0 (~ j ∧ i)))
                           j
-                          (fst (gen-HⁿSⁿ-raw R (suc (suc n)))
-                           (toSusp (S₊∙ (suc n)) z i) ⌣ₖ r))
+                          (_⌣ₖ_ {n = suc (suc n)} {m = 0}
+                           (fst (gen-HⁿSⁿ-raw R (suc (suc n)))
+                            (toSusp (S₊∙ (suc n)) z i))
+                           r))
          ∙ (λ j → transport (λ i → typ (Ω (EM∙ (Ring→AbGroup R)
                     (isSetℕ (suc (suc n)) (suc (suc n))
                       (+'-comm (suc (suc n)) 0) refl j i))))
