@@ -5,21 +5,35 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv
-
 open import Cubical.Relation.Nullary
-
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
-  hiding   (+-assoc ; min ; max ; minComm ; maxComm)
-  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; +-comm to +ℕ-comm ; ·-assoc to ·ℕ-assoc ;
-            ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
+  hiding   (+-assoc ; min ; max ; minComm ; maxComm ; _≡ᵇ_ ; _<ᵇ_)
+  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; +-comm to +ℕ-comm ;
+    ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm ; isEven to isEvenℕ ;
+    isOdd to isOddℕ)
 open import Cubical.Data.Sum
 open import Cubical.Data.Fin.Base
 open import Cubical.Data.Fin.Properties
-
-
 open import Cubical.Data.Int.Base
+
+IsZeroℤ : ℤ → Type
+IsZeroℤ = Bool→Type ∘ (_≡ᵇ pos 0)
+
+NonZeroℤ : ℤ → Type
+NonZeroℤ = Bool→Type ∘ not ∘ (_≡ᵇ pos 0)
+
+isDecIsZeroℤ : ∀ z → Dec (IsZeroℤ z)
+isDecIsZeroℤ _ = DecBool→Type
+
+isDecNonZeroℤ : ∀ z → Dec (NonZeroℤ z)
+isDecNonZeroℤ _ = DecBool→Type
+
+private
+  contraposition : {ℓ : Level} {a b c : Type ℓ} →
+    (a → (b → c)) → ¬ c → (b → ¬ a)
+  contraposition = λ z z₁ z₂ z₃ → z₁ (z z₃ z₂)
 
 min : ℤ → ℤ → ℤ
 min (pos zero) (pos m) = pos zero
@@ -1506,6 +1520,9 @@ isIntegralℤ (negsuc c) (pos m) p _ i =
     (sym (-Involutive _) ∙ cong (-_) (sym (negsuc·pos c m) ∙ p)) snotz i)
 isIntegralℤ (negsuc c) (negsuc m) p _ =
   ⊥.rec (snotz (isIntegralℤPosPos (suc c) (suc m) (sym (negsuc·negsuc c m) ∙ p) snotz))
+
+·≢0 : ∀ {x}{y} → ¬ x ≡ 0 → ¬ y ≡ 0 → ¬ x · y ≡ 0
+·≢0 {x}{y} nx0 ny0 = contraposition (isIntegralℤ x y) ny0 nx0
 
 private
   ·lCancel-helper : (c m n : ℤ) → c · m ≡ c · n → c · (m - n) ≡ 0

@@ -4,15 +4,11 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-
 open import Cubical.Induction.WellFounded
-
 open import Cubical.Data.Sigma as Σ
 open import Cubical.Data.Sum
 open import Cubical.Data.Fin as F hiding (_%_ ; _/_)
-
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
-
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
@@ -22,7 +18,6 @@ open import Cubical.Data.Nat.Mod renaming (
   quotient_/_  to _/_ ; remainder_/_ to _%_
   ; ≡remainder+quotient to ≡%+·/ ; mod< to %< )
 open import Cubical.Data.Nat.Divisibility
-
 open import Cubical.Data.Int.Base as ℤ using (ℤ ; pos ; negsuc ; abs) renaming (_·_ to _ℤ·_; _+_ to _ℤ+_ ; -_ to -ℤ_)
 open import Cubical.Data.Int.Properties as ℤ using (injPos; injNegsuc; pos·pos; pos0+; -Dist+; -DistL·; negsucNotpos; negsuc·possuc;  pos+;  +CancelRNegsuc; negsuc+negsuc-def)
 open import Cubical.Data.Int.Order as ℤ using (zero-<sucPos; ≤-+-<; m≤n→posm≤posn)
@@ -204,6 +199,7 @@ uniqueGCD isgd isgd' = sym (isGCD→gcd≡ isgd) ∙ isGCD→gcd≡ isgd'
 gcdSym : (m n : ℕ) → (gcd m n) ≡ (gcd n m)
 gcdSym m n =  uniqueGCD (gcdIsGCD m n) (symGCD (gcdIsGCD n m))
 
+
 -- multiplicative properties of the gcd
 
 isCD-cancelʳ : ∀ k → isCD (m · suc k) (n · suc k) (d · suc k)
@@ -254,7 +250,7 @@ gcd-greatest = curry (snd (gcdIsGCD _ _) _)
 -- Other properties
 
 gcd[0,0]≡0 : gcd 0 0 ≡ 0
-gcd[0,0]≡0 = antisym∣ (∣-zeroʳ (gcd 0 0) ) (gcd-greatest (∣-zeroʳ 0) (∣-zeroʳ 0))
+gcd[0,0]≡0 = refl
 
 gcd[m,n]≢0 : ∀ (m n : ℕ) → (¬ (m ≡ 0)) ⊎ (¬ (n ≡ 0)) → ¬ (gcd m n ≡ 0)
 gcd[m,n]≢0 m n (inl m≢0) gcd0 =
@@ -269,6 +265,12 @@ gcd[m,n]≡0⇒m≡0 {suc m} {n} gmn =
 
 gcd[m,n]≡0⇒n≡0 : ∀ {m n} → gcd m n ≡ 0 → n ≡ 0
 gcd[m,n]≡0⇒n≡0 {m}{n} gmn = gcd[m,n]≡0⇒m≡0 {n} {m} (gcdSym n m ∙ gmn)
+
+¬gcdSuc≡0 : ∀ n d-1 → ¬ gcd n (suc d-1) ≡ 0
+¬gcdSuc≡0 n d-1 x = snotz (gcd[m,n]≡0⇒n≡0 {n} {suc d-1} x)
+
+nonZeroGcd-lemma : ∀ n d-1 → NonZero (gcd n (suc d-1))
+nonZeroGcd-lemma n d-1 = ≢0→NonZero {(gcd n (suc d-1))} (¬gcdSuc≡0 n d-1)
 
 decGCD : ∀ {m}{n}{d} → Dec (isGCD m n d)
 decGCD {m}{n}{d} with (discreteℕ (gcd m n) d)

@@ -3,17 +3,40 @@ module Cubical.Data.Int.Order where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
-
+open import Cubical.Data.Bool hiding (_≤_ ; _≥_ ; _≟_ ; isProp≤)
 open import Cubical.Data.Empty as ⊥ using (⊥)
 open import Cubical.Data.Int.Base as ℤ
 open import Cubical.Data.Int.Properties as ℤ
-open import Cubical.Data.Nat as ℕ
+open import Cubical.Data.Nat as ℕ hiding (_<ᵇ_)
 open import Cubical.Data.Nat.Order using () renaming (_≤_ to _ℕ≤_)
 open import Cubical.Data.NatPlusOne.Base as ℕ₊₁
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
-
 open import Cubical.Relation.Nullary
+
+Positiveℤ : ℤ → Type
+Positiveℤ = Bool→Type ∘ (pos 0 <ᵇ_)
+
+Negativeℤ : ℤ → Type
+Negativeℤ = Bool→Type ∘ (_<ᵇ pos 0)
+
+NonPositiveℤ : ℤ → Type
+NonPositiveℤ = Bool→Type ∘ not ∘ (pos 0 <ᵇ_)
+
+NonNegativeℤ : ℤ → Type
+NonNegativeℤ = Bool→Type ∘ not ∘ (_<ᵇ pos 0)
+
+isDecPositiveℤ : ∀ z → Dec (Positiveℤ z)
+isDecPositiveℤ _ = DecBool→Type
+
+isDecNegativeℤ : ∀ z → Dec (Negativeℤ z)
+isDecNegativeℤ _ = DecBool→Type
+
+isDecNonPositiveℤ : ∀ z → Dec (NonPositiveℤ z)
+isDecNonPositiveℤ _ = DecBool→Type
+
+isDecNonNegativeℤ : ∀ z → Dec (NonNegativeℤ z)
+isDecNonNegativeℤ _ = DecBool→Type
 
 infix 4 _≤_ _<_ _≥_ _>_
 
@@ -181,6 +204,12 @@ isAntisym≤ {m} {n} (i , p) (j , q)
 ≤Monotone+ : m ≤ n → o ≤ s → m ℤ.+ o ≤ n ℤ.+ s
 ≤Monotone+ {o = o} p q = isTrans≤ (≤-+o {o = o} p) (≤-o+ q)
 
+weaken≡→≤ : ∀ {m}{n} → m ≡ n → m ≤ n
+weaken≡→≤ {m}{n} mn = 0 , mn
+
+¬≤→≢ : ∀ {m n : ℤ} → ¬ m ≤ n → ¬ m ≡ n
+¬≤→≢ {m}{n} ¬mn = λ x → ¬mn (weaken≡→≤ x)
+
 ≤-o+-cancel : o ℤ.+ m ≤ o ℤ.+ n → m ≤ n
 ≤-o+-cancel {o} {m} (i , p) = i , inj-z+ {z = o} (+Assoc o m (pos i) ∙ p)
 
@@ -230,7 +259,6 @@ m≤n→posm≤posn {m} {n} (k , prf) = k , sym (pos+ m k) ∙ cong pos (ℕ.+-c
      ((sucℤ m) ℤ.· pos (suc k)) ℤ.+ pos i ℤ.· pos (suc k)        ≡⟨ sym (·DistL+ ((sucℤ m)) (pos i) (pos (suc k))) ⟩
      ((sucℤ m) +pos i) ℤ.· pos (suc k)                            ≡⟨ cong (ℤ._· pos (suc k)) p ⟩
       n ℤ.· pos (suc k)                                              ∎)
-
 
 <-o+-cancel : o ℤ.+ m < o ℤ.+ n → m < n
 <-o+-cancel {o} {m} {n} = ≤-o+-cancel ∘ subst (_≤ o ℤ.+ n) (+sucℤ o m)
@@ -282,6 +310,9 @@ isTrans< p = ≤<-trans (<-weaken p)
 
 isAsym< : m < n → ¬ n ≤ m
 isAsym< m<n = isIrrefl< ∘ <≤-trans m<n
+
+<→≢ : ∀ {m n : ℤ} → m < n → ¬ m ≡ n
+<→≢ {m}{n} m<n m≡n = isAsym< m<n (0 , sym m≡n)
 
 <-+o : m < n → m ℤ.+ o < n ℤ.+ o
 <-+o {m} {n} {o} = subst (_≤ n ℤ.+ o) (sym (sucℤ+ m o)) ∘ ≤-+o {o = o}

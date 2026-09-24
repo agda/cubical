@@ -65,6 +65,9 @@ const : {B : Type ℓ} → A → B → A
 const x = λ _ → x
 {-# INLINE const #-}
 
+converse : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} → (A → B) → (B → C) → (A → C)
+converse = flip _∘S_
+
 case_of_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} → (x : A) → (∀ x → B x) → B x
 case x of f = f x
 {-# INLINE case_of_ #-}
