@@ -85,19 +85,19 @@ module _ {c1 c2 : ℕ} {n : ℕ} (α : FinSphereBouquetMap c1 c2 n) where
   inv (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre p q) =
     HₙSphereBouquetⁿ/→ℤ[]/ImSphereMap-inv p q
   sec (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (lt x) q) f =
-    ⊥.rec (¬m<ᵗm x)
+    ⊥.rec (<ᵗ-irrefl x)
   sec (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (lt y)) f = refl
   sec (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (eq y)) f = refl
   sec (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (gt y)) f = refl
   sec (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (gt x) q) f =
-    ⊥.rec (¬m<ᵗm x)
+    ⊥.rec (<ᵗ-irrefl x)
   ret (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (lt x) q) f =
-    ⊥.rec (¬m<ᵗm x)
+    ⊥.rec (<ᵗ-irrefl x)
   ret (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (lt y)) f = refl
   ret (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (eq y)) f = refl
   ret (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (eq x) (gt y)) f = refl
   ret (Iso-HₙSphereBouquetⁿ/-ℤ[]/ImSphereMap-pre (gt x) q) f =
-    ⊥.rec (¬m<ᵗm x)
+    ⊥.rec (<ᵗ-irrefl x)
 
   HₙSphereBouquetⁿ/→ℤ[]/ImSphereMap-fun-hom :
     (p : Trichotomyᵗ (suc n) (suc n)) (q :  Trichotomyᵗ (suc n) (suc (suc n)))
@@ -187,8 +187,8 @@ module _ {c1 c2 : ℕ} {n : ℕ} (α : FinSphereBouquetMap c1 c2 n) where
       [ HₙSphereBouquetⁿ/→ℤ[]/ImSphereMap-fun
           (suc n ≟ᵗ suc n) (suc n ≟ᵗ suc (suc n)) b ]
     pathlemma  with (n ≟ᵗ n) | (n ≟ᵗ suc n) | (suc n ≟ᵗ n)
-    ... | lt x | st | ah = ⊥.rec (¬m<ᵗm x)
-    ... | eq x | lt y | lt z = ⊥.rec (¬-suc-n<ᵗn z)
+    ... | lt x | st | ah = ⊥.rec (<ᵗ-irrefl x)
+    ... | eq x | lt y | lt z = ⊥.rec (¬-sucℕ-<ᵗ z)
     ... | eq x | lt y | eq z = ⊥.rec (falseDichotomies.eq-eq (x , sym z))
     ... | eq x | lt y | gt z =
       PT.rec (squash/ _ _) (λ apt →
@@ -199,7 +199,7 @@ module _ {c1 c2 : ℕ} {n : ℕ} (α : FinSphereBouquetMap c1 c2 n) where
                                (isSetℕ _ _ refl x) (~ i)) .fst (fst r))
        ∙ snd r ∣₁) α∙
     ... | eq x | eq y | ah = ⊥.rec (falseDichotomies.eq-eq (x , y))
-    ... | eq x | gt y | ah = ⊥.rec (¬-suc-n<ᵗn y)
+    ... | eq x | gt y | ah = ⊥.rec (¬-sucℕ-<ᵗ y)
     ... | gt x | st | ah = refl
 
 
@@ -249,16 +249,16 @@ module _ {c1 c2 : ℕ} {n : ℕ} (α : FinSphereBouquetMap c1 c2 n) where
                 - HₙSphereBouquetⁿ/→ℤ[]/ImSphereMap-inv
                       (suc n ≟ᵗ suc n) (suc n ≟ᵗ suc (suc n)) b x
     lem apt a b r q with (n ≟ᵗ n) | (n ≟ᵗ suc n) | (suc n ≟ᵗ n)
-    ... | lt x | d | e = ⊥.rec (¬m<ᵗm x)
-    ... | eq x | lt y | lt z = ⊥.rec (¬-suc-n<ᵗn z)
+    ... | lt x | d | e = ⊥.rec (<ᵗ-irrefl x)
+    ... | eq x | lt y | lt z = ⊥.rec (¬-sucℕ-<ᵗ z)
     ... | eq x | lt y | eq z = ⊥.rec (falseDichotomies.eq-eq (refl , sym z))
     ... | eq x | lt y | gt z = r
       , ((funExt⁻ (cong fst
          (cong bouquetDegree (bouquetSusp→Charac a b apt x (isSetℕ _ _ refl x))
          ∙ sym (bouquetDegreeSusp α))) r) ∙ q)
     ... | eq x | eq y | e = ⊥.rec (falseDichotomies.eq-eq (refl , y))
-    ... | eq x | gt y | e = ⊥.rec (⊥.rec (¬-suc-n<ᵗn y))
-    ... | gt x | d | e = ⊥.rec (¬m<ᵗm x)
+    ... | eq x | gt y | e = ⊥.rec (⊥.rec (¬-sucℕ-<ᵗ y))
+    ... | gt x | d | e = ⊥.rec (<ᵗ-irrefl x)
 
     pre∂-vanish : (x : _)
       → preboundary.pre∂ (SphereBouquet/ˢᵏᵉˡ α) zero x ≡ inl tt
@@ -292,15 +292,15 @@ module _ {c1 c2 : ℕ} {n : ℕ} (α : FinSphereBouquetMap c1 c2 n) where
       where
       ¬bottom : (p : _)(q : _) → ¬ Fin (SphereBouquet/CardGen c1 c2 (suc m) p q)
       ¬bottom (lt x) q = ¬Fin0
-      ¬bottom (eq x) q = ⊥.rec (¬m<ᵗm (subst (_<ᵗ n) (cong predℕ x) p))
-      ¬bottom (gt x) q = ⊥.rec (¬m<ᵗm (<ᵗ-trans x p))
+      ¬bottom (eq x) q = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ n) (cong predℕ x) p))
+      ¬bottom (gt x) q = ⊥.rec (<ᵗ-irrefl (<ᵗ-trans x p))
 
     cancel : (a : Fin c2 → ℤ)
       → ∂ (SphereBouquet/ˢᵏᵉˡ α) n .fst
            ((HₙSphereBouquetⁿ/→ℤ[]/ImSphereMap-inv (suc n ≟ᵗ suc n)
             (suc n ≟ᵗ suc (suc n)) a))
        ≡ (λ _ → 0)
-    cancel a = funExt⁻ (cong fst (∂-vanish n <ᵗsucm))
+    cancel a = funExt⁻ (cong fst (∂-vanish n <ᵗsuc))
                      (HₙSphereBouquetⁿ/→ℤ[]/ImSphereMap-inv
                        (suc n ≟ᵗ suc n) (suc n ≟ᵗ suc (suc n)) a)
 
@@ -325,9 +325,9 @@ module _ {c1 c2 : ℕ} {n : ℕ} (α : FinSphereBouquetMap c1 c2 n) where
 
   fin→SphereBouquet/Cell : {n : ℕ} (p : _) (q : _)
     → Fin c2 →  Fin (SphereBouquet/CardGen c1 c2 {n = n} (suc n) p q)
-  fin→SphereBouquet/Cell (lt y) q x = ⊥.rec (¬m<ᵗm y)
+  fin→SphereBouquet/Cell (lt y) q x = ⊥.rec (<ᵗ-irrefl y)
   fin→SphereBouquet/Cell (eq y) q x = x
-  fin→SphereBouquet/Cell (gt y) q x = ⊥.rec (¬m<ᵗm y)
+  fin→SphereBouquet/Cell (gt y) q x = ⊥.rec (<ᵗ-irrefl y)
 
 -- Description of genrators
 opaque
@@ -355,15 +355,15 @@ opaque
               (ℤFinGenerator x)
             ≡ λ _ → pos zero
         BT n α with (n ≟ᵗ n) | (n ≟ᵗ suc n)
-        ... | lt x | q = ⊥.rec (¬m<ᵗm x)
+        ... | lt x | q = ⊥.rec (<ᵗ-irrefl x)
         BT zero α | eq x | lt y =
           λ q → funExt λ { (zero , snd₁)
             → sumFinℤId _ (λ r → ·Comm (ℤFinGenerator q r) (pos zero))
              ∙ sumFinℤ0 _}
         BT (suc n) α | eq x | lt y = λ q → funExt λ x → ⊥.rec (snd x)
-        ... | eq x | eq y = ⊥.rec (¬m<ᵗm (subst (_<ᵗ suc n) y <ᵗsucm))
-        ... | eq x | gt y = ⊥.rec (¬-suc-n<ᵗn y)
-        ... | gt x | q = ⊥.rec (¬m<ᵗm x)
+        ... | eq x | eq y = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ suc n) y <ᵗsuc))
+        ... | eq x | gt y = ⊥.rec (¬-sucℕ-<ᵗ y)
+        ... | gt x | q = ⊥.rec (<ᵗ-irrefl x)
 
 genH̃ˢᵏᵉˡSphereBouquet/ˢᵏᵉˡ : {c1 c2 n : ℕ}
   (α : FinSphereBouquetMap c1 c2 n) (k : Fin c2)
@@ -379,8 +379,8 @@ isGen-genH̃ˢᵏᵉˡSphereBouquet/ˢᵏᵉˡ : {c1 c2 n : ℕ}
    ≡ [ ℤFinGenerator k ]
 isGen-genH̃ˢᵏᵉˡSphereBouquet/ˢᵏᵉˡ {n = n} α k
   with (suc n ≟ᵗ suc (suc n)) | (n ≟ᵗ n)
-... | lt x | lt y = ⊥.rec (¬m<ᵗm y)
+... | lt x | lt y = ⊥.rec (<ᵗ-irrefl y)
 ... | lt x | eq y = refl
-... | lt x | gt y = ⊥.rec (¬m<ᵗm y)
-... | eq x | q = ⊥.rec (¬m<ᵗm (subst (suc n <ᵗ_) (sym x) <ᵗsucm))
-... | gt x | q = ⊥.rec (¬-suc-n<ᵗn x)
+... | lt x | gt y = ⊥.rec (<ᵗ-irrefl y)
+... | eq x | q = ⊥.rec (<ᵗ-irrefl (subst (suc n <ᵗ_) (sym x) <ᵗsuc))
+... | gt x | q = ⊥.rec (¬-sucℕ-<ᵗ x)

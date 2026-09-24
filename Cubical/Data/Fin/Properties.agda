@@ -334,18 +334,18 @@ pigeonhole-special {zero} f = Empty.rec (¬Fin0 (f fzero))
 pigeonhole-special {suc n} f =
   proof (any? {n = suc n}
     (λ (i : Fin (suc n)) →
-      discreteFin {suc n} (f (injectSuc i)) (f (suc n , <ᵗsucm {n}))
+      discreteFin {suc n} (f (injectSuc i)) (f (suc n , <ᵗsuc {n}))
     ))
   where
     proof
-      : Dec (Σ (Fin (suc n)) (λ z → f (injectSuc z) ≡ f (suc n , <ᵗsucm {n})))
+      : Dec (Σ (Fin (suc n)) (λ z → f (injectSuc z) ≡ f (suc n , <ᵗsuc {n})))
       → Σ[ i ∈ Fin (suc (suc n)) ] Σ[ j ∈ Fin (suc (suc n)) ] (¬ i ≡ j) × (f i ≡ f j)
-    proof (yes (i , prf)) = injectSuc i , (suc n , <ᵗsucm {n}) , inject<-ne i , prf
+    proof (yes (i , prf)) = injectSuc i , (suc n , <ᵗsuc {n}) , inject<-ne i , prf
     proof (no h) =
       let
         g : Fin (suc n) → Fin n
         g k = punchOut
-          {i = f (suc n , <ᵗsucm {n})}
+          {i = f (suc n , <ᵗsuc {n})}
           {j = f (injectSuc k)}
           (λ p → h (k , Fin-fst-≡ {suc n} (sym (cong fst p))))
         i , j , i≢j , p = pigeonhole-special g
@@ -354,7 +354,7 @@ pigeonhole-special {suc n} f =
       , injectSuc j
       , (λ q → i≢j (Fin-fst-≡ {suc n} (cong fst q)))
       , punchOut-inj
-          {i = f (suc n , <ᵗsucm {n})}
+          {i = f (suc n , <ᵗsuc {n})}
           {j = f (injectSuc i)}
           {k = f (injectSuc j)}
           (λ q → h (i , Fin-fst-≡ {suc n} (sym (cong fst q))))

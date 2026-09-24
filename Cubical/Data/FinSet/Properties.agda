@@ -12,7 +12,7 @@ open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.HITs.PropositionalTruncation as Prop
 
 open import Cubical.Data.Nat
-import Cubical.Data.Nat.Order.Recursive as Ord
+import Cubical.Data.Nat.Order.Inductive as Ord
 import Cubical.Data.Fin as Fin
 open import Cubical.Data.Unit
 open import Cubical.Data.Bool
@@ -132,9 +132,9 @@ isFinOrdUnit =
     (isContr→Equiv isContrSumFin1 isContrUnit) isFinOrdFin
 
 takeFirstFinOrd : ∀ {ℓ} → (A : Type ℓ) →
-  (the-ord : isFinOrd A) → 0 Ord.< the-ord .fst → A
+  (the-ord : isFinOrd A) → 0 Ord.<ᵗ the-ord .fst → A
 takeFirstFinOrd A (suc n , the-eq) x =
-  the-eq .snd .equiv-proof (Fin→SumFin (Fin.fromℕ≤ 0 n x)) .fst .fst
+  the-eq .snd .equiv-proof (Fin→SumFin (Fin.fromℕ≤ᵗ 0 n x)) .fst .fst
 
 isFinSet⊤ : isFinSet ⊤
 isFinSet⊤ = 1 , ∣ invEquiv ⊎-IdR-⊥-≃ ∣₁

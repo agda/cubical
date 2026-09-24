@@ -184,9 +184,9 @@ module πCofibFinSphereBouquetMap (n k m : ℕ)
       where
       lem1 : (s : Fin m) (w : S₊ (suc (suc n))) → pickPetal s (inr (s , w)) ≡ w
       lem1 s w with (fst s ≟ᵗ fst s)
-      ... | lt x = ⊥.rec (¬m<ᵗm x)
+      ... | lt x = ⊥.rec (<ᵗ-irrefl x)
       ... | eq x = refl
-      ... | gt x = ⊥.rec (¬m<ᵗm x)
+      ... | gt x = ⊥.rec (<ᵗ-irrefl x)
 
       ϕ = compGroupHom (GroupIso→GroupHom (πₙ⋁Sⁿ≅ℤ[] n m)) (bouquetDegree (fst α))
       ψ = compGroupHom (π'∘∙Hom (suc n) α) ((GroupIso→GroupHom (πₙ⋁Sⁿ≅ℤ[] n k)))

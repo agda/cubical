@@ -158,21 +158,21 @@ bouquetDegreeId {n = n} {m = m} =
     lem : (x₁ : S₊ n) → pickPetal y (inr (x , x₁)) ≡ ptSn n
     lem x₁ with (fst y ≟ᵗ fst x)
     ... | lt x = refl
-    ... | eq q = ⊥.rec (¬m<ᵗm (subst (fst x <ᵗ_) q p))
+    ... | eq q = ⊥.rec (<ᵗ-irrefl (subst (fst x <ᵗ_) q p))
     ... | gt x = refl
   ... | eq p = cong (degree n) (funExt lem) ∙ degreeIdfun n
     where
     lem : (x₁ : S₊ n) → pickPetal y (inr (x , x₁)) ≡ x₁
     lem x₁ with (fst y ≟ᵗ fst x)
-    ... | lt q = ⊥.rec (¬m<ᵗm (subst (fst y <ᵗ_) p q))
+    ... | lt q = ⊥.rec (<ᵗ-irrefl (subst (fst y <ᵗ_) p q))
     ... | eq x = refl
-    ... | gt q = ⊥.rec (¬m<ᵗm (subst (_<ᵗ fst y) p q))
+    ... | gt q = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ fst y) p q))
   ... | gt p = cong (degree n) (funExt lem) ∙ degree-const n
       where
     lem : (x₁ : S₊ n) → pickPetal y (inr (x , x₁)) ≡ ptSn n
     lem x₁ with (fst y ≟ᵗ fst x)
     ... | lt x = refl
-    ... | eq q = ⊥.rec (¬m<ᵗm (subst (_<ᵗ fst x) q p))
+    ... | eq q = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ fst x) q p))
     ... | gt x = refl
 
 bouquetDegreeConst : (n a b : ℕ)
@@ -413,9 +413,9 @@ bouquetDegreeComp∙Suc {n} {m} {k} {l} f g =
       id₁ : (x : Fin (suc m)) (y : _)
         → fst F (inr (x , pickPetal x (inr (x , y)))) ≡ fst F (inr (x , y))
       id₁ (x , p) y with (x ≟ᵗ x)
-      ... | lt x₁ = ⊥.rec (¬m<ᵗm x₁)
+      ... | lt x₁ = ⊥.rec (<ᵗ-irrefl x₁)
       ... | eq x₁ = refl
-      ... | gt x₁ = ⊥.rec (¬m<ᵗm x₁)
+      ... | gt x₁ = ⊥.rec (<ᵗ-irrefl x₁)
 
       id₂ : (x : _) (x' : Fin (suc m)) (y : _) (q : ¬ x' ≡ x)
          → ∣ fst F (inr (x' , pickPetal x' (inr (x , y)))) ∣ₕ ≡ 0ₖ (suc n)

@@ -77,18 +77,18 @@ module SubComplexGen (C : CWskel ℓ) (n : ℕ) where
   subComplexFam≃Pushout m (lt x) (eq y) = snd C .snd .snd .snd m
   subComplexFam≃Pushout m (lt x) (gt y) = ⊥.rec (¬squeeze {m} {n} (x , y))
   subComplexFam≃Pushout m (eq x) (lt y) =
-    ⊥.rec (¬m<ᵗm {n} (subst (_<ᵗ n) x (<ᵗ-trans {m} {suc m} {n} (<ᵗsucm {m}) y)))
+    ⊥.rec (<ᵗ-irrefl {n} (subst (_<ᵗ n) x (<ᵗ-trans {m} {suc m} {n} (<ᵗsuc {m}) y)))
   subComplexFam≃Pushout m (eq x) (eq y) =
-    ⊥.rec (¬m<ᵗm {m} (subst (m <ᵗ_) (y ∙ sym x) (<ᵗsucm {m})))
+    ⊥.rec (<ᵗ-irrefl {m} (subst (m <ᵗ_) (y ∙ sym x) (<ᵗsuc {m})))
   subComplexFam≃Pushout m (eq x) (gt y) =
     compEquiv (pathToEquiv (λ i → fst C (x (~ i))))
               (isoToEquiv (PushoutEmptyFam (λ x → ¬Fin0 (fst x)) ¬Fin0))
   subComplexFam≃Pushout m (gt x) (lt y) =
     ⊥.rec (¬squeeze {suc m} {n} (y
       , <ᵗ-trans {n} {m} {suc (suc m)} x
-         (<ᵗ-trans {m} {suc m} {suc (suc m)} (<ᵗsucm {m}) (<ᵗsucm {suc m}))))
+         (<ᵗ-trans {m} {suc m} {suc (suc m)} (<ᵗsuc {m}) (<ᵗsuc {suc m}))))
   subComplexFam≃Pushout m (gt x) (eq y) =
-    ⊥.rec (¬m<ᵗm {n} (subst (n <ᵗ_) y (<ᵗ-trans {n} {m} {suc m} x (<ᵗsucm {m}))))
+    ⊥.rec (<ᵗ-irrefl {n} (subst (n <ᵗ_) y (<ᵗ-trans {n} {m} {suc m} x (<ᵗsuc {m}))))
   subComplexFam≃Pushout m (gt x) (gt y) =
     isoToEquiv (PushoutEmptyFam (λ x → ¬Fin0 (fst x)) ¬Fin0)
 
@@ -225,7 +225,7 @@ module _ (C : CWskel ℓ) where
 realiseSubComplex : (n : ℕ) (C : CWskel ℓ)
   → Iso (fst C n) (realise (subComplex C n))
 realiseSubComplex n C =
-  compIso (equivToIso (complex≃subcomplex' C n n (<ᵗsucm {n}) (n ≟ᵗ n)))
+  compIso (equivToIso (complex≃subcomplex' C n n (<ᵗsuc {n}) (n ≟ᵗ n)))
           (realiseFin n (finSubComplex C n))
 
 subCWExplicit : ∀ {ℓ} (n : ℕ) → CWexplicit ℓ → CWexplicit ℓ
@@ -298,20 +298,20 @@ CWskel∙Gen≡CWskel∙ X x (suc n) m =
          (inl (CWskel∙Gen X x n (suc m) q))
   lem (lt x) (lt y) = refl
   lem (lt x) (eq y) =
-    ⊥.rec (¬m<ᵗm {suc (suc m)}
+    ⊥.rec (<ᵗ-irrefl {suc (suc m)}
            (subst (_<ᵗ suc (suc m)) y
-             (<ᵗ-trans {n} {suc n} {suc m} (<ᵗsucm {n}) x)))
+             (<ᵗ-trans {n} {suc n} {suc m} (<ᵗsuc {n}) x)))
   lem (lt x) (gt y) =
     ⊥.rec (¬squeeze {n} {m} (x
           , <ᵗ-trans {suc m} {n} {suc (suc n)} y
              (<ᵗ-trans {n} {suc n} {suc (suc n)}
-              (<ᵗsucm {n}) (<ᵗsucm {suc n}))))
+              (<ᵗsuc {n}) (<ᵗsuc {suc n}))))
   lem (eq x) (lt y) = refl
   lem (eq x) (eq y) =
-    ⊥.rec (¬m<ᵗm {suc (suc n)}
-             (subst (_<ᵗ suc (suc n)) (y ∙ sym x) (<ᵗsucm {n})))
+    ⊥.rec (<ᵗ-irrefl {suc (suc n)}
+             (subst (_<ᵗ suc (suc n)) (y ∙ sym x) (<ᵗsuc {n})))
   lem (eq x) (gt y) =
-    ⊥.rec (¬-suc-n<ᵗn {suc (suc n)} (subst (_<ᵗ suc n) (sym x) y))
+    ⊥.rec (¬-sucℕ-<ᵗ {suc (suc n)} (subst (_<ᵗ suc n) (sym x) y))
   lem (gt x) (lt y) =
     ⊥.rec (¬squeeze {n} {suc m} (y , x))
   lem (gt y) (eq z) =
@@ -349,9 +349,9 @@ CW↪CommSubComplex C m k with (m ≟ᵗ k) | (suc m ≟ᵗ k)
 ... | lt x | eq y = refl
 ... | lt x | gt y = ⊥.rec (¬squeeze {m} {k} (x , y))
 ... | eq x | lt y =
-  ⊥.rec (¬m<ᵗm {k} (subst (_<ᵗ k) x (<ᵗ-trans {m} {suc m} {k} (<ᵗsucm {m}) y)))
+  ⊥.rec (<ᵗ-irrefl {k} (subst (_<ᵗ k) x (<ᵗ-trans {m} {suc m} {k} (<ᵗsuc {m}) y)))
 ... | eq x | eq y =
-  ⊥.rec (¬m<ᵗm {m} (subst (_<ᵗ_ m) (y ∙ (λ i → x (~ i))) (<ᵗsucm {m})))
+  ⊥.rec (<ᵗ-irrefl {m} (subst (_<ᵗ_ m) (y ∙ (λ i → x (~ i))) (<ᵗsuc {m})))
 ... | eq x | gt y = funExt λ s → help _ _ x y s (suc m ≟ᵗ suc k)
   where
   help : (m : ℕ) (k : ℕ) (x : m ≡ k) (y : k <ᵗ suc m) (s : fst C m) (p : _)
@@ -362,13 +362,13 @@ CW↪CommSubComplex C m k with (m ≟ᵗ k) | (suc m ≟ᵗ k)
          ; (eq x) → cong (CW↪ C (suc m)) (sym (transportRefl s)
               ∙ λ i → subst (fst C) (isSetℕ _ _ refl (cong predℕ (sym x)) i)
                       (transportRefl (transportRefl s (~ i)) (~ i)))
-         ; (gt x) → ⊥.rec (¬m<ᵗm {m} x) }
+         ; (gt x) → ⊥.rec (<ᵗ-irrefl {m} x) }
 ... | gt x | lt y =
   ⊥.rec (¬squeeze {suc m} {k} (y
     , <ᵗ-trans {k} {m} {suc (suc m)} x
-      (<ᵗ-trans {m} {suc m} {suc (suc m)} (<ᵗsucm {m}) (<ᵗsucm {suc m}))))
+      (<ᵗ-trans {m} {suc m} {suc (suc m)} (<ᵗsuc {m}) (<ᵗsuc {suc m}))))
 ... | gt x | eq y =
-  ⊥.rec (¬m<ᵗm {k} (subst (k <ᵗ_) y (<ᵗ-trans {k} {m} {suc m} x (<ᵗsucm {m}))))
+  ⊥.rec (<ᵗ-irrefl {k} (subst (k <ᵗ_) y (<ᵗ-trans {k} {m} {suc m} x (<ᵗsuc {m}))))
 ... | gt x | gt y = funExt λ a → help _ _ x y (suc m ≟ᵗ suc k) a
   where
   help : (m k : ℕ) (x : k <ᵗ m) (y : k <ᵗ suc m) (p : _) (a : _)
@@ -376,7 +376,7 @@ CW↪CommSubComplex C m k with (m ≟ᵗ k) | (suc m ≟ᵗ k)
   help (suc m) zero x y p a = ⊥.rec (C .snd .snd .snd .fst a)
   help (suc m) (suc k) x y (lt z) a = ⊥.rec (¬squeeze {k} {suc m} (y , z))
   help (suc m) (suc k) x y (eq z) a =
-    ⊥.rec (¬m<ᵗm {m} (subst (_<ᵗ m) (sym (cong (predℕ ∘ predℕ) z)) x))
+    ⊥.rec (<ᵗ-irrefl {m} (subst (_<ᵗ m) (sym (cong (predℕ ∘ predℕ) z)) x))
   help (suc m) (suc k) x y (gt z) a =
     cong (CW↪ C (suc m))
       λ i → CW↑Gen C (suc k) (suc m)
@@ -452,8 +452,8 @@ subComplex→comm C m (suc n) (lt y) (eq z) x = refl
 subComplex→comm C m (suc n) (lt y) (gt z) x =
   ⊥.rec (¬squeeze {m} {suc n} (y , z))
 subComplex→comm C m (suc n) (eq y) (lt z) x =
-  ⊥.rec (¬m<ᵗm {suc n} (transport (λ i → y i <ᵗ suc n)
-           (<ᵗ-trans {m} {suc m} {suc n} (<ᵗsucm {m}) z)))
+  ⊥.rec (<ᵗ-irrefl {suc n} (transport (λ i → y i <ᵗ suc n)
+           (<ᵗ-trans {m} {suc m} {suc n} (<ᵗsuc {m}) z)))
 subComplex→comm C m (suc n) (eq y) (eq z) x =
   ⊥.rec ( falseDichotomies.eq-eq (sym y , sym z))
 subComplex→comm C m (suc n) (eq y) (gt z) x with (m ≟ᵗ suc n)
@@ -462,17 +462,17 @@ subComplex→comm C m (suc n) (eq y) (gt z) x with (m ≟ᵗ suc n)
                 (transportRefl _
                 ∙ cong (λ p → subst (fst C) p x) (isSetℕ _ _ y x₃))
                 ∙ subst⁻Subst (fst C) x₃ x))
-... | gt x₃ = ⊥.rec (¬m<ᵗm {suc n} (subst (suc n <ᵗ_) y x₃))
+... | gt x₃ = ⊥.rec (<ᵗ-irrefl {suc n} (subst (suc n <ᵗ_) y x₃))
 subComplex→comm C m (suc n) (gt y) (lt z) x =
   ⊥.rec (¬squeeze {m} {n}
     (z , <ᵗ-trans {suc n} {m} {suc (suc m)} y
-           (<ᵗ-trans {m} {suc m} {suc (suc m)} (<ᵗsucm {m}) (<ᵗsucm {suc m}))))
+           (<ᵗ-trans {m} {suc m} {suc (suc m)} (<ᵗsuc {m}) (<ᵗsuc {suc m}))))
 subComplex→comm C m (suc n) (gt y) (eq z) x = (⊥.rec
-       (¬m<ᵗm {suc n} (transport (λ i → suc n <ᵗ z i)
-         (<ᵗ-trans {suc n} {m} {suc m} y ( <ᵗsucm {m})))))
+       (<ᵗ-irrefl {suc n} (transport (λ i → suc n <ᵗ z i)
+         (<ᵗ-trans {suc n} {m} {suc m} y ( <ᵗsuc {m})))))
 subComplex→comm C (suc m) (suc n) (gt y) (gt z) x with m ≟ᵗ n
 ... | lt x₃ = ⊥.rec (¬squeeze {n} {suc m} (z , x₃))
-... | eq x₃ = ⊥.rec (¬m<ᵗm {n} (subst (n <ᵗ_) x₃ y))
+... | eq x₃ = ⊥.rec (<ᵗ-irrefl {n} (subst (n <ᵗ_) x₃ y))
 ... | gt x₃ = cong (CW↪ C (suc m))
   λ j → CW↑Gen C (suc n) (suc m)
           (Trichotomyᵗ-suc (m ≟ᵗ suc n)) (isProp<ᵗ {n} {m} y x₃ j) x
@@ -490,36 +490,36 @@ FinSequenceMap.fcomm (subComplex→ C m n) t =
 
 subComplexFam↓ : ∀ {ℓ} (C : CWskel ℓ)  (m : ℕ) (p : _) (q : _)
   → G.subComplexFam C m (suc m) p → G.subComplexFam C m m q
-subComplexFam↓ C m (lt x) q = ⊥.rec (¬-suc-n<ᵗn {m} x)
+subComplexFam↓ C m (lt x) q = ⊥.rec (¬-sucℕ-<ᵗ {m} x)
 subComplexFam↓ C m (eq x) q = ⊥.rec (falseDichotomies.eq-eq(refl , sym x))
-subComplexFam↓ C m (gt x) (lt y) = ⊥.rec (¬m<ᵗm {m} y)
+subComplexFam↓ C m (gt x) (lt y) = ⊥.rec (<ᵗ-irrefl {m} y)
 subComplexFam↓ C m (gt x) (eq y) = idfun _
-subComplexFam↓ C m (gt x) (gt y) = ⊥.rec (¬m<ᵗm {m} y)
+subComplexFam↓ C m (gt x) (gt y) = ⊥.rec (<ᵗ-irrefl {m} y)
 
 CW↪subComplexFam↓ : ∀ {ℓ} (C : CWskel ℓ)  (m : ℕ) (p : _) (q : _) (x : _)
   → SubComplexGen.subComplexCW↪Gen C m m p q (subComplexFam↓ C m q p x) ≡ x
-CW↪subComplexFam↓ C m p (lt y) x = ⊥.rec (¬-suc-n<ᵗn {m} y)
+CW↪subComplexFam↓ C m p (lt y) x = ⊥.rec (¬-sucℕ-<ᵗ {m} y)
 CW↪subComplexFam↓ C m p (eq y) x = ⊥.rec (falseDichotomies.eq-eq(refl , sym y))
-CW↪subComplexFam↓ C m (lt z) (gt y) x = ⊥.rec (¬m<ᵗm {m} z)
+CW↪subComplexFam↓ C m (lt z) (gt y) x = ⊥.rec (<ᵗ-irrefl {m} z)
 CW↪subComplexFam↓ C m (eq z) (gt y) x =
   transportRefl _ ∙ cong (λ p → subst (fst C) p x) (isSetℕ _ _ z refl)
                   ∙ transportRefl x
-CW↪subComplexFam↓ C m (gt z) (gt y) x = ⊥.rec (¬m<ᵗm {m} z)
+CW↪subComplexFam↓ C m (gt z) (gt y) x = ⊥.rec (<ᵗ-irrefl {m} z)
 
 subComplex→map'Charac : ∀ {ℓ} (C : CWskel ℓ)  (m : ℕ) (p : _) (q : _)
   → subComplexMapGen.subComplex→map' C m (suc m) p
    ≡ CW↪ C m ∘ subComplexMapGen.subComplex→map' C m m q
              ∘ subComplexFam↓ C m p q
-subComplex→map'Charac C m p (lt x) = ⊥.rec (¬m<ᵗm {m} x)
-subComplex→map'Charac C m (lt y) (eq x) = ⊥.rec (¬-suc-n<ᵗn {m} y)
+subComplex→map'Charac C m p (lt x) = ⊥.rec (<ᵗ-irrefl {m} x)
+subComplex→map'Charac C m (lt y) (eq x) = ⊥.rec (¬-sucℕ-<ᵗ {m} y)
 subComplex→map'Charac C m (eq y) (eq x) =
   ⊥.rec (falseDichotomies.eq-eq (refl , sym y))
 subComplex→map'Charac C zero (gt y) (eq x) =
   funExt (λ q → ⊥.rec (C .snd .snd .snd .fst q))
 subComplex→map'Charac C (suc m) (gt y) (eq x) with (m ≟ᵗ m)
-... | lt z =  ⊥.rec (¬m<ᵗm {m} z)
+... | lt z =  ⊥.rec (<ᵗ-irrefl {m} z)
 ... | eq z = funExt λ x
   → cong (CW↪ C (suc m)) (cong (λ p → subst (fst C) p x) (isSetℕ _ _ _ _)
     ∙ transportRefl x)
-... | gt z =  ⊥.rec (¬m<ᵗm {m} z)
-subComplex→map'Charac C m p (gt x) = ⊥.rec (¬m<ᵗm {m} x)
+... | gt z =  ⊥.rec (<ᵗ-irrefl {m} z)
+subComplex→map'Charac C m p (gt x) = ⊥.rec (<ᵗ-irrefl {m} x)

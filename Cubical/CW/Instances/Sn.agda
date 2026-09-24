@@ -103,12 +103,12 @@ Sα n m t = SαGen n m (suc m ≟ᵗ suc n) (m ≟ᵗ suc n) t
   ¬ScardGen zero (suc m) p q = ¬Fin0
   ¬ScardGen (suc n) (suc m) (lt x) q = snd
   ¬ScardGen (suc n) (suc m) (eq x) q =
-    λ _ → ¬m<ᵗm (subst (n <ᵗ_) (cong (predℕ ∘ predℕ) x) q)
+    λ _ → <ᵗ-irrefl (subst (n <ᵗ_) (cong (predℕ ∘ predℕ) x) q)
   ¬ScardGen (suc n) (suc m) (gt x) q = snd
 
 ¬Scard' : (n : ℕ) → ¬ Fin (Scard (suc (suc n)) (suc n))
 ¬Scard' n x with (n ≟ᵗ suc n)
-... | eq x₁ = ¬m<ᵗm (subst (n <ᵗ_) (sym x₁) <ᵗsucm)
+... | eq x₁ = <ᵗ-irrefl (subst (n <ᵗ_) (sym x₁) <ᵗsuc)
 
 -- S⁰ ≃ Bool
 Sfam0 : (m : ℕ) (p : _) → Sgen.Sfam zero (suc m) p ≃ Bool
@@ -126,8 +126,8 @@ isContrSfamGen : (n m : ℕ) (s : m <ᵗ n) (q : _)
 fst (isContrSfamGen n m s q) = Sgen.Sfam∙ n m q
 snd (isContrSfamGen n m s (lt x)) y = refl
 snd (isContrSfamGen n m s (eq x)) y =
-  ⊥.rec (¬m<ᵗm (subst (m <ᵗ_) (sym (cong predℕ x)) s))
-snd (isContrSfamGen n m s (gt x)) y = ⊥.rec (¬m<ᵗm (<ᵗ-trans x s))
+  ⊥.rec (<ᵗ-irrefl (subst (m <ᵗ_) (sym (cong predℕ x)) s))
+snd (isContrSfamGen n m s (gt x)) y = ⊥.rec (<ᵗ-irrefl (<ᵗ-trans x s))
 
 isPushoutSuspSphereIso : (n m : ℕ) (x : n ≡ m) (q : _)
   → Iso (Susp (S₊ m))
@@ -140,11 +140,11 @@ inv (isPushoutSuspSphereIso n m e s) (inl x) = north
 inv (isPushoutSuspSphereIso n m e s) (inr x) = south
 inv (isPushoutSuspSphereIso n m e s) (push a i) = merid (snd a) i
 sec (isPushoutSuspSphereIso n m e s) (inl x) i =
-  inl (isContrSfamGen (suc n) m (subst (_<ᵗ suc n) e <ᵗsucm) s .snd x i)
+  inl (isContrSfamGen (suc n) m (subst (_<ᵗ suc n) e <ᵗsuc) s .snd x i)
 sec (isPushoutSuspSphereIso n m e s) (inr (zero , tt)) j = inr fzero
 sec (isPushoutSuspSphereIso n m e s) (push ((zero , tt) , a) i) = help i
   where
-  ee = subst (_<ᵗ suc n) e <ᵗsucm
+  ee = subst (_<ᵗ suc n) e <ᵗsuc
   help : Square {A = Pushout {A = Fin 1 × S₊ m}
                       (λ _ → Sgen.Sfam∙ (suc n) m s) fst}
           (λ i₁ → inl (isContrSfamGen (suc n) m ee s .snd
@@ -200,8 +200,8 @@ SαEqGen (suc n) zero p q =
   compEquiv (isContr→Equiv (SfamContr n p) (flast , (λ {(zero , tt) → refl})))
     (compEquiv (isoToEquiv (PushoutEmptyFam (λ()) λ())) (symPushout _ _))
 SαEqGen (suc n) (suc m) (lt x) q = invEquiv
-  (isContr→≃Unit ((inl (isContrSfamGen (suc n) m (<ᵗ-trans x <ᵗsucm) q .fst))
-  , λ { (inl t) i → inl (isContrSfamGen (suc n) m (<ᵗ-trans x <ᵗsucm) q .snd
+  (isContr→≃Unit ((inl (isContrSfamGen (suc n) m (<ᵗ-trans x <ᵗsuc) q .fst))
+  , λ { (inl t) i → inl (isContrSfamGen (suc n) m (<ᵗ-trans x <ᵗsuc) q .snd
                            t i)}))
 SαEqGen zero (suc m) (eq x) q = ⊥.rec (snotz (cong predℕ x))
 SαEqGen (suc n) (suc m) (eq x) q =
@@ -218,14 +218,14 @@ invEqSαEqGen∙ : (n m : ℕ) (p : Trichotomyᵗ (suc (suc m)) (suc n)) (q : _)
   → invEq (SαEqGen n (suc m) p q) (inl (Sgen.Sfam∙ n m q))
    ≡ Sgen.Sfam∙ n (suc m) p
 invEqSαEqGen∙ (suc n) m (lt x) (lt x₁) = refl
-invEqSαEqGen∙ n m (lt x) (eq x₁) = ⊥.rec (¬-suc-n<ᵗn (subst (_<ᵗ n) x₁ x))
+invEqSαEqGen∙ n m (lt x) (eq x₁) = ⊥.rec (¬-sucℕ-<ᵗ (subst (_<ᵗ n) x₁ x))
 invEqSαEqGen∙ (suc n) (suc m) (lt x) (gt x₁) =
-  ⊥.rec (¬-suc-n<ᵗn (<ᵗ-trans x x₁))
+  ⊥.rec (¬-sucℕ-<ᵗ (<ᵗ-trans x x₁))
 invEqSαEqGen∙ (suc n) m (eq x) (lt x₁) = refl
 invEqSαEqGen∙ n m (eq x) (eq x₁) =
-  ⊥.rec (¬m<ᵗm (subst (_<ᵗ suc (suc m)) (x₁ ∙ sym x) <ᵗsucm))
+  ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ suc (suc m)) (x₁ ∙ sym x) <ᵗsuc))
 invEqSαEqGen∙ n m (eq x) (gt x₁) =
-  ⊥.rec (¬-suc-n<ᵗn (subst (_<ᵗ suc m) (sym x) x₁))
+  ⊥.rec (¬-sucℕ-<ᵗ (subst (_<ᵗ suc m) (sym x) x₁))
 invEqSαEqGen∙ (suc n) m (gt x) (lt x₁) = ⊥.rec (¬squeeze (x , x₁))
 invEqSαEqGen∙ zero m (gt x) (eq x₁) = refl
 invEqSαEqGen∙ (suc n) m (gt x) (eq x₁) = refl
@@ -245,7 +245,7 @@ snd (snd (snd (snd (Sˢᵏᵉˡ n)))) = SαEq n
 
 -- Proof that our CW structure converges to Sⁿ as a plain type
 SfamTopElement : (n : ℕ) → S₊ n ≃ (Sfam n (suc n))
-SfamTopElement n = SfamGenTopElement n (suc n) <ᵗsucm (suc n ≟ᵗ suc n)
+SfamTopElement n = SfamGenTopElement n (suc n) <ᵗsuc (suc n ≟ᵗ suc n)
 
 SˢᵏᵉˡConverges : (n : ℕ) (k : ℕ)
   → isEquiv (invEq (SαEq n (k +ℕ suc n)) ∘ inl)
@@ -319,19 +319,19 @@ module _ {ℓ} (X : CWskel ℓ) (n : ℕ) (x₀ : fst X 1)
     ≡ CW↪ X k (cellMapSˢᵏᵉˡFunGenGen k q x)
   cellMapSˢᵏᵉˡFunGenComm (suc k) (lt x₁) (lt x₂) x = refl
   cellMapSˢᵏᵉˡFunGenComm (suc k) (lt x₁) (eq x₂) x =
-    ⊥.rec (¬-suc-n<ᵗn (subst (suc k <ᵗ_) (cong predℕ (sym x₂)) x₁))
+    ⊥.rec (¬-sucℕ-<ᵗ (subst (suc k <ᵗ_) (cong predℕ (sym x₂)) x₁))
   cellMapSˢᵏᵉˡFunGenComm (suc k) (lt x₁) (gt x₂) x =
-    ⊥.rec (¬-suc-n<ᵗn (<ᵗ-trans x₁ x₂))
+    ⊥.rec (¬-sucℕ-<ᵗ (<ᵗ-trans x₁ x₂))
   cellMapSˢᵏᵉˡFunGenComm (suc k) (eq x₁) (lt x₂) x =
     cong (subst (fst X) (sym x₁) ∘ f) (invEqSαEqGen∙ n k _ _)
     ∙ cellMapSˢᵏᵉˡFunGenGen∙ (suc k) (eq x₁)
   cellMapSˢᵏᵉˡFunGenComm k (eq x₁) (eq x₂) x =
     ⊥.rec (falseDichotomies.eq-eq (refl , sym (x₁ ∙ sym x₂)))
   cellMapSˢᵏᵉˡFunGenComm k (eq x₁) (gt x₂) x =
-    ⊥.rec (¬-suc-n<ᵗn {n} (subst (suc (suc n) <ᵗ_) x₁ x₂))
+    ⊥.rec (¬-sucℕ-<ᵗ {n} (subst (suc (suc n) <ᵗ_) x₁ x₂))
   cellMapSˢᵏᵉˡFunGenComm k (gt x₁) (lt x₂) x = ⊥.rec (¬squeeze (x₁ , x₂))
   cellMapSˢᵏᵉˡFunGenComm (suc k) (gt x₁) (eq x₂) x with (k ≟ᵗ n)
-  ... | lt x₃ = ⊥.rec (¬m<ᵗm (subst (_<ᵗ n) (cong predℕ x₂) x₃))
+  ... | lt x₃ = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ n) (cong predℕ x₂) x₃))
   ... | eq x₃ = cong (CW↪ X (suc k))
     (cong (subst (fst X) (cong suc (sym x₃))) (cong f (lem n x x₁ x₂))
     ∙ cong (λ p → subst (fst X) p (f x))
@@ -341,10 +341,10 @@ module _ {ℓ} (X : CWskel ℓ) (n : ℕ) (x₀ : fst X 1)
       → invEq (SαEqGen n (suc k) (gt x₁) (eq x₂)) (inl x) ≡ x
     lem zero x x₁ x₂ = refl
     lem (suc n) x x₁ x₂ = refl
-  ... | gt x₃ = ⊥.rec (¬m<ᵗm (subst (n <ᵗ_) (cong predℕ  x₂) x₃))
+  ... | gt x₃ = ⊥.rec (<ᵗ-irrefl (subst (n <ᵗ_) (cong predℕ  x₂) x₃))
   cellMapSˢᵏᵉˡFunGenComm (suc k) (gt x₁) (gt x₂) x with k ≟ᵗ n
-  ... | lt x₃ = ⊥.rec (¬m<ᵗm (<ᵗ-trans x₂ x₃))
-  ... | eq x₃ = ⊥.rec (¬m<ᵗm (subst (n <ᵗ_) x₃ x₂))
+  ... | lt x₃ = ⊥.rec (<ᵗ-irrefl (<ᵗ-trans x₂ x₃))
+  ... | eq x₃ = ⊥.rec (<ᵗ-irrefl (subst (n <ᵗ_) x₃ x₂))
   ... | gt x₃ =
     cong (CW↪ X (suc k))
        (cong (CW↪ X k ∘ cellMapSˢᵏᵉˡFunGenGen k (k ≟ᵗ suc n))
@@ -433,12 +433,12 @@ module _ {ℓ} (X : CWskel ℓ) (n : ℕ) (x₀ : fst X 1)
       → realiseSequenceMap cellMapSˢᵏᵉˡImproved (fst (hasCWskelSphere n .snd) x)
        ≡ fst f x
     lem x with (n ≟ᵗ n)
-    ... | lt x₁ = ⊥.rec (¬m<ᵗm x₁)
+    ... | lt x₁ = ⊥.rec (<ᵗ-irrefl x₁)
     ... | eq x₁ = cong (incl {n = suc n})
                   (cong (λ p → subst (fst X) p (fst faprx x))
                    (isSetℕ _ _ _ refl)
                 ∙ transportRefl (fst faprx x)) ∙ faprx≡ x
-    ... | gt x₁ = ⊥.rec (¬m<ᵗm x₁)
+    ... | gt x₁ = ⊥.rec (<ᵗ-irrefl x₁)
 
   finCellApproxSˢᵏᵉˡImproved : (k : ℕ)
     → finCellApprox (Sˢᵏᵉˡ n) X (fst f ∘ invEq (hasCWskelSphere n .snd)) k
@@ -475,10 +475,10 @@ cellMapSˢᵏᵉˡ∙Π X n x₀ faprx gaprx =
        ≡ ∙Π (incl∙ X x₀ ∘∙ faprx) (incl∙ X x₀ ∘∙ gaprx) .fst
              (invEq (SfamTopElement (suc n)) x)
   main with (n ≟ᵗ n)
-  ... | lt x = ⊥.rec (¬m<ᵗm x)
+  ... | lt x = ⊥.rec (<ᵗ-irrefl x)
   ... | eq x = λ x
     → cong (incl {n = suc (suc n)})
          (cong (λ p → subst (fst X) p (fst (∙Π faprx gaprx) x)) (isSetℕ _ _ _ refl)
           ∙ transportRefl _)
       ∙ funExt⁻ (cong fst (∙Π∘∙ n faprx gaprx (incl∙ X x₀))) x
-  ... | gt x = ⊥.rec (¬m<ᵗm x)
+  ... | gt x = ⊥.rec (<ᵗ-irrefl x)

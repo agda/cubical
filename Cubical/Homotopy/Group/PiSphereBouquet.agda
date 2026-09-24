@@ -229,13 +229,13 @@ genπₙ⋁Sⁿ x = ∣ (λ s → inr (x , s)) , (sym (push x)) ∣₂
     ≡ ℤFinGenerator x w
   pickPetalId w with (fst x ≟ᵗ fst w) | (fst w ≟ᵗ fst x)
   ... | lt x | lt x₁ = degreeConst (suc (suc n))
-  ... | lt p | eq q = ⊥.rec (¬m<ᵗm (subst (_<ᵗ fst w) (sym q) p))
+  ... | lt p | eq q = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ fst w) (sym q) p))
   ... | lt x | gt x₁ = degreeConst (suc (suc n))
-  ... | eq p | lt q = ⊥.rec (⊥.rec (¬m<ᵗm (subst (fst w <ᵗ_) p q)))
+  ... | eq p | lt q = ⊥.rec (⊥.rec (<ᵗ-irrefl (subst (fst w <ᵗ_) p q)))
   ... | eq x | eq x₁ = degreeIdfun (suc (suc n))
-  ... | eq p | gt q = ⊥.rec (¬m<ᵗm (subst (fst x <ᵗ_) (sym p) q))
+  ... | eq p | gt q = ⊥.rec (<ᵗ-irrefl (subst (fst x <ᵗ_) (sym p) q))
   ... | gt x | lt x₁ = degreeConst (suc (suc n))
-  ... | gt p | eq q = ⊥.rec (¬m<ᵗm (subst (_<ᵗ fst x) q p))
+  ... | gt p | eq q = ⊥.rec (<ᵗ-irrefl (subst (_<ᵗ fst x) q p))
   ... | gt x | gt x₁ = degreeConst (suc (suc n))
 
 -- Elimination principles for homomorphisms out of πₙ⋁Sⁿ
