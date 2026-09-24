@@ -27,10 +27,8 @@ open import Cubical.Data.Int.Order as ℤ using
   ( Positiveℤ ; Negativeℤ ; NonNegativeℤ ; NonPositiveℤ
   ; isDecPositiveℤ ; isDecNegativeℤ ; isDecNonNegativeℤ ; isDecNonPositiveℤ)
 open import Cubical.Algebra.CommMonoid
-
-ℤ·CommMonoid : CommMonoid ℓ-zero
-ℤ·CommMonoid = makeCommMonoid 1 _·_ isSetℤ ·Assoc ·IdR ·Comm
-open CommMonoidTheory ℤ·CommMonoid
+open import Cubical.Algebra.CommMonoid.Instances.Integer using (·IntCommMonoid)
+open CommMonoidTheory ·IntCommMonoid
 
 ------------------------------------------------
 -- Core definitions

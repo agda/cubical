@@ -19,7 +19,8 @@ open import Cubical.Data.Rationals.MoreRationals.SigmaQ.Base
 open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.CommMonoid
-open CommMonoidTheory ℤ·CommMonoid
+open import Cubical.Algebra.CommMonoid.Instances.Integer using (·IntCommMonoid)
+open CommMonoidTheory ·IntCommMonoid
 
 -- Operations on ℚ
 infixl 6 _-_ _+_
