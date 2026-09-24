@@ -135,7 +135,7 @@ module PairingSet (a b : V ℓ) where
   pairing-ax = classification where
     open SetPackage PairingPackage using (classification)
 -- pairing TODO: notation?
-open PairingSet renaming (PAIR to infix 12 ⁅_,_⁆) using (pairing-ax) public
+open PairingSet renaming (PAIR to ⁅_,_⁆) using (pairing-ax) public
 
 module SingletonSet (a : V ℓ) where
   SingletonStructure : SetStructure ℓ
@@ -150,7 +150,7 @@ module SingletonSet (a : V ℓ) where
 
   SINGL : V ℓ
   SINGL = SetStructure.resSet SingletonStructure
-open SingletonSet renaming (SINGL to infix 10 ⁅_⁆s) public
+open SingletonSet renaming (SINGL to ⁅_⁆s) public
 
 -- small unions
 _∪_ : (a b : V ℓ) → V ℓ
@@ -220,7 +220,7 @@ module ReplacementSet (r : V ℓ → V ℓ) (a : V ℓ) where
   replacement-ax : ⟨ ∀[ y ] (y ∈ₛ REPLACED ⇔ (∃[ z ] (z ∈ₛ a) ⊓ (y ≡ₕ r z))) ⟩
   replacement-ax y = classification y where
     open SetPackage ReplacementPackage using (classification)
-open ReplacementSet renaming (REPLACED to infix 12 ⁅_∣_⁆) using (replacement-ax) public
+open ReplacementSet renaming (REPLACED to ⁅_∣_⁆) using (replacement-ax) public
 
 module SeparationSet (a : V ℓ) (ϕ : V ℓ → hProp ℓ) where
   SeparationStructure : SetStructure ℓ
@@ -241,7 +241,7 @@ module SeparationSet (a : V ℓ) (ϕ : V ℓ → hProp ℓ) where
   separation-ax : ⟨ ∀[ y ] (y ∈ₛ SEPAREE ⇔ (y ∈ₛ a) ⊓ ϕ y) ⟩
   separation-ax y = classification y .fst , classification y .snd where
     open SetPackage SeparationPackage using (classification)
-open SeparationSet renaming (SEPAREE to infix 12 ⁅_∶_⁆) using (separation-ax) public
+open SeparationSet renaming (SEPAREE to ⁅_∶_⁆) using (separation-ax) public
 
 module Examples where
   open InfinitySet
