@@ -259,6 +259,9 @@ m+n≡1→m≡0×n≡1⊎m≡1n≡0 {suc m} {n} x =
 ·-identityʳ zero = refl
 ·-identityʳ (suc m) = cong suc (·-identityʳ m)
 
+·2≡∘diag+ : ∀ m → 2 · m ≡ m + m
+·2≡∘diag+ m = cong (m +_) (·-identityˡ m)
+
 0≡n·sm→0≡n : 0 ≡ n · suc m → 0 ≡ n
 0≡n·sm→0≡n {n = zero} p = refl
 0≡n·sm→0≡n {n = suc n} p = ⊥.rec (znots p)
@@ -275,6 +278,12 @@ integral-domain-· : {k l : ℕ} → (k ≡ 0 → ⊥) → (l ≡ 0 → ⊥) →
 integral-domain-· {zero} {l} ¬p ¬q r = ¬p refl
 integral-domain-· {suc k} {zero} ¬p ¬q r = ¬q refl
 integral-domain-· {suc k} {suc l} ¬p ¬q r = snotz r
+
+-- Arithmetic facts about ^
+
+1^≡1 : ∀ m → 1 ^ m ≡ 1
+1^≡1 zero    = refl
+1^≡1 (suc m) = +-zero _ ∙ 1^≡1 m
 
 -- Arithmetic facts about ∸
 
