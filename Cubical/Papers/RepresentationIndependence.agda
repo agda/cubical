@@ -107,8 +107,7 @@ _ = refl
 open SetQuotients using (_/_ ; setQuotUniversal) public
 -- Rational Numbers
 open SetQuoQ using (_∼_ ; ℚ) public
-open SigmaQ renaming (ℚ to ℚ') public
-
+open SigmaQ using () renaming (ℚ to ℚ') public
 
 
 -------------------------------------------------------------------------
