@@ -8,6 +8,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Data.Nat as ℕ using (ℕ; suc)
 open import Cubical.Data.NatPlusOne using (ℕ₊₁; 1+_; ·₊₁-comm)
 open import Cubical.Data.Sigma using (_×_)
+open import Cubical.Data.Fast.Int as F
 open import Cubical.Data.Int as ℤ using (ℤ; pos; negsuc)
 import Cubical.HITs.SetQuotients as SetQuotient
 open import Cubical.Data.Rationals.MoreRationals.QuoQ using ()
@@ -30,13 +31,15 @@ instance
 
 []-respects-∼ : ∀ (x y : ℤ × ℕ₊₁) → x ∼ y → [ x ] ≡ [ y ]
 []-respects-∼ (a , b) (c , d) p =
-    sym (·[]CancelR {a} {b} d)
-  ∙ (λ i → [ p i , ·₊₁-comm b d i ])
-  ∙ ·[]CancelR {c} {d} b
+     sym (·[]CancelR {a} {b} d)
+  ∙∙ (λ i → [ (·≡·f _ _ ∙∙ p ∙∙ sym (·≡·f _ _)) i , ·₊₁-comm b d i ])
+  ∙∙ ·[]CancelR {c} {d} b
 
 normalise-∼ : ∀ a n → (↥ [ a , 1+ n ] , ↧₊₁ [ a , 1+ n ]) ∼ (a , 1+ n)
-normalise-∼ a n = sym (*≃*ᵘ⁻¹ {a}{(↥ [ a , (1+ n) ])}{n}
-  {[ a , (1+ n) ] .fst .snd} (≡→≃ (≡↥↧₊₁ [ a , 1+ n ])))
+normalise-∼ a n =
+     sym (·≡·f _ _)
+  ∙∙ sym (*≃*ᵘ⁻¹ {a} {(↥ [ a , (1+ n) ])} (≡→≃ (≡↥↧₊₁ [ a , 1+ n ])))
+  ∙∙ ·≡·f _ _
 
 Rationalsℚ→ℚ : Rationalsℚ → ℚ
 Rationalsℚ→ℚ = SetQuotient.rec isSetℚ [_] []-respects-∼
@@ -69,8 +72,11 @@ Quoℚ→ℚ = Rationalsℚ→ℚ ∘ transport Quoℚ≡Rationalsℚ
 [↥↧₊₁]≡ℚ q = cong Rationalsℚ→ℚ ([↥↧₊₁]≡Rationalsℚ q) ∙ fromRat-toRat q
 
 ≃-∼-def' : ∀ (p : ℚ) (q : ℚ) → (p ≃ q) ≡ ((↥ p , ↧₊₁ p) ∼ (↥ q , ↧₊₁ q))
-≃-∼-def' p q = sym (≃-def p q)
+≃-∼-def' p q = sym (≃-def p q) ∙ cong₂ _≡_ (·≡·f _ _) (·≡·f _ _)
 
 ≃→≡' : ∀ {p q} → (p ≃ q) → p ≡ q
-≃→≡' {p}{q} (*≡* x) = sym ([↥↧₊₁]≡ℚ p) ∙ cong Rationalsℚ→ℚ
- (transport⁻ (path∼ (↥ p , ↧₊₁ p) (↥ q , ↧₊₁ q)) x) ∙ [↥↧₊₁]≡ℚ q
+≃→≡' {p}{q} (*≡* x) =
+     sym ([↥↧₊₁]≡ℚ p)
+  ∙∙ cong Rationalsℚ→ℚ
+          (eq/ (↥ p , ↧₊₁ p) (↥ q , ↧₊₁ q) (sym (·≡·f _ _) ∙∙ x ∙∙ ·≡·f _ _))
+  ∙∙ [↥↧₊₁]≡ℚ q
