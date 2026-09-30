@@ -8,7 +8,7 @@ module Cubical.HITs.SetQuotients.Properties where
 
 open import Cubical.HITs.SetQuotients.Base
 
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Prelude renaming (ℓ-max to _⊔_)
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
@@ -40,42 +40,129 @@ private
     A B C Q : Type ℓ
     R S T W : A → A → Type ℓ
 
+record ElimProp {A : Type ℓ} {R : A → A → Type ℓ'}
+  (P : A / R → Type ℓ'') : Type (ℓ ⊔ ℓ' ⊔ ℓ'') where
+  no-eta-equality
+  field
+    fun  : ∀ a → P [ a ]
+    prop : ∀ x → isProp (P x)
+
+  go : ∀ x → P x
+  go [ a ]                 = fun a
+  go (eq/ a b r i)         = isProp→PathP (λ i → prop (eq/ a b r i)) (fun a) (fun b) i
+  go (squash/ x y p q i j) = isOfHLevel→isOfHLevelDep 2 (λ x → isProp→isSet (prop x))
+    (go x) (go y) (cong go p) (cong go q) (squash/ x y p q) i j
+
+-- These DISPLAY pragmas, together with the use of "named where blocks" below, allows for
+-- cleaner and shorter normal forms
+{-# DISPLAY ElimProp.go r = r #-}
+
 elimProp : {P : A / R → Type ℓ}
   → (∀ x → isProp (P x))
   → (∀ a → P [ a ])
   → ∀ x → P x
-elimProp prop f [ x ] = f x
-elimProp prop f (squash/ x y p q i j) =
-  isOfHLevel→isOfHLevelDep 2 (λ x → isProp→isSet (prop x))
-    (g x) (g y) (cong g p) (cong g q) (squash/ x y p q) i j
-    where
-    g = elimProp prop f
-elimProp prop f (eq/ a b r i) =
-  isProp→PathP (λ i → prop (eq/ a b r i)) (f a) (f b) i
+elimProp prop f = ElimProp.go e module elimProp where
+  e : ElimProp _
+  e .ElimProp.fun  = f
+  e .ElimProp.prop = prop
+
+record ElimProp2 {ℓA ℓB ℓR ℓS ℓ : Level}
+  {A : Type ℓA} {B : Type ℓB}
+  {R : A → A → Type ℓR} {S : B → B → Type ℓS}
+  (P : A / R → B / S → Type ℓ)
+  : Type (ℓ ⊔ ℓA ⊔ ℓB ⊔ ℓR ⊔ ℓS) where
+  no-eta-equality
+  field
+    fun  : ∀ a b → P [ a ] [ b ]
+    prop : ∀ x y → isProp (P x y)
+
+  go : ∀ x y → P x y
+  go = ElimProp.go el module lGO where
+    el : ElimProp _
+    el .ElimProp.fun x = ElimProp.go er module rGO where
+      er : ElimProp _
+      er .ElimProp.fun  = fun x
+      er .ElimProp.prop = prop [ x ]
+    el .ElimProp.prop = isPropΠ ∘ prop
+
+{-# DISPLAY ElimProp2.lGO.el     r   = r #-}
+{-# DISPLAY ElimProp2.lGO.rGO.er r a = r [ a ] #-}
 
 elimProp2 : {P : A / R → B / S → Type ℓ}
   → (∀ x y → isProp (P x y))
   → (∀ a b → P [ a ] [ b ])
   → ∀ x y → P x y
-elimProp2 prop f =
-  elimProp (λ x → isPropΠ (prop x)) λ a →
-  elimProp (prop [ a ]) (f a)
+elimProp2 prop f = ElimProp2.go e module elimProp2 where
+  e : ElimProp2 _
+  e .ElimProp2.fun  = f
+  e .ElimProp2.prop = prop
+
+record ElimProp3 {ℓA ℓB ℓC ℓR ℓS ℓT ℓ : Level}
+  {A : Type ℓA} {B : Type ℓB} {C : Type ℓC}
+  {R : A → A → Type ℓR} {S : B → B → Type ℓS} {T : C → C → Type ℓT}
+  (P : A / R → B / S → C / T → Type ℓ)
+  : Type (ℓ ⊔ ℓA ⊔ ℓB ⊔ ℓC ⊔ ℓR ⊔ ℓS ⊔ ℓT) where
+  no-eta-equality
+  field
+    fun  : ∀ a b c → P [ a ] [ b ] [ c ]
+    prop : ∀ x y z → isProp (P x y z)
+
+  go : ∀ x y z → P x y z
+  go = ElimProp.go el module lGO where
+    el : ElimProp _
+    el .ElimProp.fun x = ElimProp2.go er module rGO where
+      er : ElimProp2 _
+      er .ElimProp2.fun  = fun x
+      er .ElimProp2.prop = prop [ x ]
+    el .ElimProp.prop = isPropΠ2 ∘ prop
+
+{-# DISPLAY ElimProp3.lGO.el     r   = r #-}
+{-# DISPLAY ElimProp3.lGO.rGO.er r a = r [ a ] #-}
 
 elimProp3 : {P : A / R → B / S → C / T → Type ℓ}
   → (∀ x y z → isProp (P x y z))
   → (∀ a b c → P [ a ] [ b ] [ c ])
   → ∀ x y z → P x y z
-elimProp3 prop f =
-  elimProp (λ x → isPropΠ2 (prop x)) λ a →
-  elimProp2 (prop [ a ]) (f a)
+elimProp3 prop f = ElimProp3.go e module elimProp3 where
+  e : ElimProp3 _
+  e .ElimProp3.fun  = f
+  e .ElimProp3.prop = prop
+
+record ElimProp4 {ℓA ℓB ℓC ℓQ ℓR ℓS ℓT ℓW ℓ : Level}
+  {A : Type ℓA} {B : Type ℓB} {C : Type ℓC} {Q : Type ℓQ}
+  {R : A → A → Type ℓR} {S : B → B → Type ℓS} {T : C → C → Type ℓT} {W : Q → Q → Type ℓW}
+  (P : A / R → B / S → C / T → Q / W → Type ℓ)
+  : Type (ℓ ⊔ ℓA ⊔ ℓB ⊔ ℓC ⊔ ℓQ ⊔ ℓR ⊔ ℓS ⊔ ℓT ⊔ ℓW) where
+  no-eta-equality
+  field
+    fun  : ∀ a b c d → P [ a ] [ b ] [ c ] [ d ]
+    prop : ∀ x y z t → isProp (P x y z t)
+
+  go : ∀ x y z t → P x y z t
+  go = ElimProp.go el module lGO where
+    el : ElimProp _
+    el .ElimProp.fun x = ElimProp3.go er module rGO where
+      er : ElimProp3 _
+      er .ElimProp3.fun  = fun x
+      er .ElimProp3.prop = prop [ x ]
+    el .ElimProp.prop = isPropΠ3 ∘ prop
+
+{-# DISPLAY ElimProp4.lGO.el     r   = r #-}
+{-# DISPLAY ElimProp4.lGO.rGO.er r a = r [ a ] #-}
 
 elimProp4 : {P : A / R → B / S → C / T → Q / W → Type ℓ}
   → (∀ x y z t → isProp (P x y z t))
   → (∀ a b c d → P [ a ] [ b ] [ c ] [ d ])
   → ∀ x y z t → P x y z t
-elimProp4 prop f =
-  elimProp (λ x → isPropΠ3 (prop x)) λ a →
-  elimProp3 (prop [ a ]) (f a)
+elimProp4 prop f = ElimProp4.go e module elimProp4 where
+  e : ElimProp4 _
+  e .ElimProp4.fun  = f
+  e .ElimProp4.prop = prop
+
+{-# DISPLAY elimProp.e  = elimProp #-}
+{-# DISPLAY elimProp2.e = elimProp2 #-}
+{-# DISPLAY elimProp3.e = elimProp3 #-}
+{-# DISPLAY elimProp4.e = elimProp4 #-}
 
 -- sometimes more convenient:
 elimContr : {P : A / R → Type ℓ}
@@ -96,56 +183,170 @@ elimContr2 contr =
 []surjective : (x : A / R) → ∃[ a ∈ A ] [ a ] ≡ x
 []surjective = elimProp (λ x → squash₁) (λ a → ∣ a , refl ∣₁)
 
+record Elim {A : Type ℓ} {R : A → A → Type ℓ'}
+  (P : A / R → Type ℓ'') : Type (ℓ ⊔ ℓ' ⊔ ℓ'') where
+  no-eta-equality
+  field
+    fun : ∀ a → P [ a ]
+    set : ∀ x → isSet (P x)
+    eq  : (a b : A) (r : R a b) → PathP (λ i → P (eq/ a b r i)) (fun a) (fun b)
+
+  go : ∀ x → P x
+  go [ a ]                 = fun a
+  go (eq/ a b r i)         = eq a b r i
+  go (squash/ x y p q i j) = isOfHLevel→isOfHLevelDep 2 set
+    (go x) (go y) (cong go p) (cong go q) (squash/ x y p q) i j
+
+{-# DISPLAY Elim.go r = r #-}
+
 elim : {P : A / R → Type ℓ}
   → (∀ x → isSet (P x))
   → (f : (a : A) → (P [ a ]))
   → ((a b : A) (r : R a b) → PathP (λ i → P (eq/ a b r i)) (f a) (f b))
   → ∀ x → P x
-elim set f feq [ a ] = f a
-elim set f feq (eq/ a b r i) = feq a b r i
-elim set f feq (squash/ x y p q i j) =
-  isOfHLevel→isOfHLevelDep 2 set
-    (g x) (g y) (cong g p) (cong g q) (squash/ x y p q) i j
-  where
-  g = elim set f feq
+elim set f feq = Elim.go e module elim where
+  e : Elim _
+  e .Elim.fun = f
+  e .Elim.set = set
+  e .Elim.eq  = feq
+
+record Rec {A : Type ℓ} {R : A → A → Type ℓ'} (B : Type ℓ'') : Type (ℓ ⊔ ℓ' ⊔ ℓ'') where
+  no-eta-equality
+  field
+    fun : A → B
+    set : isSet B
+    eq  : (a b : A) (r : R a b) → fun a ≡ fun b
+
+  go : A / R → B
+  go [ a ]                 = fun a
+  go (eq/ a b r i)         = eq a b r i
+  go (squash/ x y p q i j) = set (go x) (go y) (cong go p) (cong go q) i j
+
+{-# DISPLAY Rec.go r = r #-}
 
 rec : isSet B
   → (f : A → B)
   → ((a b : A) (r : R a b) → f a ≡ f b)
   → A / R → B
-rec set f feq [ a ] = f a
-rec set f feq (eq/ a b r i) = feq a b r i
-rec set f feq (squash/ x y p q i j) = set (g x) (g y) (cong g p) (cong g q) i j
-  where
-  g = rec set f feq
+rec set f feq = Rec.go r module rec where
+  r : Rec _
+  r .Rec.fun = f
+  r .Rec.set = set
+  r .Rec.eq  = feq
+
+record Rec2 {ℓA ℓB ℓR ℓS ℓ : Level}
+  {A : Type ℓA} {B : Type ℓB}
+  {R : A → A → Type ℓR} {S : B → B → Type ℓS}
+  (C : Type ℓ)
+  : Type (ℓ ⊔ ℓA ⊔ ℓB ⊔ ℓR ⊔ ℓS) where
+  no-eta-equality
+  field
+    fun : A → B → C
+    set : isSet C
+    eql : ∀ a b c → R a b → fun a c ≡ fun b c
+    eqr : ∀ a b c → S b c → fun a b ≡ fun a c
+
+  go : A / R → B / S → C
+  go = Rec.go el module lGO where
+    el : Rec _
+    el .Rec.fun x = Rec.go er module rGO where
+      er : Rec _
+      er .Rec.fun = fun x
+      er .Rec.set = set
+      er .Rec.eq  = eqr x
+    el .Rec.set = isSet→ set
+    el .Rec.eq a b r = funExt (ElimProp.go e) where
+      e : ElimProp _
+      e .ElimProp.fun  c = eql a b c r
+      e .ElimProp.prop _ = set _ _
+
+{-# DISPLAY Rec2.lGO.el     r   = r #-}
+{-# DISPLAY Rec2.lGO.rGO.er r a = r [ a ] #-}
 
 rec2 : isSet C
      → (f : A → B → C)
      → (∀ a b c → R a b → f a c ≡ f b c)
      → (∀ a b c → S b c → f a b ≡ f a c)
      → A / R → B / S → C
-rec2 {_} {C} {_} {A} {_} {B} {_} {R} {_} {S} set f feql feqr = fun
-  where
-    fun₀ : A → B / S → C
-    fun₀ a [ b ] = f a b
-    fun₀ a (eq/ b c r i) = feqr a b c r i
-    fun₀ a (squash/ x y p q i j) = isSet→SquareP (λ _ _ → set)
-      (λ _ → fun₀ a x)
-      (λ _ → fun₀ a y)
-      (λ i → fun₀ a (p i))
-      (λ i → fun₀ a (q i)) j i
+rec2 set f feql feqr = Rec2.go r module rec2 where
+  r : Rec2 _
+  r .Rec2.fun = f
+  r .Rec2.set = set
+  r .Rec2.eql = feql
+  r .Rec2.eqr = feqr
 
-    toPath : ∀ (a b : A) (x : R a b) (y : B / S) → fun₀ a y ≡ fun₀ b y
-    toPath a b rab = elimProp (λ _ → set _ _) λ c → feql a b c rab
+{-# DISPLAY elim.e = elim #-}
+{-# DISPLAY rec.r  = rec #-}
+{-# DISPLAY rec2.r = rec2 #-}
 
-    fun : A / R → B / S → C
-    fun [ a ] y = fun₀ a y
-    fun (eq/ a b r i) y = toPath a b r y i
-    fun (squash/ x y p q i j) z = isSet→SquareP (λ _ _ → set)
-      (λ _ → fun x z)
-      (λ _ → fun y z)
-      (λ i → fun (p i) z)
-      (λ i → fun (q i) z) j i
+record RecHProp {ℓA ℓR} (ℓ : Level) {A : Type ℓA} {R : A → A → Type ℓR}
+  : Type (ℓ-suc (ℓ ⊔ ℓA ⊔ ℓR)) where
+  no-eta-equality
+  field
+    rel  : A → Type ℓ
+    prop : ∀ x → isProp (rel x)
+    eq→  : (a b : A) (r : R a b) → rel a → rel b
+    eq←  : (a b : A) (r : R a b) → rel b → rel a
+
+  go : A / R → hProp ℓ
+  go = Rec.go e module GO where
+    e : Rec (hProp ℓ)
+    e .Rec.fun x .fst = rel x
+    e .Rec.fun x .snd = prop x
+    e .Rec.set        = isSetHProp
+    e .Rec.eq  a b r  =
+      Σ≡Prop (λ _ → isPropIsProp) (hPropExt (prop a) (prop b) (eq→ a b r) (eq← a b r))
+
+{-# DISPLAY RecHProp.GO.e r = r #-}
+
+record Rec2HProp {ℓA ℓB ℓR ℓS} (ℓ : Level)
+  {A : Type ℓA} {B : Type ℓB} {R : A → A → Type ℓR} {S : B → B → Type ℓS}
+  : Type (ℓ-suc (ℓ ⊔ ℓA ⊔ ℓB ⊔ ℓR ⊔ ℓS)) where
+  no-eta-equality
+  field
+    rel  : A → B → Type ℓ
+    prop : ∀ x y → isProp (rel x y)
+    eql→ : (a b : A) (c : B) (r : R a b) → rel a c → rel b c
+    eql← : (a b : A) (c : B) (r : R a b) → rel b c → rel a c
+    eqr→ : (a : A) (b c : B) (s : S b c) → rel a b → rel a c
+    eqr← : (a : A) (b c : B) (s : S b c) → rel a c → rel a b
+
+  go : A / R → B / S → hProp ℓ
+  go = Rec2.go e module GO where
+    e : Rec2 (hProp ℓ)
+    e .Rec2.fun x y .fst = rel x y
+    e .Rec2.fun x y .snd = prop x y
+    e .Rec2.set = isSetHProp
+    e .Rec2.eql a b c r = Σ≡Prop (λ _ → isPropIsProp)
+      (hPropExt (prop a c) (prop b c) (eql→ a b c r) (eql← a b c r))
+    e .Rec2.eqr a b c r = Σ≡Prop (λ _ → isPropIsProp)
+      (hPropExt (prop a b) (prop a c) (eqr→ a b c r) (eqr← a b c r))
+
+{-# DISPLAY Rec2HProp.GO.e r = r #-}
+
+record Rec2SymHProp {ℓA ℓB ℓR ℓS} (ℓ : Level)
+  {A : Type ℓA} {B : Type ℓB} {R : A → A → Type ℓR} {S : B → B → Type ℓS}
+  : Type (ℓ-suc (ℓ ⊔ ℓA ⊔ ℓB ⊔ ℓR ⊔ ℓS)) where
+  no-eta-equality
+  field
+    rel  : A → B → Type ℓ
+    prop : ∀ x y → isProp (rel x y)
+    symL : (a b : A) → R a b → R b a
+    symR : (b c : B) → S b c → S c b
+    eql  : (a b : A) (c : B) (r : R a b) → rel a c → rel b c
+    eqr  : (a : A) (b c : B) (S : S b c) → rel a b → rel a c
+
+  go : A / R → B / S → hProp ℓ
+  go = Rec2HProp.go e module GO where
+    e : Rec2HProp ℓ
+    e .Rec2HProp.rel  = rel
+    e .Rec2HProp.prop = prop
+    e .Rec2HProp.eql→ = eql
+    e .Rec2HProp.eql← = λ a b c → eql b a c ∘ symL a b
+    e .Rec2HProp.eqr→ = eqr
+    e .Rec2HProp.eqr← = λ a b c → eqr a c b ∘ symR b c
+
+{-# DISPLAY Rec2SymHProp.GO.e r = r #-}
 
 -- the recursor for maps into groupoids:
 -- i.e. for any type A with a binary relation R and groupoid B,
