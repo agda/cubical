@@ -19,7 +19,7 @@ open import Cubical.Data.Empty as Empty hiding (elim)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit using (Unit; isPropUnit)
 
-open import Cubical.HITs.PropositionalTruncation hiding (elim; rec)
+open import Cubical.HITs.PropositionalTruncation.Base
 
 open import Cubical.Relation.Nullary
 

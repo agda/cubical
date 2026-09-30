@@ -30,7 +30,7 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Bool as 𝟚 hiding (_≤_)
 open import Cubical.Data.Nat as ℕ hiding (_·_)
-open import Cubical.Data.Nat.Order.Recursive as OR
+open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
@@ -159,10 +159,10 @@ module NormalForm (A : Type ℓ) where
  HasRedexSplit++ {x ∷ x₁ ∷ xs} {ys} =
    ⊎.rec (inr ∘ inl ∘ inl)
     (⊎.rec (inl ∘ subst (λ zz → HasRedex (zz ++ take 1 ys))
-     (w _ (subst (0 <_) (+-comm 1 _ ∙ sym (length++ (rev xs) _)) _)))
+     (w _ (subst (0 <ᵗ_) (+-comm 1 _ ∙ sym (length++ (rev xs) _)) _)))
       (⊎.rec (inr ∘ inl ∘ inr) (inr ∘ inr) ) ∘S HasRedexSplit++ {x₁ ∷ xs} {ys})
   where
-  w : ∀ xs → 0 < length xs → take 1 xs ≡ take 1 (xs ++ [ x ])
+  w : ∀ xs → 0 <ᵗ length xs → take 1 xs ≡ take 1 (xs ++ [ x ])
   w (x ∷ xs) _ = refl
 
  -- This predicate, is encoding fact that given list reduces to [],
@@ -200,7 +200,7 @@ module NormalForm (A : Type ℓ) where
    in ((_ , rlR) , (_ , (_ · _) rrR x₂)) ,
      sym (++-assoc rl _ _) ∙ cong (_++ ys) p
 
- ⇊1g⇒HasRedex : ∀ xs → 0 < length xs → xs ⇊1g → HasRedex xs
+ ⇊1g⇒HasRedex : ∀ xs → 0 <ᵗ length xs → xs ⇊1g → HasRedex xs
  ⇊1g⇒HasRedex .(x₁ ∷ ([] ∷ʳ not₁ x₁)) x (cj x₁ [] x₂) =
    inl (symIsRedex _ _ refl)
  ⇊1g⇒HasRedex .(x₁ ∷ ((x₃ ∷ xs) ∷ʳ not₁ x₁)) x (cj x₁ (x₃ ∷ xs) x₂) =
@@ -262,7 +262,7 @@ module NormalForm (A : Type ℓ) where
  nf-uR xs@(_ ∷ _) (x₃ ∷ ys) nXs nYs r =
    let ww = subst _⇊1g (cong (x₃ ∷_) (sym (++-assoc ys _ _)))
               (⇊1g++comm (invLi xs) _ r)
-       www = subst (0 <_)
+       www = subst (0 <ᵗ_)
            (sym (+-suc _ _)
              ∙ sym (length++ (invLi xs) _)) _
    in (⊎.rec (⊎.rec (λ p → cong₂ _∷_

@@ -9,7 +9,6 @@ import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat using (ℕ ; zero ; suc ; _+_ ; znots ; tt)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Nat.Order.Inductive
-open import Cubical.Data.Nat.Order.Recursive using () renaming (_≤_ to _≤′_)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum using (_⊎_; _⊎?_; inl; inr)
 
@@ -60,12 +59,7 @@ toℕ = fst
 toℕ-injective : {k : ℕ} {fj fk : Fin k}  → toℕ {k} fj ≡ toℕ {k} fk → fj ≡ fk
 toℕ-injective {k} {fj = fj} {fk} = Σ≡Prop (λ x → isProp<ᵗ {x} {k})
 
--- Conversion from ℕ with a recursive definition of ≤
-fromℕ≤ : (m n : ℕ) → m ≤′ n → Fin (suc n)
-fromℕ≤ zero _ _ = fzero
-fromℕ≤ (suc m) (suc n) m≤n = fsuc (fromℕ≤ m n m≤n)
-
--- Conversion from ℕ with an inductive definition of ≤
+-- Conversion from ℕ
 fromℕ≤ᵗ : (m n : ℕ) → m ≤ᵗ n → Fin (suc n)
 fromℕ≤ᵗ m n t = m , t
 
@@ -87,7 +81,7 @@ fst (injectSuc {n = n} (x , p)) = x
 snd (injectSuc {n = suc n} (x , p)) = <ᵗ-trans-suc {n = x} p
 
 flast : {k : ℕ} → Fin (suc k)
-flast {k = k} = (k , <ᵗsucm {k})
+flast {k = k} = (k , <ᵗsuc {k})
 
 -- Fin 0 is empty
 ¬Fin0 : ¬ Fin 0

@@ -31,7 +31,6 @@ open import Cubical.Data.Bool
   renaming (Bool→Type to ⟨_⟩)
 
 import Cubical.Data.Nat as Nat
-import Cubical.Data.Nat.Order.Recursive as Nat
 
 open import Cubical.Functions.Embedding
 
