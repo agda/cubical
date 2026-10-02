@@ -283,15 +283,15 @@ integral-domain-· {zero} {l} ¬p ¬q r = ¬p refl
 integral-domain-· {suc k} {zero} ¬p ¬q r = ¬q refl
 integral-domain-· {suc k} {suc l} ¬p ¬q r = snotz r
 
+left≢0-of-·≢0 : ∀ k l → (k · l ≡ 0 → ⊥) → (k ≡ 0 → ⊥)
+left≢0-of-·≢0 zero l ¬0 = ¬0
+left≢0-of-·≢0 (suc k) l ¬0 = snotz
+
 -- Arithmetic facts about ^
 
 1^≡1 : ∀ m → 1 ^ m ≡ 1
 1^≡1 zero    = refl
 1^≡1 (suc m) = +-zero _ ∙ 1^≡1 m
-
-left≢0-of-·≢0 : ∀ k l → (k · l ≡ 0 → ⊥) → (k ≡ 0 → ⊥)
-left≢0-of-·≢0 zero l ¬0 = ¬0
-left≢0-of-·≢0 (suc k) l ¬0 = snotz
 
 -- Arithmetic facts about ∸
 
