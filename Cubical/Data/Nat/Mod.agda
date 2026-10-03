@@ -466,6 +466,22 @@ quotient<→<· m n-1 k m/n<k =
     n · k              ∎
   where open <-Reasoning
 
+/2+/2≤ : ∀ m → quotient m / 2 + quotient m / 2 ≤ m
+/2+/2≤ m .fst = remainder m / 2
+/2+/2≤ m .snd = sym (cong (remainder m / 2 +_) (·2≡∘diag+ (quotient m / 2)))
+              ∙ ≡remainder+quotient 2 m
+
+≤1+/2+/2 : ∀ m → m ≤ suc (quotient m / 2 + quotient m / 2)
+≤1+/2+/2 m =
+  let
+    _/_ = quotient_/_ ; _%_ = remainder_/_
+  in
+    subst (_≤ 1 + (m / 2 + m / 2))
+      (m % 2 + (m / 2 + m / 2) ≡⟨ sym $ cong (m % 2 +_) $ ·2≡∘diag+ (m / 2) ⟩
+       m % 2 + 2 · m / 2       ≡⟨ ≡remainder+quotient 2 m ⟩
+       m                       ∎)
+      (≤-+ʳ (pred-≤-pred (mod< 1 m)))
+
 mod1≡0 : ∀ n → n mod 1 ≡ 0
 mod1≡0 n with (n mod 1) ≟ 0
 ... | lt <0 = ⊥.rec (¬-<-zero <0)
