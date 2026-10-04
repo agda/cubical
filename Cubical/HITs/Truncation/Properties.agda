@@ -325,6 +325,9 @@ Iso.inv (mapCompIso {n = (suc n)} g) = map (Iso.inv g)
 Iso.sec (mapCompIso {n = (suc n)} g) = elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _) λ b → cong ∣_∣ (Iso.sec g b)
 Iso.ret (mapCompIso {n = (suc n)} g) = elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _) λ a → cong ∣_∣ (Iso.ret g a)
 
+mapCompEquiv : {n : HLevel} {B : Type ℓ'} → (A ≃ B) → (hLevelTrunc n A) ≃ (hLevelTrunc n B)
+mapCompEquiv e = isoToEquiv (mapCompIso (equivToIso e))
+
 mapId : {n : HLevel} → ∀ t → map {n = n} (idfun A) t ≡ t
 mapId {n = 0} tt* = refl
 mapId {n = (suc n)} =
@@ -584,6 +587,10 @@ Iso.sec (truncOfΣIso (suc n)) =
          λ b → refl)
 Iso.ret (truncOfΣIso (suc n)) =
   elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ {(a , b) → refl}
+
+truncOfΣEquiv : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : A → Type ℓ'}
+       → (hLevelTrunc n (Σ A B)) ≃ (hLevelTrunc n (Σ A (hLevelTrunc n ∘ B)))
+truncOfΣEquiv n = isoToEquiv (truncOfΣIso n)
 
 {- transport along family of truncations -}
 
