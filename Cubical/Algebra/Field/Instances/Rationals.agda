@@ -14,7 +14,7 @@ open import Cubical.Algebra.CommRing.Instances.Rationals
 open import Cubical.Algebra.Field
 
 open import Cubical.Data.Empty as Empty
-open import Cubical.Data.Int as ℤ
+open import Cubical.Data.Fast.Int as ℤ
 open import Cubical.Data.Nat as ℕ using (ℕ ; zero ; suc)
 open import Cubical.Data.NatPlusOne
 open import Cubical.Data.Rationals as ℚ

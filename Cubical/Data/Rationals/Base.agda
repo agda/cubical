@@ -8,7 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Nat as ℕ using (discreteℕ)
 open import Cubical.Data.NatPlusOne
 open import Cubical.Data.Sigma
-open import Cubical.Data.Int as ℤ
+open import Cubical.Data.Fast.Int as ℤ
 
 open import Cubical.HITs.SetQuotients as SetQuotient
   using ([_]; eq/; discreteSetQuotients) renaming (_/_ to _//_) public
@@ -38,6 +38,9 @@ isSetℚ = SetQuotient.squash/
 [_/_] : ℤ → ℕ₊₁ → ℚ
 [ a / b ] = [ a , b ]
 
+{-# DISPLAY [_] (a        , 1+ b) = [ a / ℕ.suc b ] #-}
+{-# DISPLAY [_] (pos a    , 1+ b) = [ a / ℕ.suc b ] #-}
+{-# DISPLAY [_] (negsuc a , 1+ b) = [ - (ℕ.suc a) / ℕ.suc b ] #-}
 
 isEquivRel∼ : isEquivRel _∼_
 isEquivRel.reflexive isEquivRel∼ (a , b) = refl
