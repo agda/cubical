@@ -134,8 +134,10 @@ private
   √2Digits  = toDigits 2 2
   ³√2Digits = toDigits 3 2
 
+  -- typechecking time: ~15ms, even with 50 digits
   _ : √2Digits 20 ≡ (1 , 41421356237309504880)
   _ = refl
 
+  -- typechecking time: ~15ms; it doubles to ~31ms for 50 digits
   _ : ³√2Digits 20 ≡ (1 , 25992104989487316476)
   _ = refl
