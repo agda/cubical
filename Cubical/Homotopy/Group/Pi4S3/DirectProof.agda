@@ -801,13 +801,7 @@ snd π₁S¹→∙ΩS³'≅π₃*S³' =
           ∙ ((λ i → fst (snd g (~ i)) b)
             ∙∙ funExt⁻ (cong fst (cong (g .fst) loop)) b
             ∙∙ (λ i → fst (snd g i) b))
-      lem =
-         (λ i → funExt⁻ (cong-∙ fst
-                   (sym (snd f) ∙∙ cong (f .fst) loop ∙∙ snd f)
-                   (sym (snd g) ∙∙ cong (g .fst) loop ∙∙ snd g) i) b)
-        ∙ λ i → funExt⁻
-                  (cong-∙∙ fst (sym (snd f)) (cong (f .fst) loop) (snd f) i
-                 ∙ cong-∙∙ fst (sym (snd g)) (cong (g .fst) loop) (snd g) i) b
+      lem = refl
 
 -- The goal now is to establish a homomorphism from π₁S¹→∙ΩS³' to ℤ.
 -- We can then show that 1 is in its image via computation, establishing that it
