@@ -325,6 +325,15 @@ minGLB {suc m} {suc n} x≤sm x≤sn with m <ᵇ? n
 ≤-^ˡ {suc m} {zero}  {k} = ⊥.rec ∘ ¬-<-zero
 ≤-^ˡ {suc m} {suc n} {k} = ≤-·ˡ {k = suc k} ∘ ≤-^ˡ ∘ pred-≤-pred
 
+L≤^suc : ∀ m n → m ≤ m ^ suc n
+L≤^suc zero    n = zero-≤
+L≤^suc (suc m) n =
+  subst (_≤ suc m ^ suc n) (·-identityʳ _) $ ≤-^ˡ $ suc-≤-suc $ zero-≤ {n}
+
+≤-^ʳ : m ≤ n → m ^ k ≤ n ^ k
+≤-^ʳ {m} {k = zero}  _   = ≤-refl
+≤-^ʳ {m} {k = suc k} m≤n = ≤-trans (≤-·ˡ {k = m} (≤-^ʳ {k = k} m≤n)) (≤-·ʳ m≤n)
+
 1<^suc : ∀ n → 1 < (suc (suc m)) ^ (suc n)
 1<^suc {m} zero    = suc-≤-suc (zero-<suc)
 1<^suc {m} (suc n) = <≤-trans (1<^suc n) (≤-^ˡ (≤-sucℕ {suc n}))
@@ -333,6 +342,12 @@ minGLB {suc m} {suc n} x≤sm x≤sn with m <ᵇ? n
 <-^ˡ {m}     {zero}  {k} = ⊥.rec ∘ ¬-<-zero
 <-^ˡ {zero}  {suc n} {k} = λ _ → 1<^suc n
 <-^ˡ {suc m} {suc n} {k} = <-·ˡ {k = suc k} ∘ <-^ˡ ∘ pred-≤-pred
+
+<-^ʳ : m < n → m ^ suc k < n ^ suc k
+<-^ʳ {n = zero}  {k}     = ⊥.rec ∘ ¬-<-zero
+<-^ʳ {n = suc n} {zero}  = subst2 _<_ (sym (·-identityʳ _)) (sym (·-identityʳ _))
+<-^ʳ {n = suc n} {suc k} =
+  λ m<sn → ≤<-trans (≤-·ʳ (<-weaken m<sn)) (<-·ˡ {k = n} (<-^ʳ {k = k} m<sn))
 
 ≤-^-cancelˡ : (suc (suc k)) ^ m ≤ (suc (suc k)) ^ n → m ≤ n
 ≤-^-cancelˡ {k} {zero}  {n}     = λ _ → zero-≤

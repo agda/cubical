@@ -176,6 +176,10 @@ isProp≤ᵗ = isPropBool→Type
 <ᵗ→< {n = zero} {suc m} p = m , +-comm m 1
 <ᵗ→< {n = suc n} {suc m} p = suc-≤-suc (<ᵗ→< {n = n} {m = m} p)
 
+≤ᵗ→≤ : {n m : ℕ} → n ≤ᵗ m → n ≤ m
+≤ᵗ→≤ {zero}  {m} = λ _ → zero-≤
+≤ᵗ→≤ {suc n} {m} = <ᵗ→<
+
 <→<ᵗ : {n m : ℕ} → n < m → n <ᵗ m
 <→<ᵗ {n = zero} {m = zero} x =
   snotz (sym (+-suc (fst x) 0) ∙ snd x)
@@ -183,6 +187,14 @@ isProp≤ᵗ = isPropBool→Type
 <→<ᵗ {n = suc n} {m = zero} x =
   snotz (sym (+-suc (fst x) (suc n)) ∙ snd x)
 <→<ᵗ {n = suc n} {m = suc m} p = <→<ᵗ {n = n} {m = m} (pred-≤-pred p)
+
+≤→≤ᵗ : {n m : ℕ} → n ≤ m → n ≤ᵗ m
+≤→≤ᵗ {zero}  {m} = λ _ → tt
+≤→≤ᵗ {suc n} {m} = <→<ᵗ
+
+<ᵗ≤ᵗ-trans : {n m k : ℕ} → n <ᵗ m → m ≤ᵗ k → n <ᵗ k
+<ᵗ≤ᵗ-trans {zero}  {suc m} {suc k} = λ _ _ → tt
+<ᵗ≤ᵗ-trans {suc n} {suc m} {suc k} = <ᵗ≤ᵗ-trans {n} {m} {k}
 
 <ᵗ-asym : ∀ {m n} → m <ᵗ n → n ≤ m → ⊥
 <ᵗ-asym p = <-asym (<ᵗ→< p)
