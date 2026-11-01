@@ -87,7 +87,7 @@ record IsWosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
                   substEquiv (x N.≺_) (secEq e y))
 
 
-WosetEquiv : (M : Woset ℓ₀ ℓ₀') (M : Woset ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
+WosetEquiv : (M : Woset ℓ₀ ℓ₀') (N : Woset ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
 WosetEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsWosetEquiv (M .snd) e (N .snd)
 
 invWosetEquiv : {M : Woset ℓ₀ ℓ₀'} {N : Woset ℓ₁ ℓ₁'} → WosetEquiv M N → WosetEquiv N M

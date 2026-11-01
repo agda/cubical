@@ -83,7 +83,7 @@ record IsTosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
     pres≤ : (x y : A) → x M.≤ y ≃ equivFun e x N.≤ equivFun e y
 
 
-TosetEquiv : (M : Toset ℓ₀ ℓ₀') (M : Toset ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
+TosetEquiv : (M : Toset ℓ₀ ℓ₀') (N : Toset ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
 TosetEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsTosetEquiv (M .snd) e (N .snd)
 
 isPropIsToset : {A : Type ℓ} (_≤_ : A → A → Type ℓ') → isProp (IsToset _≤_)
