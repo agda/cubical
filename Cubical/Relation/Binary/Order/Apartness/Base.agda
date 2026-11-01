@@ -83,7 +83,7 @@ record IsApartnessEquiv {A : Type ℓ₀} {B : Type ℓ₁}
     pres# : (x y : A) → x M.# y ≃ equivFun e x N.# equivFun e y
 
 
-ApartnessEquiv : (M : Apartness ℓ₀ ℓ₀') (M : Apartness ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
+ApartnessEquiv : (M : Apartness ℓ₀ ℓ₀') (N : Apartness ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
 ApartnessEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsApartnessEquiv (M .snd) e (N .snd)
 
 isPropIsApartness : {A : Type ℓ} (_#_ : A → A → Type ℓ') → isProp (IsApartness _#_)

@@ -83,7 +83,7 @@ record IsStrictOrderEquiv {A : Type ℓ₀} {B : Type ℓ₁}
     pres< : (x y : A) → x M.< y ≃ equivFun e x N.< equivFun e y
 
 
-StrictOrderEquiv : (M : StrictOrder ℓ₀ ℓ₀') (M : StrictOrder ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
+StrictOrderEquiv : (M : StrictOrder ℓ₀ ℓ₀') (N : StrictOrder ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
 StrictOrderEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsStrictOrderEquiv (M .snd) e (N .snd)
 
 isPropIsStrictOrder : {A : Type ℓ} (_<_ : A → A → Type ℓ') → isProp (IsStrictOrder _<_)
