@@ -59,7 +59,11 @@ module Units (R' : CommRing ℓ) where
  _⁻¹ : (r : R) → ⦃ r ∈ Rˣ ⦄ → R
  _⁻¹ r ⦃ r∈Rˣ ⦄ = r∈Rˣ .fst
 
+ _/_ : (x y : R) → ⦃ y ∈ Rˣ ⦄ → R
+ _/_ x y = x · y ⁻¹
+
  infix 9 _⁻¹
+ infixl 9 _/_
 
  -- some results about inverses
  ·-rinv : (r : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ → r · r ⁻¹ ≡ 1r
@@ -68,6 +72,17 @@ module Units (R' : CommRing ℓ) where
  ·-linv : (r : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ → r ⁻¹ · r ≡ 1r
  ·-linv r ⦃ r∈Rˣ ⦄ = ·Comm _ _ ∙ r∈Rˣ .snd
 
+ divideMultiply : ∀ x y ⦃ _ : y ∈ Rˣ ⦄ → x / y · y ≡ x
+ divideMultiply x y = sym (·Assoc x _ _) ∙∙ congR _·_ (·-linv y) ∙∙ ·IdR x
+
+ divideMultiply' : ∀ x y ⦃ _ : y ∈ Rˣ ⦄ → y · x / y ≡ x
+ divideMultiply' x y = ·Comm y _ ∙ divideMultiply x y
+
+ multiplyDivide : ∀ x y ⦃ _ : y ∈ Rˣ ⦄ → (x · y) / y ≡ x
+ multiplyDivide x y = sym (·Assoc x _ _) ∙∙ congR _·_ (·-rinv y) ∙∙ ·IdR x
+
+ multiplyDivide' : ∀ x y ⦃ _ : y ∈ Rˣ ⦄ → (y · x) / y ≡ x
+ multiplyDivide' x y = cong (_/ y) (·Comm y x) ∙ multiplyDivide x y
 
  RˣMultClosed : (r r' : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ ⦃ r'∈Rˣ : r' ∈ Rˣ ⦄
               → (r · r') ∈ Rˣ
@@ -111,6 +126,9 @@ module Units (R' : CommRing ℓ) where
  1⁻¹≡1 : ⦃ 1∈Rˣ' : 1r ∈ Rˣ ⦄ → 1r ⁻¹ ≡ 1r
  1⁻¹≡1 ⦃ 1∈Rˣ' ⦄ = (sym (·IdL _)) ∙ 1∈Rˣ' .snd
 
+ /1≡id : ∀ x ⦃ _ : 1r ∈ Rˣ ⦄ → x / 1r ≡ x
+ /1≡id x = congR _·_ 1⁻¹≡1 ∙ ·IdR x
+
  ⁻¹-dist-· : (r r' : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ ⦃ r'∈Rˣ : r' ∈ Rˣ ⦄ ⦃ rr'∈Rˣ : (r · r') ∈ Rˣ ⦄
            → (r · r') ⁻¹ ≡ r ⁻¹ · r' ⁻¹
  ⁻¹-dist-· r r' ⦃ r∈Rˣ ⦄ ⦃ r'∈Rˣ ⦄ ⦃ rr'∈Rˣ ⦄ =
@@ -145,6 +163,18 @@ module Units (R' : CommRing ℓ) where
                                   ∙ congR _·_ (·-rinv _)
                                   ∙ ·IdR _
 
+ ⁻¹-eq-elim' : {r r' r'' : R} ⦃ r∈Rˣ : r ∈ Rˣ ⦄ → r' ≡ r · r'' → r' · r ⁻¹ ≡ r''
+ ⁻¹-eq-elim' = ⁻¹-eq-elim ∘ (_∙ ·Comm _ _)
+
+ ⁻¹≡ : {r r' : R} → ⦃ r∈Rˣ : r ∈ Rˣ ⦄ → r · r' ≡ 1r → r ⁻¹ ≡ r'
+ ⁻¹≡ ⦃ r∈Rˣ ⦄ rr'≡1 = cong fst (inverseUniqueness _ r∈Rˣ (_ , rr'≡1))
+
+ isInvol⁻¹ : (r : R) → ⦃ r∈Rˣ : r ∈ Rˣ ⦄ ⦃ r⁻¹∈Rˣ : r ⁻¹ ∈ Rˣ ⦄ → r ⁻¹ ⁻¹ ≡ r
+ isInvol⁻¹ r = ⁻¹≡ (·-linv r)
+
+ cross-multiply : ∀ {r r' r'' r'''} ⦃ r''∈Rˣ : r'' ∈ Rˣ ⦄ ⦃ r'''∈Rˣ : r''' ∈ Rˣ ⦄
+                 → r'' · r' ≡ r''' · r → r / r'' ≡ r' / r'''
+ cross-multiply = ⁻¹-eq-elim' ∘ sym ∘ (·Assoc _ _ _ ∙_) ∘ ⁻¹-eq-elim'
 
 -- some convenient notation
 _ˣ : (R' : CommRing ℓ) → ℙ (R' .fst)
@@ -266,6 +296,19 @@ module Exponentiation (R' : CommRing ℓ) where
  ^-presUnit : ∀ (f : R) (n : ℕ) → f ∈ Rˣ → f ^ n ∈ Rˣ
  ^-presUnit f zero f∈Rˣ = RˣContainsOne
  ^-presUnit f (suc n) f∈Rˣ = RˣMultClosed f (f ^ n) ⦃ f∈Rˣ ⦄ ⦃ ^-presUnit f n f∈Rˣ ⦄
+
+ ^-⁻¹ : ∀ (f : R) (n : ℕ) → ⦃ f∈Rˣ : f ∈ Rˣ ⦄ ⦃ fⁿ∈Rˣ : f ^ n ∈ Rˣ ⦄
+      → (f ⁻¹) ^ n ≡ (f ^ n) ⁻¹
+ ^-⁻¹ f n = sym $ ⁻¹≡ $ isInvf⁻¹^ n where
+  isInvf⁻¹^ : ∀ n → (f ^ n) · (f ⁻¹) ^ n ≡ 1r
+  isInvf⁻¹^ zero    = ·IdL _
+  isInvf⁻¹^ (suc n) =
+    f · f ^ n · (f ⁻¹ · (f ⁻¹) ^ n) ≡⟨ congL _·_ (·Comm f _) ⟩
+    f ^ n · f · (f ⁻¹ · (f ⁻¹) ^ n) ≡⟨ ·Assoc _ _ _ ∙ sym (congL _·_ (·Assoc _ f _)) ⟩
+    f ^ n · (f · f ⁻¹) · (f ⁻¹) ^ n ≡⟨ congL _·_ $ congR _·_ $ ·-rinv f ⟩
+    f ^ n · 1r · (f ⁻¹) ^ n         ≡⟨ congL _·_ (·IdR _) ⟩
+    f ^ n · (f ⁻¹) ^ n              ≡⟨ isInvf⁻¹^ n ⟩
+    1r                              ∎
 
 module CommRingHomTheory {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
  open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)
