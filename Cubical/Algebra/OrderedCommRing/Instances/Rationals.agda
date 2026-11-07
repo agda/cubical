@@ -6,6 +6,8 @@ open import Cubical.Foundations.Equiv
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
+open import Cubical.Data.Fast.Int.Base using ()
+open import Cubical.Data.NatPlusOne.Base using ()
 open import Cubical.Data.Rationals as ℚ
   renaming (_+_ to _+ℚ_ ; _-_ to _-ℚ_; -_ to -ℚ_ ; _·_ to _·ℚ_)
 open import Cubical.Data.Rationals.Order as ℚ
@@ -14,7 +16,7 @@ open import Cubical.Data.Rationals.Order as ℚ
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Rationals
 
-open import Cubical.Algebra.OrderedCommRing.Base
+open import Cubical.Algebra.OrderedCommRing
 
 open import Cubical.Relation.Nullary
 
@@ -57,3 +59,5 @@ isOrderedCommRing (snd ℚOrderedCommRing) = isOrderedCommRingℚ
   isOrderedCommRingℚ .·MonoR≤         = ≤-·o
   isOrderedCommRingℚ .·MonoR<         = <-·o
   isOrderedCommRingℚ .0<1             = pos<pos tt
+
+module 1/2∈ℚ = 1/2∈R ℚOrderedCommRing [ 1 / 2 ] (eq/ _ _ refl)

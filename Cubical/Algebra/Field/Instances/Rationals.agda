@@ -73,11 +73,8 @@ hasInverseℚ = SetQuotients.elimProp
            ≡⟨ sym (ℤ.·IdL _) ⟩
          1 ℤ.· (ℕ₊₁→ℤ ((1+ m) ·₊₁ (1+ n))) ∎
 
-0≢1-ℚ : ¬ Path ℚ 0 1
-0≢1-ℚ p = 0≢1-ℤ (effective (λ _ _ → isSetℤ _ _) isEquivRel∼ _ _ p)
-
 ℚField : Field ℓ-zero
-ℚField = makeFieldFromCommRing ℚCommRing hasInverseℚ 0≢1-ℚ
+ℚField = makeFieldFromCommRing ℚCommRing hasInverseℚ ℚ.0≢1-ℚ
 
 _[_]⁻¹ : (x : ℚ) → ¬ x ≡ 0 → ℚ
 _[_]⁻¹ = FieldStr._[_]⁻¹ $ snd ℚField
