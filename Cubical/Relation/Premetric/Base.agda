@@ -25,7 +25,7 @@ record IsPremetric {M : Type ℓ} (_≈[_]_ : M → ℚ₊ → M → Type ℓ') 
   constructor ispremetric
 
   field
-    isSetM        : isSet M
+    is-set        : isSet M
     isProp≈       : ∀ x y ε → isProp (x ≈[ ε ] y)
     isRefl≈       : ∀ x     ε   → x ≈[ ε ] x
     isSym≈        : ∀ x y   ε   → x ≈[ ε ] y → y ≈[ ε ] x

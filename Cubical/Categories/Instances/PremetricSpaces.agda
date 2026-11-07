@@ -10,9 +10,17 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.SIP
 
 open import Cubical.Categories.Category.Base as Cat
+open import Cubical.Categories.Limits.BinProduct
+
+open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Premetric.Base
 open import Cubical.Relation.Premetric.Mappings
+open import Cubical.Relation.Premetric.Instances.Product
+
+private
+  variable
+    ℓ ℓ' : Level
 
 module _ (ℓ ℓ' : Level) where
   open Category
@@ -27,7 +35,7 @@ module _ (ℓ ℓ' : Level) where
   ⋆IdR     PrSpacesᶜ = λ _ → C≡ refl
   ⋆Assoc   PrSpacesᶜ = λ _ _ _ → C≡ refl
   isSetHom PrSpacesᶜ {y = N} =
-    isSetΣSndProp (isSet→ (N .snd .isSetM)) (flip (isPropIsContinuous _) _)
+    isSetΣSndProp (isSet→ (N .snd .is-set)) (flip (isPropIsContinuous _) _)
 
   PrSpacesᵘᶜ : Category (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
   ob       PrSpacesᵘᶜ = PremetricSpace ℓ ℓ'
@@ -38,7 +46,7 @@ module _ (ℓ ℓ' : Level) where
   ⋆IdR     PrSpacesᵘᶜ = λ _ → UC≡ refl
   ⋆Assoc   PrSpacesᵘᶜ = λ _ _ _ → UC≡ refl
   isSetHom PrSpacesᵘᶜ {y = N} =
-    isSetΣSndProp (isSet→ (N .snd .isSetM)) (flip (isPropIsUContinuous _) _)
+    isSetΣSndProp (isSet→ (N .snd .is-set)) (flip (isPropIsUContinuous _) _)
 
   PrSpacesᴸ : Category (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
   ob       PrSpacesᴸ = PremetricSpace ℓ ℓ'
@@ -49,7 +57,7 @@ module _ (ℓ ℓ' : Level) where
   ⋆IdR     PrSpacesᴸ = λ _ → L≡ refl
   ⋆Assoc   PrSpacesᴸ = λ _ _ _ → L≡ refl
   isSetHom PrSpacesᴸ {y = N} =
-    isSetΣSndProp (isSet→ (N .snd .isSetM)) (flip (isPropIsLipschitz _) _)
+    isSetΣSndProp (isSet→ (N .snd .is-set)) (flip (isPropIsLipschitz _) _)
 
   PrSpacesⁿ : Category (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
   ob       PrSpacesⁿ = PremetricSpace ℓ ℓ'
@@ -60,7 +68,7 @@ module _ (ℓ ℓ' : Level) where
   ⋆IdR     PrSpacesⁿ = λ _ → NE≡ refl
   ⋆Assoc   PrSpacesⁿ = λ _ _ _ → NE≡ refl
   isSetHom PrSpacesⁿ {y = N} =
-    isSetΣSndProp (isSet→ (N .snd .isSetM)) (flip (isPropIsNonExpansive _) _)
+    isSetΣSndProp (isSet→ (N .snd .is-set)) (flip (isPropIsNonExpansive _) _)
 
   PrSpacesᴵ : Category (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
   ob       PrSpacesᴵ = PremetricSpace ℓ ℓ'
@@ -71,7 +79,7 @@ module _ (ℓ ℓ' : Level) where
   ⋆IdR     PrSpacesᴵ = λ _ → Isometry≡ refl
   ⋆Assoc   PrSpacesᴵ = λ _ _ _ → Isometry≡ refl
   isSetHom PrSpacesᴵ {y = N} =
-    isSetΣSndProp (isSet→ (N .snd .isSetM)) (flip (isPropIsIsometry _) _)
+    isSetΣSndProp (isSet→ (N .snd .is-set)) (flip (isPropIsIsometry _) _)
 
 module _ {ℓ ℓ'} {M N : PremetricSpace ℓ ℓ'} where
   open Cat.isIso
@@ -193,3 +201,45 @@ isUnivalent.univ isUnivalentPrSpacesᴵ M N =
   precomposesToId→Equiv pathToIso _
     (funExt (CatIso≡ _ _ ∘ Isometry≡ ∘ λ _ → transportRefl _))
     (snd (CatIsoᴵ≃Isometric≃ ∙ₑ PremetricSIP M N))
+
+open BinProduct
+
+BinProductsPrSpaceⁿ : BinProducts (PrSpacesⁿ ℓ ℓ')
+binProdOb  (BinProductsPrSpaceⁿ M N) = M ×PrSp N
+binProdPr₁ (BinProductsPrSpaceⁿ M N) = π₁ⁿ
+binProdPr₂ (BinProductsPrSpaceⁿ M N) = π₂ⁿ
+fst (univProp (BinProductsPrSpaceⁿ M N) f g) = ⟨ f , g ⟩ⁿ , NE≡ refl , NE≡ refl
+snd (univProp (BinProductsPrSpaceⁿ M N) f g) = λ (h , π₁∘h≡f , π₂∘h≡g) →
+  Σ≡Prop (λ _ → isProp× (isSetHom _ _) (isSetHom _ _)) $
+    NE≡ λ i z → sym π₁∘h≡f i .fst z , sym π₂∘h≡g i .fst z
+  where open Category (PrSpacesⁿ _ _)
+
+BinProductsPrSpaceᴸ : BinProducts (PrSpacesᴸ ℓ ℓ')
+binProdOb  (BinProductsPrSpaceᴸ M N) = M ×PrSp N
+binProdPr₁ (BinProductsPrSpaceᴸ M N) = π₁ᴸ
+binProdPr₂ (BinProductsPrSpaceᴸ M N) = π₂ᴸ
+fst (univProp (BinProductsPrSpaceᴸ M N) f g) = ⟨ f , g ⟩ᴸ , L≡ refl , L≡ refl
+snd (univProp (BinProductsPrSpaceᴸ M N) f g) = λ (h , π₁∘h≡f , π₂∘h≡g) →
+  Σ≡Prop (λ _ → isProp× (isSetHom _ _) (isSetHom _ _)) $
+    L≡ λ i z → sym π₁∘h≡f i .fst z , sym π₂∘h≡g i .fst z
+  where open Category (PrSpacesᴸ _ _)
+
+BinProductsPrSpaceᵘᶜ : BinProducts (PrSpacesᵘᶜ ℓ ℓ')
+binProdOb  (BinProductsPrSpaceᵘᶜ M N) = M ×PrSp N
+binProdPr₁ (BinProductsPrSpaceᵘᶜ M N) = π₁ᵘᶜ
+binProdPr₂ (BinProductsPrSpaceᵘᶜ M N) = π₂ᵘᶜ
+fst (univProp (BinProductsPrSpaceᵘᶜ M N) f g) = ⟨ f , g ⟩ᵘᶜ , UC≡ refl , UC≡ refl
+snd (univProp (BinProductsPrSpaceᵘᶜ M N) f g) = λ (h , π₁∘h≡f , π₂∘h≡g) →
+  Σ≡Prop (λ _ → isProp× (isSetHom _ _) (isSetHom _ _)) $
+    UC≡ λ i z → sym π₁∘h≡f i .fst z , sym π₂∘h≡g i .fst z
+  where open Category (PrSpacesᵘᶜ _ _)
+
+BinProductsPrSpaceᶜ : BinProducts (PrSpacesᶜ ℓ ℓ')
+binProdOb  (BinProductsPrSpaceᶜ M N) = M ×PrSp N
+binProdPr₁ (BinProductsPrSpaceᶜ M N) = π₁ᶜ
+binProdPr₂ (BinProductsPrSpaceᶜ M N) = π₂ᶜ
+fst (univProp (BinProductsPrSpaceᶜ M N) f g) = ⟨ f , g ⟩ᶜ , C≡ refl , C≡ refl
+snd (univProp (BinProductsPrSpaceᶜ M N) f g) = λ (h , π₁∘h≡f , π₂∘h≡g) →
+  Σ≡Prop (λ _ → isProp× (isSetHom _ _) (isSetHom _ _)) $
+    C≡ λ i z → sym π₁∘h≡f i .fst z , sym π₂∘h≡g i .fst z
+  where open Category (PrSpacesᶜ _ _)
