@@ -78,6 +78,9 @@ module _ (F' : OrderedField ℓ ℓ') where
     ·CancelL< : ∀ x y z → 0f < z → z · x < z · y → x < y
     ·CancelL< x y z 0<z = ·CancelR< x y z 0<z ∘ subst2 _<_ (·Comm _ _) (·Comm _ _)
 
+    <·→/< : ∀ (x y z : F) ⦃ _ : y # 0f ⦄ → 0f < y → x < y · z → x / y < z
+    <·→/< x y z 0<y = ·CancelL< _ z y 0<y ∘ subst (_< _) (sym (divideMultiply' x y))
+
     0<→⁻¹Flip< : (x y : F) ⦃ _ : x # 0f ⦄ ⦃ _ : y # 0f ⦄ → 0f < x → x < y → y ⁻¹ < x ⁻¹
     0<→⁻¹Flip< x y 0<x x<y = ·CancelL< _ _ (x · y)
       (subst (_< _) (0LeftAnnihilates y) (·MonoR< _ _ _ (is-trans< _ _ _ 0<x x<y) 0<x))
@@ -145,6 +148,12 @@ module _ (F' : OrderedField ℓ ℓ') where
 
     <→1<₊/₊ : ∀ x y → x <₊ y → 1₊ <₊ y ₊/₊ x
     <→1<₊/₊ x y = ·CancelR< _ _ _ (snd x) ∘ subst2 _<_ (sym (·IdL _)) (sym (₊/₊· y x))
+
+    <·→/₊< : ∀ x y z → x < ⟨ y ⟩₊ · z → x /₊ y < z
+    <·→/₊< x y z = <·→/< x ⟨ y ⟩₊ z (snd y)
+
+    <·₊→₊/₊< : ∀ x y z → x <₊ y ·₊ z → x ₊/₊ y <₊ z
+    <·₊→₊/₊< x y z = <·→/₊< ⟨ x ⟩₊ y ⟨ z ⟩₊
 
     ₊^-⁻¹₊ : ∀ x n → ⟨ (x ⁻¹₊) ₊^ n ⟩₊ ≡ ⟨ (x ₊^ n) ⁻¹₊ ⟩₊
     ₊^-⁻¹₊ x n = ^-⁻¹ ⟨ x ⟩₊ n
