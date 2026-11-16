@@ -1,5 +1,5 @@
 -- universe⁰ is closed under the codes for the basic sets and the type formers,
--- using the that lift-V⁰ commutes with each of them
+-- using that lift-V⁰ commutes with each of them
 
 {-# OPTIONS --lossy-unification #-}
 
