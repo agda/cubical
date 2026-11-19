@@ -262,6 +262,10 @@ module _ where
       ... | ℤ.eq ad≡cb = ⊥.rec (¬a≡b (eq/ (a , b) (c , d) ad≡cb))
       ... | ℤ.gt cb<ad = inr (inj cb<ad)
 
+  isInv→#0 : (x y : ℚ) → x ℚ.· y ≡ 1 → x # 0
+  isInv→#0 x y xy≡1 = inequalityImplies# x 0
+    λ x≡0 → ℚ.0≢1-ℚ $ sym $ sym xy≡1 ∙∙ congL ℚ._·_ x≡0 ∙∙ ℚ.·AnnihilL y
+
   isWeaklyLinear< : isWeaklyLinear _<_
   isWeaklyLinear< =
     elimProp3 {P = λ a b c → a < b → (a < c) ⊔′ (c < b)}

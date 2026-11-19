@@ -11,7 +11,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
 
-open import Cubical.Algebra.CommRing.Base
+open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.OrderedCommRing.Base
 
 open import Cubical.Data.Sigma
@@ -20,7 +20,7 @@ open import Cubical.Reflection.RecordEquiv
 
 private
   variable
-    ℓ ℓ' ℓ<≤ ℓ<≤' : Level
+    ℓ ℓ' ℓ'' ℓ<≤ ℓ<≤' ℓ<≤'' : Level
 
 record IsOrderedCommRingHom {A : Type ℓ} {B : Type ℓ'}
   (R : OrderedCommRingStr ℓ<≤ A)
@@ -375,3 +375,62 @@ module _ {R : OrderedCommRing ℓ ℓ<≤} {S : OrderedCommRing ℓ' ℓ<≤'} (
     makeIsOrderedCommRingEquiv : IsOrderedCommRingEquiv (str R) e (str S)
     makeIsOrderedCommRingEquiv = makeIsOrderedCommRingEquivFromIsMono
       (makeIsOrderedCommRingMono p1 p+ p· p< p<⁻)
+
+module _ where
+  open IsOrderedCommRingHom
+  open IsOrderedCommRingMono
+
+  idOCRHom : (R : OrderedCommRing ℓ ℓ<≤) → OrderedCommRingHom R R
+  fst (idOCRHom R) = idfun ⟨ R ⟩
+  snd (idOCRHom R) = isOCRHomId where
+    isOCRHomId : IsOrderedCommRingHom _ _ _
+    isOCRHomId .isCommRingHom = snd (idCommRingHom (OrderedCommRing→CommRing R))
+    isOCRHomId .pres≤         = λ _ _ → idfun _
+    isOCRHomId .reflect<      = λ _ _ → idfun _
+
+  idOCRMono : (R : OrderedCommRing ℓ ℓ<≤) → OrderedCommRingMono R R
+  fst (idOCRMono R) = idfun ⟨ R ⟩
+  snd (idOCRMono R) = isOCRMonoId where
+    isOCRMonoId : IsOrderedCommRingMono _ _ _
+    isOCRMonoId .isOrderedCommRingHom = snd (idOCRHom R)
+    isOCRMonoId .pres< = λ _ _ → idfun _
+
+  module _
+    {R : OrderedCommRing ℓ ℓ<≤}
+    {S : OrderedCommRing ℓ' ℓ<≤'}
+    {T : OrderedCommRing ℓ'' ℓ<≤''}
+    where
+
+    private
+      module R = OrderedCommRingStr (snd R)
+      module S = OrderedCommRingStr (snd S)
+      module T = OrderedCommRingStr (snd T)
+
+    compOCRHom :
+      OrderedCommRingHom R S → OrderedCommRingHom S T → OrderedCommRingHom R T
+    fst (compOCRHom f g) = fst g ∘ fst f
+    snd (compOCRHom f g) = isOCRHomComp where
+      module f = IsOrderedCommRingHom (snd f)
+      module g = IsOrderedCommRingHom (snd g)
+
+      isOCRHomComp : IsOrderedCommRingHom _ _ _
+      isOCRHomComp .isCommRingHom =
+        snd ((_ , g.isCommRingHom) ∘cr (_ , f.isCommRingHom))
+      isOCRHomComp .pres≤         = λ _ _ → g.pres≤ _ _ ∘ f.pres≤ _ _
+      isOCRHomComp .reflect<      = λ _ _ → f.reflect< _ _ ∘ g.reflect< _ _
+
+    _∘ocr_ = flip compOCRHom
+
+    compOCRMono :
+      OrderedCommRingMono R S → OrderedCommRingMono S T → OrderedCommRingMono R T
+    fst (compOCRMono f g) = fst g ∘ fst f
+    snd (compOCRMono f g) = isOCRMonoComp where
+      module f = IsOrderedCommRingMono (snd f)
+      module g = IsOrderedCommRingMono (snd g)
+
+      isOCRMonoComp : IsOrderedCommRingMono _ _ _
+      isOCRMonoComp .isOrderedCommRingHom =
+        snd ((_ , g.isOrderedCommRingHom) ∘ocr ((_ , f.isOrderedCommRingHom)))
+      isOCRMonoComp .pres< = λ _ _ → g.pres< _ _ ∘ f.pres< _ _
+
+    _∘ocr↪_ = flip compOCRMono

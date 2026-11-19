@@ -69,6 +69,9 @@ path∼ x y = isoToPath (iso (eq/⁻¹ x y) (eq/ x y)
 discreteℚ : Discrete ℚ
 discreteℚ = discreteSetQuotients isEquivRel∼ (λ _ _ → discreteℤ _ _)
 
+-- ℚ is non-trivial
+0≢1-ℚ : ¬ Path ℚ [ 0 / 1 ] [ 1 / 1 ]
+0≢1-ℚ = 0≢1-ℤ ∘ (SetQuotient.effective (λ _ _ → isSetℤ _ _) isEquivRel∼ _ _)
 
 -- Natural number and negative integer literals for ℚ
 
