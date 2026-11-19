@@ -1,5 +1,5 @@
 -- This module provides set quotients of iterative sets, i.e. the elements of x /⁰ R are the
--- equivalence classes (Proposition 3.27 of https://doi.org/10.1017/S0960129524000288)
+-- equivalence classes (Proposition 31 of https://doi.org/10.1017/S0960129524000288)
 
 module Cubical.Data.IterativeSets.Quotient where
 
