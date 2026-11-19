@@ -232,24 +232,24 @@ lift-V⁰-ℕ⁰ {ℓ} ℓ' = sym (V⁰-ext ℕ⁰ (lift-V⁰ ℓ' ℕ⁰) e elt
 
 -- the universe is closed under the basic sets
 
-empty⁰-∈⁰-universe⁰ : empty⁰ {ℓ-suc ℓ} ∈⁰ universe⁰
+empty⁰-∈⁰-universe⁰ : empty⁰ ∈⁰ universe⁰ {ℓ}
 empty⁰-∈⁰-universe⁰ {ℓ} = empty⁰ , lift-V⁰-empty⁰ (ℓ-suc ℓ)
 
-unit⁰-∈⁰-universe⁰ : unit⁰ {ℓ-suc ℓ} ∈⁰ universe⁰
+unit⁰-∈⁰-universe⁰ : unit⁰ ∈⁰ universe⁰ {ℓ}
 unit⁰-∈⁰-universe⁰ {ℓ} = unit⁰ , lift-V⁰-unit⁰ (ℓ-suc ℓ)
 
-bool⁰-∈⁰-universe⁰ : bool⁰ {ℓ-suc ℓ} ∈⁰ universe⁰
+bool⁰-∈⁰-universe⁰ : bool⁰ ∈⁰ universe⁰ {ℓ}
 bool⁰-∈⁰-universe⁰ {ℓ} = bool⁰ , lift-V⁰-bool⁰ (ℓ-suc ℓ)
 
-ℕ⁰-∈⁰-universe⁰ : ℕ⁰ {ℓ-suc ℓ} ∈⁰ universe⁰
+ℕ⁰-∈⁰-universe⁰ : ℕ⁰ ∈⁰ universe⁰ {ℓ}
 ℕ⁰-∈⁰-universe⁰ {ℓ} = ℕ⁰ , lift-V⁰-ℕ⁰ (ℓ-suc ℓ)
 
-singleton⁰-∈⁰-universe⁰ : {X : V⁰ {ℓ-suc ℓ}} → X ∈⁰ universe⁰ → singleton⁰ X ∈⁰ universe⁰
+singleton⁰-∈⁰-universe⁰ : {X : V⁰} → X ∈⁰ universe⁰ {ℓ} → singleton⁰ X ∈⁰ universe⁰
 singleton⁰-∈⁰-universe⁰ {ℓ} (x , p) =
   singleton⁰ x , lift-V⁰-singleton⁰ (ℓ-suc ℓ) x ∙ cong singleton⁰ p
 
-unorderedPair⁰-∈⁰-universe⁰ : {X Y : V⁰ {ℓ-suc ℓ}} (X≢Y : ¬ (X ≡ Y))
-                            → X ∈⁰ universe⁰ → Y ∈⁰ universe⁰
+unorderedPair⁰-∈⁰-universe⁰ : {X Y : V⁰} (X≢Y : ¬ (X ≡ Y))
+                            → X ∈⁰ universe⁰ {ℓ} → Y ∈⁰ universe⁰
                             → unorderedPair⁰ X Y X≢Y ∈⁰ universe⁰
 unorderedPair⁰-∈⁰-universe⁰ {ℓ} X≢Y (x , p) (y , q) =
   unorderedPair⁰ x y x≢y , lift-V⁰-unorderedPair⁰ (ℓ-suc ℓ) x≢y ∙ unorderedPair⁰-cong p q
@@ -257,19 +257,19 @@ unorderedPair⁰-∈⁰-universe⁰ {ℓ} X≢Y (x , p) (y , q) =
     x≢y : ¬ (x ≡ y)
     x≢y r = X≢Y (sym p ∙ cong (lift-V⁰ (ℓ-suc ℓ)) r ∙ q)
 
-orderedPair⁰-∈⁰-universe⁰ : {X Y : V⁰ {ℓ-suc ℓ}}
-                          → X ∈⁰ universe⁰ → Y ∈⁰ universe⁰ → ⟨ X , Y ⟩⁰ ∈⁰ universe⁰
+orderedPair⁰-∈⁰-universe⁰ : {X Y : V⁰}
+                          → X ∈⁰ universe⁰ {ℓ} → Y ∈⁰ universe⁰ → ⟨ X , Y ⟩⁰ ∈⁰ universe⁰
 orderedPair⁰-∈⁰-universe⁰ {ℓ} (x , p) (y , q) =
   ⟨ x , y ⟩⁰ , lift-V⁰-orderedPair⁰ (ℓ-suc ℓ) x y ∙ cong₂ ⟨_,_⟩⁰ p q
 
 -- the universe is closed under the type formers
 
-+⁰-∈⁰-universe⁰ : {X Y : V⁰ {ℓ-suc ℓ}}
-                → X ∈⁰ universe⁰ → Y ∈⁰ universe⁰ → (X +⁰ Y) ∈⁰ universe⁰
++⁰-∈⁰-universe⁰ : {X Y : V⁰}
+                → X ∈⁰ universe⁰ {ℓ} → Y ∈⁰ universe⁰ → (X +⁰ Y) ∈⁰ universe⁰
 +⁰-∈⁰-universe⁰ {ℓ} (x , p) (y , q) = (x +⁰ y) , lift-V⁰-+⁰ (ℓ-suc ℓ) x y ∙ cong₂ _+⁰_ p q
 
-Σ⁰-∈⁰-universe⁰ : {X : V⁰ {ℓ-suc ℓ}} {Y : El⁰ X → V⁰ {ℓ-suc ℓ}}
-                → X ∈⁰ universe⁰ → ((a : El⁰ X) → Y a ∈⁰ universe⁰)
+Σ⁰-∈⁰-universe⁰ : {X : V⁰} {Y : El⁰ X → V⁰}
+                → X ∈⁰ universe⁰ {ℓ} → ((a : El⁰ X) → Y a ∈⁰ universe⁰)
                 → Σ⁰ X Y ∈⁰ universe⁰
 Σ⁰-∈⁰-universe⁰ {ℓ} {Y = Y} (x , p) = subst P p (base x) Y
   where
@@ -283,8 +283,8 @@ orderedPair⁰-∈⁰-universe⁰ {ℓ} (x , p) (y , q) =
       lift-V⁰-Σ⁰ (ℓ-suc ℓ) x (λ a → hY (lift a) .fst)
       ∙ cong (Σ⁰ (lift-V⁰ (ℓ-suc ℓ) x)) (funExt (λ a → hY a .snd))
 
-Π⁰-∈⁰-universe⁰ : {X : V⁰ {ℓ-suc ℓ}} {Y : El⁰ X → V⁰ {ℓ-suc ℓ}}
-                → X ∈⁰ universe⁰ → ((a : El⁰ X) → Y a ∈⁰ universe⁰)
+Π⁰-∈⁰-universe⁰ : {X : V⁰} {Y : El⁰ X → V⁰}
+                → X ∈⁰ universe⁰ {ℓ} → ((a : El⁰ X) → Y a ∈⁰ universe⁰)
                 → Π⁰ X Y ∈⁰ universe⁰
 Π⁰-∈⁰-universe⁰ {ℓ} {Y = Y} (x , p) = subst P p (base x) Y
   where
@@ -298,16 +298,16 @@ orderedPair⁰-∈⁰-universe⁰ {ℓ} (x , p) (y , q) =
       lift-V⁰-Π⁰ (ℓ-suc ℓ) x (λ a → hY (lift a) .fst)
       ∙ cong (Π⁰ (lift-V⁰ (ℓ-suc ℓ) x)) (funExt (λ a → hY a .snd))
 
-×⁰-∈⁰-universe⁰ : {X Y : V⁰ {ℓ-suc ℓ}}
-                → X ∈⁰ universe⁰ → Y ∈⁰ universe⁰ → (X ×⁰ Y) ∈⁰ universe⁰
+×⁰-∈⁰-universe⁰ : {X Y : V⁰}
+                → X ∈⁰ universe⁰ {ℓ} → Y ∈⁰ universe⁰ → (X ×⁰ Y) ∈⁰ universe⁰
 ×⁰-∈⁰-universe⁰ hX hY = Σ⁰-∈⁰-universe⁰ hX (λ _ → hY)
 
-→⁰-∈⁰-universe⁰ : {X Y : V⁰ {ℓ-suc ℓ}}
-                → X ∈⁰ universe⁰ → Y ∈⁰ universe⁰ → (X →⁰ Y) ∈⁰ universe⁰
+→⁰-∈⁰-universe⁰ : {X Y : V⁰}
+                → X ∈⁰ universe⁰ {ℓ} → Y ∈⁰ universe⁰ → (X →⁰ Y) ∈⁰ universe⁰
 →⁰-∈⁰-universe⁰ hX hY = Π⁰-∈⁰-universe⁰ hX (λ _ → hY)
 
-Id⁰-∈⁰-universe⁰ : {X : V⁰ {ℓ-suc ℓ}} (a b : El⁰ X)
-                 → X ∈⁰ universe⁰ → Id⁰ X a b ∈⁰ universe⁰
+Id⁰-∈⁰-universe⁰ : {X : V⁰} (a b : El⁰ X)
+                 → X ∈⁰ universe⁰ {ℓ} → Id⁰ X a b ∈⁰ universe⁰
 Id⁰-∈⁰-universe⁰ {ℓ} a b (x , p) = subst P p (base x) a b
   where
     P : V⁰ {ℓ-suc ℓ} → Type (ℓ-suc (ℓ-suc ℓ))
@@ -317,6 +317,6 @@ Id⁰-∈⁰-universe⁰ {ℓ} a b (x , p) = subst P p (base x) a b
     base x@(sup-∞ _ _ , _) a b =
       Id⁰ x (a .lower) (b .lower) , lift-V⁰-Id⁰ (ℓ-suc ℓ) x (a .lower) (b .lower)
 
-fiber⁰-∈⁰-universe⁰ : {X Y : V⁰ {ℓ-suc ℓ}} (f : El⁰ X → El⁰ Y) (b : El⁰ Y)
-                    → X ∈⁰ universe⁰ → Y ∈⁰ universe⁰ → fiber⁰ f b ∈⁰ universe⁰
+fiber⁰-∈⁰-universe⁰ : {X Y : V⁰} (f : El⁰ X → El⁰ Y) (b : El⁰ Y)
+                    → X ∈⁰ universe⁰ {ℓ} → Y ∈⁰ universe⁰ → fiber⁰ f b ∈⁰ universe⁰
 fiber⁰-∈⁰-universe⁰ f b hX hY = Σ⁰-∈⁰-universe⁰ hX (λ a → Id⁰-∈⁰-universe⁰ (f a) b hY)

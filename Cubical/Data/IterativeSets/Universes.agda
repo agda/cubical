@@ -77,5 +77,5 @@ universe⁰ {ℓ} = fromEmb (V⁰ {ℓ} , lift-V⁰ (ℓ-suc ℓ) , isEmbedding-
 El⁰universe⁰IsV⁰ : El⁰ (universe⁰ {ℓ}) ≡ V⁰ {ℓ}
 El⁰universe⁰IsV⁰ = refl
 
-∈universe⁰-≃ : {z : V⁰ {ℓ-suc ℓ}} → (z ∈⁰ universe⁰) ≃ fiber (lift-V⁰ {ℓ} (ℓ-suc ℓ)) z
+∈universe⁰-≃ : {z : V⁰} → (z ∈⁰ universe⁰ {ℓ}) ≃ fiber (lift-V⁰ {ℓ} (ℓ-suc ℓ)) z
 ∈universe⁰-≃ = idEquiv _
