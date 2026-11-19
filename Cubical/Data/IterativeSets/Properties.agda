@@ -1,4 +1,4 @@
--- This module provides Propositions 3.3 and 3.31 of https://doi.org/10.1017/S0960129524000288
+-- This module provides Propositions 18 and 34 of https://doi.org/10.1017/S0960129524000288
 -- i.e. the codes for a type are its embeddings into V⁰, and V⁰ is not univalent
 
 module Cubical.Data.IterativeSets.Properties where
