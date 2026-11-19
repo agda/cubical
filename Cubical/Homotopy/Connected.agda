@@ -11,6 +11,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Structure
 
 open import Cubical.Functions.Fibration
 open import Cubical.Functions.FunExtEquiv
@@ -33,13 +34,14 @@ open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1 hiding (elim)
 open import Cubical.HITs.Truncation as Trunc
   renaming (rec to trRec) hiding (elim)
+open import Cubical.HITs.PropositionalTruncation as PT using (∥_∥₁)
 
 open import Cubical.Homotopy.Loopspace
 
 private
   variable
     ℓ : Level
-    X₀ X₁ X₂ Y₀ Y₁ Y₂ : Type ℓ
+    A B X₀ X₁ X₂ Y₀ Y₁ Y₂ : Type ℓ
 
 -- Note that relative to most sources, this notation is off by +2
 isConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
@@ -88,21 +90,52 @@ private
   typeToFiber : ∀ {ℓ} (A : Type ℓ) → A ≡ fiber (λ (x : A) → tt) tt
   typeToFiber A = isoToPath (typeToFiberIso A)
 
+private
+  truncTypeToFiberIso : (n : HLevel) (X : Type ℓ) → Iso (∥ X ∥ n) (∥ fiber (λ x → tt) tt ∥ n)
+  truncTypeToFiberIso n X = mapCompIso {n = n} (typeToFiberIso X)
+
 isConnectedFun→isConnected : {X : Type ℓ} (n : HLevel)
   → isConnectedFun n (λ (_ : X) → tt) → isConnected n X
-isConnectedFun→isConnected n h =
-  subst (isConnected n) (sym (typeToFiber _)) (h tt)
+isConnectedFun→isConnected {X = X} zero _ = isConnectedZero X
+isConnectedFun→isConnected {X = X} n@(suc _) h =
+  isOfHLevelRetractFromIso 0 (truncTypeToFiberIso n X) is-contr-fiber
+  where
+    is-contr-fiber : isContr (∥ fiber (λ (_ : X) → tt) tt ∥ n)
+    is-contr-fiber = h tt
 
 isConnected→isConnectedFun : {X : Type ℓ} (n : HLevel)
   → isConnected n X → isConnectedFun n (λ (_ : X) → tt)
-isConnected→isConnectedFun n h = λ { tt → subst (isConnected n) (typeToFiber _) h }
+isConnected→isConnectedFun {X = X} zero h = isConnectedZero ∘ fiber {A = X} (λ _ → tt)
+isConnected→isConnectedFun {X = X} n@(suc _) h tt = isOfHLevelRetractFromIso 0 (invIso (truncTypeToFiberIso n X)) h
+
+-- Being a connected type is a proposition.
+isPropIsConnected : ∀ {n : ℕ} → isProp (isConnected n A)
+isPropIsConnected {A = A} {n = n} = isPropIsContr {A = hLevelTrunc n A}
+
+-- Being a connected function is a proposition.
+isPropIsConnectedFun : ∀ {n : HLevel} {f : A → B} → isProp (isConnectedFun n f)
+isPropIsConnectedFun = isPropΠ λ _ → isPropIsConnected
 
 isOfHLevelIsConnectedStable : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
   → isOfHLevel n (isConnected n A)
 isOfHLevelIsConnectedStable {A = A} zero =
   (tt* , (λ _ → refl)) , λ _ → refl
 isOfHLevelIsConnectedStable {A = A} (suc n) =
-  isProp→isOfHLevelSuc n isPropIsContr
+  isProp→isOfHLevelSuc n isPropIsConnected
+
+-- A k-connected k-type is contractible.
+isOfHLevel×isConnected→isContr : ∀ {ℓ} (k : HLevel)
+  → (A : Type ℓ)
+  → (isOfHLevel k A)
+  → (isConnected k A)
+  → isContr A
+isOfHLevel×isConnected→isContr zero A is-contr-A _ = is-contr-A
+isOfHLevel×isConnected→isContr (suc k) A is-trunc-A is-conn-A = is-contr-A where
+  universal-property-trunc : ∥ A ∥ suc k ≃ A
+  universal-property-trunc = truncIdempotent≃ (suc k) is-trunc-A
+
+  is-contr-A : isContr A
+  is-contr-A = isOfHLevelRespectEquiv 0 universal-property-trunc is-conn-A
 
 module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) where
   private
@@ -209,17 +242,74 @@ isOfHLevelPrecomposeConnected (suc k) n P f fConn t =
               f fConn
               (funExt⁻ (p₀ ∙∙ refl ∙∙ sym p₁)))))}
 
+-- A type A is n-connected if the map `λ b a → b : B → (A → B)` has a section for any n-type B.
+indMapHasSection→conType : ∀ {ℓ} {A : Type ℓ} (n : HLevel)
+                   → ((B : TypeOfHLevel ℓ n) → hasSection (λ (b : (fst B)) → λ (a : A) → b))
+                   → isConnected n A
+indMapHasSection→conType {A = A} zero _ = isConnectedZero A
+indMapHasSection→conType {A = A} (suc n) ind-map-has-section =
+  isConnectedFun→isConnected (suc n) is-conn-fun-const
+  where
+    module _ (P : Unit → TypeOfHLevel _ (suc n)) where
+      B' : Type _
+      B' = ⟨ P tt ⟩
+
+      has-section : hasSection λ (b : B') (a : A) → b
+      has-section = ind-map-has-section (P tt)
+
+      point : (A → B') → B'
+      point = has-section .fst
+
+      precomp-section : ((a : A) → B') → (b : Unit) → B'
+      precomp-section = (λ b (_ : Unit) → b) ∘ point
+
+      precomp-has-section : hasSection (λ s → s ∘ (λ (a : A) → tt))
+      precomp-has-section .fst = precomp-section
+      precomp-has-section .snd = has-section .snd
+
+    is-conn-fun-const : isConnectedFun (suc n) (λ (a : A) → tt)
+    is-conn-fun-const = elim.isConnectedPrecompose _ _ precomp-has-section
+
+-- Corollary: A is n-connected if the constant map `B → (A → B)` is an equivalence for any n-type B.
 indMapEquiv→conType : ∀ {ℓ} {A : Type ℓ} (n : HLevel)
                    → ((B : TypeOfHLevel ℓ n)
                       → isEquiv (λ (b : (fst B)) → λ (a : A) → b))
                    → isConnected n A
-indMapEquiv→conType {A = A} zero BEq = isContrUnit*
-indMapEquiv→conType {A = A} (suc n) BEq =
-  isOfHLevelRetractFromIso 0 (mapCompIso {n = (suc n)} (typeToFiberIso A))
-    (elim.isConnectedPrecompose (λ _ → tt) (suc n)
-                                (λ P → ((λ a _ → a) ∘ invIsEq (BEq (P tt)))
-                               , λ a → equiv-proof (BEq (P tt)) a .fst .snd)
-                                tt)
+indMapEquiv→conType n is-equiv-ind = indMapHasSection→conType n λ B → _ , secIsEq (is-equiv-ind B)
+
+conType→indMapEquiv : ∀ (n : HLevel)
+  → isConnected n A
+  → isOfHLevel n B
+  → isEquiv (λ (b : B) → λ (a : A) → b)
+conType→indMapEquiv {A = A} {B = B} 0 _ is-contr-B = isoToIsEquiv (isContr→Iso' is-contr-B (isContrΠ λ _ → is-contr-B) (λ b a → b))
+conType→indMapEquiv {A = A} {B = B} n@(suc _) conn-A is-of-hlevel-B = subst isEquiv fun-equiv≡const (equivIsEquiv fun-equiv) where
+  fun-equiv : B ≃ (A → B)
+  fun-equiv =
+    B ≃⟨ invEquiv $ Π-contractDom conn-A ⟩
+    (∥ A ∥ n → B) ≃⟨ isoToEquiv (univTrunc n {B = B , is-of-hlevel-B}) ⟩
+    (A → B) ■
+
+  fun-equiv≡const : equivFun fun-equiv ≡ (λ b a → b)
+  fun-equiv≡const = funExt λ b → funExt λ a → transportRefl b
+
+-- Corollary 7.5.9 of the HoTT book:
+-- A type is n-connected if and only every map into an n-type is constant.
+indMapEquiv≃conType : ∀ {ℓ} {A : Type ℓ} (n : HLevel)
+  → ((B : TypeOfHLevel ℓ n) → isEquiv (λ (b : ⟨ B ⟩) → λ (a : A) → b))
+      ≃
+    isConnected n A
+indMapEquiv≃conType n = propBiimpl→Equiv
+  (isPropΠ λ B → isPropIsEquiv (λ b a → b))
+  (isPropIsConnected)
+  (indMapEquiv→conType n)
+  (λ conn-A (B , is-of-hlevel-B) → conType→indMapEquiv n conn-A is-of-hlevel-B)
+
+isConnected→constEquiv : ∀ (n : HLevel)
+  → isConnected n A
+  → isOfHLevel n B
+  → B ≃ (A → B)
+isConnected→constEquiv n conn-A is-of-hlevel-B .fst = λ b a → b
+isConnected→constEquiv n conn-A is-of-hlevel-B .snd = conType→indMapEquiv n conn-A is-of-hlevel-B
 
 isConnectedComp : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
      (f : B → C) (g : A → B) (n : ℕ)
@@ -369,6 +459,17 @@ isConnectedCong' {x = x} n f conf p =
                     → doubleCompPath-filler (sym p) (cong f q) p i))
     (isConnectedCong n f conf)
 
+isConnectedΣ : ∀ {ℓA ℓB} {A : Type ℓA} {B : A → Type ℓB} (k : HLevel)
+  → isConnected k A
+  → (∀ a → isConnected k (B a))
+  → isConnected k (Σ A B)
+isConnectedΣ {A = A} {B = B} k is-conn-A is-conn-B = isOfHLevelRespectEquiv 0 (invEquiv contr-equiv) is-conn-A where
+  contr-equiv : ∥ Σ A B ∥ k ≃ ∥ A ∥ k
+  contr-equiv =
+    ∥ Σ[ a ∈ A ] B a ∥ k ≃⟨ truncOfΣEquiv k ⟩
+    ∥ Σ[ a ∈ A ] (∥ B a ∥ k) ∥ k ≃⟨ mapCompEquiv (Σ-contractSnd is-conn-B) ⟩
+    ∥ A ∥ k ■
+
 isConnectedΩ→ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
   → (f : A →∙ B)
   → isConnectedFun (suc n) (fst f)
@@ -437,6 +538,153 @@ isConnectedRetractFromIso n e =
     (Iso.fun e)
     (Iso.inv e)
     (Iso.ret e)
+
+-- Any (k+1)-connected type is (merely) inhabited.
+isConnectedSuc→merelyInh : ∀ (k : HLevel) → isConnected (suc k) A → ∥ A ∥₁
+isConnectedSuc→merelyInh {A = A} k conn-A = propTruncTrunc1Iso .Iso.inv (is-1-conn-A .fst) where
+  is-1-conn-A : isConnected 1 A
+  is-1-conn-A = isConnectedSubtr' k 1 conn-A
+
+-- A pointed type with k-connected path space is (k+1)-connected.
+pointed×isConnectedPath→isConnectedSuc : ∀ (k : HLevel) → (a : A) → ((a b : A) → isConnected k (a ≡ b)) → isConnected (suc k) A
+pointed×isConnectedPath→isConnectedSuc {A = A} k a conn-path = conn where
+  is-of-hlevel-trunc : isOfHLevel (2 + k) (∥ A ∥ (suc k))
+  is-of-hlevel-trunc = isOfHLevelSuc (1 + k) (isOfHLevelTrunc (1 + k))
+
+  conn : isConnected (suc k) A
+  conn .fst = ∣ a ∣ₕ
+  conn .snd = Trunc.elim
+    (λ y → is-of-hlevel-trunc ∣ a ∣ y)
+    (λ b → PathIdTruncIso k .Iso.inv (conn-path a b .fst))
+
+-- A merely inhabited type with k-connected path space is (k+1)-connected.
+merelyInh×isConnectedPath→isConnectedSuc : ∀ (k : HLevel)
+  → ∥ A ∥₁
+  → ((a b : A) → isConnected k (a ≡ b))
+  → isConnected (suc k) A
+merelyInh×isConnectedPath→isConnectedSuc k = PT.rec
+  (isProp→ isPropIsConnected)
+  (pointed×isConnectedPath→isConnectedSuc k)
+
+-- The converse: A (k+1)-connected type is merely inhabited and has k-connected paths.
+isConnectedSuc→merelyInh×isConnectedPath : (k : HLevel)
+  → isConnected (suc k) A
+  → ∥ A ∥₁ × ((a b : A) → isConnected k (a ≡ b))
+isConnectedSuc→merelyInh×isConnectedPath k suc-conn-A .fst = isConnectedSuc→merelyInh k suc-conn-A
+isConnectedSuc→merelyInh×isConnectedPath k suc-conn-A .snd = isConnectedPath k suc-conn-A
+
+-- HoTT book, Exercise 7.6:
+-- A type is k+1-connected whenever it is merely inhabited and has k-connected paths.
+merelyInh×isConnectedPath≃isConnectedSuc : ∀ {ℓ} {A : Type ℓ} (k : HLevel)
+  → (∥ A ∥₁ × ((a b : A) → isConnected k (a ≡ b))) ≃ (isConnected (suc k) A)
+merelyInh×isConnectedPath≃isConnectedSuc k = propBiimpl→Equiv
+  (isProp× PT.isPropPropTrunc $ isPropΠ2 λ a b → isPropIsConnected)
+  isPropIsConnected
+  (uncurry $ merelyInh×isConnectedPath→isConnectedSuc k)
+  (isConnectedSuc→merelyInh×isConnectedPath k)
+
+module Pointed {ℓ} (A : Pointed ℓ) where
+  private
+    a₀ : ⟨ A ⟩
+    a₀ = str A
+
+  -- A pointed type has k-connected path space iff it is (k+1)-connected.
+  isConnectedPath≃isConnectedSuc : ∀ (k : HLevel)
+    → ((a b : ⟨ A ⟩) → isConnected k (a ≡ b)) ≃ (isConnected (suc k) ⟨ A ⟩)
+  isConnectedPath≃isConnectedSuc k = propBiimpl→Equiv
+    (isPropΠ2 λ a b → isPropIsConnected)
+    (isPropIsConnected)
+    (pointed×isConnectedPath→isConnectedSuc k a₀)
+    (isConnectedPath k)
+
+  merePathToBase→isConnectedPath : (∀ x → ∥ x ≡ a₀ ∥₁) → ∀ (a b : ⟨ A ⟩) → isConnected 1 (a ≡ b)
+  merePathToBase→isConnectedPath to-base a b =
+    inhProp→isContr (propTruncTrunc1Iso .Iso.fun mere-path) (isOfHLevelTrunc 1) where
+    open import Cubical.HITs.PropositionalTruncation.Monad
+
+    mere-path : ∥ a ≡ b ∥₁
+    mere-path = do
+      a≡a₀ ← to-base a
+      b≡a₀ ← to-base b
+      return (a≡a₀ ∙ sym b≡a₀)
+
+  isConnectedPath→merePathToBase : (∀ (a b : ⟨ A ⟩) → isConnected 1 (a ≡ b)) → (∀ x → ∥ x ≡ a₀ ∥₁)
+  isConnectedPath→merePathToBase is-conn-path x = isConnectedSuc→merelyInh 0 (is-conn-path x a₀)
+
+  merePathToBase≃isConnectedPath : (∀ x → ∥ x ≡ a₀ ∥₁) ≃ (∀ (a b : ⟨ A ⟩) → isConnected 1 (a ≡ b))
+  merePathToBase≃isConnectedPath = propBiimpl→Equiv
+    (isPropΠ λ x → PT.isPropPropTrunc)
+    (isPropΠ2 λ a b → isPropIsConnected)
+    merePathToBase→isConnectedPath
+    isConnectedPath→merePathToBase
+
+  -- In a pointed type, each point merely has a path to the base point iff the type is 2-connected.
+  merePathToBase≃is2Connected : (∀ x → ∥ x ≡ a₀ ∥₁) ≃ isConnected 2 ⟨ A ⟩
+  merePathToBase≃is2Connected = merePathToBase≃isConnectedPath ∙ₑ isConnectedPath≃isConnectedSuc 1
+
+-- If a type is (k+1)-inhabited and has k-connected paths, then it is (k+1)-connected.
+inhTruncSuc×isConnectedPath→isConnectedSuc : ∀ (k : HLevel)
+  → ∥ A ∥ (suc k)
+  → ((a b : A) → isConnected k (a ≡ b))
+  → isConnected (suc k) A
+inhTruncSuc×isConnectedPath→isConnectedSuc k = Trunc.rec
+  (isOfHLevelΠ (suc k) λ _ → isProp→isOfHLevelSuc k isPropIsConnected)
+  (pointed×isConnectedPath→isConnectedSuc k)
+
+-- A type is (k+1)-inhabited and has k-connected paths if and only if it is (k+1)-connected.
+--
+-- Note that the left hand side of the equivalence is not a priori a proposition.
+inhTruncSuc×isConnectedPath≃isConnectedSuc : ∀ (k : HLevel)
+  → (∥ A ∥ (suc k) × ((a b : A) → isConnected k (a ≡ b))) ≃ (isConnected (suc k) A)
+inhTruncSuc×isConnectedPath≃isConnectedSuc {A = A} k = equiv where
+  -- The left-to-right implication has been established above.
+  impl : (∥ A ∥ (suc k) × ((a b : A) → isConnected k (a ≡ b))) → (isConnected (suc k) A)
+  impl = uncurry (inhTruncSuc×isConnectedPath→isConnectedSuc k)
+
+  -- Even though ∥ A ∥ₖ₊₁ is not a proposition in general, we know that this is the
+  -- case whenever A is (k+1)-connected.  We can thus prove that fibers of the above
+  -- implication are contractible, since we get to assume (k+1)-connectedness of A:
+  is-contr-fiber-impl : (suc-conn-A : isConnected (suc k) A) → isContr (fiber impl suc-conn-A)
+  is-contr-fiber-impl suc-conn-A = goal where
+    -- (1). By assumption, having k-connected paths is an inhabited proposition, i.e. contractible.
+    is-contr-is-conn-path : isContr (∀ (a b : A) → isConnected k (a ≡ b))
+    is-contr-is-conn-path = inhProp→isContr (isConnectedPath k suc-conn-A) (isPropΠ2 λ _ _ → isPropIsConnected)
+
+    -- (2). Being (k+1)-connected means that ∥ A ∥ₖ₊₁ is contractible.
+    -- Together with (1), it follows that the domain of the implication is contractible.
+    is-contr-trunc×conn-path : isContr (∥ A ∥ (suc k) × ∀ (a b : A) → isConnected k (a ≡ b))
+    is-contr-trunc×conn-path = isContrΣ suc-conn-A λ _ → is-contr-is-conn-path
+
+    -- (3). The codomain is a proposition, so its paths are contractible.  As such, there is a unique homotopy
+    -- connecting points in the image of `impl` to our assumption of connectedness of A.
+    is-contr-impl-conn-path : (trunc×conn : (∥ A ∥ suc k) × (∀ a b → isConnected k (a ≡ b))) → isContr (impl trunc×conn ≡ suc-conn-A)
+    is-contr-impl-conn-path trunc×conn = isProp→isContrPath isPropIsConnected (impl trunc×conn) suc-conn-A
+
+    -- Together, (2) and (3) say that `impl` has contractible fibers.
+    goal : isContr (fiber impl suc-conn-A)
+    goal = isContrΣ is-contr-trunc×conn-path is-contr-impl-conn-path
+
+  equiv : _ ≃ _
+  equiv .fst = impl
+  equiv .snd .equiv-proof = is-contr-fiber-impl
+
+isConnectedSuc→inhTruncSuc×isConnectedPath : ∀ (k : HLevel)
+  → (isConnected (suc k) A)
+  → (∥ A ∥ (suc k) × ((a b : A) → isConnected k (a ≡ b)))
+isConnectedSuc→inhTruncSuc×isConnectedPath k = invEq $ inhTruncSuc×isConnectedPath≃isConnectedSuc k
+
+-- In a (k+2)-connected space, all loop spaces are merely equivalent
+isConnected→mereLoopSpaceEquiv : (k : HLevel) → isConnected (2 + k) A → (a b : A) → ∥ (a ≡ a) ≃ (b ≡ b) ∥₁
+isConnected→mereLoopSpaceEquiv {A = A} k conn-A a b = do
+  -- Paths in A are (k+1)-connected:
+  let conn-path-A : (a b : A) → isConnected (suc k) (a ≡ b)
+      conn-path-A = isConnectedPath (suc k) conn-A
+  -- Therefore, there merely exists a path a ≡ b:
+  a≡b ← isConnectedSuc→merelyInh k (conn-path-A a b)
+  -- Conjugation by this path induces an equivance of loop spaces
+  return (conjugatePathEquiv a≡b)
+  where
+    open import Cubical.HITs.PropositionalTruncation.Monad
 
 isConnectedPoint : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isConnected (suc n) A
