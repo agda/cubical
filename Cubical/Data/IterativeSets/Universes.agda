@@ -1,5 +1,5 @@
 -- The code for the universe of ℓ-small iterative sets, i.e. the set of all raised ℓ-small sets
--- (Proposition 3.29 of https://doi.org/10.1017/S0960129524000288)
+-- (Proposition 33 of https://doi.org/10.1017/S0960129524000288)
 -- `opaque` is used in two places, as unfolding these proofs is very expensive
 
 module Cubical.Data.IterativeSets.Universes where
