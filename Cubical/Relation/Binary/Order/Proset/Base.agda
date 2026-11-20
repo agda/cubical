@@ -77,7 +77,7 @@ record IsProsetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
     pres≲ : (x y : A) → x M.≲ y ≃ equivFun e x N.≲ equivFun e y
 
 
-ProsetEquiv : (M : Proset ℓ₀ ℓ₀') (M : Proset ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
+ProsetEquiv : (M : Proset ℓ₀ ℓ₀') (N : Proset ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
 ProsetEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsProsetEquiv (M .snd) e (N .snd)
 
 isPropIsProset : {A : Type ℓ} (_≲_ : A → A → Type ℓ') → isProp (IsProset _≲_)

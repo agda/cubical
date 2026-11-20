@@ -80,7 +80,7 @@ record IsQuosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
     pres< : (x y : A) → x M.< y ≃ equivFun e x N.< equivFun e y
 
 
-QuosetEquiv : (M : Quoset ℓ₀ ℓ₀') (M : Quoset ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
+QuosetEquiv : (M : Quoset ℓ₀ ℓ₀') (N : Quoset ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
 QuosetEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsQuosetEquiv (M .snd) e (N .snd)
 
 isPropIsQuoset : {A : Type ℓ} (_<_ : A → A → Type ℓ') → isProp (IsQuoset _<_)
