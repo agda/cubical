@@ -48,7 +48,7 @@ rInv c = congFunct fun _ _
     lemma₁ : (p : x₀ ≡ x₀) (q : y₀ ≡ y₀)
       → cong (_, y₀) p ∙ cong (x₀ ,_) q ≡ cong₂ _,_ p q
     lemma₁ p q = cong ΣPathP (ΣPathP
-      (congFunct fst (cong (_, y₀) p) _ ∙ sym (rUnit _) ,
+      (sym (rUnit _) ,
       congFunct snd (cong (_, y₀) p) _ ∙ sym (lUnit _)))
 
     lemma₂ : cong fun

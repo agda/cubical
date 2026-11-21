@@ -130,9 +130,7 @@ module πCofibFinSphereBouquetMap (n k m : ℕ)
      (uncurry (ST.elim (λ _ → isSetΠ λ _ → isProp→isSet squash₁)
       (λ a → J (λ x _ → isInIm (fib→A (suc n)) x)
         ∣ (π'∘∙Hom (suc n) α∘inr .fst ∣ a ∣₂)
-        , (cong ∣_∣₂ (ΣPathP (refl , (sym (rUnit _)
-        ∙ cong-∙ fst (ΣPathP ((cong (fst α) (snd a))
-                    , λ i j → push (snd a i) (~ j))) _)))) ∣₁))) p)
+        , (cong ∣_∣₂ (ΣPathP (refl , sym (rUnit _)))) ∣₁))) p)
 
   Kerinr⊂Imα : (x : _) → isInKer (π'∘∙Hom (suc n) inr') x
     → isInIm (π'∘∙Hom (suc n) α) x
@@ -143,8 +141,7 @@ module πCofibFinSphereBouquetMap (n k m : ℕ)
             (ST.elim (λ _ → isSetΠ λ _ → isProp→isSet squash₁)
               (λ g s → ∣ ∣ g ∣₂ , cong ∣_∣₂
                 (ΣPathP (refl
-                  , sym (cong-∙ fst (ΣPathP ((cong (fst α) (snd g))
-                    , (λ i j → push (snd g i) (~ j)))) _) ∙ rUnit _))
+                  , rUnit _))
                 ∙ cong (fib→A (suc n) .fst) s ∣₁))) (isSurjective-π'∘∙Hom f))))
       (Ker-A→B⊂Im-fib→A (suc n) x p)
 

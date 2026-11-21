@@ -225,8 +225,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
        f-hom-fst : (m : ℕ) (g h : G) → cong fst (f m (g +G h)) ≡ cong fst (f m g ∙ f m h)
        f-hom-fst m g h =
             (λ i j x → EM→ΩEM+1 _ (·₀-distr g h (suc m) x i) j)
-         ∙∙ (λ i j x → EM→ΩEM+1-hom _ (·₀ g (suc m) x) (·₀ h (suc m) x) i j)
-         ∙∙ sym (cong-∙ fst (f m g) (f m h))
+          ∙ (λ i j x → EM→ΩEM+1-hom _ (·₀ g (suc m) x) (·₀ h (suc m) x) i j)
 
        f-hom : (m : ℕ) (g h : G) → f m (g +G h) ≡ f m g ∙ f m h
        f-hom m g h = →∙Homogeneous≡Path (isHomogeneousEM _) _ _ (f-hom-fst m g h)

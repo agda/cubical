@@ -131,7 +131,7 @@ snd (ret (ΩFibreIso f) p i j) k =
                     → (p q : (typ (Ω (fiber (fst f) (pt B) , (pt A) , snd f))))
                     → fst (fun (ΩFibreIso f) (p ∙ q))
                     ≡ fst (fun (ΩFibreIso f) p) ∙ fst (fun (ΩFibreIso f) q)
-ΩFibreIsopres∙fst f p q = cong-∙ fst p q
+ΩFibreIsopres∙fst f p q = refl
 
 ΩFibreIso⁻pres∙snd : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
                     (f : A →∙ B) (p q : typ (Ω (Ω B)))
@@ -149,11 +149,7 @@ snd (ret (ΩFibreIso f) p i j) k =
       → inv (ΩFibreIso (f , refl)) (refl , (sym (rUnit refl) ∙ p ∙ q))
        ≡ inv (ΩFibreIso (f , refl)) (refl , sym (rUnit refl) ∙ p)
        ∙ inv (ΩFibreIso (f , refl)) (refl , sym (rUnit refl) ∙ q)
-  fst (ind f p q i j) =
-    (rUnit refl
-     ∙ sym (cong-∙ fst
-      (inv (ΩFibreIso (f , refl)) (refl , sym (rUnit refl) ∙ p))
-      (inv (ΩFibreIso (f , refl)) (refl , sym (rUnit refl) ∙ q)))) i j
+  fst (ind f p q i j) = rUnit (refl {x = pt A}) i j
   snd (ind f p q i j) k =
     hcomp (λ r
       → λ {(i = i0) → ←∙∙lCancel-refl-refl (p ∙ q) (~ r) j k --
@@ -182,31 +178,8 @@ snd (ret (ΩFibreIso f) p i j) k =
                    ; (k = i1) → f (snd A)})
                (q k (~ i ∧ j))))
     where
-    P = (inv (ΩFibreIso (f , refl)) (refl , sym (rUnit refl) ∙ p))
-    Q = (inv (ΩFibreIso (f , refl)) (refl , sym (rUnit refl) ∙ q))
-
     main : I → I → I → fst B
-    main r i j =
-      hcomp (λ k → λ {(i = i0) → f (snd A)
-                     ; (i = i1) → f (fst (compPath-filler P Q (r ∨ ~ k) j))
-                     ; (j = i0) → f (snd A)
-                     ; (j = i1) → f (snd A)
-                     ; (r = i0) → f (fst (compPath-filler P Q (i ∧ ~ k) j))
-                     ; (r = i1) → f ((rUnit refl ∙ sym (cong-∙ fst P Q)) i j)})
-            (hcomp (λ k → λ {(i = i0) → f (rUnit (λ _ → pt A) (~ k ∧ r) j)
-                     ; (i = i1) → f (fst ((P ∙ Q) j))
-                     ; (j = i0) → f (snd A)
-                     ; (j = i1) → f (snd A)
-                     ; (r = i0) → f (fst (compPath-filler P Q i j))
-                     ; (r = i1) → f ((compPath-filler' (rUnit refl)
-                                     (sym (cong-∙ fst P Q)) k) i j)})
-             (hcomp (λ k → λ {(i = i0) → f (rUnit (λ _ → pt A) (k ∧ r) j)
-                     ; (i = i1) → f (fst (compPath-filler P Q k j))
-                     ; (j = i0) → f (snd A)
-                     ; (j = i1) → f (snd A)
-                     ; (r = i0) → f (fst (compPath-filler P Q (i ∧ k) j))
-                     ; (r = i1) → f ((cong-∙∙-filler fst refl P Q) k (~ i) j)})
-                    (f (snd A))))
+    main r i j = f (rUnit (refl {x = pt A}) (r ∧ i) j)
 
 ΩFibreIso∙ : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B)
             → Iso.fun (ΩFibreIso f) refl ≡ (refl , (∙∙lCancel (snd f)))
